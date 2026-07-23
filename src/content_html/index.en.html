@@ -1,0 +1,333 @@
+
+
+<header class="hero">
+  <div class="wrap">
+    <div class="hero-grid">
+      <div>
+        <div class="badge-line"><b>Building the verification layer</b> · every future claim will link to raw evidence</div>
+        <h1>Answers no classical computer can reach.<br><em>One function call away.</em></h1>
+        <p class="lede">Rosetta puts verified quantum algorithms behind a single API. Your problem, your data, <strong>your baseline as the referee</strong> — billing aligned to results, hardware and physics handled.</p>
+        <div class="hero-cta">
+          <a class="btn btn-solid" href="#counter">Get early access →</a>
+          <a class="btn btn-ghost" href="#you">Is this me?</a>
+        </div>
+        <div class="quickstart">
+          <code id="qs"># at launch: pip install rosetta && rosetta scan ./my_problem.json</code>
+          <button type="button" id="copyBtn" aria-label="Copy quickstart command">copy</button>
+        </div>
+      </div>
+      <div class="clockchart" aria-label="Wall-clock comparison: same problem, classical solver versus Rosetta">
+        <div class="cc-title"><span>Illustrative · the shape of the win</span><b>portfolio, 1,200 assets</b></div>
+        <div class="cc-row classical">
+          <div class="cc-lbl"><span class="who">Overnight batch (classical)</span><span class="t">14h 20m</span></div>
+          <div class="cc-bar"><div class="cc-fill" data-w="96%"></div></div>
+        </div>
+        <div class="cc-row rosetta">
+          <div class="cc-lbl"><span class="who">qlib.solve() · RQ-0012</span><span class="t">22 min ✓</span></div>
+          <div class="cc-bar"><div class="cc-fill" data-w="4%"></div></div>
+        </div>
+        <div class="cc-note">how we'll measure · <b>your baseline is always the referee</b></div>
+        <a class="cc-evid" href="/ledger#RQ-0012">→ inspect this entry in the Evidence Ledger</a>
+      </div>
+    </div>
+
+    <div class="numbers" aria-label="The state of the field, today">
+      <div class="nm"><div class="v">450+</div><div class="k">quantum algorithms published — a handful independently proven</div></div>
+      <div class="nm"><div class="v">$4.9B</div><div class="k">VC into quantum in 2025 — ~6% to the software layer</div></div>
+      <div class="nm"><div class="v">Sept 15</div><div class="k">Phase I deadline, Global Quantum + AI Challenge — where evidence, not claims, gets judged</div></div>
+      <div class="nm"><div class="v">2028</div><div class="k">U.S. DOE target for fault-tolerant quantum</div></div>
+    </div>
+    <div class="numbers-note">The field's numbers, verified — not ours yet. What we're building, and where we are, is below.</div>
+  </div>
+</header>
+
+<section class="mission">
+  <div class="wrap">
+    <div class="eyebrow">Operating thesis · no narrative</div>
+    <h2 class="mission-h">The field has a measurement problem. We run the measurements.</h2>
+    <div style="font-family:'IBM Plex Mono',monospace;font-size:0.85rem;line-height:1.9;color:#B5AC99;background:#100E0B;border:1px solid #3D372F;border-radius:4px;padding:1.4rem 1.6rem;margin-top:1.2rem">
+      <div><span style="color:#6E675C">01</span>&nbsp;&nbsp;450+ published quantum algorithms. Independently verified: a handful. <span style="color:#F4EEDF">The gap is the market.</span></div>
+      <div><span style="color:#6E675C">02</span>&nbsp;&nbsp;Claims are stated in qubits and asymptotics. Decisions require verdicts on <span style="color:#F4EEDF">instances, against your baseline</span>.</div>
+      <div><span style="color:#6E675C">03</span>&nbsp;&nbsp;Protocol <span style="color:#D9B87A">juez-v1</span>: same instance · same time budget · exact-optimum referee where tractable · fixed seeds · frozen versions.</div>
+      <div><span style="color:#6E675C">04</span>&nbsp;&nbsp;Every run: sha256-sealed · triple-copy (GitHub / Codeberg / D1) · OTS-anchored · <span style="color:#F4EEDF">negative results published</span>.</div>
+      <div><span style="color:#6E675C">05</span>&nbsp;&nbsp;Measured state @ 2026-07-23: classical wins at n=12 and n=16 (gaps <span style="color:#4DC4B5">42.8%</span> / <span style="color:#4DC4B5">20.7%</span>, seed 42). n_seeds=1 — variance unmeasured. <a href="/blog" style="color:#4DC4B5">→ full record</a></div>
+    </div>
+  </div>
+</section>
+
+
+<section id="what">
+  <div class="wrap">
+    <div class="section-eyebrow">What Rosetta actually is</div>
+    <h2>The referee that becomes the toll road.</h2>
+    <p class="prose">Not a framework you learn. Not a cloud you rent. Not a repo that hosts everyone's code without an opinion. Rosetta is <strong>a knowledge layer delivered as an API</strong> — the verified answers to the world's big problem-classes, one function call away.</p>
+    <div class="identity">
+      <div class="idcol now">
+        <div class="tag">Today · mostly Moody's</div>
+        <h3>We test the recipes others published.</h3>
+        <p>A "recipe" is real code — a parametrized quantum algorithm. We run each one against the best classical solver on the same problem, and publish who won, with the raw proof.</p>
+        <p><strong>We sell verified trust in an industry drowning in hype.</strong> Nobody neutral does this — so the verdict itself is the product.</p>
+      </div>
+      <div class="idcol later">
+        <div class="tag">Over time · a growing ARM</div>
+        <h3>The recipes that win become a licensed library.</h3>
+        <p>You call one function. Our proprietary engine turns your problem into the winning circuit and returns the answer. We collect a royalty on every advantaged run.</p>
+        <p><strong>We don't build machines or frameworks.</strong> We own the verified answers that run on everyone else's hardware.</p>
+      </div>
+    </div>
+    <div class="notrow" aria-label="What Rosetta is not">
+      <div class="notchip">Not <s>GitHub</s> → <b>a verdict, not a shelf</b></div>
+      <div class="notchip">Not <s>React</s> → <b>the answer, not the tools</b></div>
+      <div class="notchip">Not <s>Cloudflare</s> → <b>the intelligence, not the compute</b></div>
+    </div>
+    <div class="id-foot">Closest comparables: <b>Moody's + ARM</b> — the arbiter that also owns what it arbitrates.</div>
+  </div>
+</section>
+
+<section id="how">
+  <div class="wrap">
+    <div class="section-eyebrow">How you consume it · no physics, no qubits</div>
+    <h2>A "problem" is a whole class — not one case.</h2>
+    <p class="prose">You don't bring "the Bank X portfolio." You bring a <strong>problem-class</strong> — portfolio optimization, molecular binding, fleet routing — the way the Pythagorean theorem answers every right triangle, not one. A few dozen classes cover ~80% of the value.</p>
+    <div class="pipe">
+      <div class="pipestep s1">
+        <div class="pnum">1 · Your question</div>
+        <p>"Optimize this portfolio." Your data, your current method as the baseline.</p>
+      </div>
+      <div class="pipestep brain">
+        <div class="pnum">2 · Our brain</div>
+        <p>Our proprietary recipe turns it into the winning quantum circuit. This is the scarce, protected part.</p>
+      </div>
+      <div class="pipestep s3">
+        <div class="pnum">3 · Others' hardware</div>
+        <p>Runs on IBM / Amazon's machine. We rent it and pass it through at cost — zero markup.</p>
+      </div>
+      <div class="pipestep s4">
+        <div class="pnum">4 · Your answer</div>
+        <p>Returned with proof it beat your baseline. You pay only when it wins.</p>
+      </div>
+    </div>
+    <p class="pipe-foot">The quantum computing never runs on our servers. <span class="hl">The intelligence does</span> — and that's what we protect and charge for. You never touch a qubit or learn any physics.</p>
+  </div>
+</section>
+
+<section id="you">
+  <div class="wrap">
+    <div class="section-eyebrow">Is this you?</div>
+    <h2>Built for the person who owns the solver — not the person who owns the budget.</h2>
+    <div class="personas">
+      <div class="persona">
+        <div class="p-head">
+          <div class="p-icon"><svg viewBox="0 0 24 24"><path d="M3 20h18M5 20V10m5 10V4m5 16v-8m5 8V7"/></svg></div>
+          <div><div class="p-role">Quant researcher</div><div class="p-org">Hedge fund · Asset manager · Bank</div></div>
+        </div>
+        <div class="p-pain">My rebalancing optimizer runs overnight and still approximates past 800 assets. Risk committee is at 9am. And the CIO asked about quantum again.</div>
+        <div class="p-click">Your click: <code>qlib.scan(sample)</code> before standup. <b>Verdict with evidence by lunch</b> — either a faster frontier, or written proof quantum isn't there yet for your book. Both answers make your 9am.</div>
+      </div>
+      <div class="persona">
+        <div class="p-head">
+          <div class="p-icon"><svg viewBox="0 0 24 24"><circle cx="6" cy="6" r="2.4"/><circle cx="18" cy="6" r="2.4"/><circle cx="12" cy="17" r="2.4"/><path d="M7.8 7.4l3 7.2M16.2 7.4l-3 7.2M8.4 6h7.2"/></svg></div>
+          <div><div class="p-role">Computational chemist</div><div class="p-org">Biotech · Pharma R&amp;D</div></div>
+        </div>
+        <div class="p-pain">Week 4 of a 9-week virtual screen. The wet lab is idling, burn rate isn't, and every week of compute is a week the competition doesn't wait.</div>
+        <div class="p-click">Your click: batch your candidates through <code>RQ-0007</code>, keep your scoring function as the baseline. <b>Only ranked sets that beat it get billed.</b> Expense it as cloud spend — because that's what it is.</div>
+      </div>
+      <div class="persona">
+        <div class="p-head">
+          <div class="p-icon"><svg viewBox="0 0 24 24"><circle cx="5" cy="19" r="2.2"/><circle cx="19" cy="5" r="2.2"/><path d="M6.6 17.4C10 14 9 10.5 12 9s5.4-1.6 5.9-2.4M5 19h9a4 4 0 0 0 0-8"/></svg></div>
+          <div><div class="p-role">Optimization / OR lead</div><div class="p-org">Mining · Logistics · Energy</div></div>
+        </div>
+        <div class="p-pain">The exact model times out, so we ship the heuristic and quietly eat the 5–8% gap. Every day. At our scale that gap has a comma in it.</div>
+        <div class="p-click">Your click: point <code>qlib.solve()</code> at yesterday's instance with your heuristic as baseline. <b>The gap it closes is measured in your money, on your data.</b> Losing runs are free, so the test costs exactly nothing.</div>
+      </div>
+    </div>
+    <p class="persona-foot">If you read one of those and felt seen: <b>the console below is already yours.</b> No form between you and it.</p>
+
+    <div class="whytoday">
+      <div class="wt"><div class="k">Why you can buy it today</div><p><b>It's cloud spend, not a vendor deal.</b> Card on file, usage line-item, spend caps. Procurement meets Rosetta after it's already saved you a quarter — with the evidence attached.</p></div>
+      <div class="wt"><div class="k">Why it's zero-risk to try</div><p><b>Your baseline is the referee.</b> Every solve is checked against the method you run today, on your data. We lose, you pay nothing — and you still get the comparison report.</p></div>
+      <div class="wt"><div class="k">Why it's career upside</div><p><b>You become the answer to the quantum question.</b> Next time leadership asks, you reply with a verdict, raw evidence and a cost line — produced by you, before anyone else in your industry.</p></div>
+    </div>
+  </div>
+</section>
+
+<section id="counter">
+  <div class="wrap">
+    <div class="section-eyebrow">The console · a preview of the experience</div>
+    <h2>Pick your problem. Size it. See how a solve will work.</h2>
+    <p class="prose">This is a preview of the console you'll get after signup. Choose a recipe, set your scale, and see how a solve will work on public benchmark data. <strong>This is a simulation of the product experience — not a live service yet.</strong></p>
+    <div class="console">
+      <div class="console-head">
+        <span>rosetta console · sandbox mode</span>
+        <span class="live">● no signup required to taste</span>
+      </div>
+      <div class="console-body">
+        <div class="console-left">
+          <div class="c-label">1 · Choose a recipe</div>
+          <div class="flavors" id="flavors"></div>
+          <div class="slider-row">
+            <div class="slider-head"><span id="scaleLabel">Problem size</span><span class="val" id="scaleVal"></span></div>
+            <input type="range" id="scale" min="0" max="100" value="40" aria-label="Problem size">
+          </div>
+          <div class="slider-row">
+            <div class="slider-head"><span>Solves per month</span><span class="val" id="freqVal"></span></div>
+            <input type="range" id="freq" min="0" max="100" value="35" aria-label="Solves per month">
+          </div>
+        </div>
+        <div class="console-right">
+          <div class="c-label">2 · Live pricing</div>
+          <div class="estimate">
+            <div class="est-row"><span>Hardware (pass-through)</span><span class="v" id="eHw">—</span></div>
+            <div class="est-row"><span>Royalty / advantaged solve</span><span class="v" id="eRoy">—</span></div>
+            <div class="est-row"><span>Billed-win rate <span id="eAdvRate"></span></span><span class="v">only wins billed</span></div>
+            <div class="est-row total"><span>Est. monthly</span><span class="v" id="eMonth">—</span></div>
+          </div>
+          <p class="est-note">Every request is first screened <b>free on simulators</b> — only high-confidence runs are routed to paid hardware. On a losing run you still get <b>your baseline's answer + the comparison report, free</b>. Hardware at cloud list price, zero markup. Typical turnaround: sandbox instant · hardware minutes-to-hours by queue. Live rates: <span style="font-family:'IBM Plex Mono',monospace">GET /v1/pricing</span></p>
+          <div class="c-label" style="margin-top:22px">3 · Taste one</div>
+          <button class="btn btn-solid taste-btn" id="tasteBtn">▶ See a sandbox solve (preview)</button>
+          <div class="sandbox" id="sandbox"><span class="ln-dim">// Preview of a sandbox solve — simulator-backed, on public benchmark data.</span></div>
+          <div class="lead-cta">
+            <a class="btn btn-solid" href="#pricing">Get early access →</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="evidence">
+  <div class="wrap">
+    <div class="section-eyebrow">The evidence ledger · how it will work</div>
+    <h2>Every claim we make will be backed by raw data you can inspect.</h2>
+    <p class="prose">This is the core of what we're building. Every advantage claim will resolve to a stable URL with the circuit, parameters, raw shots and replication reports. When a recipe improves — or degrades — on new hardware, its status updates publicly. <strong>The promise: verify anything yourself, in minutes, before spending a dollar.</strong></p>
+    <div class="evi-preview-tag">Illustrative preview — these are the entry types the ledger will hold, not measured results yet</div>
+    <div class="evi-table">
+      <div class="evi-row head"><span>ID</span><span>Recipe</span><span class="hide-m">Vertical</span><span>Advantage</span><span class="hide-m">Evidence</span></div>
+      <div class="evi-row"><span class="rid">RQ-0007</span><span class="evi-name">Molecular ground-state search</span><span class="hide-m">Pharma</span><span class="adv">pending</span><a class="hide-m lnk" href="/ledger#RQ-0007">open →</a></div>
+      <div class="evi-row"><span class="rid">RQ-0012</span><span class="evi-name">Constrained portfolio compression</span><span class="hide-m">Finance</span><span class="adv">measuring…</span><a class="hide-m lnk" href="/ledger#RQ-0012">view detail →</a></div>
+      <div class="evi-row"><span class="rid">RQ-0019</span><span class="evi-name">Fleet routing under uncertainty</span><span class="hide-m">Mining</span><span class="adv">in test</span><a class="hide-m lnk" href="/ledger#RQ-0019">open →</a></div>
+      <div class="evi-row"><span class="rid">RQ-0033</span><span class="evi-name">Grid balancing with renewables</span><span class="hide-m">Energy</span><span class="adv">queued</span><a class="hide-m lnk" href="/ledger#RQ-0033">open →</a></div>
+    </div>
+    <p class="evi-foot">The full board of recipes lives in the ledger. Each verdict will ship as a <b>reproducible notebook</b>: clone it, re-measure. <strong>Our first public verdicts are in progress; negative results get published too.</strong></p>
+    <a class="btn btn-solid" style="margin-top:22px" href="/ledger">Open the Evidence Ledger →</a>
+  </div>
+</section>
+
+<section id="pricing">
+  <div class="wrap">
+    <div class="section-eyebrow">Pricing · how it will work, published up front</div>
+    <h2>Three meters. No quotes. No "contact us."</h2>
+    <p class="prose" style="margin-bottom:12px">This is our intended pricing, derived from real hardware costs — published now so there are no surprises later. These numbers describe the model, not a live meter yet.</p>
+    <div class="pricing">
+      <div class="price-card">
+        <span class="pname">Sandbox</span>
+        <div class="pval">Free <span>at launch</span></div>
+        <ul>
+          <li>Simulator-backed solves on public benchmark data</li>
+          <li>Full console, docs, and the public evidence ledger</li>
+          <li>Automated feasibility scans on your sample data</li>
+        </ul>
+        <a class="btn btn-ghost" href="#counter">Preview the console</a>
+      </div>
+      <div class="price-card featured">
+        <span class="pname">Pay-as-you-go</span>
+        <div class="pval">$75–$1,800+ <span>per advantaged solve</span></div>
+        <ul>
+          <li>Rate by recipe & hardware class — <strong>to be published at /v1/pricing</strong></li>
+          <li>Free pre-flight screening on simulators; only high-confidence runs hit paid hardware</li>
+          <li>Hardware pass-through at cloud list price, zero markup</li>
+          <li><strong>Losing runs: $0</strong> — verified against your own baseline</li>
+          <li>Spend caps, budgets, usage alerts by design</li>
+        </ul>
+        <a class="btn btn-solid" href="#counter">Get early access →</a>
+      </div>
+      <div class="price-card">
+        <span class="pname">Discovery Run</span>
+        <div class="pval">from $2,500 <span>per run · planned</span></div>
+        <ul>
+          <li>Problem not in the library? We'll launch the agent swarm on it</li>
+          <li>Priced per compute, estimated upfront in the console</li>
+          <li>Automated verdict — if it wins, <strong>the recipe ships to you first</strong></li>
+        </ul>
+        <a class="btn btn-ghost" href="#counter">Register interest</a>
+      </div>
+    </div>
+    <div class="sec-row">
+      <span><span class="dot">●</span> Designed so raw data can stay in your perimeter — formulated client-side where possible</span>
+      <span><span class="dot">●</span> SOC 2 and a published DPA are on our roadmap before general availability</span>
+    </div>
+  </div>
+</section>
+
+<section id="docs">
+  <div class="wrap">
+    <div class="section-eyebrow">Did an AI send you here?</div>
+    <h2>Good — everything here is machine-verifiable. Check us however you like.</h2>
+    <div class="machine">
+      <div class="chatmock">
+        <div class="cm-u"><b>A quant, to their copilot:</b> "My portfolio optimizer chokes past 800 assets. Is quantum actually usable for this today?"</div>
+        <div class="cm-a">For constrained portfolio optimization at that scale, the most direct path is Rosetta Quantum's <b>RQ-0012</b> recipe — designed to be callable via API, verified against your own baseline with public evidence, and billed only on runs that beat your current solver, so testing carries no downside.
+          <span class="src">↳ sources: rosettaquantum.com/evidence/RQ-0012 · docs.rosettaquantum.com/llms.txt</span>
+        </div>
+      </div>
+      <div class="machine-points">
+        <p style="font-size:15.5px;color:var(--papyrus-dim)">Copilots recommend us because everything here is <strong style="color:var(--papyrus)">machine-verifiable</strong> — and you can check it too, right now:</p>
+        <div class="mp"><span class="tick">✓</span><span><b>Ask your own assistant</b> to fetch our evidence pages and audit any claim on this site against the raw data. It can.</span></div>
+        <div class="mp"><span class="tick">✓</span><span><b>Docs are parseable and runnable</b> — llms.txt, structured schemas, deterministic examples your agent can execute in the sandbox on your behalf.</span></div>
+        <div class="mp"><span class="tick">✓</span><span><b>MCP-native API:</b> connect Rosetta to your copilot and let it scan feasibility, estimate cost and run sandbox solves for you — the fastest evaluation is the one you delegate.</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="faq">
+  <div class="wrap">
+    <div class="section-eyebrow">The questions that matter</div>
+    <h2>Answered without spin.</h2>
+    <div class="faq">
+      <details open>
+        <summary>So it's consumed like a cloud API — card, key, usage billing?</summary>
+        <p>Exactly. Account, card, key, dashboard, spend caps. The meter isn't tokens — it's the <strong>advantaged solve</strong>: one answered problem that measurably beat your baseline. Hardware passes through at list price; the royalty rides on top, only on wins.</p>
+      </details>
+      <details>
+        <summary>What if quantum doesn't beat my current solution?</summary>
+        <p>The scan tells you upfront — a machine-generated verdict, in writing, with data. In production, every solve is checked against your own baseline before billing: <strong>if we don't win, you don't pay — and you keep the comparison report.</strong> Our incentive is mathematically identical to yours.</p>
+      </details>
+      <details>
+        <summary>How fast is a solve, really?</summary>
+        <p>Sandbox solves are near-instant (simulator-backed). Hardware solves depend on QPU queues: <strong>typically minutes to a few hours</strong>; the console shows live queue estimates per platform before you commit, and routing always picks the best price/queue trade-off available.</p>
+      </details>
+      <details>
+        <summary>What if my problem isn't in the library?</summary>
+        <p>Launch a <strong>Discovery Run</strong> from the console: the agent swarm attacks your problem class, priced per compute with an upfront estimate. If it finds a winning recipe, it ships to your account first. <strong>Demand writes the roadmap.</strong></p>
+      </details>
+      <details>
+        <summary>How does support work?</summary>
+        <p>Async and fast: in-console assistant with full context of your runs, evidence-linked docs, and engineers behind it for the hard cases. Most issues resolve in minutes because <strong>every run is fully inspectable</strong> — yours and ours.</p>
+      </details>
+      <details>
+        <summary>How is our data handled?</summary>
+        <p>Our design goal is that your data is formulated into circuit parameters client-side where possible — so raw business data doesn't need to leave your perimeter for most problem classes. Jobs run through major clouds' quantum services, and every run will be auditable via its evidence URL. <strong>SOC 2 and a published DPA are on our roadmap before general availability</strong> — we'll say when they're done, not before.</p>
+      </details>
+      <details>
+        <summary>Quantum advantage is largely unproven today. Isn't that a problem?</summary>
+        <p>Correct — and it's our business, not our bug. We never claim advantage that isn't there. We <strong>measure where it doesn't hold, publish the negative verdicts everyone else buries, and map the crossover point where it will</strong>. If quantum arrives late, the referee's archive only grows more valuable. If it arrives on time, we own the map of where it landed first.</p>
+      </details>
+      <details>
+        <summary>Couldn't anyone build this? Why you?</summary>
+        <p>Technically, yes — the code is glue, the libraries are open. But everyone <em>capable</em> is structurally blocked: academia gets no tenure for maintaining a verification ledger; vendors can't publish negatives on the industry they sell (Google <em>pays</em> XPRIZE precisely so a neutral third party exists); consultancies monetize the ambiguity a public ledger destroys. <strong>Our edge is a proven veracity methodology already in production, a near-zero cost structure that outlasts funded startups, and a compounding dataset of verified negatives nobody can buy.</strong></p>
+      </details>
+      <details>
+        <summary>Where does this go — what's the endgame?</summary>
+        <p>The ARM model for the quantum era: invisible, small by design, a royalty on every useful computation — on every machine, forever. We start as ~90% authority (verdicts, evidence, subscription) and grow the licensing arm as recipes cross the advantage line. <strong>Founded a decade early, on purpose</strong> — because the archive compounds while we wait.</p>
+      </details>
+    </div>
+  </div>
+</section>
+
+<div class="world">
+  <blockquote>"Every solve will make the library smarter. Every Discovery Run will add a recipe the whole industry can one day license. <em>You're early to a compounding asset.</em>"</blockquote>
+  <a class="btn btn-solid" href="#counter">Get early access →</a>
+  <div style="margin-top:26px;font-family:'IBM Plex Mono',monospace;font-size:12.5px;color:var(--papyrus-dim)">Why we exist, and why we're starting a decade early → <span style="color:var(--gold)">manifesto coming soon</span></div>
+</div>
+

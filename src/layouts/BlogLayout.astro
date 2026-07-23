@@ -1,0 +1,27 @@
+---
+import '../styles/global.css';
+import Nav from '../components/Nav.astro';
+import Footer from '../components/Footer.astro';
+import LeadModal from '../components/LeadModal.astro';
+const { title, description, lang = 'en', altUrl = '/es/', jsonld } = Astro.props;
+const altLang = lang==='en' ? 'es' : 'en';
+---
+<!doctype html>
+<html lang={lang}>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{title}</title>
+  <meta name="description" content={description} />
+  <link rel="alternate" hreflang={altLang} href={altUrl} />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Marcellus&family=Instrument+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  {jsonld && <script type="application/ld+json" set:html={JSON.stringify(jsonld)} />}
+</head>
+<body>
+  <Nav lang={lang} altUrl={altUrl} />
+  <slot />
+  <Footer lang={lang} />
+  <LeadModal lang={lang} />
+</body>
+</html>

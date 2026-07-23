@@ -1,0 +1,9 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import content from '../content_html/clases.en.html?raw';
+import css from '../styles/pages/clases.css?raw';
+import refs from '../content_html/clases.refs.json';
+---
+<BaseLayout title={'Problem Classes — Rosetta Q'} description={'The map of quantum problem classes by tier: proven, plausible, contested, or debunked.'} lang="en" altUrl="/es/clases" pageCss={css} scripts={refs}>
+  <Fragment set:html={content} />
+</BaseLayout>

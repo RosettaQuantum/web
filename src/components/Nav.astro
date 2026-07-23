@@ -1,0 +1,33 @@
+---
+const { lang = 'en', altUrl = '/es/' } = Astro.props;
+const es = lang === 'es';
+const L = es
+  ? { what:'Qué es', ev:'Evidencia', cls:'Clases', blog:'Blog', cta:'Acceso anticipado →' }
+  : { what:'What it is', ev:'Evidence', cls:'Problem classes', blog:'Blog', cta:'Get early access →' };
+const home = es ? '/es/' : '/';
+const p = (path) => es ? `/es${path}` : path;
+---
+<nav>
+  <div class="wrap nav-inner">
+    <a href={home} class="wordmark" aria-label="Rosetta Quantum home">
+      <svg class="slabmark" viewBox="0 0 40 40" aria-hidden="true">
+        <rect x="12.5" y="3.5" width="15" height="27" rx="7.5" fill="none" stroke="#C9A86A" stroke-width="1.8"/>
+        <line x1="13.5" y1="35" x2="26.5" y2="35" stroke="#C9A86A" stroke-width="1.8" stroke-linecap="round"/>
+        <circle cx="20" cy="12.5" r="3" fill="none" stroke="#EAE3D2" stroke-width="1.5"/>
+        <circle cx="20" cy="21.5" r="3" fill="#3FA99C"/>
+      </svg>
+      <span class="wm-text">ROSETTA <span class="q">Q</span><span class="wm-sub">the algorithm foundry</span></span>
+    </a>
+    <div class="nav-links">
+      <a class="hide-s" href={`${home}#what`}>{L.what}</a>
+      <a class="hide-s" href={p('/ledger')}>{L.ev}</a>
+      <a class="hide-s" href={p('/clases')}>{L.cls}</a>
+      <a href={p('/blog')} style="color:var(--faience)">{L.blog}</a>
+      <span class="lang-toggle" role="group" aria-label="Language">
+        <a href={lang==='en' ? '#' : altUrl} class={lang==='en' ? 'on' : ''}>EN</a>
+        <a href={lang==='es' ? '#' : altUrl} class={lang==='es' ? 'on' : ''}>ES</a>
+      </span>
+      <a href={`${home}#counter`} class="nav-cta">{L.cta}</a>
+    </div>
+  </div>
+</nav>

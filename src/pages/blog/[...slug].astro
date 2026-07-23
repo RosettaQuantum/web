@@ -1,0 +1,44 @@
+---
+import { getCollection, render } from 'astro:content';
+import BlogLayout from '../../layouts/BlogLayout.astro';
+
+export async function getStaticPaths() {
+  const posts = await getCollection('blog', ({ data }) => !data.draft);
+  return posts.map(post => ({ params: { slug: post.id }, props: { post, posts } }));
+}
+
+const { post, posts } = Astro.props;
+const { Content } = await render(post);
+const d = post.data;
+const other = posts.find(p => p.data.slugBase === d.slugBase && p.data.lang !== d.lang);
+const jsonld = {
+  "@context": "https://schema.org",
+  "@type": "QAPage",
+  "mainEntity": {
+    "@type": "Question",
+    "name": d.title,
+    "acceptedAnswer": { "@type": "Answer", "text": d.tldr }
+  },
+  "datePublished": d.date,
+  "publisher": { "@type": "Organization", "name": "Rosetta Quantum" }
+};
+const strings = d.lang === 'es'
+  ? { state:'Estado a', sources:'Fuentes', other:'Read in English' }
+  : { state:'State as of', sources:'Sources', other:'Leer en español' };
+---
+<BlogLayout title={d.title} description={d.tldr} lang={d.lang} altUrl={other ? `/blog/${other.id}` : (d.lang==='es' ? '/' : '/es/')} jsonld={jsonld}>
+  <article class="article wrap">
+    <div class="kicker">Pillar {d.pillar} · {strings.state} {d.date}</div>
+    <h1>{d.title}</h1>
+    <div class="tldr">{d.tldr}</div>
+    {other && <a class="hreflang" href={`/blog/${other.id}`}>→ {strings.other}</a>}
+    <div class="valid">{strings.state}: {d.date}</div>
+    <div class="body"><Content /></div>
+    {d.sources.length > 0 && (
+      <div class="sources">
+        <div>{strings.sources}:</div>
+        {d.sources.map(s => <div>· {s.url ? <a href={s.url} style="color:var(--faience)">{s.label}</a> : s.label}</div>)}
+      </div>
+    )}
+  </article>
+</BlogLayout>

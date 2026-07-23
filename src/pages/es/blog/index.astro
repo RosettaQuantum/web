@@ -1,0 +1,27 @@
+---
+import { getCollection } from 'astro:content';
+import BlogLayout from '../../../layouts/BlogLayout.astro';
+const posts = (await getCollection('blog', ({ data }) => !data.draft && data.lang === 'es'))
+  .sort((a, b) => b.data.date.localeCompare(a.data.date));
+const pillars = { A:'Estado por clase de problema', B:'Diccionario canónico', C:'Explicadores de claims', D:'Metodología', E:'Mapas y datos', F:'Decisor' };
+---
+<BlogLayout title="Blog — Rosetta Q" description="Respuestas educativas, con fuentes y fechadas sobre el estado honesto de la computación cuántica, por clase de problema. Muestra, no afirmes." lang="es" altUrl="/blog">
+  <header class="blog-hero">
+    <div class="wrap">
+      <div class="eyebrow">La Biblioteca · educativa, neutral, fechada</div>
+      <h1>Qué es real en quantum — por clase de problema, con fuentes.</h1>
+      <p>Cada entrada responde una pregunta que un decisor (o un copilot) realmente hace, con la respuesta citable arriba, fecha de validez y las fuentes abajo. Publicamos también los negativos.</p>
+    </div>
+  </header>
+  <section class="wrap">
+    <div class="post-list">
+      {posts.map(p => (
+        <a class="post-item" href={`/blog/${p.id}`}>
+          <div class="q">{p.data.title}</div>
+          <div class="meta">{p.data.date} · {p.data.lang.toUpperCase()} · Pilar {p.data.pillar} — {pillars[p.data.pillar]}</div>
+          <div class="tl">{p.data.tldr}</div>
+        </a>
+      ))}
+    </div>
+  </section>
+</BlogLayout>

@@ -1,0 +1,22 @@
+---
+const { lang = 'en' } = Astro.props;
+const es = lang === 'es';
+const home = es ? '/es/' : '/';
+const p = (path) => es ? `/es${path}` : path;
+const L = es
+  ? { home:'Inicio', ev:'Evidence ledger', cls:'Clases', blog:'Blog', line:'Publicamos mediciones, no promesas.' }
+  : { home:'Home', ev:'Evidence ledger', cls:'Problem classes', blog:'Blog', line:'We publish measurements, not promises.' };
+---
+<footer>
+  <div class="wrap foot-inner">
+    <span class="wm-text">ROSETTA <span class="q">Q</span></span>
+    <div class="foot-links">
+      <a href={home}>{L.home}</a>
+      <a href={p('/ledger')}>{L.ev}</a>
+      <a href={p('/clases')}>{L.cls}</a>
+      <a href={p('/blog')}>{L.blog}</a>
+      <a href="/llms.txt">llms.txt</a>
+    </div>
+  </div>
+  <div class="wrap foot-line">© MMXXVI Rosetta Quantum · {L.line}</div>
+</footer>

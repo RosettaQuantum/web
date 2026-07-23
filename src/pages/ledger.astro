@@ -1,0 +1,8 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Ledger from '../components/Ledger.astro';
+import css from '../styles/pages/ledger.css?raw';
+---
+<BaseLayout title="The Evidence Ledger — Rosetta Q" description="The public record of Rosetta's verdicts, with reproducible evidence." lang="en" altUrl="/es/ledger" pageCss={css}>
+  <Ledger lang="en" />
+</BaseLayout>

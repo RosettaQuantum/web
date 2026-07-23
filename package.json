@@ -1,0 +1,17 @@
+{
+  "name": "rosetta-web",
+  "type": "module",
+  "version": "1.0.0",
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "prebuild": "node scripts/sync-ledger.mjs",
+    "sync:ledger": "node scripts/sync-ledger.mjs"
+  },
+  "dependencies": {
+    "astro": "latest",
+    "@astrojs/sitemap": "latest",
+    "@astrojs/rss": "latest"
+  }
+}

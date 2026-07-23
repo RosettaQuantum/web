@@ -1,0 +1,9 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import content from '../content_html/index.en.html?raw';
+import css from '../styles/pages/index.css?raw';
+import refs from '../content_html/index.refs.json';
+---
+<BaseLayout title={'Rosetta Quantum — Answers no classical computer can reach.'} description={'Verified quantum algorithms behind a single API. Your problem, your baseline as the referee.'} lang="en" altUrl="/es/" pageCss={css} scripts={refs}>
+  <Fragment set:html={content} />
+</BaseLayout>

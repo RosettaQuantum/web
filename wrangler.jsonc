@@ -1,0 +1,9 @@
+{
+  "name": "rosetta-quantum",
+  "main": "worker.js",
+  "compatibility_date": "2026-07-01",
+  "assets": { "binding": "ASSETS", "directory": "./dist" },
+  "d1_databases": [
+    { "binding": "DB", "database_name": "rosettaq-ledger", "database_id": "f0919403-5bd0-4842-a1d3-0954fdd47633" }
+  ]
+}

@@ -1,0 +1,61 @@
+# Deploy a producción en cada push a main.
+# prod = git push. Cualquier actor con acceso al repo publica; el historial de CI
+# queda como auditoría de cada deploy.
+#
+# Secrets requeridos (repo Settings → Secrets and variables → Actions):
+#   CLOUDFLARE_API_TOKEN — token con: Workers Scripts:Edit, D1:Edit,
+#                          Zone.Cache Purge (zona rosettaquantum.com)
+#   CLOUDFLARE_ACCOUNT_ID — id de la cuenta (6398d10da6c1f1e8b38b5e7c15d2410f)
+
+name: Deploy to Cloudflare
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install
+        run: npm ci
+
+      # prebuild = sync-ledger: lee la D1 real; si falla usa el snapshot commiteado
+      - name: Build (ledger desde D1)
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: npm run build
+
+      - name: Deploy Worker
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: npx wrangler deploy
+
+      # el edge puede servir HTML viejo tras el deploy — purga obligatoria
+      - name: Purge cache
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+        run: |
+          curl -fsS -X POST \
+            -H "Authorization: Bearer ${CLOUDFLARE_API_TOKEN}" \
+            -H "Content-Type: application/json" \
+            --data '{"purge_everything":true}' \
+            "https://api.cloudflare.com/client/v4/zones/94bbdb88e7e8252bec59a17d32a4190e/purge_cache"
+
+      - name: Smoke test
+        run: |
+          sleep 5
+          for u in / /es/ /ledger /blog /llms.txt; do
+            code=$(curl -s -o /dev/null -w "%{http_code}" -L "https://rosettaquantum.com$u")
+            echo "$code  $u"
+            [ "$code" = "200" ] || exit 1
+          done

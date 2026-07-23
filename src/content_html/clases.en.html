@@ -1,0 +1,97 @@
+
+
+<header class="hero">
+  <div class="wrap">
+    <div class="eyebrow">The map · problem classes by tier</div>
+    <h1>Where quantum wins, where it doesn't, and where nobody has checked.</h1>
+    <p class="lede">450+ quantum algorithms have been published; a handful are rigorously proven. This is the map that separates them — by <strong>how real the advantage is today</strong>, not by industry. Each class: its algorithm, the vertical it touches, the classical champion it must beat, and the honest state right now.</p>
+    <span class="tag">Field state · july 2026 · sourced, re-audited before each verdict</span>
+  </div>
+</header>
+
+<section>
+  <div class="wrap">
+    <h2>Three things the word "problem" hides.</h2>
+    <p class="prose">The distinction that orders everything below — and that most coverage blurs:</p>
+    <div class="axis">
+      <div class="axisrow"><span class="n">class</span><span><b>The problem class</b> (industry): "optimize a portfolio", "molecular ground state", "route a fleet". A few dozen cover ~80% of the value.</span></div>
+      <div class="axisrow"><span class="n">algorithm</span><span><b>The recipe:</b> QAOA, VQE, Shor, Grover, HHL. There are 450+ of these.</span></div>
+      <div class="axisrow"><span class="n">advantage</span><span><b>The real question:</b> does that recipe actually beat classical — at what size, on what hardware? Almost nobody measured this. <span style="color:var(--faience)">That is the ledger.</span></span></div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <h2>The four tiers.</h2>
+    <p class="prose">The axis is not "which industry" — it is <strong>how real the quantum advantage is today.</strong> This ordering is what a decision-maker, or a copilot, actually needs and nobody else publishes this way.</p>
+
+    <!-- TIER A -->
+    <div class="tier tA">
+      <div class="tier-head"><span class="tier-badge">Tier A</span><span class="tier-name">Proven in theory, blocked by hardware</span></div>
+      <p class="tier-sub">Wins on paper, but needs error correction / millions of qubits that don't exist yet. Not runnable fights — timing maps.</p>
+      <div class="tbl">
+        <div class="trow h"><div>Class</div><div>Algorithm</div><div>Vertical</div><div>Honest state today</div></div>
+        <div class="trow"><div class="c-class">Integer factoring / cryptanalysis</div><div class="c-algo">Shor</div><div class="c-vert">Crypto</div><div class="c-state">Proven (superpolynomial). Needs <b>~millions of physical qubits</b> with error correction → <b>not executable today</b>. Its value now is timing: NIST already standardized post-quantum crypto (2024).</div></div>
+        <div class="trow"><div class="c-class">Unstructured search</div><div class="c-algo">Grover</div><div class="c-vert">Cross-industry</div><div class="c-state">Proven but <b>only quadratic</b> (modest, not exponential). Needs an efficient oracle + fault tolerance; overhead makes it impractical near-term.</div></div>
+        <div class="trow"><div class="c-class">Linear systems</div><div class="c-algo">HHL</div><div class="c-vert">ML, engineering</div><div class="c-state">Exponential <b>with heavy fine print</b> (state-prep and readout caveats). Frequently dequantized. Not practical near-term.</div></div>
+      </div>
+    </div>
+
+    <!-- TIER B -->
+    <div class="tier tB">
+      <div class="tier-head"><span class="tier-badge">Tier B</span><span class="tier-name">Advantage plausible, genuinely quantum, early</span></div>
+      <p class="tier-sub">The strongest case theoretically: simulate the quantum with the quantum. The bottleneck is real — where a future win is most credible, and where the baseline is hardest.</p>
+      <div class="tbl">
+        <div class="trow h"><div>Class</div><div>Algorithm</div><div>Vertical</div><div>Honest state today</div></div>
+        <div class="trow"><div class="c-class">Molecular ground-state / electronic structure</div><div class="c-algo">VQE, QPE</div><div class="c-vert">Pharma, Chemistry</div><div class="c-state">The strongest case that exists. VQE limited by NISQ noise; QPE needs fault tolerance. <b>Not yet demonstrated at useful scale</b>, but the bottleneck is genuinely quantum. <span class="rid">RQ-0007</span> — see the precision note below.</div></div>
+        <div class="trow"><div class="c-class">Materials &amp; battery simulation</div><div class="c-algo">VQE, QPE</div><div class="c-vert">Energy, Materials</div><div class="c-state">Same family as molecular. Early. Genuine quantum bottleneck; strong industry interest (batteries, catalysts).</div></div>
+        <div class="trow"><div class="c-class">Quantum dynamics simulation</div><div class="c-algo">Hamiltonian sim.</div><div class="c-vert">Physics, materials</div><div class="c-state">Where advantage is most natural. "Utility" demos (2023) were <b>matched classically weeks later</b> with tensor networks → contested. The most fertile ground, but classical answers fast.</div></div>
+      </div>
+    </div>
+
+    <!-- TIER C -->
+    <div class="tier tC">
+      <div class="tier-head"><span class="tier-badge">Tier C</span><span class="tier-name">Contested — classical wins today (combinatorial optimization)</span></div>
+      <p class="tier-sub">Where most of the commercial hype lives and where classical is most brutal. QAOA / annealing don't beat well-tuned classical at scale. The right terrain for the first fight — the honest "not yet" is cheap and valuable.</p>
+      <div class="tbl">
+        <div class="trow h"><div>Class</div><div>Algorithm</div><div>Vertical</div><div>Honest state today</div></div>
+        <div class="trow"><div class="c-class">Portfolio optimization</div><div class="c-algo">QAOA, annealing</div><div class="c-vert">Finance</div><div class="c-state"><b>No proven advantage at scale.</b> Champion: Gurobi, OR-Tools, tuned annealing. Projected crossover far off. <span class="rid">RQ-0012</span> — first-fight candidate #1.</div></div>
+        <div class="trow"><div class="c-class">Vehicle / fleet routing</div><div class="c-algo">QAOA, annealing</div><div class="c-vert">Logistics, Mining</div><div class="c-state">Classical dominates; OR-Tools is brutal to beat. <span class="rid">RQ-0019</span> — first-fight candidate (mining, accessible data).</div></div>
+        <div class="trow"><div class="c-class">Grid / energy balancing</div><div class="c-algo">QAOA, annealing</div><div class="c-vert">Energy</div><div class="c-state">Combinatorial optimization; classical strong. <span class="rid">RQ-0033</span>.</div></div>
+        <div class="trow"><div class="c-class">Risk / Monte Carlo</div><div class="c-algo">Amplitude est.</div><div class="c-vert">Finance, insurance</div><div class="c-state">QAE needs deep circuits / fault tolerance; the quadratic speedup gets eaten by constants. No advantage at scale today.</div></div>
+      </div>
+    </div>
+
+    <!-- TIER D -->
+    <div class="tier tD">
+      <div class="tier-head"><span class="tier-badge">Tier D</span><span class="tier-name">Skeptical / largely dequantized</span></div>
+      <p class="tier-sub">Where the most was promised and the least held. High-value arbiter content precisely because almost nobody says it out loud.</p>
+      <div class="tbl">
+        <div class="trow h"><div>Class</div><div>Algorithm</div><div>Vertical</div><div>Honest state today</div></div>
+        <div class="trow"><div class="c-class">Quantum machine learning</div><div class="c-algo">Q-kernels, VQC</div><div class="c-vert">Cross-industry</div><div class="c-state">Heavily <b>dequantized</b>: several celebrated claims turned out classically matchable. The most skeptical terrain — read any QML claim with maximum caution.</div></div>
+      </div>
+    </div>
+
+    <div class="note gold">
+      <h3>Where classical already won decisively</h3>
+      <p><strong>Protein structure prediction is not quantum</strong> — and shouldn't be implied to be. AlphaFold (classical deep learning) solved a 50-year problem. If Rosetta touches "drug discovery" it must be surgical: the quantum value is in <strong>electronic-structure precision</strong> (Tier B), not in replacing a discovery pipeline that classical AI now leads. Saying this out loud <em>raises</em> arbiter credibility.</p>
+    </div>
+
+    <div class="note">
+      <h3>Precision note for RQ-0007 (molecular)</h3>
+      <p>A serious computational chemist reads a molecular verdict knowing AlphaFold + classical docking already work. So the claim must be narrow: plausible quantum advantage lives in <strong>electronic structure of strongly-correlated systems</strong> (transition metals, certain excited states, cases DFT approximates poorly) — <strong>not</strong> "accelerating drug discovery" broadly. The narrow, exact claim protects us; the broad one exposes us.</p>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="takeaway">
+      <div class="k">What this means for the first fight</div>
+      <p><strong>Start in Tier C</strong> (portfolio or mining routing), not Tier B (molecular). Counterintuitive but correct: Tier C is cheap (QAOA simulable, free tier), the champion (OR-Tools) is brutal and free — so nobody can accuse us of a weak baseline — and the expected result, <strong>"classical wins, quantum hasn't crossed yet,"</strong> is exactly the product: the first honest negative with an estimated crossover.</p>
+      <p>Molecular is tempting because advantage is more plausible — and that is why it's a bad <em>first</em> fight: a win there would be an extraordinary claim demanding extraordinary evidence, against a baseline that needs chemistry expertise. Credibility is built with the honest negative, not the risky win.</p>
+    </div>
+  </div>
+</section>
+

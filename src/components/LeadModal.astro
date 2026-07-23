@@ -1,0 +1,88 @@
+---
+const { lang = 'en' } = Astro.props;
+const es = lang === 'es';
+const t = es ? {
+  title:'Acceso anticipado', sub:'Cuéntanos lo básico y te avisamos apenas abramos tu clase de problema.',
+  name:'Nombre', email:'Email', role:'Rol', org:'Empresa / institución',
+  pclass:'Clase de problema', note:'¿Qué intentas resolver? (opcional)',
+  roles:['Quant / finanzas','Químico computacional','Optimización / OR','Investigación','Otro'],
+  classes:['Optimización de portafolios','Simulación molecular','Ruteo / logística','Optimización de red','Otra / aún no sé'],
+  submit:'Solicitar acceso', sending:'Enviando…', ok:'¡Listo! Te contactaremos.', err:'Algo falló. Reintenta o escríbenos.',
+  req:'Email válido requerido', close:'Cerrar'
+} : {
+  title:'Early access', sub:'Tell us the basics and we\'ll reach out when your problem class opens.',
+  name:'Name', email:'Email', role:'Role', org:'Company / institution',
+  pclass:'Problem class', note:'What are you trying to solve? (optional)',
+  roles:['Quant / finance','Computational chemist','Optimization / OR','Research','Other'],
+  classes:['Portfolio optimization','Molecular simulation','Routing / logistics','Grid optimization','Other / not sure'],
+  submit:'Request access', sending:'Sending…', ok:'Done! We\'ll be in touch.', err:'Something failed. Retry or email us.',
+  req:'Valid email required', close:'Close'
+};
+---
+<div class="lead-ov" id="leadModal" aria-hidden="true">
+  <div class="lead-box" role="dialog" aria-modal="true" aria-labelledby="leadTitle">
+    <button class="lead-x" data-lead-close aria-label={t.close}>✕</button>
+    <div class="lead-ey">ROSETTA Q</div>
+    <h3 id="leadTitle">{t.title}</h3>
+    <p class="lead-sub">{t.sub}</p>
+    <form id="leadForm" novalidate data-ok={t.ok} data-err={t.err} data-sending={t.sending} data-req={t.req}>
+      <input type="hidden" name="lang" value={lang} />
+      <div class="lg-row">
+        <label>{t.name}<input name="name" type="text" autocomplete="name" /></label>
+        <label>{t.email} *<input name="email" type="email" autocomplete="email" required /></label>
+      </div>
+      <div class="lg-row">
+        <label>{t.role}<select name="role">{t.roles.map(r => <option>{r}</option>)}</select></label>
+        <label>{t.org}<input name="org" type="text" autocomplete="organization" /></label>
+      </div>
+      <label>{t.pclass}<select name="problem_class">{t.classes.map(c => <option>{c}</option>)}</select></label>
+      <label>{t.note}<textarea name="note" rows="2"></textarea></label>
+      <div class="lg-msg" id="leadMsg"></div>
+      <button type="submit" class="lg-submit">{t.submit}</button>
+    </form>
+  </div>
+</div>
+<style is:global>
+.lead-ov{position:fixed;inset:0;z-index:200;background:rgba(10,9,7,.72);backdrop-filter:blur(4px);display:none;align-items:center;justify-content:center;padding:20px}
+.lead-ov.open{display:flex}
+.lead-box{background:var(--basalt-2);border:1px solid var(--stone-line);border-radius:8px;max-width:520px;width:100%;padding:30px 30px 26px;position:relative;max-height:92vh;overflow:auto}
+.lead-x{position:absolute;top:14px;right:16px;background:none;border:none;color:var(--papyrus-dim);font-size:18px;cursor:pointer}
+.lead-x:hover{color:var(--faience)}
+.lead-ey{font-family:'IBM Plex Mono',monospace;font-size:10.5px;letter-spacing:.34em;color:var(--gold)}
+.lead-box h3{font-family:'Marcellus',serif;font-weight:400;font-size:26px;margin-top:8px;color:var(--papyrus)}
+.lead-sub{color:var(--papyrus-dim);font-size:15px;margin:8px 0 18px}
+#leadForm label{display:block;font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--papyrus-dim);margin-bottom:12px}
+.lg-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media(max-width:480px){.lg-row{grid-template-columns:1fr}}
+#leadForm input,#leadForm select,#leadForm textarea{width:100%;margin-top:6px;background:var(--basalt-3);border:1px solid var(--stone-line);border-radius:4px;color:var(--papyrus);padding:10px 12px;font-family:'Instrument Sans',sans-serif;font-size:15px;text-transform:none;letter-spacing:normal}
+#leadForm input:focus,#leadForm select:focus,#leadForm textarea:focus{outline:none;border-color:var(--faience)}
+.lg-submit{width:100%;background:var(--faience);color:var(--basalt);border:none;border-radius:4px;padding:13px;font-weight:600;font-size:15px;cursor:pointer;margin-top:6px}
+.lg-submit:disabled{opacity:.6;cursor:default}
+.lg-msg{font-size:14px;margin-bottom:10px;min-height:0}
+.lg-msg.ok{color:var(--faience)} .lg-msg.err{color:#E0895E}
+</style>
+<script is:inline>
+(function(){
+  var ov=document.getElementById('leadModal'); if(!ov) return;
+  function open(e){ if(e)e.preventDefault(); ov.classList.add('open'); ov.setAttribute('aria-hidden','false'); }
+  function close(){ ov.classList.remove('open'); ov.setAttribute('aria-hidden','true'); }
+  document.querySelectorAll('.nav-cta, [data-lead-open]').forEach(function(b){ b.addEventListener('click', open); });
+  ov.addEventListener('click', function(e){ if(e.target===ov) close(); });
+  document.querySelectorAll('[data-lead-close]').forEach(function(b){ b.addEventListener('click', close); });
+  document.addEventListener('keydown', function(e){ if(e.key==='Escape') close(); });
+  var f=document.getElementById('leadForm'), msg=document.getElementById('leadMsg');
+  f.addEventListener('submit', async function(e){
+    e.preventDefault(); msg.className='lg-msg'; msg.textContent='';
+    var data=Object.fromEntries(new FormData(f).entries());
+    if(!data.email || !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(data.email)){ msg.className='lg-msg err'; msg.textContent=f.dataset.req; return; }
+    var btn=f.querySelector('.lg-submit'); var orig=btn.textContent; btn.disabled=true; btn.textContent=f.dataset.sending;
+    try{
+      var r=await fetch('/api/lead',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)});
+      var j=await r.json();
+      if(j.ok){ msg.className='lg-msg ok'; msg.textContent=f.dataset.ok; f.reset(); }
+      else { msg.className='lg-msg err'; msg.textContent=f.dataset.err; }
+    }catch(err){ msg.className='lg-msg err'; msg.textContent=f.dataset.err; }
+    btn.disabled=false; btn.textContent=orig;
+  });
+})();
+</script>

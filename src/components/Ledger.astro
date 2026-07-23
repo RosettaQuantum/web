@@ -1,0 +1,130 @@
+---
+import data from '../data/ledger.json';
+const { lang = 'en' } = Astro.props;
+const es = lang === 'es';
+const t = es ? {
+  eyebrow:'El evidence ledger', h1:'Cada veredicto, con la prueba cruda.',
+  lede:'El registro público de los veredictos de Rosetta: por receta y clase de problema, si quantum le ganó al mejor solver clásico, a qué tamaño, con evidencia reproducible.',
+  demo:'Preview ilustrativo — estos son los tipos de entrada que el ledger contendrá, aún no resultados medidos',
+  c1:'Recetas en pipeline', c2:'Veredictos publicados', c3:'Primer veredicto real', c3v:'en progreso', c4:'Copias por veredicto + ancla externa',
+  all:'Todas', id:'ID', recipe:'Receta', cls:'Clase de problema', vert:'Vertical', status:'Estado', ev:'Evidencia',
+  detail:'ver detalle →', soon:'pronto', close:'cerrar ✕', watermark:'Ilustrativo — preview de estructura, no un resultado medido',
+  algo:'Algoritmo', qubits:'Qubits (est.)', src:'Fuente', srcv:'arXiv (cosechado)',
+  inst:'Instancia', qside:'Lado cuántico', cchamp:'Campeón clásico', seed:'Semilla',
+  nb:'Descargar notebook reproducible — pronto',
+  st:{ 'pending':'pendiente','measuring':'midiendo…','in test':'en test','queued':'en cola','verified':'verificado','negative':'negativo' },
+  out:{ 'not yet':'todavía no','win':'gana','negative':'negativo' }
+} : {
+  eyebrow:'The evidence ledger', h1:'Every verdict, with the raw proof.',
+  lede:"The public record of Rosetta's verdicts: per recipe and problem class, whether quantum beat the best classical solver, at what size, with reproducible evidence.",
+  demo:'Illustrative preview — these are the entry types the ledger will hold, not measured results yet',
+  c1:'Recipes in pipeline', c2:'Verdicts published', c3:'First real verdict', c3v:'in progress', c4:'Copies per verdict + external anchor',
+  all:'All', id:'ID', recipe:'Recipe', cls:'Problem class', vert:'Vertical', status:'Status', ev:'Evidence',
+  detail:'view detail →', soon:'soon', close:'close ✕', watermark:'Illustrative — structure preview, not a measured result',
+  algo:'Algorithm', qubits:'Qubits (est.)', src:'Source', srcv:'arXiv (harvested)',
+  inst:'Instance', qside:'Quantum side', cchamp:'Classical champion', seed:'Seed',
+  nb:'Download reproducible notebook — coming soon',
+  st:{ 'pending':'pending','measuring':'measuring…','in test':'in test','queued':'queued','verified':'verified','negative':'negative' },
+  out:{ 'not yet':'not yet','win':'win','negative':'negative' }
+};
+const verticals = [...new Set(data.recipes.map(r => r.vertical))];
+const stClass = (s) => ({ 'pending':'pending','measuring':'measuring','in test':'intest','queued':'queued','verified':'win','negative':'intest' }[s] || 'pending');
+const name = (r) => es ? r.name_es : r.name_en;
+const cls = (r) => es ? r.class_es : r.class_en;
+---
+<header class="hero">
+  <div class="wrap">
+    <div class="eyebrow">{t.eyebrow}</div>
+    <h1>{t.h1}</h1>
+    <p class="lede">{t.lede}</p>
+    <span class="demo-tag">{t.demo}</span>
+    <div class="counter">
+      <div class="c"><div class="v">{data.counter.pipeline}</div><div class="k">{t.c1}</div></div>
+      <div class="c"><div class="v">{data.counter.published}</div><div class="k">{t.c2}</div></div>
+      <div class="c"><div class="v"><span class="live-dot">●</span> {t.c3v}</div><div class="k">{t.c3}</div></div>
+      <div class="c"><div class="v">3×</div><div class="k">{t.c4}</div></div>
+    </div>
+  </div>
+</header>
+
+<section>
+  <div class="wrap">
+    <div class="filters" id="filters">
+      <button class="fl on" data-f="all">{t.all}</button>
+      {verticals.map(v => <button class="fl" data-f={v}>{v}</button>)}
+    </div>
+
+    <div class="tbl">
+      <div class="trow h">
+        <div>{t.id}</div><div>{t.recipe}</div><div class="hide-m">{t.cls}</div>
+        <div class="hide-m">{t.vert}</div><div>{t.status}</div><div>{t.ev}</div>
+      </div>
+      {data.recipes.map(r => (
+        <div class="trow r" data-vert={r.vertical} data-id={r.id}>
+          <div class="rid">{r.id}</div>
+          <div class="rname">{name(r)}</div>
+          <div class="hide-m">{cls(r)}</div>
+          <div class="hide-m">{r.vertical}</div>
+          <div>
+            {r.status === 'measuring'
+              ? <span class="st measuring"><span class="dot"></span>{t.st[r.status]}</span>
+              : <span class={`st ${stClass(r.status)}`}>{t.st[r.status] || r.status}</span>}
+          </div>
+          <div><span class="ev">{r.verdict ? t.detail : t.soon}</span></div>
+        </div>
+      ))}
+    </div>
+
+    {data.recipes.filter(r => r.verdict).map(r => (
+      <div class="detail" id={`detail-${r.id}`}>
+        <div class="detail-head">
+          <span class="rid">{r.id} · {name(r)}</span>
+          <button class="detail-close" data-close="1">{t.close}</button>
+        </div>
+        <div class="detail-body">
+          <span class="watermark">{t.watermark}</span>
+          <div class="card-grid">
+            <div class="mini"><div class="k">{t.algo}</div><div class="v">{r.algorithm}</div></div>
+            <div class="mini"><div class="k">{t.cls}</div><div class="v">{cls(r)}</div></div>
+            <div class="mini"><div class="k">{t.qubits}</div><div class="v">{r.qubits ?? '—'}</div></div>
+            <div class="mini"><div class="k">{t.src}</div><div class="v">{t.srcv}</div></div>
+          </div>
+          <div class="verdict">
+            <div class="out">{t.out[r.verdict.outcome] || r.verdict.outcome}</div>
+            <div class="sum">{es ? r.verdict.summary_es : r.verdict.summary_en}</div>
+            <div class="cross">{es ? r.verdict.crossover_es : r.verdict.crossover_en}</div>
+          </div>
+          {r.experiments && (
+            <div class="exp-t">
+              <div class="exp-row h"><div>{t.inst}</div><div>{t.qside}</div><div>{t.cchamp}</div><div>{t.seed}</div></div>
+              {r.experiments.map(e => (
+                <div class="exp-row"><div>{e.instance}</div><div class="q">{e.q}</div><div class="c">{e.c}</div><div>{e.seed}</div></div>
+              ))}
+            </div>
+          )}
+          <div class="nb"><button type="button" disabled>{t.nb}</button></div>
+        </div>
+      </div>
+    ))}
+  </div>
+</section>
+
+<script is:inline>
+  document.querySelectorAll('#filters .fl').forEach(function(b){
+    b.addEventListener('click', function(){
+      document.querySelectorAll('#filters .fl').forEach(function(x){x.classList.remove('on');});
+      b.classList.add('on'); var f=b.dataset.f;
+      document.querySelectorAll('.trow.r').forEach(function(r){ r.style.display=(f==='all'||r.dataset.vert===f)?'':'none'; });
+    });
+  });
+  document.querySelectorAll('.trow.r').forEach(function(r){
+    r.addEventListener('click', function(){
+      var d=document.getElementById('detail-'+r.dataset.id);
+      document.querySelectorAll('.detail').forEach(function(x){x.classList.remove('open');});
+      if(d){ d.classList.add('open'); d.scrollIntoView({behavior:'smooth',block:'nearest'}); }
+    });
+  });
+  document.querySelectorAll('.detail-close').forEach(function(b){
+    b.addEventListener('click', function(e){ e.stopPropagation(); b.closest('.detail').classList.remove('open'); });
+  });
+</script>

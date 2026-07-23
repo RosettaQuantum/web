@@ -1,0 +1,56 @@
+{
+  "counter": {
+    "pipeline": 4,
+    "published": 0
+  },
+  "recipes": [
+    {
+      "id": "RQ-0007",
+      "name_en": "Molecular ground-state search",
+      "name_es": "Molecular ground-state search",
+      "class_en": "Molecular simulation",
+      "class_es": "Molecular simulation",
+      "vertical": "Pharma",
+      "algorithm": "VQE",
+      "qubits": null,
+      "status": "pending",
+      "is_demo": true
+    },
+    {
+      "id": "RQ-0012",
+      "name_en": "Constrained portfolio compression",
+      "name_es": "Constrained portfolio compression",
+      "class_en": "Portfolio optimization",
+      "class_es": "Portfolio optimization",
+      "vertical": "Finance",
+      "algorithm": "QAOA",
+      "qubits": 16,
+      "status": "measuring",
+      "is_demo": true
+    },
+    {
+      "id": "RQ-0019",
+      "name_en": "Fleet routing under uncertainty",
+      "name_es": "Fleet routing under uncertainty",
+      "class_en": "Vehicle routing",
+      "class_es": "Vehicle routing",
+      "vertical": "Mining",
+      "algorithm": "QAOA",
+      "qubits": null,
+      "status": "in test",
+      "is_demo": true
+    },
+    {
+      "id": "RQ-0033",
+      "name_en": "Grid balancing with renewables",
+      "name_es": "Grid balancing with renewables",
+      "class_en": "Grid optimization",
+      "class_es": "Grid optimization",
+      "vertical": "Energy",
+      "algorithm": "QAOA",
+      "qubits": null,
+      "status": "queued",
+      "is_demo": true
+    }
+  ]
+}
