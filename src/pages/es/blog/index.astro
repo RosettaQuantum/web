@@ -4,7 +4,7 @@ import BlogLayout from '../../../layouts/BlogLayout.astro';
 const posts = (await getCollection('blog', ({ data }) => !data.draft && data.lang === 'es'))
   .sort((a, b) => b.data.date.localeCompare(a.data.date));
 const pillars = { A:'Estado por clase de problema', B:'Diccionario canónico', C:'Explicadores de claims', D:'Metodología y runs', E:'Mapas y datos', F:'Decisor' };
-const SEALED_RUNS = 20;         // subir con cada tanda publicada — solo conteo real
+const SEALED_RUNS = 23;         // subir con cada tanda publicada — solo conteo real
 const lastDate = posts[0]?.data.date ?? '';
 ---
 <BlogLayout title="Biblioteca de Evidencia — Rosetta Q" description="Preguntas respondidas con evidencia sellada y reproducible. Fechado, con fuentes, citable — negativos incluidos." lang="es" altUrl="/blog">
