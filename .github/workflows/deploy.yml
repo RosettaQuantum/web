@@ -28,11 +28,18 @@ jobs:
         run: npm ci
 
       # prebuild = sync-ledger: lee la D1 real; si falla usa el snapshot commiteado
+      # y este paso lo anuncia como warning para que el fallback nunca pase piola
       - name: Build (ledger desde D1)
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-        run: npm run build
+        run: |
+          npm run build 2>&1 | tee build.log
+          if grep -q "D1 unreachable" build.log; then
+            echo "::warning::sync-ledger cayó al snapshot — el token no pudo leer la D1 (falta permiso D1:Edit)"
+          else
+            grep "sync-ledger" build.log | head -1 | sed 's/^/::notice::/'
+          fi
 
       - name: Deploy Worker
         env:
@@ -40,16 +47,21 @@ jobs:
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
         run: npx wrangler deploy
 
-      # el edge puede servir HTML viejo tras el deploy — purga obligatoria
+      # el edge puede servir HTML viejo tras el deploy — purga deseable, pero un
+      # token sin Zone.Cache Purge no debe tumbar el deploy: warning y seguimos
       - name: Purge cache
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
         run: |
-          curl -fsS -X POST \
+          if curl -fsS -X POST \
             -H "Authorization: Bearer ${CLOUDFLARE_API_TOKEN}" \
             -H "Content-Type: application/json" \
             --data '{"purge_everything":true}' \
-            "https://api.cloudflare.com/client/v4/zones/94bbdb88e7e8252bec59a17d32a4190e/purge_cache"
+            "https://api.cloudflare.com/client/v4/zones/94bbdb88e7e8252bec59a17d32a4190e/purge_cache"; then
+            echo "::notice::caché purgado"
+          else
+            echo "::warning::purga falló (al token le falta Zone → Cache Purge de rosettaquantum.com) — el edge servirá lo viejo hasta expirar TTL"
+          fi
 
       - name: Smoke test
         run: |
