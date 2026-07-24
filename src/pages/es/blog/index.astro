@@ -3,25 +3,71 @@ import { getCollection } from 'astro:content';
 import BlogLayout from '../../../layouts/BlogLayout.astro';
 const posts = (await getCollection('blog', ({ data }) => !data.draft && data.lang === 'es'))
   .sort((a, b) => b.data.date.localeCompare(a.data.date));
-const pillars = { A:'Estado por clase de problema', B:'Diccionario canónico', C:'Explicadores de claims', D:'Metodología', E:'Mapas y datos', F:'Decisor' };
+const pillars = { A:'Estado por clase de problema', B:'Diccionario canónico', C:'Explicadores de claims', D:'Metodología y runs', E:'Mapas y datos', F:'Decisor' };
+const SEALED_RUNS = 8;          // subir con cada tanda publicada — solo conteo real
+const lastDate = posts[0]?.data.date ?? '';
 ---
-<BlogLayout title="Blog — Rosetta Q" description="Respuestas educativas, con fuentes y fechadas sobre el estado honesto de la computación cuántica, por clase de problema. Muestra, no afirmes." lang="es" altUrl="/blog">
+<BlogLayout title="Biblioteca de Evidencia — Rosetta Q" description="Preguntas respondidas con evidencia sellada y reproducible. Fechado, con fuentes, citable — negativos incluidos." lang="es" altUrl="/blog">
   <header class="blog-hero">
     <div class="wrap">
-      <div class="eyebrow">La Biblioteca · educativa, neutral, fechada</div>
-      <h1>Qué es real en quantum — por clase de problema, con fuentes.</h1>
-      <p>Cada entrada responde una pregunta que un decisor (o un copilot) realmente hace, con la respuesta citable arriba, fecha de validez y las fuentes abajo. Publicamos también los negativos.</p>
+      <div class="eyebrow">Biblioteca de Evidencia · fechada · con fuentes · citable</div>
+      <h1>Preguntas respondidas con evidencia sellada.</h1>
+      <p>Cada entrada responde una pregunta con la respuesta citable arriba, fecha de validez y fuentes abajo. Las entradas de runs linkean a archivos sellados con sha256 que cualquiera puede verificar. Publicamos los negativos.</p>
+      <div class="lib-stats" aria-label="Estado de la biblioteca, conteos reales">
+        <span><b>{SEALED_RUNS}</b> runs sellados</span>
+        <span><b>{posts.length}</b> entradas</span>
+        <span><b>0</b> victorias cuánticas medidas</span>
+        <span><b>{SEALED_RUNS}/{SEALED_RUNS}</b> clásico en óptimo probado</span>
+        <span>actualizado <b>{lastDate}</b></span>
+      </div>
+      <div class="lib-controls">
+        <input id="libq" type="search" placeholder="Busca una pregunta… (ej. QAOA, portafolio, NIST, VC)" aria-label="Buscar en la biblioteca" />
+        <div class="chips" role="group" aria-label="Filtrar por pilar">
+          <button class="chip on" data-p="*">Todo</button>
+          {Object.entries(pillars).map(([k, v]) => <button class="chip" data-p={k}>{k} · {v}</button>)}
+        </div>
+      </div>
     </div>
   </header>
   <section class="wrap">
-    <div class="post-list">
+    <div class="post-list" id="liblist">
       {posts.map(p => (
-        <a class="post-item" href={`/blog/${p.id}`}>
+        <a class="post-item lib-entry" href={`/blog/${p.id}`} data-pillar={p.data.pillar}>
           <div class="q">{p.data.title}</div>
-          <div class="meta">{p.data.date} · {p.data.lang.toUpperCase()} · Pilar {p.data.pillar} — {pillars[p.data.pillar]}</div>
+          <div class="meta">{p.data.date} · Pilar {p.data.pillar} — {pillars[p.data.pillar]}</div>
           <div class="tl">{p.data.tldr}</div>
         </a>
       ))}
     </div>
+    <p id="libempty" style="display:none;color:#6E675C;font-family:'IBM Plex Mono',monospace;font-size:0.85rem">Ninguna entrada coincide. La biblioteca es joven — pregúntanos y se convierte en la próxima entrada.</p>
   </section>
+  <style>
+    .lib-stats{display:flex;flex-wrap:wrap;gap:1.2rem;margin-top:1.2rem;font-family:'IBM Plex Mono',monospace;font-size:0.78rem;color:#B5AC99}
+    .lib-stats b{color:#4DC4B5;font-weight:600}
+    .lib-controls{margin-top:1.4rem}
+    #libq{width:100%;max-width:560px;background:#100E0B;border:1px solid #3D372F;border-radius:2px;color:#F4EEDF;font-family:'IBM Plex Mono',monospace;font-size:0.85rem;padding:0.65rem 0.9rem;outline:none}
+    #libq:focus{border-color:#4DC4B5}
+    .chips{display:flex;flex-wrap:wrap;gap:0.4rem;margin-top:0.7rem}
+    .chip{background:transparent;border:1px solid #3D372F;border-radius:20px;color:#B5AC99;font-family:'IBM Plex Mono',monospace;font-size:0.7rem;padding:0.28rem 0.75rem;cursor:pointer}
+    .chip.on{border-color:#D9B87A;color:#D9B87A}
+  </style>
+  <script>
+    const q = document.getElementById('libq');
+    const chips = [...document.querySelectorAll('.chip')];
+    const items = [...document.querySelectorAll('.lib-entry')];
+    const empty = document.getElementById('libempty');
+    let pillar = '*';
+    function apply() {
+      const term = (q.value || '').toLowerCase();
+      let shown = 0;
+      for (const it of items) {
+        const ok = (pillar === '*' || it.dataset.pillar === pillar) && (!term || it.textContent.toLowerCase().includes(term));
+        it.style.display = ok ? '' : 'none';
+        if (ok) shown++;
+      }
+      empty.style.display = shown ? 'none' : '';
+    }
+    q.addEventListener('input', apply);
+    chips.forEach(c => c.addEventListener('click', () => { chips.forEach(x => x.classList.remove('on')); c.classList.add('on'); pillar = c.dataset.p; apply(); }));
+  </script>
 </BlogLayout>

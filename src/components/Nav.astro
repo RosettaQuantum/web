@@ -2,8 +2,8 @@
 const { lang = 'en', altUrl = '/es/' } = Astro.props;
 const es = lang === 'es';
 const L = es
-  ? { what:'Qué es', ev:'Evidencia', cls:'Clases', blog:'Blog', cta:'Acceso anticipado →' }
-  : { what:'What it is', ev:'Evidence', cls:'Problem classes', blog:'Blog', cta:'Get early access →' };
+  ? { what:'Qué es', ev:'Evidencia', cls:'Clases', blog:'Biblioteca', cta:'Acceso anticipado →' }
+  : { what:'What it is', ev:'Evidence', cls:'Problem classes', blog:'Library', cta:'Get early access →' };
 const home = es ? '/es/' : '/';
 const p = (path) => es ? `/es${path}` : path;
 ---
