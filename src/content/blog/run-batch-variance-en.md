@@ -6,7 +6,7 @@ pillar: D
 lang: en
 slugBase: run-batch-variance
 sources:
-  - { label: "Sealed archives EXP-0012-003 … -008, RosettaQuantum/evidence", url: "https://github.com/RosettaQuantum/evidence" }
+  - { label: "Sealed archives EXP-0012-003 … -008, RosettaQuantum/evidence", url: "https://github.com/RosettaQuantum/evidence/tree/main/runs/2026/07" }
   - { label: "Runs 001–002 (the two prior points)" }
 draft: false
 ---
