@@ -51,3 +51,5 @@ then check the row landed in D1. The `leads` table already exists in `rosettaq-l
 - Added a "Why we exist" mission block after the hero (bilingual) — the molecular/medical
   why, framed to reinforce the neutral-referee thesis (honesty as the mission), not hype.
 - The FAQ section is now fully translated to Spanish (was English-only before).
+
+> Verificación E2E 2026-07-26: commit vía API (flujo Cowork) → CI → prod.
