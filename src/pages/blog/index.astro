@@ -4,7 +4,7 @@ import BlogLayout from '../../layouts/BlogLayout.astro';
 const posts = (await getCollection('blog', ({ data }) => !data.draft && data.lang === 'en'))
   .sort((a, b) => b.data.date.localeCompare(a.data.date));
 const pillars = { A:'State by problem class', B:'Canonical dictionary', C:'Claim explainers', D:'Methodology & runs', E:'Maps & data', F:'Decision-maker' };
-const SEALED_RUNS = 25;         // bump on every published run batch — real count only
+const SEALED_RUNS = 23;         // bump on every published run batch — real count only
 const lastDate = posts[0]?.data.date ?? '';
 ---
 <BlogLayout title="Evidence Library — Rosetta Q" description="Questions answered with sealed, reproducible evidence. Dated, sourced, citable — negatives included." lang="en" altUrl="/es/blog">
