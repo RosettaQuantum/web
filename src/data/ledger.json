@@ -1,7 +1,7 @@
 {
   "counter": {
     "pipeline": 4,
-    "published": 0
+    "published": 1
   },
   "recipes": [
     {
@@ -24,9 +24,36 @@
       "class_es": "Portfolio optimization",
       "vertical": "Finance",
       "algorithm": "QAOA",
-      "qubits": 16,
+      "qubits": "12–20",
       "status": "measuring",
-      "is_demo": true
+      "is_demo": false,
+      "verdict": {
+        "outcome": "not yet",
+        "summary_en": "CP-SAT reached the proven exact optimum in all 20 sealed runs (n=12: 8 seeds · n=16: 8 · n=20: 4). QAOA p=2 mean gaps to optimum: 48.2% / 25.1% / 41.1% under equal 120 s budgets. Verdict V-0012, sha256:f510eff6…6636, anchored in triple copy.",
+        "summary_es": "CP-SAT alcanzó el óptimo exacto probado en los 20 runs sellados (n=12: 8 seeds · n=16: 8 · n=20: 4). Brechas medias de QAOA p=2 al óptimo: 48.2% / 25.1% / 41.1% con presupuestos iguales de 120 s. Veredicto V-0012, sha256:f510eff6…6636, en triple copia.",
+        "crossover_en": "Crossover: not observed — no defensible size trend at n≤20; seed-to-seed variance (σ 11–23 pts) is first-order. Series continues.",
+        "crossover_es": "Punto de cruce: no observado — sin tendencia de tamaño defendible a n≤20; la varianza entre semillas (σ 11–23 pts) es de primer orden. La serie continúa."
+      },
+      "experiments": [
+        {
+          "instance": "portfolio_12_assets · seeds 42–49",
+          "q": "gap 48.2% ± 22.5",
+          "c": "optimal, 0.05–0.26 s",
+          "seed": "8 seeds"
+        },
+        {
+          "instance": "portfolio_16_assets · seeds 42–49",
+          "q": "gap 25.1% ± 11.1",
+          "c": "optimal, 1.0–1.4 s",
+          "seed": "8 seeds"
+        },
+        {
+          "instance": "portfolio_20_assets · seeds 42–45",
+          "q": "gap 41.1% ± 14.1",
+          "c": "optimal, 28–30 s",
+          "seed": "4 seeds"
+        }
+      ]
     },
     {
       "id": "RQ-0019",

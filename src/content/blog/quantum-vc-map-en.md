@@ -14,12 +14,12 @@ draft: false
 ## The shape of the curve
 
 ```
-2021   peak year of the first wave (Quantinuum $300M, PsiQuantum $450M rounds)
+2021   first-wave peak (Quantinuum $300M, PsiQuantum $450M)
 2022   cooling begins; large EU rounds continue (IQM €128M)
 2023   trough: ≈ −40% vs 2021 (MIT QIR estimate)
 2024   $1.59B publicly announced (QIR count) — the selective year
-2025   $4.9B private VC (TQI count) — >2× the prior record; US share $2.7B
-2026   Q1 China alone ≈ its full-year 2025 total; Quantonation II closes €220M
+2025   $4.9B private VC (TQI) — >2× prior record; US $2.7B
+2026   China Q1 ≈ its full 2025; Quantonation II: €220M
 ```
 
 Two counts, two methodologies: MIT's Quantum Index Report tallies *publicly announced* rounds and warns of reporting gaps; The Quantum Insider's totals run higher. We show both because the honest headline is the trend, not any single number: **a boom, a two-year correction, then a record-breaking re-acceleration.**

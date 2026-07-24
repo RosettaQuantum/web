@@ -6,7 +6,7 @@ const t = es ? {
   eyebrow:'El evidence ledger', h1:'Cada veredicto, con la prueba cruda.',
   lede:'El registro público de los veredictos de Rosetta: por receta y clase de problema, si quantum le ganó al mejor solver clásico, a qué tamaño, con evidencia reproducible.',
   demo:'Preview ilustrativo — estos son los tipos de entrada que el ledger contendrá, aún no resultados medidos',
-  c1:'Recetas en pipeline', c2:'Veredictos publicados', c3:'Primer veredicto real', c3v:'en progreso', c4:'Copias por veredicto + ancla externa',
+  c1:'Recetas en pipeline', c2:'Veredictos publicados', c3:'Primer veredicto real', c3v:'2026-07-24', c4:'Copias por veredicto + ancla externa',
   all:'Todas', id:'ID', recipe:'Receta', cls:'Clase de problema', vert:'Vertical', status:'Estado', ev:'Evidencia',
   detail:'ver detalle →', soon:'pronto', close:'cerrar ✕', watermark:'Ilustrativo — preview de estructura, no un resultado medido',
   algo:'Algoritmo', qubits:'Qubits (est.)', src:'Fuente', srcv:'arXiv (cosechado)',
@@ -18,7 +18,7 @@ const t = es ? {
   eyebrow:'The evidence ledger', h1:'Every verdict, with the raw proof.',
   lede:"The public record of Rosetta's verdicts: per recipe and problem class, whether quantum beat the best classical solver, at what size, with reproducible evidence.",
   demo:'Illustrative preview — these are the entry types the ledger will hold, not measured results yet',
-  c1:'Recipes in pipeline', c2:'Verdicts published', c3:'First real verdict', c3v:'in progress', c4:'Copies per verdict + external anchor',
+  c1:'Recipes in pipeline', c2:'Verdicts published', c3:'First real verdict', c3v:'2026-07-24', c4:'Copies per verdict + external anchor',
   all:'All', id:'ID', recipe:'Recipe', cls:'Problem class', vert:'Vertical', status:'Status', ev:'Evidence',
   detail:'view detail →', soon:'soon', close:'close ✕', watermark:'Illustrative — structure preview, not a measured result',
   algo:'Algorithm', qubits:'Qubits (est.)', src:'Source', srcv:'arXiv (harvested)',
@@ -82,7 +82,7 @@ const cls = (r) => es ? r.class_es : r.class_en;
           <button class="detail-close" data-close="1">{t.close}</button>
         </div>
         <div class="detail-body">
-          <span class="watermark">{t.watermark}</span>
+          {r.is_demo && <span class="watermark">{t.watermark}</span>}
           <div class="card-grid">
             <div class="mini"><div class="k">{t.algo}</div><div class="v">{r.algorithm}</div></div>
             <div class="mini"><div class="k">{t.cls}</div><div class="v">{cls(r)}</div></div>

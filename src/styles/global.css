@@ -51,3 +51,8 @@ footer{border-top:1px solid var(--stone-line);padding:44px 0 40px;margin-top:36p
 .lang-toggle{display:inline-flex;gap:0;border:1px solid var(--stone-line);border-radius:20px;overflow:hidden;font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.08em;margin-left:4px}
 .lang-toggle a{color:var(--papyrus-dim);padding:5px 10px;text-decoration:none}
 .lang-toggle a.on{background:var(--faience);color:var(--basalt);font-weight:600}
+
+/* fix: bloques de código nunca se recortan — scroll horizontal (Cowork, 24 jul) */
+.article .body pre, .body pre, pre { overflow-x: auto; max-width: 100%; }
+pre code { white-space: pre; }
+.article .body figure svg { max-width: 100%; height: auto; }
