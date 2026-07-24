@@ -38,7 +38,7 @@ jobs:
           if grep -q "D1 unreachable" build.log; then
             echo "::warning::sync-ledger cayó al snapshot — el token no pudo leer la D1 (falta permiso D1:Edit)"
           else
-            grep "sync-ledger" build.log | head -1 | sed 's/^/::notice::/'
+            grep "\[sync-ledger\]" build.log | head -1 | sed 's/^/::notice::/'
           fi
 
       - name: Deploy Worker
