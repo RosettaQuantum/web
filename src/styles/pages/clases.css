@@ -21,7 +21,6 @@ nav{position:sticky;top:0;z-index:50;background:rgba(23,21,18,.92);backdrop-filt
 .nav-links{display:flex;gap:24px;font-size:14px;color:var(--papyrus-dim);align-items:center}
 .nav-links a:hover{color:var(--faience)}
 .nav-cta{background:var(--faience);color:var(--basalt);padding:9px 18px;border-radius:2px;font-weight:600}
-@media(max-width:760px){.nav-links a:not(.nav-cta){display:none}}
 
 .hero{padding:72px 0 32px}
 .eyebrow{font-family:'IBM Plex Mono',monospace;font-size:12px;letter-spacing:.22em;text-transform:uppercase;color:var(--gold);margin-bottom:16px}

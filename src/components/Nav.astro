@@ -2,8 +2,8 @@
 const { lang = 'en', altUrl = '/es/' } = Astro.props;
 const es = lang === 'es';
 const L = es
-  ? { what:'Qué es', ev:'Evidencia', cls:'Clases', blog:'Biblioteca', cta:'Acceso anticipado →' }
-  : { what:'What it is', ev:'Evidence', cls:'Problem classes', blog:'Library', cta:'Get early access →' };
+  ? { what:'Qué es', ev:'Evidencia', cls:'Clases', blog:'Biblioteca', cta:'Acceso anticipado →', menu:'Menú' }
+  : { what:'What it is', ev:'Evidence', cls:'Problem classes', blog:'Library', cta:'Get early access →', menu:'Menu' };
 const home = es ? '/es/' : '/';
 const p = (path) => es ? `/es${path}` : path;
 ---
@@ -18,7 +18,10 @@ const p = (path) => es ? `/es${path}` : path;
       </svg>
       <span class="wm-text">ROSETTA <span class="q">Q</span><span class="wm-sub">the algorithm foundry</span></span>
     </a>
-    <div class="nav-links">
+    <button class="nav-toggle" id="nav-toggle" type="button" aria-expanded="false" aria-controls="nav-links" aria-label={L.menu}>
+      <span class="bars" aria-hidden="true"><i></i><i></i><i></i></span>
+    </button>
+    <div class="nav-links" id="nav-links">
       <a class="hide-s" href={`${home}#what`}>{L.what}</a>
       <a class="hide-s" href={p('/ledger')}>{L.ev}</a>
       <a class="hide-s" href={p('/clases')}>{L.cls}</a>
@@ -31,3 +34,29 @@ const p = (path) => es ? `/es${path}` : path;
     </div>
   </div>
 </nav>
+<script is:inline>
+  (function () {
+    var btn = document.getElementById('nav-toggle');
+    var panel = document.getElementById('nav-links');
+    if (!btn || !panel) return;
+    function close() {
+      panel.classList.remove('open');
+      btn.setAttribute('aria-expanded', 'false');
+    }
+    btn.addEventListener('click', function (e) {
+      e.stopPropagation();
+      var open = panel.classList.toggle('open');
+      btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+    });
+    panel.addEventListener('click', function (e) {
+      if (e.target.closest('a')) close();
+    });
+    document.addEventListener('click', function (e) {
+      if (!panel.classList.contains('open')) return;
+      if (!panel.contains(e.target) && !btn.contains(e.target)) close();
+    });
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape') close();
+    });
+  })();
+</script>

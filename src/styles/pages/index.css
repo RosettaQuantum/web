@@ -27,7 +27,6 @@ nav{position:sticky;top:0;z-index:50;background:rgba(23,21,18,.92);backdrop-filt
 .nav-links a:hover{color:var(--faience)}
 .nav-cta{background:var(--faience);color:var(--basalt);padding:9px 18px;border-radius:2px;font-weight:600}
 .nav-cta:hover{background:#4DBFB1;color:var(--basalt)}
-@media(max-width:760px){.nav-links a:not(.nav-cta){display:none}}
 
 .hero{padding:68px 0 56px}
 .hero-grid{display:grid;grid-template-columns:1.08fr .92fr;gap:52px;align-items:center}

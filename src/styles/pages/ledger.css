@@ -21,7 +21,6 @@ nav{position:sticky;top:0;z-index:50;background:rgba(23,21,18,.92);backdrop-filt
 .nav-links{display:flex;gap:24px;font-size:14px;color:var(--papyrus-dim);align-items:center}
 .nav-links a:hover{color:var(--faience)}
 .nav-cta{background:var(--faience);color:var(--basalt);padding:9px 18px;border-radius:2px;font-weight:600}
-@media(max-width:760px){.nav-links a:not(.nav-cta):not(.keeplink){display:none}}
 .lang-toggle{display:inline-flex;gap:0;border:1px solid var(--stone-line);border-radius:20px;overflow:hidden;font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.08em;margin-left:4px}
 .lang-toggle button{background:transparent;border:none;color:var(--papyrus-dim);padding:5px 10px;cursor:pointer;font-family:inherit;font-size:inherit}
 .lang-toggle button.on{background:var(--faience);color:var(--basalt);font-weight:600}
@@ -103,3 +102,25 @@ footer{border-top:1px solid var(--stone-line);padding:44px 0 40px;margin-top:36p
 .foot-links a:hover{color:var(--faience)}
 .foot-line{margin-top:26px;font-family:'IBM Plex Mono',monospace;font-size:12px;color:#5C554A}
 @media(max-width:640px){.wrap{padding:0 20px}}
+
+/* ── Móvil: tabla apilada + áreas táctiles ≥44px (Cowork, 25 jul) ── */
+@media(max-width:600px){
+  .tbl .trow.h{display:none}
+  .trow{grid-template-columns:1fr auto;padding:14px 16px;align-items:start}
+  .trow>div{padding:0}
+  .trow .rid{grid-column:1;grid-row:1;font-size:11.5px;letter-spacing:.06em}
+  .trow>div:nth-child(5){grid-column:2;grid-row:1;justify-self:end;text-align:right}
+  .trow .st.measuring{justify-content:flex-end}
+  .trow .rname{grid-column:1 / -1;grid-row:2;font-size:15px;margin-top:5px;line-height:1.35}
+  .trow>div:nth-child(6){grid-column:1 / -1;grid-row:3;margin-top:9px}
+  .trow .ev{display:inline-flex;align-items:center;min-height:30px}
+  .filters .fl{min-height:40px;padding:8px 15px}
+  .detail-head{padding:16px}
+  .detail-body{padding:16px}
+  .detail-close{min-height:40px;padding:6px 14px}
+  .exp-t{font-size:10.5px}
+  .exp-row{grid-template-columns:1.15fr 1fr 1fr .8fr}
+  .exp-row>div{padding:9px 8px;overflow-wrap:anywhere}
+  .hero{padding:44px 0 22px}
+  section{padding:28px 0}
+}

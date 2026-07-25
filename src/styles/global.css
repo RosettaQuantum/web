@@ -20,7 +20,55 @@ nav{position:sticky;top:0;z-index:50;background:rgba(23,21,18,.92);backdrop-filt
 .nav-links{display:flex;gap:24px;font-size:14px;color:var(--papyrus-dim);align-items:center}
 .nav-links a:hover{color:var(--faience)}
 .nav-cta{background:var(--faience);color:var(--basalt);padding:9px 18px;border-radius:2px;font-weight:600}
-@media(max-width:760px){.nav-links a.hide-s{display:none}}
+.nav-toggle{display:none}
+
+/* ── Navegación móvil (Cowork, 25 jul) ───────────────────────────────
+   Selectores con especificidad alta a propósito: BaseLayout inyecta el CSS
+   de página DESPUÉS de global.css, así que estas reglas deben pesar más. */
+@media(max-width:760px){
+  nav .nav-inner .nav-toggle{
+    display:flex;align-items:center;justify-content:center;
+    width:44px;height:44px;margin-right:-10px;
+    background:transparent;border:0;cursor:pointer;color:var(--papyrus);
+    -webkit-tap-highlight-color:transparent;
+  }
+  nav .nav-inner .nav-toggle .bars{display:block;width:22px}
+  nav .nav-inner .nav-toggle .bars i{
+    display:block;height:2px;background:currentColor;border-radius:2px;
+    transition:transform .18s ease,opacity .18s ease;
+  }
+  nav .nav-inner .nav-toggle .bars i + i{margin-top:5px}
+  nav .nav-inner .nav-toggle[aria-expanded="true"]{color:var(--faience)}
+  nav .nav-inner .nav-toggle[aria-expanded="true"] .bars i:nth-child(1){transform:translateY(7px) rotate(45deg)}
+  nav .nav-inner .nav-toggle[aria-expanded="true"] .bars i:nth-child(2){opacity:0}
+  nav .nav-inner .nav-toggle[aria-expanded="true"] .bars i:nth-child(3){transform:translateY(-7px) rotate(-45deg)}
+
+  nav .nav-inner .nav-links{
+    display:none;position:absolute;top:100%;left:0;right:0;
+    flex-direction:column;align-items:stretch;gap:0;
+    background:#17140F;
+    border-bottom:1px solid var(--stone-line);
+    box-shadow:0 18px 40px rgba(0,0,0,.55);
+    padding:6px 28px 18px;
+    max-height:calc(100vh - 64px);overflow-y:auto;
+  }
+  nav .nav-inner .nav-links.open{display:flex}
+  nav .nav-inner .nav-links > a{
+    display:flex;align-items:center;min-height:48px;
+    font-size:16px;color:var(--papyrus);
+    border-bottom:1px solid var(--stone-line);
+  }
+  nav .nav-inner .nav-links > a:last-child{border-bottom:0}
+  nav .nav-inner .nav-links .nav-cta{
+    justify-content:center;margin-top:14px;
+    background:var(--faience);color:var(--basalt);
+    padding:12px 18px;border-radius:2px;font-weight:600;
+  }
+  nav .nav-inner .nav-links .lang-toggle{
+    align-self:flex-start;margin:14px 0 0;font-size:12px;
+  }
+  nav .nav-inner .nav-links .lang-toggle a{padding:9px 16px}
+}
 footer{border-top:1px solid var(--stone-line);padding:44px 0 40px;margin-top:36px}
 .foot-inner{display:flex;justify-content:space-between;flex-wrap:wrap;gap:24px;align-items:center}
 .foot-links{display:flex;gap:22px;font-size:14px;color:var(--papyrus-dim);flex-wrap:wrap}
@@ -36,7 +84,7 @@ footer{border-top:1px solid var(--stone-line);padding:44px 0 40px;margin-top:36p
 .post-item .q{font-family:'Marcellus',serif;font-size:20px;color:var(--papyrus)}
 .post-item .meta{font-family:'IBM Plex Mono',monospace;font-size:11.5px;letter-spacing:.08em;color:var(--papyrus-dim);margin-top:8px;text-transform:uppercase}
 .post-item .tl{color:var(--papyrus-dim);font-size:15px;margin-top:10px}
-.article{padding:56px 0 40px;max-width:760px}
+.article{padding:56px 28px 40px;max-width:760px}
 .article .kicker{font-family:'IBM Plex Mono',monospace;font-size:11.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--gold)}
 .article h1{font-family:'Marcellus',serif;font-weight:400;font-size:clamp(28px,3.6vw,40px);line-height:1.16;margin:14px 0 18px}
 .article .tldr{border-left:2px solid var(--faience);background:var(--basalt-2);padding:16px 20px;border-radius:0 4px 4px 0;font-size:17px;color:var(--papyrus);margin-bottom:14px}
@@ -56,3 +104,15 @@ footer{border-top:1px solid var(--stone-line);padding:44px 0 40px;margin-top:36p
 .article .body pre, .body pre, pre { overflow-x: auto; max-width: 100%; }
 pre code { white-space: pre; }
 .article .body figure svg { max-width: 100%; height: auto; }
+
+/* fix: nada se desborda en pantallas estrechas (Cowork, 25 jul) */
+html{-webkit-text-size-adjust:100%}
+img,svg,video,canvas,table{max-width:100%}
+img,video{height:auto}
+.article .body, .post-item, .tldr{overflow-wrap:break-word}
+code, .hash, .mono{overflow-wrap:anywhere}
+@media(max-width:760px){
+  .blog-hero{padding:40px 0 20px}
+  .article{padding:36px 28px 32px}
+  .lib-controls .chip, .chips .chip{min-height:36px;padding:0.45rem 0.85rem}
+}
