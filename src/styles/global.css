@@ -116,3 +116,51 @@ code, .hash, .mono{overflow-wrap:anywhere}
   .article{padding:36px 28px 32px}
   .lib-controls .chip, .chips .chip{min-height:36px;padding:0.45rem 0.85rem}
 }
+
+/* fix: los bloques de código se leen y se navegan en móvil (Cowork, 26 jul).
+   Causa raíz: <pre> no tenía font-size propio y heredaba los 17px del body, así que
+   una línea de 89 caracteres pedía ~911px dentro de una caja de 319px. Tenía
+   overflow-x:auto desde el 24 jul, pero nada le decía al lector que se desliza.
+   Ahora: tipografía propia, panel de marca, y sombras laterales que aparecen sólo
+   cuando queda contenido fuera (background-attachment:local). */
+.article .body pre{
+  font-family:'IBM Plex Mono',ui-monospace,monospace;
+  font-size:13px;
+  line-height:1.5;
+  color:var(--papyrus-dim);
+  border:1px solid var(--stone-line);
+  border-radius:4px;
+  padding:16px 18px;
+  margin:18px 0;
+  background-color:var(--basalt-3);
+  background-image:
+    linear-gradient(to right,#100E0B,rgba(16,14,11,0)),
+    linear-gradient(to left,#100E0B,rgba(16,14,11,0)),
+    linear-gradient(to right,rgba(77,196,181,.28),rgba(77,196,181,0)),
+    linear-gradient(to left,rgba(77,196,181,.28),rgba(77,196,181,0));
+  background-position:left center,right center,left center,right center;
+  background-repeat:no-repeat;
+  background-size:32px 100%,32px 100%,16px 100%,16px 100%;
+  background-attachment:local,local,scroll,scroll;
+  -webkit-overflow-scrolling:touch;
+  overscroll-behavior-x:contain;
+}
+.article .body pre code{font-family:inherit;font-size:inherit;color:inherit;background:none;padding:0}
+@media(max-width:600px){
+  /* a sangre completa: el bloque recupera los 56px de margen del artículo y baja a
+     11px, que es el tamaño al que una tabla monoespaciada sigue siendo legible en
+     un teléfono. Los bloques anchos siguen deslizándose — eso es correcto para
+     tablas; los diagramas 2D no se arreglan deslizando y se convirtieron en SVG. */
+  .article .body pre{
+    font-size:11px;
+    line-height:1.45;
+    padding:14px 16px;
+    margin-left:-28px;
+    margin-right:-28px;
+    width:calc(100% + 56px);
+    max-width:none;
+    border-left:none;
+    border-right:none;
+    border-radius:0;
+  }
+}

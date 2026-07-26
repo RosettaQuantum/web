@@ -18,7 +18,7 @@ El run 002 mostró una brecha menor a n=16 que a n=12 (20.7% vs 42.8%) y nos neg
 ## El resultado
 
 <figure style="margin:1.5em 0">
-<svg viewBox="0 0 640 290" role="img" aria-label="Brecha de QAOA al óptimo exacto en cuatro semillas por tamaño. n=12: 23.4 a 53.7 por ciento, media 40.9. n=16: 20.7 a 42.3 por ciento, media 28.8. Los rangos se solapan." style="width:100%;height:auto;background:#1F1C18;border-radius:4px">
+<svg viewBox="0 0 640 300" role="img" aria-label="Brecha de QAOA al óptimo exacto en cuatro semillas por tamaño. n=12: 23.4 a 53.7 por ciento, media 40.9. n=16: 20.7 a 42.3 por ciento, media 28.8. Los rangos se solapan." style="width:100%;height:auto;background:#1F1C18;border-radius:4px">
   <text x="24" y="34" fill="#F4EEDF" font-size="15" font-weight="600" font-family="Instrument Sans, sans-serif">QAOA p=2 · brecha al óptimo exacto · 4 semillas por tamaño</text>
   <text x="24" y="54" fill="#B5AC99" font-size="12" font-family="IBM Plex Mono, monospace">seeds 42–45 · presupuestos iguales de 120 s · CP-SAT: óptimo probado en los 8 runs</text>
   <line x1="80" y1="210" x2="600" y2="210" stroke="#3D372F" stroke-width="1"/>
@@ -39,7 +39,8 @@ El run 002 mostró una brecha menor a n=16 que a n=12 (20.7% vs 42.8%) y nos neg
   <text x="502" y="115" fill="#F4EEDF" font-size="11" font-family="IBM Plex Mono, monospace">máx 42.3%</text>
   <text x="502" y="165" fill="#F4EEDF" font-size="11" font-family="IBM Plex Mono, monospace">mín 20.7%</text>
   <text x="440" y="132" fill="#D9B87A" font-size="11" text-anchor="end" font-family="IBM Plex Mono, monospace">media 28.8%</text>
-  <text x="24" y="274" fill="#6E675C" font-size="11" font-family="IBM Plex Mono, monospace">puntos teal = semillas individuales · marca dorada = media · rangos solapados → efecto tamaño sin resolver con n=4 semillas</text>
+  <text x="24" y="268" fill="#6E675C" font-size="11" font-family="IBM Plex Mono, monospace">puntos teal = semillas individuales · marca dorada = media</text>
+  <text x="24" y="284" fill="#6E675C" font-size="11" font-family="IBM Plex Mono, monospace">rangos solapados → efecto tamaño sin resolver con n=4 semillas</text>
 </svg>
 <figcaption style="color:#6E675C;font-size:0.85em">Resultados medidos, archivos sellados EXP-0012-001 … -008.</figcaption>
 </figure>

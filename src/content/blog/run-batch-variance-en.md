@@ -18,7 +18,7 @@ Run 002 showed a smaller gap at n=16 than at n=12 (20.7% vs 42.8%) and we explic
 ## The result
 
 <figure style="margin:1.5em 0">
-<svg viewBox="0 0 640 290" role="img" aria-label="QAOA gap to exact optimum across four seeds per size. n=12: 23.4 to 53.7 percent, mean 40.9. n=16: 20.7 to 42.3 percent, mean 28.8. Ranges overlap." style="width:100%;height:auto;background:#1F1C18;border-radius:4px">
+<svg viewBox="0 0 640 300" role="img" aria-label="QAOA gap to exact optimum across four seeds per size. n=12: 23.4 to 53.7 percent, mean 40.9. n=16: 20.7 to 42.3 percent, mean 28.8. Ranges overlap." style="width:100%;height:auto;background:#1F1C18;border-radius:4px">
   <text x="24" y="34" fill="#F4EEDF" font-size="15" font-weight="600" font-family="Instrument Sans, sans-serif">QAOA p=2 · gap to exact optimum · 4 seeds per size</text>
   <text x="24" y="54" fill="#B5AC99" font-size="12" font-family="IBM Plex Mono, monospace">seeds 42–45 · equal 120 s budgets · CP-SAT: proven optimum in all 8 runs</text>
   <line x1="80" y1="210" x2="600" y2="210" stroke="#3D372F" stroke-width="1"/>
@@ -39,7 +39,8 @@ Run 002 showed a smaller gap at n=16 than at n=12 (20.7% vs 42.8%) and we explic
   <text x="502" y="115" fill="#F4EEDF" font-size="11" font-family="IBM Plex Mono, monospace">max 42.3%</text>
   <text x="502" y="165" fill="#F4EEDF" font-size="11" font-family="IBM Plex Mono, monospace">min 20.7%</text>
   <text x="440" y="132" fill="#D9B87A" font-size="11" text-anchor="end" font-family="IBM Plex Mono, monospace">mean 28.8%</text>
-  <text x="24" y="274" fill="#6E675C" font-size="11" font-family="IBM Plex Mono, monospace">teal dots = individual seeds · gold tick = mean · ranges overlap → size effect unresolved at n=4 seeds</text>
+  <text x="24" y="268" fill="#6E675C" font-size="11" font-family="IBM Plex Mono, monospace">teal dots = individual seeds · gold tick = mean</text>
+  <text x="24" y="284" fill="#6E675C" font-size="11" font-family="IBM Plex Mono, monospace">ranges overlap → size effect unresolved at n=4 seeds</text>
 </svg>
 <figcaption style="color:#6E675C;font-size:0.85em">Measured results, sealed archives EXP-0012-001 … -008.</figcaption>
 </figure>
