@@ -6,7 +6,9 @@ const t = es ? {
   eyebrow:'El evidence ledger', h1:'Cada veredicto, con la prueba cruda.',
   lede:'El registro público de los veredictos de Rosetta: por receta y clase de problema, si quantum le ganó al mejor solver clásico, a qué tamaño, con evidencia reproducible.',
   demo:'Preview ilustrativo — estos son los tipos de entrada que el ledger contendrá, aún no resultados medidos',
-  c1:'Recetas en pipeline', c2:'Veredictos publicados', c3:'Primer veredicto real', c3v:'2026-07-24', c4:'Copias por veredicto + ancla externa',
+  c1:'Recetas en pipeline', c2:'Veredictos publicados', c3:'Primer veredicto real', c3v:'2026-07-24', c4:'Copias por corrida + ancla externa',
+  c5:'Corridas selladas y ancladas',
+  det:'determinista', raw:'JSON sellado ↗', nover:'Sin veredicto: los datos están medidos y sellados, pero todavía no llamamos un resultado.',
   all:'Todas', id:'ID', recipe:'Receta', cls:'Clase de problema', vert:'Vertical', status:'Estado', ev:'Evidencia',
   detail:'ver detalle →', soon:'pronto', close:'cerrar ✕', watermark:'Ilustrativo — preview de estructura, no un resultado medido',
   algo:'Algoritmo', qubits:'Qubits (est.)', src:'Fuente', srcv:'arXiv (cosechado)',
@@ -18,7 +20,9 @@ const t = es ? {
   eyebrow:'The evidence ledger', h1:'Every verdict, with the raw proof.',
   lede:"The public record of Rosetta's verdicts: per recipe and problem class, whether quantum beat the best classical solver, at what size, with reproducible evidence.",
   demo:'Illustrative preview — these are the entry types the ledger will hold, not measured results yet',
-  c1:'Recipes in pipeline', c2:'Verdicts published', c3:'First real verdict', c3v:'2026-07-24', c4:'Copies per verdict + external anchor',
+  c1:'Recipes in pipeline', c2:'Verdicts published', c3:'First real verdict', c3v:'2026-07-24', c4:'Copies per run + external anchor',
+  c5:'Sealed and anchored runs',
+  det:'deterministic', raw:'sealed JSON ↗', nover:'No verdict: the data is measured and sealed, but we are not calling a result yet.',
   all:'All', id:'ID', recipe:'Recipe', cls:'Problem class', vert:'Vertical', status:'Status', ev:'Evidence',
   detail:'view detail →', soon:'soon', close:'close ✕', watermark:'Illustrative — structure preview, not a measured result',
   algo:'Algorithm', qubits:'Qubits (est.)', src:'Source', srcv:'arXiv (harvested)',
@@ -27,6 +31,14 @@ const t = es ? {
   st:{ 'pending':'pending','measuring':'measuring…','in test':'in test','queued':'queued','verified':'verified','negative':'negative' },
   out:{ 'not yet':'not yet','win':'win','negative':'negative' }
 };
+// The "illustrative preview" tag only belongs on the page while NOTHING on it is
+// measured. The moment a single recipe carries sealed experiments, the tag becomes
+// a lie about our own work, so it is derived — never left standing by hand.
+const anyReal = data.recipes.some(r => !r.is_demo || (r.experiments && r.experiments.length));
+// A recipe opens a detail panel if it has a verdict OR sealed experiments. Data with
+// no verdict called is still evidence, and hiding it would be the same failure the
+// tag was: a page that under-reports what we actually measured.
+const detailed = data.recipes.filter(r => r.verdict || (r.experiments && r.experiments.length));
 const verticals = [...new Set(data.recipes.map(r => r.vertical))];
 const stClass = (s) => ({ 'pending':'pending','measuring':'measuring','in test':'intest','queued':'queued','verified':'win','negative':'intest' }[s] || 'pending');
 const name = (r) => es ? r.name_es : r.name_en;
@@ -37,11 +49,11 @@ const cls = (r) => es ? r.class_es : r.class_en;
     <div class="eyebrow">{t.eyebrow}</div>
     <h1>{t.h1}</h1>
     <p class="lede">{t.lede}</p>
-    <span class="demo-tag">{t.demo}</span>
+    {!anyReal && <span class="demo-tag">{t.demo}</span>}
     <div class="counter">
       <div class="c"><div class="v">{data.counter.pipeline}</div><div class="k">{t.c1}</div></div>
+      <div class="c"><div class="v">{data.counter.sealed ?? 0}</div><div class="k">{t.c5}</div></div>
       <div class="c"><div class="v">{data.counter.published}</div><div class="k">{t.c2}</div></div>
-      <div class="c"><div class="v"><span class="live-dot">●</span> {t.c3v}</div><div class="k">{t.c3}</div></div>
       <div class="c"><div class="v">3×</div><div class="k">{t.c4}</div></div>
     </div>
   </div>
@@ -70,12 +82,12 @@ const cls = (r) => es ? r.class_es : r.class_en;
               ? <span class="st measuring"><span class="dot"></span>{t.st[r.status]}</span>
               : <span class={`st ${stClass(r.status)}`}>{t.st[r.status] || r.status}</span>}
           </div>
-          <div><span class="ev">{r.verdict ? t.detail : t.soon}</span></div>
+          <div><span class="ev">{(r.verdict || (r.experiments && r.experiments.length)) ? t.detail : t.soon}</span></div>
         </div>
       ))}
     </div>
 
-    {data.recipes.filter(r => r.verdict).map(r => (
+    {detailed.map(r => (
       <div class="detail" id={`detail-${r.id}`}>
         <div class="detail-head">
           <span class="rid">{r.id} · {name(r)}</span>
@@ -89,16 +101,24 @@ const cls = (r) => es ? r.class_es : r.class_en;
             <div class="mini"><div class="k">{t.qubits}</div><div class="v">{r.qubits ?? '—'}</div></div>
             <div class="mini"><div class="k">{t.src}</div><div class="v">{t.srcv}</div></div>
           </div>
-          <div class="verdict">
-            <div class="out">{t.out[r.verdict.outcome] || r.verdict.outcome}</div>
-            <div class="sum">{es ? r.verdict.summary_es : r.verdict.summary_en}</div>
-            <div class="cross">{es ? r.verdict.crossover_es : r.verdict.crossover_en}</div>
-          </div>
+          {r.verdict
+            ? <div class="verdict">
+                <div class="out">{t.out[r.verdict.outcome] || r.verdict.outcome}</div>
+                <div class="sum">{es ? r.verdict.summary_es : r.verdict.summary_en}</div>
+                <div class="cross">{es ? r.verdict.crossover_es : r.verdict.crossover_en}</div>
+              </div>
+            : <div class="verdict pending-v"><div class="sum">{t.nover}</div></div>}
           {r.experiments && (
             <div class="exp-t">
-              <div class="exp-row h"><div>{t.inst}</div><div>{t.qside}</div><div>{t.cchamp}</div><div>{t.seed}</div></div>
+              <div class="exp-row h"><div>{t.inst}</div><div>{t.qside}</div><div>{t.cchamp}</div><div>{t.seed}</div><div>{t.ev}</div></div>
               {r.experiments.map(e => (
-                <div class="exp-row"><div>{e.instance}</div><div class="q">{e.q}</div><div class="c">{e.c}</div><div>{e.seed}</div></div>
+                <div class="exp-row">
+                  <div>{e.instance}</div>
+                  <div class="q">{e.q}</div>
+                  <div class="c">{e.c}</div>
+                  <div>{e.seed ?? <span class="det">{t.det}</span>}</div>
+                  <div>{e.url ? <a class="rawlink" href={e.url} target="_blank" rel="noopener">{t.raw}</a> : '—'}</div>
+                </div>
               ))}
             </div>
           )}

@@ -1,20 +1,156 @@
 {
   "counter": {
     "pipeline": 4,
-    "published": 1
+    "published": 1,
+    "sealed": 48
   },
   "recipes": [
     {
       "id": "RQ-0007",
-      "name_en": "Molecular ground-state search",
-      "name_es": "Molecular ground-state search",
-      "class_en": "Molecular simulation",
-      "class_es": "Molecular simulation",
+      "name_en": "Allosteric site detection by signal propagation",
+      "name_es": "Allosteric site detection by signal propagation",
+      "class_en": "Allosteric site prediction",
+      "class_es": "Allosteric site prediction",
       "vertical": "Pharma",
-      "algorithm": "VQE",
-      "qubits": null,
+      "algorithm": "Continuous-time quantum walk (CTQW) vs classical diffusion",
+      "qubits": 9,
       "status": "measuring",
-      "is_demo": true
+      "is_demo": false,
+      "experiments": [
+        {
+          "instance": "2HHB c8.5 w0.5-8.0 (n=574)",
+          "q": "CTQW exp(-iAt), exact matrix-exp · allosteric pct 69.89",
+          "c": "diffusion exp(-Lt), exact matrix-exp · allosteric pct 74.24",
+          "seed": null,
+          "url": "https://raw.githubusercontent.com/RosettaQuantum/evidence/main/runs/2026/07/RosettaQ__RUN__EXP-0007-001__20260724T2046Z__ctqw-vs-diffusion--allostery-2hhb.json"
+        },
+        {
+          "instance": "2HHB c7.5 w0.5-8.0 (n=574)",
+          "q": "CTQW exp(-iAt), exact matrix-exp · allosteric pct 57.32",
+          "c": "diffusion exp(-Lt), exact matrix-exp · allosteric pct 73.87",
+          "seed": null,
+          "url": "https://raw.githubusercontent.com/RosettaQuantum/evidence/main/runs/2026/07/RosettaQ__RUN__EXP-0007-002__20260724T2154Z__ctqw-vs-diffusion--allostery-2hhb-c7.5-t0.5_8.0.json"
+        },
+        {
+          "instance": "2HHB c8.0 w0.5-8.0 (n=574)",
+          "q": "CTQW exp(-iAt), exact matrix-exp · allosteric pct 75.67",
+          "c": "diffusion exp(-Lt), exact matrix-exp · allosteric pct 73.65",
+          "seed": null,
+          "url": "https://raw.githubusercontent.com/RosettaQuantum/evidence/main/runs/2026/07/RosettaQ__RUN__EXP-0007-003__20260724T2154Z__ctqw-vs-diffusion--allostery-2hhb-c8.0-t0.5_8.0.json"
+        },
+        {
+          "instance": "2HHB c9.0 w0.5-8.0 (n=574)",
+          "q": "CTQW exp(-iAt), exact matrix-exp · allosteric pct 79.08",
+          "c": "diffusion exp(-Lt), exact matrix-exp · allosteric pct 76.82",
+          "seed": null,
+          "url": "https://raw.githubusercontent.com/RosettaQuantum/evidence/main/runs/2026/07/RosettaQ__RUN__EXP-0007-004__20260724T2154Z__ctqw-vs-diffusion--allostery-2hhb-c9.0-t0.5_8.0.json"
+        },
+        {
+          "instance": "2HHB c9.5 w0.5-8.0 (n=574)",
+          "q": "CTQW exp(-iAt), exact matrix-exp · allosteric pct 56.83",
+          "c": "diffusion exp(-Lt), exact matrix-exp · allosteric pct 77.31",
+          "seed": null,
+          "url": "https://raw.githubusercontent.com/RosettaQuantum/evidence/main/runs/2026/07/RosettaQ__RUN__EXP-0007-005__20260724T2154Z__ctqw-vs-diffusion--allostery-2hhb-c9.5-t0.5_8.0.json"
+        },
+        {
+          "instance": "2HHB c10.0 w0.5-8.0 (n=574)",
+          "q": "CTQW exp(-iAt), exact matrix-exp · allosteric pct 71.82",
+          "c": "diffusion exp(-Lt), exact matrix-exp · allosteric pct 76.57",
+          "seed": null,
+          "url": "https://raw.githubusercontent.com/RosettaQuantum/evidence/main/runs/2026/07/RosettaQ__RUN__EXP-0007-006__20260724T2154Z__ctqw-vs-diffusion--allostery-2hhb-c10.0-t0.5_8.0.json"
+        },
+        {
+          "instance": "2HHB c8.5 w0.5-4.0 (n=574)",
+          "q": "CTQW exp(-iAt), exact matrix-exp · allosteric pct 73.4",
+          "c": "diffusion exp(-Lt), exact matrix-exp · allosteric pct 71.97",
+          "seed": null,
+          "url": "https://raw.githubusercontent.com/RosettaQuantum/evidence/main/runs/2026/07/RosettaQ__RUN__EXP-0007-007__20260724T2154Z__ctqw-vs-diffusion--allostery-2hhb-c8.5-t0.5_4.0.json"
+        },
+        {
+          "instance": "2HHB c8.5 w0.5-14.0 (n=574)",
+          "q": "CTQW exp(-iAt), exact matrix-exp · allosteric pct 74.21",
+          "c": "diffusion exp(-Lt), exact matrix-exp · allosteric pct 76.23",
+          "seed": null,
+          "url": "https://raw.githubusercontent.com/RosettaQuantum/evidence/main/runs/2026/07/RosettaQ__RUN__EXP-0007-008__20260724T2154Z__ctqw-vs-diffusion--allostery-2hhb-c8.5-t0.5_14.0.json"
+        },
+        {
+          "instance": "1SHJ c8.0 w0.5-8.0 (n=417)",
+          "q": "CTQW exp(-iAt), exact matrix-exp · allosteric pct 70.87",
+          "c": "diffusion exp(-Lt), exact matrix-exp · allosteric pct 73.98",
+          "seed": null,
+          "url": "https://raw.githubusercontent.com/RosettaQuantum/evidence/main/runs/2026/07/RosettaQ__RUN__EXP-0007-009__20260724T2201Z__ctqw-vs-diffusion--allostery-1shj-c8.0.json"
+        },
+        {
+          "instance": "1SHJ c8.5 w0.5-8.0 (n=417)",
+          "q": "CTQW exp(-iAt), exact matrix-exp · allosteric pct 60.26",
+          "c": "diffusion exp(-Lt), exact matrix-exp · allosteric pct 70.19",
+          "seed": null,
+          "url": "https://raw.githubusercontent.com/RosettaQuantum/evidence/main/runs/2026/07/RosettaQ__RUN__EXP-0007-010__20260724T2201Z__ctqw-vs-diffusion--allostery-1shj-c8.5.json"
+        },
+        {
+          "instance": "1SHL c8.5 w0.5-8.0 (n=398)",
+          "q": "CTQW exp(-iAt), exact matrix-exp · allosteric pct 72.7",
+          "c": "diffusion exp(-Lt), exact matrix-exp · allosteric pct 72.87",
+          "seed": null,
+          "url": "https://raw.githubusercontent.com/RosettaQuantum/evidence/main/runs/2026/07/RosettaQ__RUN__EXP-0007-011__20260724T2201Z__ctqw-vs-diffusion--allostery-1shl-c8.5.json"
+        },
+        {
+          "instance": "1B86 c8.5 w0.5-8.0 (n=574)",
+          "q": "CTQW exp(-iAt), exact matrix-exp · allosteric pct 33.69",
+          "c": "diffusion exp(-Lt), exact matrix-exp · allosteric pct 25.36",
+          "seed": null,
+          "url": "https://raw.githubusercontent.com/RosettaQuantum/evidence/main/runs/2026/07/RosettaQ__RUN__EXP-0007-012__20260724T2201Z__ctqw-vs-diffusion--allostery-1b86-c8.5.json"
+        },
+        {
+          "instance": "KRAS G12C · 4OBE -> 6OIM chain A · 18-config grid",
+          "q": "CTQW exp(-iAt), 18 configs · mean pct 35.63 (top-5 hits 5/18)",
+          "c": "6 classical baselines (diffusion/GNM/ANM/betweenness/closeness/random) · best mean pct 61.68 (closeness); random 49.38",
+          "seed": null,
+          "url": "https://raw.githubusercontent.com/RosettaQuantum/evidence/main/runs/2026/07/RosettaQ__RUN__EXP-0007-013__20260725T1542Z__ctqw-vs-clasicos--allosteria-kras-g12c.json"
+        },
+        {
+          "instance": "BCR-ABL1 · 1OPL -> 5MO4 chain A · 18-config grid",
+          "q": "CTQW exp(-iAt), 18 configs · mean pct 57.99 (top-5 hits 0/18)",
+          "c": "6 classical baselines (diffusion/GNM/ANM/betweenness/closeness/random) · best mean pct 61.9 (betweenness); random 48.28",
+          "seed": null,
+          "url": "https://raw.githubusercontent.com/RosettaQuantum/evidence/main/runs/2026/07/RosettaQ__RUN__EXP-0007-014__20260725T1542Z__ctqw-vs-clasicos--allosteria-bcr-abl1.json"
+        },
+        {
+          "instance": "cardiac myosin · 5TBY -> 9GZ1 chain A · 18-config grid",
+          "q": "CTQW exp(-iAt), 18 configs · mean pct 63.86 (top-5 hits 0/18)",
+          "c": "6 classical baselines (diffusion/GNM/ANM/betweenness/closeness/random) · best mean pct 58.02 (diffusion); random 47.06",
+          "seed": null,
+          "url": "https://raw.githubusercontent.com/RosettaQuantum/evidence/main/runs/2026/07/RosettaQ__RUN__EXP-0007-015__20260725T1543Z__ctqw-vs-clasicos--allosteria-miosina-cardiaca.json"
+        },
+        {
+          "instance": "c-Myc/Max · 1NKP chains A+B (c-Myc/Max on E-box DNA) · blind prediction",
+          "q": "CTQW, top-5 sites per config · sealed and dated 2026-07-25; no co-crystallised effector exists to score against",
+          "c": "diffusion exp(-Lt) · same blind protocol; not scorable today",
+          "seed": null,
+          "url": "https://raw.githubusercontent.com/RosettaQuantum/evidence/main/runs/2026/07/RosettaQ__RUN__EXP-0007-016__20260725T1543Z__ctqw--prediccion-ciega-c-myc.json"
+        },
+        {
+          "instance": "contiguous-pocket spatial null · KRAS G12C, BCR-ABL1, cardiac myosin",
+          "q": "our own method audited first: CTQW · not significant on any target (p in [0.15, 0.85])",
+          "c": "same null applied to all 6 classical baselines · not significant either; naive i.i.d. z up to |4.64| collapses to |z| < 1.2 (2000 perms)",
+          "seed": 20260717,
+          "url": "https://raw.githubusercontent.com/RosettaQuantum/evidence/main/runs/2026/07/RosettaQ__RUN__EXP-0007-017__20260725T1546Z__nulo-espacial-contiguo--instrumento-de-medicion.json"
+        },
+        {
+          "instance": "pocket crypticity · KRAS G12C (4OBE/6OIM), BCR-ABL1 (1OPL/5MO4)",
+          "q": "not applicable: structural diagnosis, not a propagator · measures why the prediction fails, it does not compete",
+          "c": "Ca apo-holo displacement + contact counts · two failure regimes: cryptic (KRAS, site/rest ratio 2.05) vs preformed-rigid (BCR-ABL1, 0.59)",
+          "seed": null,
+          "url": "https://raw.githubusercontent.com/RosettaQuantum/evidence/main/runs/2026/07/RosettaQ__RUN__EXP-0007-018__20260725T1538Z__cripticidad--dos-regimenes-de-fallo.json"
+        },
+        {
+          "instance": "noise, scale and circuit cost · KRAS G12C, BCR-ABL1, cardiac myosin",
+          "q": "Trotterised CTQW, binary encoding · 8-9 qubits; r=256 Trotter steps for Spearman 0.997 vs exact; 2q-depth 4864 (KRAS)",
+          "c": "exact eigendecomposition propagator as reference · dephasing gamma=1.0 still Spearman 0.85-0.91; coarse-graining 12x-42x faster with percentile drift",
+          "seed": null,
+          "url": "https://raw.githubusercontent.com/RosettaQuantum/evidence/main/runs/2026/07/RosettaQ__RUN__EXP-0007-019__20260725T1553Z__entregables-exigidos--ruido-escala-y-costo-de-circuito.json"
+        }
+      ]
     },
     {
       "id": "RQ-0012",
@@ -39,121 +175,141 @@
           "instance": "portfolio_12_assets_seed42",
           "q": "PennyLane QAOA p=2 (CPU sim) · -0.3350 (gap 42.8%)",
           "c": "OR-Tools CP-SAT · -0.5858 (proven optimal)",
-          "seed": 42
+          "seed": 42,
+          "url": "https://raw.githubusercontent.com/RosettaQuantum/evidence/main/runs/2026/07/RosettaQ__RUN__EXP-0012-001__20260723T1927Z__qaoa-vs-cpsat--portfolio-12-seed42.json"
         },
         {
           "instance": "portfolio_16_assets_seed42",
           "q": "PennyLane QAOA p=2 (CPU sim) · -0.4325 (gap 20.7%)",
           "c": "OR-Tools CP-SAT · -0.5457 (proven optimal)",
-          "seed": 42
+          "seed": 42,
+          "url": "https://raw.githubusercontent.com/RosettaQuantum/evidence/main/runs/2026/07/RosettaQ__RUN__EXP-0012-002__20260723T1953Z__qaoa-vs-cpsat--portfolio-16-seed42.json"
         },
         {
           "instance": "portfolio_12_assets_seed43",
           "q": "PennyLane QAOA p=2 (CPU sim) · -0.1304 (gap 53.7%)",
           "c": "OR-Tools CP-SAT · -0.2818 (proven optimal)",
-          "seed": 43
+          "seed": 43,
+          "url": "https://raw.githubusercontent.com/RosettaQuantum/evidence/main/runs/2026/07/RosettaQ__RUN__EXP-0012-003__20260723T2017Z__qaoa-vs-cpsat--portfolio-12-seed43.json"
         },
         {
           "instance": "portfolio_12_assets_seed44",
           "q": "PennyLane QAOA p=2 (CPU sim) · -0.2310 (gap 43.7%)",
           "c": "OR-Tools CP-SAT · -0.4104 (proven optimal)",
-          "seed": 44
+          "seed": 44,
+          "url": "https://raw.githubusercontent.com/RosettaQuantum/evidence/main/runs/2026/07/RosettaQ__RUN__EXP-0012-004__20260723T2017Z__qaoa-vs-cpsat--portfolio-12-seed44.json"
         },
         {
           "instance": "portfolio_12_assets_seed45",
           "q": "PennyLane QAOA p=2 (CPU sim) · -0.3704 (gap 23.4%)",
           "c": "OR-Tools CP-SAT · -0.4835 (proven optimal)",
-          "seed": 45
-        },
-        {
-          "instance": "portfolio_12_assets_seed46",
-          "q": "PennyLane QAOA p=2 (CPU sim) · -0.3166 (gap 39.8%)",
-          "c": "OR-Tools CP-SAT · -0.5264 (proven optimal)",
-          "seed": 46
-        },
-        {
-          "instance": "portfolio_12_assets_seed47",
-          "q": "PennyLane QAOA p=2 (CPU sim) · -0.3375 (gap 22.0%)",
-          "c": "OR-Tools CP-SAT · -0.4328 (proven optimal)",
-          "seed": 47
-        },
-        {
-          "instance": "portfolio_12_assets_seed48",
-          "q": "PennyLane QAOA p=2 (CPU sim) · -0.0855 (gap 73.4%)",
-          "c": "OR-Tools CP-SAT · -0.3220 (proven optimal)",
-          "seed": 48
-        },
-        {
-          "instance": "portfolio_12_assets_seed49",
-          "q": "PennyLane QAOA p=2 (CPU sim) · -0.0417 (gap 86.5%)",
-          "c": "OR-Tools CP-SAT · -0.3097 (proven optimal)",
-          "seed": 49
+          "seed": 45,
+          "url": "https://raw.githubusercontent.com/RosettaQuantum/evidence/main/runs/2026/07/RosettaQ__RUN__EXP-0012-005__20260723T2017Z__qaoa-vs-cpsat--portfolio-12-seed45.json"
         },
         {
           "instance": "portfolio_16_assets_seed43",
           "q": "PennyLane QAOA p=2 (CPU sim) · -0.3160 (gap 42.3%)",
           "c": "OR-Tools CP-SAT · -0.5480 (proven optimal)",
-          "seed": 43
+          "seed": 43,
+          "url": "https://raw.githubusercontent.com/RosettaQuantum/evidence/main/runs/2026/07/RosettaQ__RUN__EXP-0012-006__20260723T2017Z__qaoa-vs-cpsat--portfolio-16-seed43.json"
         },
         {
           "instance": "portfolio_16_assets_seed44",
           "q": "PennyLane QAOA p=2 (CPU sim) · -0.3494 (gap 21.3%)",
           "c": "OR-Tools CP-SAT · -0.4438 (proven optimal)",
-          "seed": 44
+          "seed": 44,
+          "url": "https://raw.githubusercontent.com/RosettaQuantum/evidence/main/runs/2026/07/RosettaQ__RUN__EXP-0012-007__20260723T2017Z__qaoa-vs-cpsat--portfolio-16-seed44.json"
         },
         {
           "instance": "portfolio_16_assets_seed45",
           "q": "PennyLane QAOA p=2 (CPU sim) · -0.3207 (gap 31.0%)",
           "c": "OR-Tools CP-SAT · -0.4649 (proven optimal)",
-          "seed": 45
+          "seed": 45,
+          "url": "https://raw.githubusercontent.com/RosettaQuantum/evidence/main/runs/2026/07/RosettaQ__RUN__EXP-0012-008__20260723T2017Z__qaoa-vs-cpsat--portfolio-16-seed45.json"
+        },
+        {
+          "instance": "portfolio_12_assets_seed46",
+          "q": "PennyLane QAOA p=2 (CPU sim) · -0.3166 (gap 39.8%)",
+          "c": "OR-Tools CP-SAT · -0.5264 (proven optimal)",
+          "seed": 46,
+          "url": "https://raw.githubusercontent.com/RosettaQuantum/evidence/main/runs/2026/07/RosettaQ__RUN__EXP-0012-009__20260724T0319Z__qaoa-vs-cpsat--portfolio-12-seed46.json"
+        },
+        {
+          "instance": "portfolio_12_assets_seed47",
+          "q": "PennyLane QAOA p=2 (CPU sim) · -0.3375 (gap 22.0%)",
+          "c": "OR-Tools CP-SAT · -0.4328 (proven optimal)",
+          "seed": 47,
+          "url": "https://raw.githubusercontent.com/RosettaQuantum/evidence/main/runs/2026/07/RosettaQ__RUN__EXP-0012-010__20260724T0319Z__qaoa-vs-cpsat--portfolio-12-seed47.json"
+        },
+        {
+          "instance": "portfolio_12_assets_seed48",
+          "q": "PennyLane QAOA p=2 (CPU sim) · -0.0855 (gap 73.4%)",
+          "c": "OR-Tools CP-SAT · -0.3220 (proven optimal)",
+          "seed": 48,
+          "url": "https://raw.githubusercontent.com/RosettaQuantum/evidence/main/runs/2026/07/RosettaQ__RUN__EXP-0012-011__20260724T0319Z__qaoa-vs-cpsat--portfolio-12-seed48.json"
+        },
+        {
+          "instance": "portfolio_12_assets_seed49",
+          "q": "PennyLane QAOA p=2 (CPU sim) · -0.0417 (gap 86.5%)",
+          "c": "OR-Tools CP-SAT · -0.3097 (proven optimal)",
+          "seed": 49,
+          "url": "https://raw.githubusercontent.com/RosettaQuantum/evidence/main/runs/2026/07/RosettaQ__RUN__EXP-0012-012__20260724T0319Z__qaoa-vs-cpsat--portfolio-12-seed49.json"
         },
         {
           "instance": "portfolio_16_assets_seed46",
           "q": "PennyLane QAOA p=2 (CPU sim) · -0.4116 (gap 31.2%)",
           "c": "OR-Tools CP-SAT · -0.5982 (proven optimal)",
-          "seed": 46
+          "seed": 46,
+          "url": "https://raw.githubusercontent.com/RosettaQuantum/evidence/main/runs/2026/07/RosettaQ__RUN__EXP-0012-013__20260724T0319Z__qaoa-vs-cpsat--portfolio-16-seed46.json"
         },
         {
           "instance": "portfolio_16_assets_seed47",
           "q": "PennyLane QAOA p=2 (CPU sim) · -0.2926 (gap 32.7%)",
           "c": "OR-Tools CP-SAT · -0.4349 (proven optimal)",
-          "seed": 47
+          "seed": 47,
+          "url": "https://raw.githubusercontent.com/RosettaQuantum/evidence/main/runs/2026/07/RosettaQ__RUN__EXP-0012-014__20260724T0319Z__qaoa-vs-cpsat--portfolio-16-seed47.json"
         },
         {
           "instance": "portfolio_16_assets_seed48",
           "q": "PennyLane QAOA p=2 (CPU sim) · -0.3965 (gap 12.3%)",
           "c": "OR-Tools CP-SAT · -0.4520 (proven optimal)",
-          "seed": 48
+          "seed": 48,
+          "url": "https://raw.githubusercontent.com/RosettaQuantum/evidence/main/runs/2026/07/RosettaQ__RUN__EXP-0012-015__20260724T0319Z__qaoa-vs-cpsat--portfolio-16-seed48.json"
         },
         {
           "instance": "portfolio_16_assets_seed49",
           "q": "PennyLane QAOA p=2 (CPU sim) · -0.5060 (gap 9.6%)",
           "c": "OR-Tools CP-SAT · -0.5598 (proven optimal)",
-          "seed": 49
+          "seed": 49,
+          "url": "https://raw.githubusercontent.com/RosettaQuantum/evidence/main/runs/2026/07/RosettaQ__RUN__EXP-0012-016__20260724T0319Z__qaoa-vs-cpsat--portfolio-16-seed49.json"
         },
         {
           "instance": "portfolio_20_assets_seed42",
           "q": "PennyLane QAOA p=2 COBYLA (CPU sim) · -0.5794 (gap 24.3%)",
           "c": "OR-Tools CP-SAT · -0.7648 (proven optimal)",
-          "seed": 42
+          "seed": 42,
+          "url": "https://raw.githubusercontent.com/RosettaQuantum/evidence/main/runs/2026/07/RosettaQ__RUN__EXP-0012-017__20260724T0319Z__qaoa-vs-cpsat--portfolio-20-seed42.json"
         },
         {
           "instance": "portfolio_20_assets_seed43",
           "q": "PennyLane QAOA p=2 COBYLA (CPU sim) · -0.2021 (gap 58.5%)",
           "c": "OR-Tools CP-SAT · -0.4869 (proven optimal)",
-          "seed": 43
+          "seed": 43,
+          "url": "https://raw.githubusercontent.com/RosettaQuantum/evidence/main/runs/2026/07/RosettaQ__RUN__EXP-0012-018__20260724T0319Z__qaoa-vs-cpsat--portfolio-20-seed43.json"
         },
         {
           "instance": "portfolio_20_assets_seed44",
           "q": "PennyLane QAOA p=2 COBYLA (CPU sim) · -0.3462 (gap 42.9%)",
           "c": "OR-Tools CP-SAT · -0.6065 (proven optimal)",
-          "seed": 44
+          "seed": 44,
+          "url": "https://raw.githubusercontent.com/RosettaQuantum/evidence/main/runs/2026/07/RosettaQ__RUN__EXP-0012-019__20260724T0319Z__qaoa-vs-cpsat--portfolio-20-seed44.json"
         },
         {
           "instance": "portfolio_20_assets_seed45",
           "q": "PennyLane QAOA p=2 COBYLA (CPU sim) · -0.3994 (gap 38.8%)",
           "c": "OR-Tools CP-SAT · -0.6528 (proven optimal)",
-          "seed": 45
+          "seed": 45,
+          "url": "https://raw.githubusercontent.com/RosettaQuantum/evidence/main/runs/2026/07/RosettaQ__RUN__EXP-0012-020__20260724T0319Z__qaoa-vs-cpsat--portfolio-20-seed45.json"
         }
       ]
     },
@@ -171,15 +327,80 @@
     },
     {
       "id": "RQ-0033",
-      "name_en": "Grid balancing with renewables",
-      "name_es": "Grid balancing with renewables",
+      "name_en": "Grid expansion under stress",
+      "name_es": "Grid expansion under stress",
       "class_en": "Grid optimization",
       "class_es": "Grid optimization",
       "vertical": "Energy",
-      "algorithm": "QAOA",
-      "qubits": null,
-      "status": "queued",
-      "is_demo": true
+      "algorithm": "QAOA p=2 vs CP-SAT",
+      "qubits": 16,
+      "status": "measuring",
+      "is_demo": false,
+      "experiments": [
+        {
+          "instance": "case14_stress3.0_K14_seed42",
+          "q": "PennyLane QAOA p=2 (CPU sim, 2000 shots) · 3493.43 (gap 3.20%)",
+          "c": "OR-Tools CP-SAT · 3384.95 (proven optimal)",
+          "seed": 42,
+          "url": "https://raw.githubusercontent.com/RosettaQuantum/evidence/main/runs/2026/07/RosettaQ__RUN__EXP-0033-001__20260724T1343Z__qaoa-vs-cpsat--eon-grid-case14-seed42.json"
+        },
+        {
+          "instance": "case14_stress3.0_K14_seed43",
+          "q": "PennyLane QAOA p=2 (CPU sim, 2000 shots) · 3385.12 (gap 0.01%)",
+          "c": "OR-Tools CP-SAT · 3384.95 (proven optimal)",
+          "seed": 43,
+          "url": "https://raw.githubusercontent.com/RosettaQuantum/evidence/main/runs/2026/07/RosettaQ__RUN__EXP-0033-002__20260724T1343Z__qaoa-vs-cpsat--eon-grid-case14-seed43.json"
+        },
+        {
+          "instance": "case14_stress3.0_K14_seed44",
+          "q": "PennyLane QAOA p=2 (CPU sim, 2000 shots) · 3420.02 (gap 1.04%)",
+          "c": "OR-Tools CP-SAT · 3384.95 (proven optimal)",
+          "seed": 44,
+          "url": "https://raw.githubusercontent.com/RosettaQuantum/evidence/main/runs/2026/07/RosettaQ__RUN__EXP-0033-003__20260724T1343Z__qaoa-vs-cpsat--eon-grid-case14-seed44.json"
+        },
+        {
+          "instance": "case14_stress2.2_K16_seed42",
+          "q": "PennyLane QAOA p=2 (CPU sim, 2000 shots) · 11638.15 (gap 1.04%)",
+          "c": "OR-Tools CP-SAT · 11518.69 (proven optimal)",
+          "seed": 42,
+          "url": "https://raw.githubusercontent.com/RosettaQuantum/evidence/main/runs/2026/07/RosettaQ__RUN__EXP-0033-004__20260724T1354Z__qaoa-vs-cpsat--eon-grid-case30-seed42.json"
+        },
+        {
+          "instance": "case14_stress2.2_K16_seed43",
+          "q": "PennyLane QAOA p=2 (CPU sim, 2000 shots) · 9274.08 (gap 1.03%)",
+          "c": "OR-Tools CP-SAT · 9179.27 (proven optimal)",
+          "seed": 43,
+          "url": "https://raw.githubusercontent.com/RosettaQuantum/evidence/main/runs/2026/07/RosettaQ__RUN__EXP-0033-005__20260724T1354Z__qaoa-vs-cpsat--eon-grid-case30-seed43.json"
+        },
+        {
+          "instance": "case14_stress2.2_K16_seed44",
+          "q": "PennyLane QAOA p=2 (CPU sim, 2000 shots) · 8034.33 (gap 0.99%)",
+          "c": "OR-Tools CP-SAT · 7955.70 (proven optimal)",
+          "seed": 44,
+          "url": "https://raw.githubusercontent.com/RosettaQuantum/evidence/main/runs/2026/07/RosettaQ__RUN__EXP-0033-006__20260724T1427Z__qaoa-vs-cpsat--eon-grid-case30-seed44.json"
+        },
+        {
+          "instance": "case14_stress2.2_K16_seed45",
+          "q": "PennyLane QAOA p=2 (CPU sim, 2000 shots) · 3583.37 (gap 3.11%)",
+          "c": "OR-Tools CP-SAT · 3475.40 (proven optimal)",
+          "seed": 45,
+          "url": "https://raw.githubusercontent.com/RosettaQuantum/evidence/main/runs/2026/07/RosettaQ__RUN__EXP-0033-007__20260724T1427Z__qaoa-vs-cpsat--eon-grid-case30-seed45.json"
+        },
+        {
+          "instance": "case14_stress2.2_K16_seed46",
+          "q": "PennyLane QAOA p=2 (CPU sim, 2000 shots) · 9109.95 (gap 1.45%)",
+          "c": "OR-Tools CP-SAT · 8979.99 (proven optimal)",
+          "seed": 46,
+          "url": "https://raw.githubusercontent.com/RosettaQuantum/evidence/main/runs/2026/07/RosettaQ__RUN__EXP-0033-008__20260724T1427Z__qaoa-vs-cpsat--eon-grid-case30-seed46.json"
+        },
+        {
+          "instance": "case14_stress1.8_K16_seed42",
+          "q": "PennyLane QAOA p=2 (CPU sim, 2000 shots) · 2863.35 (gap 4.20%)",
+          "c": "OR-Tools CP-SAT · 2747.96 (proven optimal)",
+          "seed": 42,
+          "url": "https://raw.githubusercontent.com/RosettaQuantum/evidence/main/runs/2026/07/RosettaQ__RUN__EXP-0033-009__20260724T1427Z__qaoa-vs-cpsat--eon-grid-case118-seed42.json"
+        }
+      ]
     }
   ]
 }

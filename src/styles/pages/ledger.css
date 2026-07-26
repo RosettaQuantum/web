@@ -88,11 +88,18 @@ section{padding:40px 0}
 .verdict .sum{font-size:15px;color:var(--papyrus-dim);margin-top:6px}
 .verdict .cross{font-family:'IBM Plex Mono',monospace;font-size:12.5px;color:var(--faience);margin-top:10px}
 .exp-t{font-family:'IBM Plex Mono',monospace;font-size:12px;border:1px solid var(--stone-line);border-radius:3px;overflow:hidden;overflow-x:auto}
-.exp-row{display:grid;grid-template-columns:1.4fr 1fr 1fr .6fr;gap:0;border-bottom:1px solid var(--stone-line)}
+.exp-row{display:grid;grid-template-columns:1.4fr 1fr 1fr .55fr .5fr;gap:0;border-bottom:1px solid var(--stone-line)}
 .exp-row:last-child{border-bottom:none}
 .exp-row.h{background:var(--basalt-3);color:var(--papyrus-dim);text-transform:uppercase;font-size:10px;letter-spacing:.12em}
 .exp-row>div{padding:11px 14px}
 .exp-row .q{color:var(--faience)} .exp-row .c{color:var(--papyrus)}
+.exp-row .det{color:var(--faint);font-style:italic}
+.exp-row .rawlink{color:var(--faience);border-bottom:1px solid transparent}
+.exp-row .rawlink:hover{border-bottom-color:var(--faience)}
+/* Recipe with sealed data but no verdict called: the panel says so, in words,
+   instead of leaving a gold verdict block that was never earned. */
+.verdict.pending-v{border-left-color:var(--stone-line)}
+.verdict.pending-v .sum{margin-top:0}
 .nb{margin-top:18px}
 .nb button{background:transparent;border:1px solid var(--stone-line);color:var(--faint);border-radius:2px;padding:10px 18px;font-family:'IBM Plex Mono',monospace;font-size:12px;cursor:not-allowed}
 
@@ -119,7 +126,7 @@ footer{border-top:1px solid var(--stone-line);padding:44px 0 40px;margin-top:36p
   .detail-body{padding:16px}
   .detail-close{min-height:40px;padding:6px 14px}
   .exp-t{font-size:10.5px}
-  .exp-row{grid-template-columns:1.15fr 1fr 1fr .8fr}
+  .exp-row{grid-template-columns:1.15fr 1fr 1fr .7fr .6fr}
   .exp-row>div{padding:9px 8px;overflow-wrap:anywhere}
   .hero{padding:44px 0 22px}
   section{padding:28px 0}
