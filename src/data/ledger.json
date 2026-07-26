@@ -13,7 +13,7 @@
       "vertical": "Pharma",
       "algorithm": "VQE",
       "qubits": null,
-      "status": "pending",
+      "status": "measuring",
       "is_demo": true
     },
     {
@@ -24,34 +24,136 @@
       "class_es": "Portfolio optimization",
       "vertical": "Finance",
       "algorithm": "QAOA",
-      "qubits": "12–20",
+      "qubits": 20,
       "status": "measuring",
       "is_demo": false,
       "verdict": {
         "outcome": "not yet",
-        "summary_en": "CP-SAT reached the proven exact optimum in all 20 sealed runs (n=12: 8 seeds · n=16: 8 · n=20: 4). QAOA p=2 mean gaps to optimum: 48.2% / 25.1% / 41.1% under equal 120 s budgets. Verdict V-0012, sha256:f510eff6…6636, anchored in triple copy.",
-        "summary_es": "CP-SAT alcanzó el óptimo exacto probado en los 20 runs sellados (n=12: 8 seeds · n=16: 8 · n=20: 4). Brechas medias de QAOA p=2 al óptimo: 48.2% / 25.1% / 41.1% con presupuestos iguales de 120 s. Veredicto V-0012, sha256:f510eff6…6636, en triple copia.",
-        "crossover_en": "Crossover: not observed — no defensible size trend at n≤20; seed-to-seed variance (σ 11–23 pts) is first-order. Series continues.",
-        "crossover_es": "Punto de cruce: no observado — sin tendencia de tamaño defendible a n≤20; la varianza entre semillas (σ 11–23 pts) es de primer orden. La serie continúa."
+        "crossover_en": "Crossover not observed — no defensible size trend at n≤20; seed-to-seed variance (σ 11–23 pts) is first-order. Series continues.",
+        "crossover_es": "Crossover not observed — no defensible size trend at n≤20; seed-to-seed variance (σ 11–23 pts) is first-order. Series continues.",
+        "summary_en": "CP-SAT reached the proven exact optimum in all 20 sealed runs (n=12: 8 seeds · n=16: 8 · n=20: 4). QAOA p=2 mean gaps to optimum: 48.2% / 25.1% / 41.1% under equal 120 s budgets. Sealed verdict V-0012, sha256:f510eff6…6636, triple copy + OTS.",
+        "summary_es": "CP-SAT reached the proven exact optimum in all 20 sealed runs (n=12: 8 seeds · n=16: 8 · n=20: 4). QAOA p=2 mean gaps to optimum: 48.2% / 25.1% / 41.1% under equal 120 s budgets. Sealed verdict V-0012, sha256:f510eff6…6636, triple copy + OTS."
       },
       "experiments": [
         {
-          "instance": "portfolio_12_assets · seeds 42–49",
-          "q": "gap 48.2% ± 22.5",
-          "c": "optimal, 0.05–0.26 s",
-          "seed": "8 seeds"
+          "instance": "portfolio_12_assets_seed42",
+          "q": "PennyLane QAOA p=2 (CPU sim) · -0.3350 (gap 42.8%)",
+          "c": "OR-Tools CP-SAT · -0.5858 (proven optimal)",
+          "seed": 42
         },
         {
-          "instance": "portfolio_16_assets · seeds 42–49",
-          "q": "gap 25.1% ± 11.1",
-          "c": "optimal, 1.0–1.4 s",
-          "seed": "8 seeds"
+          "instance": "portfolio_16_assets_seed42",
+          "q": "PennyLane QAOA p=2 (CPU sim) · -0.4325 (gap 20.7%)",
+          "c": "OR-Tools CP-SAT · -0.5457 (proven optimal)",
+          "seed": 42
         },
         {
-          "instance": "portfolio_20_assets · seeds 42–45",
-          "q": "gap 41.1% ± 14.1",
-          "c": "optimal, 28–30 s",
-          "seed": "4 seeds"
+          "instance": "portfolio_12_assets_seed43",
+          "q": "PennyLane QAOA p=2 (CPU sim) · -0.1304 (gap 53.7%)",
+          "c": "OR-Tools CP-SAT · -0.2818 (proven optimal)",
+          "seed": 43
+        },
+        {
+          "instance": "portfolio_12_assets_seed44",
+          "q": "PennyLane QAOA p=2 (CPU sim) · -0.2310 (gap 43.7%)",
+          "c": "OR-Tools CP-SAT · -0.4104 (proven optimal)",
+          "seed": 44
+        },
+        {
+          "instance": "portfolio_12_assets_seed45",
+          "q": "PennyLane QAOA p=2 (CPU sim) · -0.3704 (gap 23.4%)",
+          "c": "OR-Tools CP-SAT · -0.4835 (proven optimal)",
+          "seed": 45
+        },
+        {
+          "instance": "portfolio_12_assets_seed46",
+          "q": "PennyLane QAOA p=2 (CPU sim) · -0.3166 (gap 39.8%)",
+          "c": "OR-Tools CP-SAT · -0.5264 (proven optimal)",
+          "seed": 46
+        },
+        {
+          "instance": "portfolio_12_assets_seed47",
+          "q": "PennyLane QAOA p=2 (CPU sim) · -0.3375 (gap 22.0%)",
+          "c": "OR-Tools CP-SAT · -0.4328 (proven optimal)",
+          "seed": 47
+        },
+        {
+          "instance": "portfolio_12_assets_seed48",
+          "q": "PennyLane QAOA p=2 (CPU sim) · -0.0855 (gap 73.4%)",
+          "c": "OR-Tools CP-SAT · -0.3220 (proven optimal)",
+          "seed": 48
+        },
+        {
+          "instance": "portfolio_12_assets_seed49",
+          "q": "PennyLane QAOA p=2 (CPU sim) · -0.0417 (gap 86.5%)",
+          "c": "OR-Tools CP-SAT · -0.3097 (proven optimal)",
+          "seed": 49
+        },
+        {
+          "instance": "portfolio_16_assets_seed43",
+          "q": "PennyLane QAOA p=2 (CPU sim) · -0.3160 (gap 42.3%)",
+          "c": "OR-Tools CP-SAT · -0.5480 (proven optimal)",
+          "seed": 43
+        },
+        {
+          "instance": "portfolio_16_assets_seed44",
+          "q": "PennyLane QAOA p=2 (CPU sim) · -0.3494 (gap 21.3%)",
+          "c": "OR-Tools CP-SAT · -0.4438 (proven optimal)",
+          "seed": 44
+        },
+        {
+          "instance": "portfolio_16_assets_seed45",
+          "q": "PennyLane QAOA p=2 (CPU sim) · -0.3207 (gap 31.0%)",
+          "c": "OR-Tools CP-SAT · -0.4649 (proven optimal)",
+          "seed": 45
+        },
+        {
+          "instance": "portfolio_16_assets_seed46",
+          "q": "PennyLane QAOA p=2 (CPU sim) · -0.4116 (gap 31.2%)",
+          "c": "OR-Tools CP-SAT · -0.5982 (proven optimal)",
+          "seed": 46
+        },
+        {
+          "instance": "portfolio_16_assets_seed47",
+          "q": "PennyLane QAOA p=2 (CPU sim) · -0.2926 (gap 32.7%)",
+          "c": "OR-Tools CP-SAT · -0.4349 (proven optimal)",
+          "seed": 47
+        },
+        {
+          "instance": "portfolio_16_assets_seed48",
+          "q": "PennyLane QAOA p=2 (CPU sim) · -0.3965 (gap 12.3%)",
+          "c": "OR-Tools CP-SAT · -0.4520 (proven optimal)",
+          "seed": 48
+        },
+        {
+          "instance": "portfolio_16_assets_seed49",
+          "q": "PennyLane QAOA p=2 (CPU sim) · -0.5060 (gap 9.6%)",
+          "c": "OR-Tools CP-SAT · -0.5598 (proven optimal)",
+          "seed": 49
+        },
+        {
+          "instance": "portfolio_20_assets_seed42",
+          "q": "PennyLane QAOA p=2 COBYLA (CPU sim) · -0.5794 (gap 24.3%)",
+          "c": "OR-Tools CP-SAT · -0.7648 (proven optimal)",
+          "seed": 42
+        },
+        {
+          "instance": "portfolio_20_assets_seed43",
+          "q": "PennyLane QAOA p=2 COBYLA (CPU sim) · -0.2021 (gap 58.5%)",
+          "c": "OR-Tools CP-SAT · -0.4869 (proven optimal)",
+          "seed": 43
+        },
+        {
+          "instance": "portfolio_20_assets_seed44",
+          "q": "PennyLane QAOA p=2 COBYLA (CPU sim) · -0.3462 (gap 42.9%)",
+          "c": "OR-Tools CP-SAT · -0.6065 (proven optimal)",
+          "seed": 44
+        },
+        {
+          "instance": "portfolio_20_assets_seed45",
+          "q": "PennyLane QAOA p=2 COBYLA (CPU sim) · -0.3994 (gap 38.8%)",
+          "c": "OR-Tools CP-SAT · -0.6528 (proven optimal)",
+          "seed": 45
         }
       ]
     },
