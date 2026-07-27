@@ -3,8 +3,15 @@ import '../styles/global.css';
 import Nav from '../components/Nav.astro';
 import Footer from '../components/Footer.astro';
 import LeadModal from '../components/LeadModal.astro';
-const { title, description, lang = 'en', altUrl = '/es/', jsonld } = Astro.props;
+import { abs } from '../lib/urls.js';
+const { title, description, lang = 'en', altUrl = '/es/', altHreflang = null, jsonld } = Astro.props;
 const altLang = lang==='en' ? 'es' : 'en';
+// canonical y hreflang absolutos. altHreflang sólo viene cuando existe traducción
+// real: apuntar el hreflang de un post sin par a la home sería declarar que la
+// home es su traducción, que es peor que no declarar nada.
+const canonical = abs(Astro.url.pathname);
+const altHref = altHreflang ? abs(altHreflang) : null;
+const xDefault = lang === 'en' ? canonical : altHref;
 ---
 <!doctype html>
 <html lang={lang}>
@@ -13,7 +20,10 @@ const altLang = lang==='en' ? 'es' : 'en';
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>{title}</title>
   <meta name="description" content={description} />
-  <link rel="alternate" hreflang={altLang} href={altUrl} />
+  <link rel="canonical" href={canonical} />
+  {altHref && <link rel="alternate" hreflang={lang} href={canonical} />}
+  {altHref && <link rel="alternate" hreflang={altLang} href={altHref} />}
+  {xDefault && <link rel="alternate" hreflang="x-default" href={xDefault} />}
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Marcellus&family=Instrument+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet" />
   {jsonld && <script type="application/ld+json" set:html={JSON.stringify(jsonld)} />}

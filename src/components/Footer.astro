@@ -4,8 +4,10 @@ const es = lang === 'es';
 const home = es ? '/es/' : '/';
 const p = (path) => es ? `/es${path}` : path;
 const L = es
-  ? { home:'Inicio', ev:'Evidence ledger', cls:'Clases', blog:'Blog', line:'Publicamos mediciones, no promesas.' }
-  : { home:'Home', ev:'Evidence ledger', cls:'Problem classes', blog:'Blog', line:'We publish measurements, not promises.' };
+  ? { home:'Inicio', ev:'Evidence ledger', cls:'Clases', blog:'Blog', line:'Publicamos mediciones, no promesas.',
+      agents:'para agentes', agentsTitle:'Archivo de texto plano que describe el sitio para agentes de IA. No es una página web.' }
+  : { home:'Home', ev:'Evidence ledger', cls:'Problem classes', blog:'Blog', line:'We publish measurements, not promises.',
+      agents:'for agents', agentsTitle:'Plain-text file describing this site for AI agents. Not a web page.' };
 ---
 <footer>
   <div class="wrap foot-inner">
@@ -15,8 +17,22 @@ const L = es
       <a href={p('/ledger')}>{L.ev}</a>
       <a href={p('/clases')}>{L.cls}</a>
       <a href={p('/blog')}>{L.blog}</a>
-      <a href="/llms.txt">llms.txt</a>
+      <a class="foot-machine" href="/llms.txt" title={L.agentsTitle}>llms.txt <span class="tag">{L.agents}</span></a>
     </div>
   </div>
   <div class="wrap foot-line">© MMXXVI Rosetta Quantum · {L.line}</div>
 </footer>
+
+<style>
+  /* llms.txt es un archivo para máquinas, no una página. Sin marca, quien lo abre
+     desde el teléfono aterriza en un muro de texto sin estilo y cree que la web
+     se rompió. La etiqueta lo declara sin quitarle la señal de que existe. */
+  .foot-machine{display:inline-flex;align-items:center;gap:7px;white-space:nowrap}
+  .foot-machine .tag{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:9.5px;letter-spacing:.14em;text-transform:uppercase;
+    color:var(--faint);border:1px solid var(--stone-line);
+    border-radius:2px;padding:2px 5px;line-height:1;
+  }
+  .foot-machine:hover .tag{color:var(--faience);border-color:var(--faience)}
+</style>

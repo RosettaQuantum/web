@@ -26,7 +26,7 @@ const strings = d.lang === 'es'
   ? { state:'Estado a', sources:'Fuentes', other:'Read in English' }
   : { state:'State as of', sources:'Sources', other:'Leer en español' };
 ---
-<BlogLayout title={d.title} description={d.tldr} lang={d.lang} altUrl={other ? `/blog/${other.id}` : (d.lang==='es' ? '/' : '/es/')} jsonld={jsonld}>
+<BlogLayout title={d.title} description={d.tldr} lang={d.lang} altUrl={other ? `/blog/${other.id}` : (d.lang==='es' ? '/' : '/es/')} altHreflang={other ? `/blog/${other.id}` : null} jsonld={jsonld}>
   <article class="article wrap">
     <div class="kicker">Pillar {d.pillar} · {strings.state} {d.date}</div>
     <h1>{d.title}</h1>
