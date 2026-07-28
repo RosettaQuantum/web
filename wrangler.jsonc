@@ -9,7 +9,7 @@
   "assets": {
     "binding": "ASSETS",
     "directory": "./dist",
-    "run_worker_first": ["/blog", "/blog/", "/blog/*", "/es/blog", "/es/blog/", "/llms.txt", "/rss.xml", "/sitemap-0.xml"]
+    "run_worker_first": ["/blog", "/blog/*", "/es/blog", "/es/blog/", "/llms.txt", "/rss.xml", "/sitemap-0.xml"]
   },
   "d1_databases": [
     { "binding": "DB", "database_name": "rosettaq-ledger", "database_id": "f0919403-5bd0-4842-a1d3-0954fdd47633" }
