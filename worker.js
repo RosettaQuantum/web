@@ -32,11 +32,13 @@ export default {
       // (1) single post URL: /blog/<id>/  (ids end in -en / -es, both live under /blog/)
       const pm = url.pathname.match(/^\/blog\/([^\/]+)\/?$/);
       if (pm && !pm[1].startsWith("_") && !pm[1].startsWith("rq-shell")) {
-        const assetRes = await env.ASSETS.fetch(request);
-        if (assetRes.status !== 404) return assetRes;      // a built/file post wins
-        const d1 = await renderD1Post(env, ctx, pm[1]);    // else try D1
+        // D1 manda sobre el estático: es la copia viva y editable sin push, y es la
+        // única que puede llevar prev/next. El archivo construido queda como respaldo
+        // versionado en git y responde si la fila no existe o no está publicada, así
+        // que un post nunca desaparece por un problema en la base.
+        const d1 = await renderD1Post(env, ctx, pm[1]);
         if (d1) return d1;
-        return assetRes;                                    // neither -> 404 page
+        return env.ASSETS.fetch(request);
       }
       // (2) Library index: splice D1 posts into the static list
       if (url.pathname === "/blog" || url.pathname === "/blog/")
@@ -46,6 +48,10 @@ export default {
       // (3) machine-facing feeds: append D1 posts so LLMs/readers see them
       if (url.pathname === "/llms.txt") return augmentLlms(env, request);
       if (url.pathname === "/rss.xml") return augmentRss(env, request);
+      // (4) sitemap: los posts que solo viven en D1 tambien deben declararse, con su
+      // par de idioma. Sin esto, cada post publicado por INSERT queda invisible para
+      // los buscadores y se pierde el emparejado hreflang del 27-jul.
+      if (url.pathname === "/sitemap-0.xml") return augmentSitemap(env, request);
     }
 
     return env.ASSETS.fetch(request);
@@ -68,7 +74,7 @@ const PILLARS = {
 
 // PURE: build a full post page from the built shell HTML + a D1 row.
 // Mirrors src/pages/blog/[...slug].astro exactly (kicker/h1/tldr/hreflang/valid/body/sources).
-export function renderPostHTML(shellHtml, row) {
+export function renderPostHTML(shellHtml, row, navHtml = "") {
   const s = row.lang === "es"
     ? { state: "Estado a", sources: "Fuentes", other: "Read in English" }
     : { state: "State as of", sources: "Sources", other: "Leer en español" };
@@ -90,7 +96,7 @@ export function renderPostHTML(shellHtml, row) {
     `<div class="valid">${s.state}: ${esc(row.date)}</div>` +
     `<div class="body">${row.body_html}</div>` +
     sourcesHtml +
-    `</article>`;
+    `</article>` + navHtml;
   const jsonld = {
     "@context": "https://schema.org", "@type": "QAPage",
     mainEntity: { "@type": "Question", name: row.title, acceptedAnswer: { "@type": "Answer", text: row.tldr } },
@@ -102,6 +108,34 @@ export function renderPostHTML(shellHtml, row) {
     .split("__RQ_ALT__").join(esc(altUrl))
     .replace("__RQ_ARTICLE__", article)
     .replace("</head>", `<script type="application/ld+json">${JSON.stringify(jsonld)}</script></head>`);
+}
+
+// Vecinos en el orden de la Biblioteca (fecha desc). El desempate por id es
+// necesario: varios posts comparten fecha y sin el la navegacion se salta entradas
+// o se queda pegada entre dos. Se consultan los dos lados en un solo viaje.
+async function postNav(env, row) {
+  const [olderQ, newerQ] = await env.DB.batch([
+    env.DB.prepare(
+      "SELECT id,title FROM posts WHERE published=1 AND lang=? AND (date<? OR (date=? AND id<?)) " +
+      "ORDER BY date DESC, id DESC LIMIT 1").bind(row.lang, row.date, row.date, row.id),
+    env.DB.prepare(
+      "SELECT id,title FROM posts WHERE published=1 AND lang=? AND (date>? OR (date=? AND id>?)) " +
+      "ORDER BY date ASC, id ASC LIMIT 1").bind(row.lang, row.date, row.date, row.id),
+  ]);
+  const older = olderQ.results && olderQ.results[0];
+  const newer = newerQ.results && newerQ.results[0];
+  if (!older && !newer) return "";
+  const t = row.lang === "es"
+    ? { prev: "Entrada anterior", next: "Entrada siguiente", all: "Ver toda la Biblioteca", base: "/es/blog" }
+    : { prev: "Previous entry", next: "Next entry", all: "Browse the full Library", base: "/blog" };
+  const side = (p, label, dir) => p
+    ? `<a class="postnav-item postnav-${dir}" href="/blog/${esc(p.id)}">` +
+      `<span class="postnav-label">${dir === "prev" ? "←" : "→"} ${label}</span>` +
+      `<span class="postnav-title">${esc(p.title)}</span></a>`
+    : `<span class="postnav-item postnav-empty"></span>`;
+  return `<nav class="postnav wrap" aria-label="${esc(t.all)}">` +
+    side(older, t.prev, "prev") + side(newer, t.next, "next") +
+    `<a class="postnav-all" href="${t.base}">${esc(t.all)}</a></nav>`;
 }
 
 async function renderD1Post(env, ctx, id) {
@@ -118,7 +152,7 @@ async function renderD1Post(env, ctx, id) {
   const shellUrl = "https://rosettaquantum.com/rq-shell-" + (row.lang === "es" ? "es" : "en") + "/";
   const shellRes = await env.ASSETS.fetch(new Request(shellUrl));
   if (shellRes.status !== 200) return null;
-  const html = renderPostHTML(await shellRes.text(), row);
+  const html = renderPostHTML(await shellRes.text(), row, await postNav(env, row));
 
   const res = new Response(html, {
     headers: { "Content-Type": "text/html;charset=UTF-8", "Cache-Control": "public, s-maxage=60" },
@@ -135,9 +169,16 @@ async function injectIndex(env, request, lang) {
   ).bind(lang).all();
   if (!results.length) return assetRes;
 
+  // Un post migrado vive en D1 Y como archivo estatico, asi que el indice construido
+  // ya lo lista: inyectarlo otra vez lo mostraria duplicado. Solo se inyecta lo que
+  // no esta ya en la pagina.
+  const src0 = await assetRes.clone().text();
+  const fresh = results.filter(p => !src0.includes(`/blog/${p.id}`));
+  if (!fresh.length) return assetRes;
+
   const P = PILLARS[lang];
   const word = lang === "es" ? "Pilar" : "Pillar";
-  const entries = results.map(p =>
+  const entries = fresh.map(p =>
     `<a class="post-item lib-entry" href="/blog/${esc(p.id)}" data-pillar="${esc(p.pillar)}">` +
     `<div class="q">${esc(p.title)}</div>` +
     `<div class="meta">${esc(p.date)} · ${word} ${esc(p.pillar)} — ${esc(P[p.pillar] || "")}</div>` +
@@ -150,14 +191,18 @@ async function injectIndex(env, request, lang) {
   // sin avisar. Se ancla por regex hasta el cierre de la etiqueta, y el resultado
   // se declara en una cabecera para que un fallo futuro sea observable y no mudo.
   const src = await assetRes.text();
-  const html = src.replace(/(id="liblist"[^>]*>)/, "$1" + entries);
+  let html = src.replace(/(id="liblist"[^>]*>)/, "$1" + entries);
   const spliced = html !== src;
+  // el contador del hero lo calcula el build y solo cuenta los estaticos; si no se
+  // ajusta, la Biblioteca dice menos entradas de las que muestra
+  html = html.replace(/(<b[^>]*>)(\d+)(<\/b>\s*(?:entries|entradas))/,
+    (m, a, n, z) => a + (parseInt(n, 10) + fresh.length) + z);
   return new Response(html, {
     status: 200,
     headers: {
       "Content-Type": "text/html;charset=UTF-8",
       "Cache-Control": "public, s-maxage=60",
-      "X-RQ-Splice": spliced ? `ok:${results.length}` : "FAILED:anchor-not-found",
+      "X-RQ-Splice": spliced ? `ok:${fresh.length}` : "FAILED:anchor-not-found",
     },
   });
 }
@@ -169,8 +214,9 @@ async function augmentLlms(env, request) {
     "SELECT id, title, date, lang FROM posts WHERE published=1 ORDER BY date DESC"
   ).all();
   let text = await assetRes.text();
-  if (results.length) {
-    const extra = results.map(p =>
+  const fresh = results.filter(p => !text.includes(`/blog/${p.id}`));  // no repetir lo migrado
+  if (fresh.length) {
+    const extra = fresh.map(p =>
       `- [${p.title}](https://rosettaquantum.com/blog/${p.id}) — ${p.date} (${p.lang})`
     ).join("\n");
     text = text.replace(/\n*$/, "\n" + extra + "\n");
@@ -185,8 +231,9 @@ async function augmentRss(env, request) {
     "SELECT id, title, tldr, date FROM posts WHERE published=1 ORDER BY date DESC"
   ).all();
   let xml = await assetRes.text();
-  if (results.length) {
-    const items = results.map(p =>
+  const fresh = results.filter(p => !xml.includes(`/blog/${p.id}`));   // no repetir lo migrado
+  if (fresh.length) {
+    const items = fresh.map(p =>
       `<item><title>${esc(p.title)}</title><description>${esc(p.tldr)}</description>` +
       `<pubDate>${new Date(p.date + "T00:00:00Z").toUTCString()}</pubDate>` +
       `<link>https://rosettaquantum.com/blog/${esc(p.id)}</link></item>`
@@ -195,5 +242,45 @@ async function augmentRss(env, request) {
   }
   return new Response(xml, {
     headers: { "Content-Type": assetRes.headers.get("content-type") || "application/xml; charset=utf-8", "Cache-Control": "public, s-maxage=60" },
+  });
+}
+
+// Declara en el sitemap los posts que solo existen en D1 (los migrados ya vienen del
+// build). Reconstruye el par de idioma cuando las dos caras estan publicadas: declarar
+// un alternate que no existe es peor que no declarar ninguno.
+async function augmentSitemap(env, request) {
+  const assetRes = await env.ASSETS.fetch(request);
+  if (assetRes.status !== 200) return assetRes;
+  const { results = [] } = await env.DB.prepare(
+    "SELECT id, slug_base, lang, date FROM posts WHERE published=1"
+  ).all();
+  let xml = await assetRes.text();
+  const live = new Set(results.map(p => `${p.slug_base}|${p.lang}`));
+  const fresh = results.filter(p => !xml.includes(`/blog/${p.id}`));
+  if (!fresh.length) return assetRes;
+
+  const SITE = "https://rosettaquantum.com";
+  const entries = fresh.map(p => {
+    const other = p.lang === "es" ? "en" : "es";
+    const loc = `${SITE}/blog/${p.id}/`;
+    let links = "";
+    if (live.has(`${p.slug_base}|${other}`)) {
+      const enUrl = `${SITE}/blog/${p.slug_base}-en/`;
+      const esUrl = `${SITE}/blog/${p.slug_base}-es/`;
+      links =
+        `<xhtml:link rel="alternate" hreflang="en" href="${enUrl}"/>` +
+        `<xhtml:link rel="alternate" hreflang="es" href="${esUrl}"/>` +
+        `<xhtml:link rel="alternate" hreflang="x-default" href="${enUrl}"/>`;
+    }
+    return `<url><loc>${loc}</loc><lastmod>${p.date}</lastmod>${links}</url>`;
+  }).join("");
+
+  xml = xml.replace("</urlset>", entries + "</urlset>");
+  return new Response(xml, {
+    headers: {
+      "Content-Type": assetRes.headers.get("content-type") || "application/xml; charset=utf-8",
+      "Cache-Control": "public, s-maxage=60",
+      "X-RQ-Sitemap": `added:${fresh.length}`,
+    },
   });
 }

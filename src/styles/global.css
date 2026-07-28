@@ -166,3 +166,19 @@ code, .hash, .mono{overflow-wrap:anywhere}
     border-radius:0;
   }
 }
+
+/* Navegación entre entradas de la Biblioteca (Opción C, 28 jul).
+   Vive en global.css y no scoped porque el markup lo arma el Worker, no Astro. */
+.postnav{display:grid;grid-template-columns:1fr 1fr;gap:.75rem;margin:2.5rem auto 3.5rem;align-items:stretch}
+.postnav-item{display:flex;flex-direction:column;gap:.35rem;padding:.9rem 1rem;border:1px solid var(--line);
+  border-radius:6px;text-decoration:none;background:var(--card);transition:border-color .15s,transform .15s}
+a.postnav-item:hover{border-color:var(--faience);transform:translateY(-1px)}
+.postnav-empty{border-color:transparent;background:transparent}
+.postnav-label{font-family:'IBM Plex Mono',monospace;font-size:.7rem;letter-spacing:.12em;
+  text-transform:uppercase;color:var(--papyrus-600)}
+.postnav-title{color:var(--papyrus-100);font-size:.95rem;line-height:1.35}
+.postnav-next{text-align:right}
+.postnav-all{grid-column:1/-1;text-align:center;margin-top:.25rem;font-family:'IBM Plex Mono',monospace;
+  font-size:.75rem;letter-spacing:.1em;color:var(--faience);text-decoration:none}
+.postnav-all:hover{text-decoration:underline}
+@media(max-width:640px){.postnav{grid-template-columns:1fr}.postnav-next{text-align:left}.postnav-empty{display:none}}
