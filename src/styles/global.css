@@ -109,6 +109,8 @@ pre code { white-space: pre; }
 html{-webkit-text-size-adjust:100%}
 img,svg,video,canvas,table{max-width:100%}
 img,video{height:auto}
+/* fix: tablas anchas se deslizan en teléfono en vez de desbordar (27 jul) */
+.article .body table{display:block;overflow-x:auto;-webkit-overflow-scrolling:touch}
 .article .body, .post-item, .tldr{overflow-wrap:break-word}
 code, .hash, .mono{overflow-wrap:anywhere}
 @media(max-width:760px){

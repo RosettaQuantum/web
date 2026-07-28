@@ -207,27 +207,6 @@
           "url": "https://raw.githubusercontent.com/RosettaQuantum/evidence/main/runs/2026/07/RosettaQ__RUN__EXP-0012-005__20260723T2017Z__qaoa-vs-cpsat--portfolio-12-seed45.json"
         },
         {
-          "instance": "portfolio_16_assets_seed43",
-          "q": "PennyLane QAOA p=2 (CPU sim) · -0.3160 (gap 42.3%)",
-          "c": "OR-Tools CP-SAT · -0.5480 (proven optimal)",
-          "seed": 43,
-          "url": "https://raw.githubusercontent.com/RosettaQuantum/evidence/main/runs/2026/07/RosettaQ__RUN__EXP-0012-006__20260723T2017Z__qaoa-vs-cpsat--portfolio-16-seed43.json"
-        },
-        {
-          "instance": "portfolio_16_assets_seed44",
-          "q": "PennyLane QAOA p=2 (CPU sim) · -0.3494 (gap 21.3%)",
-          "c": "OR-Tools CP-SAT · -0.4438 (proven optimal)",
-          "seed": 44,
-          "url": "https://raw.githubusercontent.com/RosettaQuantum/evidence/main/runs/2026/07/RosettaQ__RUN__EXP-0012-007__20260723T2017Z__qaoa-vs-cpsat--portfolio-16-seed44.json"
-        },
-        {
-          "instance": "portfolio_16_assets_seed45",
-          "q": "PennyLane QAOA p=2 (CPU sim) · -0.3207 (gap 31.0%)",
-          "c": "OR-Tools CP-SAT · -0.4649 (proven optimal)",
-          "seed": 45,
-          "url": "https://raw.githubusercontent.com/RosettaQuantum/evidence/main/runs/2026/07/RosettaQ__RUN__EXP-0012-008__20260723T2017Z__qaoa-vs-cpsat--portfolio-16-seed45.json"
-        },
-        {
           "instance": "portfolio_12_assets_seed46",
           "q": "PennyLane QAOA p=2 (CPU sim) · -0.3166 (gap 39.8%)",
           "c": "OR-Tools CP-SAT · -0.5264 (proven optimal)",
@@ -254,6 +233,27 @@
           "c": "OR-Tools CP-SAT · -0.3097 (proven optimal)",
           "seed": 49,
           "url": "https://raw.githubusercontent.com/RosettaQuantum/evidence/main/runs/2026/07/RosettaQ__RUN__EXP-0012-012__20260724T0319Z__qaoa-vs-cpsat--portfolio-12-seed49.json"
+        },
+        {
+          "instance": "portfolio_16_assets_seed43",
+          "q": "PennyLane QAOA p=2 (CPU sim) · -0.3160 (gap 42.3%)",
+          "c": "OR-Tools CP-SAT · -0.5480 (proven optimal)",
+          "seed": 43,
+          "url": "https://raw.githubusercontent.com/RosettaQuantum/evidence/main/runs/2026/07/RosettaQ__RUN__EXP-0012-006__20260723T2017Z__qaoa-vs-cpsat--portfolio-16-seed43.json"
+        },
+        {
+          "instance": "portfolio_16_assets_seed44",
+          "q": "PennyLane QAOA p=2 (CPU sim) · -0.3494 (gap 21.3%)",
+          "c": "OR-Tools CP-SAT · -0.4438 (proven optimal)",
+          "seed": 44,
+          "url": "https://raw.githubusercontent.com/RosettaQuantum/evidence/main/runs/2026/07/RosettaQ__RUN__EXP-0012-007__20260723T2017Z__qaoa-vs-cpsat--portfolio-16-seed44.json"
+        },
+        {
+          "instance": "portfolio_16_assets_seed45",
+          "q": "PennyLane QAOA p=2 (CPU sim) · -0.3207 (gap 31.0%)",
+          "c": "OR-Tools CP-SAT · -0.4649 (proven optimal)",
+          "seed": 45,
+          "url": "https://raw.githubusercontent.com/RosettaQuantum/evidence/main/runs/2026/07/RosettaQ__RUN__EXP-0012-008__20260723T2017Z__qaoa-vs-cpsat--portfolio-16-seed45.json"
         },
         {
           "instance": "portfolio_16_assets_seed46",

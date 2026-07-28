@@ -53,6 +53,9 @@ export default defineConfig({
   },
   integrations: [
     sitemap({
+      // los cascarones rq-shell-* son plantillas internas que el Worker rellena
+      // con posts de D1; no son páginas y no deben declararse (Opción C, 28 jul)
+      filter: (page) => !page.includes('/rq-shell-'),
       i18n: { defaultLocale: 'en', locales: { en: 'en', es: 'es' } },
       serialize(item) {
         const links = BY_URL.get(item.url);
