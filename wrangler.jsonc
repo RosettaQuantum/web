@@ -2,7 +2,15 @@
   "name": "rosetta-quantum",
   "main": "worker.js",
   "compatibility_date": "2026-07-01",
-  "assets": { "binding": "ASSETS", "directory": "./dist" },
+  // run_worker_first: por defecto, si existe el archivo estatico, Cloudflare lo sirve
+  // SIN invocar el Worker. Los posts de D1 funcionan igual (no hay archivo, cae al
+  // Worker), pero el indice y los feeds SI existen como archivo, asi que sin esta
+  // lista el codigo que inyecta las entradas de D1 no llega a ejecutarse nunca.
+  "assets": {
+    "binding": "ASSETS",
+    "directory": "./dist",
+    "run_worker_first": ["/blog", "/blog/", "/es/blog", "/es/blog/", "/llms.txt", "/rss.xml"]
+  },
   "d1_databases": [
     { "binding": "DB", "database_name": "rosettaq-ledger", "database_id": "f0919403-5bd0-4842-a1d3-0954fdd47633" }
   ]
