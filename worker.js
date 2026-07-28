@@ -133,7 +133,7 @@ async function postNav(env, row) {
       `<span class="postnav-label">${dir === "prev" ? "←" : "→"} ${label}</span>` +
       `<span class="postnav-title">${esc(p.title)}</span></a>`
     : `<span class="postnav-item postnav-empty"></span>`;
-  return `<nav class="postnav wrap" aria-label="${esc(t.all)}">` +
+  return `<nav class="postnav" aria-label="${esc(t.all)}">` +
     side(older, t.prev, "prev") + side(newer, t.next, "next") +
     `<a class="postnav-all" href="${t.base}">${esc(t.all)}</a></nav>`;
 }

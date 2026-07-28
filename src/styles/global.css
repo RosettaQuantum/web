@@ -169,7 +169,9 @@ code, .hash, .mono{overflow-wrap:anywhere}
 
 /* Navegación entre entradas de la Biblioteca (Opción C, 28 jul).
    Vive en global.css y no scoped porque el markup lo arma el Worker, no Astro. */
-.postnav{display:grid;grid-template-columns:1fr 1fr;gap:.75rem;margin:2.5rem auto 3.5rem;align-items:stretch}
+/* mismo ancho y padding que .article para que quede alineado con el texto */
+.postnav{display:grid;grid-template-columns:1fr 1fr;gap:.75rem;max-width:760px;
+  margin:0 auto;padding:0 28px 56px;align-items:stretch}
 .postnav-item{display:flex;flex-direction:column;gap:.35rem;padding:.9rem 1rem;border:1px solid var(--line);
   border-radius:6px;text-decoration:none;background:var(--card);transition:border-color .15s,transform .15s}
 a.postnav-item:hover{border-color:var(--faience);transform:translateY(-1px)}
