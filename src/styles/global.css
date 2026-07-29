@@ -184,3 +184,25 @@ a.postnav-item:hover{border-color:var(--faience);transform:translateY(-1px)}
   font-size:.75rem;letter-spacing:.1em;color:var(--faience);text-decoration:none}
 .postnav-all:hover{text-decoration:underline}
 @media(max-width:640px){.postnav{grid-template-columns:1fr}.postnav-next{text-align:left}.postnav-empty{display:none}}
+
+/* Adelanto de navegación arriba del post: flechas + título del vecino, para que el
+   lector vea que hay más antes de empezar a leer (29 jul). */
+.postnav-top{display:flex;gap:1rem;justify-content:space-between;align-items:stretch;
+  max-width:760px;margin:0 auto;padding:24px 28px 0}
+.pnt{display:flex;align-items:center;gap:.6rem;text-decoration:none;color:var(--papyrus-400);
+  max-width:48%;padding:.5rem .7rem;border:1px solid transparent;border-radius:6px;
+  transition:border-color .15s,color .15s,background .15s}
+a.pnt:hover{border-color:var(--line);background:var(--card);color:var(--papyrus-100)}
+.pnt-next{margin-left:auto;text-align:right}
+.pnt-empty{border:0;background:none}
+.pnt-arrow{font-family:'IBM Plex Mono',monospace;font-size:1rem;color:var(--faience);flex:0 0 auto}
+.pnt-txt{display:flex;flex-direction:column;min-width:0}
+.pnt-label{font-family:'IBM Plex Mono',monospace;font-size:.62rem;letter-spacing:.14em;
+  text-transform:uppercase;color:var(--papyrus-600)}
+.pnt-title{font-size:.82rem;line-height:1.25;overflow:hidden;text-overflow:ellipsis;
+  white-space:nowrap;max-width:26ch}
+@media(max-width:640px){
+  .postnav-top{padding:16px 20px 0}
+  .pnt-label{display:none}
+  .pnt-title{max-width:12ch}
+}

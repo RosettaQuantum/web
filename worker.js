@@ -74,12 +74,14 @@ const PILLARS = {
 
 // PURE: build a full post page from the built shell HTML + a D1 row.
 // Mirrors src/pages/blog/[...slug].astro exactly (kicker/h1/tldr/hreflang/valid/body/sources).
-export function renderPostHTML(shellHtml, row, navHtml = "") {
+export function renderPostHTML(shellHtml, row, nav = {}) {
   const s = row.lang === "es"
     ? { state: "Estado a", sources: "Fuentes", other: "Read in English" }
     : { state: "State as of", sources: "Sources", other: "Leer en español" };
   const otherLang = row.lang === "es" ? "en" : "es";
-  const altUrl = `/blog/${row.slug_base}-${otherLang}`;
+  // el enlace visible del cuerpo apunta a la contraparte aunque no exista fila:
+  // si no esta publicada cae al estatico, que si existe.
+  const altUrl = `/blog/${row.slug_base}-${otherLang}/`;
   let sources = [];
   try { sources = JSON.parse(row.sources_json || "[]"); } catch (e) {}
   const sourcesHtml = sources.length
@@ -88,6 +90,7 @@ export function renderPostHTML(shellHtml, row, navHtml = "") {
       `</div>`
     : "";
   const article =
+    (nav.top || "") +
     `<article class="article wrap">` +
     `<div class="kicker">Pillar ${esc(row.pillar)} · ${s.state} ${esc(row.date)}</div>` +
     `<h1>${esc(row.title)}</h1>` +
@@ -96,17 +99,32 @@ export function renderPostHTML(shellHtml, row, navHtml = "") {
     `<div class="valid">${s.state}: ${esc(row.date)}</div>` +
     `<div class="body">${row.body_html}</div>` +
     sourcesHtml +
-    `</article>` + navHtml;
+    `</article>` + (nav.bottom || "");
   const jsonld = {
     "@context": "https://schema.org", "@type": "QAPage",
     mainEntity: { "@type": "Question", name: row.title, acceptedAnswer: { "@type": "Answer", text: row.tldr } },
     datePublished: row.date, publisher: { "@type": "Organization", name: "Rosetta Quantum" },
   };
+  // El cascaron se construye en /rq-shell-xx/, asi que trae ESE canonical horneado:
+  // sin corregirlo, cada post servido desde D1 se declara duplicado del cascaron y
+  // ademas se queda sin hreflang. Se reescribe con la URL real y, solo si la
+  // traduccion existe publicada, se declaran los alternates.
+  const SITE = "https://rosettaquantum.com";
+  const selfUrl = `${SITE}/blog/${row.id}/`;
+  let head = `<link rel="canonical" href="${selfUrl}">`;
+  if (nav.altUrl) {
+    const otherUrl = SITE + nav.altUrl;
+    const enUrl = row.lang === "en" ? selfUrl : otherUrl;
+    head += `<link rel="alternate" hreflang="${row.lang}" href="${selfUrl}">` +
+            `<link rel="alternate" hreflang="${otherLang}" href="${otherUrl}">` +
+            `<link rel="alternate" hreflang="x-default" href="${enUrl}">`;
+  }
   return shellHtml
     .split("__RQ_TITLE__").join(esc(row.title))
     .split("__RQ_DESC__").join(esc(row.tldr))
     .split("__RQ_ALT__").join(esc(altUrl))
     .replace("__RQ_ARTICLE__", article)
+    .replace(/<link rel="canonical"[^>]*>/, head)
     .replace("</head>", `<script type="application/ld+json">${JSON.stringify(jsonld)}</script></head>`);
 }
 
@@ -114,28 +132,56 @@ export function renderPostHTML(shellHtml, row, navHtml = "") {
 // necesario: varios posts comparten fecha y sin el la navegacion se salta entradas
 // o se queda pegada entre dos. Se consultan los dos lados en un solo viaje.
 async function postNav(env, row) {
-  const [olderQ, newerQ] = await env.DB.batch([
+  const other = row.lang === "es" ? "en" : "es";
+  const [olderQ, newerQ, sibQ] = await env.DB.batch([
     env.DB.prepare(
       "SELECT id,title FROM posts WHERE published=1 AND lang=? AND (date<? OR (date=? AND id<?)) " +
       "ORDER BY date DESC, id DESC LIMIT 1").bind(row.lang, row.date, row.date, row.id),
     env.DB.prepare(
       "SELECT id,title FROM posts WHERE published=1 AND lang=? AND (date>? OR (date=? AND id>?)) " +
       "ORDER BY date ASC, id ASC LIMIT 1").bind(row.lang, row.date, row.date, row.id),
+    env.DB.prepare(
+      "SELECT id FROM posts WHERE published=1 AND slug_base=? AND lang=? LIMIT 1")
+      .bind(row.slug_base, other),
   ]);
   const older = olderQ.results && olderQ.results[0];
   const newer = newerQ.results && newerQ.results[0];
-  if (!older && !newer) return "";
+  const sib   = sibQ.results && sibQ.results[0];
   const t = row.lang === "es"
-    ? { prev: "Entrada anterior", next: "Entrada siguiente", all: "Ver toda la Biblioteca", base: "/es/blog" }
-    : { prev: "Previous entry", next: "Next entry", all: "Browse the full Library", base: "/blog" };
+    ? { prev: "Anterior", next: "Siguiente", prevL: "Entrada anterior", nextL: "Entrada siguiente",
+        all: "Ver toda la Biblioteca", base: "/es/blog" }
+    : { prev: "Previous", next: "Next", prevL: "Previous entry", nextL: "Next entry",
+        all: "Browse the full Library", base: "/blog" };
+
+  // Arriba: adelanto compacto con flechas, para que el lector vea de inmediato que
+  // hay mas y hacia donde. Abajo: la version completa, para cuando ya termino de leer.
+  const topSide = (p, label, dir) => p
+    ? `<a class="pnt pnt-${dir}" href="/blog/${esc(p.id)}/" title="${esc(p.title)}">` +
+      (dir === "prev" ? `<span class="pnt-arrow">←</span>` : "") +
+      `<span class="pnt-txt"><span class="pnt-label">${label}</span>` +
+      `<span class="pnt-title">${esc(p.title)}</span></span>` +
+      (dir === "next" ? `<span class="pnt-arrow">→</span>` : "") + `</a>`
+    : `<span class="pnt pnt-empty"></span>`;
+  const top = (older || newer)
+    ? `<nav class="postnav-top" aria-label="${esc(t.all)}">` +
+      topSide(older, t.prev, "prev") + topSide(newer, t.next, "next") + `</nav>`
+    : "";
+
   const side = (p, label, dir) => p
-    ? `<a class="postnav-item postnav-${dir}" href="/blog/${esc(p.id)}">` +
+    ? `<a class="postnav-item postnav-${dir}" href="/blog/${esc(p.id)}/">` +
       `<span class="postnav-label">${dir === "prev" ? "←" : "→"} ${label}</span>` +
       `<span class="postnav-title">${esc(p.title)}</span></a>`
     : `<span class="postnav-item postnav-empty"></span>`;
-  return `<nav class="postnav" aria-label="${esc(t.all)}">` +
-    side(older, t.prev, "prev") + side(newer, t.next, "next") +
-    `<a class="postnav-all" href="${t.base}">${esc(t.all)}</a></nav>`;
+  const bottom = (older || newer)
+    ? `<nav class="postnav" aria-label="${esc(t.all)}">` +
+      side(older, t.prevL, "prev") + side(newer, t.nextL, "next") +
+      `<a class="postnav-all" href="${t.base}">${esc(t.all)}</a></nav>`
+    : "";
+
+  // hreflang solo si la traduccion existe y esta publicada: declarar un alternate
+  // que responde 404 es peor que no declarar ninguno.
+  const altUrl = sib ? `/blog/${row.slug_base}-${other}/` : null;
+  return { top, bottom, altUrl };
 }
 
 async function renderD1Post(env, ctx, id) {
@@ -165,46 +211,42 @@ async function injectIndex(env, request, lang) {
   const assetRes = await env.ASSETS.fetch(request);
   if (assetRes.status !== 200) return assetRes;
   const { results = [] } = await env.DB.prepare(
-    "SELECT id, title, date, pillar, tldr FROM posts WHERE published=1 AND lang=? ORDER BY date DESC"
+    "SELECT id, title, date, pillar, tldr FROM posts WHERE published=1 AND lang=? ORDER BY date DESC, id"
   ).bind(lang).all();
-  if (!results.length) return assetRes;
+  if (!results.length) return assetRes;   // sin filas, manda lo construido
 
-  // Un post migrado vive en D1 Y como archivo estatico, asi que el indice construido
-  // ya lo lista: inyectarlo otra vez lo mostraria duplicado. Solo se inyecta lo que
-  // no esta ya en la pagina.
-  const src0 = await assetRes.clone().text();
-  const fresh = results.filter(p => !src0.includes(`/blog/${p.id}`));
-  if (!fresh.length) return assetRes;
-
+  // La lista se REEMPLAZA entera con lo que dice D1, no se le suman entradas al
+  // final. Sumar dejaba viva la tarjeta construida de un post que despues se
+  // actualizo en D1: la pagina mostraba la version nueva y el indice seguia
+  // anunciando la fecha y el resumen viejos. D1 es la fuente de verdad del post,
+  // asi que tambien tiene que serlo de su tarjeta.
   const P = PILLARS[lang];
   const word = lang === "es" ? "Pilar" : "Pillar";
-  const entries = fresh.map(p =>
-    `<a class="post-item lib-entry" href="/blog/${esc(p.id)}" data-pillar="${esc(p.pillar)}">` +
+  const entries = results.map(p =>
+    `<a class="post-item lib-entry" href="/blog/${esc(p.id)}/" data-pillar="${esc(p.pillar)}">` +
     `<div class="q">${esc(p.title)}</div>` +
     `<div class="meta">${esc(p.date)} · ${word} ${esc(p.pillar)} — ${esc(P[p.pillar] || "")}</div>` +
     `<div class="tl">${esc(p.tldr)}</div></a>`
   ).join("");
 
-  // OJO: Astro inyecta su atributo de scope DENTRO de la etiqueta
-  // (`id="liblist" data-astro-cid-xxxx>`), asi que un replace del literal
-  // 'id="liblist">' no calza nunca y las entradas de D1 desaparecerian del indice
-  // sin avisar. Se ancla por regex hasta el cierre de la etiqueta, y el resultado
-  // se declara en una cabecera para que un fallo futuro sea observable y no mudo.
   const src = await assetRes.text();
-  let html = src.replace(/(id="liblist"[^>]*>)/, "$1" + entries);
-  const spliced = html !== src;
-  // el contador del hero lo calcula el build y solo cuenta los estaticos; si no se
-  // ajusta, la Biblioteca dice menos entradas de las que muestra
-  html = html.replace(/(<b[^>]*>)(\d+)(<\/b>\s*(?:entries|entradas))/,
-    (m, a, n, z) => a + (parseInt(n, 10) + fresh.length) + z);
-  return new Response(html, {
-    status: 200,
-    headers: {
-      "Content-Type": "text/html;charset=UTF-8",
-      "Cache-Control": "public, s-maxage=60",
-      "X-RQ-Splice": spliced ? `ok:${fresh.length}` : "FAILED:anchor-not-found",
-    },
-  });
+  const open = src.match(/<div class="post-list" id="liblist"[^>]*>/);
+  const endMark = '</div><p id="libempty"';
+  const end = open ? src.indexOf(endMark, src.indexOf(open[0]) + open[0].length) : -1;
+  if (!open || end < 0) {
+    // no se pudo anclar: se sirve lo construido antes que una pagina rota, pero
+    // queda declarado en la cabecera para que el fallo no sea mudo
+    return new Response(src, { status: 200, headers: {
+      "Content-Type": "text/html;charset=UTF-8", "Cache-Control": "public, s-maxage=60",
+      "X-RQ-Index": "FAILED:anchor-not-found" } });
+  }
+  let html = src.slice(0, src.indexOf(open[0]) + open[0].length) + entries + src.slice(end);
+  // el contador del hero lo calcula el build sobre los archivos; ahora la lista la
+  // manda D1, asi que el numero tiene que salir de la misma fuente
+  html = html.replace(/(<b[^>]*>)(\d+)(<\/b>\s*(?:entries|entradas))/, `$1${results.length}$3`);
+  return new Response(html, { status: 200, headers: {
+    "Content-Type": "text/html;charset=UTF-8", "Cache-Control": "public, s-maxage=60",
+    "X-RQ-Index": `d1:${results.length}` } });
 }
 
 async function augmentLlms(env, request) {
