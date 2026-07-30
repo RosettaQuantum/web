@@ -1,0 +1,13 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import RqSubnav from '../../components/RqSubnav.astro';
+import RqRouter from '../../components/RqRouter.astro';
+import css from '../../styles/pages/rosettaq.css?raw';
+---
+<BaseLayout
+  title="The Router — where should you run it? | Rosetta Q"
+  description="State a problem and its constraints; the Router ranks the best quantum backend in RosettaQ. Ranked, never bought."
+  lang="en" altUrl="/es/rosettaq/router" pageCss={css}>
+  <RqSubnav lang="en" active="router" />
+  <RqRouter lang="en" />
+</BaseLayout>

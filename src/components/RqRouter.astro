@@ -1,0 +1,107 @@
+---
+import data from '../data/rq-demo.json';
+const { lang = 'en' } = Astro.props;
+const es = lang === 'es';
+const SYS = data.systems;
+const modLabel = es
+  ? { super:'Superconductor', ion:'Ion atrapado', neutral:'Átomo neutro' }
+  : { super:'Superconducting', ion:'Trapped ion', neutral:'Neutral atom' };
+const t = es ? {
+  eyebrow:'El Router · "OpenRouter para lo cuántico"',
+  h1:'Dinos el problema; te decimos dónde correrlo.',
+  lede:'Un humano o un agente define su problema y sus restricciones — presupuesto, jurisdicción, fidelidad — y el Router devuelve el ranking del mejor backend, en RosettaQ. Mañana, además, lo despacha y cobra comisión.',
+  demo:'Prototipo · ranking ilustrativo',
+  yourjob:'Tu trabajo', pclass:'Clase de problema', clsOpts:['Portafolios','Grid','Molecular'],
+  budget:'Presupuesto máximo por solve (USD)', jur:'Jurisdicción requerida',
+  jAny:'Cualquiera', jEU:'Solo UE (residencia de datos)', jUS:'Solo EE.UU.',
+  optfor:'Optimizar para', oRq:'Rendimiento (RQ)', oVal:'RQ por dólar',
+  recos:'Recomendación · ordenada, nunca comprada',
+  none:'Ningún backend cumple las restricciones. Sube el presupuesto o abre la jurisdicción.',
+  rule:'Regla en piedra: el ranking <b>nunca se compra</b>. Cuando el Router despache trabajos cobrará ~5% transparente que <b>no altera el orden</b>. Neutralidad = el activo.',
+  why:{ jur:'cumple jurisdicción', rq:'mejor RQ', val:'mejor RQ/$', budget:'≤ presupuesto' },
+} : {
+  eyebrow:'The Router · "OpenRouter for quantum"',
+  h1:'Tell us the problem; we tell you where to run it.',
+  lede:'A human or an agent states a problem and its constraints — budget, jurisdiction, fidelity — and the Router returns the ranking of the best backend, in RosettaQ. Tomorrow it also dispatches the job and takes a fee.',
+  demo:'Prototype · illustrative ranking',
+  yourjob:'Your job', pclass:'Problem class', clsOpts:['Portfolios','Grid','Molecular'],
+  budget:'Max budget per solve (USD)', jur:'Required jurisdiction',
+  jAny:'Any', jEU:'EU only (data residency)', jUS:'US only',
+  optfor:'Optimize for', oRq:'Performance (RQ)', oVal:'RQ per dollar',
+  recos:'Recommendation · ranked, never bought',
+  none:'No backend meets the constraints. Raise the budget or open the jurisdiction.',
+  rule:'Rule in stone: the ranking is <b>never bought</b>. When the Router dispatches jobs it will take a transparent ~5% that <b>does not change the order</b>. Neutrality = the asset.',
+  why:{ jur:'meets jurisdiction', rq:'best RQ', val:'best RQ/$', budget:'≤ budget' },
+};
+---
+<header class="rqi-hero">
+  <div class="wrap">
+    <div class="eyebrow">{t.eyebrow}</div>
+    <h1>{t.h1}</h1>
+    <p class="lede">{t.lede}</p>
+    <span class="demo-tag">{t.demo}</span>
+
+    <div class="router-grid">
+      <div class="panel">
+        <div class="lab">{t.yourjob}</div>
+        <label for="r-class">{t.pclass}</label>
+        <select id="r-class">{t.clsOpts.map(o=> <option>{o}</option>)}</select>
+        <label for="r-budget">{t.budget}</label>
+        <input type="number" id="r-budget" value="500" min="10" step="10" />
+        <label for="r-jur">{t.jur}</label>
+        <select id="r-jur">
+          <option value="any">{t.jAny}</option>
+          <option value="EU">{t.jEU}</option>
+          <option value="US">{t.jUS}</option>
+        </select>
+        <label>{t.optfor}</label>
+        <div class="seg" id="r-opt">
+          <button class="on" data-o="rq">{t.oRq}</button>
+          <button data-o="value">{t.oVal}</button>
+        </div>
+      </div>
+      <div>
+        <div class="lab" style="margin-bottom:10px">{t.recos}</div>
+        <div id="r-recos"></div>
+        <p class="note" set:html={t.rule}></p>
+      </div>
+    </div>
+  </div>
+</header>
+
+<script is:inline define:vars={{ SYS, modLabel, why:t.why, none:t.none }}>
+  (function(){
+    function $(id){ return document.getElementById(id); }
+    var opt='rq';
+    var seg=$('r-opt');
+    seg.addEventListener('click', function(e){
+      var b=e.target.closest('button'); if(!b) return;
+      opt=b.dataset.o;
+      seg.querySelectorAll('button').forEach(function(x){ x.classList.toggle('on', x.dataset.o===opt); });
+      route();
+    });
+    function route(){
+      var budget=parseFloat($('r-budget').value)||0, jur=$('r-jur').value;
+      var pool=SYS.filter(function(s){ return s.price<=budget; }).filter(function(s){
+        return jur==='any' || (jur==='EU' && s.reg.indexOf('EU')>=0) || (jur==='US' && (s.reg.indexOf('US')>=0 && s.reg.indexOf('EU')<0));
+      }).map(function(s){ var o={}; for(var k in s) o[k]=s[k]; o.value=s.rq/Math.sqrt(s.price); return o; });
+      pool.sort(function(a,b){ return opt==='rq' ? b.rq-a.rq : b.value-a.value; });
+      var el=$('r-recos');
+      if(!pool.length){ el.innerHTML='<div class="reco empty">'+none+'</div>'; return; }
+      el.innerHTML=pool.slice(0,5).map(function(s,i){
+        var w=Math.min(s.rq,100), reasons=[];
+        if(jur!=='any') reasons.push(why.jur);
+        reasons.push(opt==='rq' ? why.rq+' ('+s.rq+')' : why.val);
+        reasons.push('$'+s.price+' '+why.budget);
+        return '<div class="reco'+(i===0?' win':'')+'">'+
+          '<div class="rank">'+(i+1)+'</div>'+
+          '<div class="reco-id"><div class="reco-name">'+s.vendor+' '+s.sys+'</div><div class="reco-mod">'+modLabel[s.mod]+'</div></div>'+
+          '<div class="reco-bar"><div class="rb-fill" style="width:'+w+'%;opacity:'+(i===0?1:0.5)+'"></div><div class="reco-why">'+reasons.join(' · ')+'</div></div>'+
+          '<div class="reco-rt"><div class="rqval">'+s.rq+' RQ</div><div class="reco-meta">$'+s.price+' · '+s.reg+'</div></div>'+
+        '</div>';
+      }).join('');
+    }
+    ['r-class','r-budget','r-jur'].forEach(function(id){ var el=$(id); el.addEventListener('input',route); el.addEventListener('change',route); });
+    route();
+  })();
+</script>

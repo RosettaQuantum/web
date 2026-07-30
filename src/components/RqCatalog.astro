@@ -1,0 +1,90 @@
+---
+import data from '../data/rq-demo.json';
+const { lang = 'en' } = Astro.props;
+const es = lang === 'es';
+const VENDORS = data.vendors;
+const SYS = data.systems;
+const modLabel = es
+  ? { super:'Superconductor', ion:'Ion atrapado', neutral:'Átomo neutro' }
+  : { super:'Superconducting', ion:'Trapped ion', neutral:'Neutral atom' };
+const t = es ? {
+  eyebrow:'El catálogo · quiénes son los jugadores',
+  h1:'Todos los actores, en un solo lugar.',
+  lede:'Una ficha por empresa, siempre en positivo: quiénes son y qué ofrecen. La comparación honesta vive en el número RQ, no en el texto.',
+  demo:'Fichas ilustrativas — contenido de ejemplo',
+  strong:'Fuerte en', offer:'Qué ofrecen', onscale:'En la escala RosettaQ (demo)', close:'cerrar ✕', none:'sin sistemas en el índice aún',
+} : {
+  eyebrow:'The catalog · who the players are',
+  h1:'Every player, in one place.',
+  lede:'One card per company, always positive: who they are and what they offer. The honest comparison lives in the RQ number, not the prose.',
+  demo:'Illustrative cards — example content',
+  strong:'Strong at', offer:'What they offer', onscale:'On the RosettaQ scale (demo)', close:'close ✕', none:'no systems in the index yet',
+};
+const who  = (v) => es ? v.who_es  : v.who_en;
+const hq   = (v) => es ? v.hq_es   : v.hq_en;
+const best = (v) => es ? v.best_es : v.best_en;
+const offer= (v) => es ? v.offer_es: v.offer_en;
+---
+<header class="rqi-hero">
+  <div class="wrap">
+    <div class="eyebrow">{t.eyebrow}</div>
+    <h1>{t.h1}</h1>
+    <p class="lede">{t.lede}</p>
+    <span class="demo-tag">{t.demo}</span>
+
+    <div class="cat-grid">
+      {VENDORS.map(v => (
+        <div class="vcard" data-v={v.v}>
+          <div class="vhead">
+            <div class="vlogo">{v.v.charAt(0)}</div>
+            <div><div class="vname">{v.v}</div><div class="vmod">{modLabel[v.mod]}</div></div>
+          </div>
+          <p class="vwho">{who(v)}</p>
+          <div class="vbest">{t.strong}: {best(v)}</div>
+        </div>
+      ))}
+    </div>
+
+    {VENDORS.map(v => {
+      const sys = SYS.filter(s => s.vendor === v.v);
+      return (
+      <div class="vdetail" id={`vd-${v.v}`}>
+        <div class="vdetail-head">
+          <div class="vhead">
+            <div class="vlogo big">{v.v.charAt(0)}</div>
+            <div><div class="vname big">{v.v}</div><div class="vmod">{modLabel[v.mod]} · {hq(v)}</div></div>
+          </div>
+          <button class="detail-close" data-close="1">{t.close}</button>
+        </div>
+        <p class="vwho full">{who(v)}</p>
+        <div class="vcols">
+          <div>
+            <div class="lab">{t.offer}</div>
+            {offer(v).map(o => <div class="kv"><span>{o}</span></div>)}
+          </div>
+          <div>
+            <div class="lab">{t.onscale}</div>
+            {sys.length ? sys.map(s => (
+              <div class="kv"><span>{s.sys}</span><span class="rqval">{s.rq} RQ</span></div>
+            )) : <div class="kv"><span class="faint">{t.none}</span></div>}
+          </div>
+        </div>
+      </div>
+    )})}
+  </div>
+</header>
+
+<script is:inline>
+  (function(){
+    document.querySelectorAll('.vcard').forEach(function(c){
+      c.addEventListener('click', function(){
+        var d=document.getElementById('vd-'+c.dataset.v);
+        document.querySelectorAll('.vdetail').forEach(function(x){ x.classList.remove('open'); });
+        if(d){ d.classList.add('open'); d.scrollIntoView({behavior:'smooth',block:'nearest'}); }
+      });
+    });
+    document.querySelectorAll('.vdetail .detail-close').forEach(function(b){
+      b.addEventListener('click', function(e){ e.stopPropagation(); b.closest('.vdetail').classList.remove('open'); });
+    });
+  })();
+</script>

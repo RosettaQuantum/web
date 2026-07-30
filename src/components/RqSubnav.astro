@@ -1,0 +1,25 @@
+---
+const { lang = 'en', active = 'index' } = Astro.props;
+const es = lang === 'es';
+const p = (path) => es ? `/es${path}` : path;
+const L = es
+  ? { index:'Índice', calc:'Calculadora', catalog:'Catálogo', router:'Router', unit:'Unidad RQ', tag:'Rosetta Quantum Index' }
+  : { index:'Index', calc:'Calculator', catalog:'Catalog', router:'Router', unit:'RQ unit', tag:'Rosetta Quantum Index' };
+const items = [
+  { k:'index',   label:L.index,   href:p('/rosettaq') },
+  { k:'calc',    label:L.calc,    href:p('/rosettaq/calculator') },
+  { k:'catalog', label:L.catalog, href:p('/rosettaq/catalog') },
+  { k:'router',  label:L.router,  href:p('/rosettaq/router') },
+  { k:'unit',    label:L.unit,    href:p('/rosettaq/unit') },
+];
+---
+<div class="rq-subnav">
+  <div class="wrap rq-subnav-inner">
+    <span class="rq-subtag">{L.tag}</span>
+    <nav class="rq-subtabs" aria-label={L.tag}>
+      {items.map(it => (
+        <a href={it.href} class={`rq-subtab${active===it.k ? ' on' : ''}`} aria-current={active===it.k ? 'page' : undefined}>{it.label}</a>
+      ))}
+    </nav>
+  </div>
+</div>

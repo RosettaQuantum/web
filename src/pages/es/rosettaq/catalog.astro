@@ -1,0 +1,13 @@
+---
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import RqSubnav from '../../../components/RqSubnav.astro';
+import RqCatalog from '../../../components/RqCatalog.astro';
+import css from '../../../styles/pages/rosettaq.css?raw';
+---
+<BaseLayout
+  title="Proveedores cuánticos — el catálogo | Rosetta Q"
+  description="Todos los proveedores cuánticos en un solo lugar: quiénes son y qué ofrecen, cada uno enlazado a su posición en RosettaQ."
+  lang="es" altUrl="/rosettaq/catalog" pageCss={css}>
+  <RqSubnav lang="es" active="catalog" />
+  <RqCatalog lang="es" />
+</BaseLayout>

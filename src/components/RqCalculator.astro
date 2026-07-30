@@ -1,0 +1,116 @@
+---
+const { lang = 'en' } = Astro.props;
+const es = lang === 'es';
+const p = (path) => es ? `/es${path}` : path;
+const t = es ? {
+  eyebrow:'RosettaQ Converter · benchmarkea lo que sea, en vivo',
+  h1:'La calculadora RosettaQ.',
+  lede:'Un humano, un bot o un LLM entra un resultado y recibe su equivalencia en RQ al instante — con la fórmula a la vista. La transparencia es la prueba de que no hay caja negra.',
+  demo:'Fórmula ilustrativa — la afinamos con rigor antes de publicar',
+  inLab:'Entrada', mQuality:'Resultado de una corrida', mVendor:'Métrica de vendor',
+  qclass:'Clase de problema', clsOpts:['Portafolios','Grid','Molecular'],
+  qq:'Calidad del solve cuántico (0–1.5, a igual presupuesto)',
+  qc:'Calidad del mejor clásico (referencia = 1.00)',
+  vmetric:'Métrica del vendor', vval:'Valor',
+  vnote:'Estimación de capacidad → RQ. <b>No es una medición</b>: el RQ real sale de una corrida sellada.',
+  outLab:'Equivalencia', toUnit:'Ver cómo se define 1 RQ →',
+  cross:'línea del clásico',
+} : {
+  eyebrow:'RosettaQ Converter · benchmark anything, live',
+  h1:'The RosettaQ calculator.',
+  lede:'A human, a bot or an LLM enters a result and gets its RQ equivalence instantly — with the formula in plain sight. Transparency is the proof there is no black box.',
+  demo:'Illustrative formula — to be tightened rigorously before publishing',
+  inLab:'Input', mQuality:'A run result', mVendor:'A vendor metric',
+  qclass:'Problem class', clsOpts:['Portfolios','Grid','Molecular'],
+  qq:'Quantum solve quality (0–1.5, at equal budget)',
+  qc:'Best classical quality (reference = 1.00)',
+  vmetric:'Vendor metric', vval:'Value',
+  vnote:'Capacity estimate → RQ. <b>Not a measurement</b>: the real RQ comes from a sealed run.',
+  outLab:'Equivalence', toUnit:'See how 1 RQ is defined →',
+  cross:'classical line',
+};
+---
+<header class="rqi-hero">
+  <div class="wrap">
+    <div class="eyebrow">{t.eyebrow}</div>
+    <h1>{t.h1}</h1>
+    <p class="lede">{t.lede}</p>
+    <span class="demo-tag">{t.demo}</span>
+
+    <div class="calc-grid">
+      <div class="panel">
+        <div class="lab">{t.inLab}</div>
+        <div class="seg" id="calc-mode" role="tablist">
+          <button class="on" data-mode="quality" role="tab">{t.mQuality}</button>
+          <button data-mode="vendor" role="tab">{t.mVendor}</button>
+        </div>
+
+        <div id="in-quality">
+          <label for="c-qclass">{t.qclass}</label>
+          <select id="c-qclass">{t.clsOpts.map(o=> <option>{o}</option>)}</select>
+          <label for="c-qq">{t.qq}</label>
+          <input type="number" id="c-qq" value="0.79" min="0" max="1.5" step="0.01" />
+          <label for="c-qc">{t.qc}</label>
+          <input type="number" id="c-qc" value="1.00" min="0" max="1.5" step="0.01" />
+        </div>
+
+        <div id="in-vendor" style="display:none">
+          <label for="c-vmetric">{t.vmetric}</label>
+          <select id="c-vmetric">
+            <option value="AQ">#AQ (Algorithmic Qubits · IonQ)</option>
+            <option value="QV">Quantum Volume</option>
+          </select>
+          <label for="c-vval">{t.vval}</label>
+          <input type="number" id="c-vval" value="36" min="1" step="1" />
+          <p class="note" set:html={t.vnote}></p>
+        </div>
+      </div>
+
+      <div class="panel calc-out">
+        <div class="lab">{t.outLab}</div>
+        <div class="readout"><span id="c-out">79</span> <span class="rq-u">RQ</span></div>
+        <div id="c-badge" class="verdict-badge no"></div>
+        <div id="c-bar" class="calc-bar"></div>
+        <pre class="formula" id="c-formula"></pre>
+        <a class="to-unit" href={p('/rosettaq/unit')}>{t.toUnit}</a>
+      </div>
+    </div>
+  </div>
+</header>
+
+<script is:inline define:vars={{ cross: t.cross }}>
+  (function(){
+    function $(id){ return document.getElementById(id); }
+    var mode='quality';
+    var seg=$('calc-mode');
+    seg.addEventListener('click', function(e){
+      var b=e.target.closest('button'); if(!b) return;
+      mode=b.dataset.mode;
+      seg.querySelectorAll('button').forEach(function(x){ x.classList.toggle('on', x.dataset.mode===mode); });
+      $('in-quality').style.display = mode==='quality' ? '' : 'none';
+      $('in-vendor').style.display  = mode==='vendor'  ? '' : 'none';
+      calc();
+    });
+    function calc(){
+      var rq, formula;
+      if(mode==='quality'){
+        var qq=parseFloat($('c-qq').value)||0, qc=parseFloat($('c-qc').value)||1;
+        rq=Math.round(100*(qq/qc));
+        formula='RQ = 100 × (q_quantum / q_classical)\n   = 100 × ('+qq.toFixed(2)+' / '+qc.toFixed(2)+')\n   = '+rq+' RQ';
+      } else {
+        var m=$('c-vmetric').value, val=parseFloat($('c-vval').value)||0;
+        rq=Math.round(100*(1-Math.exp(-val/(m==='AQ'?55:22))));
+        formula='RQ_est ≈ 100 × (1 − e^(−value / k))   ['+m+', estimate]\n   value='+val+'  →  '+rq+' RQ\n   ⚠ capacity estimate, not a sealed measurement';
+      }
+      $('c-out').textContent=rq;
+      var b=$('c-badge');
+      if(rq>=100){ b.className='verdict-badge yes'; b.textContent='+'+(rq-100)+' RQ · advantage'; }
+      else { b.className='verdict-badge no'; b.textContent='−'+(100-rq)+' RQ · '+cross; }
+      $('c-formula').textContent=formula;
+      var pct=Math.min(rq,120)/120*100, lx=100/120*100;
+      $('c-bar').innerHTML='<div class="cb-track"><div class="cb-fill" style="width:'+pct+'%;background:'+(rq>=100?'var(--faience)':'var(--gold)')+'"></div><div class="cb-mark" style="left:'+lx+'%"></div></div>';
+    }
+    ['c-qq','c-qc','c-vval','c-qclass','c-vmetric'].forEach(function(id){ var el=$(id); el.addEventListener('input',calc); el.addEventListener('change',calc); });
+    calc();
+  })();
+</script>

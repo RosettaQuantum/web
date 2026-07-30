@@ -1,0 +1,13 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import RqSubnav from '../../components/RqSubnav.astro';
+import RqCatalog from '../../components/RqCatalog.astro';
+import css from '../../styles/pages/rosettaq.css?raw';
+---
+<BaseLayout
+  title="Quantum providers — the catalog | Rosetta Q"
+  description="Every quantum provider in one place: who they are and what they offer, each linked to its RosettaQ position."
+  lang="en" altUrl="/es/rosettaq/catalog" pageCss={css}>
+  <RqSubnav lang="en" active="catalog" />
+  <RqCatalog lang="en" />
+</BaseLayout>

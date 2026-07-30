@@ -1,0 +1,228 @@
+---
+import data from '../data/rq-demo.json';
+const { lang = 'en' } = Astro.props;
+const es = lang === 'es';
+
+/* ── datos DEMO / ilustrativos (marcados en la UI) ───────────────── */
+const SYS = data.systems;
+
+const t = es ? {
+  eyebrow:'Rosetta Quantum Index · el metro de lo cuántico',
+  h1a:'Todo el cuántico, medido en ', h1em:'RosettaQ', h1b:'.',
+  lede:'Cada computador, proveedor y servicio de la industria — hoy disperso en métricas incompatibles (Quantum Volume, #AQ, CLOPS…) — consolidado en un solo lugar, bajo una escala neutral: <strong>la nuestra</strong>.',
+  demo:'Vista ilustrativa — datos de ejemplo para diseñar, no mediciones reales',
+  scaleLab:'La escala', scaleD:'RQ = la línea del mejor clásico (el punto de cruce)',
+  crossL:'clásico', capLow:'todavía no cruza', capWin:'ventaja',
+  whyH:'Por qué nosotros somos la escala',
+  whyP:'Quantum Volume lo definió IBM; #AQ, IonQ — cada vendor gana con su propia métrica. <strong>RosettaQ es neutral y su fórmula es pública</strong>: cualquiera la recalcula. No vendemos hardware, así que podemos ser el metro.',
+  toUnit:'Ver cómo se calcula 1 RQ →',
+  cN:['7','sistemas indexados','5','proveedores','1','escala neutral','0','cruzan los 100 (aún)'],
+  secEyebrow:'La tabla · todo bajo una misma vara',
+  flClass:'Clase:', flMod:'Modalidad:',
+  classChips:['Portafolios','Grid','Molecular'],
+  modAll:'Todas', mod:{ super:'Superconductor', ion:'Ion atrapado', neutral:'Átomo neutro' },
+  hSys:'Sistema', hVendor:'Proveedor', hMod:'Modalidad', hNative:'Métrica nativa', hRq:'RosettaQ', hPrice:'$ / solve', hJur:'Jurisdicción',
+  tblNote:'La columna <b>RosettaQ</b> es la única comparable entre modalidades. Ningún sistema del ejemplo cruza los 100 RQ — coherente con el estado real: nadie le gana al clásico aún. Ese “todavía no” es el dato que nadie más publica.',
+  scatterSub:'Rendimiento vs precio · frontera de decisión',
+  scatterH:'¿Cuánto RosettaQ por dólar?',
+  legA:'Sistema cuántico', legB:'Línea del clásico · 100 RQ',
+  bandH:'La distancia a 100 <em>es</em> la respuesta que el comprador busca.',
+  bandP:'¿Sirve? (¿pasa de 100?). ¿Por cuánto? (la distancia a 100). ¿Cuándo? (a qué tamaño la curva cruza 100). Una sola unidad, tres preguntas.',
+  formula:'RQ(sistema, clase) = 100 × (calidad_del_solve / calidad_del_mejor_clásico)',
+  cta:'Ver la unidad RosettaQ →',
+} : {
+  eyebrow:'Rosetta Quantum Index · the metre of quantum',
+  h1a:'All of quantum, measured in ', h1em:'RosettaQ', h1b:'.',
+  lede:'Every computer, provider and service in the industry — today scattered across incompatible metrics (Quantum Volume, #AQ, CLOPS…) — consolidated in one place, on one neutral scale: <strong>ours</strong>.',
+  demo:'Illustrative preview — example data for design, not measured results',
+  scaleLab:'The scale', scaleD:'RQ = the best classical baseline (the crossover)',
+  crossL:'classical', capLow:'not crossed yet', capWin:'advantage',
+  whyH:'Why we get to be the scale',
+  whyP:'IBM defined Quantum Volume; IonQ, #AQ — every vendor wins on its own metric. <strong>RosettaQ is neutral and its formula is public</strong>: anyone can recompute it. We sell no hardware, so we can be the metre.',
+  toUnit:'See how 1 RQ is computed →',
+  cN:['7','systems indexed','5','providers','1','neutral scale','0','cross 100 (yet)'],
+  secEyebrow:'The table · everything on one yardstick',
+  flClass:'Class:', flMod:'Modality:',
+  classChips:['Portfolios','Grid','Molecular'],
+  modAll:'All', mod:{ super:'Superconducting', ion:'Trapped ion', neutral:'Neutral atom' },
+  hSys:'System', hVendor:'Provider', hMod:'Modality', hNative:'Native metric', hRq:'RosettaQ', hPrice:'$ / solve', hJur:'Jurisdiction',
+  tblNote:'The <b>RosettaQ</b> column is the only one comparable across modalities. No system in the example crosses 100 RQ — consistent with reality: nobody beats classical yet. That “not yet” is the number no one else publishes.',
+  scatterSub:'Performance vs price · decision frontier',
+  scatterH:'How much RosettaQ per dollar?',
+  legA:'Quantum system', legB:'Classical line · 100 RQ',
+  bandH:'The distance to 100 <em>is</em> the answer the buyer is after.',
+  bandP:'Does it work? (is it past 100?). By how much? (the distance to 100). When? (at what size the curve crosses 100). One unit, three questions.',
+  formula:'RQ(system, class) = 100 × (solve_quality / best_classical_quality)',
+  cta:'See the RosettaQ unit →',
+};
+
+const regLabel = (r) => es ? r.replace('EU','UE') : r;
+const p = (path) => es ? `/es${path}` : path;
+
+/* ── scatter (SVG, render en build) ─────────────────────────────── */
+const W=1000,H=300,pl=54,pr=18,pt=16,pb=46,xmax=1100,ymin=40,ymax=110;
+const sx = (v)=> pl+(v/xmax)*(W-pl-pr);
+const sy = (v)=> pt+(1-(v-ymin)/(ymax-ymin))*(H-pt-pb);
+---
+<header class="rqi-hero">
+  <div class="wrap">
+    <div class="eyebrow">{t.eyebrow}</div>
+    <h1>{t.h1a}<em>{t.h1em}</em>{t.h1b}</h1>
+    <p class="lede" set:html={t.lede}></p>
+    <span class="demo-tag">{t.demo}</span>
+
+    <div class="scale-grid">
+      <div class="panel">
+        <div class="lab">{t.scaleLab}</div>
+        <div class="scale-num"><span class="n">100</span><span class="d">{t.scaleD}</span></div>
+        <div class="instrument">
+          <div class="track"></div>
+          <div class="end" style="left:5%"></div><div class="cap" style="left:5%">0</div>
+          <div class="cross" data-l={t.crossL} style="left:83.33%"></div>
+          <div class="end" style="left:97%"></div>
+          <div class="cap" style="left:38%">{t.capLow}</div>
+          <div class="cap win" style="left:91%">{t.capWin}</div>
+        </div>
+      </div>
+      <div class="panel why">
+        <div class="lab">RQ</div>
+        <h3>{t.whyH}</h3>
+        <p set:html={t.whyP}></p>
+        <a class="to-unit" href={p('/rosettaq') + '#unit'}>{t.toUnit}</a>
+      </div>
+    </div>
+
+    <div class="numbers">
+      <div class="nm"><div class="v">{t.cN[0]}</div><div class="k">{t.cN[1]}</div></div>
+      <div class="nm"><div class="v">{t.cN[2]}</div><div class="k">{t.cN[3]}</div></div>
+      <div class="nm"><div class="v">{t.cN[4]}</div><div class="k">{t.cN[5]}</div></div>
+      <div class="nm"><div class="v win">{t.cN[6]}</div><div class="k">{t.cN[7]}</div></div>
+    </div>
+  </div>
+</header>
+
+<section>
+  <div class="wrap">
+    <div class="section-eyebrow">{t.secEyebrow}</div>
+    <div class="filters" id="rq-filters">
+      <span class="fl-lbl">{t.flClass}</span>
+      {t.classChips.map((c,i)=> <button class={`fl fl-cls${i===0?' on':''}`}>{c}</button>)}
+      <span style="width:8px"></span>
+      <span class="fl-lbl">{t.flMod}</span>
+      <button class="fl fl-mod on" data-m="all">{t.modAll}</button>
+      <button class="fl fl-mod" data-m="super">{t.mod.super}</button>
+      <button class="fl fl-mod" data-m="ion">{t.mod.ion}</button>
+      <button class="fl fl-mod" data-m="neutral">{t.mod.neutral}</button>
+    </div>
+
+    <div class="tbl" id="rq-tbl">
+      <div class="trow h">
+        <div>{t.hSys}</div>
+        <div class="hide-m">{t.hVendor}</div>
+        <div class="hide-m">{t.hMod}</div>
+        <div class="hide-m">{t.hNative}</div>
+        <div class="sortable" id="rq-sort">{t.hRq} ▾</div>
+        <div class="hide-m">{t.hPrice}</div>
+        <div class="hide-m">{t.hJur}</div>
+      </div>
+      {SYS.map(s => (
+        <div class="trow r" data-mod={s.mod} data-rq={s.rq}>
+          <div class="c-sys">{s.sys}</div>
+          <div class="c-vendor hide-m">{s.vendor}</div>
+          <div class="hide-m"><span class="pill">{t.mod[s.mod]}</span></div>
+          <div class="c-native hide-m">{s.native}</div>
+          <div class="c-rq">
+            <div class="rqcell">
+              <span class="rqval">{s.rq}</span>
+              <span class="rqtrack"><span class="rqfill" data-w={s.rq/120*100}></span></span>
+            </div>
+          </div>
+          <div class="c-price hide-m">${s.price.toLocaleString()}</div>
+          <div class={`hide-m reg-${s.regc}`}>{regLabel(s.reg)}</div>
+        </div>
+      ))}
+    </div>
+    <p class="tbl-note" set:html={t.tblNote}></p>
+  </div>
+</section>
+
+<section style="padding-top:0">
+  <div class="wrap">
+    <div class="chartcard">
+      <div class="sub">{t.scatterSub}</div>
+      <h3>{t.scatterH}</h3>
+      <svg viewBox={`0 0 ${W} ${H}`} width="100%" role="img" aria-label={t.scatterH}>
+        {[50,75,100].map(g => (
+          <g>
+            <line x1={pl} y1={sy(g)} x2={W-pr} y2={sy(g)}
+              stroke={g===100 ? '#D9B87A' : '#3D372F'} stroke-width={g===100?1.5:1}
+              stroke-dasharray={g===100?'4 4':'none'} />
+            <text x={pl-8} y={sy(g)+4} text-anchor="end" font-size="11">{g}</text>
+          </g>
+        ))}
+        <text x={W-pr} y={sy(100)-6} text-anchor="end" font-size="11" fill="#D9B87A">{t.legB}</text>
+        {[0,250,500,750,1000].map(v => <text x={sx(v)} y={H-16} text-anchor="middle" font-size="11">${v}</text>)}
+        <text x={W/2} y={H-2} text-anchor="middle" font-size="11" fill="#6E675C">{es?'precio por solve (USD)':'price per solve (USD)'}</text>
+        <text transform={`translate(15 ${H/2}) rotate(-90)`} text-anchor="middle" font-size="11" fill="#6E675C">RosettaQ</text>
+        {SYS.map(s => (
+          <g>
+            <circle cx={sx(s.price)} cy={sy(s.rq)} r="6" fill="#4DC4B5" stroke="#141210" stroke-width="1.5">
+              <title>{s.vendor} {s.sys} · {s.rq} RQ · ${s.price}</title>
+            </circle>
+            <text x={sx(s.price)+s.ldx} y={sy(s.rq)+s.ldy} text-anchor={s.anc} font-size="11" fill="#B5AC99">{s.vendor} {s.sys}</text>
+          </g>
+        ))}
+      </svg>
+      <div class="legend">
+        <span><span class="sw" style="background:#4DC4B5"></span>{t.legA}</span>
+        <span><span class="sw" style="background:#D9B87A"></span>{t.legB}</span>
+      </div>
+    </div>
+
+    <div class="band" id="unit">
+      <div>
+        <h2 set:html={t.bandH}></h2>
+        <p>{t.bandP}</p>
+        <a class="btn btn-solid" href={p('/rosettaq') + '#unit'}>{t.cta}</a>
+      </div>
+      <div class="formula">{t.formula}</div>
+    </div>
+  </div>
+</section>
+
+<script is:inline>
+  (function(){
+    /* animar barras RQ al entrar */
+    function fill(){ document.querySelectorAll('.rqfill').forEach(function(f){ f.style.width = (f.dataset.w||0)+'%'; }); }
+    if ('requestAnimationFrame' in window) requestAnimationFrame(function(){ setTimeout(fill, 80); }); else fill();
+
+    /* filtro por modalidad */
+    var mods = document.querySelectorAll('#rq-filters .fl-mod');
+    mods.forEach(function(b){
+      b.addEventListener('click', function(){
+        mods.forEach(function(x){ x.classList.remove('on'); });
+        b.classList.add('on');
+        var m = b.dataset.m;
+        document.querySelectorAll('#rq-tbl .trow.r').forEach(function(r){
+          r.style.display = (m==='all' || r.dataset.mod===m) ? '' : 'none';
+        });
+      });
+    });
+
+    /* chips de clase (demo, solo estado visual) */
+    var cls = document.querySelectorAll('#rq-filters .fl-cls');
+    cls.forEach(function(b){ b.addEventListener('click', function(){ cls.forEach(function(x){x.classList.remove('on');}); b.classList.add('on'); }); });
+
+    /* orden por RQ */
+    var desc = true, sortBtn = document.getElementById('rq-sort'), tbl = document.getElementById('rq-tbl');
+    if (sortBtn && tbl){
+      sortBtn.addEventListener('click', function(){
+        desc = !desc;
+        sortBtn.textContent = sortBtn.textContent.replace(/[▾▴]/, desc ? '▾' : '▴');
+        var rows = Array.prototype.slice.call(tbl.querySelectorAll('.trow.r'));
+        rows.sort(function(a,b){ var d = (+b.dataset.rq)-(+a.dataset.rq); return desc ? d : -d; });
+        rows.forEach(function(r){ tbl.appendChild(r); });
+      });
+    }
+  })();
+</script>

@@ -1,0 +1,76 @@
+---
+const { lang = 'en' } = Astro.props;
+const es = lang === 'es';
+const p = (path) => es ? `/es${path}` : path;
+const t = es ? {
+  eyebrow:'La unidad · definición abierta',
+  h1:'¿Qué es 1 RosettaQ?',
+  lede:'La credibilidad de una unidad depende de que su fórmula sea pública y recalculable. Esta es la propuesta de partida; el principio no se negocia: <strong>nada oculto</strong>.',
+  defH:'Definición propuesta',
+  defP:'El <b>RosettaQ</b> de un par <span class="mono">(sistema, clase de problema)</span> es su rendimiento medido, a igual presupuesto, en una escala pública donde <b class="gold">100 RQ = el mejor solver clásico</b> sobre esa clase.',
+  formula:'RQ(sistema, clase) = 100 × (calidad_del_solve / calidad_del_mejor_clásico)\n   misma instancia · mismo presupuesto · semilla fija · versiones congeladas',
+  cases:[
+    ['< 100','todavía no gana. La distancia a 100 es <i>por cuánto</i> pierde.','gold'],
+    ['= 100','el cruce: iguala al clásico.','faience'],
+    ['> 100','ventaja cuántica medida, y por cuánto.','faience'],
+  ],
+  whyH:'Por qué esto puede ser <em>el metro</em>',
+  whyP:'Porque une en un número las tres preguntas del comprador: <b>¿sirve?</b> (¿pasa de 100?), <b>¿por cuánto?</b> (la distancia a 100) y <b>¿cuándo?</b> (a qué tamaño la curva cruza 100). Y porque, al no vender hardware, sostenemos la neutralidad que ningún vendor puede. La calculadora en vivo es la prueba pública de que no hay caja negra.',
+  openH:'Decisión de diseño a cerrar',
+  openP:'Falta definir con rigor: (1) cómo se agrega el RQ de un sistema entre varias instancias (media / mediana / peor caso), (2) si el precio entra en la unidad o va como eje aparte, (3) cómo se convierte una métrica de vendor a un RQ <i>estimado</i> sin sobre-prometer.',
+  cta:'Probar la calculadora →', cta2:'Volver al índice →',
+} : {
+  eyebrow:'The unit · open definition',
+  h1:'What is 1 RosettaQ?',
+  lede:"A unit's credibility depends on its formula being public and recomputable. This is the starting proposal; the principle is non-negotiable: <strong>nothing hidden</strong>.",
+  defH:'Proposed definition',
+  defP:'The <b>RosettaQ</b> of a <span class="mono">(system, problem class)</span> pair is its measured performance, at equal budget, on a public scale where <b class="gold">100 RQ = the best classical solver</b> on that class.',
+  formula:'RQ(system, class) = 100 × (solve_quality / best_classical_quality)\n   same instance · same budget · fixed seed · frozen versions',
+  cases:[
+    ['< 100','not winning yet. The distance to 100 is <i>by how much</i> it loses.','gold'],
+    ['= 100','the crossover: it matches classical.','faience'],
+    ['> 100','measured quantum advantage, and by how much.','faience'],
+  ],
+  whyH:'Why this can be <em>the metre</em>',
+  whyP:"Because it folds the buyer's three questions into one number: <b>does it work?</b> (is it past 100?), <b>by how much?</b> (the distance to 100), and <b>when?</b> (at what size the curve crosses 100). And because, selling no hardware, we hold the neutrality no vendor can. The live calculator is the public proof that there is no black box.",
+  openH:'Design decision to close',
+  openP:'To be tightened rigorously: (1) how a system’s RQ aggregates across instances (mean / median / worst case), (2) whether price enters the unit or sits as a separate axis, (3) how a vendor metric converts to an <i>estimated</i> RQ without over-promising.',
+  cta:'Try the calculator →', cta2:'Back to the index →',
+};
+---
+<header class="rqi-hero">
+  <div class="wrap unit-wrap">
+    <div class="eyebrow">{t.eyebrow}</div>
+    <h1>{t.h1}</h1>
+    <p class="lede" set:html={t.lede}></p>
+
+    <div class="panel unit-def">
+      <h3 class="faience">{t.defH}</h3>
+      <p set:html={t.defP}></p>
+      <pre class="formula">{t.formula}</pre>
+      <div class="unit-cases">
+        {t.cases.map(c => (
+          <div class="ucase">
+            <span class={`ucase-k ${c[2]}`}>{c[0]} RQ</span>
+            <span class="ucase-v" set:html={c[1]}></span>
+          </div>
+        ))}
+      </div>
+    </div>
+
+    <div class="panel">
+      <h3 set:html={t.whyH}></h3>
+      <p class="muted" set:html={t.whyP}></p>
+    </div>
+
+    <div class="panel gold-edge">
+      <div class="lab gold">{t.openH}</div>
+      <p class="muted" set:html={t.openP}></p>
+    </div>
+
+    <div class="unit-cta">
+      <a class="btn btn-solid" href={p('/rosettaq/calculator')}>{t.cta}</a>
+      <a class="btn btn-ghost" href={p('/rosettaq')}>{t.cta2}</a>
+    </div>
+  </div>
+</header>

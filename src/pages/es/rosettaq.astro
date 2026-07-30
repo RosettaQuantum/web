@@ -1,0 +1,13 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import RqSubnav from '../../components/RqSubnav.astro';
+import QuantumIndex from '../../components/QuantumIndex.astro';
+import css from '../../styles/pages/rosettaq.css?raw';
+---
+<BaseLayout
+  title="Rosetta Quantum Index — Todo el cuántico, en una sola escala."
+  description="Un índice neutral de proveedores y máquinas cuánticas, medido en RosettaQ: rendimiento, precio y jurisdicción — una sola escala para toda la industria."
+  lang="es" altUrl="/rosettaq" pageCss={css}>
+  <RqSubnav lang="es" active="index" />
+  <QuantumIndex lang="es" />
+</BaseLayout>

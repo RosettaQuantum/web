@@ -1,0 +1,13 @@
+---
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import RqSubnav from '../../../components/RqSubnav.astro';
+import RqCalculator from '../../../components/RqCalculator.astro';
+import css from '../../../styles/pages/rosettaq.css?raw';
+---
+<BaseLayout
+  title="Calculadora RosettaQ — benchmarkea lo que sea, en vivo."
+  description="Convierte cualquier resultado de corrida o métrica de vendor a RosettaQ, al instante, con la fórmula a la vista."
+  lang="es" altUrl="/rosettaq/calculator" pageCss={css}>
+  <RqSubnav lang="es" active="calc" />
+  <RqCalculator lang="es" />
+</BaseLayout>
