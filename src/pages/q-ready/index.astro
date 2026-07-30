@@ -1,0 +1,11 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import QrLanding from '../../components/qready/QrLanding.astro';
+import css from '../../styles/pages/q-ready.css?raw';
+---
+<BaseLayout
+  title="Rosetta Q-Ready — Is your cryptography ready for the quantum clock?"
+  description="Automated post-quantum readiness audit. Public-surface evidence, a Q-Ready score 0–100, and a board-ready report — no network access at the External tier."
+  lang="en" altUrl="/es/q-ready" pageCss={css}>
+  <QrLanding lang="en" />
+</BaseLayout>

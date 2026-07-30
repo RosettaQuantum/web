@@ -1,0 +1,11 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import QrPortal from '../../components/qready/QrPortal.astro';
+import css from '../../styles/pages/q-ready.css?raw';
+---
+<BaseLayout
+  title="Audit portal — Rosetta Q-Ready"
+  description="Watch your Q-Ready scan progress and manage the Assisted workspace."
+  lang="en" altUrl="/es/q-ready/portal" pageCss={css}>
+  <QrPortal lang="en" />
+</BaseLayout>

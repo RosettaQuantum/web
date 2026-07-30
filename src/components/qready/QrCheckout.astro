@@ -1,0 +1,208 @@
+---
+const { lang = 'en' } = Astro.props;
+const es = lang === 'es';
+const p = (path) => es ? `/es${path}` : path;
+
+const t = es ? {
+  eye:'Rosetta Q-Ready · contratación',
+  h1:'Inicie su auditoría External',
+  h1l2:'Inicie su auditoría Assisted',
+  lede:'Solo necesitamos su razón social, el dominio raíz a auditar y su industria. No pedimos ningún acceso a su red.',
+  ledel2:'External más cuestionario, uploads e integraciones read-only. Usted controla qué comparte.',
+  demo:'Demo · sin cobro real',
+  formLab:'Datos de la auditoría',
+  fLegal:'Razón social', fLegalPh:'Acme Bank LatAm S.A.',
+  fDomain:'Dominio raíz', fDomainPh:'acme-bank.com',
+  fSector:'Industria / sector', fCountry:'País', fEmail:'Email de contacto', fEmailPh:'nombre@empresa.com',
+  sectors:['Banca / Finanzas','Seguros','Salud','Gobierno / Sector público','Telecomunicaciones','Energía / Utilities','Retail / E-commerce','Tecnología / SaaS','Otro'],
+  countries:['Chile','México','Colombia','Perú','Argentina','Brasil','España','Estados Unidos','Otro'],
+  auth:'Declaro estar autorizado para solicitar una evaluación de la superficie pública de los dominios indicados, y acepto que Rosetta sondee únicamente endpoints públicos.',
+  authNeed:'Marque la autorización para continuar.',
+  sumLab:'Resumen',
+  itemL1:'Q-Ready External · 1 dominio raíz', itemL2:'Q-Ready Assisted · hasta 5 dominios', itemL3:'Q-Ready Enterprise · programa',
+  monitor:'Monitor trimestral (opcional)', monitorPr:'USD 990 / año',
+  total:'Total hoy',
+  pay:'Pagar y comenzar', payMock:'Pago simulado — no se procesa ninguna tarjeta. En producción esto abre Stripe Checkout.',
+  note:'Al continuar recibirá un ID de trabajo y acceso al portal donde verá el avance del escaneo. Entrega estimada del informe: 24–72 h.',
+  l3h:'Hablemos de su programa Enterprise',
+  l3lede:'Enterprise combina la evidencia de Rosetta con la ejecución de un partner (Big 4 o boutique). Déjenos sus datos y coordinamos una llamada de discovery.',
+  l3lab:'Solicitud de contacto',
+  fName:'Nombre y cargo', fNamePh:'Nombre · CISO', fPhone:'Teléfono (opcional)',
+  fNotes:'Contexto (opcional)', fNotesPh:'N° de dominios, nubes, marcos regulatorios…',
+  l3cta:'Solicitar contacto', l3ok:'Solicitud enviada. Un partner de Rosetta le escribirá dentro de 1–2 días hábiles.',
+  paidBadge:'Piloto early-adopter aplicable en checkout real',
+} : {
+  eye:'Rosetta Q-Ready · checkout',
+  h1:'Start your External audit',
+  h1l2:'Start your Assisted audit',
+  lede:'We only need your legal name, the root domain to audit, and your industry. We ask for no access to your network.',
+  ledel2:'External plus questionnaire, uploads and read-only integrations. You control what you share.',
+  demo:'Demo · no real charge',
+  formLab:'Audit details',
+  fLegal:'Legal name', fLegalPh:'Acme Bank LatAm Inc.',
+  fDomain:'Root domain', fDomainPh:'acme-bank.com',
+  fSector:'Industry / sector', fCountry:'Country', fEmail:'Contact email', fEmailPh:'name@company.com',
+  sectors:['Banking / Finance','Insurance','Healthcare','Government / Public sector','Telecommunications','Energy / Utilities','Retail / E-commerce','Technology / SaaS','Other'],
+  countries:['United States','United Kingdom','Canada','Chile','Mexico','Colombia','Brazil','Spain','Other'],
+  auth:'I confirm I am authorized to request an assessment of the public surface of the domains listed, and I accept that Rosetta will probe public endpoints only.',
+  authNeed:'Check the authorization to continue.',
+  sumLab:'Summary',
+  itemL1:'Q-Ready External · 1 root domain', itemL2:'Q-Ready Assisted · up to 5 domains', itemL3:'Q-Ready Enterprise · program',
+  monitor:'Quarterly Monitor (optional)', monitorPr:'USD 990 / yr',
+  total:'Total today',
+  pay:'Pay and start', payMock:'Simulated payment — no card is processed. In production this opens Stripe Checkout.',
+  note:'On continuing you receive a job ID and access to the portal where you can watch the scan progress. Estimated report delivery: 24–72 h.',
+  l3h:'Let’s talk about your Enterprise program',
+  l3lede:'Enterprise pairs Rosetta’s evidence with a partner’s execution (Big 4 or boutique). Leave your details and we’ll set up a discovery call.',
+  l3lab:'Contact request',
+  fName:'Name and role', fNamePh:'Name · CISO', fPhone:'Phone (optional)',
+  fNotes:'Context (optional)', fNotesPh:'Number of domains, clouds, regulatory frameworks…',
+  l3cta:'Request contact', l3ok:'Request sent. A Rosetta partner will reach out within 1–2 business days.',
+  paidBadge:'Early-adopter pilot applies at real checkout',
+};
+
+const priceL1 = es ? 'USD 4.900' : 'USD 4,900';
+const priceL2 = es ? 'USD 24.900' : 'USD 24,900';
+---
+<section style="border-top:none">
+  <div class="wrap">
+    <div class="sec-eyebrow">{t.eye}</div>
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:14px">
+      <h2 id="co-h" style="margin:0">{t.h1}</h2>
+      <span class="demo-tag">{t.demo}</span>
+    </div>
+    <p class="prose" id="co-lede">{t.lede}</p>
+
+    <!-- PAY MODE (L1 / L2) -->
+    <form class="co-grid" id="co-pay">
+      <div class="panel">
+        <div class="lab">{t.formLab}</div>
+        <label for="f-legal">{t.fLegal}</label>
+        <input type="text" id="f-legal" name="legal" placeholder={t.fLegalPh} required autocomplete="organization" />
+        <label for="f-domain">{t.fDomain}</label>
+        <input type="text" id="f-domain" name="domain" placeholder={t.fDomainPh} required pattern="[A-Za-z0-9]([A-Za-z0-9.-]*[A-Za-z0-9])?" title="example.com" autocomplete="off" />
+        <div class="co-two">
+          <div>
+            <label for="f-sector">{t.fSector}</label>
+            <select id="f-sector" name="sector">{t.sectors.map(s => <option>{s}</option>)}</select>
+          </div>
+          <div>
+            <label for="f-country">{t.fCountry}</label>
+            <select id="f-country" name="country">{t.countries.map(c => <option>{c}</option>)}</select>
+          </div>
+        </div>
+        <label for="f-email">{t.fEmail}</label>
+        <input type="email" id="f-email" name="email" placeholder={t.fEmailPh} required autocomplete="email" />
+        <div class="check" id="auth-wrap">
+          <input type="checkbox" id="f-auth" name="auth" required />
+          <label for="f-auth" class="auth-label">{t.auth}</label>
+        </div>
+        <p class="co-note auth-err" id="auth-err" hidden>{t.authNeed}</p>
+      </div>
+
+      <div class="panel co-summary">
+        <div class="lab">{t.sumLab}</div>
+        <div class="row"><span id="sum-item">{t.itemL1}</span><span id="sum-price">{priceL1}</span></div>
+        <div class="row" id="sum-monitor-row" hidden><span>{t.monitor}</span><span>{t.monitorPr}</span></div>
+        <div class="row total"><span>{t.total}</span><span id="sum-total">{priceL1}</span></div>
+        <div class="mock-pay">{t.payMock}</div>
+        <button type="submit" class="btn btn-solid" id="pay-btn" style="width:100%;margin-top:16px">{t.pay}</button>
+        <span class="badge paid-badge">{t.paidBadge}</span>
+        <p class="co-note">{t.note}</p>
+      </div>
+    </form>
+
+    <!-- LEAD MODE (L3) -->
+    <form class="co-grid" id="co-lead" hidden>
+      <div class="panel">
+        <div class="lab">{t.l3lab}</div>
+        <label for="l-legal">{t.fLegal}</label>
+        <input type="text" id="l-legal" name="legal" placeholder={t.fLegalPh} required />
+        <label for="l-name">{t.fName}</label>
+        <input type="text" id="l-name" name="name" placeholder={t.fNamePh} required />
+        <div class="co-two">
+          <div><label for="l-email">{t.fEmail}</label><input type="email" id="l-email" name="email" placeholder={t.fEmailPh} required /></div>
+          <div><label for="l-phone">{t.fPhone}</label><input type="text" id="l-phone" name="phone" /></div>
+        </div>
+        <label for="l-notes">{t.fNotes}</label>
+        <textarea id="l-notes" name="notes" rows="3" placeholder={t.fNotesPh}></textarea>
+        <button type="submit" class="btn btn-solid" id="lead-btn" style="margin-top:16px">{t.l3cta}</button>
+        <p class="co-note" id="lead-ok" hidden style="color:var(--faience)">{t.l3ok}</p>
+      </div>
+      <div class="panel">
+        <div class="lab">{t.itemL3}</div>
+        <p class="prose" style="margin-top:0;font-size:15px">{t.l3lede}</p>
+      </div>
+    </form>
+  </div>
+</section>
+
+<script is:inline define:vars={{
+  es,
+  portalUrl: p('/q-ready/portal'),
+  l3h: t.l3h,
+  l3lede: t.l3lede,
+  h1l1: t.h1,
+  h1l2: t.h1l2,
+  ledel1: t.lede,
+  ledel2: t.ledel2,
+  l1item: t.itemL1,
+  l2item: t.itemL2,
+  l1price: priceL1,
+  l2price: priceL2,
+}}>
+(function(){
+  var params = new URLSearchParams(window.location.search);
+  var tier = (params.get('tier') || 'l1').toLowerCase();
+  if (tier !== 'l1' && tier !== 'l2' && tier !== 'l3') tier = 'l1';
+  var pay = document.getElementById('co-pay');
+  var lead = document.getElementById('co-lead');
+
+  if (tier === 'l3') {
+    pay.hidden = true;
+    lead.hidden = false;
+    document.getElementById('co-h').textContent = l3h;
+    document.getElementById('co-lede').textContent = l3lede;
+  } else {
+    var isL2 = tier === 'l2';
+    document.getElementById('co-h').textContent = isL2 ? h1l2 : h1l1;
+    document.getElementById('co-lede').textContent = isL2 ? ledel2 : ledel1;
+    var pr = isL2 ? l2price : l1price;
+    document.getElementById('sum-item').textContent = isL2 ? l2item : l1item;
+    document.getElementById('sum-price').textContent = pr;
+    document.getElementById('sum-total').textContent = pr;
+
+    pay.addEventListener('submit', function(e){
+      e.preventDefault();
+      var auth = document.getElementById('f-auth');
+      var err = document.getElementById('auth-err');
+      if (!pay.checkValidity()) { pay.reportValidity(); return; }
+      if (!auth.checked) {
+        err.hidden = false;
+        document.getElementById('auth-wrap').classList.add('auth-bad');
+        return;
+      }
+      err.hidden = true;
+      var payBtn = document.getElementById('pay-btn');
+      payBtn.textContent = es ? 'Procesando…' : 'Processing…';
+      payBtn.disabled = true;
+      var dom = document.getElementById('f-domain').value.trim().replace(/^https?:\/\//,'').replace(/\/.*$/,'');
+      var sector = document.getElementById('f-sector').value;
+      var q = '?job=running&tier=' + encodeURIComponent(tier)
+        + '&domain=' + encodeURIComponent(dom)
+        + '&sector=' + encodeURIComponent(sector);
+      setTimeout(function(){ window.location.href = portalUrl + q; }, 700);
+    });
+  }
+
+  var leadForm = document.getElementById('co-lead');
+  if (leadForm) leadForm.addEventListener('submit', function(e){
+    e.preventDefault();
+    if (!leadForm.checkValidity()) { leadForm.reportValidity(); return; }
+    var leadBtn = document.getElementById('lead-btn');
+    leadBtn.disabled = true;
+    leadBtn.style.opacity = .5;
+    document.getElementById('lead-ok').hidden = false;
+  });
+})();
+</script>

@@ -1,0 +1,11 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import QrCheckout from '../../components/qready/QrCheckout.astro';
+import css from '../../styles/pages/q-ready.css?raw';
+---
+<BaseLayout
+  title="Start your Q-Ready audit — Rosetta Q-Ready"
+  description="Begin the Q-Ready External audit: legal name, root domain and industry only. No network access required."
+  lang="en" altUrl="/es/q-ready/checkout" pageCss={css}>
+  <QrCheckout lang="en" />
+</BaseLayout>

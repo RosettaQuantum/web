@@ -1,0 +1,251 @@
+---
+const { lang = 'en' } = Astro.props;
+const es = lang === 'es';
+const p = (path) => es ? `/es${path}` : path;
+const R = 92, C = 2 * Math.PI * R, SCORE = 28, dash = (SCORE/100)*C;
+
+const t = es ? {
+  eyebrow:'Informe de ejemplo · Q-Ready External',
+  demo:'Datos ilustrativos · empresa ficticia, no un cliente real',
+  h1:'Auditoría de preparación post-cuántica',
+  print:'Descargar PDF', back:'← Volver a Q-Ready',
+  co:'Acme Bank LatAm', dom:'acme-bank.example', date:'Emitido 2026-07-30 · válido a la fecha de escaneo',
+  s1:'Resumen ejecutivo', band:'Not ready', bandR:'0–29 · sin postura post-cuántica',
+  execP:'La superficie pública de <b>acme-bank.example</b> no negocia intercambio de llaves híbrido post-cuántico en ningún host observado. Como banco, su horizonte de confidencialidad es largo; bajo cualquier escenario CRQC razonable, la organización llega tarde. La brecha es de <b>postura</b>, no de una sola falla — y es corregible con un roadmap acotado.',
+  top5:'Top 5 hallazgos',
+  findings:[
+    ['Critical','0% de los hosts negocian ML-KEM híbrido; todo el key exchange es clásico (X25519/ECDHE).'],
+    ['Critical','Sector banca (alto horizonte de confidencialidad) sin postura PQC → índice HNDL crítico.'],
+    ['High','Host legacy con TLS 1.1 y certificado leaf RSA-1024 en un subdominio vivo.'],
+    ['Medium','Wildcards en 4 hosts amplían el radio de impacto; 6 hostnames huérfanos en CT.'],
+    ['Info','Sin security.txt ni política de crypto-agility publicada; edge en Cloudflare (señal parcial positiva).'],
+  ],
+  costH:'Costo de inacción (Mosca)', cost:'X (confidencialidad ~8 años) + Y (migración ~9 años) = 17 > Z (CRQC ~9 años). Cada trimestre de demora reduce el margen y aumenta el volumen de tráfico ya recolectable.',
+  s2:'Contexto · el reloj y el HNDL',
+  edu:'La criptografía RSA/ECC será vulnerable a Shor en un CRQC. Los estándares de reemplazo (FIPS 203/204/205) existen desde 2024; NIST IR 8547 depreca RSA-2048/ECC en 2030 y los elimina en 2035. Bajo <b>harvest now, decrypt later</b>, el tráfico cifrado hoy puede descifrarse cuando exista un CRQC. <b>Nota de categoría:</b> un teorema (Shor) frente a un veredicto medido (Evidence Ledger: ¿ganó quantum al baseline clásico?). Q-Ready no mide ventaja en optimización.',
+  s3:'Qué está bien',
+  good:['Edge en Cloudflare en los hosts principales → híbrido PQC activable con un toggle, sin re-arquitectura.','TLS 1.3 presente en www y online; sin export ciphers observados.','DMARC y SPF configurados en el dominio de correo.'],
+  s4:'Qué está mal / crítico', sev:'Severidad', findingCol:'Hallazgo', detailCol:'Detalle',
+  sevtbl:[
+    ['Critical','Key exchange 100% clásico','Ningún host negocia X25519MLKEM768.'],
+    ['Critical','HNDL banca sin mitigación','Datos de largo plazo expuestos bajo criptografía clásica.'],
+    ['High','TLS 1.1 + RSA-1024','legacy.acme-bank.example acepta protocolos y llaves obsoletas.'],
+    ['Medium','Wildcards + huérfanos CT','Radio de impacto amplio; superficie no gestionada.'],
+    ['Low','Sin crypto-agility policy','No hay owner ni proceso de rotación declarado.'],
+  ],
+  s5:'Inventario observado', invcols:['Host','TLS / algoritmos','Híbrido','Edge'],
+  inv:[
+    ['www.acme-bank.example','TLS 1.3 · X25519 / RSA-2048','No','Cloudflare'],
+    ['online.acme-bank.example','TLS 1.3 · X25519 / RSA-2048','No','Cloudflare'],
+    ['api.acme-bank.example','TLS 1.2 · ECDHE / ECDSA P-256','No','—'],
+    ['legacy.acme-bank.example','TLS 1.1 · RSA / RSA-1024','No','—'],
+    ['mail.acme-bank.example','STARTTLS · ECDHE / RSA-2048','No','—'],
+  ],
+  s6:'Índice HNDL + escenarios CRQC', hndlP:'Banca = horizonte de confidencialidad alto. El índice HNDL combina el sector con la exposición observada:',
+  scen:[['Agresivo','Z ≈ 2030','Tarde por ~7 años','crit'],['Mediano','Z ≈ 2033','Tarde por ~4 años','warn'],['Conservador','Z ≈ 2037','Tarde por ~1 año','warn']],
+  s7:'Nota global Q-Ready', scoreP:'Media ponderada de las dimensiones medibles en el nivel External:',
+  dims:[['Edge TLS PQC','35%','5'],['Certificados / CNI pública','25%','40'],['Superficie & higiene','15%','52'],['Postura HNDL (tiempo)','25%','15']],
+  bands:['Not ready (0–29)','Aware (30–49)','Piloting (50–69)','Hybrid at edge (70–84)','Crypto-agile (85–100)'],
+  s8:'Roadmap',
+  rm:[
+    ['30 días','Higiene y visibilidad',['Inventariar certificados públicos y hostnames en CT','Forzar TLS 1.3; deshabilitar TLS 1.1 en legacy','Reemplazar el leaf RSA-1024','Publicar security.txt']],
+    ['90 días','Híbrido en el edge',['Activar X25519MLKEM768 en Cloudflare (toggle)','Consolidar wildcards; retirar hostnames huérfanos','Nombrar owner de crypto-agility','Definir política de rotación de llaves']],
+    ['365 días','Inventario interno',['CBOM CycloneDX de sistemas internos (nivel Assisted)','Roadmap PQC con vendors de HSM/KMS','Migrar firmas a ML-DSA donde haya soporte','Re-escaneo trimestral (Monitor)']],
+  ],
+  s9:'Brechas de visibilidad', gapP:'El nivel External no observa el interior. Estas brechas se cierran con Assisted (uploads + integraciones) y Enterprise (partner):',
+  gaps:['Inventario de HSM/KMS y llaves internas','Apps, VPN y mTLS interno','Bases de datos cifradas y backups','Roadmaps PQC de proveedores'],
+  gapCta:'Subir a Assisted →',
+  s10:'Apéndice · metodología y límites',
+  method:'Evidencia de superficie pública únicamente: Certificate Transparency, resolución DNS, probe TLS (ClientHello con grupos híbridos), cadena de confianza pública y OSINT ligero. Sin exploits, sin port-scan agresivo, User-Agent identificado. No es una certificación ni sustituye una auditoría interna.',
+  s11:'Sello Rosetta', sealP:'Cada informe se sella con el hash del JSON de evidencia. En producción se ancla al Evidence Ledger (aquí, muestra sin anclar).',
+} : {
+  eyebrow:'Sample report · Q-Ready External',
+  demo:'Illustrative data · fictional company, not a real client',
+  h1:'Post-quantum readiness audit',
+  print:'Download PDF', back:'← Back to Q-Ready',
+  co:'Acme Bank LatAm', dom:'acme-bank.example', date:'Issued 2026-07-30 · valid as of scan date',
+  s1:'Executive brief', band:'Not ready', bandR:'0–29 · no post-quantum posture',
+  execP:'The public surface of <b>acme-bank.example</b> negotiates no post-quantum hybrid key exchange on any observed host. As a bank, its confidentiality horizon is long; under any reasonable CRQC scenario, the organization is late. The gap is one of <b>posture</b>, not a single flaw — and it is fixable with a bounded roadmap.',
+  top5:'Top 5 findings',
+  findings:[
+    ['Critical','0% of hosts negotiate hybrid ML-KEM; all key exchange is classical (X25519/ECDHE).'],
+    ['Critical','Banking sector (long confidentiality horizon) with no PQC posture → critical HNDL index.'],
+    ['High','Legacy host with TLS 1.1 and an RSA-1024 leaf certificate on a live subdomain.'],
+    ['Medium','Wildcards on 4 hosts widen the blast radius; 6 orphan hostnames in CT.'],
+    ['Info','No security.txt or published crypto-agility policy; edge on Cloudflare (partial positive).'],
+  ],
+  costH:'Cost of inaction (Mosca)', cost:'X (confidentiality ~8 yr) + Y (migration ~9 yr) = 17 > Z (CRQC ~9 yr). Every quarter of delay shrinks the margin and grows the volume of already-harvestable traffic.',
+  s2:'Context · the clock and HNDL',
+  edu:'RSA/ECC will be vulnerable to Shor on a CRQC. Replacement standards (FIPS 203/204/205) have existed since 2024; NIST IR 8547 deprecates RSA-2048/ECC by 2030 and disallows them by 2035. Under <b>harvest now, decrypt later</b>, traffic encrypted today can be decrypted once a CRQC exists. <b>Category note:</b> a theorem (Shor) versus a measured verdict (Evidence Ledger: did quantum beat the classical baseline?). Q-Ready does not measure optimization advantage.',
+  s3:'What is good',
+  good:['Cloudflare edge on the main hosts → hybrid PQC is a toggle away, no re-architecture.','TLS 1.3 present on www and online; no export ciphers observed.','DMARC and SPF configured on the mail domain.'],
+  s4:'What is wrong / critical', sev:'Severity', findingCol:'Finding', detailCol:'Detail',
+  sevtbl:[
+    ['Critical','Key exchange 100% classical','No host negotiates X25519MLKEM768.'],
+    ['Critical','Banking HNDL, unmitigated','Long-lived data exposed under classical cryptography.'],
+    ['High','TLS 1.1 + RSA-1024','legacy.acme-bank.example accepts obsolete protocols and keys.'],
+    ['Medium','Wildcards + CT orphans','Wide blast radius; unmanaged surface.'],
+    ['Low','No crypto-agility policy','No declared owner or rotation process.'],
+  ],
+  s5:'Observed inventory', invcols:['Host','TLS / algorithms','Hybrid','Edge'],
+  inv:[
+    ['www.acme-bank.example','TLS 1.3 · X25519 / RSA-2048','No','Cloudflare'],
+    ['online.acme-bank.example','TLS 1.3 · X25519 / RSA-2048','No','Cloudflare'],
+    ['api.acme-bank.example','TLS 1.2 · ECDHE / ECDSA P-256','No','—'],
+    ['legacy.acme-bank.example','TLS 1.1 · RSA / RSA-1024','No','—'],
+    ['mail.acme-bank.example','STARTTLS · ECDHE / RSA-2048','No','—'],
+  ],
+  s6:'HNDL index + CRQC scenarios', hndlP:'Banking = high confidentiality horizon. The HNDL index combines sector with observed exposure:',
+  scen:[['Aggressive','Z ≈ 2030','Late by ~7 yr','crit'],['Median','Z ≈ 2033','Late by ~4 yr','warn'],['Conservative','Z ≈ 2037','Late by ~1 yr','warn']],
+  s7:'Global Q-Ready score', scoreP:'Weighted mean of the dimensions measurable at the External tier:',
+  dims:[['Edge TLS PQC','35%','5'],['Certificates / public PKI','25%','40'],['Surface & hygiene','15%','52'],['HNDL posture (time)','25%','15']],
+  bands:['Not ready (0–29)','Aware (30–49)','Piloting (50–69)','Hybrid at edge (70–84)','Crypto-agile (85–100)'],
+  s8:'Roadmap',
+  rm:[
+    ['30 days','Hygiene & visibility',['Inventory public certs and CT hostnames','Force TLS 1.3; disable TLS 1.1 on legacy','Replace the RSA-1024 leaf','Publish security.txt']],
+    ['90 days','Hybrid at the edge',['Enable X25519MLKEM768 on Cloudflare (toggle)','Consolidate wildcards; retire orphan hostnames','Name a crypto-agility owner','Define a key-rotation policy']],
+    ['365 days','Internal inventory',['CycloneDX CBOM of internal systems (Assisted tier)','PQC roadmap with HSM/KMS vendors','Migrate signatures to ML-DSA where supported','Quarterly re-scan (Monitor)']],
+  ],
+  s9:'Visibility gaps', gapP:'The External tier does not observe the interior. These gaps close with Assisted (uploads + integrations) and Enterprise (partner):',
+  gaps:['HSM/KMS inventory and internal keys','Apps, VPN and internal mTLS','Encrypted databases and backups','Vendor PQC roadmaps'],
+  gapCta:'Upgrade to Assisted →',
+  s10:'Appendix · methodology & limits',
+  method:'Public-surface evidence only: Certificate Transparency, DNS resolution, TLS probe (ClientHello with hybrid groups), public trust chain and light OSINT. No exploits, no aggressive port-scan, identified User-Agent. Not a certification and no substitute for an internal audit.',
+  s11:'Rosetta seal', sealP:'Each report is sealed with the hash of the evidence JSON. In production it anchors to the Evidence Ledger (here, a sample, unanchored).',
+};
+const sevClass = (s) => s.toLowerCase();
+---
+<article class="report">
+  <div class="wrap">
+    <div class="qr-cta no-print" style="justify-content:space-between;margin-top:24px">
+      <a class="mono faint" href={p('/q-ready')} style="font-size:13px;align-self:center">{t.back}</a>
+      <button class="btn btn-ghost" id="qr-print" type="button">{t.print}</button>
+    </div>
+    <div class="eyebrow" style="margin-top:22px">{t.eyebrow}</div>
+    <div class="demo-tag no-print" style="margin-bottom:8px">{t.demo}</div>
+
+    <!-- 1 · exec brief -->
+    <div class="rep-head">
+      <div>
+        <div class="rep-meta">{t.co} · {t.dom}</div>
+        <div class="rep-title">{t.h1}</div>
+        <div class="rep-meta">{t.date}</div>
+        <p class="prose" style="margin-top:14px" set:html={t.execP}></p>
+      </div>
+      <div class="ring-wrap">
+        <div class="ring">
+          <svg viewBox="0 0 208 208" width="200" height="200">
+            <circle cx="104" cy="104" r={R} fill="none" stroke="#3D372F" stroke-width="13"/>
+            <circle cx="104" cy="104" r={R} fill="none" stroke="#E0705C" stroke-width="13" stroke-linecap="round" stroke-dasharray={`${dash} ${C}`} />
+          </svg>
+          <div class="ring-num"><span class="n crit">{SCORE}</span><span class="of">/ 100</span></div>
+        </div>
+        <span class="band notready">{t.band}</span>
+        <span class="mono faint" style="font-size:10.5px">{t.bandR}</span>
+      </div>
+    </div>
+
+    <div class="rep-section">
+      <h3>{t.top5}</h3>
+      <ul class="top5">
+        {t.findings.map(([sv, txt]) => (
+          <li><span class={`sev ${sevClass(sv)}`}>{sv}</span><span>{txt}</span></li>
+        ))}
+      </ul>
+      <div class="honesty" style="margin-top:18px"><p><b class="gold">{t.costH}.</b> {t.cost}</p></div>
+    </div>
+
+    <!-- 2 · education -->
+    <div class="rep-section">
+      <h3>{t.s2}</h3>
+      <p class="rep-lead" set:html={t.edu}></p>
+    </div>
+
+    <!-- 3 · good -->
+    <div class="rep-section">
+      <h3 class="faience">{t.s3}</h3>
+      <ul class="top5">{t.good.map(g => <li><span class="sev low">ok</span><span>{g}</span></li>)}</ul>
+    </div>
+
+    <!-- 4 · wrong -->
+    <div class="rep-section">
+      <h3>{t.s4}</h3>
+      <div class="findtbl">
+        <div class="findrow h"><div>{t.sev}</div><div>{t.findingCol}</div><div class="hide-m">{t.detailCol}</div></div>
+        {t.sevtbl.map(([sv, f, d]) => (
+          <div class="findrow"><div><span class={`sev ${sevClass(sv)}`}>{sv}</span></div><div>{f}</div><div class="hide-m muted">{d}</div></div>
+        ))}
+      </div>
+    </div>
+
+    <!-- 5 · inventory -->
+    <div class="rep-section">
+      <h3>{t.s5}</h3>
+      <table class="invtbl">
+        <thead><tr>{t.invcols.map(c => <th>{c}</th>)}</tr></thead>
+        <tbody>{t.inv.map(r => (
+          <tr><td>{r[0]}</td><td>{r[1]}</td><td class={r[2]==='No'?'':'ok'}><span class={r[2]==='No'?'bad':'ok'}>{r[2]}</span></td><td>{r[3]}</td></tr>
+        ))}</tbody>
+      </table>
+    </div>
+
+    <!-- 6 · HNDL scenarios -->
+    <div class="rep-section">
+      <h3>{t.s6}</h3>
+      <p class="rep-lead">{t.hndlP}</p>
+      <div class="roadmap">
+        {t.scen.map(([n, z, v, c]) => (
+          <div class="rm-col"><div class="hd" style={c==='crit'?'color:var(--crit)':'color:var(--gold)'}>{n}</div><div class="sub">{z}</div><div class={c==='crit'?'crit':'gold'} style="font-family:'IBM Plex Mono',monospace;font-size:14px">{v}</div></div>
+        ))}
+      </div>
+    </div>
+
+    <!-- 7 · score breakdown + bands -->
+    <div class="rep-section">
+      <h3>{t.s7}</h3>
+      <p class="rep-lead">{t.scoreP}</p>
+      <table class="invtbl">
+        <thead><tr><th>{es?'Dimensión':'Dimension'}</th><th>{es?'Peso':'Weight'}</th><th>0–100</th></tr></thead>
+        <tbody>{t.dims.map(d => <tr><td>{d[0]}</td><td>{d[1]}</td><td><span class={+d[2]<30?'bad':(+d[2]<50?'':'ok')}>{d[2]}</span></td></tr>)}</tbody>
+      </table>
+      <div class="bands-legend">{t.bands.map((b,i) => <span class="b" style={i===0?'color:var(--crit);border-color:var(--crit)':''}>{b}</span>)}</div>
+    </div>
+
+    <!-- 8 · roadmap -->
+    <div class="rep-section">
+      <h3>{t.s8}</h3>
+      <div class="roadmap">
+        {t.rm.map(([hd, sub, items]) => (
+          <div class="rm-col"><div class="hd">{hd}</div><div class="sub">{sub}</div><ul>{items.map(x => <li>{x}</li>)}</ul></div>
+        ))}
+      </div>
+    </div>
+
+    <!-- 9 · gaps / upsell -->
+    <div class="rep-section">
+      <h3>{t.s9}</h3>
+      <div class="upsell">
+        <p class="muted" style="margin-bottom:10px">{t.gapP}</p>
+        <ul class="top5">{t.gaps.map(g => <li><span class="sev info">gap</span><span>{g}</span></li>)}</ul>
+        <a class="mono faience" style="display:inline-block;margin-top:12px;font-size:13px" href={p('/q-ready/checkout') + '?tier=l2'}>{t.gapCta}</a>
+      </div>
+    </div>
+
+    <!-- 10 · appendix -->
+    <div class="rep-section">
+      <h3>{t.s10}</h3>
+      <p class="rep-lead">{t.method}</p>
+    </div>
+
+    <!-- 11 · seal -->
+    <div class="rep-section">
+      <h3>{t.s11}</h3>
+      <p class="rep-lead">{t.sealP}</p>
+      <div class="seal">content_hash = <span class="h">sha256:9f2c1a7e…d40b</span><br/>rosettaq-archive/v2 · <span class="faint">sample · not anchored</span></div>
+    </div>
+  </div>
+</article>
+
+<script is:inline>
+  (function(){ var b=document.getElementById('qr-print'); if(b) b.addEventListener('click', function(){ window.print(); }); })();
+</script>

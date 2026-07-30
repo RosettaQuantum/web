@@ -1,0 +1,11 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import QrReport from '../../components/qready/QrReport.astro';
+import css from '../../styles/pages/q-ready.css?raw';
+---
+<BaseLayout
+  title="Sample Q-Ready report — Rosetta Q-Ready"
+  description="A sample Q-Ready report: score 0–100, top findings, observed inventory, HNDL scenarios and a 30/90/365 roadmap."
+  lang="en" altUrl="/es/q-ready/sample-report" pageCss={css}>
+  <QrReport lang="en" />
+</BaseLayout>

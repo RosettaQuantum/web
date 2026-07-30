@@ -1,0 +1,319 @@
+---
+const { lang = 'en' } = Astro.props;
+const es = lang === 'es';
+const p = (path) => es ? `/es${path}` : path;
+
+/* sample score ring geometry */
+const R = 88, C = 2 * Math.PI * R, SCORE = 28;
+const dash = (SCORE / 100) * C;
+
+const t = es ? {
+  brand:'Rosetta Q-Ready · auditoría post-cuántica',
+  h1:'¿Qué tan lista está su criptografía para el momento cuántico?',
+  lede:'Auditoría automatizada de preparación post-cuántica. <strong>Evidencia de superficie pública</strong>, un score Q-Ready e informe board-ready — sin pedirle acceso a su red en el nivel External.',
+  ctaMain:'Auditar mi dominio', ctaSec:'Ver informe de ejemplo',
+  ringSub:'Ejemplo · banda', ringBand:'Not ready', ringNote:'ver informe de ejemplo →',
+  s2eye:'El problema · un calendario que ya es política', s2h:'El reloj criptográfico ya está corriendo.',
+  s2p:'La criptografía de clave pública que protege casi todo el tráfico empresarial (RSA, ECC) será vulnerable a un computador cuántico criptográficamente relevante vía el algoritmo de Shor. Los reemplazos ya son estándar. La migración toma años. El timeline de defensa está fijado por política pública; el de ataque es una distribución de probabilidad.',
+  clock:[
+    ['2024', 'FIPS 203/204/205 finalizados (ML-KEM · ML-DSA · SLH-DSA)', true, false],
+    ['2027', 'CNSA 2.0: PQC obligatorio en nuevos sistemas de seguridad nacional (EE.UU.)', false, false],
+    ['2030', 'NIST IR 8547: RSA-2048 y ECC P-256 <b>deprecados</b>', false, false],
+    ['2033–37', 'ventana central de expertos para un CRQC (GRI)', false, true],
+    ['2035', 'algoritmos vulnerables <b>eliminados</b> de los estándares NIST', false, false],
+  ],
+  yrUnit:'años',
+  s3eye:'Harvest Now, Decrypt Later', s3h:'El riesgo empieza hoy, no cuando llegue la máquina.',
+  s3p:'Un adversario con horizonte largo puede recolectar tráfico cifrado hoy y descifrarlo cuando exista un CRQC. Los datos cuya confidencialidad deba sobrevivir más de ~10 años deben tratarse como <strong>potencialmente expuestos</strong> bajo criptografía clásica.',
+  flow:[
+    ['01','Captura hoy','El adversario graba tráfico TLS cifrado en tránsito.'],
+    ['02','Archivo','Lo almacena — barato — a la espera de capacidad.'],
+    ['03','CRQC','Un computador cuántico corre Shor contra RSA/ECC.'],
+    ['04','Texto abierto','El tráfico de hace años queda legible, retroactivamente.'],
+  ],
+  flowNote:'No afirmamos que “ya les robaron los datos”. Afirmamos exposición medible bajo un calendario público.',
+  s4eye:'La desigualdad de Mosca', s4h:'Sume los años. Si la cuenta da tarde, ya va tarde.',
+  s4p:'Si el tiempo que sus datos deben permanecer secretos (X) más el tiempo que toma migrar (Y) supera el tiempo hasta un CRQC (Z), la organización llega tarde. Ejemplo típico de banca:',
+  moscaX:'X · confidencialidad', moscaY:'Y · migración', moscaZ:'Z · hasta CRQC',
+  moscaVerdict:'X + Y = 17 años > Z = 9 años  →  llega 8 años tarde. La ventana de decisión es ahora, no en 2033.',
+  s5eye:'Qué entregamos', s5h:'Un informe que un directorio puede leer, con evidencia detrás.',
+  deliver:['<b>Score Q-Ready 0–100</b> con banda y semáforo','Top 5 hallazgos y costo de inacción (Mosca)','Inventario observado: hosts, algoritmos, híbrido, CDN','Índice HNDL por industria + escenarios CRQC','Roadmap accionable 30 / 90 / 365 días','Sello Rosetta: hash del JSON + ledger (evidencia)'],
+  s6eye:'Tres niveles', s6h:'Desde una mirada externa hasta un programa con partner.',
+  tiers:[
+    {lvl:'Nivel 1 · External', name:'Q-Ready External', price:'USD 4.900', unit:'1 dominio raíz · hasta 50 hosts', who:'Solo dominio + industria. 100% Rosetta, sin acceso a su red.',
+     li:['Evidencia de superficie pública','Probe TLS PQC + Certificate Transparency','Score + informe PDF + portal','Entrega en 24–72 h'], cta:'Auditar mi dominio', feat:true, badge:'Piloto early-adopter: ~USD 2.500'},
+    {lvl:'Nivel 2 · Assisted', name:'Q-Ready Assisted', price:'USD 24.900', unit:'hasta 5 dominios · 500 hosts · 1 cloud', who:'External + cuestionario + uploads + OAuth read-only.',
+     li:['Todo lo de External','Inventario cripto + CBOM CycloneDX','Integraciones Cloudflare / AWS / Azure','Roadmap detallado · 5–10 días'], cta:'Elegir Assisted', feat:false, badge:''},
+    {lvl:'Nivel 3 · Enterprise', name:'Q-Ready Enterprise', price:'Desde USD 180k', unit:'programa 8–16 semanas', who:'Evidencia Rosetta + ejecución con partner (Big 4 / boutique).',
+     li:['Todo lo de Assisted','Evidence Pack para el partner','Workshops y discovery interno','Programa de remediación'], cta:'Hablar con un partner', feat:false, badge:''},
+  ],
+  s7eye:'Cómo funciona el nivel External', s7h:'Cuatro pasos, sin tocar su red.',
+  steps:[
+    ['1','Su dominio','Ingresa razón social, dominio(s) raíz e industria.'],
+    ['2','Probes públicos','Sondeamos solo endpoints públicos: TLS, certificados, CT.'],
+    ['3','Score','El motor calcula el Q-Ready 0–100 y la postura HNDL.'],
+    ['4','Informe','Recibe el informe sellable y el portal, en 24–72 h.'],
+  ],
+  s8eye:'Estándares que citamos', s8h:'Nada de esto depende del marketing.',
+  s9eye:'Honestidad', s9h:'Lo que Q-Ready no es.',
+  honesty:['Q-Ready <strong>no es una certificación</strong> (no ISO/PCI/NIST) ni reemplaza una auditoría interna.','El nivel External <strong>no ve el interior</strong>: no inventaría HSM/KMS, apps, VPN, DB cifradas ni mTLS interno. Esas brechas de visibilidad se cubren en Assisted y Enterprise.','No vendemos pánico. La amenaza criptográfica (Shor/CRQC) es un <strong>teorema + calendario de política</strong>; la ventaja cuántica en optimización es un <strong>veredicto medido</strong> en el Evidence Ledger. Claims separados.'],
+  s10eye:'Preguntas frecuentes',
+  faq:[
+    ['¿Necesitan acceso a mi red?','No en el nivel External. Solo sondeamos endpoints públicos de los dominios que usted autoriza. Assisted agrega uploads e integraciones read-only que usted controla.'],
+    ['¿Esto es una certificación?','No. Es una medición con evidencia y un veredicto accionable. Complementa, no reemplaza, auditorías formales.'],
+    ['¿Es urgente si el computador cuántico no existe aún?','Sí, por “harvest now, decrypt later” y porque la migración toma años. Los hitos 2030/2035 son de política, no de hardware.'],
+    ['¿Qué diferencia hay con su Evidence Ledger?','Un teorema (Shor sobre RSA/ECC) frente a un veredicto medido (Ledger: ¿ganó quantum al baseline clásico en esta instancia?). Q-Ready mide exposición criptográfica; el Ledger mide ventaja en optimización. Mantenerlos separados es parte de nuestra disciplina.'],
+    ['¿Cada cuánto conviene re-auditar?','La superficie cambia. El add-on Monitor re-escanea trimestralmente (USD 990/año) para seguir el avance de su migración.'],
+  ],
+  ctaH:'Vea dónde está su criptografía frente al reloj.',
+  ctaP:'Empiece por el nivel External: evidencia pública, sin pedirle acceso.',
+} : {
+  brand:'Rosetta Q-Ready · post-quantum audit',
+  h1:'How ready is your cryptography for the quantum clock?',
+  lede:'Automated post-quantum readiness audit. <strong>Public-surface evidence</strong>, a Q-Ready score, and a board-ready report — no network access required at the External tier.',
+  ctaMain:'Audit my domain', ctaSec:'See a sample report',
+  ringSub:'Sample · band', ringBand:'Not ready', ringNote:'see the sample report →',
+  s2eye:'The problem · a calendar that is already policy', s2h:'The cryptographic clock is already running.',
+  s2p:'The public-key cryptography protecting almost all enterprise traffic (RSA, ECC) will be vulnerable to a cryptographically relevant quantum computer via Shor’s algorithm. The replacements are already standards. Migration takes years. The defense timeline is fixed by public policy; the attack timeline is a probability distribution.',
+  clock:[
+    ['2024', 'FIPS 203/204/205 finalized (ML-KEM · ML-DSA · SLH-DSA)', true, false],
+    ['2027', 'CNSA 2.0: PQC mandatory in new US national-security systems', false, false],
+    ['2030', 'NIST IR 8547: RSA-2048 and ECC P-256 <b>deprecated</b>', false, false],
+    ['2033–37', 'expert central window for a CRQC (GRI)', false, true],
+    ['2035', 'quantum-vulnerable algorithms <b>disallowed</b> from NIST standards', false, false],
+  ],
+  yrUnit:'yr',
+  s3eye:'Harvest Now, Decrypt Later', s3h:'The risk starts today, not when the machine arrives.',
+  s3p:'A long-horizon adversary can collect encrypted traffic today and decrypt it once a CRQC exists. Data whose confidentiality must outlive ~10 years should be treated as <strong>potentially exposed</strong> under classical cryptography.',
+  flow:[
+    ['01','Capture today','The adversary records TLS traffic encrypted in transit.'],
+    ['02','Archive','Stores it — cheaply — waiting for capability.'],
+    ['03','CRQC','A quantum computer runs Shor against RSA/ECC.'],
+    ['04','Plaintext','Years-old traffic becomes readable, retroactively.'],
+  ],
+  flowNote:'We do not claim “your data was already stolen.” We claim measurable exposure under a public timeline.',
+  s4eye:'Mosca’s inequality', s4h:'Add the years. If the sum lands late, you are late.',
+  s4p:'If the time your data must stay secret (X) plus the time it takes to migrate (Y) exceeds the time until a CRQC (Z), the organization is late. A typical banking example:',
+  moscaX:'X · confidentiality', moscaY:'Y · migration', moscaZ:'Z · until CRQC',
+  moscaVerdict:'X + Y = 17 years > Z = 9 years  →  8 years late. The decision window is now, not 2033.',
+  s5eye:'What we deliver', s5h:'A report a board can read, with the evidence behind it.',
+  deliver:['<b>Q-Ready score 0–100</b> with band and traffic-light','Top 5 findings and the cost of inaction (Mosca)','Observed inventory: hosts, algorithms, hybrid, CDN','HNDL index by industry + CRQC scenarios','Actionable roadmap 30 / 90 / 365 days','Rosetta seal: JSON hash + ledger (evidence)'],
+  s6eye:'Three tiers', s6h:'From an external look to a partner-run program.',
+  tiers:[
+    {lvl:'Tier 1 · External', name:'Q-Ready External', price:'USD 4,900', unit:'1 root domain · up to 50 hosts', who:'Domain + industry only. 100% Rosetta, no network access.',
+     li:['Public-surface evidence','TLS PQC probe + Certificate Transparency','Score + PDF report + portal','Delivery in 24–72 h'], cta:'Audit my domain', feat:true, badge:'Early-adopter pilot: ~USD 2,500'},
+    {lvl:'Tier 2 · Assisted', name:'Q-Ready Assisted', price:'USD 24,900', unit:'up to 5 domains · 500 hosts · 1 cloud', who:'External + questionnaire + uploads + read-only OAuth.',
+     li:['Everything in External','Crypto inventory + CycloneDX CBOM','Cloudflare / AWS / Azure integrations','Detailed roadmap · 5–10 days'], cta:'Choose Assisted', feat:false, badge:''},
+    {lvl:'Tier 3 · Enterprise', name:'Q-Ready Enterprise', price:'From USD 180k', unit:'8–16 week program', who:'Rosetta evidence + partner execution (Big 4 / boutique).',
+     li:['Everything in Assisted','Evidence Pack for the partner','Workshops and internal discovery','Remediation program'], cta:'Talk to a partner', feat:false, badge:''},
+  ],
+  s7eye:'How the External tier works', s7h:'Four steps, without touching your network.',
+  steps:[
+    ['1','Your domain','Enter legal name, root domain(s), and industry.'],
+    ['2','Public probes','We probe public endpoints only: TLS, certificates, CT.'],
+    ['3','Score','The engine computes your Q-Ready 0–100 and HNDL posture.'],
+    ['4','Report','You receive the sealable report and portal, in 24–72 h.'],
+  ],
+  s8eye:'Standards we cite', s8h:'None of this depends on marketing.',
+  s9eye:'Honesty', s9h:'What Q-Ready is not.',
+  honesty:['Q-Ready <strong>is not a certification</strong> (not ISO/PCI/NIST) and does not replace an internal audit.','The External tier <strong>does not see inside</strong>: it does not inventory HSM/KMS, apps, VPN, encrypted DBs or internal mTLS. Those visibility gaps are covered in Assisted and Enterprise.','We do not sell panic. The cryptographic threat (Shor/CRQC) is a <strong>theorem + policy calendar</strong>; quantum advantage in optimization is a <strong>measured verdict</strong> on the Evidence Ledger. Separate claims.'],
+  s10eye:'Frequently asked',
+  faq:[
+    ['Do you need access to my network?','Not at the External tier. We probe only public endpoints of the domains you authorize. Assisted adds uploads and read-only integrations you control.'],
+    ['Is this a certification?','No. It is a measurement with evidence and an actionable verdict. It complements, not replaces, formal audits.'],
+    ['Is it urgent if the quantum computer does not exist yet?','Yes, because of “harvest now, decrypt later” and because migration takes years. The 2030/2035 milestones are policy, not hardware.'],
+    ['How is this different from your Evidence Ledger?','A theorem (Shor on RSA/ECC) versus a measured verdict (Ledger: did quantum beat the classical baseline on this instance?). Q-Ready measures cryptographic exposure; the Ledger measures optimization advantage. Keeping them separate is part of our discipline.'],
+    ['How often should we re-audit?','Your surface changes. The Monitor add-on re-scans quarterly (USD 990/yr) to track your migration progress.'],
+  ],
+  ctaH:'See where your cryptography stands against the clock.',
+  ctaP:'Start with the External tier: public evidence, no access required.',
+};
+---
+<header class="qr-hero">
+  <div class="wrap">
+    <div class="qr-brand">{t.brand}</div>
+    <div class="qr-hero-grid">
+      <div>
+        <h1>{t.h1}</h1>
+        <p class="lede" set:html={t.lede}></p>
+        <div class="qr-cta">
+          <a class="btn btn-solid" href={p('/q-ready/checkout') + '?tier=l1'}>{t.ctaMain}</a>
+          <a class="btn btn-ghost" href={p('/q-ready/sample-report')}>{t.ctaSec}</a>
+        </div>
+      </div>
+      <a class="ring-wrap" href={p('/q-ready/sample-report')} aria-label={t.ringNote}>
+        <div class="ring">
+          <svg viewBox="0 0 200 200" width="200" height="200" aria-hidden="true">
+            <circle cx="100" cy="100" r={R} fill="none" stroke="#3D372F" stroke-width="12"/>
+            <circle cx="100" cy="100" r={R} fill="none" stroke="#E0705C" stroke-width="12" stroke-linecap="round"
+              stroke-dasharray={`${dash} ${C}`} />
+          </svg>
+          <div class="ring-num"><span class="n crit">{SCORE}</span><span class="of">/ 100</span></div>
+        </div>
+        <span class="band notready">{t.ringBand}</span>
+        <span class="mono faint" style="font-size:11px">{t.ringNote}</span>
+      </a>
+    </div>
+  </div>
+</header>
+
+<!-- 2 · clock -->
+<section>
+  <div class="wrap">
+    <div class="sec-eyebrow">{t.s2eye}</div>
+    <h2>{t.s2h}</h2>
+    <p class="prose">{t.s2p}</p>
+    <div class="clock">
+      {t.clock.map(([yr, txt, now, crqc]) => (
+        <div class={`clock-row${now ? ' now' : ''}${crqc ? ' crqc' : ''}`}>
+          <div class="clock-yr">{yr}</div>
+          <div class="clock-txt" set:html={txt}></div>
+        </div>
+      ))}
+    </div>
+  </div>
+</section>
+
+<!-- 3 · HNDL -->
+<section>
+  <div class="wrap">
+    <div class="sec-eyebrow">{t.s3eye}</div>
+    <h2>{t.s3h}</h2>
+    <p class="prose" set:html={t.s3p}></p>
+    <div class="flow">
+      {t.flow.map(([n, h, p2], i) => (
+        <div class={`flow-step${i===3 ? ' danger' : ''}`}>
+          <div class="n">{n}</div><h4>{h}</h4><p>{p2}</p>
+        </div>
+      ))}
+    </div>
+    <p class="mono faint" style="margin-top:14px;font-size:12px">{t.flowNote}</p>
+  </div>
+</section>
+
+<!-- 4 · Mosca -->
+<section>
+  <div class="wrap">
+    <div class="sec-eyebrow">{t.s4eye}</div>
+    <h2>{t.s4h}</h2>
+    <p class="prose">{t.s4p}</p>
+    <div class="mosca">
+      <div class="mosca-eq"><span class="x">X</span> <span class="op">+</span> <span class="y">Y</span> <span class="op">&gt;</span> <span class="z">Z</span></div>
+      <div class="mosca-ex">
+        <div class="m"><div class="k">{t.moscaX}</div><div class="v faience">8 <span class="muted mono yr-unit">{t.yrUnit}</span></div></div>
+        <div class="m"><div class="k">{t.moscaY}</div><div class="v gold">9 <span class="muted mono yr-unit">{t.yrUnit}</span></div></div>
+        <div class="m"><div class="k">{t.moscaZ}</div><div class="v crit">9 <span class="muted mono yr-unit">{t.yrUnit}</span></div></div>
+      </div>
+      <div class="mosca-verdict">{t.moscaVerdict}</div>
+    </div>
+  </div>
+</section>
+
+<!-- 5 · deliverables -->
+<section>
+  <div class="wrap">
+    <div class="sec-eyebrow">{t.s5eye}</div>
+    <h2>{t.s5h}</h2>
+    <div class="deliver">
+      <ul>{t.deliver.map(d => <li set:html={d}></li>)}</ul>
+      <a class="ring-wrap" href={p('/q-ready/sample-report')}>
+        <div class="ring">
+          <svg viewBox="0 0 200 200" width="180" height="180">
+            <circle cx="100" cy="100" r={R} fill="none" stroke="#3D372F" stroke-width="12"/>
+            <circle cx="100" cy="100" r={R} fill="none" stroke="#E0705C" stroke-width="12" stroke-linecap="round" stroke-dasharray={`${dash} ${C}`} />
+          </svg>
+          <div class="ring-num"><span class="n crit">{SCORE}</span><span class="of">/ 100</span></div>
+        </div>
+        <span class="band notready">{t.ringBand}</span>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- 6 · tiers -->
+<section>
+  <div class="wrap">
+    <div class="sec-eyebrow">{t.s6eye}</div>
+    <h2>{t.s6h}</h2>
+    <div class="tiers">
+      {t.tiers.map((tr, i) => (
+        <div class={`tier${tr.feat ? ' feat' : ''}`}>
+          <div class="lvl">{tr.lvl}</div>
+          <div class="name">{tr.name}</div>
+          <div class="price">{tr.price}</div>
+          <div class="who">{tr.unit} — {tr.who}</div>
+          <ul>{tr.li.map(x => <li>{x}</li>)}</ul>
+          {tr.badge && <span class="badge">{tr.badge}</span>}
+          <a class={`btn ${tr.feat ? 'btn-solid' : 'btn-ghost'}`} style="margin-top:14px" href={p('/q-ready/checkout') + (i===0 ? '?tier=l1' : i===1 ? '?tier=l2' : '?tier=l3')}>{tr.cta}</a>
+        </div>
+      ))}
+    </div>
+  </div>
+</section>
+
+<!-- 7 · how it works -->
+<section>
+  <div class="wrap">
+    <div class="sec-eyebrow">{t.s7eye}</div>
+    <h2>{t.s7h}</h2>
+    <div class="steps">
+      {t.steps.map(([n, h, p2]) => (
+        <div class="step"><div class="n">{n}</div><h4>{h}</h4><p>{p2}</p></div>
+      ))}
+    </div>
+  </div>
+</section>
+
+<!-- 8 · standards -->
+<section>
+  <div class="wrap">
+    <div class="sec-eyebrow">{t.s8eye}</div>
+    <h2>{t.s8h}</h2>
+    <div class="std">
+      <a href="https://csrc.nist.gov/pubs/fips/203/final" target="_blank" rel="noopener">NIST FIPS 203 · ML-KEM</a>
+      <a href="https://csrc.nist.gov/pubs/fips/204/final" target="_blank" rel="noopener">FIPS 204 · ML-DSA</a>
+      <a href="https://csrc.nist.gov/pubs/fips/205/final" target="_blank" rel="noopener">FIPS 205 · SLH-DSA</a>
+      <a href="https://csrc.nist.gov/pubs/ir/8547/ipd" target="_blank" rel="noopener">NIST IR 8547</a>
+      <a href="https://www.nsa.gov/Press-Room/News-Highlights/Article/Article/3148990/" target="_blank" rel="noopener">NSA CNSA 2.0</a>
+      <a href="https://globalriskinstitute.org" target="_blank" rel="noopener">GRI Quantum Threat Timeline</a>
+    </div>
+  </div>
+</section>
+
+<!-- 9 · honesty -->
+<section>
+  <div class="wrap">
+    <div class="sec-eyebrow">{t.s9eye}</div>
+    <h2>{t.s9h}</h2>
+    <div class="honesty">
+      {t.honesty.map(h => <p set:html={h}></p>)}
+    </div>
+  </div>
+</section>
+
+<!-- 10 · FAQ -->
+<section>
+  <div class="wrap">
+    <div class="sec-eyebrow">{t.s10eye}</div>
+    <div class="faq">
+      {t.faq.map(([q, a]) => (
+        <details>
+          <summary>{q}</summary>
+          <p>{a}</p>
+        </details>
+      ))}
+    </div>
+  </div>
+</section>
+
+<!-- 11 · final CTA -->
+<section class="cta-band">
+  <div class="wrap">
+    <h2>{t.ctaH}</h2>
+    <p class="prose" style="margin:0 auto 22px;text-align:center">{t.ctaP}</p>
+    <div class="qr-cta" style="justify-content:center">
+      <a class="btn btn-solid" href={p('/q-ready/checkout') + '?tier=l1'}>{t.ctaMain}</a>
+      <a class="btn btn-ghost" href={p('/q-ready/sample-report')}>{t.ctaSec}</a>
+    </div>
+  </div>
+</section>

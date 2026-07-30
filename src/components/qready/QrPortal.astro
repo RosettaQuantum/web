@@ -1,0 +1,286 @@
+---
+const { lang = 'en' } = Astro.props;
+const es = lang === 'es';
+const p = (path) => es ? `/es${path}` : path;
+
+const t = es ? {
+  eye:'Rosetta Q-Ready · portal del trabajo',
+  h1:'Portal de auditoría',
+  demo:'Demo · datos simulados',
+  jobId:'ID de trabajo', domainLab:'Dominio',
+  stQueued:'En cola', stRunning:'Escaneando', stReady:'Informe listo',
+  etaQ:'El escaneo comenzará en breve.', etaR:'Sondeo de superficie pública en curso…', etaD:'Su informe Q-Ready está disponible.',
+  sim:'Simular escaneo completado',
+  pipeline:'Pipeline del escaneo',
+  steps:[
+    'Resolución de dominio y subdominios',
+    'Handshake TLS + suites de cifrado',
+    'Certificate Transparency + cadenas',
+    'Detección PQC / híbrido (X25519MLKEM768)',
+    'Cálculo de score y postura HNDL',
+    'Sellado del informe (hash + ledger)',
+  ],
+  viewReport:'Ver informe', downloadJson:'Descargar evidencia (JSON)',
+  l2lab:'Nivel 2 · Assisted — completar para ampliar el alcance',
+  tabs:['Cuestionario','Uploads','Integraciones','Informe'],
+  quizIntro:'Estas respuestas alimentan el inventario interno que el nivel External no puede ver.',
+  quiz:[
+    ['¿Usa HSM o KMS gestionado para claves críticas?','Sí / No / Parcial'],
+    ['¿Tiene inventario de certificados (CLM)?','Sí / No'],
+    ['¿VPN o mTLS interno con RSA/ECC?','Sí / No / No sé'],
+    ['¿Bases de datos cifradas en reposo?','Sí / No / Parcial'],
+    ['¿Dependencia de proveedores para rotación de cripto?','Alta / Media / Baja'],
+  ],
+  upIntro:'Suba inventarios existentes para acelerar el CBOM. Formatos: CSV, JSON, CycloneDX.',
+  upBox:'Arrastre archivos aquí o haga clic para seleccionar', upNote:'En la maqueta no se sube nada — el flujo real usa almacenamiento cifrado.',
+  integIntro:'Conexiones read-only que usted autoriza y revoca cuando quiera.',
+  integ:[['Cloudflare','Zonas, TLS, certificados','Conectar'],['AWS','ACM, ELB, CloudFront','Conectar'],['Azure','Key Vault, App Gateway','Conectar']],
+  save:'Guardar', saved:'Guardado (demo)',
+  l2upsellEye:'Ampliar el alcance',
+  l2upsellH:'El nivel External no ve el interior.',
+  l2upsellP:'HSM/KMS, VPN, mTLS y CBOM interno viven en Assisted. Suba de nivel cuando quiera cerrar las brechas de visibilidad.',
+  l2upsellCta:'Ver Assisted →',
+} : {
+  eye:'Rosetta Q-Ready · job portal',
+  h1:'Audit portal',
+  demo:'Demo · simulated data',
+  jobId:'Job ID', domainLab:'Domain',
+  stQueued:'Queued', stRunning:'Scanning', stReady:'Report ready',
+  etaQ:'The scan will begin shortly.', etaR:'Public-surface probing in progress…', etaD:'Your Q-Ready report is available.',
+  sim:'Simulate scan complete',
+  pipeline:'Scan pipeline',
+  steps:[
+    'Domain and subdomain resolution',
+    'TLS handshake + cipher suites',
+    'Certificate Transparency + chains',
+    'PQC / hybrid detection (X25519MLKEM768)',
+    'Score and HNDL posture computation',
+    'Report sealing (hash + ledger)',
+  ],
+  viewReport:'View report', downloadJson:'Download evidence (JSON)',
+  l2lab:'Tier 2 · Assisted — complete to widen the scope',
+  tabs:['Questionnaire','Uploads','Integrations','Report'],
+  quizIntro:'These answers feed the internal inventory the External tier cannot see.',
+  quiz:[
+    ['Do you use a managed HSM or KMS for critical keys?','Yes / No / Partial'],
+    ['Do you have a certificate inventory (CLM)?','Yes / No'],
+    ['Internal VPN or mTLS using RSA/ECC?','Yes / No / Unsure'],
+    ['Databases encrypted at rest?','Yes / No / Partial'],
+    ['Vendor dependency for crypto rotation?','High / Medium / Low'],
+  ],
+  upIntro:'Upload existing inventories to accelerate the CBOM. Formats: CSV, JSON, CycloneDX.',
+  upBox:'Drag files here or click to select', upNote:'Nothing uploads in the mockup — the real flow uses encrypted storage.',
+  integIntro:'Read-only connections you authorize and revoke whenever you want.',
+  integ:[['Cloudflare','Zones, TLS, certificates','Connect'],['AWS','ACM, ELB, CloudFront','Connect'],['Azure','Key Vault, App Gateway','Connect']],
+  save:'Save', saved:'Saved (demo)',
+  l2upsellEye:'Widen the scope',
+  l2upsellH:'The External tier does not see inside.',
+  l2upsellP:'HSM/KMS, VPN, mTLS and internal CBOM live in Assisted. Upgrade when you want to close the visibility gaps.',
+  l2upsellCta:'See Assisted →',
+};
+---
+<section style="border-top:none">
+  <div class="wrap">
+    <div class="sec-eyebrow">{t.eye}</div>
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:14px">
+      <h2 style="margin:0">{t.h1}</h2>
+      <span class="demo-tag">{t.demo}</span>
+    </div>
+
+    <div class="portal-head">
+      <div>
+        <div class="job-state queued" id="job-state">
+          <span class="dot"></span><span id="job-label">{t.stQueued}</span>
+        </div>
+        <div class="mono faint" id="job-eta" style="font-size:12px;margin-top:8px">{t.etaQ}</div>
+      </div>
+      <div style="text-align:right">
+        <div class="mono faint" style="font-size:11px">{t.jobId}</div>
+        <div class="mono gold" id="job-id" style="font-size:14px">QR-2026-0000</div>
+        <div class="mono faint" id="job-domain" style="font-size:11px;margin-top:4px"></div>
+        <div class="mono faint" id="job-tier" style="font-size:11px;margin-top:2px"></div>
+      </div>
+    </div>
+
+    <div class="progress" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" id="prog"><div class="bar" id="prog-bar"></div></div>
+
+    <div style="margin-top:18px" id="sim-wrap">
+      <button type="button" class="btn btn-ghost" id="sim-btn">{t.sim}</button>
+    </div>
+
+    <div class="pipeline" id="pipeline">
+      {t.steps.map((s, i) => (
+        <div class="pipe-step" data-step={i}><span class="ic" aria-hidden="true"></span><span>{s}</span></div>
+      ))}
+    </div>
+
+    <div id="ready-actions" hidden style="margin-top:20px">
+      <div class="qr-cta">
+        <a class="btn btn-solid" id="view-report" href={p('/q-ready/sample-report')}>{t.viewReport}</a>
+        <button type="button" class="btn btn-ghost" id="dl-json">{t.downloadJson}</button>
+      </div>
+    </div>
+
+    <!-- L1 upsell -->
+    <div class="upsell" id="l1-upsell" hidden style="margin-top:36px">
+      <div class="sec-eyebrow" style="margin:0 0 8px">{t.l2upsellEye}</div>
+      <h3 style="margin:0 0 8px">{t.l2upsellH}</h3>
+      <p class="muted" style="margin-bottom:12px">{t.l2upsellP}</p>
+      <a class="mono faience" style="font-size:13px" href={p('/q-ready/checkout') + '?tier=l2'}>{t.l2upsellCta}</a>
+    </div>
+
+    <!-- L2 Assisted workspace -->
+    <div id="l2-workspace" hidden style="margin-top:40px">
+      <div class="sec-eyebrow">{t.l2lab}</div>
+      <div class="tabs2" id="tabs2" role="tablist">
+        {t.tabs.map((tab, i) => (
+          <button type="button" class={`tab2${i===0 ? ' on' : ''}`} role="tab" aria-selected={i===0 ? 'true' : 'false'} data-tab={i}>{tab}</button>
+        ))}
+      </div>
+
+      <div class="tabpane on" data-pane="0" role="tabpanel">
+        <p class="mono faint" style="font-size:12.5px;margin-bottom:14px">{t.quizIntro}</p>
+        {t.quiz.map(([q, a]) => (
+          <div class="integ">
+            <span style="font-size:14px;font-family:'Instrument Sans',sans-serif">{q}</span>
+            <span class="st">{a}</span>
+          </div>
+        ))}
+        <button type="button" class="btn btn-ghost quiz-save" style="margin-top:12px">{t.save}</button>
+      </div>
+
+      <div class="tabpane" data-pane="1" role="tabpanel">
+        <p class="mono faint" style="font-size:12.5px;margin-bottom:14px">{t.upIntro}</p>
+        <div class="upload-box">
+          <div class="mono" style="color:var(--papyrus-dim);font-size:14px">{t.upBox}</div>
+        </div>
+        <p class="co-note">{t.upNote}</p>
+      </div>
+
+      <div class="tabpane" data-pane="2" role="tabpanel">
+        <p class="mono faint" style="font-size:12.5px;margin-bottom:14px">{t.integIntro}</p>
+        {t.integ.map(([name, scope, cta]) => (
+          <div class="integ">
+            <div>
+              <div style="font-family:'Marcellus',serif;font-size:17px">{name}</div>
+              <div class="mono faint" style="font-size:11px">{scope}</div>
+            </div>
+            <button type="button" class="btn btn-ghost integ-btn" style="padding:8px 16px;font-size:13px">{cta}</button>
+          </div>
+        ))}
+      </div>
+
+      <div class="tabpane" data-pane="3" role="tabpanel">
+        <p class="mono faint" style="font-size:12.5px;margin-bottom:14px">→ {t.viewReport}</p>
+        <a class="btn btn-solid" href={p('/q-ready/sample-report')}>{t.viewReport}</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script is:inline define:vars={{ es, running: t.stRunning, ready: t.stReady, queued: t.stQueued, etaR: t.etaR, etaD: t.etaD, etaQ: t.etaQ, saved: t.saved, connectLbl: (es?'Conectado':'Connected') }}>
+(function(){
+  var params = new URLSearchParams(window.location.search);
+  var job = (params.get('job') || 'queued').toLowerCase();
+  var tier = (params.get('tier') || 'l1').toLowerCase();
+  var domain = params.get('domain') || '';
+  var sector = params.get('sector') || '';
+  var idn = '' + (2600 + Math.floor((new Date().getTime()/1000) % 7000));
+  var jobId = 'QR-2026-' + idn.padStart(4,'0');
+  document.getElementById('job-id').textContent = jobId;
+  if (domain) document.getElementById('job-domain').textContent = domain;
+  document.getElementById('job-tier').textContent = 'tier · ' + tier + (sector ? ' · ' + sector : '');
+
+  var l2 = document.getElementById('l2-workspace');
+  var up = document.getElementById('l1-upsell');
+  if (tier === 'l2') { l2.hidden = false; up.hidden = true; }
+  else { l2.hidden = true; up.hidden = false; }
+
+  var stateEl = document.getElementById('job-state');
+  var labelEl = document.getElementById('job-label');
+  var etaEl = document.getElementById('job-eta');
+  var bar = document.getElementById('prog-bar');
+  var prog = document.getElementById('prog');
+  var steps = Array.prototype.slice.call(document.querySelectorAll('.pipe-step'));
+  var simWrap = document.getElementById('sim-wrap');
+  var readyActions = document.getElementById('ready-actions');
+
+  function setState(s){
+    stateEl.className = 'job-state ' + s;
+    if (s === 'queued'){ labelEl.textContent = queued; etaEl.textContent = etaQ; }
+    if (s === 'running'){ labelEl.textContent = running; etaEl.textContent = etaR; }
+    if (s === 'ready'){ labelEl.textContent = ready; etaEl.textContent = etaD; }
+  }
+
+  function setBar(pct){
+    bar.style.width = pct + '%';
+    if (prog) prog.setAttribute('aria-valuenow', String(pct));
+  }
+
+  function runPipeline(done){
+    var i = 0;
+    setState('running');
+    var iv = setInterval(function(){
+      if (i < steps.length){ steps[i].classList.add('done'); i++; setBar(Math.round(i/steps.length*100)); }
+      else { clearInterval(iv); done(); }
+    }, 650);
+  }
+  function complete(){
+    setState('ready');
+    setBar(100);
+    steps.forEach(function(s){ s.classList.add('done'); });
+    simWrap.hidden = true;
+    readyActions.hidden = false;
+  }
+
+  if (job === 'ready'){ complete(); }
+  else if (job === 'running'){ setState('running'); runPipeline(complete); }
+  else { setState('queued'); }
+
+  var simBtn = document.getElementById('sim-btn');
+  if (simBtn) simBtn.addEventListener('click', function(){ simBtn.disabled = true; runPipeline(complete); });
+
+  var dl = document.getElementById('dl-json');
+  if (dl) dl.addEventListener('click', function(){
+    var evidence = {
+      schema: 'rosetta.qready.evidence/v1',
+      job: jobId,
+      tier: tier,
+      domain: domain || 'acme-bank.example',
+      sector: sector || (es ? 'Banca / Finanzas' : 'Banking / Finance'),
+      score: 28,
+      band: 'not_ready',
+      hybrid_hosts_pct: 0,
+      hndl: { X_years: 8, Y_years: 9, Z_years_median: 9, late_by_years: 8 },
+      dimensions: {
+        edge_tls_pqc: { weight: 0.35, score: 5 },
+        certificates_pki: { weight: 0.25, score: 40 },
+        surface_hygiene: { weight: 0.15, score: 52 },
+        hndl_posture: { weight: 0.25, score: 15 }
+      },
+      note: 'demo evidence bundle — not sealed',
+      content_hash: 'sha256:9f2c1a7e…d40b'
+    };
+    var blob = new Blob([JSON.stringify(evidence, null, 2)], {type:'application/json'});
+    var url = URL.createObjectURL(blob); var a = document.createElement('a');
+    a.href = url; a.download = 'q-ready-evidence-demo.json'; a.click(); URL.revokeObjectURL(url);
+  });
+
+  document.querySelectorAll('.tab2').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      var idx = btn.getAttribute('data-tab');
+      document.querySelectorAll('.tab2').forEach(function(b){ b.classList.remove('on'); b.setAttribute('aria-selected','false'); });
+      document.querySelectorAll('.tabpane').forEach(function(pn){ pn.classList.remove('on'); });
+      btn.classList.add('on');
+      btn.setAttribute('aria-selected','true');
+      document.querySelector('.tabpane[data-pane="'+idx+'"]').classList.add('on');
+    });
+  });
+  document.querySelectorAll('.integ-btn').forEach(function(b){
+    b.addEventListener('click', function(){ b.textContent = connectLbl; b.classList.add('connected'); });
+  });
+  document.querySelectorAll('.quiz-save').forEach(function(b){
+    b.addEventListener('click', function(){ b.textContent = saved; });
+  });
+})();
+</script>
