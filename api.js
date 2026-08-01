@@ -251,7 +251,15 @@ export async function manejarApi(request, env, url) {
 
   const p = url.pathname;
   if (p === "/mcp" || p === "/mcp/") return await mcp(request, env);
-  if (request.method !== "GET") return null;
+  // HEAD se atiende como GET y se devuelve sin cuerpo. Sin esto, `curl -I`, los
+  // chequeos de salud y varios clientes HTTP reciben un 404 sobre una ruta que si
+  // existe — el tipo de discrepancia que hace dudar de una API antes de usarla.
+  const esHead = request.method === "HEAD";
+  if (request.method !== "GET" && !esHead) return null;
+  if (esHead) {
+    const r = await manejarApi(new Request(request.url, { method: "GET" }), env, url);
+    return r ? new Response(null, { status: r.status, headers: r.headers }) : null;
+  }
 
   if (p === "/v1" || p === "/v1/") {
     return json({
