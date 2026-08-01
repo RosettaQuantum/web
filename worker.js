@@ -1,3 +1,5 @@
+import { manejarApi } from "./api.js";
+
 // Serves the static Astro build (dist/), redirects to the canonical host,
 // accepts lead submissions at POST /api/lead -> D1 `leads`, and serves
 // D1-backed Library posts (table `posts`) that were published WITHOUT a rebuild.
@@ -9,6 +11,11 @@ export default {
       url.hostname = "rosettaquantum.com"; url.protocol = "https:";
       return Response.redirect(url.toString(), 301);
     }
+
+    // API de lectura del ledger + servidor MCP. Va primero porque son rutas propias
+    // que no existen como archivo; si devuelve null, sigue el flujo normal del sitio.
+    const api = await manejarApi(request, env, url);
+    if (api) return api;
 
     if (url.pathname === "/api/lead" && request.method === "POST") {
       try {
