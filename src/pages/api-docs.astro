@@ -1,0 +1,102 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+// Esta pagina existe porque la API la promete: cada respuesta dice "recomputa el sha256
+// segun /api-docs". Una API que apunta a una pagina que no existe pide confianza en vez
+// de darla — justo lo contrario de lo que este archivo vende.
+const SITE = 'https://rosettaquantum.com';
+---
+<BaseLayout
+  title="API & MCP — Rosetta Q"
+  description="Read-only API and MCP server over the Evidence Ledger. No key required. Every response carries the sealed hash and two independent public copies."
+  lang="en"
+  altUrl="/api-docs">
+  <article class="article wrap">
+    <div class="kicker">For machines · no key required</div>
+    <h1>Query the evidence, don't trust the summary</h1>
+
+    <div class="tldr">
+      Every sealed run, verdict and pre-registration in the Evidence Ledger is readable
+      over a public, read-only API and an MCP server. Every response carries the sealed
+      <code>sha256</code> and the raw URLs of two independent public copies, so anything
+      you cite can be checked rather than believed.
+    </div>
+
+    <div class="body">
+      <h2>Start here</h2>
+      <pre><code>curl https://rosettaquantum.com/v1/state</code></pre>
+      <p>
+        Returns the measured state of the archive. Today it opens with
+        <strong>0 measured quantum wins</strong> — in no sealed run so far has a quantum
+        method beaten the classical champion. That negative is the product of this
+        archive, not a gap in it, so the API states it first.
+      </p>
+
+      <h2>Endpoints</h2>
+      <table>
+        <thead><tr><th>Endpoint</th><th>What it returns</th></tr></thead>
+        <tbody>
+          <tr><td><code>GET /v1/state</code></td><td>Measured state: counts, recipes, integrity, licence</td></tr>
+          <tr><td><code>GET /v1/runs</code></td><td>Sealed runs. Filter with <code>?recipe=RQ-0012</code>, <code>?limit=</code></td></tr>
+          <tr><td><code>GET /v1/verdicts</code></td><td>Published verdicts</td></tr>
+          <tr><td><code>GET /v1/prereg</code></td><td>Pre-registrations — commitments sealed <em>before</em> the runs</td></tr>
+          <tr><td><code>GET /v1/recipes</code></td><td>Recipe cards in the catalogue</td></tr>
+          <tr><td><code>GET /v1/archive/&#123;id&#125;</code></td><td>One sealed file with its full payload</td></tr>
+          <tr><td><code>GET /v1/search?q=</code></td><td>Free-text search across sealed runs</td></tr>
+          <tr><td><code>POST /mcp</code></td><td>MCP server (JSON-RPC 2.0) for agents</td></tr>
+        </tbody>
+      </table>
+      <p>No authentication. CORS open. Cached 5 minutes at the edge.</p>
+
+      <h2>How to verify anything this API tells you</h2>
+      <p>
+        Every item carries <code>content_hash</code>, <code>github_raw</code> and
+        <code>codeberg_raw</code>. The seal is computed over the file's own content:
+      </p>
+      <pre><code>{`content_hash = sha256( json.dumps({"meta": meta_without_content_hash, <body>},
+                                  sort_keys=True, ensure_ascii=False) )`}</code></pre>
+      <p>
+        where <code>&lt;body&gt;</code> is every top-level key except <code>meta</code>
+        and <code>storage</code>. <code>storage</code> is excluded on purpose: it says
+        where a copy lives, not what it says. Two conventions exist under the
+        <code>v1</code> tag for a documented historical reason — the verifier declares
+        which one each file used rather than hiding it. Full spec and the reference
+        verifier are in the
+        <a href="https://github.com/RosettaQuantum/evidence/blob/main/PROTOCOL.md">archive protocol</a>.
+      </p>
+      <pre><code>{`# fetch, recompute, compare — and check the two copies match each other
+F=$(curl -s ${SITE}/v1/archive/V-0012)
+echo "$F" | jq -r .content_hash
+diff <(curl -s "$(echo "$F" | jq -r .github_raw)") \\
+     <(curl -s "$(echo "$F" | jq -r .codeberg_raw)") && echo IDENTICAL`}</code></pre>
+      <p>
+        Each sealed file is also timestamp-anchored in Bitcoin via OpenTimestamps, on a
+        chain none of the parties to this archive controls.
+      </p>
+
+      <h2>MCP server</h2>
+      <p>
+        <code>POST {SITE}/mcp</code> speaks JSON-RPC 2.0 and exposes four read-only
+        tools: <code>estado_del_archivo</code>, <code>buscar_evidencia</code>,
+        <code>ver_archivo</code> and <code>listar_por_tipo</code>.
+      </p>
+      <pre><code>{`curl -X POST ${SITE}/mcp -H 'content-type: application/json' \\
+  -d '{"jsonrpc":"2.0","id":1,"method":"tools/list"}'`}</code></pre>
+
+      <h2>Licence and citation</h2>
+      <p>
+        Data is <strong>CC BY 4.0</strong>; attribution is deliberate. Cite as:
+        <em>Rosetta Quantum Evidence Ledger, CC BY 4.0 — {SITE}/ledger</em>.
+        The code is Apache-2.0.
+      </p>
+
+      <h2>What this API does not do</h2>
+      <p>
+        It is read-only. There is no write endpoint, no <code>qlib.solve()</code>, and no
+        paid tier — those arrive when there is demand and measured advantage to sell, not
+        before. If you find an error in the archive,
+        <a href="https://github.com/RosettaQuantum/evidence/issues">open an issue</a>:
+        external correction is the QA loop this project wants.
+      </p>
+    </div>
+  </article>
+</BaseLayout>
