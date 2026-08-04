@@ -4,7 +4,7 @@ import BlogLayout from '../../layouts/BlogLayout.astro';
 const posts = (await getCollection('blog', ({ data }) => !data.draft && data.lang === 'en'))
   .sort((a, b) => b.data.date.localeCompare(a.data.date));
 const pillars = { A:'State by problem class', B:'Canonical dictionary', C:'Claim explainers', D:'Methodology & runs', E:'Maps & data', F:'Decision-maker' };
-const SEALED_RUNS = 51;         // bump on every published run batch — real count only
+const SEALED_RUNS = 54;         // bump on every published run batch — real count only
 // only optimization runs (portfolio + grid) have a proven optimum to be at; the
 // molecular ones are scored by percentile, so they can't feed that claim
 const OPTIMIZATION_RUNS = 29;
