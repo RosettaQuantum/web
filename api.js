@@ -176,11 +176,11 @@ const HERRAMIENTAS = [
   },
   {
     name: "listar_por_tipo",
-    description: "Lista archivos sellados de un tipo: RUN, VERDICT, PREREG o RECIPE.",
+    description: "Lista archivos sellados de un tipo: RUN, VERDICT, PREREG, PREDICTION, MANIFEST o RECIPE.",
     inputSchema: {
       type: "object",
       properties: {
-        tipo: { type: "string", enum: ["RUN", "VERDICT", "PREREG", "RECIPE"] },
+        tipo: { type: "string", enum: ["RUN", "VERDICT", "PREREG", "PREDICTION", "MANIFEST", "RECIPE"] },
         recipe: { type: "string", description: "opcional: filtrar por receta, p.ej. RQ-0012" },
       },
       required: ["tipo"],
@@ -269,6 +269,8 @@ export async function manejarApi(request, env, url) {
         "GET /v1/runs": "corridas selladas · ?recipe=RQ-0012 &limit=50",
         "GET /v1/verdicts": "veredictos publicados",
         "GET /v1/prereg": "pre-registros (compromisos sellados antes de correr)",
+        "GET /v1/predictions": "predicciones forward — un resultado comprometido ANTES de conocerlo",
+        "GET /v1/manifests": "manifiestos: como leer el archivo (convenciones de sello, paridad de presupuesto)",
         "GET /v1/recipes": "recetas del catalogo",
         "GET /v1/archive/{id}": "un archivo sellado completo, con su payload",
         "GET /v1/search?q=": "busqueda en texto de las corridas",
@@ -281,6 +283,10 @@ export async function manejarApi(request, env, url) {
   if (p === "/v1/runs") return await listar(env, "RUN", url);
   if (p === "/v1/verdicts") return await listar(env, "VERDICT", url);
   if (p === "/v1/prereg") return await listar(env, "PREREG", url);
+  // Un tipo nuevo que solo responde por /v1/archive/{id} queda publicado e invisible:
+  // nadie lo encuentra sin saber ya su ID, que es lo contrario de un archivo consultable.
+  if (p === "/v1/predictions") return await listar(env, "PREDICTION", url);
+  if (p === "/v1/manifests") return await listar(env, "MANIFEST", url);
   if (p === "/v1/recipes") return await listar(env, "RECIPE", url);
   if (p === "/v1/search") {
     const q = url.searchParams.get("q");
