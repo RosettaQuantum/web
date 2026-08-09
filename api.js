@@ -337,6 +337,86 @@ async function fuentes(env, url) {
   });
 }
 
+// ------------------------------------------------------------ corridas de challenge
+
+/**
+ * Los datos de una viz de challenge, servidos por API.
+ *
+ * La pagina los pide de aca en vez de traerlos horneados: el HTML queda en ~12 KB,
+ * los 100 KB de datos se cachean aparte, y un agente puede leerlos sin parsear una
+ * pagina. Es la regla del doc de producto: si existe en la consola y no en la API,
+ * el build esta mal.
+ *
+ * TODA respuesta declara `validado: false`. Son predicciones de una caminata
+ * cuantica, no hallazgos confirmados en laboratorio, y esa distincion no puede
+ * depender de que alguien la escriba en la pagina.
+ */
+const AVISO_CHALLENGE =
+  "Los sitios son PREDICHOS por caminata cuantica y no estan validados " +
+  "experimentalmente. El sitio conocido, cuando existe, se lee del farmaco " +
+  "co-cristalizado y nunca entra al calculo.";
+
+async function challenges(env, url) {
+  const { results = [] } = await env.DB.prepare(
+    "SELECT r.*, (SELECT count(*) FROM challenge_proteins p WHERE p.run_id=r.id) n_proteinas " +
+    "FROM challenge_runs r WHERE r.publicado=1 ORDER BY r.fecha DESC"
+  ).all();
+  return json({
+    total: results.length,
+    aviso: AVISO_CHALLENGE,
+    items: results.map(r => ({
+      id: r.id, challenge: r.challenge, fecha: r.fecha,
+      titulo: { es: r.titulo_es, en: r.titulo_en },
+      recipe_id: r.recipe_id, pre_registro: r.prereg,
+      proteinas: r.n_proteinas,
+      validado_experimentalmente: !!r.validado,
+      datos: SITE + "/v1/challenges/" + r.id,
+    })),
+  });
+}
+
+async function challengePorId(env, id, clave) {
+  const run = await env.DB.prepare(
+    "SELECT * FROM challenge_runs WHERE id=? AND publicado=1").bind(id).first();
+  if (!run) return json({ error: "no existe", id }, 404);
+
+  let sql = "SELECT * FROM challenge_proteins WHERE run_id=?";
+  const args = [id];
+  if (clave) { sql += " AND clave=?"; args.push(clave); }
+  sql += " ORDER BY orden";
+  const { results = [] } = await env.DB.prepare(sql).bind(...args).all();
+  if (clave && !results.length) return json({ error: "esa proteina no esta en la corrida", id, clave }, 404);
+
+  const proteinas = {};
+  for (const p of results) {
+    let datos = null, stats = null;
+    try { datos = JSON.parse(p.datos_json); } catch (e) {}
+    try { stats = JSON.parse(p.stats_json); } catch (e) {}
+    proteinas[p.clave] = {
+      label: p.label, pdb: p.pdb, n_residuos: p.n_residuos,
+      // El denominador va pegado al dato: "Top-5" era el encabezado y KRAS G12C
+      // trae 2. Publicar el numero real quita la posibilidad de redondearlo.
+      sitios_predichos: p.n_sitios,
+      sitios_conocidos: p.sitios_conocidos,
+      hay_con_que_comparar: p.sitios_conocidos > 0,
+      sha256: p.sha256,
+      datos, estadistica: stats,
+    };
+  }
+  return json({
+    id: run.id, challenge: run.challenge, fecha: run.fecha,
+    titulo: { es: run.titulo_es, en: run.titulo_en },
+    recipe_id: run.recipe_id, pre_registro: run.prereg,
+    validado_experimentalmente: !!run.validado,
+    aviso: AVISO_CHALLENGE,
+    como_verificar:
+      "Cada proteina trae su sha256, calculado sobre datos + estadistica tal como " +
+      "salieron del entregable sellado. Recomputalo y comparalo.",
+    total_proteinas: results.length,
+    proteinas,
+  });
+}
+
 // ---------------------------------------------------------------- MCP (JSON-RPC 2.0)
 
 const HERRAMIENTAS = [
@@ -517,6 +597,8 @@ export async function manejarApi(request, env, url) {
         "GET /v1/algorithms/{id}": "ficha de un algoritmo · acepta alias por sigla (qaoa, grover, hhl, dqi)",
         "GET /v1/categories": "las categorias del archivador, con cuantos algoritmos tiene cada una",
         "GET /v1/sources": "fuentes del campo (QPUs, librerias, venues, blogs, normas) · ?tipo=",
+        "GET /v1/challenges": "corridas de challenge publicadas (Cleveland Clinic y las que sigan)",
+        "GET /v1/challenges/{id}": "los datos de una corrida · /{proteina} para una sola",
         "POST /mcp": "servidor MCP (JSON-RPC 2.0) para agentes",
       },
       nota_catalogo:
@@ -557,6 +639,12 @@ export async function manejarApi(request, env, url) {
   }
   const ma = p.match(/^\/v1\/algorithms\/([^/]+)\/?$/);
   if (ma) return await algoritmoPorId(env, decodeURIComponent(ma[1]));
+
+  // Corridas de challenge. La pagina de la viz lee de aca, y un agente tambien.
+  if (p === "/v1/challenges" || p === "/v1/challenges/") return await challenges(env, url);
+  const mc = p.match(/^\/v1\/challenges\/([^/]+)(?:\/([^/]+))?\/?$/);
+  if (mc) return await challengePorId(env, decodeURIComponent(mc[1]),
+                                      mc[2] ? decodeURIComponent(mc[2]) : null);
 
   const m = p.match(/^\/v1\/archive\/([^/]+)\/?$/);
   if (m) return await porId(env, decodeURIComponent(m[1]), true);

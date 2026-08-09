@@ -278,3 +278,22 @@ footer{border-top:1px solid var(--stone-line);padding:48px 0 40px}
 .mission-h{font-family:'Marcellus',serif;font-weight:400;font-size:clamp(26px,3.5vw,38px);line-height:1.18;max-width:840px;margin-top:12px;color:var(--papyrus)}
 .mission-p{max-width:730px;margin-top:18px;font-size:18px;line-height:1.65;color:var(--papyrus-dim)}
 .mission-p:last-of-type{color:var(--papyrus)}
+
+/* Bloque de entrada a la corrida de Cleveland. Muestra UNA cosa: el numero
+   negativo. La viz completa son 100 KB de datos y vive en su propia pagina; el
+   home no carga un canvas 3D para contar un resultado que cabe en una cifra. */
+.clev{padding:0 0 8px}
+.clev-box{display:flex;gap:26px;align-items:flex-start;flex-wrap:wrap;
+  border:1px solid var(--stone-line);border-left:2px solid var(--gold);
+  border-radius:0 4px 4px 0;background:var(--basalt-2);padding:22px 26px}
+.clev-num{font-family:'Marcellus',serif;font-size:clamp(38px,6vw,58px);line-height:1;
+  color:#E5484D;flex:none}
+.clev-txt{flex:1 1 320px;min-width:0}
+.clev-k{font-family:'IBM Plex Mono',monospace;font-size:10.5px;letter-spacing:.14em;
+  text-transform:uppercase;color:var(--gold);margin-bottom:8px}
+.clev-txt p{font-size:15px;color:var(--papyrus-dim);line-height:1.6}
+.clev-txt strong{color:var(--papyrus)}
+.clev-cta{display:inline-block;margin-top:12px;color:var(--faience);font-size:14px;
+  border-bottom:1px solid rgba(77,196,181,.35)}
+.clev-cta:hover{border-bottom-color:var(--faience)}
+@media(max-width:620px){.clev-box{gap:14px;padding:18px}}
