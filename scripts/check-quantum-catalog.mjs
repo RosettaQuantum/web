@@ -276,6 +276,22 @@ for (const [ruta, idioma] of [["/clases/", "en"], ["/es/clases/", "es"]]) {
     /declarado por|declared by/i.test(html), "falta la atribucion del speedup");
 }
 
+// 4 ter. El numero publicado tiene que ser el medido.
+// El "450+" vivio meses en produccion porque nadie lo comparo contra la fuente que
+// citaba. Que no vuelva depende de codigo, no de que alguien se acuerde: si el
+// catalogo crece y el texto no, esto grita.
+console.log("\n  -- el numero publicado calza con el catalogo --");
+const totalReal = (alg.js && alg.js.total_catalogo) || 0;
+for (const ruta of ["/", "/es/", "/clases/", "/es/clases/"]) {
+  const r = await fetch(BASE + ruta, { redirect: "manual", headers: { "User-Agent": "rosetta catalog check" } });
+  const html = await r.text();
+  comprobar(`${ruta} no menciona el 450+ retirado`, !html.includes("450+"),
+    "quedo una mencion del numero viejo");
+  comprobar(`${ruta} publica el total real del catalogo (${totalReal})`,
+    html.includes(String(totalReal)),
+    `no aparece ${totalReal} en la pagina`);
+}
+
 // 5. REGRESION: api.js es compartido; el ledger tiene que seguir intacto.
 console.log("\n  -- regresion del ledger (api.js es compartido) --");
 for (const ruta of ["/v1", "/v1/state", "/v1/runs", "/v1/verdicts", "/v1/prereg",
