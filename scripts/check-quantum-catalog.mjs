@@ -113,40 +113,41 @@ if (SELF) {
 
 console.log(`Chequeando el archivador contra ${BASE}\n`);
 
-// El edge tarda ~30 s en tomar un deploy, y no todos los servidores a la vez. La
-// primera corrida de este chequeo en CI fallo por eso: pregunto a los 48 s y una
-// parte del edge todavia servia el Worker viejo. Se espera con un tope, y si al
-// vencerlo la ruta sigue sin aparecer, se sigue igual y los chequeos de abajo
-// fallan — esperar no puede convertirse en tapar.
-const ESPERA_MAX = args.includes("--esperar") ? Number(args[args.indexOf("--esperar") + 1]) : 0;
-
-// La espera tiene que cubrir TODAS las superficies que el deploy toca, no una.
-// La primera version solo miraba /v1/algorithms — una ruta de API que ya estaba
-// viva — y por eso daba por listo el deploy mientras el edge seguia sirviendo el
-// HTML viejo: el CI se cayo con las 12 pruebas de pagina en rojo y produccion
-// correcta. Esperar la senal equivocada es no esperar.
-const LISTO = [
-  { que: "la API responde", ruta: "/v1/algorithms", ok: r => r.status === 200 },
-  { que: "la pagina sale de D1", ruta: "/es/clases/", ok: r => /^d1:\d+$/.test(r.headers.get("x-rq-archivador") || "") },
-  { que: "el HTML nuevo llego al edge", ruta: "/", ok: async r => !(await r.text()).includes("450+") },
+// UNA SOLA LISTA de superficies criticas. Antes habia dos —la de la espera y la
+// de los chequeos— y ya divergieron tres veces: cada pagina nueva se agregaba a
+// los chequeos y nadie se acordaba de la espera, asi que el CI caia en rojo con
+// produccion correcta. Una lista que vive en dos lugares ya divergio (§5bis).
+export const RUTAS_CRITICAS = [
+  "/", "/es/",
+  "/clases/", "/es/clases/",
+  "/cleveland/", "/es/cleveland/",
+  "/v1", "/v1/state", "/v1/algorithms", "/v1/sources", "/v1/categories",
+  "/v1/challenges", "/v1/challenges/cleveland-2026-07",
 ];
+
+const ESPERA_MAX = args.includes("--esperar") ? Number(args[args.indexOf("--esperar") + 1]) : 0;
 if (ESPERA_MAX > 0) {
+  // El edge tarda ~30 s en tomar un deploy y no todos los servidores a la vez.
+  // Se espera a que TODAS las rutas criticas respondan 200 — no a una sola, que
+  // fue el error anterior: se vigilaba una ruta de API que ya estaba viva antes
+  // del deploy y daba el deploy por propagado con el HTML viejo todavia servido.
   const limite = Date.now() + ESPERA_MAX * 1000;
-  for (const cond of LISTO) {
-    let intentos = 0, listo = false;
-    while (Date.now() < limite && !listo) {
-      intentos++;
+  let faltan = [...RUTAS_CRITICAS], vueltas = 0;
+  while (faltan.length && Date.now() < limite) {
+    vueltas++;
+    const pendientes = [];
+    for (const ruta of faltan) {
       try {
-        const r = await fetch(BASE + cond.ruta, { redirect: "manual", headers: { "User-Agent": "rosetta catalog check" } });
-        listo = await cond.ok(r);
-      } catch (e) {}
-      if (!listo) await new Promise(res => setTimeout(res, 5000));
+        const r = await fetch(BASE + ruta, { redirect: "manual", headers: { "User-Agent": "rosetta catalog check" } });
+        if (r.status !== 200) pendientes.push(ruta);
+      } catch (e) { pendientes.push(ruta); }
     }
-    console.log(listo
-      ? `  (${cond.que}: listo tras ${intentos} intento(s))`
-      : `  AVISO: ${cond.que} — se agoto la espera; se chequea igual y fallara si no esta.`);
+    faltan = pendientes;
+    if (faltan.length) await new Promise(res => setTimeout(res, 5000));
   }
-  console.log("");
+  console.log(faltan.length
+    ? `  AVISO: tras ${vueltas} vuelta(s) siguen sin responder: ${faltan.join(", ")} — se chequea igual y fallara.\n`
+    : `  (las ${RUTAS_CRITICAS.length} rutas criticas responden, tras ${vueltas} vuelta(s))\n`);
 }
 
 async function traer(ruta) {
@@ -357,6 +358,14 @@ if (deltaKras !== null) {
   }
 } else {
   mal("el home publica el número que dice D1", "no se pudo leer el delta de KRAS desde la API");
+}
+
+// Toda ruta critica responde 200. Es la misma lista que usa la espera, importada
+// de un solo lugar: si alguien agrega una pagina y la olvida aca, no existe.
+console.log("\n  -- las rutas criticas responden --");
+for (const ruta of RUTAS_CRITICAS) {
+  const r = await traer(ruta);
+  comprobar(`GET ${ruta}`, r.status === 200, `respondio ${r.status}`);
 }
 
 // 5. REGRESION: api.js es compartido; el ledger tiene que seguir intacto.
