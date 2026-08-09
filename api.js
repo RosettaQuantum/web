@@ -30,10 +30,16 @@ const CORS = {
 const SITE = "https://rosettaquantum.com";
 const CACHE = "public, s-maxage=300";
 
+// Los errores NO se cachean. Un 404 servido con s-maxage=300 se queda pegado en el
+// edge cinco minutos, asi que una ruta que empieza a existir sigue respondiendo 404
+// en algunos colos despues de desplegarla. Paso de verdad: tras publicar los alias
+// por sigla, /v1/algorithms/grover devolvio 404 una vez y 200 las tres siguientes.
+// Cachear la respuesta correcta es util; cachear la equivocada solo alarga el error.
 function json(obj, status = 200, extra = {}) {
+  const cache = status >= 400 ? "no-store" : CACHE;
   return new Response(JSON.stringify(obj, null, 2), {
     status,
-    headers: { "Content-Type": "application/json; charset=utf-8", "Cache-Control": CACHE, ...CORS, ...extra },
+    headers: { "Content-Type": "application/json; charset=utf-8", "Cache-Control": cache, ...CORS, ...extra },
   });
 }
 
@@ -156,6 +162,25 @@ async function buscar(env, q, limite = 20) {
  * una promesa de producto, que es exactamente lo que el proyecto no vende.
  */
 
+/**
+ * Alias por sigla. Un agente pregunta por "qaoa", no por
+ * "quantum-approximate-optimization", y hoy eso daba 404.
+ *
+ * Solo entran los que son 1:1 y no admiten discusion. Shor NO esta: su algoritmo
+ * cubre factorizacion Y logaritmo discreto, que en el catalogo son dos entradas
+ * distintas — devolver una sola seria elegir por el que pregunta y perder la otra.
+ * Para esos casos esta /v1/search y el buscador del archivador.
+ *
+ * La respuesta declara siempre por que alias llego, para que nadie crea que el id
+ * canonico es la sigla.
+ */
+const ALIAS_ALGORITMO = {
+  qaoa: "quantum-approximate-optimization",
+  grover: "searching",
+  hhl: "linear-systems",
+  dqi: "optimization-by-decoded-quantum-interferometry",
+};
+
 const AVISO_CATALOGO =
   "speedup_declarado es lo que declara la fuente citada, NO una medicion de Rosetta. " +
   "Lo que Rosetta midio va en evidencia_rosetta, y para la mayoria del catalogo esta vacio.";
@@ -229,8 +254,12 @@ async function algoritmos(env, url) {
 
   // El denominador viaja siempre: "12 items" sin decir de cuantos no es un resultado.
   return json({
-    total_catalogo: totalRow ? totalRow.n : null,
+    // `total` = cuantos van en esta respuesta, que es lo que ya significa en
+    // /v1/runs y companeros: un solo parser sirve para todas las listas.
+    // `total_catalogo` es el denominador, y es el que no se puede perder.
+    total: results.length,
     devueltos: results.length,
+    total_catalogo: totalRow ? totalRow.n : null,
     filtro: { categoria: categoria || null, q: q || null, limit: limite },
     aviso: AVISO_CATALOGO,
     procedencia: {
@@ -245,11 +274,25 @@ async function algoritmos(env, url) {
 }
 
 async function algoritmoPorId(env, id) {
+  const pedido = id;
+  const alias = ALIAS_ALGORITMO[String(id).toLowerCase()];
+  if (alias) id = alias;
   const row = await env.DB.prepare("SELECT * FROM quantum_algorithms WHERE id=?").bind(id).first();
-  if (!row) return json({ error: "no existe", id }, 404);
+  if (!row) {
+    // Un 404 que no ayuda obliga a adivinar. Se ofrece la busqueda y los alias que si existen.
+    return json({
+      error: "no existe", id: pedido,
+      prueba: {
+        busqueda: SITE + "/v1/search?q=" + encodeURIComponent(pedido),
+        catalogo: SITE + "/v1/algorithms?q=" + encodeURIComponent(pedido),
+        alias_disponibles: Object.keys(ALIAS_ALGORITMO),
+      },
+    }, 404);
+  }
   const [recetas, meta] = await Promise.all([cruceLedger(env), metaCatalogo(env)]);
   return json({
     aviso: AVISO_CATALOGO,
+    ...(alias ? { resuelto_por_alias: { pediste: pedido, id_canonico: id } } : {}),
     procedencia: {
       fuente: meta.fuente_nombre, fuente_url: meta.fuente_url,
       instantanea_sha256: meta.fuente_sha256, generado_at: meta.generado_at,
@@ -277,8 +320,9 @@ async function fuentes(env, url) {
     env.DB.prepare("SELECT tipo, count(*) n FROM quantum_sources GROUP BY tipo ORDER BY tipo").all(),
   ]);
   return json({
-    total_catalogo: totalRow ? totalRow.n : null,
+    total: results.length,
     devueltos: results.length,
+    total_catalogo: totalRow ? totalRow.n : null,
     filtro: { tipo: tipo || null },
     tipos: Object.fromEntries((tipos.results || []).map(r => [r.tipo, r.n])),
     nota_enlaces:
@@ -470,7 +514,7 @@ export async function manejarApi(request, env, url) {
         "GET /v1/archive/{id}": "un archivo sellado completo, con su payload",
         "GET /v1/search?q=": "busqueda en texto de las corridas",
         "GET /v1/algorithms": "archivador de algoritmos cuanticos · ?categoria= &q= &limit=",
-        "GET /v1/algorithms/{id}": "ficha de un algoritmo con sus citas y su estado de evidencia",
+        "GET /v1/algorithms/{id}": "ficha de un algoritmo · acepta alias por sigla (qaoa, grover, hhl, dqi)",
         "GET /v1/categories": "las categorias del archivador, con cuantos algoritmos tiene cada una",
         "GET /v1/sources": "fuentes del campo (QPUs, librerias, venues, blogs, normas) · ?tipo=",
         "POST /mcp": "servidor MCP (JSON-RPC 2.0) para agentes",
