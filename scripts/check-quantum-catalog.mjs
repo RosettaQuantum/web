@@ -119,18 +119,34 @@ console.log(`Chequeando el archivador contra ${BASE}\n`);
 // vencerlo la ruta sigue sin aparecer, se sigue igual y los chequeos de abajo
 // fallan — esperar no puede convertirse en tapar.
 const ESPERA_MAX = args.includes("--esperar") ? Number(args[args.indexOf("--esperar") + 1]) : 0;
+
+// La espera tiene que cubrir TODAS las superficies que el deploy toca, no una.
+// La primera version solo miraba /v1/algorithms — una ruta de API que ya estaba
+// viva — y por eso daba por listo el deploy mientras el edge seguia sirviendo el
+// HTML viejo: el CI se cayo con las 12 pruebas de pagina en rojo y produccion
+// correcta. Esperar la senal equivocada es no esperar.
+const LISTO = [
+  { que: "la API responde", ruta: "/v1/algorithms", ok: r => r.status === 200 },
+  { que: "la pagina sale de D1", ruta: "/es/clases/", ok: r => /^d1:\d+$/.test(r.headers.get("x-rq-archivador") || "") },
+  { que: "el HTML nuevo llego al edge", ruta: "/", ok: async r => !(await r.text()).includes("450+") },
+];
 if (ESPERA_MAX > 0) {
   const limite = Date.now() + ESPERA_MAX * 1000;
-  let intentos = 0;
-  while (Date.now() < limite) {
-    intentos++;
-    try {
-      const r = await fetch(BASE + "/v1/algorithms", { redirect: "manual" });
-      if (r.status === 200) { console.log(`  (ruta viva tras ${intentos} intento(s))\n`); break; }
-    } catch (e) {}
-    await new Promise(res => setTimeout(res, 5000));
+  for (const cond of LISTO) {
+    let intentos = 0, listo = false;
+    while (Date.now() < limite && !listo) {
+      intentos++;
+      try {
+        const r = await fetch(BASE + cond.ruta, { redirect: "manual", headers: { "User-Agent": "rosetta catalog check" } });
+        listo = await cond.ok(r);
+      } catch (e) {}
+      if (!listo) await new Promise(res => setTimeout(res, 5000));
+    }
+    console.log(listo
+      ? `  (${cond.que}: listo tras ${intentos} intento(s))`
+      : `  AVISO: ${cond.que} — se agoto la espera; se chequea igual y fallara si no esta.`);
   }
-  if (Date.now() >= limite) console.log(`  AVISO: se agotaron los ${ESPERA_MAX}s de espera; se chequea igual.\n`);
+  console.log("");
 }
 
 async function traer(ruta) {
