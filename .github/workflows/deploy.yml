@@ -81,4 +81,4 @@ jobs:
       # catalogo no encoja, que nadie declare evidencia que no tiene, y que los
       # endpoints del ledger sigan intactos (api.js es compartido).
       - name: Chequeo del archivador contra produccion
-        run: node scripts/check-quantum-catalog.mjs
+        run: node scripts/check-quantum-catalog.mjs --esperar 120

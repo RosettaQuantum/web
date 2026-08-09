@@ -113,6 +113,26 @@ if (SELF) {
 
 console.log(`Chequeando el archivador contra ${BASE}\n`);
 
+// El edge tarda ~30 s en tomar un deploy, y no todos los servidores a la vez. La
+// primera corrida de este chequeo en CI fallo por eso: pregunto a los 48 s y una
+// parte del edge todavia servia el Worker viejo. Se espera con un tope, y si al
+// vencerlo la ruta sigue sin aparecer, se sigue igual y los chequeos de abajo
+// fallan — esperar no puede convertirse en tapar.
+const ESPERA_MAX = args.includes("--esperar") ? Number(args[args.indexOf("--esperar") + 1]) : 0;
+if (ESPERA_MAX > 0) {
+  const limite = Date.now() + ESPERA_MAX * 1000;
+  let intentos = 0;
+  while (Date.now() < limite) {
+    intentos++;
+    try {
+      const r = await fetch(BASE + "/v1/algorithms", { redirect: "manual" });
+      if (r.status === 200) { console.log(`  (ruta viva tras ${intentos} intento(s))\n`); break; }
+    } catch (e) {}
+    await new Promise(res => setTimeout(res, 5000));
+  }
+  if (Date.now() >= limite) console.log(`  AVISO: se agotaron los ${ESPERA_MAX}s de espera; se chequea igual.\n`);
+}
+
 async function traer(ruta) {
   // OJO trampa conocida de este proyecto: las rutas exactas del Worker no aceptan
   // query string arbitrario. Se piden tal cual, sin cache-buster.
