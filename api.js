@@ -140,6 +140,159 @@ async function buscar(env, q, limite = 20) {
   return results.map(resumenArchivo);
 }
 
+// ------------------------------------------------- archivador de algoritmos y fuentes
+
+/**
+ * El catalogo (tablas `quantum_algorithms` / `quantum_sources`) es una cosa DISTINTA
+ * del ledger, y la API las mantiene separadas a proposito:
+ *
+ *   - `speedup_declarado` es lo que declara la fuente canonica. Es una cita, no una
+ *     medicion nuestra. Por eso viaja siempre pegado a `declarado_por` y `fuente_url`.
+ *   - `evidencia_rosetta` es lo unico que afirmamos nosotros, y sale de cruzar contra
+ *     las recetas selladas. Para casi todo el catalogo dice "sin medicion sellada", y
+ *     ese es el dato honesto: catalogar no es implementar, y declarar no es medir.
+ *
+ * Una respuesta que mezclara las dos cosas convertiria un catalogo bibliografico en
+ * una promesa de producto, que es exactamente lo que el proyecto no vende.
+ */
+
+const AVISO_CATALOGO =
+  "speedup_declarado es lo que declara la fuente citada, NO una medicion de Rosetta. " +
+  "Lo que Rosetta midio va en evidencia_rosetta, y para la mayoria del catalogo esta vacio.";
+
+function filaAlgoritmo(row, recetas) {
+  let refs = [], impl = [], remisiones = [];
+  try { refs = JSON.parse(row.refs_json || "[]"); } catch (e) {}
+  try { impl = JSON.parse(row.impl_json || "[]"); } catch (e) {}
+  try { remisiones = JSON.parse(row.remisiones_json || "[]"); } catch (e) {}
+  const mias = (recetas || []).filter(r => r.algorithm_id === row.id);
+  return {
+    id: row.id,
+    nombre: row.nombre,
+    categoria: row.categoria,
+    categoria_id: row.categoria_id,
+    problema: row.problema_es,
+    speedup_declarado: row.speedup_declarado,
+    declarado_por: row.fuente_nombre,
+    fuente_url: row.fuente_url,
+    implementaciones: impl,
+    referencias: refs,
+    n_referencias: row.n_refs,
+    // Remisiones a otras entradas del mismo catalogo, tal como las hace la fuente.
+    remisiones: remisiones.map(a => ({ ancla: a, url: row.fuente_url.split("#")[0] + "#" + a })),
+    evidencia_rosetta: mias.length
+      ? {
+          medido: true,
+          recetas: mias.map(r => ({ recipe_id: r.recipe_id, nota: r.nota, estado: r.status })),
+          donde: SITE + "/v1/runs?recipe=" + mias[0].recipe_id,
+        }
+      : {
+          medido: false,
+          lectura: "Rosetta no tiene ninguna corrida sellada sobre este algoritmo. " +
+            "Que este catalogado no significa que lo hayamos medido ni que lo ofrezcamos.",
+        },
+  };
+}
+
+async function metaCatalogo(env) {
+  const { results = [] } = await env.DB.prepare("SELECT clave,valor FROM quantum_catalog_meta").all();
+  return Object.fromEntries(results.map(r => [r.clave, r.valor]));
+}
+
+async function cruceLedger(env) {
+  const { results = [] } = await env.DB.prepare(
+    "SELECT l.algorithm_id, l.recipe_id, l.nota, r.status FROM quantum_algorithm_ledger l " +
+    "LEFT JOIN recipes r ON r.id = l.recipe_id"
+  ).all();
+  return results;
+}
+
+async function algoritmos(env, url) {
+  const categoria = url.searchParams.get("categoria");
+  const q = (url.searchParams.get("q") || "").trim().toLowerCase();
+  const limite = Math.min(parseInt(url.searchParams.get("limit") || "100", 10) || 100, 200);
+
+  let sql = "SELECT * FROM quantum_algorithms";
+  const cond = [], args = [];
+  if (categoria) { cond.push("categoria_id=?"); args.push(categoria); }
+  if (q) { cond.push("(lower(nombre) LIKE ? OR lower(problema_es) LIKE ?)"); args.push(`%${q}%`, `%${q}%`); }
+  if (cond.length) sql += " WHERE " + cond.join(" AND ");
+  sql += " ORDER BY orden LIMIT ?";
+  args.push(limite);
+
+  const [{ results = [] }, recetas, meta, totalRow] = await Promise.all([
+    env.DB.prepare(sql).bind(...args).all(),
+    cruceLedger(env),
+    metaCatalogo(env),
+    env.DB.prepare("SELECT count(*) n FROM quantum_algorithms").first(),
+  ]);
+
+  // El denominador viaja siempre: "12 items" sin decir de cuantos no es un resultado.
+  return json({
+    total_catalogo: totalRow ? totalRow.n : null,
+    devueltos: results.length,
+    filtro: { categoria: categoria || null, q: q || null, limit: limite },
+    aviso: AVISO_CATALOGO,
+    procedencia: {
+      fuente: meta.fuente_nombre,
+      fuente_url: meta.fuente_url,
+      instantanea_sha256: meta.fuente_sha256,
+      generado_at: meta.generado_at,
+      como_reconstruir: meta.como_reconstruir,
+    },
+    items: results.map(r => filaAlgoritmo(r, recetas)),
+  });
+}
+
+async function algoritmoPorId(env, id) {
+  const row = await env.DB.prepare("SELECT * FROM quantum_algorithms WHERE id=?").bind(id).first();
+  if (!row) return json({ error: "no existe", id }, 404);
+  const [recetas, meta] = await Promise.all([cruceLedger(env), metaCatalogo(env)]);
+  return json({
+    aviso: AVISO_CATALOGO,
+    procedencia: {
+      fuente: meta.fuente_nombre, fuente_url: meta.fuente_url,
+      instantanea_sha256: meta.fuente_sha256, generado_at: meta.generado_at,
+    },
+    ...filaAlgoritmo(row, recetas),
+  });
+}
+
+async function categorias(env) {
+  const { results = [] } = await env.DB.prepare(
+    "SELECT categoria_id, categoria, count(*) n FROM quantum_algorithms GROUP BY categoria_id, categoria ORDER BY min(orden)"
+  ).all();
+  return results.map(r => ({ id: r.categoria_id, nombre: r.categoria, algoritmos: r.n }));
+}
+
+async function fuentes(env, url) {
+  const tipo = url.searchParams.get("tipo");
+  let sql = "SELECT * FROM quantum_sources";
+  const args = [];
+  if (tipo) { sql += " WHERE tipo=?"; args.push(tipo); }
+  sql += " ORDER BY tipo, orden";
+  const [{ results = [] }, totalRow, tipos] = await Promise.all([
+    env.DB.prepare(sql).bind(...args).all(),
+    env.DB.prepare("SELECT count(*) n FROM quantum_sources").first(),
+    env.DB.prepare("SELECT tipo, count(*) n FROM quantum_sources GROUP BY tipo ORDER BY tipo").all(),
+  ]);
+  return json({
+    total_catalogo: totalRow ? totalRow.n : null,
+    devueltos: results.length,
+    filtro: { tipo: tipo || null },
+    tipos: Object.fromEntries((tipos.results || []).map(r => [r.tipo, r.n])),
+    nota_enlaces:
+      "http_status es el codigo REAL que devolvio la URL cuando se genero el catalogo, " +
+      "no una suposicion. Un 403 con nota_enlace es un sitio que bloquea clientes " +
+      "automatizados y que se abrio a mano en un navegador.",
+    items: results.map(r => ({
+      id: r.id, tipo: r.tipo, nombre: r.nombre, url: r.url,
+      que_es: r.que_es, por_que_importa: r.por_que_importa, pais: r.pais,
+      enlace: { http_status: r.http_status, verificado_at: r.verificado_at, nota: r.nota_enlace },
+    })),
+  });
+}
+
 // ---------------------------------------------------------------- MCP (JSON-RPC 2.0)
 
 const HERRAMIENTAS = [
@@ -186,6 +339,35 @@ const HERRAMIENTAS = [
       required: ["tipo"],
     },
   },
+  {
+    name: "buscar_algoritmo_cuantico",
+    description:
+      "Busca en el archivador de algoritmos cuanticos (catalogo canonico del Quantum " +
+      "Algorithm Zoo, 60 entradas en 4 categorias) por nombre o por el problema que " +
+      "atacan. Cada resultado trae el speedup DECLARADO por la fuente con su cita, los " +
+      "papers primarios, las implementaciones publicas — y si Rosetta lo midio o no. " +
+      "Usar para responder '¿existe un algoritmo cuantico para X y hay evidencia?'.",
+    inputSchema: {
+      type: "object",
+      properties: {
+        consulta: { type: "string", description: "p.ej. 'factorizacion', 'optimizacion', 'ecuaciones diferenciales'" },
+        categoria: { type: "string", description: "opcional: algebraic, oracular, BQP u ONML" },
+      },
+    },
+  },
+  {
+    name: "listar_fuentes_cuanticas",
+    description:
+      "Lista las fuentes del campo cuantico catalogadas: fabricantes de QPU, librerias, " +
+      "revistas y conferencias, blogs, catalogos y organismos de norma. Cada una con que " +
+      "es, por que importa y el codigo HTTP real que devolvio su URL al catalogarla.",
+    inputSchema: {
+      type: "object",
+      properties: {
+        tipo: { type: "string", enum: ["qpu", "libreria", "venue", "blog", "catalogo", "estandar"] },
+      },
+    },
+  },
 ];
 
 async function ejecutarHerramienta(env, nombre, args) {
@@ -202,6 +384,19 @@ async function ejecutarHerramienta(env, nombre, args) {
     const u = new URL(SITE + "/x");
     if (args.recipe) u.searchParams.set("recipe", args.recipe);
     const r = await listar(env, args.tipo, u);
+    return await r.json();
+  }
+  if (nombre === "buscar_algoritmo_cuantico") {
+    const u = new URL(SITE + "/x");
+    if (args.consulta) u.searchParams.set("q", args.consulta);
+    if (args.categoria) u.searchParams.set("categoria", args.categoria);
+    const r = await algoritmos(env, u);
+    return await r.json();
+  }
+  if (nombre === "listar_fuentes_cuanticas") {
+    const u = new URL(SITE + "/x");
+    if (args.tipo) u.searchParams.set("tipo", args.tipo);
+    const r = await fuentes(env, u);
     return await r.json();
   }
   throw new Error(`herramienta desconocida: ${nombre}`);
@@ -274,8 +469,16 @@ export async function manejarApi(request, env, url) {
         "GET /v1/recipes": "recetas del catalogo",
         "GET /v1/archive/{id}": "un archivo sellado completo, con su payload",
         "GET /v1/search?q=": "busqueda en texto de las corridas",
+        "GET /v1/algorithms": "archivador de algoritmos cuanticos · ?categoria= &q= &limit=",
+        "GET /v1/algorithms/{id}": "ficha de un algoritmo con sus citas y su estado de evidencia",
+        "GET /v1/categories": "las categorias del archivador, con cuantos algoritmos tiene cada una",
+        "GET /v1/sources": "fuentes del campo (QPUs, librerias, venues, blogs, normas) · ?tipo=",
         "POST /mcp": "servidor MCP (JSON-RPC 2.0) para agentes",
       },
+      nota_catalogo:
+        "El archivador (/v1/algorithms, /v1/sources) CATALOGA el campo citando fuentes " +
+        "externas; el ledger (/v1/runs, /v1/verdicts) publica lo que medimos nosotros. " +
+        "Un speedup declarado en el catalogo no es un resultado de Rosetta.",
       licencia: "CC BY 4.0 — cita: Rosetta Quantum Evidence Ledger, " + SITE + "/ledger",
     });
   }
@@ -294,6 +497,23 @@ export async function manejarApi(request, env, url) {
     const items = await buscar(env, q);
     return json({ consulta: q, encontrados: items.length, items });
   }
+  // Archivador de algoritmos y fuentes. Va con la misma regla que el resto: el
+  // listado antes que la ficha, para que nada quede publicado e invisible.
+  if (p === "/v1/algorithms" || p === "/v1/algorithms/") return await algoritmos(env, url);
+  if (p === "/v1/sources" || p === "/v1/sources/") return await fuentes(env, url);
+  if (p === "/v1/categories" || p === "/v1/categories/") {
+    const cats = await categorias(env);
+    const meta = await metaCatalogo(env);
+    return json({
+      total: cats.reduce((s, c) => s + c.algoritmos, 0),
+      categorias: cats,
+      procedencia: { fuente: meta.fuente_nombre, fuente_url: meta.fuente_url,
+        instantanea_sha256: meta.fuente_sha256, generado_at: meta.generado_at },
+    });
+  }
+  const ma = p.match(/^\/v1\/algorithms\/([^/]+)\/?$/);
+  if (ma) return await algoritmoPorId(env, decodeURIComponent(ma[1]));
+
   const m = p.match(/^\/v1\/archive\/([^/]+)\/?$/);
   if (m) return await porId(env, decodeURIComponent(m[1]), true);
 

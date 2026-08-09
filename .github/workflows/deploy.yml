@@ -71,3 +71,14 @@ jobs:
             echo "$code  $u"
             [ "$code" = "200" ] || exit 1
           done
+
+      # Los validadores del archivador tienen que gritar contra defectos inyectados.
+      # Si este paso pasa "solo", el chequeo de abajo ya no prueba nada.
+      - name: Self-test de los validadores del archivador
+        run: node scripts/check-quantum-catalog.mjs --self-test
+
+      # Vigila lo desplegado, no el repo: que ninguna fila afirme sin cita, que el
+      # catalogo no encoja, que nadie declare evidencia que no tiene, y que los
+      # endpoints del ledger sigan intactos (api.js es compartido).
+      - name: Chequeo del archivador contra produccion
+        run: node scripts/check-quantum-catalog.mjs
