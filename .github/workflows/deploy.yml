@@ -77,6 +77,12 @@ jobs:
       - name: Self-test de los validadores del archivador
         run: node scripts/check-quantum-catalog.mjs --self-test
 
+      # El motor de graficos: la mitad que importa es que los guardias GRITEN.
+      # Un throw que nunca se prueba con el caso que debe atrapar es indistinguible
+      # de un throw que alguien borro.
+      - name: Tests del motor de graficos
+        run: node scripts/test-charts.mjs
+
       # Vigila lo desplegado, no el repo: que ninguna fila afirme sin cita, que el
       # catalogo no encoja, que nadie declare evidencia que no tiene, y que los
       # endpoints del ledger sigan intactos (api.js es compartido).
