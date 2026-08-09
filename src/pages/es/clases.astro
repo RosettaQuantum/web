@@ -1,9 +1,14 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import content from '../../content_html/clases.es.html?raw';
+// El archivador va como bloque aparte: su lista la reemplaza el Worker desde D1
+// (patron del indice de la Biblioteca). El cascaron construido es el respaldo si
+// la base no responde.
+import archivador from '../../content_html/archivador.es.html?raw';
 import css from '../../styles/pages/clases.css?raw';
 import refs from '../../content_html/clases.refs.json';
 ---
-<BaseLayout title={'Clases de Problema — Rosetta Q'} description={'El mapa de clases de problema cuántico por tier: probado, plausible, disputado o dequantizado.'} lang="es" altUrl="/clases" pageCss={css} scripts={refs}>
+<BaseLayout title={'Clases de Problema — Rosetta Q'} description={'El mapa de clases de problema cuántico por tier, y el archivador de algoritmos servido desde la base: cada entrada con su fuente, su speedup declarado y sus papers.'} lang="es" altUrl="/clases" pageCss={css} scripts={refs}>
   <Fragment set:html={content} />
+  <Fragment set:html={archivador} />
 </BaseLayout>

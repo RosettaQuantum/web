@@ -52,6 +52,13 @@ export default {
         return injectIndex(env, request, "en");
       if (url.pathname === "/es/blog" || url.pathname === "/es/blog/")
         return injectIndex(env, request, "es");
+      // (2 bis) Archivador de algoritmos: la lista de /clases/ sale de D1, igual
+      // que el indice de la Biblioteca. Si la base no responde, se sirve el
+      // cascaron construido y la cabecera lo declara — nunca una pagina rota.
+      if (url.pathname === "/clases" || url.pathname === "/clases/")
+        return injectAlgorithms(env, request, "en");
+      if (url.pathname === "/es/clases" || url.pathname === "/es/clases/")
+        return injectAlgorithms(env, request, "es");
       // (3) machine-facing feeds: append D1 posts so LLMs/readers see them
       if (url.pathname === "/llms.txt") return augmentLlms(env, request);
       if (url.pathname === "/rss.xml") return augmentRss(env, request);
@@ -254,6 +261,204 @@ async function injectIndex(env, request, lang) {
   return new Response(html, { status: 200, headers: {
     "Content-Type": "text/html;charset=UTF-8", "Cache-Control": "public, s-maxage=60",
     "X-RQ-Index": `d1:${results.length}` } });
+}
+
+// ------------------------------------------------------- archivador de algoritmos
+
+const ARCHIVADOR_T = {
+  en: { speed: "Declared speedup", declaredBy: "declared by", problem: "Problem",
+        papers: "Primary papers", impl: "Public implementations", source: "Canonical entry",
+        measured: "Sealed run of ours", notMeasured: "No sealed run of ours",
+        all: "All", showing: "Showing", of: "of", noMatch: "Nothing matches that search.",
+        seeAll: "Clear filters" },
+  es: { speed: "Speedup declarado", declaredBy: "declarado por", problem: "Problema",
+        papers: "Papers primarios", impl: "Implementaciones públicas", source: "Ficha canónica",
+        measured: "Corrida sellada nuestra", notMeasured: "Sin corrida sellada nuestra",
+        all: "Todas", showing: "Mostrando", of: "de", noMatch: "Nada calza con esa búsqueda.",
+        seeAll: "Quitar filtros" },
+};
+
+/**
+ * Reemplaza la lista del archivador con lo que dice D1.
+ *
+ * Se REEMPLAZA entera, no se le suman filas al cascaron construido: sumar deja viva
+ * una tarjeta vieja de una entrada que despues cambio en la base, y la pagina
+ * termina mostrando lo nuevo arriba y lo viejo abajo. Es la misma leccion que
+ * costo dos deploys en el indice de la Biblioteca.
+ *
+ * Si D1 no responde: se sirve lo construido y `X-RQ-Archivador` lo declara. Un
+ * fallo mudo aca seria una pagina que dice tener el catalogo y no lo tiene.
+ */
+async function injectAlgorithms(env, request, lang) {
+  const assetRes = await env.ASSETS.fetch(request);
+  if (assetRes.status !== 200) return assetRes;
+
+  let filas = [], cruces = [], meta = {};
+  try {
+    const [a, l, m] = await env.DB.batch([
+      env.DB.prepare(
+        "SELECT id,nombre,categoria,categoria_id,problema_es,problema_en,speedup_declarado," +
+        "fuente_nombre,fuente_url,refs_json,impl_json,n_refs FROM quantum_algorithms ORDER BY orden"),
+      env.DB.prepare("SELECT algorithm_id,recipe_id,nota FROM quantum_algorithm_ledger"),
+      env.DB.prepare("SELECT clave,valor FROM quantum_catalog_meta"),
+    ]);
+    filas = a.results || [];
+    cruces = l.results || [];
+    meta = Object.fromEntries((m.results || []).map(r => [r.clave, r.valor]));
+  } catch (e) {
+    return new Response(await assetRes.text(), { status: 200, headers: {
+      "Content-Type": "text/html;charset=UTF-8", "Cache-Control": "public, s-maxage=60",
+      "X-RQ-Archivador": "FAILED:d1-error" } });
+  }
+  if (!filas.length) {
+    return new Response(await assetRes.text(), { status: 200, headers: {
+      "Content-Type": "text/html;charset=UTF-8", "Cache-Control": "public, s-maxage=60",
+      "X-RQ-Archivador": "FAILED:sin-filas" } });
+  }
+
+  const t = ARCHIVADOR_T[lang] || ARCHIVADOR_T.en;
+  const cats = [];
+  for (const f of filas) if (!cats.some(c => c.id === f.categoria_id))
+    cats.push({ id: f.categoria_id, nombre: f.categoria });
+
+  const items = filas.map(f => {
+    let refs = [], impl = [];
+    try { refs = JSON.parse(f.refs_json || "[]"); } catch (e) {}
+    try { impl = JSON.parse(f.impl_json || "[]"); } catch (e) {}
+    const mias = cruces.filter(c => c.algorithm_id === f.id);
+    const problema = (lang === "es" ? f.problema_es : f.problema_en) || "";
+
+    // Solo los 6 papers mas antiguos por numero: la ficha completa, con las 625
+    // citas, esta en la API. Cortar sin decirlo seria declarar de mas.
+    const refsMostradas = refs.slice(0, 6);
+    const refsHtml = refsMostradas.map(r =>
+      `<div><span class="n">[${esc(r.n)}]</span>` +
+      (r.url ? `<a href="${esc(r.url)}" class="lnk" rel="noopener">${esc(r.cita)}</a>` : esc(r.cita)) +
+      `</div>`).join("") +
+      (refs.length > refsMostradas.length
+        ? `<div><span class="n">+</span>${refs.length - refsMostradas.length} ${lang === "es" ? "más en" : "more at"} ` +
+          `<a class="lnk" href="/v1/algorithms/${esc(f.id)}">/v1/algorithms/${esc(f.id)}</a></div>`
+        : "");
+
+    const implHtml = impl.length
+      ? `<div class="qblock"><h4>${esc(t.impl)}</h4><div class="qimpl">` +
+        impl.map(i => `<a href="${esc(i.url)}" rel="noopener">${esc(i.nombre)}</a>`).join("") +
+        `</div></div>`
+      : "";
+
+    const evid = mias.length
+      ? `<span class="qev si">◆ ${esc(t.measured)}: ${mias.map(c => esc(c.recipe_id)).join(", ")}</span>`
+      : `<span class="qev">${esc(t.notMeasured)}</span>`;
+
+    // El texto de busqueda va en un atributo: filtrar en el cliente sobre el DOM
+    // visible se rompe con acentos y con el marcado interno.
+    //
+    // Las notas de nuestras recetas entran al indice a proposito: alguien que
+    // busca "portafolio" espera encontrar QAOA, y sin esto no lo encontraba
+    // porque la descripcion del algoritmo habla de "problemas combinatorios".
+    const buscable = `${f.nombre} ${problema} ${f.categoria} ` +
+      mias.map(c => `${c.recipe_id} ${c.nota || ""}`).join(" ");
+
+    return `<article class="qitem" data-cat="${esc(f.categoria_id)}" data-q="${esc(buscable)}">` +
+      `<button class="qhead" type="button" aria-expanded="false" aria-controls="qb-${esc(f.id)}">` +
+        `<div><span class="qname">${esc(f.nombre)}</span>` +
+          `<span class="qcat">${esc(f.categoria)}</span></div>` +
+        `<div><span class="qspeed"><span class="lbl">${esc(t.speed)}</span>${esc(f.speedup_declarado)}</span>` +
+          `<span class="qcat">${esc(t.declaredBy)} ${esc(f.fuente_nombre)}</span></div>` +
+        `<div><span class="qprob">${esc(problema)}</span><br>${evid}</div>` +
+      `</button>` +
+      `<div class="qbody" id="qb-${esc(f.id)}" hidden>` +
+        (refsMostradas.length ? `<div class="qblock"><h4>${esc(t.papers)} (${refs.length})</h4><div class="qrefs">${refsHtml}</div></div>` : "") +
+        implHtml +
+        `<div class="qblock"><h4>${esc(t.source)}</h4><div class="qrefs">` +
+          `<div><a class="lnk" href="${esc(f.fuente_url)}" rel="noopener">${esc(f.fuente_url)}</a></div>` +
+          `<div><a class="lnk" href="/v1/algorithms/${esc(f.id)}">/v1/algorithms/${esc(f.id)}</a></div>` +
+        `</div></div>` +
+      `</div></article>`;
+  }).join("");
+
+  const src = await assetRes.text();
+  const abre = src.match(/<div class="qlist" id="algolist"[^>]*>/);
+  const cierra = '</div>';
+  if (!abre) {
+    return new Response(src, { status: 200, headers: {
+      "Content-Type": "text/html;charset=UTF-8", "Cache-Control": "public, s-maxage=60",
+      "X-RQ-Archivador": "FAILED:anchor-not-found" } });
+  }
+  const desde = src.indexOf(abre[0]) + abre[0].length;
+  const hasta = src.indexOf(cierra, desde);
+  if (hasta < 0) {
+    return new Response(src, { status: 200, headers: {
+      "Content-Type": "text/html;charset=UTF-8", "Cache-Control": "public, s-maxage=60",
+      "X-RQ-Archivador": "FAILED:close-not-found" } });
+  }
+
+  const medidos = new Set(cruces.map(c => c.algorithm_id)).size;
+  const citas = filas.reduce((s, f) => s + (f.n_refs || 0), 0);
+  const chips = [`<button class="qchip" type="button" data-cat="" aria-pressed="true">${esc(t.all)} (${filas.length})</button>`]
+    .concat(cats.map(c => {
+      const n = filas.filter(f => f.categoria_id === c.id).length;
+      return `<button class="qchip" type="button" data-cat="${esc(c.id)}" aria-pressed="false">${esc(c.id)} (${n})</button>`;
+    })).join("");
+
+  let html = src.slice(0, desde) + items + src.slice(hasta);
+  html = html.replace('<div class="qfilters" id="qfilters" role="group"',
+                      `<div class="qfilters" id="qfilters" data-ready="1" role="group"`)
+             .replace(/(<div class="qfilters" id="qfilters"[^>]*>)/, `$1${chips}`);
+  // Los contadores del cascaron son guiones hasta que la base contesta: asi la
+  // pagina nunca muestra un numero que no salio de D1.
+  const stats = { algoritmos: filas.length, categorias: cats.length, citas, medidos };
+  for (const [k, v] of Object.entries(stats)) {
+    html = html.replace(new RegExp(`(<span class="v" data-stat="${k}">)[^<]*(</span>)`), `$1${v}$2`);
+  }
+  html = html.replace(/(<p class="qcount" id="qcount">)[^<]*(<\/p>)/,
+    `$1${t.showing} ${filas.length} ${t.of} ${filas.length}$2`);
+  // El parrafo de respaldo solo tiene sentido si la lista quedo vacia.
+  html = html.replace('<p id="algoempty" class="qempty">', '<p id="algoempty" class="qempty" hidden>');
+  html = html.replace("</body>", scriptArchivador(t) + "</body>");
+
+  return new Response(html, { status: 200, headers: {
+    "Content-Type": "text/html;charset=UTF-8", "Cache-Control": "public, s-maxage=60",
+    "X-RQ-Archivador": `d1:${filas.length}`,
+    "X-RQ-Archivador-Sha": meta.fuente_sha256 || "sin-meta" } });
+}
+
+/** Buscador y filtros. Trabajan sobre los atributos, no sobre el texto pintado. */
+function scriptArchivador(t) {
+  return `<script>(function(){
+  var lista=document.getElementById('algolist'); if(!lista) return;
+  var items=[].slice.call(lista.querySelectorAll('.qitem'));
+  var buscar=document.getElementById('qsearch');
+  var filtros=document.getElementById('qfilters');
+  var cuenta=document.getElementById('qcount');
+  var vacio=document.getElementById('algoempty');
+  var cat='', q='';
+  function norm(s){return (s||'').toLowerCase().normalize('NFD').replace(/[\\u0300-\\u036f]/g,'');}
+  function aplicar(){
+    var n=0, nq=norm(q);
+    items.forEach(function(el){
+      var ok=(!cat||el.dataset.cat===cat)&&(!nq||norm(el.dataset.q).indexOf(nq)>=0);
+      el.hidden=!ok; if(ok)n++;
+    });
+    cuenta.textContent=${JSON.stringify(t.showing)}+' '+n+' '+${JSON.stringify(t.of)}+' '+items.length;
+    if(vacio){vacio.hidden=n>0; if(!n)vacio.textContent=${JSON.stringify(t.noMatch)};}
+  }
+  buscar&&buscar.addEventListener('input',function(e){q=e.target.value;aplicar();});
+  filtros&&filtros.addEventListener('click',function(e){
+    var b=e.target.closest('.qchip'); if(!b)return;
+    cat=b.dataset.cat||'';
+    [].forEach.call(filtros.querySelectorAll('.qchip'),function(x){
+      x.setAttribute('aria-pressed', x===b?'true':'false');});
+    aplicar();
+  });
+  lista.addEventListener('click',function(e){
+    var h=e.target.closest('.qhead'); if(!h)return;
+    var abierto=h.getAttribute('aria-expanded')==='true';
+    h.setAttribute('aria-expanded', abierto?'false':'true');
+    var b=document.getElementById(h.getAttribute('aria-controls'));
+    if(b)b.hidden=abierto;
+  });
+})();</script>`;
 }
 
 async function augmentLlms(env, request) {
