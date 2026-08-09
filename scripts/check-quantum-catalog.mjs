@@ -308,6 +308,57 @@ for (const ruta of ["/", "/es/", "/clases/", "/es/clases/"]) {
     `no aparece ${totalReal} en la pagina`);
 }
 
+// 4 quater. La corrida de Cleveland: la viz, la API y el numero del home.
+console.log("\n  -- la corrida de Cleveland --");
+const chal = await traer("/v1/challenges/cleveland-2026-07");
+comprobar("GET /v1/challenges/{id} responde 200", chal.status === 200, `respondio ${chal.status}`);
+let deltaKras = null;
+if (chal.js) {
+  const P = chal.js.proteinas || {};
+  comprobar("la corrida trae las 4 proteínas", Object.keys(P).length === 4,
+    `trae ${Object.keys(P).length}`);
+  comprobar("declara que NO está validada experimentalmente",
+    chal.js.validado_experimentalmente === false, "no declara el estado de validación");
+  comprobar("el aviso de 'predicho, no validado' viaja en la respuesta",
+    /no estan validados|no están validados/i.test(chal.txt), "falta el aviso");
+  // El "Top-5" que declaraba 5 y traia 2: ahora el numero sale del dato.
+  comprobar("KRAS G12C publica sus 2 sitios reales, no un top-5 fijo",
+    P.KRAS_G12C && P.KRAS_G12C.sitios_predichos === 2,
+    `sitios_predichos = ${P.KRAS_G12C && P.KRAS_G12C.sitios_predichos}`);
+  comprobar("c-Myc declara que no hay con qué comparar",
+    P.c_MYC && P.c_MYC.sitios_conocidos === 0 && P.c_MYC.hay_con_que_comparar === false,
+    `sitios_conocidos = ${P.c_MYC && P.c_MYC.sitios_conocidos}`);
+  comprobar("cada proteína trae su sha256",
+    Object.values(P).every(p => /^[0-9a-f]{64}$/.test(p.sha256 || "")), "falta algún sello");
+  deltaKras = P.KRAS_G12C && P.KRAS_G12C.estadistica && P.KRAS_G12C.estadistica.pair
+    ? P.KRAS_G12C.estadistica.pair.delta : null;
+}
+
+for (const [ruta, frag] of [["/cleveland/", "Notarised"], ["/es/cleveland/", "notarizada"]]) {
+  const r = await traer(ruta);
+  comprobar(`GET ${ruta} responde 200`, r.status === 200, `respondio ${r.status}`);
+  comprobar(`${ruta} dice notarizado en el pie`, r.txt.includes(frag), "falta la palabra");
+  comprobar(`${ruta} no declara un Top-5 fijo`,
+    !/Top-5 sitios predichos|Top-5 predicted sites/.test(r.txt), "quedó el top-5 fijo");
+  comprobar(`${ruta} aclara que el sitio conocido no entra al cálculo`,
+    /nunca entra al cálculo|never enters the computation/.test(r.txt), "falta la aclaración");
+  comprobar(`${ruta} no hornea los datos en el HTML`, r.txt.length < 60000,
+    `pesa ${r.txt.length} caracteres: parece traer los datos horneados`);
+}
+
+// El numero del home tiene que ser el que dice D1. El "450+" vivio meses porque
+// nadie comparo el texto publicado contra su fuente; esto no se repite.
+if (deltaKras !== null) {
+  for (const ruta of ["/", "/es/"]) {
+    const r = await traer(ruta);
+    const esperado = String(Math.abs(deltaKras)).replace(".", ruta === "/es/" ? "," : ".");
+    comprobar(`${ruta} publica el −${esperado} que dice D1`,
+      r.txt.includes(esperado), `no aparece ${esperado} en la página`);
+  }
+} else {
+  mal("el home publica el número que dice D1", "no se pudo leer el delta de KRAS desde la API");
+}
+
 // 5. REGRESION: api.js es compartido; el ledger tiene que seguir intacto.
 console.log("\n  -- regresion del ledger (api.js es compartido) --");
 for (const ruta of ["/v1", "/v1/state", "/v1/runs", "/v1/verdicts", "/v1/prereg",

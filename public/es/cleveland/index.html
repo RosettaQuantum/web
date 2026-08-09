@@ -1,4 +1,105 @@
-// ------------------------------------------------------------------ idioma
+<!DOCTYPE html>
+<html lang="es">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Rosetta Quantum — Cleveland Clinic: conectividad cuántica y sitios predichos</title>
+<style>
+ :root{--bg:#0b0f14;--pan:#121821;--ln:#1f2a37;--tx:#e6edf3;--mu:#8b98a5;--ac:#5eead4}
+ *{box-sizing:border-box}
+ body{margin:0;background:var(--bg);color:var(--tx);
+      font:14px/1.55 ui-sans-serif,-apple-system,"Segoe UI",Roboto,sans-serif}
+ header{padding:18px 24px;border-bottom:1px solid var(--ln)}
+ h1{margin:0;font-size:17px;letter-spacing:.2px}
+ h1 span{color:var(--mu);font-weight:400}
+ .sub{color:var(--mu);font-size:12.5px;margin-top:5px}
+ .wrap{display:flex;gap:0;height:calc(100vh - 74px);min-height:560px}
+ .left{flex:1 1 auto;position:relative;background:radial-gradient(60% 60% at 50% 45%,#101722,#0b0f14)}
+ canvas{display:block;width:100%;height:100%;cursor:grab}
+ canvas:active{cursor:grabbing}
+ .right{width:392px;flex:none;border-left:1px solid var(--ln);background:var(--pan);
+        overflow:auto;padding:16px 18px}
+ .bar{position:absolute;top:12px;left:12px;right:12px;display:flex;gap:8px;flex-wrap:wrap}
+ select,button{background:#182231;color:var(--tx);border:1px solid var(--ln);
+   border-radius:7px;padding:6px 10px;font:inherit;font-size:12.5px;cursor:pointer}
+ button.on{border-color:var(--ac);color:var(--ac)}
+ .leg{position:absolute;bottom:12px;left:12px;font-size:11.5px;color:var(--mu)}
+ .ramp{width:180px;height:9px;border-radius:5px;margin:5px 0 3px;
+   background:linear-gradient(90deg,#2b1f52,#2b6ea8,#25a58a,#a8c93a,#f9e04b)}
+ .k{display:flex;gap:14px;margin-top:7px;align-items:center}
+ .d{width:9px;height:9px;border-radius:50%;display:inline-block;margin-right:5px}
+ h2{font-size:12px;text-transform:uppercase;letter-spacing:.09em;color:var(--mu);
+    margin:20px 0 8px;font-weight:600}
+ h2:first-child{margin-top:0}
+ table{width:100%;border-collapse:collapse;font-size:12.5px}
+ td,th{padding:4px 6px;border-bottom:1px solid var(--ln);text-align:right}
+ th:first-child,td:first-child{text-align:left}
+ th{color:var(--mu);font-weight:500}
+ .big{font-size:26px;font-weight:600;letter-spacing:-.5px}
+ .neg{color:#f9a8a8}.pos{color:var(--ac)}.mu{color:var(--mu)}
+ .note{font-size:12px;color:var(--mu);margin-top:8px}
+ .pill{display:inline-block;font-size:11px;padding:2px 8px;border-radius:99px;
+   border:1px solid var(--ln);color:var(--mu);margin-right:5px}
+ footer{padding:10px 24px;border-top:1px solid var(--ln);color:var(--mu);font-size:11.5px}
+
+/* RQ-AGREGADO-MOVIL-INICIO */
+/* Aviso de honestidad. Va en dorado y con borde: tiene que leerse antes que la
+   tabla que califica, no despues. */
+.aviso{margin:10px 0 14px;border-left:2px solid #d9b87a;background:rgba(217,184,122,.07);
+  padding:10px 12px;border-radius:0 4px 4px 0;font-size:12.5px;color:var(--tx);line-height:1.5}
+.aviso b{color:#e8d5a8}
+.aviso .pill{display:inline-block;margin-right:8px;padding:1px 7px;border:1px solid #d9b87a;
+  border-radius:2px;font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:#d9b87a}
+
+/* Movil. Antes no existia: sin <meta viewport> el telefono renderizaba a 980 px y
+   lo escalaba, asi que el layout "funcionaba" porque nadie podia leerlo. Al poner
+   el viewport aparecio el problema real — el panel fijo de 392 px junto al canvas
+   deja al canvas en nada, y la barra de botones, que es absolute, queda flotando
+   sobre las tablas. Se apilan. */
+@media (max-width: 760px){
+  .wrap{flex-direction:column;height:auto;min-height:0}
+  .left{flex:none;height:62vh;min-height:320px}
+  .right{width:auto;border-left:none;border-top:1px solid var(--ln);max-height:none}
+  /* la barra deja de flotar sobre el contenido y pasa a ocupar su propio espacio */
+  .bar{position:static;padding:12px 12px 0;background:var(--pan)}
+  .left{display:flex;flex-direction:column}
+  .bar{order:-1}
+  canvas{flex:1 1 auto;min-height:0}
+  .leg{position:static;padding:10px 12px 12px}
+  table{font-size:12px}
+  .right{overflow-x:auto}
+}
+/* RQ-AGREGADO-MOVIL-FIN */
+</style>
+<header>
+ <h1><a href="/es/" style="color:inherit">Rosetta Quantum</a> <span>· Cleveland Clinic · caminata cuántica sobre la red de contactos</span></h1>
+ <div class="sub">Rejilla congelada en PR-CLEV-001 (corte 8,5 Å, ventana 0,5–8,0, 16 muestras). Ningún parámetro ajustado por proteína. Estructura de entrada = apo; el sitio conocido se lee del fármaco co-cristalizado en la holo y <b>nunca entra al cálculo</b>.</div>
+</header>
+<div class="wrap">
+ <div class="left">
+  <canvas id="c"></canvas>
+  <div class="bar">
+   <select id="t"></select>
+   <button id="mq" class="on">caminata cuántica</button>
+   <button id="md">difusión clásica</button>
+   <button id="ms" class="on">sitio conocido</button>
+   <button id="mp" class="on">sitios predichos</button>
+   <button id="spin" class="on">girar</button>
+  </div>
+  <div class="leg">
+   <div>puntaje de propagación (percentil entre residuos distales)</div>
+   <div class="ramp"></div>
+   <div style="display:flex;justify-content:space-between;width:180px"><span>bajo</span><span>alto</span></div>
+   <div class="k">
+     <span><i class="d" style="background:#e5484d"></i>sitio conocido — leído del fármaco co-cristalizado, nunca entra al cálculo</span>
+     <span><i class="d" style="background:#8b98a5"></i>fuente (sitio activo)</span>
+   </div>
+  </div>
+ </div>
+ <div class="right" id="p"></div>
+</div>
+<footer>Corrida notarizada · rejilla congelada en PR-CLEV-001 · las cifras de esta página salen del mismo JSON que las corridas del ledger, y su sello está publicado.</footer>
+<script>
+const DATA={}// ------------------------------------------------------------------ idioma
 // El idioma sale de <html lang>. Las dos caras se mantienen juntas o ninguna:
 // una pagina bilingue con media tabla en el otro idioma miente por omision y no
 // se nota revisando la otra mitad.
@@ -59,7 +160,7 @@ const T = {
 
 // ST se declara aparte: antes venia pegado a DATA en la misma sentencia y al
 // insertar el diccionario entre los dos, el ", ST=" quedaba huerfano.
-let ST=__RQ_STATS__;
+let ST={};
 function arrancar(){
 const keys=Object.keys(DATA);
 const sel=document.getElementById('t');
@@ -223,3 +324,4 @@ panel();draw();
       `<span class="mu">(${e.message})</span></div>`;
   }
 })();
+</script>

@@ -37,6 +37,14 @@
  footer{padding:10px 24px;border-top:1px solid var(--ln);color:var(--mu);font-size:11.5px}
 
 /* RQ-AGREGADO-MOVIL-INICIO */
+/* Aviso de honestidad. Va en dorado y con borde: tiene que leerse antes que la
+   tabla que califica, no despues. */
+.aviso{margin:10px 0 14px;border-left:2px solid #d9b87a;background:rgba(217,184,122,.07);
+  padding:10px 12px;border-radius:0 4px 4px 0;font-size:12.5px;color:var(--tx);line-height:1.5}
+.aviso b{color:#e8d5a8}
+.aviso .pill{display:inline-block;margin-right:8px;padding:1px 7px;border:1px solid #d9b87a;
+  border-radius:2px;font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:#d9b87a}
+
 /* Movil. Antes no existia: sin <meta viewport> el telefono renderizaba a 980 px y
    lo escalaba, asi que el layout "funcionaba" porque nadie podia leerlo. Al poner
    el viewport aparecio el problema real — el panel fijo de 392 px junto al canvas

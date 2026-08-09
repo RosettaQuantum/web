@@ -83,6 +83,11 @@ jobs:
       - name: Tests del motor de graficos
         run: node scripts/test-charts.mjs
 
+      # Los datos de la viz tienen que seguir siendo byte-identicos a los que salieron
+      # del entregable sellado de Cleveland. Si alguien edita una coordenada, grita.
+      - name: Verificar la viz de Cleveland
+        run: node scripts/build-viz-cleveland.mjs --verificar
+
       # Vigila lo desplegado, no el repo: que ninguna fila afirme sin cita, que el
       # catalogo no encoja, que nadie declare evidencia que no tiene, y que los
       # endpoints del ledger sigan intactos (api.js es compartido).
