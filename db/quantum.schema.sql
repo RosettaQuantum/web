@@ -48,6 +48,8 @@ CREATE TABLE quantum_algorithms (
   categoria         TEXT NOT NULL,
   categoria_id      TEXT NOT NULL,
   problema_es       TEXT,             -- que ataca, en ES. NULL = todavia no redactado (se declara)
+  problema_en       TEXT,             -- lo mismo en EN. Las dos caras o ninguna: una pagina
+                                      -- bilingue con una mitad vacia miente por omision.
   speedup_declarado TEXT NOT NULL,    -- literal de la fuente; NO es una medicion nuestra
   fuente_nombre     TEXT NOT NULL,
   fuente_url        TEXT NOT NULL,    -- obligatoria: sin cita la fila no entra

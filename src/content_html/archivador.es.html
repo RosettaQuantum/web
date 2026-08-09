@@ -1,0 +1,32 @@
+<section id="archivador">
+  <div class="wrap">
+    <div class="eyebrow">El archivador</div>
+    <h2>Los algoritmos, uno por uno, con su fuente pegada.</h2>
+    <p class="prose">Arriba está el mapa por tier: nuestra lectura. Acá está el <strong>catálogo crudo</strong>, servido desde la base y no escrito a mano: cada entrada del <a href="https://quantumalgorithmzoo.org/" class="lnk">Quantum Algorithm Zoo</a> con el speedup que <em>declara la fuente</em>, los papers primarios y las implementaciones públicas que existen.</p>
+
+    <div class="honest">
+      <p><strong>Dos cosas que esta tabla no dice.</strong> El speedup de cada fila es lo que declara la fuente citada, no una medición nuestra: <em>declarar no es medir</em>. Y catalogar no es implementar — esta página los muestra y los documenta, no los ofrece como servicio. Lo único que afirmamos nosotros es la columna de evidencia, y está vacía en casi todas las filas.</p>
+    </div>
+
+    <div class="qstats" id="qstats">
+      <div class="qstat"><span class="v" data-stat="algoritmos">—</span><span class="k">algoritmos catalogados</span></div>
+      <div class="qstat"><span class="v" data-stat="categorias">—</span><span class="k">categorías</span></div>
+      <div class="qstat"><span class="v" data-stat="citas">—</span><span class="k">citas resueltas</span></div>
+      <div class="qstat"><span class="v" data-stat="medidos">—</span><span class="k">con corrida sellada nuestra</span></div>
+    </div>
+
+    <div class="qtools">
+      <input type="search" id="qsearch" class="qsearch" placeholder="Buscar por nombre o por problema…" autocomplete="off" aria-label="Buscar en el archivador">
+      <div class="qfilters" id="qfilters" role="group" aria-label="Filtrar por categoría"></div>
+    </div>
+    <p class="qcount" id="qcount"></p>
+
+    <div class="qlist" id="algolist"></div>
+    <p id="algoempty" class="qempty">El archivador no respondió. La misma lista está en <a href="/v1/algorithms" class="lnk">/v1/algorithms</a>.</p>
+
+    <div class="note">
+      <h3>Cómo comprobar esta página</h3>
+      <p>Todo lo de arriba sale de la misma base que responde la API. Baja <a href="https://quantumalgorithmzoo.org/" class="lnk">la fuente</a>, recomputa su sha256 y compáralo con el que declara <a href="/v1/algorithms" class="lnk">/v1/algorithms</a> en <code>procedencia.instantanea_sha256</code>: si calza, estás mirando el mismo catálogo que nosotros. Los agentes lo leen por <a href="/api-docs/" class="lnk">API</a> o por MCP con <code>buscar_algoritmo_cuantico</code>.</p>
+    </div>
+  </div>
+</section>

@@ -209,19 +209,28 @@ if (sinCita.length) morir(`${sinCita.length} filas sin fuente_url`);
 
 // ------------------------------------------------ 5. descripciones ES (nuestras)
 
-const problemas = JSON.parse(readFileSync(join(RAIZ, "db/quantum-problemas.es.json"), "utf8"));
-let conProblema = 0;
+const problemasEs = JSON.parse(readFileSync(join(RAIZ, "db/quantum-problemas.es.json"), "utf8"));
+const problemasEn = JSON.parse(readFileSync(join(RAIZ, "db/quantum-problemas.en.json"), "utf8"));
+let conEs = 0, conEn = 0;
 for (const a of algoritmos) {
-  a.problema_es = problemas[a.id] || null;
-  if (a.problema_es) conProblema++;
+  a.problema_es = problemasEs[a.id] || null;
+  a.problema_en = problemasEn[a.id] || null;
+  if (a.problema_es) conEs++;
+  if (a.problema_en) conEn++;
 }
-const faltantes = algoritmos.filter(a => !a.problema_es).map(a => a.id);
-console.log(`descripciones ES: ${conProblema} de ${algoritmos.length}` +
-  (faltantes.length ? ` · sin redactar: ${faltantes.join(", ")}` : ""));
-// Claves del JSON que ya no corresponden a ninguna entrada: la fuente cambio de
-// nombre y la descripcion quedo huerfana. Se avisa, no se borra sola.
-const huerfanas = Object.keys(problemas).filter(k => !k.startsWith("_") && !algoritmos.some(a => a.id === k));
-if (huerfanas.length) console.log(`AVISO descripciones huerfanas (ya no existen en la fuente): ${huerfanas.join(", ")}`);
+for (const [idioma, n, dic] of [["ES", conEs, problemasEs], ["EN", conEn, problemasEn]]) {
+  const faltan = algoritmos.filter(a => !a[idioma === "ES" ? "problema_es" : "problema_en"]).map(a => a.id);
+  console.log(`descripciones ${idioma}: ${n} de ${algoritmos.length}` +
+    (faltan.length ? ` · sin redactar: ${faltan.join(", ")}` : ""));
+  // Claves del JSON que ya no corresponden a ninguna entrada: la fuente cambio de
+  // nombre y la descripcion quedo huerfana. Se avisa, no se borra sola.
+  const huerfanas = Object.keys(dic).filter(k => !k.startsWith("_") && !algoritmos.some(a => a.id === k));
+  if (huerfanas.length) console.log(`  AVISO ${idioma}: descripciones huerfanas (ya no existen en la fuente): ${huerfanas.join(", ")}`);
+}
+// Las dos caras o ninguna: una fila con descripcion en un solo idioma deja media
+// pagina bilingue en blanco sin que nadie lo note al revisar la otra mitad.
+const cojas = algoritmos.filter(a => !!a.problema_es !== !!a.problema_en).map(a => a.id);
+if (cojas.length) morir(`${cojas.length} fila(s) con descripcion en un solo idioma: ${cojas.join(", ")}`);
 
 // --------------------------------------------------------------- 6. las fuentes
 
@@ -297,8 +306,8 @@ for (const f of fuentes) {
 }
 L.push("");
 for (const a of algoritmos) {
-  L.push("INSERT INTO quantum_algorithms (id,nombre,categoria,categoria_id,problema_es,speedup_declarado,fuente_nombre,fuente_url,ancla,refs_json,impl_json,remisiones_json,n_refs,orden) VALUES (" +
-    [a.id, a.nombre, a.categoria, a.categoria_id, a.problema_es, a.speedup, FUENTE_NOMBRE, a.fuente_url, a.ancla,
+  L.push("INSERT INTO quantum_algorithms (id,nombre,categoria,categoria_id,problema_es,problema_en,speedup_declarado,fuente_nombre,fuente_url,ancla,refs_json,impl_json,remisiones_json,n_refs,orden) VALUES (" +
+    [a.id, a.nombre, a.categoria, a.categoria_id, a.problema_es, a.problema_en, a.speedup, FUENTE_NOMBRE, a.fuente_url, a.ancla,
      JSON.stringify(a.refs), JSON.stringify(a.impl), JSON.stringify(a.remisiones)].map(sql).join(",") +
     `,${a.refs.length},${a.orden});`);
 }
@@ -317,7 +326,8 @@ const meta = {
   categorias: String(categorias.length),
   citas_resueltas: String(refsTotales),
   bibliografia_fuente: String(bib.size),
-  descripciones_es: `${conProblema} de ${algoritmos.length}`,
+  descripciones_es: `${conEs} de ${algoritmos.length}`,
+  descripciones_en: `${conEn} de ${algoritmos.length}`,
   fuentes: String(fuentes.length),
   fuentes_que_responden: checkUrls
     ? `${ok + manuales} de ${fuentes.length}` + (manuales ? ` (${manuales} verificada(s) a mano: el sitio bloquea clientes automatizados)` : "")
