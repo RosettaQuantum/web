@@ -204,6 +204,22 @@ if (uno.js && uno.js.evidencia_rosetta) {
 }
 const inexistente = await traer("/v1/algorithms/no-existe-este-algoritmo");
 comprobar("un id inexistente da 404", inexistente.status === 404, `dio ${inexistente.status}`);
+comprobar("el 404 ofrece por donde seguir",
+  !!(inexistente.js && inexistente.js.prueba && inexistente.js.prueba.busqueda),
+  "el 404 no trae alternativas");
+
+// Los alias por sigla tienen que resolver TODOS. Un alias que apunta a un id que
+// ya no existe devuelve 404 y nadie se entera: la lista de alias vive en el codigo
+// y el catalogo en la base, o sea que son dos listas que pueden divergir.
+const aliasDeclarados = (inexistente.js && inexistente.js.prueba && inexistente.js.prueba.alias_disponibles) || [];
+comprobar("la API declara sus alias", aliasDeclarados.length > 0, "no declara alias_disponibles");
+let aliasRotos = [];
+for (const a of aliasDeclarados) {
+  const r = await traer("/v1/algorithms/" + encodeURIComponent(a));
+  if (r.status !== 200 || !r.js || !r.js.resuelto_por_alias) aliasRotos.push(`${a} -> ${r.status}`);
+}
+comprobar(`los ${aliasDeclarados.length} alias resuelven a una ficha real`,
+  aliasRotos.length === 0, `rotos: ${aliasRotos.join(", ")}`);
 
 // 4. categorias y fuentes
 const cats = await traer("/v1/categories");
