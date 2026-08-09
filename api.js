@@ -30,10 +30,16 @@ const CORS = {
 const SITE = "https://rosettaquantum.com";
 const CACHE = "public, s-maxage=300";
 
+// Los errores NO se cachean. Un 404 servido con s-maxage=300 se queda pegado en el
+// edge cinco minutos, asi que una ruta que empieza a existir sigue respondiendo 404
+// en algunos colos despues de desplegarla. Paso de verdad: tras publicar los alias
+// por sigla, /v1/algorithms/grover devolvio 404 una vez y 200 las tres siguientes.
+// Cachear la respuesta correcta es util; cachear la equivocada solo alarga el error.
 function json(obj, status = 200, extra = {}) {
+  const cache = status >= 400 ? "no-store" : CACHE;
   return new Response(JSON.stringify(obj, null, 2), {
     status,
-    headers: { "Content-Type": "application/json; charset=utf-8", "Cache-Control": CACHE, ...CORS, ...extra },
+    headers: { "Content-Type": "application/json; charset=utf-8", "Cache-Control": cache, ...CORS, ...extra },
   });
 }
 

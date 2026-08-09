@@ -204,6 +204,12 @@ if (uno.js && uno.js.evidencia_rosetta) {
 }
 const inexistente = await traer("/v1/algorithms/no-existe-este-algoritmo");
 comprobar("un id inexistente da 404", inexistente.status === 404, `dio ${inexistente.status}`);
+// Un error cacheado sobrevive al arreglo. Ya paso: un 404 de antes del deploy se
+// quedo cinco minutos en un colo y hacia parecer rota una ruta que ya funcionaba.
+const cab404 = await fetch(BASE + "/v1/algorithms/no-existe-este-algoritmo", { redirect: "manual" });
+comprobar("el 404 no se cachea",
+  /no-store|max-age=0/.test(cab404.headers.get("cache-control") || ""),
+  `Cache-Control: ${cab404.headers.get("cache-control")}`);
 comprobar("el 404 ofrece por donde seguir",
   !!(inexistente.js && inexistente.js.prueba && inexistente.js.prueba.busqueda),
   "el 404 no trae alternativas");
