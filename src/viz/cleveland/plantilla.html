@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<title>Rosetta Quantum — Cleveland Clinic: conectividad cuántica y sitios predichos</title>
+__RQ_ESTILO__
+<header>
+ <h1>Rosetta Quantum <span>· Cleveland Clinic · caminata cuántica sobre la red de contactos</span></h1>
+ <div class="sub">Rejilla congelada en PR-CLEV-001 (corte 8.5 A, ventana 0.5-8.0, 16 muestras).
+   Ningún parámetro ajustado por proteína. Estructura de entrada = apo; el sitio verdadero
+   se lee del fármaco co-cristalizado en la holo y nunca entra al cálculo.</div>
+</header>
+<div class="wrap">
+ <div class="left">
+  <canvas id="c"></canvas>
+  <div class="bar">
+   <select id="t"></select>
+   <button id="mq" class="on">caminata cuántica</button>
+   <button id="md">difusión clásica</button>
+   <button id="ms" class="on">sitio verdadero</button>
+   <button id="mp" class="on">top-5 predicho</button>
+   <button id="spin" class="on">girar</button>
+  </div>
+  <div class="leg">
+   <div>puntaje de propagación (percentil entre residuos distales)</div>
+   <div class="ramp"></div>
+   <div style="display:flex;justify-content:space-between;width:180px"><span>bajo</span><span>alto</span></div>
+   <div class="k">
+     <span><i class="d" style="background:#e5484d"></i>sitio alostérico verdadero</span>
+     <span><i class="d" style="background:#8b98a5"></i>fuente (sitio activo)</span>
+   </div>
+  </div>
+ </div>
+ <div class="right" id="p"></div>
+</div>
+<footer>Evidencia sellada y anclada · las cifras de esta página se generan del mismo JSON que las corridas del ledger</footer>
+__RQ_SCRIPT__
