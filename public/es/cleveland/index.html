@@ -161,10 +161,14 @@ const T = {
 // ST se declara aparte: antes venia pegado a DATA en la misma sentencia y al
 // insertar el diccionario entre los dos, el ", ST=" quedaba huerfano.
 let ST={};
+// El rotulo sigue al idioma de la pagina; si falta la cara EN se cae al ES antes
+// que mostrar vacio.
+function rotulo(D){ return (L==='en' && D.label_en) ? D.label_en : D.label; }
+
 function arrancar(){
 const keys=Object.keys(DATA);
 const sel=document.getElementById('t');
-keys.forEach(k=>{const o=document.createElement('option');o.value=k;o.textContent=DATA[k].label;sel.appendChild(o)});
+keys.forEach(k=>{const o=document.createElement('option');o.value=k;o.textContent=rotulo(DATA[k]);sel.appendChild(o)});
 let cur=keys[0], mode='ctqw', showSite=true, showPred=true, spin=true;
 let rx=0.3, ry=0.6, drag=null, zoom=1;
 
@@ -236,7 +240,7 @@ function draw(){
 }
 function panel(){
  const D=DATA[cur], S=ST[cur]||{}, h=[];
- h.push(`<h2>${D.label} · ${D.n} ${T.residuos}</h2>`);
+ h.push(`<h2>${rotulo(D)} · ${D.n} ${T.residuos}</h2>`);
  if(S.pair){
   const p=S.pair, cls=p.delta>0?'pos':'neg';
   h.push(`<div class="big ${cls}">${p.delta>0?'+':''}${p.delta} <span class="mu" style="font-size:13px;font-weight:400">${T.percentiles}</span></div>
@@ -313,7 +317,9 @@ panel();draw();
     if (!r.ok) throw new Error('HTTP ' + r.status);
     const j = await r.json();
     // Se reconstruyen las dos formas que el render ya sabe leer, sin tocar su logica.
-    for (const [k, p] of Object.entries(j.proteinas)) { DATA[k] = p.datos; ST[k] = p.estadistica || {}; }
+    for (const [k, p] of Object.entries(j.proteinas)) {
+      DATA[k] = p.datos; DATA[k].label_en = p.label_en; ST[k] = p.estadistica || {};
+    }
     if (!Object.keys(DATA).length) throw new Error('la corrida no trae proteinas');
     arrancar();
   } catch (e) {

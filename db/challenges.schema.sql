@@ -42,7 +42,10 @@ CREATE TABLE challenge_runs (
 CREATE TABLE challenge_proteins (
   run_id           TEXT NOT NULL,
   clave            TEXT NOT NULL,   -- KRAS_G12C
-  label            TEXT NOT NULL,
+  label            TEXT NOT NULL,   -- rotulo en ES
+  label_en         TEXT NOT NULL,   -- y en EN. Las dos caras o ninguna: el sembrador aborta
+                                    -- si falta una, porque un rotulo en el idioma equivocado
+                                    -- no rompe nada y por eso nadie lo ve.
   pdb              TEXT,
   n_residuos       INTEGER NOT NULL,
   n_sitios         INTEGER NOT NULL,  -- cuantos sitios predichos hay DE VERDAD

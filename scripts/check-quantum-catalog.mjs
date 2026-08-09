@@ -331,6 +331,12 @@ if (chal.js) {
     `sitios_conocidos = ${P.c_MYC && P.c_MYC.sitios_conocidos}`);
   comprobar("cada proteína trae su sha256",
     Object.values(P).every(p => /^[0-9a-f]{64}$/.test(p.sha256 || "")), "falta algún sello");
+  // La cara EN mostraba "Miosina cardiaca" en el selector. Un rotulo en el idioma
+  // equivocado no rompe nada — la pagina carga igual — y por eso vivio hasta que
+  // alguien lo leyo. Las dos caras o ninguna.
+  comprobar("cada proteína trae su rótulo en los dos idiomas",
+    Object.values(P).every(p => p.label && p.label_en),
+    `sin rótulo EN: ${Object.entries(P).filter(([, p]) => !p.label_en).map(([k]) => k).join(", ")}`);
   deltaKras = P.KRAS_G12C && P.KRAS_G12C.estadistica && P.KRAS_G12C.estadistica.pair
     ? P.KRAS_G12C.estadistica.pair.delta : null;
 }
@@ -345,6 +351,16 @@ for (const [ruta, frag] of [["/cleveland/", "Notarised"], ["/es/cleveland/", "no
     /nunca entra al cálculo|never enters the computation/.test(r.txt), "falta la aclaración");
   comprobar(`${ruta} no hornea los datos en el HTML`, r.txt.length < 60000,
     `pesa ${r.txt.length} caracteres: parece traer los datos horneados`);
+}
+
+// La cara EN no puede mostrar rótulos en español. Se busca el caso concreto que
+// vivió publicado, no una regla vaga sobre "texto en el idioma correcto".
+const chalEn = await traer("/v1/challenges/cleveland-2026-07");
+if (chalEn.js) {
+  const enES = Object.values(chalEn.js.proteinas || {})
+    .filter(p => /Miosina|cardiaca|proteína/i.test(p.label_en || ""))
+    .map(p => p.label_en);
+  comprobar("los rótulos EN no quedaron en español", enES.length === 0, `en español: ${enES.join(", ")}`);
 }
 
 // El numero del home tiene que ser el que dice D1. El "450+" vivio meses porque

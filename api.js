@@ -393,7 +393,10 @@ async function challengePorId(env, id, clave) {
     try { datos = JSON.parse(p.datos_json); } catch (e) {}
     try { stats = JSON.parse(p.stats_json); } catch (e) {}
     proteinas[p.clave] = {
-      label: p.label, pdb: p.pdb, n_residuos: p.n_residuos,
+      // Las dos caras del rotulo. La cara EN mostraba "Miosina cardiaca" porque
+      // habia una sola: un rotulo en el idioma equivocado no rompe nada y por eso
+      // nadie lo ve.
+      label: p.label, label_en: p.label_en, pdb: p.pdb, n_residuos: p.n_residuos,
       // El denominador va pegado al dato: "Top-5" era el encabezado y KRAS G12C
       // trae 2. Publicar el numero real quita la posibilidad de redondearlo.
       sitios_predichos: p.n_sitios,

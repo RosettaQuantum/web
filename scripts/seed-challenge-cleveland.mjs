@@ -20,6 +20,17 @@ const DIR = join(dirname(fileURLToPath(import.meta.url)), "..", "src/viz/clevela
 const sql = v => (v === null || v === undefined ? "NULL" : "'" + String(v).replace(/'/g, "''") + "'");
 const sha = t => createHash("sha256").update(t, "utf8").digest("hex");
 const RUN = "cleveland-2026-07";
+
+// Rotulos en ingles. La cara EN mostraba "Miosina cardiaca" en el selector — un
+// rotulo en el idioma equivocado no rompe nada, y por eso nadie lo ve. Los que no
+// cambian entre idiomas (nombres propios de proteina) se declaran igual, a
+// proposito: la ausencia tiene que ser una decision, no un olvido.
+const LABEL_EN = {
+  KRAS_G12C: "KRAS G12C (4OBE)",
+  BCR_ABL1: "BCR-ABL1 (1OPL)",
+  CARDIAC_MYOSIN: "Cardiac myosin (5TBY)",
+  c_MYC: "c-Myc / Max (1NKP)",
+};
 const hoy = new Date().toISOString().slice(0, 10);
 
 const datos = JSON.parse(readFileSync(join(DIR, "cleveland-2026-07.json"), "utf8"));
@@ -44,12 +55,14 @@ let i = 0, resumen = [];
 for (const k of claves) {
   const d = datos[k], s = stats[k] || {};
   if (!Array.isArray(d.coords) || !d.coords.length) { console.error(`ABORTA: ${k} sin coordenadas`); process.exit(1); }
+  const labelEn = LABEL_EN[k];
+  if (!labelEn) { console.error(`ABORTA: ${k} no tiene rotulo en ingles`); process.exit(1); }
   const dj = JSON.stringify(d), sj = JSON.stringify(s);
   const nSitios = (d.sites || []).length;
   const conocidos = (d.allo || []).length;
   resumen.push(`${k}: n=${d.n} sitios=${nSitios} conocidos=${conocidos} ${Math.round((dj.length + sj.length) / 1024)}KB`);
-  L.push("INSERT INTO challenge_proteins (run_id,clave,label,pdb,n_residuos,n_sitios,sitios_conocidos,datos_json,stats_json,sha256,orden) VALUES (" +
-    [RUN, k, d.label, d.pdb].map(sql).join(",") +
+  L.push("INSERT INTO challenge_proteins (run_id,clave,label,label_en,pdb,n_residuos,n_sitios,sitios_conocidos,datos_json,stats_json,sha256,orden) VALUES (" +
+    [RUN, k, d.label, labelEn, d.pdb].map(sql).join(",") +
     `,${d.n},${nSitios},${conocidos},` +
     [dj, sj, sha(dj + sj)].map(sql).join(",") + `,${++i});`);
 }
