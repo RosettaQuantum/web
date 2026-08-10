@@ -5,6 +5,33 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 // segun /api-docs". Una API que apunta a una pagina que no existe pide confianza en vez
 // de darla — justo lo contrario de lo que este archivo vende.
 const SITE = 'https://rosettaquantum.com';
+const ARRANQUE = `<span class="cm"># 1. what the archive measures — it opens with its own negative</span>
+curl -s https://rosettaquantum.com/v1/state
+
+<span class="cm"># 2. one sealed file, with the hash it claims and its two public copies</span>
+curl -s https://rosettaquantum.com/v1/archive/PR-CLEV-001
+
+<span class="cm"># 3. recompute that hash yourself and compare — prints MATCH</span>
+curl -s https://rosettaquantum.com/v1/archive/PR-CLEV-001 \\
+| python3 -c '
+import sys,json,hashlib,urllib.request
+d=json.load(sys.stdin)
+raw=json.load(urllib.request.urlopen(d["github_raw"]))
+meta={k:v for k,v in raw["meta"].items() if k!="content_hash"}
+body={k:v for k,v in raw.items() if k not in ("meta","storage")}
+mine="sha256:"+hashlib.sha256(
+    json.dumps({"meta":meta,**body},sort_keys=True,ensure_ascii=False).encode()).hexdigest()
+print(mine); print(d["content_hash"])
+print("MATCH" if mine==d["content_hash"] else "MISMATCH")'`;
+
+const ARRANQUE_AGENTES = `<span class="cm"># the full contract, machine-readable</span>
+curl -s https://rosettaquantum.com/v1/openapi.json
+
+<span class="cm"># MCP over JSON-RPC 2.0 — no key either</span>
+curl -s -X POST https://rosettaquantum.com/mcp \\
+  -H 'content-type: application/json' \\
+  -d '{"jsonrpc":"2.0","id":1,"method":"tools/list"}'`;
+
 ---
 <BaseLayout
   title="API & MCP — Rosetta Q"
@@ -24,7 +51,38 @@ const SITE = 'https://rosettaquantum.com';
 
     <div class="body">
       <h2>Start here</h2>
-      <pre><code>curl https://rosettaquantum.com/v1/state</code></pre>
+      <p>
+        No key, no signup, nothing to negotiate. Three steps take you from the API to a
+        hash <em>you</em> recomputed — paste them and they work:
+      </p>
+      <pre><code set:html={ARRANQUE} />
+      </pre>
+      <p>
+        Step 3 prints <code>MATCH</code>. If it ever prints <code>MISMATCH</code>, we are
+        wrong and you can say so in public — that is the whole point:
+        <strong>nothing here asks to be believed.</strong> The hash covers the file's
+        content, not the file: <code>storage</code> is excluded because it says where a
+        copy lives, not what it says. The full convention is below under <em>The seal</em>.
+      </p>
+
+      <h3>For agents</h3>
+      <pre><code set:html={ARRANQUE_AGENTES} />
+      </pre>
+      <p>
+        Point an MCP client at <code>https://rosettaquantum.com/mcp</code> — nine
+        read-only tools, no authentication step.
+      </p>
+
+      <h3>We publish our own usage</h3>
+      <pre><code>curl -s https://rosettaquantum.com/v1/usage</code></pre>
+      <p>
+        How often this API is actually called, in the open. If it says zero, it says zero
+        — the same rule as the quantum-wins counter. It stores no IP, no user-agent and no
+        identifier: only a date, a surface and the <em>shape</em> of the route, so nothing
+        there can reconstruct what anyone looked up. It also states its own blind spots,
+        because a number without its limits is a claim.
+      </p>
+
       <p>
         Returns the measured state of the archive. Today it opens with
         <strong>0 measured quantum wins</strong> — in no sealed run so far has a quantum

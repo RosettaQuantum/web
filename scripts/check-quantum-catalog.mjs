@@ -81,6 +81,89 @@ export function validarDenominador(devueltos, totalDeclarado, minimo) {
   return null;
 }
 
+/**
+ * `json.dumps(obj, sort_keys=True, ensure_ascii=False)` de Python, en JS.
+ *
+ * Se implementa a mano a proposito: usar nuestro propio serializador seria comprobar
+ * el sello contra si mismo.
+ *
+ * Y hay una trampa que costo encontrar. Python distingue int de float y escribe
+ * `8.0`; JavaScript no, y escribe `8`. Como el sello se calcula sobre ESE texto,
+ * un verificador que parsea el JSON y lo vuelve a serializar NO puede reproducir el
+ * hash fuera de Python. Por eso aca los numeros se conservan como venian en el
+ * archivo: `parseConLiterales` guarda el literal original en vez del valor.
+ *
+ * Esto es un limite REAL de la convencion del sello, no un detalle de este script.
+ */
+/** Un numero tal como venia escrito en el archivo: "8.0" no es lo mismo que "8". */
+class NumeroLiteral { constructor(texto) { this.texto = texto; } }
+
+function pyDumps(v) {
+  if (v === null) return "null";
+  if (v instanceof NumeroLiteral) return v.texto;
+  if (typeof v === "boolean") return v ? "true" : "false";
+  if (typeof v === "number") return Number.isInteger(v) ? String(v) : String(v);
+  if (typeof v === "string") return JSON.stringify(v);
+  if (Array.isArray(v)) return "[" + v.map(pyDumps).join(", ") + "]";
+  return "{" + Object.keys(v).sort().map(k => JSON.stringify(k) + ": " + pyDumps(v[k])).join(", ") + "}";
+}
+
+/** JSON.parse que conserva el literal de cada numero. */
+function parseConLiterales(texto) {
+  let i = 0;
+  const blanco = () => { while (i < texto.length && /\s/.test(texto[i])) i++; };
+  function valor() {
+    blanco();
+    const c = texto[i];
+    if (c === "{") {
+      i++; const o = {};
+      blanco();
+      if (texto[i] === "}") { i++; return o; }
+      for (;;) {
+        blanco();
+        const k = cadena();
+        blanco(); i++;                 // ':'
+        o[k] = valor();
+        blanco();
+        if (texto[i] === ",") { i++; continue; }
+        i++; return o;                 // '}'
+      }
+    }
+    if (c === "[") {
+      i++; const a = [];
+      blanco();
+      if (texto[i] === "]") { i++; return a; }
+      for (;;) {
+        a.push(valor());
+        blanco();
+        if (texto[i] === ",") { i++; continue; }
+        i++; return a;                 // ']'
+      }
+    }
+    if (c === '"') return cadena();
+    if (texto.startsWith("true", i)) { i += 4; return true; }
+    if (texto.startsWith("false", i)) { i += 5; return false; }
+    if (texto.startsWith("null", i)) { i += 4; return null; }
+    const ini = i;
+    while (i < texto.length && /[-+0-9eE.]/.test(texto[i])) i++;
+    return new NumeroLiteral(texto.slice(ini, i));
+  }
+  function cadena() {
+    let out = ""; i++;                 // '"'
+    while (texto[i] !== '"') {
+      if (texto[i] === "\\") {
+        const e = texto[i + 1];
+        if (e === "u") { out += String.fromCharCode(parseInt(texto.slice(i + 2, i + 6), 16)); i += 6; continue; }
+        out += { n: "\n", t: "\t", r: "\r", b: "\b", f: "\f", '"': '"', "\\": "\\", "/": "/" }[e] ?? e;
+        i += 2; continue;
+      }
+      out += texto[i++];
+    }
+    i++; return out;
+  }
+  return valor();
+}
+
 // ------------------------------------------------------------- modo self-test
 
 if (SELF) {
@@ -153,7 +236,7 @@ if (ESPERA_MAX > 0) {
     const pendientes = [];
     for (const ruta of faltan) {
       try {
-        const r = await fetch(BASE + ruta, { redirect: "manual", headers: { "User-Agent": "rosetta catalog check" } });
+        const r = await fetch(BASE + ruta, { redirect: "manual", headers: { "User-Agent": "rosetta catalog check", "x-rq-check": "1" } });
         if (r.status !== 200) pendientes.push(ruta);
       } catch (e) { pendientes.push(ruta); }
     }
@@ -173,7 +256,7 @@ async function traer(ruta) {
   // host que no reconoce; con el seguimiento automatico este chequeo apuntaba a un
   // origen de prueba y terminaba midiendo PRODUCCION sin avisar — verde por estar
   // mirando otra cosa, que es el fallo dominante de este proyecto. Ahora grita.
-  const r = await fetch(BASE + ruta, { redirect: "manual", headers: { "User-Agent": "rosetta catalog check" } });
+  const r = await fetch(BASE + ruta, { redirect: "manual", headers: { "User-Agent": "rosetta catalog check", "x-rq-check": "1" } });
   if (r.status >= 300 && r.status < 400) {
     const destino = r.headers.get("location") || "(sin Location)";
     mal(`GET ${ruta} redirige fuera del origen probado`,
@@ -212,7 +295,7 @@ if (alg.js) {
   const fuenteUrl = alg.js.procedencia && alg.js.procedencia.fuente_url;
   if (fuenteUrl) {
     try {
-      const rf = await fetch(fuenteUrl, { headers: { "User-Agent": "rosetta catalog check" } });
+      const rf = await fetch(fuenteUrl, { headers: { "User-Agent": "rosetta catalog check", "x-rq-check": "1" } });
       comprobar("la fuente citada en procedencia abre de verdad", rf.ok, `${fuenteUrl} -> ${rf.status}`);
     } catch (err) { mal("la fuente citada en procedencia abre de verdad", String(err)); }
   }
@@ -286,7 +369,7 @@ if (src.js) {
 // escribe con el numero de filas que efectivamente inyecto.
 console.log("\n  -- la pagina /clases/ sale de D1 --");
 for (const [ruta, idioma] of [["/clases/", "en"], ["/es/clases/", "es"]]) {
-  const r = await fetch(BASE + ruta, { redirect: "manual", headers: { "User-Agent": "rosetta catalog check" } });
+  const r = await fetch(BASE + ruta, { redirect: "manual", headers: { "User-Agent": "rosetta catalog check", "x-rq-check": "1" } });
   const cab = r.headers.get("x-rq-archivador") || "(sin cabecera)";
   const html = await r.text();
   comprobar(`GET ${ruta} responde 200`, r.status === 200, `respondio ${r.status}`);
@@ -315,7 +398,7 @@ for (const [ruta, idioma] of [["/clases/", "en"], ["/es/clases/", "es"]]) {
 console.log("\n  -- el numero publicado calza con el catalogo --");
 const totalReal = (alg.js && alg.js.total_catalogo) || 0;
 for (const ruta of ["/", "/es/", "/clases/", "/es/clases/"]) {
-  const r = await fetch(BASE + ruta, { redirect: "manual", headers: { "User-Agent": "rosetta catalog check" } });
+  const r = await fetch(BASE + ruta, { redirect: "manual", headers: { "User-Agent": "rosetta catalog check", "x-rq-check": "1" } });
   const html = await r.text();
   comprobar(`${ruta} no menciona el 450+ retirado`, !html.includes("450+"),
     "quedo una mencion del numero viejo");
@@ -444,6 +527,87 @@ for (const [target, n] of Object.entries(esperados)) {
   }
 }
 
+// 4 quinquies bis. LA PROMESA CENTRAL, EJERCIDA COMO UN TERCERO.
+//
+// La API dice en cada respuesta "recomputa el sha256 y compara con content_hash".
+// Eso no es un adorno: es la unica razon por la que este archivo vale algo. Aca se
+// reimplementa la receta canonica EN OTRO LENGUAJE —no se llama a nuestro codigo—
+// y se compara contra el sello publicado. Si la receta de /api-docs fuera incorrecta
+// o el sello estuviera mal, esto grita.
+//
+// Se descubrio escribiendo el arranque de /api-docs: mi primera version hacia
+// `curl … | shasum -a 256`, el hash ingenuo del archivo entero, y NO calza — el
+// content_hash vive dentro del propio archivo, asi que hashearlo completo no puede
+// reproducirlo jamas. La receta real excluye `storage` y el propio content_hash.
+console.log("\n  -- la promesa central: recomputar un sello --");
+{
+  const ARCHIVO = "PR-CLEV-001";
+  const a = await traer(`/v1/archive/${ARCHIVO}`);
+  comprobar(`GET /v1/archive/${ARCHIVO} responde 200`, a.status === 200, `respondio ${a.status}`);
+  if (a.js && a.js.github_raw) {
+    try {
+      const bruto = parseConLiterales(await (await fetch(a.js.github_raw)).text());
+      // convencion canonica: meta SIN content_hash + todo menos meta y storage
+      const meta = { ...bruto.meta }; delete meta.content_hash;
+      const cuerpo = { ...bruto }; delete cuerpo.meta; delete cuerpo.storage;
+      // json.dumps(sort_keys=True, ensure_ascii=False) — separadores por defecto de Python
+      const canon = pyDumps({ meta, ...cuerpo });
+      const buf = new TextEncoder().encode(canon);
+      const dig = await crypto.subtle.digest("SHA-256", buf);
+      const mio = "sha256:" + [...new Uint8Array(dig)].map(b => b.toString(16).padStart(2, "0")).join("");
+      comprobar("el sello publicado se puede recomputar desde cero",
+        mio === a.js.content_hash, `recompute ${mio}, la API declara ${a.js.content_hash}`);
+    } catch (e) { mal("el sello publicado se puede recomputar desde cero", String(e)); }
+  }
+  // Y la pagina que explica como hacerlo tiene que traer la receta, no una vaguedad.
+  const docs = await traer("/api-docs/");
+  comprobar("/api-docs publica la receta exacta del sello",
+    /sort_keys/.test(docs.txt) && /storage/.test(docs.txt) && /content_hash/.test(docs.txt),
+    "la pagina no trae sort_keys + la exclusion de storage");
+  comprobar("/api-docs trae un arranque que termina en MATCH",
+    /MATCH/.test(docs.txt) && /v1\/archive\//.test(docs.txt),
+    "el arranque no llega a comparar un hash");
+}
+
+// 4 sexies. El contador de uso: publico, sin datos personales, y sin contarnos.
+console.log("\n  -- el contador de uso --");
+const uso1 = await traer("/v1/usage");
+comprobar("GET /v1/usage responde 200", uso1.status === 200, `respondio ${uso1.status}`);
+if (uso1.js) {
+  comprobar("declara desde cuando mide",
+    typeof uso1.js.midiendo_desde === "string" || uso1.js.ventana,
+    "no declara la ventana: un total sin denominador no es un resultado");
+  comprobar("declara explicitamente lo que NO guarda",
+    /Ninguna IP/i.test(uso1.js.lo_que_no_guardamos || ""), "falta la declaracion");
+  comprobar("declara los limites de la medicion",
+    Array.isArray(uso1.js.limites_de_esta_medicion) && uso1.js.limites_de_esta_medicion.length >= 2,
+    "no declara sus limites");
+  // Ninguna ruta puede quedar guardada con su parametro real: eso reconstruiria
+  // que consulto alguien, que es justo lo que la tabla no debe permitir.
+  const crudas = (uso1.js.por_ruta || []).filter(r =>
+    /\/v1\/(algorithms|challenges|archive|structures|propagate)\/(?!\{)/.test(r.ruta));
+  comprobar("ninguna ruta se guardo con su parametro real", crudas.length === 0,
+    `rutas crudas: ${crudas.map(r => r.ruta).join(", ")}`);
+}
+// El contador no se cachea: uno vivo servido de cache miente mientras dure.
+const cabUso = await fetch(BASE + "/v1/usage", { redirect: "manual", headers: { "x-rq-check": "1" } });
+comprobar("el contador no se sirve de cache",
+  /no-store|max-age=0/.test(cabUso.headers.get("cache-control") || ""),
+  `Cache-Control: ${cabUso.headers.get("cache-control")}`);
+
+// EL CASO POSITIVO QUE IMPORTA: nuestros chequeos no envenenan el numero.
+// Se piden dos rutas marcadas y el total tiene que quedar igual.
+if (uso1.js) {
+  const antes = uso1.js.total;
+  await traer("/v1/state");
+  await traer("/v1/sources");
+  await new Promise(r => setTimeout(r, 1500));
+  const uso2 = await traer("/v1/usage");
+  comprobar("las peticiones marcadas como chequeo NO se cuentan",
+    uso2.js && uso2.js.total === antes,
+    `el total paso de ${antes} a ${uso2.js && uso2.js.total} tras 2 llamadas marcadas`);
+}
+
 // Toda ruta critica responde 200. Es la misma lista que usa la espera, importada
 // de un solo lugar: si alguien agrega una pagina y la olvida aca, no existe.
 console.log("\n  -- las rutas criticas responden --");
@@ -466,7 +630,7 @@ comprobar("el titular honesto del ledger sigue en pie (0 victorias medidas)",
 
 // 6. MCP: las tools nuevas tienen que estar anunciadas y funcionar.
 const mcpRes = await fetch(BASE + "/mcp", {
-  method: "POST", redirect: "manual", headers: { "content-type": "application/json" },
+  method: "POST", redirect: "manual", headers: { "content-type": "application/json", "x-rq-check": "1" },
   body: JSON.stringify({ jsonrpc: "2.0", id: 1, method: "tools/list" }),
 });
 const mcpJs = await mcpRes.json().catch(() => null);
@@ -484,7 +648,7 @@ comprobar("MCP conserva las 4 tools del ledger",
   `tools: ${nombres.join(", ")}`);
 
 const call = await fetch(BASE + "/mcp", {
-  method: "POST", redirect: "manual", headers: { "content-type": "application/json" },
+  method: "POST", redirect: "manual", headers: { "content-type": "application/json", "x-rq-check": "1" },
   body: JSON.stringify({ jsonrpc: "2.0", id: 2, method: "tools/call",
     params: { name: "buscar_algoritmo_cuantico", arguments: { consulta: "portafolio" } } }),
 });

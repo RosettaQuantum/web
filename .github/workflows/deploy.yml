@@ -91,6 +91,11 @@ jobs:
       - name: Self-test de los comparadores de la especificacion
         run: node scripts/check-openapi.mjs --self-test
 
+      # El contador de uso: lo que importa es que NUNCA pueda tumbar una respuesta.
+      # El test fuerza el fallo de la escritura y comprueba que no propaga.
+      - name: Tests del contador de uso
+        run: node scripts/test-usage.mjs
+
       # Vigila lo desplegado, no el repo: que ninguna fila afirme sin cita, que el
       # catalogo no encoja, que nadie declare evidencia que no tiene, y que los
       # endpoints del ledger sigan intactos (api.js es compartido).

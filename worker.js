@@ -14,7 +14,7 @@ export default {
 
     // API de lectura del ledger + servidor MCP. Va primero porque son rutas propias
     // que no existen como archivo; si devuelve null, sigue el flujo normal del sitio.
-    const api = await manejarApi(request, env, url);
+    const api = await manejarApi(request, env, url, ctx);
     if (api) return api;
 
     if (url.pathname === "/api/lead" && request.method === "POST") {

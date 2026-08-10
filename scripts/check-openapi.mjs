@@ -153,7 +153,7 @@ comprobar("toda ruta del enrutador esta en el catalogo", !d1.soloA.length,
 comprobar("el catalogo no declara rutas que el enrutador no atiende", !d1.soloB.length,
   `documentadas y no atendidas: ${d1.soloB.join(", ")}`);
 
-const r = await fetch(BASE + "/v1/openapi.json", { redirect: "manual" });
+const r = await fetch(BASE + "/v1/openapi.json", { redirect: "manual", headers: { "x-rq-check": "1" } });
 comprobar("GET /v1/openapi.json responde 200", r.status === 200, `respondio ${r.status}`);
 let doc = null;
 try { doc = await r.json(); } catch (e) {}
@@ -181,7 +181,7 @@ if (doc) {
     }
     if (url === null) continue;
     if (ruta === "/v1/search") url += "?q=portfolio";   // parametro obligatorio
-    const rr = await fetch(BASE + url, { redirect: "manual", headers: { "User-Agent": "rosetta openapi check" } });
+    const rr = await fetch(BASE + url, { redirect: "manual", headers: { "User-Agent": "rosetta openapi check", "x-rq-check": "1" } });
     if (rr.status === 200) vivas++;
     comprobar(`GET ${url}`, rr.status === 200, `respondio ${rr.status}`);
   }
@@ -202,7 +202,7 @@ if (doc) {
 // La especificacion tiene que estar enlazada donde un agente la busca.
 console.log("\n  -- enlazada donde se busca --");
 for (const [ruta, que] of [["/llms.txt", "llms.txt"], ["/api-docs/", "/api-docs"], ["/v1", "el indice de /v1"]]) {
-  const rr = await fetch(BASE + ruta, { redirect: "manual" });
+  const rr = await fetch(BASE + ruta, { redirect: "manual", headers: { "x-rq-check": "1" } });
   const txt = await rr.text();
   comprobar(`${que} enlaza la especificacion`, txt.includes("/v1/openapi.json"),
     `no aparece /v1/openapi.json en ${ruta} (status ${rr.status})`);

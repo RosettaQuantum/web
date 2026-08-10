@@ -483,6 +483,15 @@ const HERRAMIENTAS = [
     },
   },
   {
+    name: "uso_de_la_api",
+    description:
+      "Cuantas veces se llamo a esta API, por superficie y por ruta, con la ventana " +
+      "de fechas que cubre. Es publico a proposito: si dice cero, dice cero. Declara " +
+      "tambien lo que NO se guarda — ninguna IP, ningun identificador — y los limites " +
+      "de la medicion.",
+    inputSchema: { type: "object", properties: {} },
+  },
+  {
     name: "ver_estructura",
     description:
       "Devuelve la red de contactos de una estructura publicada por el motor (4OBE, " +
@@ -550,6 +559,7 @@ async function ejecutarHerramienta(env, nombre, args) {
     const r = await algoritmos(env, u);
     return await r.json();
   }
+  if (nombre === "uso_de_la_api") { const r = await usoPublico(env); return await r.json(); }
   if (nombre === "ver_estructura") {
     const r = await estructuras(env, args.pdb);
     return await r.json();
@@ -567,7 +577,7 @@ async function ejecutarHerramienta(env, nombre, args) {
   throw new Error(`herramienta desconocida: ${nombre}`);
 }
 
-async function mcp(request, env) {
+async function mcp(request, env, info = {}) {
   if (request.method === "GET") {
     // Un GET al endpoint sirve de descubrimiento humano: que es y que ofrece.
     return json({
@@ -592,9 +602,10 @@ async function mcp(request, env) {
       }, req.id);
     }
     if (req.method === "notifications/initialized") return new Response(null, { status: 204, headers: CORS });
-    if (req.method === "tools/list") return responder({ tools: HERRAMIENTAS }, req.id);
+    if (req.method === "tools/list") { info.tool = "tools/list"; return responder({ tools: HERRAMIENTAS }, req.id); }
     if (req.method === "tools/call") {
       const { name, arguments: args = {} } = req.params || {};
+      info.tool = name;   // para el contador de uso; no se guarda nada mas del que llama
       const salida = await ejecutarHerramienta(env, name, args);
       return responder({ content: [{ type: "text", text: JSON.stringify(salida, null, 2) }] }, req.id);
     }
@@ -724,6 +735,8 @@ async function propagaciones(env, runId, target) {
 export const CATALOGO = [
   { ruta: "/v1", resumen: "Indice de la API", grupo: "meta" },
   { ruta: "/v1/openapi.json", resumen: "Esta especificacion, en OpenAPI 3.1", grupo: "meta" },
+  { ruta: "/v1/usage", resumen: "Cuantas veces se llamo a esta API · publico, y declara lo que NO se guarda",
+    grupo: "meta", esquema: { $ref: "#/components/schemas/Uso" } },
   { ruta: "/v1/state", resumen: "Estado medido del Evidence Ledger", grupo: "ledger",
     esquema: {
       type: "object",
@@ -808,6 +821,19 @@ const ESQUEMAS = {
         "Lo unico que afirma Rosetta. `medido:false` en la mayoria del catalogo, y ese es el dato.",
         properties: { medido: { type: "boolean" }, recetas: { type: "array", items: { type: "object" } },
                       lectura: { type: "string" } } },
+    },
+  },
+  Uso: {
+    type: "object",
+    properties: {
+      midiendo_desde: { type: "string", nullable: true },
+      ventana: { type: "object", description: "El denominador del total: sin la ventana, un total no dice nada." },
+      total: { type: "integer" },
+      por_superficie: { type: "object", additionalProperties: { type: "integer" } },
+      por_ruta: { type: "array", items: { type: "object" } },
+      lo_que_no_guardamos: { type: "string", description:
+        "Ninguna IP, ningun user-agent, ningun identificador. La ruta se guarda en su FORMA." },
+      limites_de_esta_medicion: { type: "array", items: { type: "string" } },
     },
   },
   Estructura: {
@@ -928,20 +954,137 @@ function openapiDoc() {
   };
 }
 
+// ------------------------------------------------------------------ uso, medido y publico
+
+/**
+ * Cabecera con la que nuestros propios chequeos se marcan para NO contarse.
+ *
+ * Las 135 pruebas en vivo golpean produccion en cada deploy. Contarlas envenenaria
+ * el primer numero que publiquemos con nuestro propio eco: diriamos "135 llamadas
+ * esta semana" y serian todas nuestras. Que sea una cabecera publica y conocida es
+ * un limite real de la medicion —cualquiera puede mandarla y no ser contado— y se
+ * declara en la respuesta en vez de esconderse.
+ */
+const CABECERA_CHEQUEO = "x-rq-check";
+
+/**
+ * La FORMA de una ruta, no la ruta con su parametro. `/v1/algorithms/qaoa` cuenta
+ * como `/v1/algorithms/{id}`.
+ *
+ * Sale del mismo CATALOGO que la especificacion, asi que un endpoint nuevo se mide
+ * solo. Y tiene un efecto de privacidad que importa mas que la prolijidad: guardar
+ * la forma hace que desde esta tabla no se pueda reconstruir QUE consulto alguien.
+ */
+export function formaDeRuta(p) {
+  const limpia = p.replace(/\/$/, "") || "/v1";
+  for (const e of CATALOGO) {
+    if (!e.ruta.includes("{")) { if (e.ruta === limpia) return e.ruta; continue; }
+    const re = new RegExp("^" + e.ruta.replace(/\{[^}]+\}/g, "[^/]+") + "$");
+    if (re.test(limpia)) return e.ruta;
+  }
+  return "(otra)";
+}
+
+/**
+ * Suma uno. NUNCA en la ruta critica: se llama desde `ctx.waitUntil()` y se traga
+ * cualquier error. Una metrica que puede tumbar una lectura es peor que no tener
+ * metrica — y eso tiene su caso positivo en los tests, forzando el fallo de la
+ * escritura y comprobando que la respuesta sigue saliendo.
+ */
+export async function contarUso(db, { superficie, ruta, tool = "" }) {
+  try {
+    const fecha = new Date().toISOString().slice(0, 10);
+    await db.prepare(
+      "INSERT INTO api_usage (fecha,superficie,ruta,tool,n) VALUES (?,?,?,?,1) " +
+      "ON CONFLICT(fecha,superficie,ruta,tool) DO UPDATE SET n = n + 1"
+    ).bind(fecha, superficie, ruta, tool).run();
+    return true;
+  } catch (e) {
+    return false;   // falla abierta, siempre
+  }
+}
+
+async function usoPublico(env) {
+  const [tot, porRuta, rango, meta] = await env.DB.batch([
+    env.DB.prepare("SELECT superficie, sum(n) n FROM api_usage GROUP BY superficie"),
+    env.DB.prepare("SELECT superficie, ruta, tool, sum(n) n FROM api_usage GROUP BY superficie, ruta, tool ORDER BY n DESC"),
+    env.DB.prepare("SELECT min(fecha) desde, max(fecha) hasta, count(DISTINCT fecha) dias FROM api_usage"),
+    env.DB.prepare("SELECT clave, valor FROM usage_meta"),
+  ]);
+  const m = Object.fromEntries((meta.results || []).map(r => [r.clave, r.valor]));
+  const porSuperficie = Object.fromEntries((tot.results || []).map(r => [r.superficie, r.n]));
+  const total = Object.values(porSuperficie).reduce((a, b) => a + b, 0);
+  const r0 = (rango.results || [{}])[0];
+
+  // Un contador vivo cacheado 5 minutos miente durante 5 minutos. Se sirve fresco.
+  return json({
+    que_es: "Cuantas veces se llamo a esta API. Publicado por la misma razon que el " +
+            "contador de victorias cuanticas: un numero propio que solo se muestra " +
+            "cuando favorece no es una medicion.",
+    // El denominador va pegado al total: "12 llamadas" sin su ventana no dice nada.
+    midiendo_desde: m.desde || null,
+    ventana: { primer_dia: r0.desde || null, ultimo_dia: r0.hasta || null, dias_con_uso: r0.dias || 0 },
+    total,
+    por_superficie: porSuperficie,
+    por_ruta: (porRuta.results || []).map(r => ({
+      superficie: r.superficie, ruta: r.ruta, tool: r.tool || undefined, llamadas: r.n,
+    })),
+    lo_que_no_guardamos:
+      "Ninguna IP, ningun user-agent, ninguna cabecera de quien llama, ningun " +
+      "identificador. Solo (fecha, superficie, forma de la ruta) y un contador. La " +
+      "ruta se guarda en su FORMA — /v1/algorithms/{id}, nunca /v1/algorithms/qaoa — " +
+      "asi que desde estos datos no se puede reconstruir que consulto nadie.",
+    limites_de_esta_medicion: [
+      "Las paginas del sitio NO se miden: no pasan por el Worker, y contar solo " +
+      "algunas seria declarar mas alcance del que hay.",
+      "Nuestros propios chequeos automaticos se marcan con una cabecera y no se " +
+      "cuentan; como la cabecera es publica, cualquiera puede mandarla y no ser contado.",
+      "Es un agregado por dia: no hay registro de peticiones individuales.",
+    ],
+  }, 200, { "Cache-Control": "no-store" });
+}
+
 // ---------------------------------------------------------------- enrutador
 
-export async function manejarApi(request, env, url) {
+/**
+ * Envuelve el enrutado y suma uno al contador de uso.
+ *
+ * El conteo va en `ctx.waitUntil()` — FUERA de la ruta critica. Si la escritura
+ * falla, la respuesta sale igual: una metrica que puede tumbar una lectura es peor
+ * que no tener metrica. Hay un test que fuerza el fallo y comprueba justo eso.
+ */
+export async function manejarApi(request, env, url, ctx) {
+  const info = {};
+  const res = await enrutar(request, env, url, info);
+  if (!res) return res;                       // no era ruta de API: no se cuenta
+
+  // Nuestros propios chequeos no se cuentan: serian el eco de nuestro trafico.
+  const esChequeo = request.headers.get(CABECERA_CHEQUEO) === "1";
+  const p = url.pathname;
+  const esMcp = p === "/mcp" || p === "/mcp/";
+  const esApi = p === "/v1" || p.startsWith("/v1/");
+  if (!esChequeo && (esMcp || esApi) && ctx && ctx.waitUntil && env.DB) {
+    ctx.waitUntil(contarUso(env.DB, {
+      superficie: esMcp ? "mcp" : "api",
+      ruta: esMcp ? "/mcp" : formaDeRuta(p),
+      tool: esMcp ? (info.tool || "") : "",
+    }));
+  }
+  return res;
+}
+
+async function enrutar(request, env, url, info = {}) {
   if (request.method === "OPTIONS") return new Response(null, { status: 204, headers: CORS });
 
   const p = url.pathname;
-  if (p === "/mcp" || p === "/mcp/") return await mcp(request, env);
+  if (p === "/mcp" || p === "/mcp/") return await mcp(request, env, info);
   // HEAD se atiende como GET y se devuelve sin cuerpo. Sin esto, `curl -I`, los
   // chequeos de salud y varios clientes HTTP reciben un 404 sobre una ruta que si
   // existe — el tipo de discrepancia que hace dudar de una API antes de usarla.
   const esHead = request.method === "HEAD";
   if (request.method !== "GET" && !esHead) return null;
   if (esHead) {
-    const r = await manejarApi(new Request(request.url, { method: "GET" }), env, url);
+    const r = await enrutar(new Request(request.url, { method: "GET" }), env, url, info);
     return r ? new Response(null, { status: r.status, headers: r.headers }) : null;
   }
 
@@ -965,6 +1108,7 @@ export async function manejarApi(request, env, url) {
     });
   }
   if (p === "/v1/openapi.json") return json(openapiDoc());
+  if (p === "/v1/usage" || p === "/v1/usage/") return await usoPublico(env);
   if (p === "/v1/state") return json(await estado(env));
   if (p === "/v1/runs") return await listar(env, "RUN", url);
   if (p === "/v1/verdicts") return await listar(env, "VERDICT", url);
