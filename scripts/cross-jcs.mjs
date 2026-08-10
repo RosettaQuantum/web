@@ -6,7 +6,13 @@
  * dice DONDE. Cuando algo no calza, se imprime el primer caracter distinto con su
  * contexto y su code point, para que el reporte sirva sin volver a correr nada.
  *
- * Uso: node scripts/cross-jcs.mjs <ruta a jcs_vectores.json>
+ * El paquete de vectores trae su propio sha256 declarado. Comprobarlo ANTES de
+ * correr no es ceremonia: la primera version del paquete llego con el hebreo
+ * normalizado a NFD y el vector unicode paso sin probar lo que decia probar —
+ * las dos implementaciones coincidiamos en lo incorrecto porque leiamos el mismo
+ * dato ya roto. Un cruce solo vale si el material de prueba tambien se verifica.
+ *
+ * Uso: node scripts/cross-jcs.mjs <ruta a jcs_vectores.json> [--sello sha256:…]
  */
 import { readFileSync } from "node:fs";
 import { dirname, resolve } from "node:path";
@@ -18,6 +24,17 @@ if (!ruta) { console.error("falta la ruta a jcs_vectores.json"); process.exit(2)
 const V = JSON.parse(readFileSync(ruta, "utf8"));
 // los sellos se nombran relativos AL archivo de vectores, no al cwd
 const BASE = dirname(resolve(ruta));
+
+// Si se declara el sello del paquete, se comprueba antes de creerle una sola linea.
+const selloEsperado = process.argv.includes("--sello") ? process.argv[process.argv.indexOf("--sello") + 1] : null;
+if (selloEsperado) {
+  const real = "sha256:" + createHash("sha256").update(readFileSync(resolve(ruta))).digest("hex");
+  if (real !== selloEsperado.trim()) {
+    console.error(`ABORTA: el paquete de vectores no es el declarado.\n  obtenido : ${real}\n  declarado: ${selloEsperado}`);
+    process.exit(2);
+  }
+  console.log(`  (paquete verificado: ${real})`);
+}
 const sha = t => "sha256:" + createHash("sha256").update(t, "utf8").digest("hex");
 
 let ok = 0, mal = 0; const discrepancias = [];
