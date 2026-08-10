@@ -96,6 +96,12 @@ jobs:
       - name: Tests del contador de uso
         run: node scripts/test-usage.mjs
 
+      # El verificador de sellos y su familia de trampas de formato numerico.
+      # Los vectores estan escritos contra los casos reales del archivo, y son los
+      # que hay que volver a pasar cuando llegue el canonicalizador v3.
+      - name: Vectores del verificador de sellos
+        run: node scripts/test-sello.mjs
+
       # Vigila lo desplegado, no el repo: que ninguna fila afirme sin cita, que el
       # catalogo no encoja, que nadie declare evidencia que no tiene, y que los
       # endpoints del ledger sigan intactos (api.js es compartido).
