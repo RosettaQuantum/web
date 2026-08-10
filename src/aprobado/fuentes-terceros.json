@@ -1,0 +1,33 @@
+{
+  "por_que_existe": "La pagina de precios afirma que cinco empresas estan pidiendo esto en sus desafios publicos. Es la unica afirmacion del sitio sobre terceros y vive en la pagina que Paddle revisa. Una afirmacion sobre otros que nadie puede rastrear es exactamente lo que este proyecto no publica, asi que aca queda su fuente y un chequeo la ejerce: no solo que la URL responda, sino que SIGA nombrando a los cinco. Si el programa cambia, la afirmacion queda vieja y hay que enterarse por el chequeo y no por un lector.",
+  "afirmacion": "Es lo que Cleveland Clinic, Airbus, E.ON, HSBC y VW estan pidiendo en sus desafios publicos",
+  "donde_aparece": "/es/precios y /pricing, fila «Programa de Medicion»",
+  "aprobada_por": "Nicholas, 2026-08-10 (textual: «1 si 2 si 3 si 4 si»)",
+  "programa": "2026 Global Quantum + AI Challenge — The Quantum Insider + Cleveland Clinic",
+  "verificado_el": "2026-08-10",
+  "fuentes": [
+    {
+      "url": "https://quantumai.thequantuminsider.com/challenges/",
+      "es_la_que_sostiene_la_afirmacion": true,
+      "que_dice": "Lista los cinco desafios de empresa, uno por cada nombre citado."
+    },
+    {
+      "url": "https://quantumai.thequantuminsider.com/",
+      "es_la_que_sostiene_la_afirmacion": false,
+      "que_dice": "Portada del programa: US$200.000 repartidos en cinco desafios de empresa, US$40.000 cada uno."
+    }
+  ],
+  "los_cinco": [
+    { "nombre_en_la_pagina": "Cleveland Clinic", "como_lo_nombra_la_fuente": "Cleveland Clinic",
+      "desafio": "Unlocking undruggable targets: quantum simulation of allosteric signal propagation" },
+    { "nombre_en_la_pagina": "Airbus", "como_lo_nombra_la_fuente": "Airbus",
+      "desafio": "Quantum solvers: enhancing predictive aerodynamic modeling" },
+    { "nombre_en_la_pagina": "E.ON", "como_lo_nombra_la_fuente": "E.ON",
+      "desafio": "Quantum-enabled grid expansion planning for distribution energy networks" },
+    { "nombre_en_la_pagina": "HSBC", "como_lo_nombra_la_fuente": "HSBC",
+      "desafio": "Quantum-enhanced credit card fraud detection for digital payment ecosystems" },
+    { "nombre_en_la_pagina": "VW", "como_lo_nombra_la_fuente": "VW Group",
+      "desafio": "Quantum-enhanced Vision-Language-Action models in autonomous driving and robotics" }
+  ],
+  "nota_para_quien_lea_esto": "El desafio de Cleveland Clinic es literalmente propagacion de senal alosterica — lo mismo que mide la receta RQ-0007. No es una coincidencia comoda: es el mismo problema, publicado por ellos, y conviene que quien escriba sobre esto lo sepa antes de redactar nada."
+}

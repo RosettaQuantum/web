@@ -26,10 +26,14 @@
  *   node scripts/check-quantum-catalog.mjs --self-test        # se obliga a gritar
  */
 
+import { readFileSync } from "node:fs";
+import { fileURLToPath } from "node:url";
+import { dirname, join } from "node:path";
 import { CATALOGO } from "../api.js";
 import { esperarRutas, esperarVersion } from "./lib/esperar.mjs";
 import { pyDumps, parseConLiterales } from "./lib/sello.mjs";
 
+const RAIZ = join(dirname(fileURLToPath(import.meta.url)), "..");
 const args = process.argv.slice(2);
 const BASE = args.includes("--base") ? args[args.indexOf("--base") + 1] : "https://rosettaquantum.com";
 const SELF = args.includes("--self-test");
@@ -456,66 +460,98 @@ for (const ruta of ["/", "/es/"]) {
 // Es la pagina que Paddle revisa y la unica del sitio donde alguien va a poner
 // plata, asi que las cifras se comparan contra la fuente, no contra el recuerdo.
 // El "0 victorias" es el caso del "450+" otra vez: un numero que envejece solo.
-console.log("\n  -- precios: las cifras contra la API --");
+console.log("\n  -- precios: las dos caras, contra la API y contra el mundo --");
 {
-  // Con barra final a proposito: TODA pagina del sitio hace 307 a la forma con
-  // barra, y `traer` no sigue saltos por diseno (seguir un 301 fue como un chequeo
-  // termino midiendo produccion mientras apuntaba a otro lado). La forma canonica
-  // es la que hay que pedir.
-  const r = await traer("/es/precios/");
-  comprobar("/es/precios/ responde", r.status === 200, `dio ${r.status}`);
-
   const st = await (await fetch(BASE + "/v1/state", { headers: { "x-rq-check": "1" } })).json();
   const medido = st.estado_medido.victorias_cuanticas_medidas;
-  const enPagina = (r.txt.match(/<strong>(\d+) victorias cuánticas medidas<\/strong>/) || [])[1];
-  comprobar("la pagina declara el contador de victorias", enPagina !== undefined,
-    "ya no aparece la cifra en la pagina");
-  comprobar(`el contador de la pagina (${enPagina}) es el que mide /v1/state (${medido})`,
-    Number(enPagina) === medido, "la pagina y la API dicen numeros distintos");
+  const F = JSON.parse(readFileSync(join(RAIZ, "src/aprobado/fuentes-terceros.json"), "utf8"));
 
-  // Reglas del texto que Nicholas fijo y que un maquetado descuidado borra sin ruido.
-  comprobar("la palabra «auditoría» no aparece en precios",
-    !/auditor[ií]a/i.test(r.txt), "volvio a aparecer «auditoria»");
-  comprobar("el cobro del resultado negativo va visible, no en letra chica",
-    /te la cobramos/.test(r.txt), "desaparecio la frase del negativo que se cobra");
-  // Acotado al CUERPO de la pagina: la primera version miraba el HTML entero y
-  // marcaba el boton del menu y el de cerrar el modal como "camino de compra".
-  // Un falso positivo retiene trabajo bueno y ensena a ignorar el chequeo, asi
-  // que se mira donde el defecto puede estar de verdad y se buscan senales de
-  // compra, no cualquier <button> del layout.
-  const cuerpo = (r.txt.match(/<article class="article wrap precios">([\s\S]*?)<\/article>/) || [])[1] || "";
-  comprobar("el chequeo mira el cuerpo de la pagina", cuerpo.length > 500,
-    `no aisle el cuerpo (${cuerpo.length} caracteres)`);
-  comprobar("no hay autoservicio ni camino de compra",
-    !/<button|<form|checkout|carrito|pagar ahora|comprar|add to cart|buy\.paddle/i.test(cuerpo),
-    "aparecio un camino de compra en el cuerpo de precios");
-  comprobar("el unico llamado a la accion es el correo, y es cliqueable",
-    /mailto:hello@rosettaquantum\.com/.test(cuerpo), "el correo no es enlazable");
-  // hello@, no hi@: verificado contra el panel de Cloudflare — la regla de reenvio
-  // existe para hello@ y el catch-all esta en Drop, asi que un correo a hi@ se
-  // pierde sin rebote. La unica via de contacto de la pagina no puede apuntar ahi.
-  comprobar("el contacto es hello@, la casilla que de verdad reenvia",
-    /hello@rosettaquantum\.com/.test(r.txt) && !/\bhi@rosettaquantum\.com/.test(r.txt),
-    "el correo de contacto no es el que recibe");
-  // Sin OK de Nicholas sobre esa redaccion, ningun tercero se nombra en la pagina
-  // que Paddle revisa. Falla cerrado: si vuelve, grita con el nombre que encontro.
-  const terceros = ["Cleveland Clinic", "Airbus", "E.ON", "HSBC", "VW"];
-  const nombrados = terceros.filter(n => r.txt.includes(n));
-  comprobar("no nombra empresas de terceros sin OK explicito",
-    nombrados.length === 0, `aparecen: ${nombrados.join(", ")}`);
-  // Y su reverso: la cifra del computo SI tiene que estar, ahora que hay instrumento
-  // que la produce (costos.analisis_por_dolar(), quantum-run 23f2d3e). Un chequeo que
-  // solo prohibe deja pasar el borrado accidental de lo que si debe salir.
-  comprobar("la cifra del computo esta publicada, ya instrumentada",
-    /mil análisis por dólar/.test(r.txt), "desaparecio la frase del costo del computo");
+  const CARAS = [
+    { ruta: "/es/precios/", idioma: "es",
+      contador: /<strong>(\d+) victorias cuánticas medidas<\/strong>/,
+      negativo: /te la cobramos/, computo: /mil análisis por dólar/,
+      prohibido: /auditor[ií]a/i, prohibidoQue: "«auditoría»" },
+    { ruta: "/pricing/", idioma: "en",
+      contador: /<strong>(\d+) measured quantum wins<\/strong>/,
+      negativo: /we charge you for it just the same/, computo: /thousand analyses per dollar/,
+      // En ingles la palabra prohibida es "audit": el equivalente de la regla, no su
+      // traduccion literal. Un guardia que solo mira el castellano deja la mitad sin
+      // vigilar, y la mitad sin vigilar es justo la que Paddle lee.
+      prohibido: /\baudit(s|ing|ed)?\b/i, prohibidoQue: "«audit»" },
+  ];
 
-  comprobar("declara el comerciante registrado (lo exige Paddle)",
-    /Paddle\.com/.test(r.txt) && /Blue Tuna SpA/.test(r.txt), "falta la entidad legal o Paddle");
-  // Mientras el texto EN no este aprobado, /pricing no existe: que no quede a medias.
-  const en = await traer("/pricing");
-  comprobar("el footer en ingles no ofrece precios mientras el texto EN no salga",
-    !/href="\/es\/precios"/.test((await traer("/")).txt) || en.status === 200,
-    "el sitio en ingles enlaza la pagina en espanol");
+  for (const c of CARAS) {
+    // Con barra final a proposito: TODA pagina del sitio hace 307 a la forma con
+    // barra, y `traer` no sigue saltos por diseno (seguir un 301 fue como un chequeo
+    // termino midiendo produccion mientras apuntaba a otro lado).
+    const r = await traer(c.ruta);
+    comprobar(`${c.ruta} responde`, r.status === 200, `dio ${r.status}`);
+    if (r.status !== 200) continue;
+
+    const enPagina = (r.txt.match(c.contador) || [])[1];
+    comprobar(`${c.ruta} declara el contador de victorias`, enPagina !== undefined,
+      "ya no aparece la cifra en la pagina");
+    comprobar(`${c.ruta}: el contador (${enPagina}) es el que mide /v1/state (${medido})`,
+      Number(enPagina) === medido, "la pagina y la API dicen numeros distintos");
+
+    comprobar(`${c.ruta} no usa ${c.prohibidoQue}`, !c.prohibido.test(r.txt),
+      `volvio a aparecer ${c.prohibidoQue}`);
+    comprobar(`${c.ruta}: el cobro del resultado negativo va visible`,
+      c.negativo.test(r.txt), "desaparecio la frase del negativo que se cobra");
+    comprobar(`${c.ruta}: la cifra del computo esta publicada, ya instrumentada`,
+      c.computo.test(r.txt), "desaparecio la frase del costo del computo");
+
+    // Acotado al CUERPO: la primera version miraba el HTML entero y marcaba el boton
+    // del menu y el de cerrar el modal como "camino de compra". Un falso positivo
+    // retiene trabajo bueno y ensena a ignorar el chequeo.
+    const cuerpo = (r.txt.match(/<article class="article wrap precios">([\s\S]*?)<\/article>/) || [])[1] || "";
+    comprobar(`${c.ruta}: el chequeo mira el cuerpo`, cuerpo.length > 500,
+      `no aisle el cuerpo (${cuerpo.length} caracteres)`);
+    comprobar(`${c.ruta} no tiene autoservicio ni camino de compra`,
+      !/<button|<form|checkout|carrito|pagar ahora|comprar|add to cart|buy\.paddle/i.test(cuerpo),
+      "aparecio un camino de compra en el cuerpo");
+    comprobar(`${c.ruta}: el unico llamado a la accion es el correo, cliqueable`,
+      /mailto:hello@rosettaquantum\.com/.test(cuerpo), "el correo no es enlazable");
+    // hello@, no hi@: la regla de reenvio existe para hello@ y el catch-all esta en
+    // Drop, asi que un correo a hi@ se pierde sin rebote.
+    comprobar(`${c.ruta}: el contacto es hello@, la casilla que de verdad reenvia`,
+      !/\bhi@rosettaquantum\.com/.test(r.txt), "el correo de contacto no es el que recibe");
+    comprobar(`${c.ruta} declara el comerciante registrado (lo exige Paddle)`,
+      /Paddle\.com/.test(r.txt) && /Blue Tuna SpA/.test(r.txt), "falta la entidad legal o Paddle");
+
+    // Nicholas aprobo nombrar a los cinco (2026-08-10): el guardia EXIGE que esten.
+    const faltan = F.los_cinco.map(x => x.nombre_en_la_pagina).filter(n => !r.txt.includes(n));
+    comprobar(`${c.ruta} nombra a los cinco, como se aprobo`,
+      faltan.length === 0, `no aparecen: ${faltan.join(", ")}`);
+
+    // Las dos caras se enlazan entre si: una pagina de precios que no ofrece su
+    // propio idioma alterno es media pagina, y es la URL que Paddle revisa.
+    const otra = c.idioma === "es" ? "/pricing" : "/es/precios";
+    comprobar(`${c.ruta} enlaza su cara alterna`, r.txt.includes(otra),
+      `no encontre el enlace a ${otra}`);
+  }
+
+  // Y la afirmacion sobre terceros se ejerce contra el mundo, no solo contra nosotros:
+  // la fuente guardada tiene que SEGUIR nombrandolos. Si el programa cambia, nos
+  // enteramos por aca y no por un lector.
+  const fuente = F.fuentes.find(x => x.es_la_que_sostiene_la_afirmacion);
+  let htmlFuente = null, motivo = "";
+  for (let intento = 0; intento < 3 && htmlFuente === null; intento++) {
+    try {
+      const resp = await fetch(fuente.url, { redirect: "follow" });
+      if (resp.ok) htmlFuente = await resp.text(); else motivo = `respondio ${resp.status}`;
+    } catch (e) { motivo = "no responde"; }
+    if (htmlFuente === null && intento < 2) await new Promise(res => setTimeout(res, 3000));
+  }
+  // Pasar en verde por no haber podido mirar es el fallo silencioso: la afirmacion se
+  // queda publicada sin nadie que la sostenga.
+  comprobar("la fuente de la afirmacion sobre terceros responde",
+    htmlFuente !== null, `${fuente.url} — ${motivo}`);
+  if (htmlFuente !== null) {
+    const perdidos = F.los_cinco.filter(x => !htmlFuente.includes(x.como_lo_nombra_la_fuente));
+    comprobar("la fuente SIGUE nombrando a los cinco", perdidos.length === 0,
+      `ya no aparecen en ${fuente.url}: ${perdidos.map(x => x.como_lo_nombra_la_fuente).join(", ")}`);
+  }
 }
 
 // 4 quater ter. Toda URL que el home cita como fuente, se ejerce.

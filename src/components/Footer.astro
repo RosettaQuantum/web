@@ -6,7 +6,7 @@ const p = (path) => es ? `/es${path}` : path;
 const L = es
   ? { home:'Inicio', ev:'Evidence ledger', cls:'Clases', blog:'Blog', pre:'Precios', line:'Publicamos mediciones, no promesas.',
       agents:'para agentes', agentsTitle:'Archivo de texto plano que describe el sitio para agentes de IA. No es una página web.' }
-  : { home:'Home', ev:'Evidence ledger', cls:'Problem classes', blog:'Blog', line:'We publish measurements, not promises.',
+  : { home:'Home', ev:'Evidence ledger', cls:'Problem classes', blog:'Blog', pre:'Pricing', line:'We publish measurements, not promises.',
       agents:'for agents', agentsTitle:'Plain-text file describing this site for AI agents. Not a web page.' };
 ---
 <footer>
@@ -17,9 +17,7 @@ const L = es
       <a href={p('/ledger')}>{L.ev}</a>
       <a href={p('/clases')}>{L.cls}</a>
       <a href={p('/blog')}>{L.blog}</a>
-      {/* Solo en ES: el texto EN de precios todavia no lo aprueba Nicholas, y un
-          enlace del footer ingles a una pagina en espanol es peor que no tenerlo. */}
-      {es && <a href="/es/precios">{L.pre}</a>}
+      <a href={es ? '/es/precios' : '/pricing'}>{L.pre}</a>
       <a class="foot-machine" href="/llms.txt" title={L.agentsTitle}>llms.txt <span class="tag">{L.agents}</span></a>
     </div>
   </div>

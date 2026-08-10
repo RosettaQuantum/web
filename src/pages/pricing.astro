@@ -1,0 +1,68 @@
+---
+// GENERADO por scripts/build-pricing.mjs — no editar a mano.
+//
+// El texto sale de src/aprobado/pricing.en.md, aprobado por Nicholas, leido por el armador y no
+// tecleado por nadie: asi lo publicado es demostrablemente lo aprobado. Para
+// cambiarlo se edita el .md, se mueve el sha del armador y se regenera.
+//
+// texto fuente sha256: 91b3c462a669e62bfcd4bbd982d407573c868aa24cd72dcb73d91f30d5c73ebf
+import BaseLayout from '../layouts/BaseLayout.astro';
+import css from '../styles/pages/precios.css?raw';
+---
+<BaseLayout
+  title="Pricing — Rosetta Q"
+  description="We measure under seal and publish the negatives. Pricing for exploration, full experiments and Q-Ready."
+  lang="en"
+  altUrl="/es/precios"
+  pageCss={css}>
+  <article class="article wrap precios">
+      <h2>Header</h2>
+
+      <blockquote><p><strong>We measure under seal. We publish the negatives.</strong> What you buy is a measurement you can check without asking us: every delivery comes with its hash, anchored in Bitcoin and published in three independent copies.</p>
+        <p>Today our archive reports <strong>0 measured quantum wins</strong>. That number is on this page because it is the product, not a defect.</p></blockquote>
+
+      <h2>Table</h2>
+
+      <div class="tabla-scroll"><table>
+        <thead><tr><th></th><th>what you get</th><th>price</th></tr></thead>
+        <tbody>
+        <tr><td class="q"><strong>Evidence</strong></td><td class="d">The full archive over API and MCP: sealed runs, verdicts, pre-registrations. No key, no sign-up.</td><td class="p"><strong>US$0</strong>, always</td></tr>
+        <tr><td class="q"><strong>Exploration</strong></td><td class="d">One target. Connectivity matrix, ranked candidate sites, and the seal to verify it. Delivered in 48 h.</td><td class="p"><strong>US$490</strong></td></tr>
+        <tr><td class="q"><strong>Full experiment</strong></td><td class="d">Your problem measured end to end: quantum run, classical run at the same budget, statistical null, permutation test, and a verdict published in the archive. Pre-registered before we run.</td><td class="p"><strong>US$4,900</strong></td></tr>
+        <tr><td class="q"><strong>Monitor</strong></td><td class="d">Periodic re-runs and an alert when something changes for your problem class.</td><td class="p"><strong>US$290/mo</strong></td></tr>
+        <tr><td class="q"><strong>Measurement Program</strong></td><td class="d">The full challenge format for your company: five sealed experiments on your instances, a strong classical baseline, and a quarter of monitoring. It is what Cleveland Clinic, Airbus, E.ON, HSBC and VW are asking for in their public challenges — run for you, on your problems.</td><td class="p"><strong>US$24,900</strong></td></tr>
+        </tbody>
+      </table></div>
+
+      <h2>Q-Ready — cryptographic exposure</h2>
+
+      <blockquote><p>For organizations that need to know how exposed they are by the cryptography they run today.</p></blockquote>
+
+      <div class="tabla-scroll"><table>
+        <thead><tr><th></th><th>what you get</th><th>price</th></tr></thead>
+        <tbody>
+        <tr><td class="q"><strong>Cryptographic Exposure Map</strong></td><td class="d">Your public surface discovered and measured: hostnames, cryptography per endpoint, providers detected.</td><td class="p"><strong>US$0</strong></td></tr>
+        <tr><td class="q"><strong>Migration Starter Kit</strong></td><td class="d">The map, plus the critical path —which provider sets your deadline—, where you stand against your sector, and a 30/90/365-day plan derived from your own findings.</td><td class="p"><strong>US$4,900</strong></td></tr>
+        </tbody>
+      </table></div>
+
+      <h2>Why these prices</h2>
+
+      <blockquote><p>Our compute costs almost nothing: on the order of a thousand analyses per dollar, and we measure it. The price does not come from our cost — it comes from what the alternative costs.</p>
+        <p>The alternative to a sealed experiment is a week of a specialized consultant. The alternative to a Starter Kit is a questionnaire-based assessment: we reviewed ~35 publications from the large consultancies and sector bodies — <strong>none measured, all asked</strong>.</p>
+        <p>What we charge for is the measurement, and the proof that we made it.</p></blockquote>
+
+      <h2>What we do not sell</h2>
+
+      <blockquote><ul><li><strong>We do not sell quantum advantage.</strong> Today our archive measures zero, and we publish it.</li><li><strong>We do not certify or accredit</strong> anything, to anyone.</li><li><strong>We do not do regulatory compliance.</strong></li><li><strong>We do not promise a result.</strong> We promise an honest measurement, and we charge you for it just the same if the result is that your problem gains nothing here. That "no" saves you the budget you were about to spend finding out.</li></ul></blockquote>
+
+      <h2>How to buy and how refunds work</h2>
+
+      <blockquote><p>Paid work is arranged with us: there is no self-service, because every measurement is designed with the client and reviewed before it is sealed.</p>
+        <p><strong>Full refund</strong> if we do not deliver within the agreed term, or if the seal we deliver does not verify. No refund on the result: you pay for the measurement, not for the verdict.</p>
+        <p>Write to us at <strong><a href="mailto:hello@rosettaquantum.com">hello@rosettaquantum.com</a></strong>. Sold by Blue Tuna SpA through Paddle.com, acting as the merchant of record.</p></blockquote>
+
+      <p class="sello-fuente">Published from its approved source document ·
+        <code>sha256:91b3c462a669e62b…</code></p>
+  </article>
+</BaseLayout>

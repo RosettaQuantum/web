@@ -1,10 +1,9 @@
 ---
 // GENERADO por scripts/build-pricing.mjs — no editar a mano.
 //
-// El texto sale de Projects/Rosetta Quantum/PROPUESTA-PRICING.md, el archivo que
-// Nicholas aprobo ("partamos con ese pricing"), leido por el armador y no tecleado
-// por nadie: asi lo publicado es demostrablemente lo aprobado. Para cambiarlo se
-// edita el .md y se vuelve a correr el armador.
+// El texto sale de src/aprobado/pricing.es.md, aprobado por Nicholas, leido por el armador y no
+// tecleado por nadie: asi lo publicado es demostrablemente lo aprobado. Para
+// cambiarlo se edita el .md, se mueve el sha del armador y se regenera.
 //
 // texto fuente sha256: 4df54c6e83422bf9720f1c63efa3f9540041a30a6ae6885d3311db4dcedb3891
 import BaseLayout from '../../layouts/BaseLayout.astro';
@@ -14,7 +13,7 @@ import css from '../../styles/pages/precios.css?raw';
   title="Precios — Rosetta Q"
   description="Medimos bajo sello y publicamos los negativos. Precios de exploración, experimento completo y Q-Ready."
   lang="es"
-  altUrl="/es/precios"
+  altUrl="/pricing"
   pageCss={css}>
   <article class="article wrap precios">
       <h2>Encabezado</h2>
@@ -31,7 +30,7 @@ import css from '../../styles/pages/precios.css?raw';
         <tr><td class="q"><strong>Exploración</strong></td><td class="d">Un blanco. Matriz de conectividad, sitios candidatos ordenados, y el sello para verificarlo. Entrega en 48 h.</td><td class="p"><strong>US$490</strong></td></tr>
         <tr><td class="q"><strong>Experimento completo</strong></td><td class="d">Tu problema medido de punta a punta: corrida cuántica, corrida clásica al mismo presupuesto, nulo estadístico, prueba de permutación y veredicto publicado en el archivo. Pre-registrado antes de correr.</td><td class="p"><strong>US$4.900</strong></td></tr>
         <tr><td class="q"><strong>Monitor</strong></td><td class="d">Re-corrida periódica y aviso cuando algo cambia para tu clase de problema.</td><td class="p"><strong>US$290/mes</strong></td></tr>
-        <tr><td class="q"><strong>Programa de Medición</strong></td><td class="d">El formato challenge completo para tu empresa: cinco experimentos sellados sobre tus instancias, línea base clásica fuerte, y monitor por un trimestre.</td><td class="p"><strong>US$24.900</strong></td></tr>
+        <tr><td class="q"><strong>Programa de Medición</strong></td><td class="d">El formato challenge completo para tu empresa: cinco experimentos sellados sobre tus instancias, línea base clásica fuerte, y monitor por un trimestre. Es lo que Cleveland Clinic, Airbus, E.ON, HSBC y VW están pidiendo en sus desafíos públicos — corrido para ti, sobre tus problemas.</td><td class="p"><strong>US$24.900</strong></td></tr>
         </tbody>
       </table></div>
 
