@@ -102,6 +102,14 @@ jobs:
       - name: Vectores del verificador de sellos
         run: node scripts/test-sello.mjs
 
+      # JCS (RFC 8785) para rosettaq-archive/v3. Implementacion independiente en JS,
+      # escrita desde el RFC, que valida los vectores del laboratorio. Corre solo si
+      # los vectores estan presentes: son de otro repo y pueden no estar en el clon.
+      - name: Validacion cruzada de JCS (si hay vectores)
+        run: |
+          V="../../evidence-staging/jcs_vectores.json"
+          if [ -f "$V" ]; then node scripts/cross-jcs.mjs "$V"; else echo "::notice::sin vectores JCS en este clon — se salta"; fi
+
       # Vigila lo desplegado, no el repo: que ninguna fila afirme sin cita, que el
       # catalogo no encoja, que nadie declare evidencia que no tiene, y que los
       # endpoints del ledger sigan intactos (api.js es compartido).
