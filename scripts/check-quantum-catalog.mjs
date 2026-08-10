@@ -442,6 +442,42 @@ for (const ruta of ["/", "/es/"]) {
     "el recuadro volvio a citar una receta real");
 }
 
+// 4 quater bis. La pagina de precios no puede contradecir a nuestra propia API.
+//
+// Es la pagina que Paddle revisa y la unica del sitio donde alguien va a poner
+// plata, asi que las cifras se comparan contra la fuente, no contra el recuerdo.
+// El "0 victorias" es el caso del "450+" otra vez: un numero que envejece solo.
+console.log("\n  -- precios: las cifras contra la API --");
+{
+  const r = await traer("/es/precios");
+  comprobar("/es/precios responde", r.status === 200, `dio ${r.status}`);
+
+  const st = await (await fetch(BASE + "/v1/state", { headers: { "x-rq-check": "1" } })).json();
+  const medido = st.estado_medido.victorias_cuanticas_medidas;
+  const enPagina = (r.txt.match(/<strong>(\d+) victorias cuánticas medidas<\/strong>/) || [])[1];
+  comprobar("la pagina declara el contador de victorias", enPagina !== undefined,
+    "ya no aparece la cifra en la pagina");
+  comprobar(`el contador de la pagina (${enPagina}) es el que mide /v1/state (${medido})`,
+    Number(enPagina) === medido, "la pagina y la API dicen numeros distintos");
+
+  // Reglas del texto que Nicholas fijo y que un maquetado descuidado borra sin ruido.
+  comprobar("la palabra «auditoría» no aparece en precios",
+    !/auditor[ií]a/i.test(r.txt), "volvio a aparecer «auditoria»");
+  comprobar("el cobro del resultado negativo va visible, no en letra chica",
+    /te la cobramos/.test(r.txt), "desaparecio la frase del negativo que se cobra");
+  comprobar("no hay autoservicio ni boton de compra",
+    !/<button|checkout|comprar ahora|add to cart/i.test(r.txt), "aparecio un camino de compra");
+  comprobar("el contacto es el correo decidido",
+    /hi@rosettaquantum\.com/.test(r.txt), "no esta el correo de contacto");
+  comprobar("declara el comerciante registrado (lo exige Paddle)",
+    /Paddle\.com/.test(r.txt) && /Blue Tuna SpA/.test(r.txt), "falta la entidad legal o Paddle");
+  // Mientras el texto EN no este aprobado, /pricing no existe: que no quede a medias.
+  const en = await traer("/pricing");
+  comprobar("el footer en ingles no ofrece precios mientras el texto EN no salga",
+    !/href="\/es\/precios"/.test((await traer("/")).txt) || en.status === 200,
+    "el sitio en ingles enlaza la pagina en espanol");
+}
+
 // 4 quater ter. Toda URL que el home cita como fuente, se ejerce.
 //
 // El mockup del copiloto dice "todo aqui es verificable por maquina, chequeanos

@@ -91,6 +91,12 @@ jobs:
       - name: Verificar la viz de Cleveland
         run: node scripts/build-viz-cleveland.mjs --verificar
 
+      # La pagina de precios se GENERA desde el documento que Nicholas aprobo. Si
+      # alguien la edita a mano, o cambia el .md sin regenerar, esto grita: lo
+      # publicado tiene que ser demostrablemente el texto aprobado.
+      - name: La pagina de precios sigue siendo el texto aprobado
+        run: node scripts/build-pricing.mjs --verificar
+
       - name: Self-test de los comparadores de la especificacion
         run: node scripts/check-openapi.mjs --self-test
 

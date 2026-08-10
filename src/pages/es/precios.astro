@@ -1,0 +1,68 @@
+---
+// GENERADO por scripts/build-pricing.mjs — no editar a mano.
+//
+// El texto sale de Projects/Rosetta Quantum/PROPUESTA-PRICING.md, el archivo que
+// Nicholas aprobo ("partamos con ese pricing"), leido por el armador y no tecleado
+// por nadie: asi lo publicado es demostrablemente lo aprobado. Para cambiarlo se
+// edita el .md y se vuelve a correr el armador.
+//
+// texto fuente sha256: edcb8bc38748ec57cb2d83392f3a29ed8b7903b2aa4bea29f9d2795cca570440
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import css from '../../styles/pages/precios.css?raw';
+---
+<BaseLayout
+  title="Precios — Rosetta Q"
+  description="Medimos bajo sello y publicamos los negativos. Precios de exploración, experimento completo y Q-Ready."
+  lang="es"
+  altUrl="/es/precios"
+  pageCss={css}>
+  <article class="article wrap precios">
+      <h2>Encabezado</h2>
+
+      <blockquote><p><strong>Medimos bajo sello. Publicamos los negativos.</strong> Lo que compras es una medición que puedes comprobar sin pedirnos permiso: cada entrega viene con su hash, anclado en Bitcoin y publicado en tres copias independientes.</p>
+        <p>Hoy nuestro archivo declara <strong>0 victorias cuánticas medidas</strong>. Ese número está en esta misma página porque es el producto, no un defecto.</p></blockquote>
+
+      <h2>Tabla</h2>
+
+      <div class="tabla-scroll"><table>
+        <thead><tr><th></th><th>qué recibes</th><th>precio</th></tr></thead>
+        <tbody>
+        <tr><td class="q"><strong>Evidencia</strong></td><td class="d">El archivo completo por API y MCP: corridas selladas, veredictos, pre-registros. Sin clave, sin registro.</td><td class="p"><strong>US$0</strong>, siempre</td></tr>
+        <tr><td class="q"><strong>Exploración</strong></td><td class="d">Un blanco. Matriz de conectividad, sitios candidatos ordenados, y el sello para verificarlo. Entrega en 48 h.</td><td class="p"><strong>US$490</strong></td></tr>
+        <tr><td class="q"><strong>Experimento completo</strong></td><td class="d">Tu problema medido de punta a punta: corrida cuántica, corrida clásica al mismo presupuesto, nulo estadístico, prueba de permutación y veredicto publicado en el archivo. Pre-registrado antes de correr.</td><td class="p"><strong>US$4.900</strong></td></tr>
+        <tr><td class="q"><strong>Monitor</strong></td><td class="d">Re-corrida periódica y aviso cuando algo cambia para tu clase de problema.</td><td class="p"><strong>US$290/mes</strong></td></tr>
+        </tbody>
+      </table></div>
+
+      <h2>Q-Ready — exposición criptográfica</h2>
+
+      <blockquote><p>Para organizaciones que necesitan saber cuánto las expone la criptografía que usan hoy.</p></blockquote>
+
+      <div class="tabla-scroll"><table>
+        <thead><tr><th></th><th>qué recibes</th><th>precio</th></tr></thead>
+        <tbody>
+        <tr><td class="q"><strong>Mapa de Exposición Criptográfica</strong></td><td class="d">Tu superficie pública descubierta y medida: nombres de host, criptografía por endpoint, proveedores detectados.</td><td class="p"><strong>US$0</strong></td></tr>
+        <tr><td class="q"><strong>Kit de Arranque de Migración</strong></td><td class="d">El mapa, más la ruta crítica —qué proveedor define tu plazo—, tu posición contra tu sector, y un plan a 30/90/365 días derivado de tus propios hallazgos.</td><td class="p"><strong>US$4.900</strong></td></tr>
+        </tbody>
+      </table></div>
+
+      <h2>Por qué estos precios</h2>
+
+      <blockquote><p>El precio no sale del costo — sale de lo que cuesta la alternativa.</p>
+        <p>La alternativa a un experimento sellado es una semana de un consultor especializado. La alternativa a un Kit de Arranque es un diagnóstico por cuestionario: revisamos ~35 publicaciones de las grandes consultoras y organismos del sector — <strong>ninguna midió, todas preguntaron</strong>.</p>
+        <p>Lo que cobramos es la medición y la prueba de que la hicimos.</p></blockquote>
+
+      <h2>Lo que no vendemos</h2>
+
+      <blockquote><ul><li><strong>No vendemos ventaja cuántica.</strong> Hoy nuestro archivo mide cero, y lo publicamos.</li><li><strong>No certificamos ni acreditamos</strong> nada, ante nadie.</li><li><strong>No hacemos cumplimiento normativo.</strong></li><li><strong>No prometemos un resultado.</strong> Prometemos una medición honesta, y te la cobramos igual si el resultado es que tu problema no gana nada con esto. Ese «no» te ahorra el presupuesto que ibas a gastar averiguándolo.</li></ul></blockquote>
+
+      <h2>Cómo se compra y cómo se devuelve</h2>
+
+      <blockquote><p>Los dos productos pagados se coordinan con nosotros: no hay autoservicio, porque cada medición se diseña con el cliente y se revisa antes de sellarla.</p>
+        <p><strong>Devolución completa</strong> si no entregamos en el plazo acordado o si el sello que entregamos no verifica. No hay devolución por el resultado: pagas la medición, no el veredicto.</p>
+        <p>Escríbenos a <strong><a href="mailto:hi@rosettaquantum.com">hi@rosettaquantum.com</a></strong>. Vendido por Blue Tuna SpA a través de Paddle.com, que actúa como comerciante registrado.</p></blockquote>
+
+      <p class="sello-fuente">Texto publicado desde su documento aprobado ·
+        <code>sha256:edcb8bc38748ec57…</code></p>
+  </article>
+</BaseLayout>

@@ -1,0 +1,30 @@
+/* Precios. Hereda la linea del home (hv3): sin cajas de colores, sin botones
+   grandes, la jerarquia la hace el tipo. La tabla scrollea dentro de su caja
+   para que el cuerpo de la pagina no scrollee de lado en telefono. */
+.precios h2{
+  font-size:15px;letter-spacing:.02em;margin:52px 0 14px;
+  padding-bottom:9px;border-bottom:1px solid var(--stone-line);
+}
+.precios h2:first-child{margin-top:0}
+.precios blockquote{margin:0;padding:0;border:0}
+.precios blockquote p{margin:0 0 14px;line-height:1.62}
+.precios blockquote p:first-child{font-size:18px;line-height:1.5}
+.precios ul{margin:0;padding-left:18px}
+.precios li{margin:0 0 10px;line-height:1.6}
+.tabla-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch;margin:6px 0 4px}
+.precios table{border-collapse:collapse;width:100%;min-width:520px;font-size:14px}
+.precios th{
+  text-align:left;font-family:'IBM Plex Mono',monospace;font-weight:500;
+  font-size:9.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--faint);
+  padding:0 14px 8px 0;border-bottom:1px solid var(--stone-line);
+}
+.precios td{padding:14px 14px 14px 0;border-bottom:1px solid var(--stone-line);vertical-align:top}
+.precios td.q{white-space:nowrap;width:1%}
+.precios td.d{line-height:1.55;color:var(--ink-soft,inherit)}
+.precios td.p{white-space:nowrap;text-align:right;font-family:'IBM Plex Mono',monospace}
+.precios .sello-fuente{
+  margin-top:56px;padding-top:14px;border-top:1px solid var(--stone-line);
+  font-size:11.5px;color:var(--faint);
+}
+.precios .sello-fuente code{font-size:11px}
+@media (max-width:640px){ .precios blockquote p:first-child{font-size:16.5px} }

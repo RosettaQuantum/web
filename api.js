@@ -75,11 +75,18 @@ function resumenArchivo(row) {
 }
 
 async function estado(env) {
-  const [tipos, recetas, ver] = await env.DB.batch([
+  const [tipos, recetas, ver, gana] = await env.DB.batch([
     env.DB.prepare("SELECT type, count(*) n FROM run_archives GROUP BY type"),
     env.DB.prepare("SELECT id,name,problem_class,vertical,algorithm,status FROM recipes ORDER BY id"),
     env.DB.prepare("SELECT count(*) n FROM verdicts WHERE is_demo=0"),
+    // El titular del archivo es un negativo, y ese numero es el que la web cita
+    // en la pagina de precios. Estaba escrito a mano aca — o sea que "sacarlo de
+    // /v1/state" habria sido citar otro literal un piso mas arriba, que es el
+    // mismo defecto del "450+". Ahora sale de la base: victoria = un veredicto
+    // publicado cuyo resultado es 'win' (el vocabulario es win|negative|not yet).
+    env.DB.prepare("SELECT count(*) n FROM verdicts WHERE is_demo=0 AND outcome='win'"),
   ]);
+  const victorias = (gana.results || [{ n: 0 }])[0].n;
   const cuenta = Object.fromEntries((tipos.results || []).map(r => [r.type, r.n]));
   return {
     proyecto: "Rosetta Quantum — Evidence Ledger",
@@ -91,11 +98,14 @@ async function estado(env) {
       veredictos_publicados: (ver.results || [{ n: 0 }])[0].n,
       pre_registros: cuenta.PREREG || 0,
       recetas: cuenta.RECIPE || 0,
-      // El titular del archivo es un negativo. Va primero y sin adornos.
-      victorias_cuanticas_medidas: 0,
-      lectura:
-        "Cero. En ninguna corrida sellada hasta hoy un metodo cuantico le gano al " +
-        "campeon clasico. Ese resultado es el producto, no una falla del archivo.",
+      victorias_cuanticas_medidas: victorias,
+      // La lectura acompana al numero y tiene que seguirlo: un texto que dice
+      // "Cero" junto a un contador que ya no dice cero es peor que no tener texto.
+      lectura: victorias === 0
+        ? "Cero. En ninguna corrida sellada hasta hoy un metodo cuantico le gano al " +
+          "campeon clasico. Ese resultado es el producto, no una falla del archivo."
+        : `${victorias} de ${(ver.results || [{ n: 0 }])[0].n} veredictos publicados ` +
+          "miden una victoria cuantica. Cada uno esta sellado y se puede recomputar.",
     },
     recetas: (recetas.results || []).map(r => ({
       id: r.id, nombre: r.name, clase: r.problem_class,
