@@ -26,6 +26,8 @@
  *   node scripts/check-quantum-catalog.mjs --self-test        # se obliga a gritar
  */
 
+import { CATALOGO } from "../api.js";
+
 const args = process.argv.slice(2);
 const BASE = args.includes("--base") ? args[args.indexOf("--base") + 1] : "https://rosettaquantum.com";
 const SELF = args.includes("--self-test");
@@ -118,11 +120,24 @@ console.log(`Chequeando el archivador contra ${BASE}\n`);
 // los chequeos y nadie se acordaba de la espera, asi que el CI caia en rojo con
 // produccion correcta. Una lista que vive en dos lugares ya divergio (§5bis).
 export const RUTAS_CRITICAS = [
+  // Las paginas se listan a mano — son pocas y no salen de ningun catalogo.
   "/", "/es/",
   "/clases/", "/es/clases/",
   "/cleveland/", "/es/cleveland/",
-  "/v1", "/v1/state", "/v1/algorithms", "/v1/sources", "/v1/categories",
-  "/v1/challenges", "/v1/challenges/cleveland-2026-07",
+  "/llms.txt", "/api-docs/",
+  // Las rutas de API se DERIVAN del catalogo de api.js. Escribirlas aparte fue el
+  // error que tumbo el CI cuatro veces: la lista existia, pero cada endpoint nuevo
+  // habia que acordarse de agregarlo. Ahora agregar un endpoint lo mete solo en la
+  // espera de propagacion y en los chequeos.
+  ...CATALOGO.map(e => {
+    let r = e.ruta;
+    for (const m of e.ruta.matchAll(/\{(\w+)\}/g)) {
+      const v = e.ejemplo && e.ejemplo[m[1]];
+      if (!v) return null;              // sin ejemplo no se puede ejercer
+      r = r.replace(m[0], encodeURIComponent(v));
+    }
+    return r === "/v1/search" ? "/v1/search?q=portfolio" : r;
+  }).filter(Boolean),
 ];
 
 const ESPERA_MAX = args.includes("--esperar") ? Number(args[args.indexOf("--esperar") + 1]) : 0;
