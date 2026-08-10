@@ -11,7 +11,7 @@
  * Uso: node scripts/test-charts.mjs
  */
 
-import { escala, marcas, lineas, barrasRango, cifra, grafico, num, numCorto, margenY, esc } from "../src/lib/charts.js";
+import { escala, marcas, dominio, lineas, barras, barrasRango, cifra, grafico, num, numCorto, margenY, esc } from "../src/lib/charts.js";
 
 let ok = 0, mal = 0;
 const fallos = [];
@@ -169,13 +169,111 @@ prueba("n acepta una explicacion cuando no aplica un numero", () => {
   cierto(grafico({ ...BASE, n: "serie completa" }).includes("n = serie completa"), "rechazo un n explicado");
 });
 
+prueba("la linea de umbral entra en el eje aunque quede fuera de los datos", () => {
+  // El caso real: los rho del coarse-graining llegan a 0,54 y el umbral
+  // pre-registrado es 0,90. Si el umbral no entra al dominio, la linea que dice si
+  // se cumplio o no queda pegada al borde o no se ve.
+  const svg = lineas({ categorias: ["2", "4"], series: [{ nombre: "KRAS", valores: [0.54, 0.47] }],
+                       referencia: { valor: 0.9, etiqueta: "pre-registered threshold" } });
+  cierto(svg.includes("pre-registered threshold"), "no dibujo la etiqueta del umbral");
+  cierto(svg.includes("stroke-dasharray"), "el umbral no se distingue de una serie");
+  const marcasEje = [...svg.matchAll(/text-anchor="end" font-size="11"[^>]*>([^<]+)</g)].map(x => x[1]);
+  cierto(marcasEje.some(m => parseFloat(m.replace(",", ".")) >= 0.9),
+    `el eje no llega al umbral: ${marcasEje.join(" ")}`);
+  // y la linea no puede quedar pegada al borde superior, donde su etiqueta se recorta
+  const yRef = Number(svg.match(/stroke-dasharray="5 3"\/>/) ? svg.match(/<line x1="[\d.]+" y1="([\d.]+)"[^>]*stroke-dasharray/)[1] : NaN);
+  cierto(yRef > 14, `la linea de umbral quedo a ${yRef}px del techo: su etiqueta se recorta`);
+});
+
+prueba("dominio estira el eje hasta la siguiente marca", () => {
+  // Con [0, 0,95] marcas() se queda en 0,75 y el techo del grafico queda sin
+  // etiquetar: lo alto del grafico flota sin referencia.
+  const [lo, hi, vals] = dominio([0, 0.95]);
+  igual(lo, 0);
+  cierto(hi >= 0.95, `el techo quedo en ${hi}`);
+  cierto(vals[vals.length - 1] >= 0.95, `la ultima marca quedo en ${vals[vals.length - 1]}`);
+});
+prueba("dominio no toca un rango que ya termina en marca", () => {
+  const [, hi, vals] = dominio([0, 100]);
+  igual(hi, 100); igual(vals[vals.length - 1], 100);
+});
+
+console.log("\n— barras verticales —");
+const BARRAS = { categorias: ["KRAS", "ABL1", "MYC"], series: [{ nombre: "p", valores: [0.52, 0.41, 0.40] }] };
+prueba("barras dibuja una barra por categoria", () => {
+  const svg = barras(BARRAS);
+  igual((svg.match(/<rect /g) || []).length, 3);
+});
+prueba("barras exige categorias", () => grita(() => barras({ series: BARRAS.series }), "categorias"));
+prueba("barras exige series", () => grita(() => barras({ categorias: ["a"] }), "series"));
+prueba("barras exige que una serie tenga nombre", () =>
+  grita(() => barras({ categorias: ["a"], series: [{ valores: [1] }] }), "nombre"));
+prueba("barras grita si la serie no calza con las categorias", () =>
+  grita(() => barras({ categorias: ["a", "b"], series: [{ nombre: "s", valores: [1] }] }), "categorias"));
+prueba("barras grita si ninguna serie trae valores", () =>
+  grita(() => barras({ categorias: ["a"], series: [{ nombre: "s", valores: [null] }] }), "valores"));
+// El caso que importa del reporte: los cuatro rho son NEGATIVOS. Una barra negativa
+// dibujada hacia arriba miente sobre el signo, que es justo el hallazgo.
+prueba("una barra negativa se dibuja bajo el cero, con su linea de cero", () => {
+  const svg = barras({ categorias: ["KRAS"], series: [{ nombre: "rho", valores: [-0.62] }] });
+  const rect = svg.match(/<rect x="[\d.]+" y="([\d.]+)" width="[\d.]+" height="([\d.]+)"/);
+  cierto(rect && Number(rect[2]) > 0, "la barra negativa quedo sin alto");
+  cierto((svg.match(/stroke-width="1"\/>/g) || []).length >= 1, "no dibujo la linea del cero");
+});
+prueba("la linea de referencia sale con su etiqueta", () => {
+  const svg = barras({ ...BARRAS, referencia: { valor: 0.05, etiqueta: "significance threshold" } });
+  cierto(svg.includes("stroke-dasharray"), "la referencia no es punteada");
+  cierto(svg.includes("significance threshold"), "la referencia no trae etiqueta");
+});
+prueba("con una sola serie no dibuja leyenda; con dos, si", () => {
+  cierto(!barras(BARRAS).includes("rq-leyenda") && (barras(BARRAS).match(/<rect /g) || []).length === 3,
+    "una serie sola dibujo de mas");
+  const dos = barras({ categorias: ["a"], series: [{ nombre: "uno", valores: [1] }, { nombre: "dos", valores: [2] }] });
+  cierto(dos.includes("uno") && dos.includes("dos"), "no rotulo las dos series");
+});
+prueba("barras escapa las etiquetas", () =>
+  cierto(barras({ categorias: ["<b>"], series: [{ nombre: "s", valores: [1] }] }).includes("&lt;b&gt;"),
+    "dejo pasar una etiqueta"));
+
+console.log("\n— idioma de la envoltura —");
+prueba("en ingles rotula Figure y Source, no Grafico y Fuente", () => {
+  const h = grafico({ ...BASE, numero: 1, lang: "en" });
+  cierto(h.includes("Figure 1") && h.includes("Source:"), "no uso los rotulos ingleses");
+  cierto(!h.includes("Gráfico") && !h.includes("Fuente:"), "dejo rotulos en espanol");
+});
+prueba("sin idioma sigue en espanol", () =>
+  cierto(grafico({ ...BASE, numero: 1 }).includes("Gráfico 1"), "cambio el idioma por omision"));
+// El guardia no puede aflojarse por cambiar de idioma: es la regla, no el rotulo.
+prueba("en ingles el titular tambien tiene que afirmar", () =>
+  grita(() => grafico({ ...BASE, lang: "en", titular: "Significance by target" }), "afirmar"));
+prueba("en ingles la fuente y el n siguen siendo obligatorios", () => {
+  grita(() => grafico({ ...BASE, lang: "en", fuente: undefined }), "fuente");
+  grita(() => grafico({ ...BASE, lang: "en", n: undefined }), "n");
+});
+
 console.log("\n— higiene —");
 prueba("esc neutraliza HTML en las etiquetas", () => {
   cierto(!esc('<img src=x onerror=1>').includes("<"), "dejo pasar una etiqueta");
   cierto(lineas({ categorias: ["<b>"], series: [{ nombre: "<i>", valores: [1] }] }).includes("&lt;i&gt;"),
     "el nombre de serie no se escapo");
 });
-prueba("num usa coma decimal", () => igual(num(2.7, 1), "2,7"));
+prueba("num usa coma decimal en espanol y punto en ingles", () => {
+  igual(num(2.7, 1), "2,7");
+  igual(num(2.7, 1, "en"), "2.7");
+});
+// El caso real: el eje de p-valores del reporte de Cleveland. "0,05" en un documento
+// ingles se lee como otra cosa, y ahi el umbral ES el hallazgo.
+prueba("el eje de un grafico en ingles no trae comas decimales", () => {
+  const svg = barras({ categorias: ["KRAS"], series: [{ nombre: "p", valores: [0.52] }],
+                       dec: 2, lang: "en", referencia: { valor: 0.05, etiqueta: "threshold" } });
+  const etiquetas = [...svg.matchAll(/>([^<]*\d[^<]*)</g)].map(x => x[1]);
+  cierto(etiquetas.some(e => /^\d+\.\d+$/.test(e)), `no hay etiqueta decimal: ${etiquetas.join(" ")}`);
+  cierto(!etiquetas.some(e => /\d,\d/.test(e)), `quedo una coma decimal: ${etiquetas.join(" ")}`);
+  // y el reverso, para que el test no pase por mirar el idioma equivocado
+  const es = barras({ categorias: ["KRAS"], series: [{ nombre: "p", valores: [0.52] }], dec: 2 });
+  cierto([...es.matchAll(/>([^<]*\d[^<]*)</g)].some(x => /\d,\d/.test(x[1])),
+    "el grafico en espanol tampoco usa coma: el test no esta probando el idioma");
+});
 prueba("el SVG no trae dependencias externas", () => {
   const svg = lineas({ categorias: ["a", "b"], series: [{ nombre: "s", valores: [1, 2] }] });
   cierto(!/https?:\/\//.test(svg), "se colo una URL externa en el SVG");

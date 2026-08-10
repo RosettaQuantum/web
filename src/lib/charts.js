@@ -43,12 +43,15 @@ export function esc(s) {
 }
 
 /** Numeros en formato local: coma decimal, punto de miles. */
-export function num(v, dec = 0) {
+export function num(v, dec = 0, lang = "es") {
   if (v == null || Number.isNaN(v)) return "—";
-  const s = Math.abs(v) >= 1000 || dec > 0
-    ? v.toLocaleString("es-CL", { minimumFractionDigits: dec, maximumFractionDigits: dec })
+  // El idioma no es cosmetico aqui: "0,05" dentro de un documento en ingles se lee
+  // como otra cosa, y el reporte de Cleveland tiene un umbral de p en el eje. Un
+  // separador decimal equivocado en un grafico de p-valores cambia el hallazgo.
+  const loc = lang === "en" ? "en-US" : "es-CL";
+  return Math.abs(v) >= 1000 || dec > 0
+    ? v.toLocaleString(loc, { minimumFractionDigits: dec, maximumFractionDigits: dec })
     : String(v);
-  return s;
 }
 
 /**
@@ -58,13 +61,36 @@ export function num(v, dec = 0) {
  * es peor que no poner eje. Ahora el margen se calcula (ver `margenY`) y ademas las
  * magnitudes se abrevian, que es lo que hace legible un eje log.
  */
-export function numCorto(v, dec = 0) {
+export function numCorto(v, dec = 0, lang = "es") {
   if (v == null || Number.isNaN(v)) return "—";
   const a = Math.abs(v);
-  if (a >= 1e9) return num(v / 1e9, v % 1e9 ? 1 : 0) + " MM";
-  if (a >= 1e6) return num(v / 1e6, v % 1e6 ? 1 : 0) + " M";
-  if (a >= 1e4) return num(v / 1e3, v % 1e3 ? 1 : 0) + " k";
-  return num(v, dec);
+  const G = lang === "en" ? " B" : " MM";
+  if (a >= 1e9) return num(v / 1e9, v % 1e9 ? 1 : 0, lang) + G;
+  if (a >= 1e6) return num(v / 1e6, v % 1e6 ? 1 : 0, lang) + " M";
+  if (a >= 1e4) return num(v / 1e3, v % 1e3 ? 1 : 0, lang) + " k";
+  return num(v, dec, lang);
+}
+
+/**
+ * Dominio redondeado hacia arriba hasta la siguiente marca.
+ *
+ * `marcas()` devuelve valores redondos DENTRO del rango, asi que con [0, 0,95] la
+ * marca mas alta es 0,75 y el techo del grafico queda sin etiquetar: la barra mas
+ * alta —o la linea de umbral— flota por encima de toda referencia. Se descubrio
+ * dibujando el umbral pre-registrado de 0,90 del coarse-graining, que quedaba arriba
+ * de la ultima marca del eje.
+ *
+ * Devuelve [lo, hiRedondeado, marcas] para que el eje siempre termine en una marca.
+ */
+export function dominio([lo, hi], cuantas = 5) {
+  let vals = marcas([lo, hi], cuantas);
+  const ultima = vals[vals.length - 1];
+  if (ultima < hi) {
+    const paso = vals.length > 1 ? vals[1] - vals[0] : hi - lo;
+    hi = Number((ultima + paso).toFixed(10));
+    vals = marcas([lo, hi], cuantas);
+  }
+  return [lo, hi, vals];
 }
 
 /**
@@ -145,7 +171,8 @@ export function ejeX(sx, categorias, { y, y0, estimadoDesde = null, etiquetaEsti
  *              flecha — afirma la comparacion en vez de dejarsela al lector.
  */
 export function lineas({ categorias, series, alto = 260, ancho = 720, dec = 0, unidad = "",
-                         estimadoDesde = null, anotacion = null, log = false } = {}) {
+                         estimadoDesde = null, anotacion = null, log = false, lang = "es",
+                         referencia = null } = {}) {
   if (!Array.isArray(categorias) || !categorias.length) throw new Error("lineas(): faltan categorias");
   if (!Array.isArray(series) || !series.length) throw new Error("lineas(): faltan series");
   for (const s of series) {
@@ -157,14 +184,25 @@ export function lineas({ categorias, series, alto = 260, ancho = 720, dec = 0, u
   if (!planos.length) throw new Error("lineas(): ninguna serie tiene valores");
   const tr = log ? (v => Math.log10(Math.max(v, 1e-9))) : (v => v);
   let lo = Math.min(...planos.map(tr)), hi = Math.max(...planos.map(tr));
+  // El umbral entra en el dominio: si queda fuera del eje, la linea se dibuja pegada
+  // al borde o directamente no se ve, y en el grafico del coarse-graining ESE umbral
+  // pre-registrado es el hallazgo — sin el, el lector tiene que saberselo de memoria.
+  if (referencia) {
+    const r = tr(referencia.valor);
+    lo = Math.min(lo, r);
+    // Si el umbral es el techo, se le da aire: pegado al borde superior la linea y su
+    // etiqueta quedan recortadas, y es justo la linea que dice si el criterio se
+    // cumplio o no.
+    hi = Math.max(hi, r >= hi ? r + Math.abs(r - lo) * 0.12 : r);
+  }
   if (!log) lo = Math.min(0, lo);
   if (lo === hi) hi = lo + 1;
 
   // El margen izquierdo se CALCULA a partir de la etiqueta mas larga. Con un margen
   // fijo, un eje logaritmico hasta mil millones imprimia "000.000": el numero
   // recortado, que engana mas que no poner eje.
-  const vals = marcas([lo, hi]);
-  const etiquetas = vals.map(v => (log ? numCorto(Math.pow(10, v)) : numCorto(v, dec)) + unidad);
+  let vals; [lo, hi, vals] = dominio([lo, hi]);
+  const etiquetas = vals.map(v => (log ? numCorto(Math.pow(10, v), 0, lang) : numCorto(v, dec, lang)) + unidad);
   const m = { top: 14, der: 132, aba: estimadoDesde ? 52 : 34, izq: margenY(etiquetas) };
   const x0 = m.izq, x1 = ancho - m.der, y0 = m.top, y1 = alto - m.aba;
 
@@ -192,6 +230,12 @@ export function lineas({ categorias, series, alto = 260, ancho = 720, dec = 0, u
     }
   });
 
+  if (referencia) {
+    const y = sy(tr(referencia.valor));
+    svg += `<line x1="${x0}" y1="${y}" x2="${x1}" y2="${y}" stroke="${C.serie[1]}" stroke-width="1.5" stroke-dasharray="5 3"/>` +
+      `<text x="${x0 + 6}" y="${y - 6}" font-size="11" fill="${C.serie[1]}">${esc(referencia.etiqueta)}</text>`;
+  }
+
   if (anotacion) {
     const s = series[anotacion.serie || 0];
     const va = s.valores[anotacion.desde], vb = s.valores[anotacion.hasta];
@@ -200,6 +244,100 @@ export function lineas({ categorias, series, alto = 260, ancho = 720, dec = 0, u
       svg += `<line x1="${xa}" y1="${ya}" x2="${xa}" y2="${yb}" stroke="${C.tenue}" stroke-width="1" stroke-dasharray="2 2"/>` +
         `<text x="${xa + 8}" y="${(ya + yb) / 2 + 4}" font-size="11.5" font-weight="600" fill="${C.tinta}">${esc(anotacion.texto)}</text>`;
     }
+  }
+  return `<svg viewBox="0 0 ${ancho} ${alto}" width="100%" height="auto" role="img" font-family="inherit">${svg}</svg>`;
+}
+
+// --------------------------------------------------- barras verticales (y agrupadas)
+
+/**
+ * Barras verticales. Una serie por categoria, o varias agrupadas.
+ *
+ * Nacio para el reporte metodologico de Cleveland: dos de sus cuatro graficos son
+ * barras y el motor solo sabia hacer barras de RANGO horizontales — o sea que la
+ * pieza que el jurado lee primero no se podia dibujar con nuestras propias reglas.
+ *
+ * `series`: [{ nombre, valores:[n] }]. Con una sola serie no dibuja leyenda: el
+ * nombre no aporta nada cuando no hay con que confundirlo.
+ *
+ * `referencia`: { valor, etiqueta } traza la linea de umbral. En los dos graficos que
+ * la usan (p = 0,05 y el umbral pre-registrado de 0,90) la linea ES el hallazgo:
+ * sin ella, el lector tiene que saberse el umbral de memoria para leer el grafico.
+ *
+ * Los valores negativos se dibujan desde el cero hacia abajo, con el eje en su lugar:
+ * los cuatro rho de proximidad son negativos, y una barra negativa dibujada como
+ * positiva miente sobre el signo, que aqui es justo lo que importa.
+ */
+export function barras({ categorias, series, alto = 280, ancho = 720, dec = 0, unidad = "",
+                         referencia = null, etiquetaValores = false, lang = "es" } = {}) {
+  if (!Array.isArray(categorias) || !categorias.length) throw new Error("barras(): faltan categorias");
+  if (!Array.isArray(series) || !series.length) throw new Error("barras(): faltan series");
+  for (const s of series) {
+    if (!s.nombre) throw new Error("barras(): una serie sin nombre no se puede etiquetar");
+    if (s.valores.length !== categorias.length)
+      throw new Error(`barras(): la serie "${s.nombre}" tiene ${s.valores.length} valores y hay ${categorias.length} categorias`);
+  }
+  const planos = series.flatMap(s => s.valores).filter(v => v != null && !Number.isNaN(v));
+  if (!planos.length) throw new Error("barras(): ninguna serie tiene valores");
+
+  const refV = referencia ? referencia.valor : null;
+  let lo = Math.min(0, ...planos, refV == null ? Infinity : refV);
+  let hi = Math.max(0, ...planos, refV == null ? -Infinity : refV);
+  if (lo === hi) hi = lo + 1;
+  let vals; [lo, hi, vals] = dominio([lo, hi]);
+  const etiquetas = vals.map(v => numCorto(v, dec, lang) + unidad);
+  const leyenda = series.length > 1;
+  const m = { top: 16, der: 16, aba: leyenda ? 52 : 34, izq: margenY(etiquetas) };
+  const x0 = m.izq, x1 = ancho - m.der, y0 = m.top, y1 = alto - m.aba;
+
+  const sy = escala([lo, hi], [y1, y0]);
+  const paso = (x1 - x0) / categorias.length;
+  const hueco = paso * 0.28;
+  const anchoGrupo = paso - hueco;
+  const anchoBarra = anchoGrupo / series.length;
+
+  let svg = vals.map((v, i) => {
+    const y = sy(v);
+    return `<line x1="${x0}" y1="${y}" x2="${x1}" y2="${y}" stroke="${C.linea}" stroke-width="1" opacity=".6"/>` +
+      `<text x="${x0 - 8}" y="${y + 4}" text-anchor="end" font-size="11" fill="${C.debil}">${esc(etiquetas[i])}</text>`;
+  }).join("");
+
+  const yCero = sy(0);
+  categorias.forEach((c, i) => {
+    const gx = x0 + i * paso + hueco / 2;
+    series.forEach((s, si) => {
+      const v = s.valores[i];
+      if (v == null || Number.isNaN(v)) return;
+      const col = s.color || C.serie[si % C.serie.length];
+      const y = sy(v);
+      const bx = gx + si * anchoBarra;
+      svg += `<rect x="${bx.toFixed(1)}" y="${Math.min(y, yCero).toFixed(1)}" ` +
+             `width="${Math.max(1, anchoBarra - 3).toFixed(1)}" height="${Math.abs(y - yCero).toFixed(1)}" fill="${col}"/>`;
+      if (etiquetaValores) {
+        const arriba = v >= 0;
+        svg += `<text x="${(bx + (anchoBarra - 3) / 2).toFixed(1)}" y="${(arriba ? y - 6 : y + 14).toFixed(1)}" ` +
+               `text-anchor="middle" font-size="10.5" fill="${C.tenue}">${esc(num(v, dec, lang) + unidad)}</text>`;
+      }
+    });
+    svg += `<text x="${(gx + anchoGrupo / 2).toFixed(1)}" y="${y1 + 16}" text-anchor="middle" font-size="11" fill="${C.debil}">${esc(c)}</text>`;
+  });
+
+  // el cero se dibuja siempre que haya negativos: sin el, el signo se pierde
+  if (lo < 0) svg += `<line x1="${x0}" y1="${yCero}" x2="${x1}" y2="${yCero}" stroke="${C.tenue}" stroke-width="1"/>`;
+
+  if (referencia) {
+    const y = sy(referencia.valor);
+    svg += `<line x1="${x0}" y1="${y}" x2="${x1}" y2="${y}" stroke="${C.serie[1]}" stroke-width="1.5" stroke-dasharray="5 3"/>` +
+      `<text x="${x1}" y="${y - 6}" text-anchor="end" font-size="11" fill="${C.serie[1]}">${esc(referencia.etiqueta)}</text>`;
+  }
+
+  if (leyenda) {
+    svg += series.map((s, si) => {
+      const col = s.color || C.serie[si % C.serie.length];
+      const lx = x0 + si * 190;
+      return `<rect x="${lx}" y="${alto - 16}" width="10" height="10" fill="${col}"/>` +
+        `<text x="${lx + 15}" y="${alto - 7}" font-size="11" fill="${C.tenue}">${esc(s.nombre)}</text>`;
+    }).join("");
   }
   return `<svg viewBox="0 0 ${ancho} ${alto}" width="100%" height="auto" role="img" font-family="inherit">${svg}</svg>`;
 }
@@ -268,8 +406,20 @@ export function cifra({ valor, rango = null, etiqueta, unidad = "", dec = 0, est
  * no compila. `n` acepta el numero de observaciones o el string que explique por que
  * no aplica ("serie completa", "poblacion entera") — pero algo hay que declarar.
  */
+/**
+ * Rotulos de la envoltura, por idioma. La primera version los tenia en espanol y el
+ * reporte de Cleveland va en ingles: un grafico que dice "Fuente" dentro de un
+ * documento ingles delata que el motor no estaba pensado para el entregable.
+ * Los GUARDIAS no cambian con el idioma — un titular tiene que afirmar en los dos.
+ */
+const ROTULOS = {
+  es: { fig: "Gráfico", fuente: "Fuente", al: "al" },
+  en: { fig: "Figure", fuente: "Source", al: "as of" },
+};
+
 export function grafico({ numero, titular, subtitulo, unidad = "", n, cuerpo,
-                          notas = [], fuente, fecha = null, hash = null } = {}) {
+                          notas = [], fuente, fecha = null, hash = null, lang = "es" } = {}) {
+  const R = ROTULOS[lang] || ROTULOS.es;
   if (!titular) throw new Error("grafico(): falta el titular");
   if (!/[.!?]$/.test(String(titular).trim()))
     throw new Error(`grafico(): el titular tiene que AFIRMAR el hallazgo en una frase, no rotular el tema — "${titular}"`);
@@ -282,9 +432,9 @@ export function grafico({ numero, titular, subtitulo, unidad = "", n, cuerpo,
   const notasHtml = notas.length
     ? `<ol class="rq-notas">` + notas.map(x => `<li>${esc(x)}</li>`).join("") + `</ol>`
     : "";
-  const proc = [`Fuente: ${fuente}`, `n = ${n}`, fecha ? `al ${fecha}` : null].filter(Boolean).join(" · ");
+  const proc = [`${R.fuente}: ${fuente}`, `n = ${n}`, fecha ? `${R.al} ${fecha}` : null].filter(Boolean).join(" · ");
   return `<figure class="rq-fig">` +
-    (numero != null ? `<div class="rq-fig-num">Gráfico ${esc(numero)}</div>` : "") +
+    (numero != null ? `<div class="rq-fig-num">${R.fig} ${esc(numero)}</div>` : "") +
     `<figcaption class="rq-fig-tit">${esc(titular)}</figcaption>` +
     (sub ? `<div class="rq-fig-sub">${esc(sub)}</div>` : "") +
     `<div class="rq-fig-cuerpo">${cuerpo}</div>` +
