@@ -524,6 +524,16 @@ console.log("\n  -- precios: las dos caras, contra la API y contra el mundo --")
     comprobar(`${c.ruta} nombra a los cinco, como se aprobo`,
       faltan.length === 0, `no aparecen: ${faltan.join(", ")}`);
 
+    // Los rotulos internos del documento ("Encabezado"/"Tabla") salieron impresos como
+    // titulos de la pagina. Nadie los leyo hasta que la mire a ojo, que es tarde para
+    // la pagina que Paddle revisa.
+    const titulos = [...r.txt.matchAll(/<h2>([^<]*)<\/h2>/g)].map(m => m[1].trim());
+    const andamiaje = titulos.filter(t => ["Encabezado", "Tabla", "Header", "Table"].includes(t));
+    comprobar(`${c.ruta} no imprime los rotulos internos del documento`,
+      andamiaje.length === 0, `salieron como titulos: ${andamiaje.join(", ")}`);
+    comprobar(`${c.ruta} conserva sus titulos de verdad`, titulos.length >= 4,
+      `solo quedaron ${titulos.length} titulos: puede que el filtro se este comiendo alguno`);
+
     // Las dos caras se enlazan entre si: una pagina de precios que no ofrece su
     // propio idioma alterno es media pagina, y es la URL que Paddle revisa.
     const otra = c.idioma === "es" ? "/pricing" : "/es/precios";

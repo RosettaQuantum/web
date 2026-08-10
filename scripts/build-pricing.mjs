@@ -64,6 +64,9 @@ const VERIFICAR = process.argv.includes("--verificar");
  */
 const RETENIDO = [];
 
+/** Rotulos de seccion del documento que NO son texto de la pagina. */
+const ANDAMIAJE = ["Encabezado", "Tabla", "Header", "Table"];
+
 const IDIOMAS = [
   {
     lang: "es",
@@ -197,7 +200,16 @@ for (const L of IDIOMAS) {
   const lineas = texto.split("\n");
   while (i < lineas.length) {
     const l = lineas[i];
-    if (/^### /.test(l)) { bloques.push(`<h2>${enlinea(l.slice(4))}</h2>`); i++; continue; }
+    if (/^### /.test(l)) {
+      const t = l.slice(4).trim();
+      // "Encabezado" y "Tabla" son ANDAMIAJE del documento, no texto de la pagina:
+      // rotulan las secciones de una propuesta para que Nicholas la lea, y salieron
+      // impresas como titulos en la pagina que Paddle revisa. Se omiten; los demas
+      // titulos si son del lector y se quedan. Los rotulos van declarados aca y no en
+      // una heuristica de "titulos cortos": una heuristica se comeria uno de verdad.
+      if (!ANDAMIAJE.includes(t)) bloques.push(`<h2>${enlinea(t)}</h2>`);
+      i++; continue;
+    }
     if (/^\|/.test(l)) { const f = []; while (i < lineas.length && /^\|/.test(lineas[i])) f.push(lineas[i++]); bloques.push(tabla(f)); continue; }
     if (/^> /.test(l) || l === ">") {
       const cita = []; while (i < lineas.length && /^>/.test(lineas[i])) cita.push(lineas[i++].replace(/^> ?/, ""));
