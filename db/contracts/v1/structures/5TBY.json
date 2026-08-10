@@ -1,0 +1,65 @@
+{
+ "pdb_id": "5TBY",
+ "chain": "A",
+ "target": "MYOSIN_5TBY",
+ "n_residuos": 954,
+ "n_aristas": 4629,
+ "n_distales": 935,
+ "n_fuente": 8,
+ "red": {
+  "tipo": "contactos CA-CA",
+  "corte_angstrom": 8.5,
+  "peso": "gaussiano exp(-D^2 / 2*sigma^2), sigma=6.0",
+  "conexa_desde_la_fuente": true
+ },
+ "fuente": {
+  "definicion": "residuos con algun atomo a menos de 4.5 A del sitio activo",
+  "metodo": "motif:GESGAGKT",
+  "residuos": [
+   {
+    "chain": "A",
+    "resnum": 178
+   },
+   {
+    "chain": "A",
+    "resnum": 179
+   },
+   {
+    "chain": "A",
+    "resnum": 180
+   },
+   {
+    "chain": "A",
+    "resnum": 181
+   },
+   {
+    "chain": "A",
+    "resnum": 182
+   },
+   {
+    "chain": "A",
+    "resnum": 183
+   },
+   {
+    "chain": "A",
+    "resnum": 184
+   },
+   {
+    "chain": "A",
+    "resnum": 185
+   }
+  ]
+ },
+ "distal": {
+  "definicion": "residuos a mas de 6.0 A de toda fuente"
+ },
+ "procedencia": {
+  "estructura_sha256": "sha256:cdc67ca6009a27588e8dfb87cb8dc03dacf26dee566cda7019e293abd79a7214",
+  "estructura_url": "https://files.rcsb.org/download/5TBY.pdb.gz",
+  "construido_por": "build_cache.py",
+  "ciego": true,
+  "nota": "miosina; sin HETATM — fuente = P-loop (sitio ATP) por motivo de secuencia",
+  "excluido_de_la_red": []
+ },
+ "aviso": "Red de contactos derivada SOLO de topologia: no se uso ninguna trayectoria de dinamica molecular. Las estructuras con farmaco no se abrieron para construir esto."
+}

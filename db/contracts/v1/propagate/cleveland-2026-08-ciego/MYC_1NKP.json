@@ -1,0 +1,62 @@
+{
+ "run_id": "cleveland-2026-08-ciego",
+ "target": "MYC_1NKP",
+ "pdb_id": "1NKP",
+ "chain": "A",
+ "validado_experimentalmente": false,
+ "metrico": {
+  "nombre": "matriz de mezcla CTQW",
+  "definicion": "promedio temporal infinito de |<i|exp(-iHt)|j>|^2",
+  "parametros_libres": 0,
+  "analogo_clasico": "el mismo promedio sobre exp(-Lt) converge al uniforme 1/n: sin informacion",
+  "pre_registrado_en": "commit 407fa7b, anterior al de las predicciones"
+ },
+ "matriz_conectividad": {
+  "forma": [
+   88,
+   88
+  ],
+  "dtype": "float32",
+  "url": "https://raw.githubusercontent.com/RosettaQuantum/evidence/main/data/2026/08/MYC_1NKP.connectivity@652335b3.npz",
+  "contenido_sha256": "sha256:652335b3805252260550ee4c78df9a3a6bba77b0c2cfad12a3f66820625448f6",
+  "bytes": 23113,
+  "como_verificar": "np.load(archivo) y rehacer la firma sobre los arreglos en orden de clave (ver build_cache.firma)",
+  "por_que_no_viene_incrustada": "hasta 954x954 float32; se sirve por referencia con firma para poder comprobarla"
+ },
+ "n_sitios_predichos": 1,
+ "sitios_predichos": [
+  {
+   "rank": 1,
+   "residuos": [
+    {
+     "chain": "A",
+     "resnum": 930,
+     "score": 0.012827
+    },
+    {
+     "chain": "A",
+     "resnum": 923,
+     "score": 0.012163
+    },
+    {
+     "chain": "A",
+     "resnum": 931,
+     "score": 0.011835
+    },
+    {
+     "chain": "A",
+     "resnum": 933,
+     "score": 0.011652
+    },
+    {
+     "chain": "A",
+     "resnum": 925,
+     "score": 0.01161
+    }
+   ],
+   "mejor_score": 0.012827,
+   "n_residuos": 5
+  }
+ ],
+ "aviso": "Sitios PREDICHOS por caminata cuantica, no validados experimentalmente. El numero de sitios es el real: si son menos de cinco, se declaran menos en vez de rellenar."
+}

@@ -1,0 +1,253 @@
+{
+ "run_id": "cleveland-2026-08-ciego",
+ "target": "ABL1_1OPL",
+ "pdb_id": "1OPL",
+ "chain": "A",
+ "validado_experimentalmente": false,
+ "metrico": {
+  "nombre": "matriz de mezcla CTQW",
+  "definicion": "promedio temporal infinito de |<i|exp(-iHt)|j>|^2",
+  "parametros_libres": 0,
+  "analogo_clasico": "el mismo promedio sobre exp(-Lt) converge al uniforme 1/n: sin informacion",
+  "pre_registrado_en": "commit 407fa7b, anterior al de las predicciones"
+ },
+ "matriz_conectividad": {
+  "forma": [
+   451,
+   451
+  ],
+  "dtype": "float32",
+  "url": "https://raw.githubusercontent.com/RosettaQuantum/evidence/main/data/2026/08/ABL1_1OPL.connectivity@23750ad6.npz",
+  "contenido_sha256": "sha256:23750ad6d4650f2e7edabedee323ffcab7667db2abc74e017b98a0b446008b6c",
+  "bytes": 713350,
+  "como_verificar": "np.load(archivo) y rehacer la firma sobre los arreglos en orden de clave (ver build_cache.firma)",
+  "por_que_no_viene_incrustada": "hasta 954x954 float32; se sirve por referencia con firma para poder comprobarla"
+ },
+ "n_sitios_predichos": 4,
+ "sitios_predichos": [
+  {
+   "rank": 1,
+   "residuos": [
+    {
+     "chain": "A",
+     "resnum": 322,
+     "score": 0.003161
+    },
+    {
+     "chain": "A",
+     "resnum": 254,
+     "score": 0.003019
+    },
+    {
+     "chain": "A",
+     "resnum": 292,
+     "score": 0.002908
+    },
+    {
+     "chain": "A",
+     "resnum": 326,
+     "score": 0.002892
+    },
+    {
+     "chain": "A",
+     "resnum": 279,
+     "score": 0.002843
+    },
+    {
+     "chain": "A",
+     "resnum": 255,
+     "score": 0.002811
+    },
+    {
+     "chain": "A",
+     "resnum": 286,
+     "score": 0.00281
+    },
+    {
+     "chain": "A",
+     "resnum": 324,
+     "score": 0.002797
+    },
+    {
+     "chain": "A",
+     "resnum": 261,
+     "score": 0.002789
+    },
+    {
+     "chain": "A",
+     "resnum": 280,
+     "score": 0.002788
+    },
+    {
+     "chain": "A",
+     "resnum": 262,
+     "score": 0.002787
+    },
+    {
+     "chain": "A",
+     "resnum": 263,
+     "score": 0.002776
+    },
+    {
+     "chain": "A",
+     "resnum": 316,
+     "score": 0.002762
+    },
+    {
+     "chain": "A",
+     "resnum": 330,
+     "score": 0.002745
+    },
+    {
+     "chain": "A",
+     "resnum": 325,
+     "score": 0.002712
+    },
+    {
+     "chain": "A",
+     "resnum": 265,
+     "score": 0.002711
+    },
+    {
+     "chain": "A",
+     "resnum": 246,
+     "score": 0.002708
+    },
+    {
+     "chain": "A",
+     "resnum": 329,
+     "score": 0.0027
+    },
+    {
+     "chain": "A",
+     "resnum": 245,
+     "score": 0.00269
+    },
+    {
+     "chain": "A",
+     "resnum": 327,
+     "score": 0.002689
+    },
+    {
+     "chain": "A",
+     "resnum": 256,
+     "score": 0.002687
+    },
+    {
+     "chain": "A",
+     "resnum": 264,
+     "score": 0.00268
+    },
+    {
+     "chain": "A",
+     "resnum": 282,
+     "score": 0.002671
+    },
+    {
+     "chain": "A",
+     "resnum": 395,
+     "score": 0.002665
+    },
+    {
+     "chain": "A",
+     "resnum": 258,
+     "score": 0.002644
+    },
+    {
+     "chain": "A",
+     "resnum": 285,
+     "score": 0.002638
+    },
+    {
+     "chain": "A",
+     "resnum": 253,
+     "score": 0.002636
+    },
+    {
+     "chain": "A",
+     "resnum": 314,
+     "score": 0.002633
+    },
+    {
+     "chain": "A",
+     "resnum": 281,
+     "score": 0.002622
+    },
+    {
+     "chain": "A",
+     "resnum": 313,
+     "score": 0.002614
+    },
+    {
+     "chain": "A",
+     "resnum": 296,
+     "score": 0.002604
+    },
+    {
+     "chain": "A",
+     "resnum": 257,
+     "score": 0.002604
+    },
+    {
+     "chain": "A",
+     "resnum": 315,
+     "score": 0.0026
+    },
+    {
+     "chain": "A",
+     "resnum": 328,
+     "score": 0.002599
+    },
+    {
+     "chain": "A",
+     "resnum": 295,
+     "score": 0.002588
+    },
+    {
+     "chain": "A",
+     "resnum": 392,
+     "score": 0.002582
+    }
+   ],
+   "mejor_score": 0.003161,
+   "n_residuos": 36
+  },
+  {
+   "rank": 2,
+   "residuos": [
+    {
+     "chain": "A",
+     "resnum": 301,
+     "score": 0.002681
+    }
+   ],
+   "mejor_score": 0.002681,
+   "n_residuos": 1
+  },
+  {
+   "rank": 3,
+   "residuos": [
+    {
+     "chain": "A",
+     "resnum": 440,
+     "score": 0.002655
+    }
+   ],
+   "mejor_score": 0.002655,
+   "n_residuos": 1
+  },
+  {
+   "rank": 4,
+   "residuos": [
+    {
+     "chain": "A",
+     "resnum": 386,
+     "score": 0.002593
+    }
+   ],
+   "mejor_score": 0.002593,
+   "n_residuos": 1
+  }
+ ],
+ "aviso": "Sitios PREDICHOS por caminata cuantica, no validados experimentalmente. El numero de sitios es el real: si son menos de cinco, se declaran menos en vez de rellenar."
+}

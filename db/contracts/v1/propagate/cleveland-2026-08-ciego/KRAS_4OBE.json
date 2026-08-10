@@ -1,0 +1,115 @@
+{
+ "run_id": "cleveland-2026-08-ciego",
+ "target": "KRAS_4OBE",
+ "pdb_id": "4OBE",
+ "chain": "A",
+ "validado_experimentalmente": false,
+ "metrico": {
+  "nombre": "matriz de mezcla CTQW",
+  "definicion": "promedio temporal infinito de |<i|exp(-iHt)|j>|^2",
+  "parametros_libres": 0,
+  "analogo_clasico": "el mismo promedio sobre exp(-Lt) converge al uniforme 1/n: sin informacion",
+  "pre_registrado_en": "commit 407fa7b, anterior al de las predicciones"
+ },
+ "matriz_conectividad": {
+  "forma": [
+   169,
+   169
+  ],
+  "dtype": "float32",
+  "url": "https://raw.githubusercontent.com/RosettaQuantum/evidence/main/data/2026/08/KRAS_4OBE.connectivity@65bc626e.npz",
+  "contenido_sha256": "sha256:65bc626e76d23563e2d5c87757fad9a84a912f15e0cc13bbc4694d773638fb04",
+  "bytes": 93162,
+  "como_verificar": "np.load(archivo) y rehacer la firma sobre los arreglos en orden de clave (ver build_cache.firma)",
+  "por_que_no_viene_incrustada": "hasta 954x954 float32; se sirve por referencia con firma para poder comprobarla"
+ },
+ "n_sitios_predichos": 5,
+ "sitios_predichos": [
+  {
+   "rank": 1,
+   "residuos": [
+    {
+     "chain": "A",
+     "resnum": 81,
+     "score": 0.007038
+    },
+    {
+     "chain": "A",
+     "resnum": 80,
+     "score": 0.006753
+    },
+    {
+     "chain": "A",
+     "resnum": 111,
+     "score": 0.006468
+    },
+    {
+     "chain": "A",
+     "resnum": 79,
+     "score": 0.006264
+    }
+   ],
+   "mejor_score": 0.007038,
+   "n_residuos": 4
+  },
+  {
+   "rank": 2,
+   "residuos": [
+    {
+     "chain": "A",
+     "resnum": 59,
+     "score": 0.006852
+    }
+   ],
+   "mejor_score": 0.006852,
+   "n_residuos": 1
+  },
+  {
+   "rank": 3,
+   "residuos": [
+    {
+     "chain": "A",
+     "resnum": 26,
+     "score": 0.006643
+    },
+    {
+     "chain": "A",
+     "resnum": 23,
+     "score": 0.00637
+    }
+   ],
+   "mejor_score": 0.006643,
+   "n_residuos": 2
+  },
+  {
+   "rank": 4,
+   "residuos": [
+    {
+     "chain": "A",
+     "resnum": 142,
+     "score": 0.006379
+    },
+    {
+     "chain": "A",
+     "resnum": 151,
+     "score": 0.006207
+    }
+   ],
+   "mejor_score": 0.006379,
+   "n_residuos": 2
+  },
+  {
+   "rank": 5,
+   "residuos": [
+    {
+     "chain": "A",
+     "resnum": 122,
+     "score": 0.006247
+    }
+   ],
+   "mejor_score": 0.006247,
+   "n_residuos": 1
+  }
+ ],
+ "aviso": "Sitios PREDICHOS por caminata cuantica, no validados experimentalmente. El numero de sitios es el real: si son menos de cinco, se declaran menos en vez de rellenar."
+}

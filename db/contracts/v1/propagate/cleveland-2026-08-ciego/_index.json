@@ -1,0 +1,30 @@
+{
+ "run_id": "cleveland-2026-08-ciego",
+ "generado_por": "contracts/publish_contract.py",
+ "targets": [
+  {
+   "target": "ABL1_1OPL",
+   "pdb_id": "1OPL",
+   "n": 451,
+   "n_sitios": 4
+  },
+  {
+   "target": "KRAS_4OBE",
+   "pdb_id": "4OBE",
+   "n": 169,
+   "n_sitios": 5
+  },
+  {
+   "target": "MYC_1NKP",
+   "pdb_id": "1NKP",
+   "n": 88,
+   "n_sitios": 1
+  },
+  {
+   "target": "MYOSIN_5TBY",
+   "pdb_id": "5TBY",
+   "n": 954,
+   "n_sitios": 3
+  }
+ ]
+}

@@ -391,6 +391,59 @@ if (deltaKras !== null) {
   mal("el home publica el número que dice D1", "no se pudo leer el delta de KRAS desde la API");
 }
 
+// 4 quinquies. El lado de lectura del motor.
+console.log("\n  -- el motor: estructuras y propagaciones --");
+const est = await traer("/v1/structures/4OBE");
+comprobar("GET /v1/structures/{pdb} responde 200", est.status === 200, `respondio ${est.status}`);
+if (est.js) {
+  comprobar("la estructura declara el sha256 y la URL del PDB de origen",
+    /^sha256:[0-9a-f]{64}$/.test((est.js.procedencia || {}).estructura_sha256 || "") &&
+    /^https?:\/\//.test((est.js.procedencia || {}).estructura_url || ""),
+    `procedencia = ${JSON.stringify(est.js.procedencia)}`);
+  comprobar("la estructura aclara que se derivo solo de topología",
+    /solo de topologia|SOLO de topologia/i.test(est.js.aviso || ""), "falta el aviso");
+}
+
+const prop = await traer("/v1/propagate/cleveland-2026-08-ciego");
+comprobar("GET /v1/propagate/{run_id} responde 200", prop.status === 200, `respondio ${prop.status}`);
+
+// El descuadre entre lo declarado y lo real es EL defecto de la corrida de julio
+// ("Top-5" con dos sitios). Se comprueba blanco por blanco, no de muestra.
+const esperados = { KRAS_4OBE: 5, ABL1_1OPL: 4, MYOSIN_5TBY: 3, MYC_1NKP: 1 };
+let matrizEjercida = false;
+for (const [target, n] of Object.entries(esperados)) {
+  const r = await traer(`/v1/propagate/cleveland-2026-08-ciego/${target}`);
+  comprobar(`GET /v1/propagate/…/${target} responde 200`, r.status === 200, `respondio ${r.status}`);
+  if (!r.js) continue;
+  comprobar(`${target} declara que NO esta validado experimentalmente`,
+    r.js.validado_experimentalmente === false, "no lo declara");
+  comprobar(`${target} declara ${n} sitios y trae ${n}`,
+    r.js.n_sitios_predichos === n && (r.js.sitios_predichos || []).length === n,
+    `declara ${r.js.n_sitios_predichos}, trae ${(r.js.sitios_predichos || []).length}, se esperaban ${n}`);
+  const m = r.js.matriz_conectividad || {};
+  comprobar(`${target} sirve la matriz por referencia con firma y tamaño`,
+    !!m.url && /^sha256:[0-9a-f]{64}$/.test(m.contenido_sha256 || "") && m.bytes > 0,
+    `matriz = ${JSON.stringify(m).slice(0, 160)}`);
+  comprobar(`${target} aclara que el hash es del contenido, no del .npz`,
+    /contenido/i.test(m.como_verificar || "") || /orden de clave/i.test(m.como_verificar || ""),
+    `como_verificar = ${m.como_verificar}`);
+
+  // LA PROMESA SE EJERCE. Una URL declarada que responde 404 —o que pesa otra cosa—
+  // convierte "baja el archivo y comprueba la firma" en decoracion. Se ejerce una
+  // por corrida para no bajar 3,9 MB en cada chequeo, y se dice cual.
+  if (!matrizEjercida && m.url) {
+    matrizEjercida = true;
+    try {
+      const rm = await fetch(m.url, { redirect: "follow" });
+      const buf = await rm.arrayBuffer();
+      comprobar(`la matriz de ${target} se puede bajar de verdad`, rm.status === 200,
+        `${m.url} -> ${rm.status}`);
+      comprobar(`la matriz de ${target} pesa los ${m.bytes} bytes declarados`,
+        buf.byteLength === m.bytes, `declara ${m.bytes}, bajo ${buf.byteLength}`);
+    } catch (e) { mal(`la matriz de ${target} se puede bajar de verdad`, String(e)); }
+  }
+}
+
 // Toda ruta critica responde 200. Es la misma lista que usa la espera, importada
 // de un solo lugar: si alguien agrega una pagina y la olvida aca, no existe.
 console.log("\n  -- las rutas criticas responden --");
@@ -422,6 +475,10 @@ comprobar("MCP anuncia buscar_algoritmo_cuantico", nombres.includes("buscar_algo
   `tools: ${nombres.join(", ") || "(ninguna)"}`);
 comprobar("MCP anuncia listar_fuentes_cuanticas", nombres.includes("listar_fuentes_cuanticas"),
   `tools: ${nombres.join(", ") || "(ninguna)"}`);
+comprobar("MCP anuncia ver_estructura", nombres.includes("ver_estructura"),
+  `tools: ${nombres.join(", ")}`);
+comprobar("MCP anuncia ver_propagacion", nombres.includes("ver_propagacion"),
+  `tools: ${nombres.join(", ")}`);
 comprobar("MCP conserva las 4 tools del ledger",
   ["estado_del_archivo", "buscar_evidencia", "ver_archivo", "listar_por_tipo"].every(n => nombres.includes(n)),
   `tools: ${nombres.join(", ")}`);

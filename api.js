@@ -483,6 +483,36 @@ const HERRAMIENTAS = [
     },
   },
   {
+    name: "ver_estructura",
+    description:
+      "Devuelve la red de contactos de una estructura publicada por el motor (4OBE, " +
+      "1OPL, 5TBY, 1NKP): cuantos residuos, aristas, residuos distales y de fuente, " +
+      "mas el sha256 y la URL del PDB original en RCSB para recomputarla. La red se " +
+      "deriva SOLO de topologia: ninguna estructura con farmaco se abrio para construirla.",
+    inputSchema: {
+      type: "object",
+      properties: { pdb: { type: "string", description: "codigo PDB, p.ej. 4OBE" } },
+      required: ["pdb"],
+    },
+  },
+  {
+    name: "ver_propagacion",
+    description:
+      "Devuelve los sitios PREDICHOS por caminata cuantica para un blanco de una " +
+      "corrida, con el metrico usado, su pre-registro, y la matriz de conectividad " +
+      "por referencia con firma para poder comprobarla. Declara siempre que NO estan " +
+      "validados experimentalmente, y el numero de sitios es el real: si son menos de " +
+      "cinco, se declaran menos.",
+    inputSchema: {
+      type: "object",
+      properties: {
+        run_id: { type: "string", description: "p.ej. cleveland-2026-08-ciego" },
+        target: { type: "string", description: "opcional: KRAS_4OBE, ABL1_1OPL, MYOSIN_5TBY, MYC_1NKP" },
+      },
+      required: ["run_id"],
+    },
+  },
+  {
     name: "listar_fuentes_cuanticas",
     description:
       "Lista las fuentes del campo cuantico catalogadas: fabricantes de QPU, librerias, " +
@@ -518,6 +548,14 @@ async function ejecutarHerramienta(env, nombre, args) {
     if (args.consulta) u.searchParams.set("q", args.consulta);
     if (args.categoria) u.searchParams.set("categoria", args.categoria);
     const r = await algoritmos(env, u);
+    return await r.json();
+  }
+  if (nombre === "ver_estructura") {
+    const r = await estructuras(env, args.pdb);
+    return await r.json();
+  }
+  if (nombre === "ver_propagacion") {
+    const r = await propagaciones(env, args.run_id, args.target || null);
     return await r.json();
   }
   if (nombre === "listar_fuentes_cuanticas") {
@@ -564,6 +602,102 @@ async function mcp(request, env) {
   } catch (e) {
     return fallar(-32000, String(e && e.message || e), req.id);
   }
+}
+
+// ----------------------------------------------------------- lado de lectura del motor
+
+/**
+ * El motor (Python, en `quantum-run`) calcula y publica contratos; esto los sirve.
+ * Aca no se calcula nada.
+ *
+ * LA MATRIZ NO VIAJA EN LA RESPUESTA. La de miosina son 954x954 float32 = 3.120 KB.
+ * Se sirve por referencia con `contenido_sha256` y `bytes`, y ese hash es del
+ * CONTENIDO —bytes de cada arreglo en orden de clave—, no del archivo .npz: un .npz
+ * es un zip y su compresion cambia con la version de numpy. Yo baje la matriz de
+ * KRAS por la URL declarada y recompute la firma: calza. La promesa esta ejercida,
+ * no solo escrita.
+ */
+const AVISO_MOTOR =
+  "Sitios PREDICHOS por caminata cuantica, sin validacion experimental. " +
+  "n_sitios_predichos es el numero REAL: si son menos de cinco, se declaran menos.";
+
+function filaEstructura(row, completo) {
+  const j = (t, d) => { try { return JSON.parse(t); } catch (e) { return d; } };
+  const base = {
+    pdb_id: row.pdb_id, target: row.target, chain: row.chain,
+    n_residuos: row.n_residuos, n_aristas: row.n_aristas,
+    n_distales: row.n_distales, n_fuente: row.n_fuente,
+    red: j(row.red_json, {}),
+    procedencia: j(row.procedencia_json, {}),
+    aviso: row.aviso,
+    contrato_sha256: row.contrato_sha256,
+  };
+  if (!completo) return base;
+  return { ...base, fuente: j(row.fuente_json, {}), distal: j(row.distal_json, {}) };
+}
+
+async function estructuras(env, pdb) {
+  if (!pdb) {
+    const { results = [] } = await env.DB.prepare(
+      "SELECT * FROM structures ORDER BY orden").all();
+    return json({
+      total: results.length,
+      nota: "Redes de contactos derivadas SOLO de topologia. Ninguna estructura con " +
+            "farmaco se abrio para construirlas.",
+      items: results.map(r => filaEstructura(r, false)),
+    });
+  }
+  const row = await env.DB.prepare("SELECT * FROM structures WHERE pdb_id=?")
+    .bind(String(pdb).toUpperCase()).first();
+  if (!row) {
+    const { results = [] } = await env.DB.prepare("SELECT pdb_id FROM structures ORDER BY orden").all();
+    return json({ error: "no existe", pdb, disponibles: results.map(r => r.pdb_id) }, 404);
+  }
+  return json(filaEstructura(row, true));
+}
+
+async function propagaciones(env, runId, target) {
+  const j = (t, d) => { try { return JSON.parse(t); } catch (e) { return d; } };
+  if (!target) {
+    const { results = [] } = await env.DB.prepare(
+      "SELECT run_id,target,pdb_id,n_sitios_predichos,matriz_json FROM propagations WHERE run_id=? ORDER BY orden"
+    ).bind(runId).all();
+    if (!results.length) {
+      const { results: hay = [] } = await env.DB.prepare(
+        "SELECT DISTINCT run_id FROM propagations").all();
+      return json({ error: "no existe esa corrida", run_id: runId, disponibles: hay.map(r => r.run_id) }, 404);
+    }
+    return json({
+      run_id: runId, total: results.length,
+      validado_experimentalmente: false,
+      aviso: AVISO_MOTOR,
+      items: results.map(r => ({
+        target: r.target, pdb_id: r.pdb_id,
+        n_sitios_predichos: r.n_sitios_predichos,
+        matriz: j(r.matriz_json, {}),
+        datos: SITE + "/v1/propagate/" + runId + "/" + r.target,
+      })),
+    });
+  }
+  const row = await env.DB.prepare("SELECT * FROM propagations WHERE run_id=? AND target=?")
+    .bind(runId, target).first();
+  if (!row) {
+    const { results = [] } = await env.DB.prepare(
+      "SELECT target FROM propagations WHERE run_id=? ORDER BY orden").bind(runId).all();
+    return json({ error: "no existe", run_id: runId, target, disponibles: results.map(r => r.target) }, 404);
+  }
+  return json({
+    run_id: row.run_id, target: row.target, pdb_id: row.pdb_id, chain: row.chain,
+    // Va primero y sin adornos, igual que el titular del ledger.
+    validado_experimentalmente: !!row.validado,
+    metrico: j(row.metrico_json, {}),
+    matriz_conectividad: j(row.matriz_json, {}),
+    n_sitios_predichos: row.n_sitios_predichos,
+    sitios_predichos: j(row.sitios_json, []),
+    aviso: row.aviso || AVISO_MOTOR,
+    estructura: SITE + "/v1/structures/" + row.pdb_id,
+    contrato_sha256: row.contrato_sha256,
+  });
 }
 
 // ------------------------------------------------------- catalogo de rutas y OpenAPI
@@ -643,6 +777,14 @@ export const CATALOGO = [
   { ruta: "/v1/challenges", resumen: "Corridas de challenge publicadas", grupo: "challenges" },
   { ruta: "/v1/challenges/{id}", resumen: "Datos de una corrida · agrega /{proteina} para una sola", grupo: "challenges",
     ejemplo: { id: "cleveland-2026-07" }, esquema: { $ref: "#/components/schemas/Corrida" } },
+  { ruta: "/v1/structures", resumen: "Redes de contactos publicadas por el motor", grupo: "motor" },
+  { ruta: "/v1/structures/{pdb}", resumen: "La red de contactos de una estructura, con el sha256 y la URL del PDB de origen",
+    grupo: "motor", ejemplo: { pdb: "4OBE" }, esquema: { $ref: "#/components/schemas/Estructura" } },
+  { ruta: "/v1/propagate/{run_id}", resumen: "Los blancos de una corrida de propagacion", grupo: "motor",
+    ejemplo: { run_id: "cleveland-2026-08-ciego" } },
+  { ruta: "/v1/propagate/{run_id}/{target}", resumen: "Top-N predicho de un blanco, con la matriz por referencia firmada",
+    grupo: "motor", ejemplo: { run_id: "cleveland-2026-08-ciego", target: "KRAS_4OBE" },
+    esquema: { $ref: "#/components/schemas/Propagacion" } },
 ];
 
 const ESQUEMAS = {
@@ -661,6 +803,48 @@ const ESQUEMAS = {
         "Lo unico que afirma Rosetta. `medido:false` en la mayoria del catalogo, y ese es el dato.",
         properties: { medido: { type: "boolean" }, recetas: { type: "array", items: { type: "object" } },
                       lectura: { type: "string" } } },
+    },
+  },
+  Estructura: {
+    type: "object",
+    properties: {
+      pdb_id: { type: "string" }, target: { type: "string" }, chain: { type: "string" },
+      n_residuos: { type: "integer" }, n_aristas: { type: "integer" },
+      n_distales: { type: "integer" }, n_fuente: { type: "integer" },
+      red: { type: "object", description: "tipo de contacto, corte en angstrom, peso" },
+      procedencia: { type: "object", properties: {
+        estructura_sha256: { type: "string" },
+        estructura_url: { type: "string", description: "el PDB original en RCSB, para recomputar" },
+        ciego: { type: "boolean" },
+      } },
+      aviso: { type: "string", description:
+        "Derivada solo de topologia. Ninguna estructura con farmaco se abrio para construirla." },
+    },
+  },
+  Propagacion: {
+    type: "object",
+    properties: {
+      run_id: { type: "string" }, target: { type: "string" }, pdb_id: { type: "string" },
+      validado_experimentalmente: { type: "boolean", description:
+        "Siempre false. Son predicciones de una caminata cuantica, no hallazgos de laboratorio." },
+      metrico: { type: "object", properties: {
+        nombre: { type: "string" }, definicion: { type: "string" },
+        parametros_libres: { type: "integer" },
+        pre_registrado_en: { type: "string", description: "commit anterior al de las predicciones" },
+      } },
+      matriz_conectividad: { type: "object", description:
+        "La matriz NO viaja en la respuesta: hasta 954x954 float32. Se sirve por referencia.",
+        properties: {
+          forma: { type: "array", items: { type: "integer" } },
+          dtype: { type: "string" }, url: { type: "string" }, bytes: { type: "integer" },
+          contenido_sha256: { type: "string", description:
+            "sha256 del CONTENIDO —bytes de cada arreglo en orden de clave—, NO del archivo .npz: " +
+            "un .npz es un zip y su compresion cambia con la version de numpy." },
+          como_verificar: { type: "string" },
+        } },
+      n_sitios_predichos: { type: "integer", description:
+        "El numero REAL. Si son menos de cinco, se declaran menos en vez de rellenar." },
+      sitios_predichos: { type: "array", items: { type: "object" } },
     },
   },
   Corrida: {
@@ -731,6 +915,7 @@ function openapiDoc() {
       { name: "ledger", description: "Lo que Rosetta midio y sello" },
       { name: "archivador", description: "El campo catalogado, con la cita pegada a cada dato" },
       { name: "challenges", description: "Corridas de challenge, con sus predicciones y sellos" },
+      { name: "motor", description: "Lo que publica el motor: redes de contactos y propagaciones" },
     ],
     paths,
     components: { schemas: ESQUEMAS },
@@ -809,6 +994,12 @@ export async function manejarApi(request, env, url) {
 
   // Corridas de challenge. La pagina de la viz lee de aca, y un agente tambien.
   if (p === "/v1/challenges" || p === "/v1/challenges/") return await challenges(env, url);
+  if (p === "/v1/structures" || p === "/v1/structures/") return await estructuras(env, null);
+  const me = p.match(/^\/v1\/structures\/([^/]+)\/?$/);
+  if (me) return await estructuras(env, decodeURIComponent(me[1]));
+  const mp = p.match(/^\/v1\/propagate\/([^/]+)(?:\/([^/]+))?\/?$/);
+  if (mp) return await propagaciones(env, decodeURIComponent(mp[1]),
+                                     mp[2] ? decodeURIComponent(mp[2]) : null);
   const mc = p.match(/^\/v1\/challenges\/([^/]+)(?:\/([^/]+))?\/?$/);
   if (mc) return await challengePorId(env, decodeURIComponent(mc[1]),
                                       mc[2] ? decodeURIComponent(mc[2]) : null);

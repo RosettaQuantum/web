@@ -1,0 +1,516 @@
+{
+ "run_id": "cleveland-2026-08-ciego",
+ "target": "MYOSIN_5TBY",
+ "pdb_id": "5TBY",
+ "chain": "A",
+ "validado_experimentalmente": false,
+ "metrico": {
+  "nombre": "matriz de mezcla CTQW",
+  "definicion": "promedio temporal infinito de |<i|exp(-iHt)|j>|^2",
+  "parametros_libres": 0,
+  "analogo_clasico": "el mismo promedio sobre exp(-Lt) converge al uniforme 1/n: sin informacion",
+  "pre_registrado_en": "commit 407fa7b, anterior al de las predicciones"
+ },
+ "matriz_conectividad": {
+  "forma": [
+   954,
+   954
+  ],
+  "dtype": "float32",
+  "url": "https://raw.githubusercontent.com/RosettaQuantum/evidence/main/data/2026/08/MYOSIN_5TBY.connectivity@273c5679.npz",
+  "contenido_sha256": "sha256:273c56798e75d670f5671b37e2294cdf220368574291efd108575db8de7619f6",
+  "bytes": 3195272,
+  "como_verificar": "np.load(archivo) y rehacer la firma sobre los arreglos en orden de clave (ver build_cache.firma)",
+  "por_que_no_viene_incrustada": "hasta 954x954 float32; se sirve por referencia con firma para poder comprobarla"
+ },
+ "n_sitios_predichos": 3,
+ "sitios_predichos": [
+  {
+   "rank": 1,
+   "residuos": [
+    {
+     "chain": "A",
+     "resnum": 116,
+     "score": 0.002542
+    },
+    {
+     "chain": "A",
+     "resnum": 124,
+     "score": 0.002343
+    },
+    {
+     "chain": "A",
+     "resnum": 117,
+     "score": 0.00225
+    },
+    {
+     "chain": "A",
+     "resnum": 125,
+     "score": 0.00224
+    },
+    {
+     "chain": "A",
+     "resnum": 113,
+     "score": 0.002136
+    },
+    {
+     "chain": "A",
+     "resnum": 669,
+     "score": 0.002135
+    },
+    {
+     "chain": "A",
+     "resnum": 122,
+     "score": 0.002115
+    },
+    {
+     "chain": "A",
+     "resnum": 176,
+     "score": 0.002084
+    },
+    {
+     "chain": "A",
+     "resnum": 463,
+     "score": 0.002039
+    },
+    {
+     "chain": "A",
+     "resnum": 115,
+     "score": 0.00202
+    },
+    {
+     "chain": "A",
+     "resnum": 90,
+     "score": 0.002018
+    },
+    {
+     "chain": "A",
+     "resnum": 118,
+     "score": 0.001995
+    },
+    {
+     "chain": "A",
+     "resnum": 461,
+     "score": 0.001947
+    },
+    {
+     "chain": "A",
+     "resnum": 87,
+     "score": 0.001946
+    },
+    {
+     "chain": "A",
+     "resnum": 114,
+     "score": 0.001892
+    },
+    {
+     "chain": "A",
+     "resnum": 689,
+     "score": 0.001892
+    },
+    {
+     "chain": "A",
+     "resnum": 153,
+     "score": 0.001877
+    },
+    {
+     "chain": "A",
+     "resnum": 219,
+     "score": 0.00184
+    },
+    {
+     "chain": "A",
+     "resnum": 462,
+     "score": 0.001805
+    },
+    {
+     "chain": "A",
+     "resnum": 675,
+     "score": 0.001803
+    },
+    {
+     "chain": "A",
+     "resnum": 670,
+     "score": 0.001794
+    },
+    {
+     "chain": "A",
+     "resnum": 702,
+     "score": 0.001775
+    },
+    {
+     "chain": "A",
+     "resnum": 123,
+     "score": 0.001771
+    },
+    {
+     "chain": "A",
+     "resnum": 105,
+     "score": 0.001767
+    },
+    {
+     "chain": "A",
+     "resnum": 16,
+     "score": 0.001741
+    },
+    {
+     "chain": "A",
+     "resnum": 171,
+     "score": 0.00168
+    },
+    {
+     "chain": "A",
+     "resnum": 108,
+     "score": 0.001672
+    },
+    {
+     "chain": "A",
+     "resnum": 194,
+     "score": 0.001667
+    },
+    {
+     "chain": "A",
+     "resnum": 151,
+     "score": 0.001656
+    },
+    {
+     "chain": "A",
+     "resnum": 121,
+     "score": 0.001652
+    },
+    {
+     "chain": "A",
+     "resnum": 686,
+     "score": 0.001648
+    },
+    {
+     "chain": "A",
+     "resnum": 120,
+     "score": 0.001643
+    },
+    {
+     "chain": "A",
+     "resnum": 189,
+     "score": 0.001642
+    },
+    {
+     "chain": "A",
+     "resnum": 191,
+     "score": 0.001641
+    },
+    {
+     "chain": "A",
+     "resnum": 701,
+     "score": 0.001633
+    },
+    {
+     "chain": "A",
+     "resnum": 220,
+     "score": 0.001631
+    },
+    {
+     "chain": "A",
+     "resnum": 38,
+     "score": 0.00163
+    },
+    {
+     "chain": "A",
+     "resnum": 668,
+     "score": 0.001629
+    },
+    {
+     "chain": "A",
+     "resnum": 119,
+     "score": 0.001623
+    },
+    {
+     "chain": "A",
+     "resnum": 127,
+     "score": 0.001615
+    },
+    {
+     "chain": "A",
+     "resnum": 192,
+     "score": 0.001614
+    },
+    {
+     "chain": "A",
+     "resnum": 175,
+     "score": 0.001596
+    },
+    {
+     "chain": "A",
+     "resnum": 106,
+     "score": 0.001593
+    },
+    {
+     "chain": "A",
+     "resnum": 193,
+     "score": 0.001585
+    },
+    {
+     "chain": "A",
+     "resnum": 103,
+     "score": 0.001585
+    },
+    {
+     "chain": "A",
+     "resnum": 99,
+     "score": 0.001582
+    },
+    {
+     "chain": "A",
+     "resnum": 692,
+     "score": 0.001581
+    },
+    {
+     "chain": "A",
+     "resnum": 89,
+     "score": 0.001579
+    },
+    {
+     "chain": "A",
+     "resnum": 699,
+     "score": 0.001579
+    },
+    {
+     "chain": "A",
+     "resnum": 703,
+     "score": 0.001579
+    },
+    {
+     "chain": "A",
+     "resnum": 100,
+     "score": 0.001566
+    },
+    {
+     "chain": "A",
+     "resnum": 685,
+     "score": 0.001565
+    },
+    {
+     "chain": "A",
+     "resnum": 339,
+     "score": 0.001565
+    },
+    {
+     "chain": "A",
+     "resnum": 79,
+     "score": 0.001563
+    },
+    {
+     "chain": "A",
+     "resnum": 197,
+     "score": 0.001559
+    },
+    {
+     "chain": "A",
+     "resnum": 93,
+     "score": 0.001557
+    },
+    {
+     "chain": "A",
+     "resnum": 459,
+     "score": 0.001555
+    },
+    {
+     "chain": "A",
+     "resnum": 676,
+     "score": 0.001554
+    },
+    {
+     "chain": "A",
+     "resnum": 705,
+     "score": 0.001552
+    },
+    {
+     "chain": "A",
+     "resnum": 190,
+     "score": 0.001552
+    },
+    {
+     "chain": "A",
+     "resnum": 154,
+     "score": 0.001552
+    },
+    {
+     "chain": "A",
+     "resnum": 247,
+     "score": 0.001549
+    },
+    {
+     "chain": "A",
+     "resnum": 700,
+     "score": 0.001542
+    },
+    {
+     "chain": "A",
+     "resnum": 152,
+     "score": 0.001541
+    },
+    {
+     "chain": "A",
+     "resnum": 155,
+     "score": 0.00154
+    },
+    {
+     "chain": "A",
+     "resnum": 49,
+     "score": 0.001537
+    },
+    {
+     "chain": "A",
+     "resnum": 88,
+     "score": 0.001537
+    },
+    {
+     "chain": "A",
+     "resnum": 39,
+     "score": 0.001535
+    },
+    {
+     "chain": "A",
+     "resnum": 98,
+     "score": 0.00153
+    },
+    {
+     "chain": "A",
+     "resnum": 158,
+     "score": 0.001526
+    },
+    {
+     "chain": "A",
+     "resnum": 101,
+     "score": 0.001525
+    },
+    {
+     "chain": "A",
+     "resnum": 447,
+     "score": 0.001515
+    },
+    {
+     "chain": "A",
+     "resnum": 223,
+     "score": 0.001506
+    },
+    {
+     "chain": "A",
+     "resnum": 50,
+     "score": 0.001506
+    },
+    {
+     "chain": "A",
+     "resnum": 102,
+     "score": 0.001505
+    },
+    {
+     "chain": "A",
+     "resnum": 173,
+     "score": 0.0015
+    },
+    {
+     "chain": "A",
+     "resnum": 91,
+     "score": 0.001499
+    },
+    {
+     "chain": "A",
+     "resnum": 77,
+     "score": 0.001493
+    },
+    {
+     "chain": "A",
+     "resnum": 157,
+     "score": 0.001491
+    },
+    {
+     "chain": "A",
+     "resnum": 195,
+     "score": 0.001481
+    },
+    {
+     "chain": "A",
+     "resnum": 112,
+     "score": 0.001479
+    },
+    {
+     "chain": "A",
+     "resnum": 17,
+     "score": 0.001476
+    },
+    {
+     "chain": "A",
+     "resnum": 690,
+     "score": 0.001475
+    },
+    {
+     "chain": "A",
+     "resnum": 150,
+     "score": 0.001475
+    },
+    {
+     "chain": "A",
+     "resnum": 107,
+     "score": 0.001472
+    }
+   ],
+   "mejor_score": 0.002542,
+   "n_residuos": 85
+  },
+  {
+   "rank": 2,
+   "residuos": [
+    {
+     "chain": "A",
+     "resnum": 486,
+     "score": 0.001785
+    },
+    {
+     "chain": "A",
+     "resnum": 466,
+     "score": 0.001635
+    },
+    {
+     "chain": "A",
+     "resnum": 482,
+     "score": 0.001584
+    },
+    {
+     "chain": "A",
+     "resnum": 467,
+     "score": 0.001557
+    },
+    {
+     "chain": "A",
+     "resnum": 479,
+     "score": 0.001548
+    },
+    {
+     "chain": "A",
+     "resnum": 489,
+     "score": 0.001508
+    },
+    {
+     "chain": "A",
+     "resnum": 485,
+     "score": 0.001476
+    }
+   ],
+   "mejor_score": 0.001785,
+   "n_residuos": 7
+  },
+  {
+   "rank": 3,
+   "residuos": [
+    {
+     "chain": "A",
+     "resnum": 498,
+     "score": 0.001491
+    }
+   ],
+   "mejor_score": 0.001491,
+   "n_residuos": 1
+  }
+ ],
+ "aviso": "Sitios PREDICHOS por caminata cuantica, no validados experimentalmente. El numero de sitios es el real: si son menos de cinco, se declaran menos en vez de rellenar."
+}

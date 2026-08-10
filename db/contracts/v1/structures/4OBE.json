@@ -1,0 +1,133 @@
+{
+ "pdb_id": "4OBE",
+ "chain": "A",
+ "target": "KRAS_4OBE",
+ "n_residuos": 169,
+ "n_aristas": 927,
+ "n_distales": 119,
+ "n_fuente": 25,
+ "red": {
+  "tipo": "contactos CA-CA",
+  "corte_angstrom": 8.5,
+  "peso": "gaussiano exp(-D^2 / 2*sigma^2), sigma=6.0",
+  "conexa_desde_la_fuente": true
+ },
+ "fuente": {
+  "definicion": "residuos con algun atomo a menos de 4.5 A del sitio activo",
+  "metodo": "ligand:('GDP', 'MG')",
+  "residuos": [
+   {
+    "chain": "A",
+    "resnum": 11
+   },
+   {
+    "chain": "A",
+    "resnum": 12
+   },
+   {
+    "chain": "A",
+    "resnum": 13
+   },
+   {
+    "chain": "A",
+    "resnum": 14
+   },
+   {
+    "chain": "A",
+    "resnum": 15
+   },
+   {
+    "chain": "A",
+    "resnum": 16
+   },
+   {
+    "chain": "A",
+    "resnum": 17
+   },
+   {
+    "chain": "A",
+    "resnum": 18
+   },
+   {
+    "chain": "A",
+    "resnum": 28
+   },
+   {
+    "chain": "A",
+    "resnum": 29
+   },
+   {
+    "chain": "A",
+    "resnum": 30
+   },
+   {
+    "chain": "A",
+    "resnum": 31
+   },
+   {
+    "chain": "A",
+    "resnum": 32
+   },
+   {
+    "chain": "A",
+    "resnum": 33
+   },
+   {
+    "chain": "A",
+    "resnum": 34
+   },
+   {
+    "chain": "A",
+    "resnum": 36
+   },
+   {
+    "chain": "A",
+    "resnum": 57
+   },
+   {
+    "chain": "A",
+    "resnum": 116
+   },
+   {
+    "chain": "A",
+    "resnum": 117
+   },
+   {
+    "chain": "A",
+    "resnum": 118
+   },
+   {
+    "chain": "A",
+    "resnum": 119
+   },
+   {
+    "chain": "A",
+    "resnum": 120
+   },
+   {
+    "chain": "A",
+    "resnum": 145
+   },
+   {
+    "chain": "A",
+    "resnum": 146
+   },
+   {
+    "chain": "A",
+    "resnum": 147
+   }
+  ]
+ },
+ "distal": {
+  "definicion": "residuos a mas de 6.0 A de toda fuente"
+ },
+ "procedencia": {
+  "estructura_sha256": "sha256:16b5b8a015654aa8bc0bf45cadb9444d48c81ef6940fc31c914ba1701c707e3f",
+  "estructura_url": "https://files.rcsb.org/download/4OBE.pdb.gz",
+  "construido_por": "build_cache.py",
+  "ciego": true,
+  "nota": "GTPasa; fuente = sitio GDP/Mg",
+  "excluido_de_la_red": []
+ },
+ "aviso": "Red de contactos derivada SOLO de topologia: no se uso ninguna trayectoria de dinamica molecular. Las estructuras con farmaco no se abrieron para construir esto."
+}

@@ -1,0 +1,119 @@
+{
+ "pdb_id": "1OPL",
+ "chain": "A",
+ "target": "ABL1_1OPL",
+ "n_residuos": 451,
+ "n_aristas": 2391,
+ "n_distales": 391,
+ "n_fuente": 21,
+ "red": {
+  "tipo": "contactos CA-CA",
+  "corte_angstrom": 8.5,
+  "peso": "gaussiano exp(-D^2 / 2*sigma^2), sigma=6.0",
+  "conexa_desde_la_fuente": true
+ },
+ "fuente": {
+  "definicion": "residuos con algun atomo a menos de 4.5 A del sitio activo",
+  "metodo": "ligand:('P16',)",
+  "residuos": [
+   {
+    "chain": "A",
+    "resnum": 267
+   },
+   {
+    "chain": "A",
+    "resnum": 268
+   },
+   {
+    "chain": "A",
+    "resnum": 272
+   },
+   {
+    "chain": "A",
+    "resnum": 275
+   },
+   {
+    "chain": "A",
+    "resnum": 288
+   },
+   {
+    "chain": "A",
+    "resnum": 289
+   },
+   {
+    "chain": "A",
+    "resnum": 290
+   },
+   {
+    "chain": "A",
+    "resnum": 305
+   },
+   {
+    "chain": "A",
+    "resnum": 309
+   },
+   {
+    "chain": "A",
+    "resnum": 318
+   },
+   {
+    "chain": "A",
+    "resnum": 332
+   },
+   {
+    "chain": "A",
+    "resnum": 334
+   },
+   {
+    "chain": "A",
+    "resnum": 335
+   },
+   {
+    "chain": "A",
+    "resnum": 336
+   },
+   {
+    "chain": "A",
+    "resnum": 337
+   },
+   {
+    "chain": "A",
+    "resnum": 338
+   },
+   {
+    "chain": "A",
+    "resnum": 340
+   },
+   {
+    "chain": "A",
+    "resnum": 389
+   },
+   {
+    "chain": "A",
+    "resnum": 399
+   },
+   {
+    "chain": "A",
+    "resnum": 400
+   },
+   {
+    "chain": "A",
+    "resnum": 401
+   }
+  ]
+ },
+ "distal": {
+  "definicion": "residuos a mas de 6.0 A de toda fuente"
+ },
+ "procedencia": {
+  "estructura_sha256": "sha256:3e25a9856e710a8cd00b9fe1820dceb2b7f4bcb4811380de42a5fe37d70a12ea",
+  "estructura_url": "https://files.rcsb.org/download/1OPL.pdb.gz",
+  "construido_por": "build_cache.py",
+  "ciego": true,
+  "nota": "quinasa; fuente = sitio ATP (P16). MYR excluido: marca el bolsillo miristoilo que se predice a ciegas",
+  "excluido_de_la_red": [
+   "MYR"
+  ]
+ },
+ "aviso": "Red de contactos derivada SOLO de topologia: no se uso ninguna trayectoria de dinamica molecular. Las estructuras con farmaco no se abrieron para construir esto."
+}

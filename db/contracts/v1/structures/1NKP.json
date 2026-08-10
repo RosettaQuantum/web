@@ -1,0 +1,97 @@
+{
+ "pdb_id": "1NKP",
+ "chain": "A",
+ "target": "MYC_1NKP",
+ "n_residuos": 88,
+ "n_aristas": 365,
+ "n_distales": 53,
+ "n_fuente": 16,
+ "red": {
+  "tipo": "contactos CA-CA",
+  "corte_angstrom": 8.5,
+  "peso": "gaussiano exp(-D^2 / 2*sigma^2), sigma=6.0",
+  "conexa_desde_la_fuente": true
+ },
+ "fuente": {
+  "definicion": "residuos con algun atomo a menos de 4.5 A del sitio activo",
+  "metodo": "dna:None",
+  "residuos": [
+   {
+    "chain": "A",
+    "resnum": 898
+   },
+   {
+    "chain": "A",
+    "resnum": 902
+   },
+   {
+    "chain": "A",
+    "resnum": 903
+   },
+   {
+    "chain": "A",
+    "resnum": 905
+   },
+   {
+    "chain": "A",
+    "resnum": 906
+   },
+   {
+    "chain": "A",
+    "resnum": 907
+   },
+   {
+    "chain": "A",
+    "resnum": 909
+   },
+   {
+    "chain": "A",
+    "resnum": 910
+   },
+   {
+    "chain": "A",
+    "resnum": 911
+   },
+   {
+    "chain": "A",
+    "resnum": 913
+   },
+   {
+    "chain": "A",
+    "resnum": 914
+   },
+   {
+    "chain": "A",
+    "resnum": 918
+   },
+   {
+    "chain": "A",
+    "resnum": 937
+   },
+   {
+    "chain": "A",
+    "resnum": 938
+   },
+   {
+    "chain": "A",
+    "resnum": 939
+   },
+   {
+    "chain": "A",
+    "resnum": 940
+   }
+  ]
+ },
+ "distal": {
+  "definicion": "residuos a mas de 6.0 A de toda fuente"
+ },
+ "procedencia": {
+  "estructura_sha256": "sha256:31df8d4fd4f9a62daa4e039a4f9f8f3df0f5d19f88de452b0e85b46cc2f96951",
+  "estructura_url": "https://files.rcsb.org/download/1NKP.pdb.gz",
+  "construido_por": "build_cache.py",
+  "ciego": true,
+  "nota": "c-Myc bHLH-LZ; fuente = residuos en contacto con el ADN (la funcion es unirlo)",
+  "excluido_de_la_red": []
+ },
+ "aviso": "Red de contactos derivada SOLO de topologia: no se uso ninguna trayectoria de dinamica molecular. Las estructuras con farmaco no se abrieron para construir esto."
+}
