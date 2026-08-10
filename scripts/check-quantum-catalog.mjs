@@ -27,6 +27,7 @@
  */
 
 import { CATALOGO } from "../api.js";
+import { esperarRutas } from "./lib/esperar.mjs";
 
 const args = process.argv.slice(2);
 const BASE = args.includes("--base") ? args[args.indexOf("--base") + 1] : "https://rosettaquantum.com";
@@ -224,29 +225,7 @@ export const RUTAS_CRITICAS = [
 ];
 
 const ESPERA_MAX = args.includes("--esperar") ? Number(args[args.indexOf("--esperar") + 1]) : 0;
-if (ESPERA_MAX > 0) {
-  // El edge tarda ~30 s en tomar un deploy y no todos los servidores a la vez.
-  // Se espera a que TODAS las rutas criticas respondan 200 — no a una sola, que
-  // fue el error anterior: se vigilaba una ruta de API que ya estaba viva antes
-  // del deploy y daba el deploy por propagado con el HTML viejo todavia servido.
-  const limite = Date.now() + ESPERA_MAX * 1000;
-  let faltan = [...RUTAS_CRITICAS], vueltas = 0;
-  while (faltan.length && Date.now() < limite) {
-    vueltas++;
-    const pendientes = [];
-    for (const ruta of faltan) {
-      try {
-        const r = await fetch(BASE + ruta, { redirect: "manual", headers: { "User-Agent": "rosetta catalog check", "x-rq-check": "1" } });
-        if (r.status !== 200) pendientes.push(ruta);
-      } catch (e) { pendientes.push(ruta); }
-    }
-    faltan = pendientes;
-    if (faltan.length) await new Promise(res => setTimeout(res, 5000));
-  }
-  console.log(faltan.length
-    ? `  AVISO: tras ${vueltas} vuelta(s) siguen sin responder: ${faltan.join(", ")} — se chequea igual y fallara.\n`
-    : `  (las ${RUTAS_CRITICAS.length} rutas criticas responden, tras ${vueltas} vuelta(s))\n`);
-}
+await esperarRutas(BASE, RUTAS_CRITICAS, ESPERA_MAX);
 
 async function traer(ruta) {
   // OJO trampa conocida de este proyecto: las rutas exactas del Worker no aceptan

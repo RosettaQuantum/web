@@ -106,4 +106,4 @@ jobs:
       # declara y lo que la especificacion servida publica. Y ejerce cada ruta
       # documentada: una especificacion que documenta un 404 pide confianza.
       - name: Chequeo de la especificacion OpenAPI
-        run: node scripts/check-openapi.mjs
+        run: node scripts/check-openapi.mjs --esperar 120

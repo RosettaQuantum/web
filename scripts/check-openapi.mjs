@@ -29,6 +29,8 @@
  */
 
 import { readFileSync } from "node:fs";
+import { CATALOGO } from "../api.js";
+import { esperarRutas } from "./lib/esperar.mjs";
 import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
 
@@ -140,6 +142,20 @@ if (SELF) {
 }
 
 console.log(`Chequeando la especificacion contra ${BASE}\n`);
+
+// Este chequeo tambien espera. Corria despues del otro y daba el deploy por
+// propagado — pero el edge no propaga a todos los colos a la vez, asi que pegaba
+// en uno con el Worker viejo y caia con produccion correcta.
+const ESPERA = args.includes("--esperar") ? Number(args[args.indexOf("--esperar") + 1]) : 0;
+await esperarRutas(BASE, CATALOGO.map(e => {
+  let r = e.ruta;
+  for (const m of e.ruta.matchAll(/\{(\w+)\}/g)) {
+    const v = e.ejemplo && e.ejemplo[m[1]];
+    if (!v) return null;
+    r = r.replace(m[0], encodeURIComponent(v));
+  }
+  return r === "/v1/search" ? "/v1/search?q=portfolio" : r;
+}).filter(Boolean), ESPERA);
 
 const fuente = readFileSync(join(RAIZ, "api.js"), "utf8");
 const enCodigo = rutasDelCodigo(fuente);
