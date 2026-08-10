@@ -21,10 +21,11 @@
 .precios td{padding:14px 14px 14px 0;border-bottom:1px solid var(--stone-line);vertical-align:top}
 .precios td.q{white-space:nowrap;width:1%}
 .precios td.d{line-height:1.55;color:var(--ink-soft,inherit)}
-/* letter-spacing negativo: en monoespaciado "US$4,900" se lee como "US$4 , 900",
-   con la coma flotando. En una tabla de precios eso es exactamente el caracter que
-   no puede quedar ambiguo. */
-.precios td.p{white-space:nowrap;text-align:right;font-family:'IBM Plex Mono',monospace;letter-spacing:-.02em}
+/* letter-spacing negativo: en monoespaciado la coma ocupa una celda entera y
+   "US$4,900" se lee como "US$4 , 900", flotando. En una tabla de precios ese es
+   justo el caracter que no puede quedar ambiguo — la diferencia entre 4.900 y 4,9
+   son tres ordenes de magnitud. -.055em cierra el hueco sin apretar los digitos. */
+.precios td.p{white-space:nowrap;text-align:right;font-family:'IBM Plex Mono',monospace;letter-spacing:-.055em}
 .precios .sello-fuente{
   margin-top:56px;padding-top:14px;border-top:1px solid var(--stone-line);
   font-size:11.5px;color:var(--faint);
