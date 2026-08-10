@@ -363,17 +363,33 @@ if (chalEn.js) {
   comprobar("los rótulos EN no quedaron en español", enES.length === 0, `en español: ${enES.join(", ")}`);
 }
 
-// El numero del home tiene que ser el que dice D1. El "450+" vivio meses porque
-// nadie comparo el texto publicado contra su fuente; esto no se repite.
+// El numero de la corrida y su fuente.
+//
+// Este guardia comparaba el texto del home contra D1 —la leccion del "450+"—, pero el
+// bloque del home salio por orden de Nicholas. Mudarlo a /cleveland/ tal cual no
+// funciona y vale la pena decir por que: esa pagina NO trae el numero en el HTML, lo
+// pide por API al cargar. O sea que ahi no hay texto publicado que pueda divergir de
+// su fuente: sale de D1 por construccion, que es mas fuerte que compararlo.
+//
+// Lo que si puede fallar es que alguien lo escriba a mano en la pagina "para que
+// cargue mas rapido" y quede congelado. Eso es lo que se vigila ahora, mas que la API
+// que la alimenta siga entregandolo.
 if (deltaKras !== null) {
-  for (const ruta of ["/", "/es/"]) {
+  const esperado = String(Math.abs(deltaKras));
+  // Un `comprobar(..., true)` no es un chequeo: pasa siempre y solo hace ruido. El
+  // numero tiene que ser un negativo real, que es lo que la corrida midio.
+  comprobar(`la API entrega el delta de la corrida y es negativo (−${esperado})`,
+    Number.isFinite(deltaKras) && deltaKras < 0, `la API dio ${deltaKras}`);
+  for (const ruta of ["/cleveland/", "/es/cleveland/"]) {
     const r = await traer(ruta);
-    const esperado = String(Math.abs(deltaKras)).replace(".", ruta === "/es/" ? "," : ".");
-    comprobar(`${ruta} publica el −${esperado} que dice D1`,
-      r.txt.includes(esperado), `no aparece ${esperado} en la página`);
+    const congelado = r.txt.includes(esperado) || r.txt.includes(esperado.replace(".", ","));
+    comprobar(`${ruta} no trae el numero escrito a mano: lo pide a la API`,
+      !congelado, "el numero esta en el HTML y puede quedar congelado si D1 cambia");
+    comprobar(`${ruta} pide los datos de la corrida a la API`,
+      /v1\/challenges/.test(r.txt), "la pagina no pide el endpoint que la alimenta");
   }
 } else {
-  mal("el home publica el número que dice D1", "no se pudo leer el delta de KRAS desde la API");
+  mal("la API entrega el número de la corrida", "no se pudo leer el delta de KRAS desde la API");
 }
 
 // 4 quinquies. El lado de lectura del motor.
