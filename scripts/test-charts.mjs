@@ -198,6 +198,17 @@ prueba("dominio no toca un rango que ya termina en marca", () => {
   igual(hi, 100); igual(vals[vals.length - 1], 100);
 });
 
+prueba("dos lineas que terminan juntas no dejan los rotulos encima", () => {
+  // El caso real: en el coarse-graining "c-Myc" y "Cardiac myosin" terminaban a
+  // 0,7882 y 0,7846 y salieron impresos uno sobre otro, ilegibles, en el entregable.
+  const svg = lineas({ categorias: ["2", "4"], series: [
+    { nombre: "c-Myc", valores: [0.51, 0.7882] },
+    { nombre: "Cardiac myosin", valores: [0.88, 0.7846] }] });
+  const ys = [...svg.matchAll(/<text x="[\d.]+" y="([\d.]+)" font-size="12"/g)].map(m => Number(m[1]));
+  igual(ys.length, 2);
+  cierto(Math.abs(ys[0] - ys[1]) >= 12, `los rotulos quedaron a ${Math.abs(ys[0] - ys[1]).toFixed(1)}px`);
+});
+
 console.log("\n— barras verticales —");
 const BARRAS = { categorias: ["KRAS", "ABL1", "MYC"], series: [{ nombre: "p", valores: [0.52, 0.41, 0.40] }] };
 prueba("barras dibuja una barra por categoria", () => {

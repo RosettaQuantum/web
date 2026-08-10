@@ -49,7 +49,14 @@ const INSUMOS = {
   texto: { archivo: "REPORTE-METODOLOGICO-EN.md",
            sha: "006daf1941015a42890d1854befc9b4080f67eb5db2573c87f063cdfb1333dc9" },
   datos: { archivo: "charts_data.json",
-           sha: "7b87cc26f4ba14d46f9d56f6cdb82cc80f9bacf4442be2a8adcfd4127d5ff691" },
+           sha: "0d6c0fb37f1fb19244694f9bdf19f1af340a01eace04b28bb447d025ec08f30c" },
+  // Revision anterior: 7b87cc26… Cambio SOLO el punto final de los cuatro titulares,
+  // que el guardia de grafico() exige para separar una afirmacion de un rotulo. Lo
+  // corrigio el laboratorio en su generador, no yo aca: es texto aprobado.
+  //
+  // El archivo viejo estaba anclado dentro de RQ-REPORT-CLEV-METHOD-001, ya publicado,
+  // asi que NO se re-sello: la correccion es un archivo nuevo (…-002) que declara a
+  // quien corrige y que cambio. Lo anclado no se toca.
 };
 
 /** id del grafico -> numero de seccion despues de la cual se inserta. */
@@ -163,7 +170,7 @@ function aHtml(md, figuras) {
       out.push(`<blockquote>${enlinea(c.join(" "))}</blockquote>`);
       continue;
     }
-    if (/^[-*] /.test(l)) {
+    if (/^[-*] /.test(l) && !/^\*\*/.test(l)) {
       const items = []; while (i < lineasMd.length && /^[-*] /.test(lineasMd[i])) items.push(lineasMd[i++].slice(2));
       out.push(`<ul>${items.map(x => `<li>${enlinea(x)}</li>`).join("")}</ul>`);
       continue;
@@ -175,7 +182,12 @@ function aHtml(md, figuras) {
     }
     if (/^---+$/.test(l)) { out.push("<hr>"); i++; continue; }
     if (!l.trim()) { i++; continue; }
-    const par = []; while (i < lineasMd.length && lineasMd[i].trim() && !/^[#|>\-*\d`]/.test(lineasMd[i])) par.push(lineasMd[i++]);
+    // OJO con el `*`: un parrafo que ABRE en negrita empieza con "**", y la primera
+    // version lo confundia con una vinneta. El resultado eran los asteriscos crudos
+    // impresos en el PDF, porque el cierre quedaba en la linea siguiente y el regex
+    // de negrita ya no encontraba par. Se excluye "* " (lista), no "*".
+    const esBloque = l2 => /^(#|\||>|```|[-*] |\d+\. |---)/.test(l2);
+    const par = []; while (i < lineasMd.length && lineasMd[i].trim() && !esBloque(lineasMd[i])) par.push(lineasMd[i++]);
     if (par.length) out.push(`<p>${enlinea(par.join(" "))}</p>`);
     else { out.push(`<p>${enlinea(lineasMd[i])}</p>`); i++; }
   }
@@ -216,6 +228,15 @@ body{margin:0;background:var(--basalt);color:var(--papyrus);
      font-size:14.5px;line-height:1.62}
 .hoja{max-width:820px;margin:0 auto;padding:46px 40px 60px}
 h1{font-size:27px;line-height:1.24;margin:0 0 6px;font-weight:600}
+.portada{padding-bottom:26px;margin-bottom:8px;border-bottom:1px solid var(--stone-line);break-after:avoid}
+.portada-k{font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--faint)}
+.portada-t{font-size:33px;line-height:1.15;margin:10px 0 14px;font-weight:600}
+.portada-d{font-size:15px;color:var(--papyrus-dim);margin:0 0 12px;max-width:640px;line-height:1.55}
+.portada-d em{color:var(--papyrus)}
+.portada-n{font-size:13.5px;color:var(--faint);margin:0;max-width:640px}
+/* El h1 del propio documento repite el titulo de la portada. Se oculta en vez de
+   editar el texto sellado: el contenido no se toca, la presentacion es de aca. */
+.hoja > h1{display:none}
 h2{font-size:19px;margin:44px 0 12px;padding-bottom:8px;border-bottom:1px solid var(--stone-line);font-weight:600}
 h3{font-size:15.5px;margin:26px 0 8px;font-weight:600}
 p{margin:0 0 13px}
@@ -241,7 +262,11 @@ ${CSS_GRAFICOS}
 @media print{
   body{background:#fff;color:#14120F}
   .hoja{max-width:none;padding:0}
-  h1,h2,h3,strong{color:#0B0A08}
+  h1,h2,h3,strong,.portada-t{color:#0B0A08}
+  .portada-d{color:#3D372F}
+  .portada-d em{color:#0B0A08}
+  .portada-n,.portada-k{color:#6E675C}
+  .portada{border-bottom-color:#D9D3C6}
   blockquote{background:#F5F2EA;color:#3D372F}
   pre{background:#F5F2EA;border-color:#D9D3C6}
   pre code,td,p,li{color:#22201C}
@@ -253,12 +278,25 @@ ${CSS_GRAFICOS}
   .rq-fig-sub,.rq-fig-proc,.rq-notas{color:#6E675C}
   h2{break-after:avoid;page-break-after:avoid}
   table{break-inside:avoid}
+  /* --basalt tambien: el fondo de la etiqueta del umbral lo usa, y sin esto quedaba
+     un rectangulo casi negro pegado sobre una pagina blanca. */
   :root{--papyrus:#22201C;--papyrus-dim:#4A453D;--faint:#6E675C;--stone-line:#D9D3C6;
-        --faience:#0F7F72;--gold:#7A5C1E;--basalt-2:#F5F2EA}
+        --faience:#0F7F72;--gold:#7A5C1E;--basalt-2:#F5F2EA;--basalt:#FFFFFF}
 }
 @page{size:A4;margin:17mm 16mm}
 </style></head>
 <body><main class="hoja">
+<header class="portada">
+  <div class="portada-k">Rosetta Quantum · deliverable 3</div>
+  <h1 class="portada-t">Methodology Report</h1>
+  <p class="portada-d">Submitted to the Cleveland Clinic challenge of the 2026 Global
+  Quantum + AI Challenge:<br><em>“Unlocking undruggable targets: quantum simulation of
+  allosteric signal propagation.”</em></p>
+  <p class="portada-n">This report answers that question with a measured negative. The
+  three targets scored, the null it was tested against, and the compression limit are
+  below; every figure is read from the sealed files listed in the header, none typed
+  by hand.</p>
+</header>
 ${cuerpo}
 </main></body></html>
 `;

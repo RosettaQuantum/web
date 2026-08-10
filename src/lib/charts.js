@@ -144,6 +144,21 @@ export function ejeY(sy, { x0, x1, dec = 0, unidad = "" } = {}) {
  * medidos: se dibuja una banda y la palabra "estimado" debajo. Sin esa marca, una
  * proyeccion y una medicion se ven iguales, que es precisamente el problema.
  */
+/**
+ * Etiqueta con fondo propio. La linea de umbral cruza el grafico entero, asi que su
+ * etiqueta cae SIEMPRE sobre algo: en el grafico de p-valores quedo escrita encima de
+ * la tercera barra, ilegible justo en el rotulo que dice cual es el umbral.
+ * El ancho se estima por caracteres — no hay medicion de texto sin navegador.
+ */
+export function etiquetaSobreFondo(texto, x, y, anclaje = "start", color = C.serie[1]) {
+  const t = String(texto);
+  const ancho = t.length * 5.9 + 8;
+  const bx = anclaje === "end" ? x - ancho + 4 : x - 4;
+  return `<rect x="${bx.toFixed(1)}" y="${(y - 11).toFixed(1)}" width="${ancho.toFixed(1)}" height="15" ` +
+    `fill="var(--basalt, #141210)" opacity=".82"/>` +
+    `<text x="${x}" y="${y}" ${anclaje === "end" ? 'text-anchor="end" ' : ""}font-size="11" fill="${color}">${esc(t)}</text>`;
+}
+
 export function ejeX(sx, categorias, { y, y0, estimadoDesde = null, etiquetaEstimado = "estimado" } = {}) {
   let out = "";
   const iEst = estimadoDesde == null ? -1 : categorias.indexOf(estimadoDesde);
@@ -216,6 +231,7 @@ export function lineas({ categorias, series, alto = 260, ancho = 720, dec = 0, u
       `<text x="${x0 - 8}" y="${y + 4}" text-anchor="end" font-size="11" fill="${C.debil}">${esc(etiquetas[i])}</text>`;
   }).join("");
 
+  const rotulos = [];
   series.forEach((s, si) => {
     const col = s.color || C.serie[si % C.serie.length];
     const pts = s.valores.map((v, i) => (v == null ? null : [sx(i), sy(tr(v))])).filter(Boolean);
@@ -225,15 +241,29 @@ export function lineas({ categorias, series, alto = 260, ancho = 720, dec = 0, u
     }
     pts.forEach(p => { svg += `<circle cx="${p[0].toFixed(1)}" cy="${p[1].toFixed(1)}" r="2.5" fill="${col}"/>`; });
     const ult = pts[pts.length - 1];
-    if (ult) {
-      svg += `<text x="${(ult[0] + 10).toFixed(1)}" y="${(ult[1] + 4).toFixed(1)}" font-size="12" fill="${col}">${esc(s.nombre)}</text>`;
-    }
+    if (ult) rotulos.push({ x: ult[0] + 10, y: ult[1] + 4, texto: s.nombre, col });
   });
+
+  // Dos lineas que terminan cerca dejan sus rotulos uno encima del otro. En el grafico
+  // del coarse-graining salio "CaMdiac myosin" —dos nombres superpuestos, ilegibles—
+  // y era el grafico del entregable. Se separan por altura, sin mover las lineas: el
+  // dato no se toca, el rotulo si.
+  const ALTO_ROTULO = 13;
+  rotulos.sort((a, b) => a.y - b.y);
+  for (let k = 1; k < rotulos.length; k++) {
+    if (rotulos[k].y - rotulos[k - 1].y < ALTO_ROTULO) rotulos[k].y = rotulos[k - 1].y + ALTO_ROTULO;
+  }
+  // si el corrimiento saco el ultimo del lienzo, se empuja al grupo hacia arriba
+  const exceso = rotulos.length ? rotulos[rotulos.length - 1].y - (alto - 4) : 0;
+  if (exceso > 0) rotulos.forEach(r => { r.y -= exceso; });
+  svg += rotulos.map(r =>
+    `<text x="${r.x.toFixed(1)}" y="${r.y.toFixed(1)}" font-size="12" fill="${r.col}">${esc(r.texto)}</text>`
+  ).join("");
 
   if (referencia) {
     const y = sy(tr(referencia.valor));
     svg += `<line x1="${x0}" y1="${y}" x2="${x1}" y2="${y}" stroke="${C.serie[1]}" stroke-width="1.5" stroke-dasharray="5 3"/>` +
-      `<text x="${x0 + 6}" y="${y - 6}" font-size="11" fill="${C.serie[1]}">${esc(referencia.etiqueta)}</text>`;
+      etiquetaSobreFondo(referencia.etiqueta, x0 + 6, y - 6, "start");
   }
 
   if (anotacion) {
@@ -269,7 +299,8 @@ export function lineas({ categorias, series, alto = 260, ancho = 720, dec = 0, u
  * positiva miente sobre el signo, que aqui es justo lo que importa.
  */
 export function barras({ categorias, series, alto = 280, ancho = 720, dec = 0, unidad = "",
-                         referencia = null, etiquetaValores = false, lang = "es" } = {}) {
+                         referencia = null, etiquetaValores = false, lang = "es",
+                         decEje = null } = {}) {
   if (!Array.isArray(categorias) || !categorias.length) throw new Error("barras(): faltan categorias");
   if (!Array.isArray(series) || !series.length) throw new Error("barras(): faltan series");
   for (const s of series) {
@@ -285,7 +316,10 @@ export function barras({ categorias, series, alto = 280, ancho = 720, dec = 0, u
   let hi = Math.max(0, ...planos, refV == null ? -Infinity : refV);
   if (lo === hi) hi = lo + 1;
   let vals; [lo, hi, vals] = dominio([lo, hi]);
-  const etiquetas = vals.map(v => numCorto(v, dec, lang) + unidad);
+  // El eje no necesita los decimales del dato: con dec=4 imprimia "0,6000" cuatro
+  // veces en la escala, ruido que compite con el numero que si importa.
+  const dEje = decEje == null ? Math.min(dec, 2) : decEje;
+  const etiquetas = vals.map(v => numCorto(v, dEje, lang) + unidad);
   const leyenda = series.length > 1;
   const m = { top: 16, der: 16, aba: leyenda ? 52 : 34, izq: margenY(etiquetas) };
   const x0 = m.izq, x1 = ancho - m.der, y0 = m.top, y1 = alto - m.aba;
@@ -328,7 +362,7 @@ export function barras({ categorias, series, alto = 280, ancho = 720, dec = 0, u
   if (referencia) {
     const y = sy(referencia.valor);
     svg += `<line x1="${x0}" y1="${y}" x2="${x1}" y2="${y}" stroke="${C.serie[1]}" stroke-width="1.5" stroke-dasharray="5 3"/>` +
-      `<text x="${x1}" y="${y - 6}" text-anchor="end" font-size="11" fill="${C.serie[1]}">${esc(referencia.etiqueta)}</text>`;
+      etiquetaSobreFondo(referencia.etiqueta, x1, y - 6, "end");
   }
 
   if (leyenda) {
