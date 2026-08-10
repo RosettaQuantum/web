@@ -1,43 +1,35 @@
 ---
-import { CATALOGO } from '../../api.js';
+import { CATALOGO, HERRAMIENTAS } from '../../api.js';
 import BaseLayout from '../layouts/BaseLayout.astro';
 // Esta pagina existe porque la API la promete: cada respuesta dice "recomputa el sha256
 // segun /api-docs". Una API que apunta a una pagina que no existe pide confianza en vez
 // de darla — justo lo contrario de lo que este archivo vende.
-const SITE = 'https://rosettaquantum.com';
-const ARRANQUE = `<span class="cm"># 1. what the archive measures — it opens with its own negative</span>
-curl -s https://rosettaquantum.com/v1/state
+// Los comandos viven en un solo lugar y los comparten las dos caras: un comando no se
+// traduce, y dos copias divergen. Los comentarios (#) si van en cada idioma.
+import { ARRANQUE_CMD, ARRANQUE_AGENTES_CMD, VERIFICAR_CMD, SELLO_FORMULA, MCP_CMD, SITE } from '../lib/api-docs-cmds.js';
 
-<span class="cm"># 2. one sealed file, with the hash it claims and its two public copies</span>
-curl -s https://rosettaquantum.com/v1/archive/PR-CLEV-001
+const cm = (t) => `<span class="cm"># ${t}</span>`;
+const ARRANQUE = [
+  cm('1. what the archive measures — it opens with its own negative'),
+  ARRANQUE_CMD[0], '',
+  cm('2. one sealed file, with the hash it claims and its two public copies'),
+  ARRANQUE_CMD[1], '',
+  cm('3. recompute that hash yourself and compare — prints MATCH'),
+  ARRANQUE_CMD[2],
+].join('\n');
 
-<span class="cm"># 3. recompute that hash yourself and compare — prints MATCH</span>
-curl -s https://rosettaquantum.com/v1/archive/PR-CLEV-001 \\
-| python3 -c '
-import sys,json,hashlib,urllib.request
-d=json.load(sys.stdin)
-raw=json.load(urllib.request.urlopen(d["github_raw"]))
-meta={k:v for k,v in raw["meta"].items() if k!="content_hash"}
-body={k:v for k,v in raw.items() if k not in ("meta","storage")}
-mine="sha256:"+hashlib.sha256(
-    json.dumps({"meta":meta,**body},sort_keys=True,ensure_ascii=False).encode()).hexdigest()
-print(mine); print(d["content_hash"])
-print("MATCH" if mine==d["content_hash"] else "MISMATCH")'`;
-
-const ARRANQUE_AGENTES = `<span class="cm"># the full contract, machine-readable</span>
-curl -s https://rosettaquantum.com/v1/openapi.json
-
-<span class="cm"># MCP over JSON-RPC 2.0 — no key either</span>
-curl -s -X POST https://rosettaquantum.com/mcp \\
-  -H 'content-type: application/json' \\
-  -d '{"jsonrpc":"2.0","id":1,"method":"tools/list"}'`;
-
+const ARRANQUE_AGENTES = [
+  cm('the full contract, machine-readable'),
+  ARRANQUE_AGENTES_CMD[0], '',
+  cm('MCP over JSON-RPC 2.0 — no key either'),
+  ARRANQUE_AGENTES_CMD[1],
+].join('\n');
 ---
 <BaseLayout
   title="API & MCP — Rosetta Q"
   description="Read-only API and MCP server over the Evidence Ledger. No key required. Every response carries the sealed hash and two independent public copies."
   lang="en"
-  altUrl="/api-docs">
+  altUrl="/es/api-docs">
   <article class="article wrap">
     <div class="kicker">For machines · no key required</div>
     <h1>Query the evidence, don't trust the summary</h1>
@@ -69,8 +61,7 @@ curl -s -X POST https://rosettaquantum.com/mcp \\
       <pre><code set:html={ARRANQUE_AGENTES} />
       </pre>
       <p>
-        Point an MCP client at <code>https://rosettaquantum.com/mcp</code> — nine
-        read-only tools, no authentication step.
+        Point an MCP client at <code>https://rosettaquantum.com/mcp</code> — {HERRAMIENTAS.length} read-only tools, no authentication step.
       </p>
 
       <h3>We publish our own usage</h3>
@@ -105,8 +96,7 @@ curl -s -X POST https://rosettaquantum.com/mcp \\
         Every item carries <code>content_hash</code>, <code>github_raw</code> and
         <code>codeberg_raw</code>. The seal is computed over the file's own content:
       </p>
-      <pre><code>{`content_hash = sha256( json.dumps({"meta": meta_without_content_hash, <body>},
-                                  sort_keys=True, ensure_ascii=False) )`}</code></pre>
+      <pre><code>{SELLO_FORMULA}</code></pre>
       <p>
         where <code>&lt;body&gt;</code> is every top-level key except <code>meta</code>
         and <code>storage</code>. <code>storage</code> is excluded on purpose: it says
@@ -116,11 +106,8 @@ curl -s -X POST https://rosettaquantum.com/mcp \\
         verifier are in the
         <a href="https://github.com/RosettaQuantum/evidence/blob/main/PROTOCOL.md">archive protocol</a>.
       </p>
-      <pre><code>{`# fetch, recompute, compare — and check the two copies match each other
-F=$(curl -s ${SITE}/v1/archive/V-0012)
-echo "$F" | jq -r .content_hash
-diff <(curl -s "$(echo "$F" | jq -r .github_raw)") \\
-     <(curl -s "$(echo "$F" | jq -r .codeberg_raw)") && echo IDENTICAL`}</code></pre>
+      <pre><code set:html={cm('fetch, recompute, compare — and check the two copies match each other') + '\n' + VERIFICAR_CMD} />
+      </pre>
       <p>
         Each sealed file is also timestamp-anchored in Bitcoin via OpenTimestamps, on a
         chain none of the parties to this archive controls.
@@ -128,12 +115,10 @@ diff <(curl -s "$(echo "$F" | jq -r .github_raw)") \\
 
       <h2>MCP server</h2>
       <p>
-        <code>POST {SITE}/mcp</code> speaks JSON-RPC 2.0 and exposes four read-only
-        tools: <code>estado_del_archivo</code>, <code>buscar_evidencia</code>,
-        <code>ver_archivo</code> and <code>listar_por_tipo</code>.
+        <code>POST {SITE}/mcp</code> speaks JSON-RPC 2.0 and exposes {HERRAMIENTAS.length} read-only
+        tools: {HERRAMIENTAS.map((h, i) => (<>{i > 0 ? (i === HERRAMIENTAS.length - 1 ? ' and ' : ', ') : ''}<code>{h.name}</code></>))}.
       </p>
-      <pre><code>{`curl -X POST ${SITE}/mcp -H 'content-type: application/json' \\
-  -d '{"jsonrpc":"2.0","id":1,"method":"tools/list"}'`}</code></pre>
+      <pre><code>{MCP_CMD}</code></pre>
 
       <h2>Licence and citation</h2>
       <p>

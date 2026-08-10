@@ -432,7 +432,11 @@ async function challengePorId(env, id, clave) {
 
 // ---------------------------------------------------------------- MCP (JSON-RPC 2.0)
 
-const HERRAMIENTAS = [
+// Exportado a proposito: /api-docs decia "nine tools" en un parrafo y "four tools"
+// —con cuatro nombres— tres parrafos mas abajo, mientras el servidor servia 9. Una
+// lista escrita a mano en la documentacion envejece sin avisar. La pagina la lee de
+// aca y un chequeo la compara contra tools/list en vivo.
+export const HERRAMIENTAS = [
   {
     name: "estado_del_archivo",
     description:

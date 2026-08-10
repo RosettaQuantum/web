@@ -1,0 +1,147 @@
+---
+import { CATALOGO, HERRAMIENTAS } from '../../../api.js';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+// La cara española de /api-docs. Nicholas aprobó el inglés tal como está y pidió la
+// traducción (2026-08-10, «3 sí»).
+//
+// LOS BLOQUES DE CÓDIGO NO SE TRADUCEN Y NO SE RE-ESCRIBEN: se importan del archivo
+// inglés. Un comando con una letra distinta entre idiomas es una promesa que falla
+// sólo para la mitad de los lectores, y falla en la página cuyo argumento entero es
+// que todo se puede comprobar. Los comentarios dentro del código sí van en español,
+// y por eso viajan aparte: son texto, no comando.
+import { ARRANQUE_CMD, ARRANQUE_AGENTES_CMD, VERIFICAR_CMD, SELLO_FORMULA, MCP_CMD, SITE } from '../../lib/api-docs-cmds.js';
+
+const cm = (t) => `<span class="cm"># ${t}</span>`;
+const ARRANQUE = [
+  cm('1. qué mide el archivo — abre con su propio negativo'),
+  ARRANQUE_CMD[0], '',
+  cm('2. un archivo sellado, con el hash que declara y sus dos copias públicas'),
+  ARRANQUE_CMD[1], '',
+  cm('3. recomputa tú ese hash y compara — imprime MATCH'),
+  ARRANQUE_CMD[2],
+].join('\n');
+
+const ARRANQUE_AGENTES = [
+  cm('el contrato completo, legible por máquina'),
+  ARRANQUE_AGENTES_CMD[0], '',
+  cm('MCP sobre JSON-RPC 2.0 — tampoco pide clave'),
+  ARRANQUE_AGENTES_CMD[1],
+].join('\n');
+---
+<BaseLayout
+  title="API y MCP — Rosetta Q"
+  description="API de sólo lectura y servidor MCP sobre el Evidence Ledger. Sin clave. Cada respuesta lleva el hash sellado y dos copias públicas independientes."
+  lang="es"
+  altUrl="/api-docs">
+  <article class="article wrap">
+    <div class="kicker">Para máquinas · sin clave</div>
+    <h1>Consulta la evidencia, no le creas al resumen</h1>
+
+    <div class="tldr">
+      Cada corrida sellada, veredicto y pre-registro del Evidence Ledger se lee por una
+      API pública de sólo lectura y por un servidor MCP. Cada respuesta lleva el
+      <code>sha256</code> sellado y las URL crudas de dos copias públicas independientes,
+      así que todo lo que cites se puede comprobar en vez de creer.
+    </div>
+
+    <div class="body">
+      <h2>Empieza aquí</h2>
+      <p>
+        Sin clave, sin registro, nada que negociar. Tres pasos te llevan de la API a un
+        hash que recomputaste <em>tú</em> — pégalos y funcionan:
+      </p>
+      <pre><code set:html={ARRANQUE} />
+      </pre>
+      <p>
+        El paso 3 imprime <code>MATCH</code>. Si alguna vez imprime <code>MISMATCH</code>,
+        estamos equivocados y puedes decirlo en público — de eso se trata:
+        <strong>nada de esto pide que le crean.</strong> El hash cubre el contenido del
+        archivo, no el archivo: <code>storage</code> queda fuera porque dice dónde vive
+        una copia, no qué dice. La convención completa está más abajo, en <em>El sello</em>.
+      </p>
+
+      <h3>Para agentes</h3>
+      <pre><code set:html={ARRANQUE_AGENTES} />
+      </pre>
+      <p>
+        Apunta un cliente MCP a <code>https://rosettaquantum.com/mcp</code> — {HERRAMIENTAS.length} herramientas
+        de sólo lectura, sin paso de autenticación.
+      </p>
+
+      <h3>Publicamos nuestro propio uso</h3>
+      <pre><code>curl -s https://rosettaquantum.com/v1/usage</code></pre>
+      <p>
+        Con qué frecuencia se llama de verdad a esta API, a la vista. Si dice cero, dice
+        cero — la misma regla que el contador de victorias cuánticas. No guarda IP, ni
+        user-agent, ni identificador: sólo una fecha, una superficie y la <em>forma</em>
+        de la ruta, así que nada de ahí puede reconstruir qué consultó nadie. También
+        declara sus propios puntos ciegos, porque un número sin sus límites es una
+        afirmación.
+      </p>
+
+      <p>
+        Devuelve el estado medido del archivo. Hoy abre con
+        <strong>0 victorias cuánticas medidas</strong> — en ninguna corrida sellada hasta
+        hoy un método cuántico le ganó al campeón clásico. Ese negativo es el producto de
+        este archivo, no un hueco, así que la API lo dice primero.
+      </p>
+
+      <h2>Endpoints</h2>
+      <table>
+        <thead><tr><th>Endpoint</th><th>Qué devuelve</th></tr></thead>
+        <tbody>
+          {CATALOGO.map((e) => (<tr><td><code>GET {e.ruta}</code></td><td set:html={e.resumen + ((e.params||[]).length ? " · " + e.params.map(([n,d]) => `<code>?${n}=</code> ${d}`).join(", ") : "")} /></tr>))}
+          <tr><td><code>POST /mcp</code></td><td>Servidor MCP (JSON-RPC 2.0) para agentes</td></tr>
+        </tbody>
+      </table>
+      <p>Sin autenticación. CORS abierto. Cacheado 5 minutos en el edge.</p>
+
+      <h2>Cómo comprobar cualquier cosa que esta API te diga</h2>
+      <p>
+        Cada ítem lleva <code>content_hash</code>, <code>github_raw</code> y
+        <code>codeberg_raw</code>. El sello se calcula sobre el contenido del propio
+        archivo:
+      </p>
+      <pre><code>{SELLO_FORMULA}</code></pre>
+      <p>
+        donde <code>&lt;body&gt;</code> es toda clave de primer nivel salvo <code>meta</code>
+        y <code>storage</code>. <code>storage</code> queda fuera a propósito: dice dónde
+        vive una copia, no qué dice. Bajo la etiqueta <code>v1</code> existen dos
+        convenciones por una razón histórica documentada — el verificador declara cuál usó
+        cada archivo en vez de esconderlo. La especificación completa y el verificador de
+        referencia están en el
+        <a href="https://github.com/RosettaQuantum/evidence/blob/main/PROTOCOL.md">protocolo del archivo</a>.
+      </p>
+      <pre><code set:html={cm('baja, recomputa, compara — y comprueba que las dos copias son iguales entre sí') + '\n' + VERIFICAR_CMD} />
+      </pre>
+      <p>
+        Cada archivo sellado está además anclado en el tiempo en Bitcoin vía
+        OpenTimestamps, en una cadena que no controla ninguna de las partes de este
+        archivo.
+      </p>
+
+      <h2>Servidor MCP</h2>
+      <p>
+        <code>POST {SITE}/mcp</code> habla JSON-RPC 2.0 y expone {HERRAMIENTAS.length} herramientas
+        de sólo lectura: {HERRAMIENTAS.map((h, i) => (<>{i > 0 ? (i === HERRAMIENTAS.length - 1 ? ' y ' : ', ') : ''}<code>{h.name}</code></>))}.
+      </p>
+      <pre><code>{MCP_CMD}</code></pre>
+
+      <h2>Licencia y citación</h2>
+      <p>
+        Los datos son <strong>CC BY 4.0</strong>; la atribución es deliberada. Cita así:
+        <em>Rosetta Quantum Evidence Ledger, CC BY 4.0 — {SITE}/ledger</em>.
+        El código es Apache-2.0.
+      </p>
+
+      <h2>Lo que esta API no hace</h2>
+      <p>
+        Es de sólo lectura. No hay endpoint de escritura, no hay <code>qlib.solve()</code>
+        y no hay plan de pago — eso llega cuando haya demanda y ventaja medida que vender,
+        no antes. Si encuentras un error en el archivo,
+        <a href="https://github.com/RosettaQuantum/evidence/issues">abre un issue</a>: la
+        corrección externa es el ciclo de calidad que este proyecto quiere.
+      </p>
+    </div>
+  </article>
+</BaseLayout>

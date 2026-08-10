@@ -611,13 +611,39 @@ console.log("\n  -- la promesa central: recomputar un sello --");
     } catch (e) { mal("el sello publicado se puede recomputar desde cero", String(e)); }
   }
   // Y la pagina que explica como hacerlo tiene que traer la receta, no una vaguedad.
-  const docs = await traer("/api-docs/");
-  comprobar("/api-docs publica la receta exacta del sello",
-    /sort_keys/.test(docs.txt) && /storage/.test(docs.txt) && /content_hash/.test(docs.txt),
-    "la pagina no trae sort_keys + la exclusion de storage");
-  comprobar("/api-docs trae un arranque que termina en MATCH",
-    /MATCH/.test(docs.txt) && /v1\/archive\//.test(docs.txt),
-    "el arranque no llega a comparar un hash");
+  // Las DOS caras: Nicholas aprobo traducirla, y una receta que solo esta bien en un
+  // idioma falla para la mitad de los lectores — en la pagina cuyo argumento entero es
+  // que todo se puede comprobar.
+  const listaMcp = await (await fetch(BASE + "/mcp", {
+    method: "POST", headers: { "content-type": "application/json", "x-rq-check": "1" },
+    body: JSON.stringify({ jsonrpc: "2.0", id: 1, method: "tools/list" }),
+  })).json();
+  const nombresMcp = (listaMcp.result?.tools || []).map(t => t.name);
+  comprobar("el servidor MCP lista sus herramientas", nombresMcp.length > 0, "tools/list vino vacio");
+
+  for (const ruta of ["/api-docs/", "/es/api-docs/"]) {
+    const docs = await traer(ruta);
+    comprobar(`${ruta} responde`, docs.status === 200, `dio ${docs.status}`);
+    if (docs.status !== 200) continue;
+    comprobar(`${ruta} publica la receta exacta del sello`,
+      /sort_keys/.test(docs.txt) && /storage/.test(docs.txt) && /content_hash/.test(docs.txt),
+      "la pagina no trae sort_keys + la exclusion de storage");
+    comprobar(`${ruta} trae un arranque que termina en MATCH`,
+      /MATCH/.test(docs.txt) && /v1\/archive\//.test(docs.txt),
+      "el arranque no llega a comparar un hash");
+    // La pagina decia "nine tools" en un parrafo y "four tools" —con cuatro nombres—
+    // tres parrafos mas abajo, con el servidor sirviendo 9. Ahora sale del codigo, y
+    // esto lo compara contra lo que el servidor responde de verdad.
+    const cuenta = (docs.txt.match(/(\d+) (?:read-only tools|herramientas)/) || [])[1];
+    comprobar(`${ruta} dice cuantas herramientas MCP hay (${cuenta}) y son las que sirve (${nombresMcp.length})`,
+      Number(cuenta) === nombresMcp.length, "la pagina y el servidor no coinciden");
+    const sinNombrar = nombresMcp.filter(n => !docs.txt.includes(n));
+    comprobar(`${ruta} nombra las ${nombresMcp.length} herramientas`,
+      sinNombrar.length === 0, `no aparecen: ${sinNombrar.join(", ")}`);
+    const otra = ruta === "/api-docs/" ? "/es/api-docs" : "/api-docs";
+    comprobar(`${ruta} enlaza su cara alterna`, docs.txt.includes(`"${otra}"`),
+      `no encontre el enlace a ${otra}`);
+  }
 }
 
 // 4 sexies. El contador de uso: publico, sin datos personales, y sin contarnos.
