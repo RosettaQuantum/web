@@ -1,4 +1,5 @@
 ---
+import { CATALOGO } from '../../api.js';
 import BaseLayout from '../layouts/BaseLayout.astro';
 // Esta pagina existe porque la API la promete: cada respuesta dice "recomputa el sha256
 // segun /api-docs". Una API que apunta a una pagina que no existe pide confianza en vez
@@ -35,13 +36,7 @@ const SITE = 'https://rosettaquantum.com';
       <table>
         <thead><tr><th>Endpoint</th><th>What it returns</th></tr></thead>
         <tbody>
-          <tr><td><code>GET /v1/state</code></td><td>Measured state: counts, recipes, integrity, licence</td></tr>
-          <tr><td><code>GET /v1/runs</code></td><td>Sealed runs. Filter with <code>?recipe=RQ-0012</code>, <code>?limit=</code></td></tr>
-          <tr><td><code>GET /v1/verdicts</code></td><td>Published verdicts</td></tr>
-          <tr><td><code>GET /v1/prereg</code></td><td>Pre-registrations — commitments sealed <em>before</em> the runs</td></tr>
-          <tr><td><code>GET /v1/recipes</code></td><td>Recipe cards in the catalogue</td></tr>
-          <tr><td><code>GET /v1/archive/&#123;id&#125;</code></td><td>One sealed file with its full payload</td></tr>
-          <tr><td><code>GET /v1/search?q=</code></td><td>Free-text search across sealed runs</td></tr>
+          {CATALOGO.map((e) => (<tr><td><code>GET {e.ruta}</code></td><td set:html={e.resumen + ((e.params||[]).length ? " · " + e.params.map(([n,d]) => `<code>?${n}=</code> ${d}`).join(", ") : "")} /></tr>))}
           <tr><td><code>POST /mcp</code></td><td>MCP server (JSON-RPC 2.0) for agents</td></tr>
         </tbody>
       </table>

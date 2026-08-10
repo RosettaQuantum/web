@@ -1,3 +1,4 @@
+import { CATALOGO } from '../../api.js';
 import type { APIRoute } from 'astro';
 import { getCollection } from 'astro:content';
 
@@ -19,11 +20,12 @@ export const GET: APIRoute = async ({ site }) => {
     // Un modelo que llega aqui no deberia tener que raspar HTML: la evidencia esta
     // consultable, y cada respuesta trae el sha256 y las copias publicas para citarla.
     '## Machine-readable evidence (read-only, no key required)',
-    `- \`GET ${base}/v1/state\` — measured state of the archive. Start here.`,
-    `- \`GET ${base}/v1/runs\` — sealed runs · \`?recipe=RQ-0012\``,
-    `- \`GET ${base}/v1/verdicts\` — published verdicts`,
-    `- \`GET ${base}/v1/archive/{id}\` — one sealed file, full payload`,
-    `- \`GET ${base}/v1/search?q=\` — free-text search over sealed runs`,
+    // La lista sale de CATALOGO, no se escribe aparte: llegaron a existir cuatro
+    // copias de las mismas rutas (enrutador, indice de /v1, esta, y /api-docs) y
+    // esta ya iba 7 de 17 sin que nadie lo notara.
+    `- \`GET ${base}/v1/openapi.json\` — full OpenAPI 3.1 spec. Start here if you are a machine.`,
+    ...CATALOGO.filter(e => e.ruta !== '/v1/openapi.json')
+      .map(e => `- \`GET ${base}${e.ruta}\` — ${e.resumen}`),
     `- \`POST ${base}/mcp\` — MCP server (JSON-RPC 2.0) for agents`,
     '',
     'Every response carries the sealed sha256 plus the raw URLs of two independent',

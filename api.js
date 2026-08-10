@@ -566,6 +566,178 @@ async function mcp(request, env) {
   }
 }
 
+// ------------------------------------------------------- catalogo de rutas y OpenAPI
+
+/**
+ * EL catalogo de la API. Una sola definicion.
+ *
+ * POR QUE EXISTE
+ * --------------
+ * Habia 17 rutas vivas y ninguna especificacion legible por maquina: un agente
+ * tenia que adivinar la forma de cada respuesta. Y el indice de `/v1` era una
+ * lista escrita a mano al lado del enrutador — o sea, dos listas, que es como se
+ * pierde una ruta sin que nadie lo note.
+ *
+ * De aqui salen: el indice de `/v1`, el documento OpenAPI y el chequeo. El
+ * chequeo ademas lee el CODIGO del enrutador y compara: si aparece una ruta
+ * `/v1/...` que no esta en este catalogo, grita. No alcanza con prometer que se
+ * mantendran sincronizados.
+ *
+ * `esquema` es honesto a proposito: no todas las respuestas lo tienen todavia, y
+ * el documento declara cuantas de cuantas — un total sin denominador no es un
+ * resultado.
+ */
+export const CATALOGO = [
+  { ruta: "/v1", resumen: "Indice de la API", grupo: "meta" },
+  { ruta: "/v1/openapi.json", resumen: "Esta especificacion, en OpenAPI 3.1", grupo: "meta" },
+  { ruta: "/v1/state", resumen: "Estado medido del Evidence Ledger", grupo: "ledger",
+    esquema: {
+      type: "object",
+      properties: {
+        proyecto: { type: "string" }, tesis: { type: "string" },
+        estado_medido: { type: "object", properties: {
+          corridas_selladas: { type: "integer" },
+          veredictos_publicados: { type: "integer" },
+          victorias_cuanticas_medidas: { type: "integer",
+            description: "Cuantas veces un metodo cuantico le gano al campeon clasico en una corrida sellada. Hoy: 0. Es el titular del archivo, no una falla." },
+          lectura: { type: "string" },
+        } },
+        recetas: { type: "array", items: { type: "object" } },
+        integridad: { type: "object" },
+      },
+    } },
+  { ruta: "/v1/runs", resumen: "Corridas selladas", grupo: "ledger",
+    params: [["recipe", "filtra por receta, p.ej. RQ-0012"], ["limit", "maximo 200, por defecto 50"]] },
+  { ruta: "/v1/verdicts", resumen: "Veredictos publicados", grupo: "ledger", params: [["limit", "maximo 200"]] },
+  { ruta: "/v1/prereg", resumen: "Pre-registros: compromisos sellados antes de correr", grupo: "ledger" },
+  { ruta: "/v1/predictions", resumen: "Predicciones forward, comprometidas antes de conocer el resultado", grupo: "ledger" },
+  { ruta: "/v1/manifests", resumen: "Manifiestos: como leer el archivo", grupo: "ledger" },
+  { ruta: "/v1/recipes", resumen: "Recetas del catalogo", grupo: "ledger" },
+  { ruta: "/v1/archive/{id}", resumen: "Un archivo sellado completo, con su payload", grupo: "ledger",
+    // El ejemplo apunta a un archivo que EXISTE. El primero que puse (EXP-0012-001)
+    // no existia, y el chequeo lo atrapo: documentar un ejemplo que responde 404 es
+    // la misma falla que la API que apuntaba a /api-docs cuando /api-docs no estaba.
+    ejemplo: { id: "PR-CLEV-001" } },
+  { ruta: "/v1/search", resumen: "Busqueda en texto de las corridas", grupo: "ledger",
+    params: [["q", "obligatorio"]], ejemploQuery: "q=portfolio" },
+  { ruta: "/v1/algorithms", resumen: "Archivador de algoritmos cuanticos", grupo: "archivador",
+    params: [["categoria", "algebraic | oracular | BQP | ONML"], ["q", "busca en nombre y problema"], ["limit", "maximo 200"]],
+    esquema: {
+      type: "object",
+      properties: {
+        total: { type: "integer", description: "cuantos van en esta respuesta" },
+        total_catalogo: { type: "integer", description: "el denominador: cuantos hay en total" },
+        aviso: { type: "string", description: "el speedup lo declara la fuente, no lo mide Rosetta" },
+        procedencia: { type: "object", properties: {
+          fuente: { type: "string" }, fuente_url: { type: "string" },
+          instantanea_sha256: { type: "string", description: "sha256 de la instantanea de la fuente de la que salio el catalogo" },
+        } },
+        items: { type: "array", items: { $ref: "#/components/schemas/Algoritmo" } },
+      },
+    } },
+  { ruta: "/v1/algorithms/{id}", resumen: "Ficha de un algoritmo · acepta alias por sigla", grupo: "archivador",
+    ejemplo: { id: "qaoa" }, esquema: { $ref: "#/components/schemas/Algoritmo" } },
+  { ruta: "/v1/categories", resumen: "Categorias del archivador, con cuantos algoritmos tiene cada una", grupo: "archivador" },
+  { ruta: "/v1/sources", resumen: "Fuentes del campo: QPUs, librerias, venues, blogs, normas", grupo: "archivador",
+    params: [["tipo", "qpu | libreria | venue | blog | catalogo | estandar"]] },
+  { ruta: "/v1/challenges", resumen: "Corridas de challenge publicadas", grupo: "challenges" },
+  { ruta: "/v1/challenges/{id}", resumen: "Datos de una corrida · agrega /{proteina} para una sola", grupo: "challenges",
+    ejemplo: { id: "cleveland-2026-07" }, esquema: { $ref: "#/components/schemas/Corrida" } },
+];
+
+const ESQUEMAS = {
+  Algoritmo: {
+    type: "object",
+    properties: {
+      id: { type: "string" }, nombre: { type: "string" },
+      categoria: { type: "string" }, categoria_id: { type: "string" },
+      problema: { type: "string", nullable: true },
+      speedup_declarado: { type: "string",
+        description: "Literal de la fuente citada. NO es una medicion de Rosetta." },
+      declarado_por: { type: "string" }, fuente_url: { type: "string" },
+      referencias: { type: "array", items: { type: "object", properties: {
+        n: { type: "integer" }, cita: { type: "string" }, url: { type: "string", nullable: true } } } },
+      evidencia_rosetta: { type: "object", description:
+        "Lo unico que afirma Rosetta. `medido:false` en la mayoria del catalogo, y ese es el dato.",
+        properties: { medido: { type: "boolean" }, recetas: { type: "array", items: { type: "object" } },
+                      lectura: { type: "string" } } },
+    },
+  },
+  Corrida: {
+    type: "object",
+    properties: {
+      id: { type: "string" }, challenge: { type: "string" }, fecha: { type: "string" },
+      recipe_id: { type: "string", nullable: true },
+      pre_registro: { type: "string", nullable: true },
+      validado_experimentalmente: { type: "boolean",
+        description: "Siempre false por ahora: son predicciones, no hallazgos confirmados en laboratorio." },
+      total_proteinas: { type: "integer" },
+      proteinas: { type: "object", additionalProperties: { type: "object", properties: {
+        label: { type: "string" }, label_en: { type: "string" },
+        n_residuos: { type: "integer" },
+        sitios_predichos: { type: "integer", description: "El numero REAL, no un top-N fijo." },
+        sitios_conocidos: { type: "integer" },
+        hay_con_que_comparar: { type: "boolean", description: "false = no hay verdad de referencia publicada." },
+        sha256: { type: "string" },
+      } } },
+    },
+  },
+};
+
+function openapiDoc() {
+  const paths = {};
+  for (const e of CATALOGO) {
+    const parametros = [];
+    for (const m of e.ruta.matchAll(/\{(\w+)\}/g)) {
+      parametros.push({ name: m[1], in: "path", required: true, schema: { type: "string" },
+        example: e.ejemplo ? e.ejemplo[m[1]] : undefined });
+    }
+    for (const [nombre, desc] of e.params || []) {
+      parametros.push({ name: nombre, in: "query", required: false, description: desc, schema: { type: "string" } });
+    }
+    paths[e.ruta] = {
+      get: {
+        summary: e.resumen,
+        tags: [e.grupo],
+        parameters: parametros.length ? parametros : undefined,
+        responses: {
+          200: { description: "ok", content: { "application/json": {
+            schema: e.esquema || { type: "object", description:
+              "Esquema todavia no declarado. La respuesta viva es el contrato: " + SITE + e.ruta } } } },
+          404: { description: "no existe. No se cachea, y trae por donde seguir." },
+        },
+      },
+    };
+  }
+  const conEsquema = CATALOGO.filter(e => e.esquema).length;
+  return {
+    openapi: "3.1.0",
+    info: {
+      title: "Rosetta Quantum — Evidence Ledger y archivador",
+      version: "1.0.0",
+      description:
+        "Solo lectura, sin claves. Dos cosas distintas conviven aca y no hay que mezclarlas: " +
+        "el LEDGER publica lo que Rosetta midio (incluidos los negativos), y el ARCHIVADOR cataloga " +
+        "el campo citando fuentes externas. Un speedup declarado en el catalogo no es un resultado " +
+        "nuestro.\n\n" +
+        `Cobertura de esquemas: ${conEsquema} de ${CATALOGO.length} endpoints tienen esquema de ` +
+        "respuesta declarado; el resto documenta su forma con la respuesta viva. Se declara el " +
+        "denominador en vez de fingir cobertura completa.",
+      license: { name: "CC BY 4.0", url: "https://creativecommons.org/licenses/by/4.0/" },
+    },
+    servers: [{ url: SITE }],
+    tags: [
+      { name: "meta", description: "La API describiendose a si misma" },
+      { name: "ledger", description: "Lo que Rosetta midio y sello" },
+      { name: "archivador", description: "El campo catalogado, con la cita pegada a cada dato" },
+      { name: "challenges", description: "Corridas de challenge, con sus predicciones y sellos" },
+    ],
+    paths,
+    components: { schemas: ESQUEMAS },
+    "x-mcp": { endpoint: SITE + "/mcp", transporte: "JSON-RPC 2.0 sobre HTTP POST" },
+  };
+}
+
 // ---------------------------------------------------------------- enrutador
 
 export async function manejarApi(request, env, url) {
@@ -584,26 +756,17 @@ export async function manejarApi(request, env, url) {
   }
 
   if (p === "/v1" || p === "/v1/") {
+    // El indice sale del MISMO catalogo del que sale la especificacion. Antes era
+    // una lista escrita a mano al lado del enrutador: dos listas, que es como se
+    // pierde una ruta sin que nadie lo note.
     return json({
-      api: "Rosetta Quantum — Evidence Ledger, solo lectura",
-      endpoints: {
-        "GET /v1/state": "estado medido del archivo (empieza por aqui)",
-        "GET /v1/runs": "corridas selladas · ?recipe=RQ-0012 &limit=50",
-        "GET /v1/verdicts": "veredictos publicados",
-        "GET /v1/prereg": "pre-registros (compromisos sellados antes de correr)",
-        "GET /v1/predictions": "predicciones forward — un resultado comprometido ANTES de conocerlo",
-        "GET /v1/manifests": "manifiestos: como leer el archivo (convenciones de sello, paridad de presupuesto)",
-        "GET /v1/recipes": "recetas del catalogo",
-        "GET /v1/archive/{id}": "un archivo sellado completo, con su payload",
-        "GET /v1/search?q=": "busqueda en texto de las corridas",
-        "GET /v1/algorithms": "archivador de algoritmos cuanticos · ?categoria= &q= &limit=",
-        "GET /v1/algorithms/{id}": "ficha de un algoritmo · acepta alias por sigla (qaoa, grover, hhl, dqi)",
-        "GET /v1/categories": "las categorias del archivador, con cuantos algoritmos tiene cada una",
-        "GET /v1/sources": "fuentes del campo (QPUs, librerias, venues, blogs, normas) · ?tipo=",
-        "GET /v1/challenges": "corridas de challenge publicadas (Cleveland Clinic y las que sigan)",
-        "GET /v1/challenges/{id}": "los datos de una corrida · /{proteina} para una sola",
-        "POST /mcp": "servidor MCP (JSON-RPC 2.0) para agentes",
-      },
+      api: "Rosetta Quantum — Evidence Ledger y archivador, solo lectura",
+      especificacion: SITE + "/v1/openapi.json",
+      mcp: SITE + "/mcp",
+      endpoints: Object.fromEntries(CATALOGO.map(e => [
+        "GET " + e.ruta,
+        e.resumen + ((e.params || []).length ? " · " + e.params.map(([n]) => "?" + n + "=").join(" ") : ""),
+      ])),
       nota_catalogo:
         "El archivador (/v1/algorithms, /v1/sources) CATALOGA el campo citando fuentes " +
         "externas; el ledger (/v1/runs, /v1/verdicts) publica lo que medimos nosotros. " +
@@ -611,6 +774,7 @@ export async function manejarApi(request, env, url) {
       licencia: "CC BY 4.0 — cita: Rosetta Quantum Evidence Ledger, " + SITE + "/ledger",
     });
   }
+  if (p === "/v1/openapi.json") return json(openapiDoc());
   if (p === "/v1/state") return json(await estado(env));
   if (p === "/v1/runs") return await listar(env, "RUN", url);
   if (p === "/v1/verdicts") return await listar(env, "VERDICT", url);

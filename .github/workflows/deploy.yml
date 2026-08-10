@@ -88,8 +88,17 @@ jobs:
       - name: Verificar la viz de Cleveland
         run: node scripts/build-viz-cleveland.mjs --verificar
 
+      - name: Self-test de los comparadores de la especificacion
+        run: node scripts/check-openapi.mjs --self-test
+
       # Vigila lo desplegado, no el repo: que ninguna fila afirme sin cita, que el
       # catalogo no encoja, que nadie declare evidencia que no tiene, y que los
       # endpoints del ledger sigan intactos (api.js es compartido).
       - name: Chequeo del archivador contra produccion
         run: node scripts/check-quantum-catalog.mjs --esperar 120
+
+      # Compara tres listas: lo que el enrutador atiende, lo que el catalogo
+      # declara y lo que la especificacion servida publica. Y ejerce cada ruta
+      # documentada: una especificacion que documenta un 404 pide confianza.
+      - name: Chequeo de la especificacion OpenAPI
+        run: node scripts/check-openapi.mjs
