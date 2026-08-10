@@ -100,3 +100,21 @@ jcsPrueba("el emoji va ANTES de U+FB33 (precompuesto)",
 jcsPrueba("y DESPUES de la forma descompuesta, que es otro caracter",
   { "\u{1F600}": 1, "\u05D3\u05BC": 2 }, '{"\u05D3\u05BC":2,"\u{1F600}":1}');
 jcsPrueba("sin espacios y no-ASCII literal", { b: 1, a: "ñ" }, '{"a":"ñ","b":1}');
+
+// U+0080 va LITERAL, no escapado. JCS solo escapa U+0000-U+001F, igual que
+// JSON.stringify, y 0x80 esta por encima. Se comprueba por BYTES y no por lo que
+// muestre la terminal: el caracter es invisible y ya causo una confusion entre las
+// dos implementaciones — yo lo mostre escapado (era escape de transporte) y el
+// laboratorio pidio, con razon, un dato que no dependiera de como se ve nada.
+{
+  const canon = jcs({ "\u0080": 6 });
+  const bytes = Buffer.from(canon, "utf8");
+  const literal = bytes.indexOf(Buffer.from([0xc2, 0x80]));
+  if (literal >= 0 && !canon.includes("\\u0080")) { ok++; console.log("  ok    U+0080 va literal (bytes C2 80), no escapado"); }
+  else { mal++; fallos.push("U+0080 salio escapado"); console.log("  FALLA U+0080 salio escapado"); }
+  if (bytes.length !== canon.length) { ok++; console.log("  ok    se cuenta en bytes UTF-8, no en unidades UTF-16"); }
+  else { mal++; fallos.push("el caso no distingue bytes de unidades"); console.log("  FALLA el caso no distingue bytes de unidades"); }
+}
+
+console.log(`\n${ok} pasaron, ${mal} fallaron`);
+if (mal) process.exit(1);

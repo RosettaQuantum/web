@@ -108,7 +108,7 @@ jobs:
       - name: Validacion cruzada de JCS (si hay vectores)
         run: |
           V="../../evidence-staging/jcs_vectores.json"
-          S="sha256:a113c54f16899c0f2e08d44678018b1355b9cbf6dcec1d7caa9091e99cdb2f92"
+          S="sha256:8044a29a48c88184884b41708373a05715e13ce2d4b4db4bd312674ac5c96bcd"
           if [ -f "$V" ]; then node scripts/cross-jcs.mjs "$V" --sello "$S"; else echo "::notice::sin vectores JCS en este clon — se salta"; fi
 
       # Vigila lo desplegado, no el repo: que ninguna fila afirme sin cita, que el
