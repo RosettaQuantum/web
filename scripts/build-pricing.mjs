@@ -73,7 +73,11 @@ const RETENIDO = [
  * Para publicar una revision nueva: se aprueba, se copia el archivo (nunca se
  * transcribe) y se cambia este sha en el mismo commit.
  */
-const APROBADO = "edcb8bc38748ec57cb2d83392f3a29ed8b7903b2aa4bea29f9d2795cca570440";
+const APROBADO = "4df54c6e83422bf9720f1c63efa3f9540041a30a6ae6885d3311db4dcedb3891";
+// Revision anterior: edcb8bc3… Los dos cambios que trajo esta —la fila "Programa
+// de Medicion" (US$24.900) y el correo hi@ -> hello@— llegaron confirmados por
+// Nicholas: hello@ esta verificado contra su panel de Cloudflare (la regla existe
+// y el catch-all esta en Drop, o sea que un correo a hi@ se perdia en silencio).
 
 const md = readFileSync(FUENTE, "utf8");
 const SHA = createHash("sha256").update(readFileSync(FUENTE)).digest("hex");
@@ -115,7 +119,10 @@ const esc = s => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&
 const enlinea = s => esc(s)
   .replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>")
   .replace(/`([^`]+)`/g, "<code>$1</code>")
-  .replace(/\b(hi@rosettaquantum\.com)\b/g, '<a href="mailto:$1">$1</a>');
+  // Cualquier casilla del dominio, no una escrita a mano: el correo YA cambio una
+  // vez (hi@ -> hello@) y un enlace clavado al anterior habria quedado mandando la
+  // unica via de contacto de la pagina a una casilla que se descarta en silencio.
+  .replace(/\b([a-z0-9._%+-]+@rosettaquantum\.com)\b/g, '<a href="mailto:$1">$1</a>');
 
 function tabla(filas) {
   const celdas = f => f.replace(/^\||\|$/g, "").split("|").map(c => c.trim());

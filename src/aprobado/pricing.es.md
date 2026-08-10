@@ -40,6 +40,7 @@ de cobro. Entidad legal: **Blue Tuna SpA**. Marca: **Rosetta Quantum**.
 | **Exploración** | Un blanco. Matriz de conectividad, sitios candidatos ordenados, y el sello para verificarlo. Entrega en 48 h. | **US$490** |
 | **Experimento completo** | Tu problema medido de punta a punta: corrida cuántica, corrida clásica al mismo presupuesto, nulo estadístico, prueba de permutación y veredicto publicado en el archivo. Pre-registrado antes de correr. | **US$4.900** |
 | **Monitor** | Re-corrida periódica y aviso cuando algo cambia para tu clase de problema. | **US$290/mes** |
+| **Programa de Medición** | El formato challenge completo para tu empresa: cinco experimentos sellados sobre tus instancias, línea base clásica fuerte, y monitor por un trimestre. Es lo que Cleveland Clinic, Airbus, E.ON, HSBC y VW están pidiendo en sus desafíos públicos — corrido para ti, sobre tus problemas. | **US$24.900** |
 
 ### Q-Ready — exposición criptográfica
 
@@ -80,14 +81,14 @@ de cobro. Entidad legal: **Blue Tuna SpA**. Marca: **Rosetta Quantum**.
 > entregamos no verifica. No hay devolución por el resultado: pagas la medición, no el
 > veredicto.
 >
-> Escríbenos a **hi@rosettaquantum.com**.
+> Escríbenos a **hello@rosettaquantum.com**.
 > Vendido por Blue Tuna SpA a través de Paddle.com, que actúa como comerciante registrado.
 
 ---
 
 ## Correo de contacto
 
-`hi@rosettaquantum.com` — decidido por Nicholas; el reenvío a su casilla se configura en Cloudflare Email Routing.
+`hello@rosettaquantum.com` — decidido por Nicholas; el reenvío a su casilla se configura en Cloudflare Email Routing.
 
 ## Dos cosas que dejé fuera a propósito
 

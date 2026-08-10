@@ -1,7 +1,7 @@
 (function(){
-  window.addEventListener('load', function(){
-    document.querySelectorAll('.cc-fill').forEach(function(el){ el.style.width = el.getAttribute('data-w'); });
-  });
+  /* La animacion de las barras del recuadro "Ilustrativo · la forma de la
+     victoria" se fue con el recuadro (decision de Nicholas): vendia una victoria
+     cuantica que nuestro propio /v1/state desmiente con un 0. */
   var cb = document.getElementById('copyBtn');
   cb.addEventListener('click', function(){
     var t = document.getElementById('qs').textContent;

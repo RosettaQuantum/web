@@ -480,10 +480,14 @@ console.log("\n  -- precios: las cifras contra la API --");
   comprobar("no hay autoservicio ni camino de compra",
     !/<button|<form|checkout|carrito|pagar ahora|comprar|add to cart|buy\.paddle/i.test(cuerpo),
     "aparecio un camino de compra en el cuerpo de precios");
-  comprobar("el unico llamado a la accion es el correo",
-    /mailto:hi@rosettaquantum\.com/.test(cuerpo), "el correo no es enlazable");
-  comprobar("el contacto es el correo decidido",
-    /hi@rosettaquantum\.com/.test(r.txt), "no esta el correo de contacto");
+  comprobar("el unico llamado a la accion es el correo, y es cliqueable",
+    /mailto:hello@rosettaquantum\.com/.test(cuerpo), "el correo no es enlazable");
+  // hello@, no hi@: verificado contra el panel de Cloudflare — la regla de reenvio
+  // existe para hello@ y el catch-all esta en Drop, asi que un correo a hi@ se
+  // pierde sin rebote. La unica via de contacto de la pagina no puede apuntar ahi.
+  comprobar("el contacto es hello@, la casilla que de verdad reenvia",
+    /hello@rosettaquantum\.com/.test(r.txt) && !/\bhi@rosettaquantum\.com/.test(r.txt),
+    "el correo de contacto no es el que recibe");
   comprobar("declara el comerciante registrado (lo exige Paddle)",
     /Paddle\.com/.test(r.txt) && /Blue Tuna SpA/.test(r.txt), "falta la entidad legal o Paddle");
   // Mientras el texto EN no este aprobado, /pricing no existe: que no quede a medias.
