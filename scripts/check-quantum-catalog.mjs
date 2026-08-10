@@ -449,8 +449,12 @@ for (const ruta of ["/", "/es/"]) {
 // El "0 victorias" es el caso del "450+" otra vez: un numero que envejece solo.
 console.log("\n  -- precios: las cifras contra la API --");
 {
-  const r = await traer("/es/precios");
-  comprobar("/es/precios responde", r.status === 200, `dio ${r.status}`);
+  // Con barra final a proposito: TODA pagina del sitio hace 307 a la forma con
+  // barra, y `traer` no sigue saltos por diseno (seguir un 301 fue como un chequeo
+  // termino midiendo produccion mientras apuntaba a otro lado). La forma canonica
+  // es la que hay que pedir.
+  const r = await traer("/es/precios/");
+  comprobar("/es/precios/ responde", r.status === 200, `dio ${r.status}`);
 
   const st = await (await fetch(BASE + "/v1/state", { headers: { "x-rq-check": "1" } })).json();
   const medido = st.estado_medido.victorias_cuanticas_medidas;
@@ -465,8 +469,19 @@ console.log("\n  -- precios: las cifras contra la API --");
     !/auditor[ií]a/i.test(r.txt), "volvio a aparecer «auditoria»");
   comprobar("el cobro del resultado negativo va visible, no en letra chica",
     /te la cobramos/.test(r.txt), "desaparecio la frase del negativo que se cobra");
-  comprobar("no hay autoservicio ni boton de compra",
-    !/<button|checkout|comprar ahora|add to cart/i.test(r.txt), "aparecio un camino de compra");
+  // Acotado al CUERPO de la pagina: la primera version miraba el HTML entero y
+  // marcaba el boton del menu y el de cerrar el modal como "camino de compra".
+  // Un falso positivo retiene trabajo bueno y ensena a ignorar el chequeo, asi
+  // que se mira donde el defecto puede estar de verdad y se buscan senales de
+  // compra, no cualquier <button> del layout.
+  const cuerpo = (r.txt.match(/<article class="article wrap precios">([\s\S]*?)<\/article>/) || [])[1] || "";
+  comprobar("el chequeo mira el cuerpo de la pagina", cuerpo.length > 500,
+    `no aisle el cuerpo (${cuerpo.length} caracteres)`);
+  comprobar("no hay autoservicio ni camino de compra",
+    !/<button|<form|checkout|carrito|pagar ahora|comprar|add to cart|buy\.paddle/i.test(cuerpo),
+    "aparecio un camino de compra en el cuerpo de precios");
+  comprobar("el unico llamado a la accion es el correo",
+    /mailto:hi@rosettaquantum\.com/.test(cuerpo), "el correo no es enlazable");
   comprobar("el contacto es el correo decidido",
     /hi@rosettaquantum\.com/.test(r.txt), "no esta el correo de contacto");
   comprobar("declara el comerciante registrado (lo exige Paddle)",
