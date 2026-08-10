@@ -775,8 +775,13 @@ export const CATALOGO = [
   { ruta: "/v1/sources", resumen: "Fuentes del campo: QPUs, librerias, venues, blogs, normas", grupo: "archivador",
     params: [["tipo", "qpu | libreria | venue | blog | catalogo | estandar"]] },
   { ruta: "/v1/challenges", resumen: "Corridas de challenge publicadas", grupo: "challenges" },
-  { ruta: "/v1/challenges/{id}", resumen: "Datos de una corrida · agrega /{proteina} para una sola", grupo: "challenges",
+  { ruta: "/v1/challenges/{id}", resumen: "Datos de una corrida completa", grupo: "challenges",
     ejemplo: { id: "cleveland-2026-07" }, esquema: { $ref: "#/components/schemas/Corrida" } },
+  // Esta ruta la atendia el enrutador y NO estaba declarada: la encontro el chequeo
+  // comparando el codigo contra el catalogo, que es justo para lo que existe.
+  { ruta: "/v1/challenges/{id}/{proteina}", resumen: "Una sola proteína de una corrida", grupo: "challenges",
+    ejemplo: { id: "cleveland-2026-07", proteina: "KRAS_G12C" },
+    esquema: { $ref: "#/components/schemas/Corrida" } },
   { ruta: "/v1/structures", resumen: "Redes de contactos publicadas por el motor", grupo: "motor" },
   { ruta: "/v1/structures/{pdb}", resumen: "La red de contactos de una estructura, con el sha256 y la URL del PDB de origen",
     grupo: "motor", ejemplo: { pdb: "4OBE" }, esquema: { $ref: "#/components/schemas/Estructura" } },

@@ -45,21 +45,52 @@ const comprobar = (n, c, d) => (c ? ok(n) : mal(n, d));
 
 /**
  * Rutas que el enrutador atiende de verdad, leidas del codigo fuente.
- * Se normalizan los parametros: /v1/archive/([^/]+) -> /v1/archive/{id}.
+ *
+ * Se comparan FORMAS, no nombres de parametro: `/v1/archive/{}` y no
+ * `/v1/archive/{id}`. La primera version normalizaba todo a `{id}` y marcaba como
+ * "documentada y no atendida" a `/v1/structures/{pdb}` — un FALSO POSITIVO, que es
+ * peor que no mirar: retiene trabajo bueno y entrena a ignorar el chequeo.
+ *
+ * La forma conserva la aridad, que es lo que si importa: un patron con un grupo
+ * opcional atiende DOS formas — `/v1/propagate/{}` y `/v1/propagate/{}/{}` — y las
+ * dos tienen que estar declaradas.
  */
+export function formaDeRuta(ruta) {
+  return ruta.replace(/\{[^}]*\}/g, "{}");
+}
+
 export function rutasDelCodigo(fuente) {
   const rutas = new Set();
   // literales: if (p === "/v1/algo")
   for (const m of fuente.matchAll(/p === "(\/v1[^"]*)"/g)) {
     const r = m[1].replace(/\/$/, "");
-    if (r && r !== "/v1/") rutas.add(r || "/v1");
+    if (r) rutas.add(r);
   }
-  // patrones: p.match(/^\/v1\/archive\/([^/]+)\/?$/)
-  for (const m of fuente.matchAll(/p\.match\(\/\^\\\/v1\\\/(\w+)\\\//g)) {
-    rutas.add(`/v1/${m[1]}/{id}`);
+  // patrones: p.match(/^\/v1\/propagate\/([^/]+)(?:\/([^/]+))?\/?$/)
+  //
+  // Se escanea a mano en vez de con un regex sobre el regex: la version anterior
+  // usaba [^)]*? y se cortaba en el primer parentesis, que es el de ([^/]+). Los
+  // self-tests la atraparon antes de que llegara a produccion.
+  const MARCA = "p.match(/^\\/v1\\/";
+  let i = 0;
+  while ((i = fuente.indexOf(MARCA, i)) >= 0) {
+    const desde = i + MARCA.length;
+    const hasta = fuente.indexOf("$/", desde);
+    if (hasta < 0) { i = desde; continue; }
+    const cuerpo = fuente.slice(desde, hasta);
+    const base = (cuerpo.match(/^(\w+)/) || [])[1];
+    if (base) {
+      const capturas = (cuerpo.match(/\(\[\^\/\]\+\)/g) || []).length;
+      // un grupo opcional es "(?:...)?" y hace que esa captura pueda faltar
+      const opcionales = (cuerpo.match(/\(\?:[\s\S]*?\)\?/g) || []).length;
+      const fijas = Math.max(1, capturas - opcionales);
+      for (let extra = 0; extra <= opcionales; extra++) {
+        rutas.add(`/v1/${base}` + "/{}".repeat(fijas + extra));
+      }
+    }
+    i = hasta;
   }
-  rutas.delete("");
-  return [...rutas].sort();
+  return [...rutas].map(formaDeRuta).sort();
 }
 
 /** Las rutas que declara el CATALOGO, leidas del mismo archivo. */
@@ -82,9 +113,19 @@ if (SELF) {
   console.log("SELF-TEST — los comparadores tienen que gritar contra un defecto real:\n");
   comprobar("rutasDelCodigo encuentra los literales",
     rutasDelCodigo('if (p === "/v1/state") x;').includes("/v1/state"), "no la encontro");
-  comprobar("rutasDelCodigo normaliza los parametros",
-    rutasDelCodigo('p.match(/^\\/v1\\/archive\\/([^/]+)\\/?$/)').includes("/v1/archive/{id}"),
+  comprobar("rutasDelCodigo normaliza los parametros a una FORMA",
+    rutasDelCodigo('p.match(/^\\/v1\\/archive\\/([^/]+)\\/?$/)').includes("/v1/archive/{}"),
     "no normalizo el parametro");
+  // El falso positivo real: el catalogo dice {pdb} y el codigo capturaba {id}.
+  comprobar("un parametro con otro nombre NO da falso positivo",
+    diferencia(rutasDelCodigo('p.match(/^\\/v1\\/structures\\/([^/]+)\\/?$/)'),
+               ["/v1/structures/{pdb}"].map(formaDeRuta)).calzan,
+    "marco como divergencia dos formas iguales con distinto nombre de parametro");
+  // Un grupo opcional atiende DOS formas y las dos tienen que estar declaradas.
+  comprobar("un grupo opcional produce las dos formas",
+    (() => { const r = rutasDelCodigo('p.match(/^\\/v1\\/propagate\\/([^/]+)(?:\\/([^/]+))?\\/?$/)');
+      return r.includes("/v1/propagate/{}") && r.includes("/v1/propagate/{}/{}"); })(),
+    "no produjo las dos formas");
   comprobar("rutasDelCatalogo lee las rutas declaradas",
     rutasDelCatalogo('export const CATALOGO = [\n{ ruta: "/v1/x", resumen: "y" },\n];').includes("/v1/x"),
     "no leyo el catalogo");
@@ -102,7 +143,8 @@ console.log(`Chequeando la especificacion contra ${BASE}\n`);
 
 const fuente = readFileSync(join(RAIZ, "api.js"), "utf8");
 const enCodigo = rutasDelCodigo(fuente);
-const enCatalogo = rutasDelCatalogo(fuente);
+const enCatalogoCrudo = rutasDelCatalogo(fuente);
+const enCatalogo = [...new Set(enCatalogoCrudo.map(formaDeRuta))].sort();
 
 console.log(`  el enrutador atiende ${enCodigo.length} rutas · el catalogo declara ${enCatalogo.length}`);
 const d1 = diferencia(enCodigo, enCatalogo);
@@ -120,7 +162,8 @@ if (doc) {
   comprobar("declara la version de OpenAPI", /^3\./.test(doc.openapi || ""), `openapi = ${doc.openapi}`);
   comprobar("declara el servidor", (doc.servers || []).some(s => s.url === BASE.replace(/\/$/, "")) || !!(doc.servers || [])[0],
     "no declara servers");
-  const enSpec = Object.keys(doc.paths || {}).sort();
+  const enSpecCrudo = Object.keys(doc.paths || {}).sort();
+  const enSpec = [...new Set(enSpecCrudo.map(formaDeRuta))].sort();
   console.log(`  la especificacion servida publica ${enSpec.length} rutas`);
   const d2 = diferencia(enCatalogo, enSpec);
   comprobar("la especificacion servida calza con el catalogo del codigo", d2.calzan,
@@ -129,7 +172,7 @@ if (doc) {
   // La promesa se ejerce: cada ruta documentada tiene que responder.
   console.log("\n  -- cada ruta documentada responde de verdad --");
   let vivas = 0;
-  for (const ruta of enSpec) {
+  for (const ruta of enSpecCrudo) {
     const e = (doc.paths[ruta].get || {});
     let url = ruta;
     for (const par of (e.parameters || []).filter(p => p.in === "path")) {
@@ -142,18 +185,18 @@ if (doc) {
     if (rr.status === 200) vivas++;
     comprobar(`GET ${url}`, rr.status === 200, `respondio ${rr.status}`);
   }
-  console.log(`  => ${vivas} de ${enSpec.length} rutas documentadas responden 200`);
+  console.log(`  => ${vivas} de ${enSpecCrudo.length} rutas documentadas responden 200`);
 
   // Cobertura de esquemas: se declara, no se finge.
-  const conEsquema = enSpec.filter(p => {
+  const conEsquema = enSpecCrudo.filter(p => {
     const s = ((doc.paths[p].get || {}).responses || {})["200"];
     const esq = s && s.content && s.content["application/json"] && s.content["application/json"].schema;
     return esq && (esq.$ref || esq.properties);
   }).length;
-  console.log(`\n  cobertura de esquemas: ${conEsquema} de ${enSpec.length}`);
+  console.log(`\n  cobertura de esquemas: ${conEsquema} de ${enSpecCrudo.length}`);
   comprobar("el documento declara su propia cobertura de esquemas",
-    new RegExp(`${conEsquema} de ${enSpec.length}`).test((doc.info || {}).description || ""),
-    `la descripcion no declara "${conEsquema} de ${enSpec.length}"`);
+    new RegExp(`${conEsquema} de ${enSpecCrudo.length}`).test((doc.info || {}).description || ""),
+    `la descripcion no declara "${conEsquema} de ${enSpecCrudo.length}"`);
 }
 
 // La especificacion tiene que estar enlazada donde un agente la busca.
