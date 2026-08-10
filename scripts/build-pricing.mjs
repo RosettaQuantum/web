@@ -36,7 +36,13 @@ import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
 
 const RAIZ = join(dirname(fileURLToPath(import.meta.url)), "..");
-const FUENTE = join(RAIZ, "../../PROPUESTA-PRICING.md");
+// El texto aprobado vive DENTRO del repo. La primera version lo leia de
+// Projects/Rosetta Quantum/PROPUESTA-PRICING.md, fuera del clon: el paso de CI
+// no encontraba el archivo y el guardia que existe para probar que lo publicado
+// es lo aprobado no corria justo donde importa. Es el mismo defecto que la demo
+// que vivia fuera de git. El original sigue siendo el documento de Nicholas; esta
+// copia es byte-identica (mismo sha256) y se trajo con `cp`, nunca transcrita.
+const FUENTE = join(RAIZ, "src/aprobado/pricing.es.md");
 const SALIDA = join(RAIZ, "src/pages/es/precios.astro");
 const VERIFICAR = process.argv.includes("--verificar");
 
@@ -57,8 +63,26 @@ const RETENIDO = [
     motivo: "cifra sin instrumentar; costos.py mide el hardware cuantico, no esto" },
 ];
 
+/**
+ * La revision EXACTA que Nicholas aprobo. No es ceremonia: mientras armaba esta
+ * pagina, el documento cambio debajo —le entraron un producto nuevo de US$24.900
+ * y otro correo de contacto— y sin este ancla el armador habria publicado los dos
+ * cambios en silencio, con la firma "texto aprobado" encima. Un texto aprobado se
+ * ancla a su version, no a su nombre de archivo.
+ *
+ * Para publicar una revision nueva: se aprueba, se copia el archivo (nunca se
+ * transcribe) y se cambia este sha en el mismo commit.
+ */
+const APROBADO = "edcb8bc38748ec57cb2d83392f3a29ed8b7903b2aa4bea29f9d2795cca570440";
+
 const md = readFileSync(FUENTE, "utf8");
 const SHA = createHash("sha256").update(readFileSync(FUENTE)).digest("hex");
+if (SHA !== APROBADO) {
+  console.error(`ABORTA: el texto fuente no es la revision aprobada.\n` +
+    `  aprobado: sha256:${APROBADO}\n  en disco: sha256:${SHA}\n` +
+    `  Alguien edito el documento. Publicar esto seria publicar texto que nadie aprobo.`);
+  process.exit(1);
+}
 
 // --- el texto aprobado, recortado del documento -----------------------------
 const desde = md.indexOf("## El texto propuesto");
