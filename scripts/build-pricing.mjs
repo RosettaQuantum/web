@@ -58,9 +58,26 @@ const VERIFICAR = process.argv.includes("--verificar");
  * medir, o si Nicholas decide publicarla igual.
  */
 const RETENIDO = [
-  { frase: "Nuestro cómputo cuesta casi nada: del orden de mil análisis por dólar, y lo medimos.\n> Así que el precio",
-    reemplazo: "El precio",
-    motivo: "cifra sin instrumentar; costos.py mide el hardware cuantico, no esto" },
+  // La frase del computo VOLVIO: ya esta instrumentada. `costos.analisis_por_dolar()`
+  // en quantum-run (commit 23f2d3e) la produce desde una medicion con fecha —2,0 s de
+  // CPU para los 4 blancos de Cleveland el 2026-08-10, a precio de lista de t3.medium—
+  // y da 173.076. La corri yo antes de restaurarla: "del orden de mil" se queda 173x
+  // corto, o sea conservador, que es como tiene que fallar una cifra publica. Sale
+  // textual como Nicholas la aprobo, sin retocar.
+  //
+  // OJO para quien la revise: el tiempo se midio en este Mac y el precio es de una
+  // t3.medium. Son maquinas distintas, y la cifra mezcla las dos. Con 173x de margen
+  // la frase aguanta igual, pero la palabra "medimos" tapa esa mezcla.
+  {
+    // Los nombres de las cinco empresas los escribio la coordinadora, no Nicholas: el
+    // no leyo esa redaccion exacta y ella misma pidio retenerla. Es la unica
+    // afirmacion de la pagina sobre terceros y va en la que Paddle revisa, asi que se
+    // quita ENTERA en vez de suavizarse. Es un borrado limpio: lo que queda es la
+    // descripcion del producto, sin inventar una linea nueva.
+    frase: " Es lo que Cleveland Clinic, Airbus, E.ON, HSBC y VW están pidiendo en sus desafíos públicos — corrido para ti, sobre tus problemas.",
+    reemplazo: "",
+    motivo: "afirmacion sobre terceros que Nicholas no leyo; vuelve entera si la aprueba",
+  },
 ];
 
 /**

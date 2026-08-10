@@ -497,6 +497,18 @@ console.log("\n  -- precios: las cifras contra la API --");
   comprobar("el contacto es hello@, la casilla que de verdad reenvia",
     /hello@rosettaquantum\.com/.test(r.txt) && !/\bhi@rosettaquantum\.com/.test(r.txt),
     "el correo de contacto no es el que recibe");
+  // Sin OK de Nicholas sobre esa redaccion, ningun tercero se nombra en la pagina
+  // que Paddle revisa. Falla cerrado: si vuelve, grita con el nombre que encontro.
+  const terceros = ["Cleveland Clinic", "Airbus", "E.ON", "HSBC", "VW"];
+  const nombrados = terceros.filter(n => r.txt.includes(n));
+  comprobar("no nombra empresas de terceros sin OK explicito",
+    nombrados.length === 0, `aparecen: ${nombrados.join(", ")}`);
+  // Y su reverso: la cifra del computo SI tiene que estar, ahora que hay instrumento
+  // que la produce (costos.analisis_por_dolar(), quantum-run 23f2d3e). Un chequeo que
+  // solo prohibe deja pasar el borrado accidental de lo que si debe salir.
+  comprobar("la cifra del computo esta publicada, ya instrumentada",
+    /mil análisis por dólar/.test(r.txt), "desaparecio la frase del costo del computo");
+
   comprobar("declara el comerciante registrado (lo exige Paddle)",
     /Paddle\.com/.test(r.txt) && /Blue Tuna SpA/.test(r.txt), "falta la entidad legal o Paddle");
   // Mientras el texto EN no este aprobado, /pricing no existe: que no quede a medias.
