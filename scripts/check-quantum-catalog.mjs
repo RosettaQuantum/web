@@ -441,6 +441,30 @@ for (const ruta of ["/", "/es/"]) {
     "el recuadro volvio a citar una receta real");
 }
 
+// 4 quater ter. Toda URL que el home cita como fuente, se ejerce.
+//
+// El mockup del copiloto dice "todo aqui es verificable por maquina, chequeanos
+// como quieras" y citaba dos fuentes: `/evidence/RQ-0012`, que daba 404, y
+// `docs.rosettaquantum.com`, un dominio que ni siquiera resuelve. Es la peor
+// ubicacion posible para un enlace roto: DENTRO de la frase que invita a
+// comprobarnos. Cuarta aparicion de la misma familia esta semana, asi que deja
+// de depender de que alguien las abra.
+console.log("\n  -- las fuentes que el home cita responden --");
+{
+  const r = await traer("/es/");
+  const citadas = [...r.txt.matchAll(/↳ sources:([^<]+)</g)]
+    .flatMap(m => m[1].split("·").map(x => x.trim()).filter(Boolean));
+  comprobar("el home declara sus fuentes", citadas.length > 0, "no encontre la linea de fuentes");
+  for (const cita of citadas) {
+    const url = cita.startsWith("http") ? cita : "https://" + cita;
+    let estado = 0;
+    try { estado = (await fetch(url, { redirect: "follow", headers: { "x-rq-check": "1" } })).status; }
+    catch (e) { estado = 0; }
+    comprobar(`la fuente citada ${cita} responde`, estado === 200,
+      `${url} -> ${estado === 0 ? "no resuelve" : estado}`);
+  }
+}
+
 // 4 quinquies bis. LA PROMESA CENTRAL, EJERCIDA COMO UN TERCERO.
 //
 // La API dice en cada respuesta "recomputa el sha256 y compara con content_hash".
