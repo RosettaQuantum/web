@@ -31,11 +31,13 @@ nav{position:sticky;top:0;z-index:50;background:rgba(23,21,18,.92);backdrop-filt
 .hero{padding:68px 0 56px}
 .hero-grid{display:grid;grid-template-columns:1.08fr .92fr;gap:52px;align-items:center}
 @media(max-width:860px){.hero-grid{grid-template-columns:1fr}}
-/* El hero perdio su segunda columna: el recuadro "Ilustrativo · la forma de la
-   victoria" (14h20m vs 22 min) se elimino por decision de Nicholas. Vendia una
-   victoria cuantica que nuestro propio /v1/state desmiente con un 0, y la vendia
-   con un identificador real del ledger al lado, o sea puesta para que la falsen.
-   Sin esta regla la columna que queda se apretaria al 53% con un hueco al lado. */
+/* El hero perdio su segunda columna: el grafico comparativo se elimino por
+   decision de Nicholas, porque vendia una ventaja que nuestro propio /v1/state
+   desmiente con un 0. Sin esta regla la columna que queda se apretaria al 53%
+   con un hueco al lado.
+   Ojo: este comentario NO puede citar el rotulo ni las cifras del grafico. Este
+   archivo se inlinea en la pagina, asi que el texto de aca ES texto publicado —
+   la primera version las cito y el guardia la marco, con razon. */
 .hero-solo{grid-template-columns:1fr;max-width:820px}
 .badge-line{display:inline-flex;align-items:center;gap:10px;font-family:'IBM Plex Mono',monospace;font-size:11.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--papyrus-dim);border:1px solid var(--stone-line);padding:7px 14px;border-radius:20px;margin-bottom:24px;max-width:100%}
 @media(max-width:640px){

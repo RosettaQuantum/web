@@ -437,6 +437,15 @@ for (const ruta of ["/", "/es/"]) {
   const r = await traer(ruta);
   comprobar(`${ruta} no marca una victoria con ✓ en el recuadro`,
     !/22 min ✓|22 min &#10004;/.test(r.txt), "volvio el ticket de victoria");
+  // El recuadro entero se elimino (decision de Nicholas). Se vigilan sus PIEZAS y
+  // no su clase: quien lo reponga le va a cambiar el nombre antes que la
+  // afirmacion. Los dos guardias de abajo quedaron obsoletos al sacarlo — se
+  // dejan porque cubren la forma suavizada, que es como volveria.
+  comprobar(`${ruta} no tiene el recuadro de la victoria ilustrativa`,
+    !/clockchart|cc-fill|14h ?20m|Ilustrativo · la forma|Illustrative · the shape/.test(r.txt),
+    "volvio el recuadro que vende una victoria que /v1/state desmiente");
+  comprobar(`${ruta} no dibuja la barra de 96% contra 4%`,
+    !/data-w="96%"|data-w="4%"/.test(r.txt), "volvieron las barras de la victoria");
   comprobar(`${ruta} no le cuelga un id de receta real al recuadro`,
     !/qlib\.solve\(\)[^<]*RQ-\d{4}/.test(r.txt),
     "el recuadro volvio a citar una receta real");
