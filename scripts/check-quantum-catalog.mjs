@@ -424,6 +424,23 @@ for (const [target, n] of Object.entries(esperados)) {
   }
 }
 
+// 4 quater bis. El hero no le cuelga una victoria a una receta real.
+//
+// El recuadro ilustrativo mostraba `qlib.solve() · RQ-0012 -> 22 min ✓` contra 14h20m,
+// y RQ-0012 es una receta REAL cuyo veredicto sellado (V-0012) dice `not yet`, con el
+// contador global en 0 victorias. La palabra "Ilustrativo" no salvaba eso: el
+// identificador era verdadero, asi que la afirmacion era falsable — y la dejabamos
+// lista para que la falsen, con la API que publicamos para eso.
+console.log("\n  -- el hero no afirma una victoria que el ledger desmiente --");
+for (const ruta of ["/", "/es/"]) {
+  const r = await traer(ruta);
+  comprobar(`${ruta} no marca una victoria con ✓ en el recuadro`,
+    !/22 min ✓|22 min &#10004;/.test(r.txt), "volvio el ticket de victoria");
+  comprobar(`${ruta} no le cuelga un id de receta real al recuadro`,
+    !/qlib\.solve\(\)[^<]*RQ-\d{4}/.test(r.txt),
+    "el recuadro volvio a citar una receta real");
+}
+
 // 4 quinquies bis. LA PROMESA CENTRAL, EJERCIDA COMO UN TERCERO.
 //
 // La API dice en cada respuesta "recomputa el sha256 y compara con content_hash".
