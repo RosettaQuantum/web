@@ -16,7 +16,34 @@
  *
  * Nunca tapa: si se agota, lo dice y devuelve las rutas que faltan para que el
  * chequeo siga y falle con la salida real.
+ *
+ * Y ESPERAR UN 200 NO ALCANZA CUANDO CAMBIA EL CONTENIDO. Una pagina responde 200
+ * con el HTML viejo igual que con el nuevo. Paso dos veces: la primera la resolvi
+ * con una condicion de contenido escrita a mano ("el home ya no dice 450+"), y al
+ * extraer esta funcion a un modulo la perdi — una regresion mia. La forma que no
+ * depende de acordarse es `esperarVersion`: cada pagina publica el sha del build
+ * en <meta name="rq-build">, y se espera a que el edge sirva ESE.
  */
+
+export async function esperarVersion(base, sha, segundos, log = console.log) {
+  if (!segundos || !sha) return true;
+  const limite = Date.now() + segundos * 1000;
+  let visto = null, vueltas = 0;
+  while (Date.now() < limite) {
+    vueltas++;
+    try {
+      const html = await (await fetch(base + "/", { redirect: "manual", headers: { "x-rq-check": "1" } })).text();
+      visto = (html.match(/name="rq-build" content="([^"]+)"/) || [])[1] || null;
+      if (visto && sha.startsWith(visto)) {
+        log(`  (el edge ya sirve el build ${visto}, tras ${vueltas} vuelta(s))`);
+        return true;
+      }
+    } catch (e) {}
+    await new Promise(res => setTimeout(res, 5000));
+  }
+  log(`  AVISO: el edge sirve el build ${visto || "(sin marca)"} y se esperaba ${sha.slice(0, 12)} — se chequea igual.`);
+  return false;
+}
 export async function esperarRutas(base, rutas, segundos, log = console.log) {
   if (!segundos) return [];
   const limite = Date.now() + segundos * 1000;

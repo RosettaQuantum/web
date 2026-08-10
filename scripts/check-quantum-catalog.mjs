@@ -27,7 +27,7 @@
  */
 
 import { CATALOGO } from "../api.js";
-import { esperarRutas } from "./lib/esperar.mjs";
+import { esperarRutas, esperarVersion } from "./lib/esperar.mjs";
 import { pyDumps, parseConLiterales } from "./lib/sello.mjs";
 
 const args = process.argv.slice(2);
@@ -143,6 +143,7 @@ export const RUTAS_CRITICAS = [
 ];
 
 const ESPERA_MAX = args.includes("--esperar") ? Number(args[args.indexOf("--esperar") + 1]) : 0;
+await esperarVersion(BASE, process.env.GITHUB_SHA, ESPERA_MAX);
 await esperarRutas(BASE, RUTAS_CRITICAS, ESPERA_MAX);
 
 async function traer(ruta) {

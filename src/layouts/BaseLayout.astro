@@ -11,6 +11,11 @@ const altLang = lang==='en' ? 'es' : 'en';
 const canonical = abs(Astro.url.pathname);
 const altHref = abs(altUrl);
 const xDefault = lang === 'en' ? canonical : altHref;
+// Marca de version. Existe para que un chequeo pueda saber si el edge ya sirve
+// ESTE build o todavia el anterior. Sin ella, esperar a que una ruta responda 200
+// no distingue lo viejo de lo nuevo — la pagina responde 200 en los dos casos, y
+// el CI cayo por eso mas de una vez.
+const build = (process.env.GITHUB_SHA || process.env.RQ_BUILD || 'local').slice(0, 12);
 ---
 <!doctype html>
 <html lang={lang}>
@@ -19,6 +24,7 @@ const xDefault = lang === 'en' ? canonical : altHref;
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>{title}</title>
   <meta name="description" content={description} />
+  <meta name="rq-build" content={build} />
   <link rel="canonical" href={canonical} />
   <link rel="alternate" hreflang={lang} href={canonical} />
   <link rel="alternate" hreflang={altLang} href={altHref} />

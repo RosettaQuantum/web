@@ -30,7 +30,7 @@
 
 import { readFileSync } from "node:fs";
 import { CATALOGO } from "../api.js";
-import { esperarRutas } from "./lib/esperar.mjs";
+import { esperarRutas, esperarVersion } from "./lib/esperar.mjs";
 import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
 
@@ -147,6 +147,7 @@ console.log(`Chequeando la especificacion contra ${BASE}\n`);
 // propagado — pero el edge no propaga a todos los colos a la vez, asi que pegaba
 // en uno con el Worker viejo y caia con produccion correcta.
 const ESPERA = args.includes("--esperar") ? Number(args[args.indexOf("--esperar") + 1]) : 0;
+await esperarVersion(BASE, process.env.GITHUB_SHA, ESPERA);
 await esperarRutas(BASE, CATALOGO.map(e => {
   let r = e.ruta;
   for (const m of e.ruta.matchAll(/\{(\w+)\}/g)) {
