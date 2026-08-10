@@ -448,6 +448,15 @@ for (const ruta of ["/", "/es/"]) {
   comprobar(`${ruta} no tiene el recuadro de la victoria ilustrativa`,
     !/clockchart|cc-fill|14h ?20m|Ilustrativo · la forma|Illustrative · the shape/.test(r.txt),
     "volvio el recuadro que vende una victoria que /v1/state desmiente");
+  // El bloque de entrada a la corrida de Cleveland tambien salio del home (orden de
+  // Nicholas). Se vigilan sus piezas, incluida la palabra "Cleveland": la primera
+  // limpieza dejo el COMENTARIO del CSS explicandolo, y index.css se inlinea, o sea
+  // que el comentario seguia publicado. Es la segunda vez que pasa lo mismo, asi que
+  // esta vez lo cubre el guardia y no mi memoria. La pagina /cleveland/ no se toca:
+  // ahi ese contenido es el producto.
+  comprobar(`${ruta} no trae el bloque de la corrida de Cleveland`,
+    !/clev-|data-clev|18[,.]01|Cleveland/.test(r.txt),
+    "volvio el bloque del home, o un estilo o comentario que lo cita");
   comprobar(`${ruta} no dibuja la barra de 96% contra 4%`,
     !/data-w="96%"|data-w="4%"/.test(r.txt), "volvieron las barras de la victoria");
   comprobar(`${ruta} no le cuelga un id de receta real al recuadro`,
