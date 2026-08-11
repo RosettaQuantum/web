@@ -1,0 +1,52 @@
+---
+// GENERADO por scripts/build-legal.mjs — no editar a mano.
+//
+// El texto sale de src/aprobado/legal/privacy-es.md, aprobado por Nicholas el 2026-08-11,
+// leido por el armador y no tecleado por nadie. Para cambiarlo se edita el .md, se
+// mueve el sha en el armador y se regenera, en el mismo commit.
+//
+// texto fuente sha256: d4bf8c50968a82cfff76b6a009e912524d597a6d92751d9ca20d61ea4054b94d
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import css from '../../styles/pages/legal.css?raw';
+---
+<BaseLayout
+  title="Política de privacidad — Rosetta Q"
+  description="Qué datos personales recoge Rosetta Quantum, para qué, y qué derechos tienes sobre ellos."
+  lang="es"
+  altUrl="/privacy/"
+  pageCss={css}>
+  <article class="article wrap legal">
+      <h1>Política de privacidad</h1>
+      <p><strong>Rosetta Quantum</strong> (rosettaquantum.com) es una marca de <strong>Blue Tuna SpA</strong>, sociedad constituida en Chile.</p>
+      <p>Esta página explica qué datos personales manejamos, qué decidimos no recolectar, y los derechos que tienes. La versión corta: el sitio no instala cookies propias, no usa rastreadores, y los pagos los procesa Paddle — no nosotros.</p>
+      <p>_Última actualización: 2026-08-11_</p>
+      <h2>1. Quién es el responsable</h2>
+      <p>El responsable del tratamiento de los datos es:</p>
+      <ul><li><strong>Blue Tuna SpA</strong> (Chile), que opera la marca Rosetta Quantum</li><li>Contacto: <strong><a href="mailto:hello@rosettaquantum.com">hello@rosettaquantum.com</a></strong></li></ul>
+      <h2>2. Qué recolectamos</h2>
+      <p>Muy poco:</p>
+      <ul><li><strong>Ninguna cookie propia.</strong> Este sitio no instala cookies propias.</li><li><strong>Ningún servicio de analítica ni script de rastreo de terceros.</strong></li><li><strong>Registros del hosting.</strong> El sitio se sirve a través de Cloudflare. La red de Cloudflare procesa las solicitudes al sitio y genera registros estándar de servidor (como la dirección IP y metadatos de la solicitud) como parte de la entrega del sitio.</li><li><strong>Contador agregado de la API.</strong> Nuestra API pública mantiene un contador de uso agregado. No contiene datos personales.</li><li><strong>Correspondencia.</strong> Si escribes a <a href="mailto:hello@rosettaquantum.com">hello@rosettaquantum.com</a>, conservamos esa correspondencia — tu dirección y el contenido de tu mensaje — para poder responderte.</li></ul>
+      <h2>3. Pagos (Paddle)</h2>
+      <p>No recolectamos ni almacenamos datos de pago. Las compras en este sitio las procesa <strong>Paddle.com</strong>, que actúa como Merchant of Record (vendedor registrado): Paddle es el vendedor de la transacción y se encarga del checkout, la facturación, los impuestos/IVA y los reembolsos. Para eso, Paddle recolecta información como tu nombre, correo electrónico y datos de facturación, bajo su propia política de privacidad, publicada en paddle.com.</p>
+      <h2>4. Qué NO hacemos</h2>
+      <ul><li>No vendemos datos personales — a nadie, nunca.</li><li>No usamos rastreadores publicitarios.</li><li>No hacemos perfiles de visitantes ni de clientes.</li></ul>
+      <h2>5. Datos de los experimentos de clientes</h2>
+      <p>Si nos encargas un trabajo, tus datos de base se mantienen <strong>privados por defecto</strong>. Nuestro archivo público de evidencia publica únicamente sellos criptográficos — hashes SHA-256 con anclaje OpenTimestamps en Bitcoin — que permiten a cualquiera verificar que un resultado existía en un momento dado <strong>sin revelar su contenido</strong>. Tus datos o tus resultados completos se publican solo si tú nos pides publicarlos.</p>
+      <h2>6. Conservación de los datos</h2>
+      <p>Guardamos lo mínimo posible, por el tiempo necesario y no más:</p>
+      <ul><li><strong>Correspondencia:</strong> mientras sea necesaria para atender tu solicitud y su seguimiento.</li><li><strong>Datos de experimentos de clientes:</strong> según lo acordado en cada encargo; privados por defecto, como se describe arriba.</li><li><strong>Registros de pago:</strong> no guardamos ninguno — están en Paddle.</li></ul>
+      <p>Nota: los sellos criptográficos publicados (hashes) están diseñados para ser permanentes, pero no contienen datos personales ni revelan el contenido sellado.</p>
+      <h2>7. Tus derechos</h2>
+      <p>Puedes pedirnos en cualquier momento:</p>
+      <ul><li><strong>Acceder</strong> a los datos personales que tenemos sobre ti;</li><li><strong>Rectificarlos</strong> si son inexactos;</li><li><strong>Eliminarlos</strong>, cuando no exista una obligación legal de conservarlos.</li></ul>
+      <p>Escribe a <strong><a href="mailto:hello@rosettaquantum.com">hello@rosettaquantum.com</a></strong> y te responderemos. Respetamos estos derechos conforme a la ley chilena de protección de datos aplicable. Para los datos que maneja Paddle (pagos y facturación), consulta la política de privacidad de Paddle; te ayudaremos a encaminar tu solicitud donde podamos.</p>
+      <p>Para que quede claro: nada en este sitio constituye consejo médico, financiero ni de inversión, y esta política no cambia eso.</p>
+      <h2>8. Cambios a esta política</h2>
+      <p>Si cambiamos esta política, publicaremos la versión actualizada en esta página. No debilitaremos en silencio los compromisos de arriba — no vender datos, no usar rastreadores — y cualquier cambio relevante será visible aquí.</p>
+      <h2>9. Contacto</h2>
+      <p>Preguntas sobre privacidad: <strong><a href="mailto:hello@rosettaquantum.com">hello@rosettaquantum.com</a></strong></p>
+
+      <p class="sello-fuente">Texto publicado desde su documento aprobado ·
+        <code>sha256:d4bf8c50968a82cf…</code></p>
+  </article>
+</BaseLayout>

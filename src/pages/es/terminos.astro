@@ -1,0 +1,54 @@
+---
+// GENERADO por scripts/build-legal.mjs — no editar a mano.
+//
+// El texto sale de src/aprobado/legal/terms-es.md, aprobado por Nicholas el 2026-08-11,
+// leido por el armador y no tecleado por nadie. Para cambiarlo se edita el .md, se
+// mueve el sha en el armador y se regenera, en el mismo commit.
+//
+// texto fuente sha256: fa320e43e80f12633c0d25e3e154b306eac2a5ec32b8f1d34814b3abacaf3d90
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import css from '../../styles/pages/legal.css?raw';
+---
+<BaseLayout
+  title="Términos de servicio — Rosetta Q"
+  description="Términos de servicio de rosettaquantum.com, su API pública y sus servicios de medición."
+  lang="es"
+  altUrl="/terms/"
+  pageCss={css}>
+  <article class="article wrap legal">
+      <h1>Términos del servicio</h1>
+      <p><strong>Rosetta Quantum</strong> — rosettaquantum.com<br>Última actualización: 2026-08-11</p>
+      <h2>1. Quiénes somos y aceptación de estos términos</h2>
+      <p>Rosetta Quantum es una marca de <strong>Blue Tuna SpA</strong>, sociedad constituida en Chile. En estos términos, "nosotros" y "Rosetta Quantum" significan Blue Tuna SpA.</p>
+      <p>Al usar rosettaquantum.com o nuestra API pública, o al contratar cualquiera de nuestros servicios, aceptas estos términos. Si no estás de acuerdo con ellos, por favor no uses el sitio ni los servicios.</p>
+      <h2>2. Qué ofrecemos</h2>
+      <ul><li><strong>Experimentos de medición en hardware cuántico.</strong> Servicios pagados (como Exploration, Full experiment y el Measurement Program) en los que diseñamos, ejecutamos y medimos un experimento, y te entregamos un reporte con resultados sellados y verificables. El catálogo vigente y los precios están publicados en <a href="https://rosettaquantum.com/pricing/">rosettaquantum.com/pricing/</a>.</li><li><strong>Evidencia pública sellada.</strong> Los resultados de los experimentos se sellan criptográficamente (hashes SHA-256, con anclaje OpenTimestamps en Bitcoin) y se publican en un archivo público de evidencia que cualquiera puede verificar.</li><li><strong>Monitor.</strong> Una suscripción mensual, descrita en la sección 9.</li><li><strong>Otros productos</strong> (como el Q-Ready Kit), según se describen en /pricing/.</li><li><strong>Servicios gratuitos.</strong> El acceso al archivo de evidencia, la API pública y el Q-Ready Map son gratuitos, sujetos a las reglas de uso aceptable de la sección 5.</li></ul>
+      <h2>3. Contratación, pago y reembolsos</h2>
+      <p>Los pagos los gestiona <strong>Paddle.com</strong>, que actúa como <strong>Merchant of Record</strong> (vendedor registrado): Paddle es el vendedor oficial de tu compra y se encarga del checkout, la facturación, los impuestos o IVA aplicables, y procesa los reembolsos a tu medio de pago original. A la compra misma se aplican los términos de comprador de Paddle.</p>
+      <p>Nuestra política de reembolso sigue el principio publicado en nuestra página de precios: *"reembolso sobre el resultado: pagas por la medición, no por el veredicto."* En la práctica:</p>
+      <ul><li>Puedes pedir un <strong>reembolso completo, sin preguntas, dentro de los 14 días siguientes a la entrega del entregable</strong>.</li><li>Un <strong>resultado negativo es un resultado entregado</strong>. Es un entregable válido y se cobra exactamente igual que uno positivo. La ventana de 14 días sin preguntas aplica de todos modos, sea o no el resultado que esperabas.</li><li>Para la suscripción Monitor, ver la sección 9.</li></ul>
+      <p>Para pedir un reembolso, escribe a <strong><a href="mailto:hello@rosettaquantum.com">hello@rosettaquantum.com</a></strong>.</p>
+      <h2>4. Entregables y el modelo de evidencia pública</h2>
+      <ul><li>Cada experimento pagado incluye un <strong>reporte</strong>, que te entregamos a ti.</li><li>Los <strong>sellos</strong> del experimento (hashes SHA-256 y su anclaje OpenTimestamps) se <strong>publican en el archivo público de evidencia por diseño</strong> y cualquiera puede verificarlos.</li><li>Tus <strong>datos de fondo pueden permanecer privados</strong>: solo se publica su hash. Lo que se hace público es la prueba de que los datos existieron en una forma determinada en un momento determinado — no los datos mismos — salvo que tú decidas publicarlos.</li></ul>
+      <h2>5. Uso aceptable del sitio y la API pública</h2>
+      <p>Te comprometes a no:</p>
+      <ul><li>tergiversar sellos o evidencia — por ejemplo, presentar un sello como si cubriera datos que no cubre, o presentar como sellado material que no lo está;</li><li>perturbar el servicio, incluido el scraping o las solicitudes automatizadas en un volumen que lo degrade para otros;</li><li>hacerte pasar por Rosetta Quantum o afirmar que respaldamos conclusiones que no hemos sellado;</li><li>usar el sitio o la API con fines ilícitos.</li></ul>
+      <p>Podemos limitar o bloquear el acceso que incumpla estas reglas.</p>
+      <h2>6. Propiedad intelectual</h2>
+      <ul><li><strong>Tu reporte es tuyo para usarlo y compartirlo</strong>, en público o en privado.</li><li><strong>El archivo público de evidencia es público por diseño</strong> y cualquiera puede consultarlo y verificarlo.</li><li><strong>El contenido del sitio, nuestro código y nuestros métodos siguen siendo propiedad de Blue Tuna SpA.</strong> Estos términos no los transfieren.</li></ul>
+      <h2>7. Deslindes</h2>
+      <ul><li>Lo que vendemos es una <strong>medición sellada y verificable</strong>. Una medición no es una garantía: <strong>los resultados pueden ser negativos</strong>, y un resultado negativo es un entregable válido.</li><li><strong>No afirmamos ventaja ni supremacía cuántica</strong>, y no prometemos ningún resultado específico, mejora de desempeño ni resultado de negocio.</li><li>Nada en este sitio, en el archivo de evidencia ni en nuestros entregables constituye <strong>asesoría de inversión, financiera, legal ni médica</strong>.</li></ul>
+      <h2>8. Limitación de responsabilidad</h2>
+      <p>En la máxima medida que permita la ley, nuestra responsabilidad total por cualquier reclamo relacionado con un servicio se <strong>limita a lo que pagaste por ese servicio</strong>. No respondemos por daños indirectos ni consecuenciales. Nada en estos términos limita responsabilidades que la ley aplicable no permita limitar.</p>
+      <h2>9. Suscripción Monitor</h2>
+      <ul><li>Monitor es una <strong>suscripción mensual</strong> al precio publicado en /pricing/.</li><li>Puedes <strong>cancelar en cualquier momento</strong>. La cancelación surte efecto al <strong>final del período de facturación en curso</strong>; después de eso no se te vuelve a cobrar.</li><li>El <strong>primer cobro es reembolsable dentro de 14 días</strong>.</li><li>Los cobros y reembolsos los procesa Paddle (sección 3).</li></ul>
+      <h2>10. Cambios a estos términos</h2>
+      <p>Podemos actualizar estos términos. La versión vigente está siempre publicada en esta página, con su fecha de publicación indicada arriba. Si sigues usando el sitio o los servicios después de publicado un cambio, eso significa que aceptas los términos actualizados.</p>
+      <h2>11. Ley aplicable y contacto</h2>
+      <p>Estos términos se rigen por las leyes de <strong>Chile</strong>.</p>
+      <p>Preguntas sobre estos términos: <strong><a href="mailto:hello@rosettaquantum.com">hello@rosettaquantum.com</a></strong>.</p>
+
+      <p class="sello-fuente">Texto publicado desde su documento aprobado ·
+        <code>sha256:fa320e43e80f1263…</code></p>
+  </article>
+</BaseLayout>

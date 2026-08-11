@@ -1,0 +1,20 @@
+/* Paginas legales. Misma linea del sitio; densidad de lectura, no de marketing.
+   Sin comentarios que citen texto de la pagina: este archivo se inlinea en el HTML,
+   asi que un comentario aca ES texto publicado (ya paso dos veces). */
+.legal h1{font-size:29px;line-height:1.2;margin:0 0 6px;font-weight:600}
+.legal h2{
+  font-size:16px;letter-spacing:.01em;margin:40px 0 12px;
+  padding-bottom:8px;border-bottom:1px solid var(--stone-line);font-weight:600;
+}
+.legal h3{font-size:14.5px;margin:24px 0 8px;font-weight:600}
+.legal p{margin:0 0 13px;line-height:1.68;max-width:70ch}
+.legal ul{margin:0 0 14px;padding-left:19px;max-width:70ch}
+.legal li{margin:0 0 9px;line-height:1.62}
+.legal a{color:var(--faience);text-underline-offset:3px}
+.legal hr{border:0;border-top:1px solid var(--stone-line);margin:28px 0}
+.legal code{font-size:12.5px}
+.legal .sello-fuente{
+  margin-top:52px;padding-top:14px;border-top:1px solid var(--stone-line);
+  font-size:11.5px;color:var(--faint);
+}
+.legal .sello-fuente code{font-size:11px}

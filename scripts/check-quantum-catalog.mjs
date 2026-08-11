@@ -485,6 +485,44 @@ for (const ruta of ["/", "/es/"]) {
 // Es la pagina que Paddle revisa y la unica del sitio donde alguien va a poner
 // plata, asi que las cifras se comparan contra la fuente, no contra el recuerdo.
 // El "0 victorias" es el caso del "450+" otra vez: un numero que envejece solo.
+// 4 quater quater. Las tres politicas legales, en los dos idiomas.
+//
+// Paddle no verifica el sitio si estas URLs no existen Y no estan enlazadas desde el.
+// O sea que un footer sin ellas no es un detalle de maquetado: apaga el cobro. Por eso
+// se vigilan las dos cosas — que respondan y que el footer las lleve.
+console.log("\n  -- las tres politicas legales --");
+{
+  const LEGAL = [
+    { ruta: "/terms/",         alt: "/es/terminos/",   marca: /Terms of Service/i },
+    { ruta: "/privacy/",       alt: "/es/privacidad/", marca: /Privacy Policy/i },
+    { ruta: "/refunds/",       alt: "/es/reembolsos/", marca: /Refund Policy/i },
+    { ruta: "/es/terminos/",   alt: "/terms/",         marca: /Términos de servicio/i },
+    { ruta: "/es/privacidad/", alt: "/privacy/",       marca: /Política de privacidad/i },
+    { ruta: "/es/reembolsos/", alt: "/refunds/",       marca: /Política de reembolsos/i },
+  ];
+  for (const P of LEGAL) {
+    const r = await traer(P.ruta);
+    comprobar(`${P.ruta} responde`, r.status === 200, `dio ${r.status}`);
+    if (r.status !== 200) continue;
+    comprobar(`${P.ruta} trae su titulo`, P.marca.test(r.txt), "no encontre el titulo de la politica");
+    comprobar(`${P.ruta} enlaza su cara alterna`, r.txt.includes(P.alt), `no encontre ${P.alt}`);
+    // El texto va TAL CUAL: un marcador de relleno servido en la pagina que Paddle
+    // revisa es peor que la ausencia deliberada de la direccion legal.
+    comprobar(`${P.ruta} no sirve marcadores sin completar`,
+      !/COMPLETA NICHOLAS|\bTBD\b|\[pendiente\]/.test(r.txt), "quedo un marcador en lo servido");
+    comprobar(`${P.ruta} declara el sello de su texto aprobado`,
+      /sha256:[0-9a-f]{16}…/.test(r.txt), "no publica el sello del documento del que sale");
+  }
+  // Y el footer, que es lo que Paddle mira para dar por enlazadas las politicas.
+  for (const [home, esperadas] of [["/", ["/terms/", "/privacy/", "/refunds/"]],
+                                   ["/es/", ["/es/terminos/", "/es/privacidad/", "/es/reembolsos/"]]]) {
+    const r = await traer(home);
+    const faltan = esperadas.filter(u => !r.txt.includes(`href="${u}"`));
+    comprobar(`el footer de ${home} enlaza las tres politicas`,
+      faltan.length === 0, `faltan en el footer: ${faltan.join(", ")}`);
+  }
+}
+
 console.log("\n  -- precios: las dos caras, contra la API y contra el mundo --");
 {
   const st = await (await fetch(BASE + "/v1/state", { headers: { "x-rq-check": "1" } })).json();

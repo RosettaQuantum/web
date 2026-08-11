@@ -4,9 +4,9 @@ const es = lang === 'es';
 const home = es ? '/es/' : '/';
 const p = (path) => es ? `/es${path}` : path;
 const L = es
-  ? { home:'Inicio', ev:'Evidence ledger', cls:'Clases', blog:'Blog', pre:'Precios', line:'Publicamos mediciones, no promesas.',
+  ? { home:'Inicio', ev:'Evidence ledger', cls:'Clases', blog:'Blog', pre:'Precios', ter:'Términos', pri:'Privacidad', ree:'Reembolsos', line:'Publicamos mediciones, no promesas.',
       agents:'para agentes', agentsTitle:'Archivo de texto plano que describe el sitio para agentes de IA. No es una página web.' }
-  : { home:'Home', ev:'Evidence ledger', cls:'Problem classes', blog:'Blog', pre:'Pricing', line:'We publish measurements, not promises.',
+  : { home:'Home', ev:'Evidence ledger', cls:'Problem classes', blog:'Blog', pre:'Pricing', ter:'Terms', pri:'Privacy', ree:'Refunds', line:'We publish measurements, not promises.',
       agents:'for agents', agentsTitle:'Plain-text file describing this site for AI agents. Not a web page.' };
 ---
 <footer>
@@ -20,6 +20,13 @@ const L = es
       <a href={es ? '/es/precios' : '/pricing'}>{L.pre}</a>
       <a class="foot-machine" href="/llms.txt" title={L.agentsTitle}>llms.txt <span class="tag">{L.agents}</span></a>
     </div>
+  </div>
+  {/* Las tres politicas. Paddle no verifica el sitio si no estan ENLAZADAS desde el,
+      asi que este bloque es parte del cobro, no decoracion — y un chequeo lo vigila. */}
+  <div class="wrap foot-legal">
+    <a href={es ? '/es/terminos/' : '/terms/'}>{L.ter}</a>
+    <a href={es ? '/es/privacidad/' : '/privacy/'}>{L.pri}</a>
+    <a href={es ? '/es/reembolsos/' : '/refunds/'}>{L.ree}</a>
   </div>
   <div class="wrap foot-line">© MMXXVI Rosetta Quantum · {L.line}</div>
 </footer>
@@ -36,4 +43,7 @@ const L = es
     border-radius:2px;padding:2px 5px;line-height:1;
   }
   .foot-machine:hover .tag{color:var(--faience);border-color:var(--faience)}
+  .foot-legal{display:flex;flex-wrap:wrap;gap:18px;margin-top:14px;font-size:12.5px}
+  .foot-legal a{color:var(--faint)}
+  .foot-legal a:hover{color:var(--papyrus-dim)}
 </style>

@@ -97,6 +97,11 @@ jobs:
       - name: La pagina de precios sigue siendo el texto aprobado
         run: node scripts/build-pricing.mjs --verificar
 
+      # Las tres politicas se GENERAN desde los .md que Nicholas aprobo, anclados por
+      # sha. Si alguien edita un .astro a mano o cambia un .md sin regenerar, grita.
+      - name: Las politicas legales siguen siendo el texto aprobado
+        run: node scripts/build-legal.mjs --verificar
+
       - name: Self-test de los comparadores de la especificacion
         run: node scripts/check-openapi.mjs --self-test
 

@@ -1,0 +1,54 @@
+---
+// GENERADO por scripts/build-legal.mjs — no editar a mano.
+//
+// El texto sale de src/aprobado/legal/terms-en.md, aprobado por Nicholas el 2026-08-11,
+// leido por el armador y no tecleado por nadie. Para cambiarlo se edita el .md, se
+// mueve el sha en el armador y se regenera, en el mismo commit.
+//
+// texto fuente sha256: 1ae9d16c686bdd660e16006952036ef656b5822334a841a4a6aedcb14b0e439b
+import BaseLayout from '../layouts/BaseLayout.astro';
+import css from '../styles/pages/legal.css?raw';
+---
+<BaseLayout
+  title="Terms of Service — Rosetta Q"
+  description="Terms of service for rosettaquantum.com, its public API and its measurement services."
+  lang="en"
+  altUrl="/es/terminos/"
+  pageCss={css}>
+  <article class="article wrap legal">
+      <h1>Terms of Service</h1>
+      <p><strong>Rosetta Quantum</strong> — rosettaquantum.com<br>Last updated: 2026-08-11</p>
+      <h2>1. Who we are and acceptance of these terms</h2>
+      <p>Rosetta Quantum is a brand of <strong>Blue Tuna SpA</strong>, a company incorporated in Chile. In these terms, "we", "us" and "Rosetta Quantum" mean Blue Tuna SpA.</p>
+      <p>By using rosettaquantum.com or our public API, or by ordering any of our services, you accept these terms. If you do not agree with them, please do not use the site or the services.</p>
+      <h2>2. What we offer</h2>
+      <ul><li><strong>Measurement experiments on quantum hardware.</strong> Paid services (such as Exploration, Full experiment and the Measurement Program) in which we design, run and measure an experiment and deliver a report with sealed, verifiable results. The current catalog and prices are published at <a href="https://rosettaquantum.com/pricing/">rosettaquantum.com/pricing/</a>.</li><li><strong>Sealed public evidence.</strong> Experiment results are cryptographically sealed (SHA-256 hashes, with OpenTimestamps anchoring on Bitcoin) and published in a public evidence archive that anyone can verify.</li><li><strong>Monitor.</strong> A monthly subscription, described in section 9.</li><li><strong>Other products</strong> (such as the Q-Ready Kit), as described at /pricing/.</li><li><strong>Free services.</strong> Access to the evidence archive, the public API and the Q-Ready Map are free of charge, subject to the acceptable-use rules in section 5.</li></ul>
+      <h2>3. Ordering, payment and refunds</h2>
+      <p>Payments are handled by <strong>Paddle.com</strong>, acting as <strong>Merchant of Record</strong>: Paddle is the seller of record for your purchase and handles checkout, invoicing, applicable taxes/VAT, and processes refunds to your original payment method. Paddle's buyer terms apply to the purchase itself.</p>
+      <p>Our refund policy follows the principle published on our pricing page: *"refund on the result: you pay for the measurement, not for the verdict."* In practice:</p>
+      <ul><li>You may request a <strong>full refund, no questions asked, within 14 days of delivery of the deliverable</strong>.</li><li>A <strong>negative result is a delivered result</strong>. It is a valid deliverable and is charged exactly like a positive one. The 14-day no-questions refund window applies regardless of whether the result was the one you hoped for.</li><li>For the Monitor subscription, see section 9.</li></ul>
+      <p>To request a refund, write to <strong><a href="mailto:hello@rosettaquantum.com">hello@rosettaquantum.com</a></strong>.</p>
+      <h2>4. Deliverables and the public evidence model</h2>
+      <ul><li>Every paid experiment includes a <strong>report</strong>, delivered to you.</li><li>The experiment's <strong>seals</strong> (SHA-256 hashes and their OpenTimestamps anchoring) are <strong>published in the public evidence archive by design</strong> and can be verified by anyone.</li><li>Your <strong>underlying data can remain private</strong>: only its hash is published. What becomes public is the proof that the data existed in a given form at a given time — not the data itself — unless you choose to publish the data.</li></ul>
+      <h2>5. Acceptable use of the site and public API</h2>
+      <p>You agree not to:</p>
+      <ul><li>misrepresent seals or evidence — for example, presenting a seal as covering data it does not cover, or presenting unsealed material as sealed;</li><li>disrupt the service, including scraping or automated requests at a volume that degrades it for others;</li><li>impersonate Rosetta Quantum or claim that we endorse conclusions we have not sealed;</li><li>use the site or the API for unlawful purposes.</li></ul>
+      <p>We may throttle or block access that breaks these rules.</p>
+      <h2>6. Intellectual property</h2>
+      <ul><li><strong>Your report is yours to use and share</strong>, publicly or privately.</li><li><strong>The public evidence archive is public by design</strong> and may be consulted and verified by anyone.</li><li><strong>Our site content, code and methods remain the property of Blue Tuna SpA.</strong> These terms do not transfer them.</li></ul>
+      <h2>7. Disclaimers</h2>
+      <ul><li>What we sell is a <strong>sealed, verifiable measurement</strong>. A measurement is not a guarantee: <strong>results can be negative</strong>, and a negative result is a valid deliverable.</li><li>We make <strong>no claims of quantum advantage or supremacy</strong>, and we do not promise any specific result, performance improvement or business outcome.</li><li>Nothing on this site, in the evidence archive or in our deliverables is <strong>investment, financial, legal or medical advice</strong>.</li></ul>
+      <h2>8. Limitation of liability</h2>
+      <p>To the maximum extent permitted by law, our total liability for any claim related to a service is <strong>limited to the fees you paid for that service</strong>. We are not liable for indirect or consequential damages. Nothing in these terms limits liability that cannot be limited under applicable law.</p>
+      <h2>9. Monitor subscription</h2>
+      <ul><li>Monitor is a <strong>monthly subscription</strong> at the price published at /pricing/.</li><li>You may <strong>cancel at any time</strong>. Cancellation takes effect at the <strong>end of the current billing period</strong>; you will not be charged again after that.</li><li>The <strong>first charge is refundable within 14 days</strong>.</li><li>Billing and refunds are processed by Paddle (section 3).</li></ul>
+      <h2>10. Changes to these terms</h2>
+      <p>We may update these terms. The current version is always published on this page, with its publication date shown at the top. If you keep using the site or the services after a change is published, that means you accept the updated terms.</p>
+      <h2>11. Governing law and contact</h2>
+      <p>These terms are governed by the laws of <strong>Chile</strong>.</p>
+      <p>Questions about these terms: <strong><a href="mailto:hello@rosettaquantum.com">hello@rosettaquantum.com</a></strong>.</p>
+
+      <p class="sello-fuente">Published from its approved source document ·
+        <code>sha256:1ae9d16c686bdd66…</code></p>
+  </article>
+</BaseLayout>
