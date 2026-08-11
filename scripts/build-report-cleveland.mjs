@@ -47,7 +47,10 @@ const PDF_FLAG = process.argv.includes("--pdf");
  */
 const INSUMOS = {
   texto: { archivo: "REPORTE-METODOLOGICO-EN.md",
-           sha: "006daf1941015a42890d1854befc9b4080f67eb5db2573c87f063cdfb1333dc9" },
+           sha: "ae7dd55788350443e7de66350d3e006e5e3f7c801a5777beb980953b0aeb7da0" },
+  // Revision anterior: 006daf19… Cambio SOLO el §9, que ahora reporta la bateria de
+  // hardware corrida (sello RQ-REPORT-CLEV-METHOD-003) en vez de declararla en curso.
+  // Trae una tabla de 7 filas y dos subsecciones, que el capitulo no tenia.
   datos: { archivo: "charts_data.json",
            sha: "0d6c0fb37f1fb19244694f9bdf19f1af340a01eace04b28bb447d025ec08f30c" },
   // Revision anterior: 7b87cc26… Cambio SOLO el punto final de los cuatro titulares,
@@ -171,7 +174,18 @@ function aHtml(md, figuras) {
       continue;
     }
     if (/^[-*] /.test(l) && !/^\*\*/.test(l)) {
-      const items = []; while (i < lineasMd.length && /^[-*] /.test(lineasMd[i])) items.push(lineasMd[i++].slice(2));
+      // Una vinneta que ocupa dos lineas en el .md es UNA vinneta. La primera version
+      // solo tomaba la linea del guion, asi que la continuacion caia como parrafo
+      // suelto debajo: en el §7 cada "no afirmamos esto" quedaba cortado en dos y la
+      // lista perdia su forma. Salio en el PDF anterior y no lo vio nadie.
+      const items = [];
+      while (i < lineasMd.length && /^[-*] /.test(lineasMd[i])) {
+        let texto = lineasMd[i++].slice(2);
+        while (i < lineasMd.length && lineasMd[i].trim() && !/^([-*] |#|\||>|```|\d+\. |---)/.test(lineasMd[i])) {
+          texto += " " + lineasMd[i++].trim();
+        }
+        items.push(texto);
+      }
       out.push(`<ul>${items.map(x => `<li>${enlinea(x)}</li>`).join("")}</ul>`);
       continue;
     }
@@ -274,6 +288,13 @@ ${CSS_GRAFICOS}
   th{color:#6E675C;border-bottom-color:#D9D3C6}
   td{border-bottom-color:#E8E3D8}
   .rq-fig{break-inside:avoid;page-break-inside:avoid;border-top-color:#D9D3C6}
+  /* El envoltorio scrollea en pantalla; en papel no hay scroll, y un overflow oculto
+     recorta la columna de la derecha sin avisar. */
+  .tabla-scroll{overflow:visible}
+  /* Y si una tabla no cabe entera, que al menos repita su encabezado: una pagina de
+     numeros sin los rotulos de columna es una pagina de numeros sin denominador. */
+  thead{display:table-header-group}
+  tr{break-inside:avoid}
   .rq-fig-tit{color:#0B0A08}
   .rq-fig-sub,.rq-fig-proc,.rq-notas{color:#6E675C}
   h2{break-after:avoid;page-break-after:avoid}
