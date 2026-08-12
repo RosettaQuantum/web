@@ -26,6 +26,7 @@
 import { aHtml, indice } from "../src/lib/informe.js";
 import { MARCA } from "../src/lib/marca.js";
 import { readFileSync, existsSync } from "node:fs";
+import { createHash } from "node:crypto";
 import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
 
@@ -171,19 +172,37 @@ for (const [nombre, a] of Object.entries(ACENTOS)) {
       `muevelo aqui y en src/lib/marca.js a la vez; si no, esto es la marca desarmandose.`);
   });
 }
-// Y contra el archivo, cuando esta: un test que compara dos constantes del mismo repo
-// se cae solo el dia que alguien las cambia juntas.
+// Y contra el archivo del que salieron: un test que compara dos constantes del mismo
+// repo se cae solo el dia que alguien las cambia juntas.
+//
+// El vector pesa 2,9 MB —mas de la mitad de este repo— asi que lo que vive aca es su
+// CENSO de colores con el sha256 del archivo. Con eso el chequeo corre SIEMPRE, tambien
+// en CI, en vez de saltarse; y cuando el SVG esta presente se comprueba ademas que el
+// censo sigue siendo suyo. Quitar la condicion de salto vale mas que reportarla bien.
+const RAIZ_T = dirname(fileURLToPath(import.meta.url));
+const censo = JSON.parse(readFileSync(join(RAIZ_T, "../src/aprobado/marca/censo-julio.json"), "utf8"));
+
+prueba("los acentos existen en el censo del vector de julio", () => {
+  for (const [nombre, a] of Object.entries(ACENTOS)) {
+    const n = censo.colores[a.valor] || 0;
+    igual(n, a.usos, `${nombre} ${a.valor} en el censo de ${censo.archivo}:`);
+  }
+});
+prueba("los valores que circulaban NO existen en el vector", () => {
+  // El caso positivo del censo: si manana alguien lo regenera mal y estos aparecen,
+  // el censo dejo de ser el de julio.
+  for (const c of ["#a6812e", "#2b8b80", "#efe8d9", "#f5f1e7", "#979692"]) {
+    igual(censo.colores[c] || 0, 0, `${c} aparece en el censo y no deberia:`);
+  }
+});
 {
-  const svg = join(dirname(fileURLToPath(import.meta.url)), "../../../marca/pagina1-julio.svg");
+  const svg = join(RAIZ_T, "../../../marca/pagina1-julio.svg");
   if (!existsSync(svg)) {
-    salta("los acentos calzan con el SVG de julio", `no esta ${svg.split("/").slice(-2).join("/")} en este clon`);
+    salta("el censo sigue siendo del SVG que declara", "el vector no esta en este clon (el censo si se comprobo)");
   } else {
-    prueba("los acentos calzan con el SVG de julio, contados en el vector", () => {
-      const t = readFileSync(svg, "utf8");
-      for (const [nombre, a] of Object.entries(ACENTOS)) {
-        const n = (t.match(new RegExp(a.valor, "gi")) || []).length;
-        cierto(n > 0, `${nombre} ${a.valor} no aparece ni una vez en pagina1-julio.svg`);
-      }
+    prueba("el censo sigue siendo del SVG que declara", () => {
+      const sha = createHash("sha256").update(readFileSync(svg)).digest("hex");
+      igual(sha, censo.sha256, `${censo.archivo} cambio; el censo quedo viejo:`);
     });
   }
 }

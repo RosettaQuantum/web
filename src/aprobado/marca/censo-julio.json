@@ -1,0 +1,24 @@
+{
+  "por_que_existe": "El guardia de los dos acentos de marca necesita comparar contra el vector de julio, y el vector pesa 2,9 MB — mas de la mitad de este repo. Aca vive su censo de colores con el sha256 del archivo del que sale: el chequeo corre siempre (no se salta en CI) y, cuando el SVG esta presente, se comprueba ademas que el censo sigue siendo suyo.",
+  "archivo": "marca/pagina1-julio.svg",
+  "sha256": "db0f28a04c2b8b1e3f4dcf0846dca156e665f0c8311af3c1acdf3394480f26cf",
+  "bytes": 3016873,
+  "medido_el": "2026-08-12",
+  "colores": {
+    "#231f19": 2712,
+    "#1f1c18": 1866,
+    "#6e675c": 464,
+    "#2c8c80": 362,
+    "#a6812f": 37,
+    "#ded6c6": 11,
+    "#efe9da": 5,
+    "#f6f2e8": 1,
+    "#eaf6f3": 1,
+    "#8a7a55": 1
+  },
+  "acentos_de_marca": {
+    "dorado": "#a6812f",
+    "teal": "#2c8c80"
+  },
+  "nota": "Los cinco valores que circularon por los mensajes (#a6812e, #2b8b80, #efe8d9, #f5f1e7, #979692) dan CERO usos: salian de muestrear un render a 60 dpi."
+}
