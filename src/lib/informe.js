@@ -80,13 +80,47 @@ export function aHtml(md, figurasDe = () => []) {
       // lista perdia su forma. Salio en el PDF anterior y no lo vio nadie.
       const items = [];
       while (i < lineasMd.length && /^[-*] /.test(lineasMd[i])) {
-        let texto = lineasMd[i++].slice(2);
+        const parrafos = [lineasMd[i++].slice(2)];
+        // continuacion en la MISMA linea logica: se pega al parrafo en curso
         while (i < lineasMd.length && lineasMd[i].trim() && !/^([-*] |#|\||>|```|\d+\. |---)/.test(lineasMd[i])) {
-          texto += " " + lineasMd[i++].trim();
+          parrafos[parrafos.length - 1] += " " + lineasMd[i++].trim();
         }
-        items.push(texto);
+        // Y la continuacion SANGRADA despues de una linea en blanco: en markdown eso
+        // es otro parrafo de la MISMA vinneta. Sin esto, el primer punto del §8 —una
+        // vinneta de cuatro parrafos— soltaba tres al cuerpo del documento: el texto
+        // llegaba entero y la estructura no, que es el mismo defecto del §7 en una
+        // forma que una revision "esta todo el texto?" no puede ver.
+        //
+        // Se exige la SANGRIA, no se adivina: un parrafo sin sangria despues de una
+        // lista es prosa de la seccion, y absorberlo seria inventar una estructura que
+        // el autor no escribio.
+        let j = i;
+        while (j < lineasMd.length && !lineasMd[j].trim()) j++;
+        while (j < lineasMd.length && /^(\s{2,}|\t)\S/.test(lineasMd[j])) {
+          // El corte NO es solo la linea en blanco: en el §8 real la vinneta siguiente
+          // viene pegada al ultimo parrafo sangrado, sin blanco en medio. La primera
+          // version paraba solo en el blanco y se trago las otras dos vinnetas — el
+          // §8 salio con UNA en vez de tres. Mi test no lo vio porque lo escribi con
+          // un ejemplo inventado que si tenia la linea en blanco.
+          const cont = [];
+          while (j < lineasMd.length && lineasMd[j].trim() &&
+                 !/^([-*] |#|\||>|```|\d+\. |---)/.test(lineasMd[j])) cont.push(lineasMd[j++].trim());
+          parrafos.push(cont.join(" "));
+          i = j;
+          while (j < lineasMd.length && !lineasMd[j].trim()) j++;
+        }
+        items.push(parrafos);
+        // Tras absorber los parrafos sangrados, `i` quedaba en la linea en blanco y el
+        // bucle de items terminaba: la vinneta siguiente abria una lista NUEVA y el §8
+        // salia como dos listas separadas por sus propios parrafos. Si lo unico que
+        // separa a la siguiente vinneta son lineas en blanco, es la MISMA lista.
+        let k = i;
+        while (k < lineasMd.length && !lineasMd[k].trim()) k++;
+        if (k < lineasMd.length && /^[-*] /.test(lineasMd[k])) i = k;
       }
-      out.push(`<ul>${items.map(x => `<li>${enlinea(x)}</li>`).join("")}</ul>`);
+      out.push(`<ul>${items.map(ps => `<li>${ps.length === 1
+        ? enlinea(ps[0])
+        : ps.map(x => `<p>${enlinea(x)}</p>`).join("")}</li>`).join("")}</ul>`);
       continue;
     }
     if (/^\d+\. /.test(l)) {

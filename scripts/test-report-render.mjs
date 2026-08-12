@@ -78,6 +78,31 @@ prueba("una celda con texto ademas del codigo tampoco se marca", () => {
   cierto(!h.includes('class="nb"'), "marco una celda que no es solo un identificador");
 });
 
+// 4. La vinneta de varios parrafos. Estructura real del §8: el laboratorio la
+// escribio sangrada, que es como markdown marca la continuacion, y el renderizador
+// la ignoraba: los tres parrafos caian al cuerpo del documento. El texto llegaba
+// entero —una revision "esta todo?" daba 200 de 200— y la estructura no.
+prueba("una vinneta con parrafos sangrados los conserva DENTRO de la vinneta", () => {
+  // ESTRUCTURA EXACTA DEL §8, copiada de su forma real: la vinneta siguiente viene
+  // PEGADA al ultimo parrafo sangrado, sin linea en blanco. La primera version de este
+  // test la puso con blanco —un ejemplo inventado— y por eso paso mientras el documento
+  // real salia con una vinneta en vez de tres.
+  const md = "- **The stacked arm.** We said the feature was dead.\n\n  When we moved the run to CI we found the conservation feature alive.\n\n  So the arm was not held back by a missing signal.\n- **Other groupings.** No community-based grouping was\n  tested, no blocks larger than 16.\n- **A truly prospective null.** It does not exist: the pool is\n  exhausted.";
+  const h = aHtml(md);
+  igual(cuenta(h, /<ul>/g), 1, "partio la lista en dos:");
+  igual(cuenta(h, /<li>/g), 3, "se trago las vinnetas siguientes:");
+  const primera = h.slice(h.indexOf("<li>"), h.indexOf("</li>"));
+  igual(cuenta(primera, /<p>/g), 3, "la vinneta no se quedo con sus tres parrafos:");
+  cierto(primera.includes("held back by a missing signal"), "solto el ultimo parrafo al cuerpo");
+});
+prueba("un parrafo SIN sangria despues de una lista es prosa, no continuacion", () => {
+  const h = aHtml("- uno\n- dos\n\nEsto es prosa de la seccion y no pertenece a la ultima vinneta.");
+  igual(cuenta(h, /<li>/g), 2);
+  const ul = h.slice(h.indexOf("<ul>"), h.indexOf("</ul>"));
+  cierto(!ul.includes("prosa de la seccion"), "absorbio prosa que no era de la vinneta");
+  igual(cuenta(h, /<p>/g), 1, "perdio el parrafo:");
+});
+
 console.log("\n— estructura —\n");
 
 prueba("las tablas salen con encabezado y sin la fila de guiones", () => {
