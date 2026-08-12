@@ -11,6 +11,11 @@
  * canales (#a6812e por #a6812f, #2b8b80 por #2c8c80) y el gris #979692 no aparece ni
  * una vez en el archivo. Es la firma de haber medido sobre un rasterizado. Si alguien
  * los "corrige" a esos, la linea deja de ser la de julio.
+ *
+ * Los 10 colores del vector, con sus usos (medidos por las dos sesiones, coinciden):
+ *   #231f19 2712 · #1f1c18 1866 · #6e675c 464 · #2c8c80 362 · #a6812f 37
+ *   #ded6c6   11 · #efe9da    5 · #f6f2e8   1 · #eaf6f3   1 · #8a7a55  1
+ * Los dos acentos los ancla un test; los demas son tokens del sitio y ya tienen guardia.
  */
 export const MARCA = {
   dorado: "#a6812f",   // filetes, logo, acentos — 37 usos en el SVG de julio

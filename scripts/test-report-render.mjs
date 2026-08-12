@@ -24,9 +24,19 @@
  * Uso: node scripts/test-report-render.mjs
  */
 import { aHtml, indice } from "../src/lib/informe.js";
+import { MARCA } from "../src/lib/marca.js";
+import { readFileSync, existsSync } from "node:fs";
+import { fileURLToPath } from "node:url";
+import { dirname, join } from "node:path";
 
-let ok = 0, mal = 0;
+let ok = 0, mal = 0, saltados = 0;
 const fallos = [];
+/**
+ * Un chequeo que no se pudo ejercer NO es un chequeo que paso. Entra al resumen con
+ * su propio contador: "verde" y "cubierto" no son lo mismo, y un aviso suelto arriba
+ * se pierde entre las lineas de ok.
+ */
+function salta(nombre, porque) { saltados++; console.log(`  SALTA ${nombre}\n          ${porque}`); }
 function prueba(nombre, fn) {
   try { fn(); ok++; console.log(`  ok    ${nombre}`); }
   catch (e) { mal++; fallos.push(`${nombre}: ${e.message}`); console.log(`  FALLA ${nombre}\n          ${e.message}`); }
@@ -132,6 +142,52 @@ prueba("los enlaces markdown se convierten", () => {
     .includes('<a href="https://example.org/P.md">el protocolo</a>'), "no convirtio el enlace");
 });
 
+console.log("\n— la linea de marca —\n");
+
+/**
+ * Los dos acentos de la marca, anclados.
+ *
+ * Este test NO elige una paleta: fija la que ya esta decidida y medida. Nicholas pidio
+ * el documento "como el de julio", y el de julio son estos valores — leidos del SVG
+ * VECTORIAL, no cuentagoteados de un render. Los cinco que circularon por los mensajes
+ * daban CERO usos en el archivo: salian de contar pixeles de un pixmap a 60 dpi, donde
+ * el suavizado corre cada valor una o dos unidades y un color de 5 usos ni sobrevive.
+ *
+ * Si este test grita, la pregunta correcta NO es "que color nuevo pongo": es si alguien
+ * cambio la marca a proposito. El original esta en `marca/pagina1-julio.svg`.
+ *
+ * Los otros ocho colores de julio son tokens del sitio (--basalt-2, --faint y compania)
+ * y no se fijan aca: ya tienen su guardia y fijarlos dos veces los haria divergir.
+ */
+const ACENTOS = {
+  dorado: { valor: "#a6812f", usos: 37,  donde: "filetes, logo, acentos" },
+  teal:   { valor: "#2c8c80", usos: 362, donde: "la Q, datos, enlaces" },
+};
+for (const [nombre, a] of Object.entries(ACENTOS)) {
+  prueba(`el acento ${nombre} es el de julio (${a.valor})`, () => {
+    igual(MARCA[nombre], a.valor,
+      `el ${nombre} de la marca cambio. El valor de julio es ${a.valor}, medido sobre ` +
+      `marca/pagina1-julio.svg (${a.usos} usos, ${a.donde}). Si el cambio es a proposito, ` +
+      `muevelo aqui y en src/lib/marca.js a la vez; si no, esto es la marca desarmandose.`);
+  });
+}
+// Y contra el archivo, cuando esta: un test que compara dos constantes del mismo repo
+// se cae solo el dia que alguien las cambia juntas.
+{
+  const svg = join(dirname(fileURLToPath(import.meta.url)), "../../../marca/pagina1-julio.svg");
+  if (!existsSync(svg)) {
+    salta("los acentos calzan con el SVG de julio", `no esta ${svg.split("/").slice(-2).join("/")} en este clon`);
+  } else {
+    prueba("los acentos calzan con el SVG de julio, contados en el vector", () => {
+      const t = readFileSync(svg, "utf8");
+      for (const [nombre, a] of Object.entries(ACENTOS)) {
+        const n = (t.match(new RegExp(a.valor, "gi")) || []).length;
+        cierto(n > 0, `${nombre} ${a.valor} no aparece ni una vez en pagina1-julio.svg`);
+      }
+    });
+  }
+}
+
 console.log("\n— indice —\n");
 
 prueba("el indice sale de los ## del documento, no de una lista aparte", () => {
@@ -149,5 +205,5 @@ prueba("un documento sin secciones no publica un indice vacio", () => {
   igual(indice("# Solo un titulo\n\ntexto"), "", "publico un indice sin nada adentro");
 });
 
-console.log(`\n${ok} pasaron, ${mal} fallaron`);
+console.log(`\n${ok} pasaron, ${mal} fallaron, ${saltados} saltados`);
 if (mal) { console.log("\nFALLOS:\n - " + fallos.join("\n - ")); process.exit(1); }
