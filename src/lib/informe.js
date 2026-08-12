@@ -31,6 +31,28 @@ export const enlinea = s => esc(s)
  * asi este modulo se prueba con datos de juguete y sin dibujar nada, que es lo que
  * hace que sus defectos se puedan atrapar antes del PDF.
  */
+/**
+ * Indice, GENERADO desde los `##` del documento.
+ *
+ * No se escribe a mano por la razon de siempre: una lista que vive en dos lugares ya
+ * divergio. Si manana el laboratorio agrega, quita o renumera una seccion, el indice
+ * cambia solo — y si no cambiara, seria peor que no tenerlo, porque un indice
+ * equivocado se lee como un mapa y manda al lector a una pagina que no existe.
+ */
+export function indice(md) {
+  const secciones = md.split("\n")
+    .filter(l => /^## /.test(l))
+    .map(l => l.slice(3).trim());
+  if (!secciones.length) return "";
+  const li = secciones.map(t => {
+    const m = t.match(/^(\d+)\.\s*(.*)$/);
+    return m
+      ? `<li><span class="idx-n">${m[1]}</span><span class="idx-t">${enlinea(m[2])}</span></li>`
+      : `<li><span class="idx-n"></span><span class="idx-t">${enlinea(t)}</span></li>`;
+  }).join("");
+  return `<nav class="indice"><div class="idx-k">Contents</div><ol>${li}</ol></nav>`;
+}
+
 export function aHtml(md, figurasDe = () => []) {
   const out = [];
   const lineasMd = md.split("\n");

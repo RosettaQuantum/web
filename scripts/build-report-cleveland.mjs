@@ -32,7 +32,8 @@ import { dirname, join } from "node:path";
 import { barras, lineas, grafico, CSS_GRAFICOS } from "../src/lib/charts.js";
 // El markdown->html vive en src/lib/informe.js para que tenga tests propios: sus
 // defectos llegaron dos veces al PDF entregado por no poder ejercitarlo suelto.
-import { aHtml } from "../src/lib/informe.js";
+import { aHtml, indice } from "../src/lib/informe.js";
+import { MARCA, cabecera } from "../src/lib/marca.js";
 
 const RAIZ = join(dirname(fileURLToPath(import.meta.url)), "..");
 const STAGING = join(RAIZ, "../../evidence-staging");
@@ -40,6 +41,16 @@ const SALIDA_DIR = join(RAIZ, "../../quantum-run/submission/cleveland");
 const HTML = join(SALIDA_DIR, "1_methodological_report.html");
 const PDF = join(SALIDA_DIR, "1_methodological_report.pdf");
 const PDF_FLAG = process.argv.includes("--pdf");
+/**
+ * `--marca` arma la version brandeada en un borrador APARTE.
+ *
+ * No sobreescribe el entregable: `1_methodological_report.pdf` ya esta verificado por
+ * dos sesiones y subido, y una version con sitios reservados —sin el resumen ni el
+ * equipo, que Nicholas aun no aprueba— no puede ocupar su lugar por accidente. El
+ * empaquetador busca los cinco nombres exactos, asi que el borrador le es invisible.
+ */
+const MARCA_FLAG = process.argv.includes("--marca");
+const DIR_MARCA = join(SALIDA_DIR, "borrador-marca");
 
 /**
  * Los dos insumos, con el sha que declaro el laboratorio.
@@ -93,13 +104,26 @@ function leerVerificado(clave) {
 
 // ---------------------------------------------------------------- los graficos
 
+/**
+ * Los colores de las series cuando se arma la version de marca.
+ *
+ * El motor toma por omision los tokens del sitio (faience #4DC4B5, gold #D9B87A); la
+ * linea de julio usa teal #2c8c80 y dorado #a6812f, que son mas oscuros y por eso
+ * legibles sobre papel blanco. En pantalla la diferencia es sutil; impresos, el
+ * faience del sitio se lava.
+ */
+const COLORES = MARCA_FLAG ? [MARCA.teal, MARCA.dorado, "#6f8fa8", "#a86f6f"] : [];
+const pinta = series => COLORES.length
+  ? series.map((s, i) => ({ ...s, color: COLORES[i % COLORES.length] }))
+  : series;
+
 function dibujar(c) {
   const comun = { numero: null, titular: c.headline, fuente: c.source, n: c.n, lang: "en" };
   if (c.type === "bar") {
     return { ...comun, subtitulo: c.y_label,
       cuerpo: barras({
         categorias: c.data.map(d => d.label),
-        series: [{ nombre: c.y_label, valores: c.data.map(d => d.value) }],
+        series: pinta([{ nombre: c.y_label, valores: c.data.map(d => d.value) }]),
         dec: 4, lang: "en", etiquetaValores: true,
         referencia: c.reference_line ? { valor: c.reference_line.value, etiqueta: c.reference_line.label } : null,
       }) };
@@ -108,7 +132,7 @@ function dibujar(c) {
     return { ...comun, subtitulo: c.y_label,
       cuerpo: barras({
         categorias: c.data.map(d => d.label),
-        series: c.series.map((nombre, i) => ({ nombre, valores: c.data.map(d => d.values[i]) })),
+        series: pinta(c.series.map((nombre, i) => ({ nombre, valores: c.data.map(d => d.values[i]) }))),
         dec: 2, lang: "en",
       }) };
   }
@@ -123,7 +147,7 @@ function dibujar(c) {
     return { ...comun, subtitulo: [c.x_label, c.y_label].filter(Boolean).join(" · "),
       cuerpo: lineas({
         categorias: c.data[0].points.map(p => String(p.x)),
-        series: c.data.map(s => ({ nombre: s.label, valores: s.points.map(p => p.y) })),
+        series: pinta(c.data.map(s => ({ nombre: s.label, valores: s.points.map(p => p.y) }))),
         dec: 2, lang: "en", alto: 300,
         referencia: c.reference_line ? { valor: c.reference_line.value, etiqueta: c.reference_line.label } : null,
       }) };
@@ -162,6 +186,50 @@ if (sinPoner.length) {
   console.error(`ABORTA: ${sinPoner.length} de ${datos.charts.length} graficos no encontraron su seccion: ${sinPoner.join(", ")}`);
   process.exit(1);
 }
+
+// Sitios reservados. NO son texto: se ven como lo que son —un hueco declarado— para
+// que nadie los confunda con contenido, y el armador los cuenta y los reporta.
+const RESERVADOS = [
+  { id: "resumen", titulo: "Executive summary", nota: "Texto en aprobacion — no publicado todavia." },
+  { id: "equipo",  titulo: "Team",              nota: "Texto en aprobacion — no publicado todavia." },
+];
+const reservado = r => `<section class="reservado" data-reservado="${r.id}">
+      <div class="res-k">${r.titulo}</div>
+      <p>${r.nota}</p>
+    </section>`;
+
+const CABECERA = cabecera({
+  programa: "2026 Global Quantum + AI Challenge",
+  fase: "Phase 2 — Results",
+  desafio: "Cleveland Clinic · Allosteric Signal Propagation",
+});
+
+const CSS_MARCA = `
+/* La linea de julio, medida sobre el SVG vectorial. Ver src/lib/marca.js. */
+.marca{position:fixed;top:0;left:0;right:0;display:flex;align-items:flex-end;
+  justify-content:space-between;gap:20px;padding:0 0 7px;
+  border-bottom:1.5px solid ${MARCA.dorado};background:#fff}
+.marca-logo{height:26px;width:auto}
+.marca-txt{text-align:right;font-size:8.5px;line-height:1.45;color:${MARCA.gris};
+  letter-spacing:.04em;text-transform:uppercase}
+.marca-txt div:first-child{color:${MARCA.dorado};font-weight:600}
+
+.indice{margin:26px 0 34px;padding:16px 18px;background:${MARCA.papel};
+  border-left:2px solid ${MARCA.dorado}}
+.idx-k{font-size:9px;letter-spacing:.16em;text-transform:uppercase;color:${MARCA.gris};margin-bottom:9px}
+.indice ol{list-style:none;margin:0;padding:0;columns:2;column-gap:26px}
+.indice li{display:flex;gap:9px;margin:0 0 5px;font-size:12px;break-inside:avoid}
+.idx-n{color:${MARCA.dorado};font-weight:600;min-width:15px}
+.idx-t{color:${MARCA.tinta}}
+.reservado{margin:22px 0;padding:14px 16px;border:1px dashed ${MARCA.dorado};
+  background:${MARCA.crema};break-inside:avoid}
+.res-k{font-size:9px;letter-spacing:.16em;text-transform:uppercase;color:${MARCA.dorado};font-weight:600}
+.reservado p{margin:6px 0 0;font-size:11.5px;color:${MARCA.gris};font-style:italic}
+.portada-t{color:${MARCA.tinta}}
+.portada-k{color:${MARCA.dorado}}
+h2{border-bottom-color:${MARCA.dorado}}
+a{color:${MARCA.teal}}
+`;
 
 const html = `<!doctype html>
 <html lang="en"><head><meta charset="utf-8">
@@ -205,6 +273,7 @@ li{margin-bottom:7px}
 hr{border:0;border-top:1px solid var(--stone-line);margin:26px 0}
 a{color:var(--faience)}
 ${CSS_GRAFICOS}
+${MARCA_FLAG ? CSS_MARCA : ""}
 /* Impresion: el PDF es el entregable, la pantalla es el borrador. Fondo claro para
    que no salga un ladrillo de tinta, y ninguna figura partida entre dos paginas. */
 @media print{
@@ -238,9 +307,15 @@ ${CSS_GRAFICOS}
   :root{--papyrus:#22201C;--papyrus-dim:#4A453D;--faint:#6E675C;--stone-line:#D9D3C6;
         --faience:#0F7F72;--gold:#7A5C1E;--basalt-2:#F5F2EA;--basalt:#FFFFFF}
 }
-@page{size:A4;margin:17mm 16mm}
+/* La cabecera va con position:fixed, que en impresion la repite en cada pagina PERO
+   no reserva espacio: el contenido fluye por debajo y se la come. Esta regla va
+   DESPUES del bloque de impresion a proposito, porque el .hoja con padding:0 de ahi
+   arriba la pisaba y el titulo de la portada salia cortado por el filete.
+   (Y sin comillas invertidas: esto vive dentro de una plantilla de JS.) */
+body.con-marca .hoja{padding-top:13mm}
+@page{size:A4;margin:${MARCA_FLAG ? "24mm" : "17mm"} 16mm 17mm}
 </style></head>
-<body><main class="hoja">
+<body${MARCA_FLAG ? ' class="con-marca"' : ""}>${MARCA_FLAG ? CABECERA : ""}<main class="hoja">
 <header class="portada">
   <div class="portada-k">Rosetta Quantum · deliverable 3</div>
   <h1 class="portada-t">Methodology Report</h1>
@@ -252,22 +327,32 @@ ${CSS_GRAFICOS}
   below; every figure is read from the sealed files listed in the header, none typed
   by hand.</p>
 </header>
+${MARCA_FLAG ? reservado(RESERVADOS[0]) + indice(md) : ""}
 ${cuerpo}
+${MARCA_FLAG ? reservado(RESERVADOS[1]) : ""}
 </main></body></html>
 `;
 
-mkdirSync(SALIDA_DIR, { recursive: true });
-writeFileSync(HTML, html);
-console.log(`\n  escrito ${HTML.replace(join(RAIZ, "../../"), "")} — ${Object.keys(figuras).length} figuras, ${Math.round(html.length / 1024)} KB`);
+const dirSalida = MARCA_FLAG ? DIR_MARCA : SALIDA_DIR;
+const htmlSalida = MARCA_FLAG ? join(DIR_MARCA, "informe-brandeado.html") : HTML;
+const pdfSalida  = MARCA_FLAG ? join(DIR_MARCA, "informe-brandeado.pdf")  : PDF;
+mkdirSync(dirSalida, { recursive: true });
+writeFileSync(htmlSalida, html);
+if (MARCA_FLAG) {
+  const huecos = (html.match(/data-reservado="/g) || []).length;
+  console.log(`  marca: cabecera + indice de ${(indice(md).match(/<li>/g) || []).length} secciones` +
+    `, ${huecos} sitios reservados (resumen y equipo) — borrador, NO es el entregable`);
+}
+console.log(`\n  escrito ${htmlSalida.replace(join(RAIZ, "../../"), "")} — ${Object.keys(figuras).length} figuras, ${Math.round(html.length / 1024)} KB`);
 
 if (PDF_FLAG) {
   const CHROME = "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome";
   if (!existsSync(CHROME)) { console.error("ABORTA: no encontre Chrome para exportar el PDF"); process.exit(1); }
   execFileSync(CHROME, [
     "--headless", "--disable-gpu", "--no-pdf-header-footer",
-    `--print-to-pdf=${PDF}`, "--virtual-time-budget=8000", `file://${HTML}`,
+    `--print-to-pdf=${pdfSalida}`, "--virtual-time-budget=8000", `file://${htmlSalida}`,
   ], { stdio: "pipe" });
-  const bytes = readFileSync(PDF);
-  console.log(`  escrito ${PDF.replace(join(RAIZ, "../../"), "")} — ${Math.round(bytes.length / 1024)} KB, ` +
+  const bytes = readFileSync(pdfSalida);
+  console.log(`  escrito ${pdfSalida.replace(join(RAIZ, "../../"), "")} — ${Math.round(bytes.length / 1024)} KB, ` +
     `sha256:${createHash("sha256").update(bytes).digest("hex").slice(0, 12)}…`);
 }

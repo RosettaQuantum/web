@@ -23,7 +23,7 @@
  *
  * Uso: node scripts/test-report-render.mjs
  */
-import { aHtml } from "../src/lib/informe.js";
+import { aHtml, indice } from "../src/lib/informe.js";
 
 let ok = 0, mal = 0;
 const fallos = [];
@@ -130,6 +130,23 @@ prueba("el HTML de la fuente se escapa", () => {
 prueba("los enlaces markdown se convierten", () => {
   cierto(aHtml("Ver [el protocolo](https://example.org/P.md) aqui.")
     .includes('<a href="https://example.org/P.md">el protocolo</a>'), "no convirtio el enlace");
+});
+
+console.log("\n— indice —\n");
+
+prueba("el indice sale de los ## del documento, no de una lista aparte", () => {
+  const i = indice("# T\n\n## 1. Uno\n\ntexto\n\n## 2. Dos\n\n## How to verify this document");
+  igual(cuenta(i, /<li>/g), 3, "no listo todas las secciones:");
+  cierto(i.includes("Uno") && i.includes("How to verify"), "perdio una seccion");
+  cierto(!i.includes("# T"), "metio el titulo del documento como seccion");
+});
+prueba("el indice separa el numero del titulo, y aguanta secciones sin numero", () => {
+  const i = indice("## 9. The same circuit\n## How to verify this document");
+  cierto(/<span class="idx-n">9<\/span><span class="idx-t">The same circuit/.test(i), "no separo el numero");
+  cierto(/<span class="idx-n"><\/span><span class="idx-t">How to verify/.test(i), "no manejo la seccion sin numero");
+});
+prueba("un documento sin secciones no publica un indice vacio", () => {
+  igual(indice("# Solo un titulo\n\ntexto"), "", "publico un indice sin nada adentro");
 });
 
 console.log(`\n${ok} pasaron, ${mal} fallaron`);
