@@ -10,8 +10,11 @@
     "sync:ledger": "node scripts/sync-ledger.mjs"
   },
   "dependencies": {
-    "astro": "latest",
+    "@astrojs/rss": "latest",
     "@astrojs/sitemap": "latest",
-    "@astrojs/rss": "latest"
+    "astro": "latest"
+  },
+  "devDependencies": {
+    "wrangler": "4.120.1"
   }
 }

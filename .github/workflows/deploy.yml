@@ -48,7 +48,13 @@ jobs:
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-        run: npx wrangler deploy
+        # wrangler FIJADO en package.json y llamado desde node_modules. Con `npx
+        # wrangler` a secas, cada deploy bajaba la ultima version publicada: el
+        # 2026-08-12 una de ellas pedia miniflare@5.20260811.0-alpha, que no existe en
+        # el registro, y el deploy murio por un paquete de un tercero sin que nada
+        # nuestro hubiera cambiado. Una herramienta de despliegue sin version fija es
+        # una dependencia de terceros en el camino critico.
+        run: ./node_modules/.bin/wrangler deploy
 
       # el edge puede servir HTML viejo tras el deploy — purga deseable, pero un
       # token sin Zone.Cache Purge no debe tumbar el deploy: warning y seguimos
