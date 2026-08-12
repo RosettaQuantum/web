@@ -273,10 +273,16 @@ const CSS_MARCA = `
      paginas. Tambien medido: el borde inferior del logo quedo en y=62,7 en todas.
    Lo que si reserva espacio en CADA pagina es un encabezado de TABLA repetido:
    thead{display:table-header-group} lo repite y su alto empuja el contenido. */
-.marca{display:table-header-group;display:flex;align-items:flex-end;
-  justify-content:space-between;gap:20px;padding:0 0 7px;
-  border-bottom:1.5px solid ${MARCA.dorado};background:#fff}
-.marca-celda{display:block;padding:0 0 7px;border-bottom:1.5px solid ${MARCA.dorado};display:flex;align-items:flex-end;justify-content:space-between;gap:20px}
+/* NO se declara display aqui: la clase .marca esta en el <tr>, y ponerle
+   table-header-group convierte la FILA en un grupo dentro del thead — malformado, y la
+   celda quedaba a 399 px de 794. El <thead> ya es header-group por omision y ya se
+   repite; no habia nada que forzar. */
+/* La fila NO lleva borde ni fondo: el filete es UNO y vive en la celda. Al pasar
+   de position:fixed a thead deje puestas las propiedades de la regla vieja —padding,
+   fondo y border-bottom— y quedaron DOS filetes dorados, uno de la fila (ancho
+   completo) y otro de la celda (mas corto). Medido en el PDF: y=760,2 ancho 296 y
+   y=746,7 ancho 505. Julio tiene uno solo. */
+.marca-celda{width:100%;padding:0 0 7px;border-bottom:1.5px solid ${MARCA.dorado};display:flex;align-items:flex-end;justify-content:space-between;gap:20px}
 .marca-logo{height:26px;width:auto}
 .marca-txt{text-align:right;font-size:8.5px;line-height:1.45;color:${MARCA.gris};
   letter-spacing:.04em;text-transform:uppercase}
@@ -381,7 +387,7 @@ ${MARCA_FLAG ? CSS_MARCA : ""}
    arriba la pisaba y el titulo de la portada salia cortado por el filete.
    (Y sin comillas invertidas: esto vive dentro de una plantilla de JS.) */
 body.con-marca .hoja{padding-top:0}
-table.envoltura{width:100%;border-collapse:collapse}
+table.envoltura{width:100%;border-collapse:collapse;table-layout:fixed}
 table.envoltura>tbody>tr>td{padding:0;border:0}
 table.envoltura>thead>tr>th{padding:0 0 10px;border:0;text-transform:none;letter-spacing:normal;font-size:inherit;color:inherit;font-weight:400}
 /* El margen vuelve a 17mm: con la cabecera en el FLUJO (thead) su alto ya lo reserva
