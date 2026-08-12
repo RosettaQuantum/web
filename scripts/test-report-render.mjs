@@ -23,7 +23,7 @@
  *
  * Uso: node scripts/test-report-render.mjs
  */
-import { aHtml, indice } from "../src/lib/informe.js";
+import { aHtml, indice, contrastarIndice } from "../src/lib/informe.js";
 import { MARCA } from "../src/lib/marca.js";
 import { readFileSync, existsSync } from "node:fs";
 import { createHash } from "node:crypto";
@@ -122,12 +122,23 @@ prueba("las tablas salen con encabezado y sin la fila de guiones", () => {
   igual(cuenta(h, /<tr>/g), 3, "conto mal las filas (¿se colo la de guiones?):");
   cierto(!h.includes("---"), "publico la fila de guiones");
 });
-prueba("los titulos numerados abren seccion y las figuras caen al cerrarla", () => {
+prueba("la seccion se identifica por su TITULO, no por su numero", () => {
+  // El caso real: el documento gano tres secciones al principio y TODO se renumero.
+  // Con las figuras mapeadas por numero se habrian ido a capitulos equivocados y nada
+  // habria gritado, porque las secciones 4, 5 y 6 seguian existiendo.
   const vistas = [];
-  const h = aHtml("## 4. Result\n\ntexto\n\n## 5. Why\n\notro", s => { vistas.push(s); return s === 4 ? ["<figure>F1</figure>"] : []; });
-  cierto(vistas.includes(4), `no vio la seccion 4: ${vistas.join(",")}`);
-  const iFig = h.indexOf("<figure>"), iH5 = h.indexOf("5. Why");
-  cierto(iFig > 0 && iFig < iH5, "la figura de la seccion 4 no quedo ANTES del titulo de la 5");
+  const h = aHtml("## 4. Result: negative\n\ntexto\n\n## 5. Why it failed\n\notro",
+    s => { vistas.push(s); return s === "Result: negative" ? ["<figure>F1</figure>"] : []; });
+  cierto(vistas.includes("Result: negative"), `no paso el titulo sin numero: ${JSON.stringify(vistas)}`);
+  cierto(!vistas.includes(4) && !vistas.includes("4"), "todavia pasa el numero");
+  const iFig = h.indexOf("<figure>"), iSig = h.indexOf("Why it failed");
+  cierto(iFig > 0 && iFig < iSig, "la figura no quedo ANTES del titulo siguiente");
+});
+prueba("el mismo titulo con otro numero sigue siendo la misma seccion", () => {
+  const v6 = [], v4 = [];
+  aHtml("## 6. Result: negative\n\ntexto", s => { v6.push(s); return []; });
+  aHtml("## 4. Result: negative\n\ntexto", s => { v4.push(s); return []; });
+  igual(JSON.stringify(v6), JSON.stringify(v4), "renumerar la seccion cambio su identidad:");
 });
 prueba("un bloque de codigo no se interpreta como markdown", () => {
   const h = aHtml("```bash\npython3 tools/verify_seals.py <file>\n```");
@@ -141,6 +152,32 @@ prueba("el HTML de la fuente se escapa", () => {
 prueba("los enlaces markdown se convierten", () => {
   cierto(aHtml("Ver [el protocolo](https://example.org/P.md) aqui.")
     .includes('<a href="https://example.org/P.md">el protocolo</a>'), "no convirtio el enlace");
+});
+
+console.log("\n— el indice que trae el documento —\n");
+
+prueba("el contraste calla cuando el indice calza con las secciones", () => {
+  const md = "## 1. Uno\n\n### Contents\n\n| | |\n|---|---|\n| 1 | Uno |\n| 2 | Dos |\n| | Sin numero |\n\n## 2. Dos\n\n## Sin numero";
+  const c = contrastarIndice(md);
+  igual(c.faltan.length, 0, `faltan: ${c.faltan.join("|")}`);
+  igual(c.sobran.length, 0, `sobran: ${c.sobran.join("|")}`);
+  igual(c.enIndice.length, 3, "no leyo la fila con la primera celda vacia:");
+});
+prueba("grita si el documento gana una seccion y el indice queda viejo", () => {
+  const md = "### Contents\n\n| | |\n|---|---|\n| 1 | Uno |\n\n## 1. Uno\n\n## 2. Dos";
+  const c = contrastarIndice(md);
+  igual(c.faltan.length, 1, "no vio la seccion sin entrada:");
+  cierto(c.faltan[0].includes("Dos"), `esperaba Dos, dio ${c.faltan[0]}`);
+});
+prueba("grita si el indice nombra una seccion que ya no existe", () => {
+  const md = "### Contents\n\n| | |\n|---|---|\n| 1 | Uno |\n| 2 | Fantasma |\n\n## 1. Uno";
+  const c = contrastarIndice(md);
+  igual(c.sobran.length, 1, "no vio la entrada sin seccion:");
+});
+prueba("renumerar no cuenta como diferencia: se compara el titulo", () => {
+  const md = "### Contents\n\n| | |\n|---|---|\n| 6 | El resultado |\n\n## 4. El resultado";
+  const c = contrastarIndice(md);
+  igual(c.faltan.length + c.sobran.length, 0, "el numero distinto se conto como divergencia:");
 });
 
 console.log("\n— la linea de marca —\n");

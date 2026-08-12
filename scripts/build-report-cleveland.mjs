@@ -32,7 +32,7 @@ import { dirname, join } from "node:path";
 import { barras, lineas, grafico, CSS_GRAFICOS } from "../src/lib/charts.js";
 // El markdown->html vive en src/lib/informe.js para que tenga tests propios: sus
 // defectos llegaron dos veces al PDF entregado por no poder ejercitarlo suelto.
-import { aHtml, indice } from "../src/lib/informe.js";
+import { aHtml, indice, contrastarIndice } from "../src/lib/informe.js";
 import { MARCA, cabecera } from "../src/lib/marca.js";
 
 const RAIZ = join(dirname(fileURLToPath(import.meta.url)), "..");
@@ -61,7 +61,11 @@ const DIR_MARCA = join(SALIDA_DIR, "borrador-marca");
  */
 const INSUMOS = {
   texto: { archivo: "REPORTE-METODOLOGICO-EN.md",
-           sha: "b07826d09cdf081476fabb3d44bc38259479b8be4691b623d3f83a0f5c27ad41" },
+           sha: "f304c5ef4d789646a500791740cde4f2d6dd8694b447784b8bdaaa3e0cee3fb7" },
+  // Revision anterior: b07826d0… (sello RQ-REPORT-CLEV-METHOD-005). Gana tres secciones
+  // —resumen, el hilo con julio, y Team— y su propio indice; las diez anteriores quedan
+  // identicas pero RENUMERADAS. Ojo: NICHOLAS NO HA VISTO ESTE TEXTO. Se rinde para que
+  // lo lea, no para subirlo — por eso solo se arma con --marca, al borrador.
   // Revision anterior: ae7dd557… (sello RQ-REPORT-CLEV-METHOD-004). Tres cambios, no
   // dos: el §9 recupera los siete job_id, el §8 reescribe su primer punto, y la tabla
   // del encabezado gana la fila de RQ-EXP-N90-LOPO-003. La tercera no venia en el
@@ -80,12 +84,23 @@ const INSUMOS = {
   // quien corrige y que cambio. Lo anclado no se toca.
 };
 
-/** id del grafico -> numero de seccion despues de la cual se inserta. */
+/**
+ * id del grafico -> TITULO de la seccion despues de la cual se inserta.
+ *
+ * Por titulo y no por numero, y no es una preferencia: el 2026-08-12 el documento gano
+ * tres secciones al principio y TODO se renumero. Con el mapa por numero, las cuatro
+ * figuras se habrian ido a capitulos equivocados —el grafico de p-valores al final de
+ * "How the prediction was blinded", los dos de compresion dentro de "The result"— y
+ * NADA habria gritado, porque las secciones 4, 5 y 6 siguen existiendo. Cada figura
+ * seguiria con su titular correcto, en el capitulo que no es.
+ *
+ * El titulo es lo que de verdad identifica el capitulo. Si cambia, el armador aborta.
+ */
 const UBICACION = {
-  significance: 4,          // el resultado: los tres p lejos de 0,05
-  proximity: 5,             // por que fallo: el score sigue la distancia
-  coarse_grain_order: 6,    // el orden no sobrevive a la compresion
-  coarse_grain_topset: 6,   // y el conjunto que decide se reemplaza
+  significance:        "The result: negative",
+  proximity:           "Why it failed",
+  coarse_grain_order:  "Coarse-graining scalability",
+  coarse_grain_topset: "Coarse-graining scalability",
 };
 
 function leerVerificado(clave) {
@@ -167,11 +182,23 @@ for (const c of datos.charts) {
   if (!UBICACION[c.id]) { console.error(`ABORTA: el grafico "${c.id}" no tiene ubicacion declarada.`); process.exit(1); }
   figuras[c.id] = { spec: dibujar(c), puesta: false };
 }
+// Antes de armar nada: cada titulo declarado tiene que existir en el documento.
+// Falla cerrado — una figura sin su capitulo es peor que un build roto.
+{
+  const titulos = md.split("\n").filter(l => /^## /.test(l)).map(l => l.slice(3).trim());
+  const perdidos = [...new Set(Object.values(UBICACION))].filter(t => !titulos.some(x => x.includes(t)));
+  if (perdidos.length) {
+    console.error(`ABORTA: ${perdidos.length} seccion(es) declarada(s) no existen en el documento: ${perdidos.join(" | ")}`);
+    console.error(`  el documento tiene: ${titulos.join(" | ")}`);
+    process.exit(1);
+  }
+}
+
 let nFig = 0;
 const cuerpo = aHtml(md, seccion => {
   const bloques = [];
-  for (const [id, sec] of Object.entries(UBICACION)) {
-    if (sec === seccion && figuras[id] && !figuras[id].puesta) {
+  for (const [id, tit] of Object.entries(UBICACION)) {
+    if (String(seccion).includes(tit) && figuras[id] && !figuras[id].puesta) {
       figuras[id].puesta = true;
       bloques.push(grafico({ ...figuras[id].spec, numero: ++nFig }));
     }
@@ -197,6 +224,26 @@ const reservado = r => `<section class="reservado" data-reservado="${r.id}">
       <div class="res-k">${r.titulo}</div>
       <p>${r.nota}</p>
     </section>`;
+
+// El documento trae su propio `### Contents` desde el 2026-08-12. Si esta, NO se
+// inyecta otro —dos indices en la misma pagina es peor que ninguno— y en cambio se
+// CONTRASTA contra los titulos reales, que es lo que de verdad puede envejecer.
+const TIENE_INDICE = md.includes("### Contents");
+{
+  const c = contrastarIndice(md);
+  if (TIENE_INDICE) {
+    if (c.faltan.length || c.sobran.length) {
+      console.error(`ABORTA: el indice del documento no calza con sus secciones.`);
+      if (c.faltan.length) console.error(`  secciones sin entrada en el indice: ${c.faltan.join(" | ")}`);
+      if (c.sobran.length) console.error(`  entradas del indice que no son secciones: ${c.sobran.join(" | ")}`);
+      process.exit(1);
+    }
+    console.log(`  indice: el del documento calza con sus ${c.enDocumento.length} secciones`);
+  }
+}
+const RESERVADOS_PENDIENTES = RESERVADOS.filter(r => !md.includes("## 12. Team") || r.id !== "equipo");
+const bloqueInicio = (TIENE_INDICE ? "" : indice(md)) +
+  (md.includes("## 1. What this is") ? "" : reservado(RESERVADOS[0]));
 
 const CABECERA = cabecera({
   programa: "2026 Global Quantum + AI Challenge",
@@ -327,9 +374,9 @@ body.con-marca .hoja{padding-top:13mm}
   below; every figure is read from the sealed files listed in the header, none typed
   by hand.</p>
 </header>
-${MARCA_FLAG ? reservado(RESERVADOS[0]) + indice(md) : ""}
+${MARCA_FLAG ? bloqueInicio : ""}
 ${cuerpo}
-${MARCA_FLAG ? reservado(RESERVADOS[1]) : ""}
+${MARCA_FLAG && !md.includes("## 12. Team") ? reservado(RESERVADOS[1]) : ""}
 </main></body></html>
 `;
 

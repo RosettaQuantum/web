@@ -53,10 +53,42 @@ export function indice(md) {
   return `<nav class="indice"><div class="idx-k">Contents</div><ol>${li}</ol></nav>`;
 }
 
+/**
+ * Compara el indice QUE TRAE el documento contra sus titulos reales.
+ *
+ * Desde el 2026-08-12 el `.md` trae su propio `### Contents`, generado por el
+ * laboratorio. Eso es mejor que inyectar uno al maquetar —viaja con el texto sellado—
+ * pero convierte al indice en una lista que vive en dos lugares, y esas ya divergieron
+ * tres veces en este proyecto. Un indice que envejece es peor que no tenerlo: se lee
+ * como un mapa y manda al lector a una pagina que no es.
+ *
+ * Devuelve `{ enIndice, enDocumento, faltan, sobran }` para que quien llame decida.
+ */
+export function contrastarIndice(md) {
+  const titulos = md.split("\n").filter(l => /^## /.test(l))
+    .map(l => l.slice(3).replace(/^\d+\.\s*/, "").trim());
+  const i = md.indexOf("### Contents");
+  const enIndice = [];
+  if (i >= 0) {
+    for (const l of md.slice(i).split("\n").slice(1)) {
+      if (!/^\|/.test(l)) { if (enIndice.length) break; else continue; }
+      const celdas = l.replace(/^\||\|$/g, "").split("|").map(c => c.trim());
+      const txt = celdas[celdas.length - 1];
+      if (txt && !/^[-: ]+$/.test(txt)) enIndice.push(txt);
+    }
+  }
+  const norm = s => s.replace(/\s+/g, " ").trim().toLowerCase();
+  return {
+    enIndice, enDocumento: titulos,
+    faltan: titulos.filter(t => !enIndice.some(x => norm(x) === norm(t))),
+    sobran: enIndice.filter(x => !titulos.some(t => norm(x) === norm(t))),
+  };
+}
+
 export function aHtml(md, figurasDe = () => []) {
   const out = [];
   const lineasMd = md.split("\n");
-  let i = 0, seccion = 0;
+  let i = 0, seccion = "";
 
   const cerrarSeccion = () => { out.push(...figurasDe(seccion)); };
 
@@ -65,7 +97,10 @@ export function aHtml(md, figurasDe = () => []) {
     if (/^#{1,4} /.test(l)) {
       const nivel = l.match(/^#+/)[0].length;
       const texto = l.replace(/^#+ /, "");
-      if (nivel === 2) { cerrarSeccion(); const m = texto.match(/^(\d+)\./); seccion = m ? Number(m[1]) : 0; }
+      // La seccion se identifica por su TITULO, no por su numero: el documento se
+      // renumero entero al ganar tres secciones, y un mapa por numero manda las figuras
+      // a capitulos equivocados sin que nada grite.
+      if (nivel === 2) { cerrarSeccion(); seccion = texto.replace(/^\d+\.\s*/, "").trim(); }
       out.push(`<h${nivel}>${enlinea(texto)}</h${nivel}>`);
       i++; continue;
     }
