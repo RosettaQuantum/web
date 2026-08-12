@@ -61,7 +61,11 @@ const DIR_MARCA = join(SALIDA_DIR, "borrador-marca");
  */
 const INSUMOS = {
   texto: { archivo: "REPORTE-METODOLOGICO-EN.md",
-           sha: "f304c5ef4d789646a500791740cde4f2d6dd8694b447784b8bdaaa3e0cee3fb7" },
+           sha: "25d019528d718b78a1c26de59a101984914336387cb46c5136eb075033cce256" },
+  // Revision anterior: f304c5ef… Dos frases, ninguna estructural: el documento
+  // afirmaba que la respuesta estuvo cerrada hasta el final —falso para dos de los
+  // tres blancos— y declaraba su propio limite mas chico de lo que es. El sello -005
+  // se re-sello en 03b80241…
   // Revision anterior: b07826d0… (sello RQ-REPORT-CLEV-METHOD-005). Gana tres secciones
   // —resumen, el hilo con julio, y Team— y su propio indice; las diez anteriores quedan
   // identicas pero RENUMERADAS. Ojo: NICHOLAS NO HA VISTO ESTE TEXTO. Se rinde para que
@@ -387,8 +391,11 @@ mkdirSync(dirSalida, { recursive: true });
 writeFileSync(htmlSalida, html);
 if (MARCA_FLAG) {
   const huecos = (html.match(/data-reservado="/g) || []).length;
-  console.log(`  marca: cabecera + indice de ${(indice(md).match(/<li>/g) || []).length} secciones` +
-    `, ${huecos} sitios reservados (resumen y equipo) — borrador, NO es el entregable`);
+  // El mensaje dice lo que PASO, no lo que el armador sabe hacer: reportar "indice de
+  // 13 secciones" cuando el indice lo trae el documento seria describir un trabajo que
+  // no hice.
+  console.log(`  marca: cabecera en cada pagina · indice ${TIENE_INDICE ? "del documento (contrastado)" : "generado aqui"}` +
+    ` · ${huecos} sitios reservados — borrador, NO es el entregable`);
 }
 console.log(`\n  escrito ${htmlSalida.replace(join(RAIZ, "../../"), "")} — ${Object.keys(figuras).length} figuras, ${Math.round(html.length / 1024)} KB`);
 
