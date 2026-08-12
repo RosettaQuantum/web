@@ -159,7 +159,15 @@ function aHtml(md, figuras) {
       const filas = []; while (i < lineasMd.length && /^\|/.test(lineasMd[i])) filas.push(lineasMd[i++]);
       const celdas = f => f.replace(/^\||\|$/g, "").split("|").map(c => c.trim());
       const th = celdas(filas[0]).map(c => `<th>${enlinea(c)}</th>`).join("");
-      const tr = filas.slice(2).map(f => `<tr>${celdas(f).map(c => `<td>${enlinea(c)}</td>`).join("")}</tr>`).join("");
+      // Una celda que es UN identificador corto no se parte nunca: un job_id cortado a
+      // la mitad no se puede copiar, y copiarlo es la unica razon por la que esta ahi.
+      // El limite existe porque la MISMA regla aplicada a los sha256 de la cabecera
+      // (71 caracteres) reventaria la columna — ahi partir es lo correcto. Medido: con
+      // la columna sin quiebre la tabla de 5 columnas mide 673 px, exactamente el ancho
+      // util de la A4, y los siete identificadores quedan en una linea.
+      const noPartir = c => /^`[^`]{1,28}`$/.test(c.trim());
+      const tr = filas.slice(2).map(f => `<tr>${celdas(f).map(c =>
+        `<td${noPartir(c) ? ' class="nb"' : ""}>${enlinea(c)}</td>`).join("")}</tr>`).join("");
       out.push(`<div class="tabla-scroll"><table><thead><tr>${th}</tr></thead><tbody>${tr}</tbody></table></div>`);
       continue;
     }
@@ -266,6 +274,7 @@ table{border-collapse:collapse;width:100%;font-size:13px}
 th{text-align:left;font-size:9.5px;letter-spacing:.13em;text-transform:uppercase;
    color:var(--faint);padding:0 12px 7px 0;border-bottom:1px solid var(--stone-line);font-weight:500}
 td{padding:9px 12px 9px 0;border-bottom:1px solid var(--stone-line);vertical-align:top}
+td.nb code{white-space:nowrap}
 ul,ol{margin:0 0 13px 20px;padding:0}
 li{margin-bottom:7px}
 hr{border:0;border-top:1px solid var(--stone-line);margin:26px 0}
