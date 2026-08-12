@@ -29,7 +29,10 @@ import { createHash } from "node:crypto";
 import { execFileSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
-import { barras, lineas, grafico, esc, CSS_GRAFICOS } from "../src/lib/charts.js";
+import { barras, lineas, grafico, CSS_GRAFICOS } from "../src/lib/charts.js";
+// El markdown->html vive en src/lib/informe.js para que tenga tests propios: sus
+// defectos llegaron dos veces al PDF entregado por no poder ejercitarlo suelto.
+import { aHtml } from "../src/lib/informe.js";
 
 const RAIZ = join(dirname(fileURLToPath(import.meta.url)), "..");
 const STAGING = join(RAIZ, "../../evidence-staging");
@@ -47,10 +50,14 @@ const PDF_FLAG = process.argv.includes("--pdf");
  */
 const INSUMOS = {
   texto: { archivo: "REPORTE-METODOLOGICO-EN.md",
-           sha: "ae7dd55788350443e7de66350d3e006e5e3f7c801a5777beb980953b0aeb7da0" },
-  // Revision anterior: 006daf19… Cambio SOLO el §9, que ahora reporta la bateria de
-  // hardware corrida (sello RQ-REPORT-CLEV-METHOD-003) en vez de declararla en curso.
-  // Trae una tabla de 7 filas y dos subsecciones, que el capitulo no tenia.
+           sha: "b07826d09cdf081476fabb3d44bc38259479b8be4691b623d3f83a0f5c27ad41" },
+  // Revision anterior: ae7dd557… (sello RQ-REPORT-CLEV-METHOD-004). Tres cambios, no
+  // dos: el §9 recupera los siete job_id, el §8 reescribe su primer punto, y la tabla
+  // del encabezado gana la fila de RQ-EXP-N90-LOPO-003. La tercera no venia en el
+  // encargo escrito y si en el aviso del laboratorio; se verifico contra el archivo
+  // sellado antes de rendirla — el content_hash que declara calza.
+  //
+  // Antes: 006daf19…, que declaraba la bateria de hardware "en curso".
   datos: { archivo: "charts_data.json",
            sha: "0d6c0fb37f1fb19244694f9bdf19f1af340a01eace04b28bb447d025ec08f30c" },
   // Revision anterior: 7b87cc26… Cambio SOLO el punto final de los cuatro titulares,
@@ -124,98 +131,6 @@ function dibujar(c) {
   throw new Error(`tipo de grafico desconocido: ${c.type}`);
 }
 
-// --------------------------------------------------- markdown -> html del informe
-
-const enlinea = s => esc(s)
-  .replace(/`([^`]+)`/g, "<code>$1</code>")
-  .replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>")
-  .replace(/(^|[\s(])\*([^*]+)\*/g, "$1<em>$2</em>")
-  .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2">$1</a>');
-
-function aHtml(md, figuras) {
-  const out = [];
-  const lineasMd = md.split("\n");
-  let i = 0, seccion = 0, nFig = 0;
-
-  const cerrarSeccion = () => {
-    for (const [id, sec] of Object.entries(UBICACION)) {
-      if (sec === seccion && figuras[id] && !figuras[id].puesta) {
-        figuras[id].puesta = true;
-        out.push(grafico({ ...figuras[id].spec, numero: ++nFig }));
-      }
-    }
-  };
-
-  while (i < lineasMd.length) {
-    const l = lineasMd[i];
-    if (/^#{1,4} /.test(l)) {
-      const nivel = l.match(/^#+/)[0].length;
-      const texto = l.replace(/^#+ /, "");
-      if (nivel === 2) { cerrarSeccion(); const m = texto.match(/^(\d+)\./); seccion = m ? Number(m[1]) : 0; }
-      out.push(`<h${nivel}>${enlinea(texto)}</h${nivel}>`);
-      i++; continue;
-    }
-    if (/^\|/.test(l)) {
-      const filas = []; while (i < lineasMd.length && /^\|/.test(lineasMd[i])) filas.push(lineasMd[i++]);
-      const celdas = f => f.replace(/^\||\|$/g, "").split("|").map(c => c.trim());
-      const th = celdas(filas[0]).map(c => `<th>${enlinea(c)}</th>`).join("");
-      // Una celda que es UN identificador corto no se parte nunca: un job_id cortado a
-      // la mitad no se puede copiar, y copiarlo es la unica razon por la que esta ahi.
-      // El limite existe porque la MISMA regla aplicada a los sha256 de la cabecera
-      // (71 caracteres) reventaria la columna — ahi partir es lo correcto. Medido: con
-      // la columna sin quiebre la tabla de 5 columnas mide 673 px, exactamente el ancho
-      // util de la A4, y los siete identificadores quedan en una linea.
-      const noPartir = c => /^`[^`]{1,28}`$/.test(c.trim());
-      const tr = filas.slice(2).map(f => `<tr>${celdas(f).map(c =>
-        `<td${noPartir(c) ? ' class="nb"' : ""}>${enlinea(c)}</td>`).join("")}</tr>`).join("");
-      out.push(`<div class="tabla-scroll"><table><thead><tr>${th}</tr></thead><tbody>${tr}</tbody></table></div>`);
-      continue;
-    }
-    if (/^```/.test(l)) {
-      i++; const cod = []; while (i < lineasMd.length && !/^```/.test(lineasMd[i])) cod.push(lineasMd[i++]);
-      i++; out.push(`<pre><code>${esc(cod.join("\n"))}</code></pre>`);
-      continue;
-    }
-    if (/^> /.test(l)) {
-      const c = []; while (i < lineasMd.length && /^>/.test(lineasMd[i])) c.push(lineasMd[i++].replace(/^> ?/, ""));
-      out.push(`<blockquote>${enlinea(c.join(" "))}</blockquote>`);
-      continue;
-    }
-    if (/^[-*] /.test(l) && !/^\*\*/.test(l)) {
-      // Una vinneta que ocupa dos lineas en el .md es UNA vinneta. La primera version
-      // solo tomaba la linea del guion, asi que la continuacion caia como parrafo
-      // suelto debajo: en el §7 cada "no afirmamos esto" quedaba cortado en dos y la
-      // lista perdia su forma. Salio en el PDF anterior y no lo vio nadie.
-      const items = [];
-      while (i < lineasMd.length && /^[-*] /.test(lineasMd[i])) {
-        let texto = lineasMd[i++].slice(2);
-        while (i < lineasMd.length && lineasMd[i].trim() && !/^([-*] |#|\||>|```|\d+\. |---)/.test(lineasMd[i])) {
-          texto += " " + lineasMd[i++].trim();
-        }
-        items.push(texto);
-      }
-      out.push(`<ul>${items.map(x => `<li>${enlinea(x)}</li>`).join("")}</ul>`);
-      continue;
-    }
-    if (/^\d+\. /.test(l)) {
-      const items = []; while (i < lineasMd.length && /^\d+\. /.test(lineasMd[i])) items.push(lineasMd[i++].replace(/^\d+\. /, ""));
-      out.push(`<ol>${items.map(x => `<li>${enlinea(x)}</li>`).join("")}</ol>`);
-      continue;
-    }
-    if (/^---+$/.test(l)) { out.push("<hr>"); i++; continue; }
-    if (!l.trim()) { i++; continue; }
-    // OJO con el `*`: un parrafo que ABRE en negrita empieza con "**", y la primera
-    // version lo confundia con una vinneta. El resultado eran los asteriscos crudos
-    // impresos en el PDF, porque el cierre quedaba en la linea siguiente y el regex
-    // de negrita ya no encontraba par. Se excluye "* " (lista), no "*".
-    const esBloque = l2 => /^(#|\||>|```|[-*] |\d+\. |---)/.test(l2);
-    const par = []; while (i < lineasMd.length && lineasMd[i].trim() && !esBloque(lineasMd[i])) par.push(lineasMd[i++]);
-    if (par.length) out.push(`<p>${enlinea(par.join(" "))}</p>`);
-    else { out.push(`<p>${enlinea(lineasMd[i])}</p>`); i++; }
-  }
-  cerrarSeccion();
-  return out.join("\n");
-}
 
 // ------------------------------------------------------------------------ main
 
@@ -228,7 +143,17 @@ for (const c of datos.charts) {
   if (!UBICACION[c.id]) { console.error(`ABORTA: el grafico "${c.id}" no tiene ubicacion declarada.`); process.exit(1); }
   figuras[c.id] = { spec: dibujar(c), puesta: false };
 }
-const cuerpo = aHtml(md, figuras);
+let nFig = 0;
+const cuerpo = aHtml(md, seccion => {
+  const bloques = [];
+  for (const [id, sec] of Object.entries(UBICACION)) {
+    if (sec === seccion && figuras[id] && !figuras[id].puesta) {
+      figuras[id].puesta = true;
+      bloques.push(grafico({ ...figuras[id].spec, numero: ++nFig }));
+    }
+  }
+  return bloques;
+});
 
 const sinPoner = Object.entries(figuras).filter(([, f]) => !f.puesta).map(([id]) => id);
 if (sinPoner.length) {

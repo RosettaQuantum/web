@@ -83,6 +83,12 @@ jobs:
       # El motor de graficos: la mitad que importa es que los guardias GRITEN.
       # Un throw que nunca se prueba con el caso que debe atrapar es indistinguible
       # de un throw que alguien borro.
+      # El renderizador del informe: sus tres defectos llegaron al PDF entregado y dos
+      # sobrevivieron mas de una version, porque solo se veian generando el documento
+      # entero y mirandolo. Cada caso esta escrito contra el markdown que lo produjo.
+      - name: Tests del renderizador del informe
+        run: node scripts/test-report-render.mjs
+
       - name: Tests del motor de graficos
         run: node scripts/test-charts.mjs
 

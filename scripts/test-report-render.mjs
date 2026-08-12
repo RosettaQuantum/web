@@ -1,0 +1,111 @@
+#!/usr/bin/env node
+/**
+ * Tests del renderizador del informe metodologico (src/lib/informe.js).
+ *
+ * POR QUE EXISTE, y por que llega tarde
+ * ------------------------------------
+ * Este modulo tuvo tres defectos que llegaron al PDF ENTREGADO, y dos de ellos
+ * sobrevivieron mas de una version porque la unica forma de verlos era generar el
+ * documento completo y mirarlo con los ojos:
+ *
+ *  1. Los asteriscos de la negrita impresos crudos, cuando un parrafo ABRIA en
+ *     negrita: "**" se confundia con una vinneta, el cierre quedaba en la linea
+ *     siguiente y el regex ya no encontraba par.
+ *  2. Las vinnetas de dos lineas partidas, con la continuacion caida como parrafo
+ *     suelto debajo. Se comio el §7 entero — la lista de lo que el trabajo NO
+ *     afirma, donde la forma de lista ES el argumento — y sobrevivio dos PDF.
+ *  3. Un identificador cortado en dos lineas dentro de una tabla. Un job_id que no
+ *     se puede copiar no sirve para nada, y copiarlo es la unica razon por la que
+ *     esta publicado.
+ *
+ * Cada caso esta escrito contra el defecto REAL —el markdown que lo produjo—, no
+ * contra un ejemplo inventado.
+ *
+ * Uso: node scripts/test-report-render.mjs
+ */
+import { aHtml } from "../src/lib/informe.js";
+
+let ok = 0, mal = 0;
+const fallos = [];
+function prueba(nombre, fn) {
+  try { fn(); ok++; console.log(`  ok    ${nombre}`); }
+  catch (e) { mal++; fallos.push(`${nombre}: ${e.message}`); console.log(`  FALLA ${nombre}\n          ${e.message}`); }
+}
+const cierto = (c, msg) => { if (!c) throw new Error(msg || "no se cumplio"); };
+const igual = (a, b, msg) => { if (a !== b) throw new Error(`${msg || ""} esperaba ${JSON.stringify(b)}, dio ${JSON.stringify(a)}`); };
+const cuenta = (s, re) => (s.match(re) || []).length;
+
+console.log("— los tres defectos que llegaron al PDF —\n");
+
+// 1. El parrafo que abre en negrita. Texto real del §5.
+prueba("un parrafo que ABRE en negrita no imprime los asteriscos", () => {
+  const md = "**The score is a proximity-to-source measure wearing the costume of dynamic\nconnectivity.** And an allosteric pocket is, by definition, distal.";
+  const h = aHtml(md);
+  cierto(!h.includes("**"), "quedaron asteriscos crudos en la salida");
+  cierto(h.includes("<strong>"), "no genero la negrita");
+  igual(cuenta(h, /<li>/g), 0, "confundio la negrita con una vinneta:");
+});
+
+// 2. La vinneta de dos lineas. Texto real del §7.
+prueba("una vinneta de dos lineas es UNA vinneta, no una vinneta y un parrafo", () => {
+  const md = '- **Quantum crossings: zero.** A "crossing" means a quantum method beating the best\nclassical one. It did not happen.\n- **Significance against chance: none**, with p between 0.4038 and 0.5212.';
+  const h = aHtml(md);
+  igual(cuenta(h, /<li>/g), 2, "no agrupo las lineas de continuacion:");
+  igual(cuenta(h, /<p>/g), 0, "la continuacion cayo como parrafo suelto:");
+  cierto(h.includes("classical one. It did not happen."), "perdio la continuacion");
+});
+prueba("una linea en blanco SI cierra la lista", () => {
+  const h = aHtml("- uno\n- dos\n\nUn parrafo aparte que no es continuacion de nada.");
+  igual(cuenta(h, /<li>/g), 2);
+  igual(cuenta(h, /<p>/g), 1, "se comio el parrafo siguiente:");
+});
+
+// 3. El identificador partido. Los siete job_id reales del §9.
+prueba("una celda que es UN identificador corto se marca para no partirse", () => {
+  const md = "| Role | job_id | Measured |\n|---|---|---|\n| positive control | `d9t16s7tfhrs73dtb550` | 56.8 % |";
+  const h = aHtml(md);
+  cierto(/<td class="nb"><code>d9t16s7tfhrs73dtb550<\/code><\/td>/.test(h),
+    `la celda del identificador no quedo marcada: ${h.slice(h.indexOf("<tbody"), h.indexOf("<tbody") + 160)}`);
+});
+prueba("un sha256 de 71 caracteres NO se marca: ahi partir es lo correcto", () => {
+  const sha = "sha256:ca916f94a138ae3b19279d045f9631be3944276b8ccb71e637b9a46963497214";
+  const h = aHtml(`| file | hash |\n|---|---|\n| RUN | \`${sha}\` |`);
+  cierto(h.includes(`<td><code>${sha}</code></td>`),
+    "marco el hash largo como no-partible, y con eso reventaria la columna");
+});
+prueba("una celda con texto ademas del codigo tampoco se marca", () => {
+  const h = aHtml("| a | b |\n|---|---|\n| x | ver `d9t16s7tfhrs73dtb550` en el panel |");
+  cierto(!h.includes('class="nb"'), "marco una celda que no es solo un identificador");
+});
+
+console.log("\n— estructura —\n");
+
+prueba("las tablas salen con encabezado y sin la fila de guiones", () => {
+  const h = aHtml("| Role | n |\n|---|---|\n| uno | 1 |\n| dos | 2 |");
+  igual(cuenta(h, /<th>/g), 2);
+  igual(cuenta(h, /<tr>/g), 3, "conto mal las filas (¿se colo la de guiones?):");
+  cierto(!h.includes("---"), "publico la fila de guiones");
+});
+prueba("los titulos numerados abren seccion y las figuras caen al cerrarla", () => {
+  const vistas = [];
+  const h = aHtml("## 4. Result\n\ntexto\n\n## 5. Why\n\notro", s => { vistas.push(s); return s === 4 ? ["<figure>F1</figure>"] : []; });
+  cierto(vistas.includes(4), `no vio la seccion 4: ${vistas.join(",")}`);
+  const iFig = h.indexOf("<figure>"), iH5 = h.indexOf("5. Why");
+  cierto(iFig > 0 && iFig < iH5, "la figura de la seccion 4 no quedo ANTES del titulo de la 5");
+});
+prueba("un bloque de codigo no se interpreta como markdown", () => {
+  const h = aHtml("```bash\npython3 tools/verify_seals.py <file>\n```");
+  cierto(h.includes("<pre><code>"), "no genero el bloque");
+  cierto(h.includes("&lt;file&gt;"), "no escapo el argumento entre angulos");
+});
+prueba("el HTML de la fuente se escapa", () => {
+  const h = aHtml("Un parrafo con <img src=x onerror=1> adentro.");
+  cierto(!h.includes("<img"), "dejo pasar una etiqueta");
+});
+prueba("los enlaces markdown se convierten", () => {
+  cierto(aHtml("Ver [el protocolo](https://example.org/P.md) aqui.")
+    .includes('<a href="https://example.org/P.md">el protocolo</a>'), "no convirtio el enlace");
+});
+
+console.log(`\n${ok} pasaron, ${mal} fallaron`);
+if (mal) { console.log("\nFALLOS:\n - " + fallos.join("\n - ")); process.exit(1); }
