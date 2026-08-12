@@ -42,12 +42,16 @@ export const LOGO_DATA_URI = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAeQA
 
 /** Cabecera de julio: logo a la izquierda, tres lineas a la derecha, filete dorado. */
 export function cabecera({ programa, fase, desafio }) {
-  return `<header class="marca">
-    <img class="marca-logo" src="${LOGO_DATA_URI}" alt="Rosetta Quantum">
-    <div class="marca-txt">
-      <div>${programa}</div>
-      <div>${fase}</div>
-      <div>${desafio}</div>
+  // Va como fila de encabezado de tabla, no como <header> fijo: es lo unico que en
+  // Chrome se repite en cada pagina Y reserva su alto. Ver el comentario del armador.
+  return `<tr class="marca"><th colspan="1">
+    <div class="marca-celda">
+      <img class="marca-logo" src="${LOGO_DATA_URI}" alt="Rosetta Quantum">
+      <div class="marca-txt">
+        <div>${programa}</div>
+        <div>${fase}</div>
+        <div>${desafio}</div>
+      </div>
     </div>
-  </header>`;
+  </th></tr>`;
 }

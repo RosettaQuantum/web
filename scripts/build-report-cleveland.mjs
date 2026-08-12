@@ -61,7 +61,14 @@ const DIR_MARCA = join(SALIDA_DIR, "borrador-marca");
  */
 const INSUMOS = {
   texto: { archivo: "REPORTE-METODOLOGICO-EN.md",
-           sha: "25d019528d718b78a1c26de59a101984914336387cb46c5136eb075033cce256" },
+           sha: "f8db4198851da35f82483a4dc1e482283fe15693a0bd7e6b80075bfda57b28d0" },
+  // Revision anterior: 25d01952… Tres cifras en la prosa; ni tablas, ni listas, ni
+  // titulos, asi que el contraste del indice y la ubicacion por titulo siguen calzando.
+  //
+  // OJO: el laboratorio anuncio este hash TRUNCADO ("f8db4198…28d0") y la primera
+  // version de esta linea tenia el medio INVENTADO por mi. El ancla lo atrapo. El de
+  // aca esta medido sobre el archivo, y se comprobo que empieza y termina como ellos
+  // declararon — que es lo unico que un prefijo y un sufijo pueden probar.
   // Revision anterior: f304c5ef… Dos frases, ninguna estructural: el documento
   // afirmaba que la respuesta estuvo cerrada hasta el final —falso para dos de los
   // tres blancos— y declaraba su propio limite mas chico de lo que es. El sello -005
@@ -257,9 +264,19 @@ const CABECERA = cabecera({
 
 const CSS_MARCA = `
 /* La linea de julio, medida sobre el SVG vectorial. Ver src/lib/marca.js. */
-.marca{position:fixed;top:0;left:0;right:0;display:flex;align-items:flex-end;
+/* LA CABECERA NO VA CON position:fixed, y esto costo dos intentos medidos.
+   - Con position:fixed y top:0 se dibuja donde empieza el texto y solo la primera pagina queda
+     despejada, porque el padding de .hoja aplica UNA VEZ al inicio del flujo. Medido en
+     el PDF: 2,2 pt de separacion en las paginas que arrancan con texto de continuacion,
+     contra 19–26 pt en las que abren con titulo.
+   - Con position:fixed y top:-15mm para meterla en el margen, Chrome la mando al PIE de las 13
+     paginas. Tambien medido: el borde inferior del logo quedo en y=62,7 en todas.
+   Lo que si reserva espacio en CADA pagina es un encabezado de TABLA repetido:
+   thead{display:table-header-group} lo repite y su alto empuja el contenido. */
+.marca{display:table-header-group;display:flex;align-items:flex-end;
   justify-content:space-between;gap:20px;padding:0 0 7px;
   border-bottom:1.5px solid ${MARCA.dorado};background:#fff}
+.marca-celda{display:block;padding:0 0 7px;border-bottom:1.5px solid ${MARCA.dorado};display:flex;align-items:flex-end;justify-content:space-between;gap:20px}
 .marca-logo{height:26px;width:auto}
 .marca-txt{text-align:right;font-size:8.5px;line-height:1.45;color:${MARCA.gris};
   letter-spacing:.04em;text-transform:uppercase}
@@ -363,10 +380,16 @@ ${MARCA_FLAG ? CSS_MARCA : ""}
    DESPUES del bloque de impresion a proposito, porque el .hoja con padding:0 de ahi
    arriba la pisaba y el titulo de la portada salia cortado por el filete.
    (Y sin comillas invertidas: esto vive dentro de una plantilla de JS.) */
-body.con-marca .hoja{padding-top:13mm}
-@page{size:A4;margin:${MARCA_FLAG ? "24mm" : "17mm"} 16mm 17mm}
+body.con-marca .hoja{padding-top:0}
+table.envoltura{width:100%;border-collapse:collapse}
+table.envoltura>tbody>tr>td{padding:0;border:0}
+table.envoltura>thead>tr>th{padding:0 0 10px;border:0;text-transform:none;letter-spacing:normal;font-size:inherit;color:inherit;font-weight:400}
+/* El margen vuelve a 17mm: con la cabecera en el FLUJO (thead) su alto ya lo reserva
+   ella, y los 28mm de cuando era fija reservaban el espacio dos veces — dos paginas de
+   mas en un documento de trece. */
+@page{size:A4;margin:17mm 16mm}
 </style></head>
-<body${MARCA_FLAG ? ' class="con-marca"' : ""}>${MARCA_FLAG ? CABECERA : ""}<main class="hoja">
+<body${MARCA_FLAG ? ' class="con-marca"' : ""}><main class="hoja">${MARCA_FLAG ? '<table class="envoltura"><thead>' + CABECERA + '</thead><tbody><tr><td>' : ""}
 <header class="portada">
   <div class="portada-k">Rosetta Quantum · deliverable 3</div>
   <h1 class="portada-t">Methodology Report</h1>
@@ -381,6 +404,7 @@ body.con-marca .hoja{padding-top:13mm}
 ${MARCA_FLAG ? bloqueInicio : ""}
 ${cuerpo}
 ${MARCA_FLAG && !md.includes("## 12. Team") ? reservado(RESERVADOS[1]) : ""}
+${MARCA_FLAG ? "</td></tr></tbody></table>" : ""}
 </main></body></html>
 `;
 
