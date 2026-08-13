@@ -108,12 +108,26 @@ function pintarBiblioteca() {
 
 // ------------------------------------------------------------------ corridas
 
+/**
+ * El `resultado` viene siendo un parrafo entero —hasta 400 caracteres— y puesto crudo
+ * en la tabla deja cinco filas por pantalla. En una videollamada donde alguien tiene
+ * que ELEGIR una de sesenta, eso no es una tabla: es un muro. Se recorta aca y va
+ * completo en el sello, que es donde se lee de verdad. El texto completo queda en el
+ * `title` para que no se pierda al pasar el mouse.
+ */
+const RECORTE = 96;
+const recorta = t => {
+  const s = String(t || "").trim();
+  return s.length <= RECORTE ? s : s.slice(0, RECORTE).replace(/\s+\S*$/, "") + "…";
+};
+
 function filaCorrida(c) {
+  const r = c.resultado || "";
   return `<tr data-id="${esc(c.id)}">
     <td class="c-id">${esc(c.id)}</td>
-    <td>${esc(c.fecha || "—")}</td>
+    <td class="c-fecha">${esc(c.fecha || "—")}</td>
     <td>${esc(c.clase_de_problema || "—")}</td>
-    <td class="c-res">${esc(c.resultado || "—")}</td>
+    <td class="c-res" title="${esc(r)}">${esc(recorta(r)) || "—"}</td>
     <td class="c-ver"><button class="btn btn-ver" data-id="${esc(c.id)}">ver el sello</button></td>
   </tr>`;
 }
@@ -141,6 +155,7 @@ async function abrirSello(id) {
   const panel = $("#sello");
   panel.hidden = false;
   panel.innerHTML = `<div class="sello-cargando">Leyendo <code>/v1/archive/${esc(id)}</code>…</div>`;
+  panel.scrollIntoView({ behavior: "smooth", block: "center" });
   const r = await pedir(`/v1/archive/${encodeURIComponent(id)}`);
   if (!r.ok) return falla(panel, r.error);
   const a = r.datos;
@@ -164,6 +179,9 @@ async function abrirSello(id) {
         .filter(k => a[k] != null && a[k] !== "")
         .map(k => `<div><span class="lab">${esc(k)}</span> ${esc(a[k])}</div>`).join("")}
     </div>`;
+  // Traerlo a la vista: con sesenta filas, el panel abria fuera de pantalla y el
+  // momento de la videollamada se perdia en un scroll.
+  panel.scrollIntoView({ behavior: "smooth", block: "center" });
   $("#sello-cerrar").onclick = () => { panel.hidden = true; };
   $("#sello-copiar").onclick = async () => {
     await navigator.clipboard.writeText(a.content_hash || "");
