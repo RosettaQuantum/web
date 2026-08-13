@@ -27,7 +27,22 @@ const $$ = (sel, raiz = document) => [...raiz.querySelectorAll(sel)];
 const num = (v, dec = 0) =>
   v == null || Number.isNaN(v) ? "—"
     : v.toLocaleString("es-CL", { minimumFractionDigits: dec, maximumFractionDigits: dec });
-const usd = v => "US$" + num(v, v < 1 ? 4 : 2);
+/**
+ * Los precios por disparo bajan a 0,000425: con 4 decimales salia "US$0,0004" y se
+ * perdia el 25 del final. En una tabla de precios redondear hacia abajo no es un
+ * detalle de formato — es publicar otro precio. Se muestran los decimales que el
+ * numero tiene, hasta 6.
+ */
+const usd = v => {
+  if (v == null || Number.isNaN(v)) return "—";
+  if (v === 0) return "US$0";
+  // Se quitan los ceros de relleno PERO nunca por debajo de dos decimales: "US$0,3"
+  // no es una cifra de dinero, y mi primera version imprimia justo eso.
+  const dec = v < 0.01 ? 6 : v < 1 ? 4 : 2;
+  let t = num(v, dec);
+  while (/\d{3,}$/.test(t.split(",")[1] || "") && t.endsWith("0")) t = t.slice(0, -1);
+  return "US$" + t;
+};
 const esc = s => String(s == null ? "" : s)
   .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
 
