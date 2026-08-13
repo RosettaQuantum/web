@@ -254,6 +254,10 @@ function navegar(id) {
 }
 
 async function arrancar() {
+  // Estado de carga explicito: una tabla vacia mientras la API responde se lee como
+  // "no hay corridas", que es falso.
+  $("#corridas-den").textContent = "leyendo /v1/runs…";
+  $("#archivo-cifras").innerHTML = '<div class="nota">leyendo /v1/state…</div>';
   $$(".rail button").forEach(b => { b.onclick = () => navegar(b.dataset.v); });
   navegar((location.hash || "#archivo").slice(1));
 
@@ -281,4 +285,19 @@ async function arrancar() {
     $("#" + id).addEventListener("input", calcularPresupuesto));
 }
 
-document.addEventListener("DOMContentLoaded", arrancar);
+/**
+ * Arranque a prueba de carrera.
+ *
+ * La primera version solo escuchaba DOMContentLoaded. Si el script se evalua DESPUES de
+ * que ese evento ya paso —pasa con el archivo en cache tras una recarga forzada— el
+ * oyente no se dispara nunca y la pantalla queda VACIA: sin filas, sin denominador y
+ * SIN error, que es la peor de las tres. Lo vi en vivo recargando la consola.
+ *
+ * Una pantalla vacia sin explicacion es indistinguible de "no hay datos", y esta es la
+ * pantalla con la que Nicholas vende.
+ */
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", arrancar);
+} else {
+  arrancar();
+}
