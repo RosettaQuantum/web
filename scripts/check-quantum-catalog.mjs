@@ -795,16 +795,27 @@ comprobar("el contador no se sirve de cache",
   `Cache-Control: ${cabUso.headers.get("cache-control")}`);
 
 // EL CASO POSITIVO QUE IMPORTA: nuestros chequeos no envenenan el numero.
-// Se piden dos rutas marcadas y el total tiene que quedar igual.
+//
+// Se mide POR RUTA y sobre `/v1/sources`, no sobre el total global. El total dejo de
+// servir el 2026-08-13, cuando la consola entro en vivo: cada vez que alguien la abre
+// llama a /v1/state y /v1/runs, asi que el total sube por trafico real y el chequeo
+// culpaba a nuestras dos llamadas marcadas. Un chequeo que falla por algo que no es lo
+// que afirma entrena a ignorarlo — y este afirma que la MARCA funciona, no que nadie
+// mas use la API.
+//
+// /v1/sources no la llama ni la consola ni el sitio: es la unica superficie donde el
+// ruido ajeno no se confunde con nuestra firma.
 if (uso1.js) {
-  const antes = uso1.js.total;
-  await traer("/v1/state");
+  const cuenta = (u, ruta) => ((u.por_ruta || []).find(x => x.ruta === ruta) || {}).llamadas || 0;
+  const antes = cuenta(uso1.js, "/v1/sources");
+  await traer("/v1/sources");
   await traer("/v1/sources");
   await new Promise(r => setTimeout(r, 1500));
   const uso2 = await traer("/v1/usage");
+  const despues = cuenta(uso2.js || {}, "/v1/sources");
   comprobar("las peticiones marcadas como chequeo NO se cuentan",
-    uso2.js && uso2.js.total === antes,
-    `el total paso de ${antes} a ${uso2.js && uso2.js.total} tras 2 llamadas marcadas`);
+    despues === antes,
+    `/v1/sources paso de ${antes} a ${despues} tras 2 llamadas marcadas`);
 }
 
 // Toda ruta critica responde 200. Es la misma lista que usa la espera, importada
