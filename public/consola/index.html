@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Consola — Rosetta Quantum</title>
+<meta name="description" content="Consola pública de Rosetta Quantum: el archivo de evidencia, las corridas selladas y sus hashes, leídos en vivo de la API.">
+<link rel="stylesheet" href="/consola/consola.css">
+<style>
+  /* Lo que el archivo base no traía: los estados de error, las cifras del archivo y
+     las piezas del sello. Nada de esto es decorativo — el bloque de error es la mitad
+     del contrato de esta pantalla. */
+  .err{border:1px solid var(--oro,#a6812f);background:rgba(166,129,47,.08);
+       padding:14px 16px;border-radius:4px;font-size:14px}
+  .err-n{margin-top:6px;font-size:12.5px;opacity:.8}
+  .ojo{color:var(--oro,#a6812f)}
+  .sinmedir{opacity:.75;font-style:italic}
+  .cifras{display:flex;flex-wrap:wrap;gap:26px;margin:14px 0 10px}
+  .cif-v{font-size:30px;line-height:1;font-weight:600}
+  .cif-k{margin-top:6px;font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;opacity:.7}
+  .lectura{margin:10px 0 0;font-size:14.5px;line-height:1.6;max-width:70ch}
+  .tarj{border:1px solid var(--linea,#ddd6c8);border-radius:4px;padding:13px 15px;margin:0 0 10px}
+  .tarj-id{font-size:10.5px;letter-spacing:.1em;opacity:.7}
+  .tarj-t{font-size:15px;font-weight:600;margin:4px 0 7px}
+  .tarj-m{display:flex;flex-wrap:wrap;gap:14px;font-size:12.5px;opacity:.85}
+  .tarj-e{margin-top:9px;display:inline-block}
+  table.datos{width:100%;border-collapse:collapse;font-size:13.5px}
+  table.datos th{text-align:left;font-size:9.5px;letter-spacing:.13em;text-transform:uppercase;
+    opacity:.7;padding:0 12px 8px 0;border-bottom:1px solid var(--linea,#ddd6c8);font-weight:500}
+  table.datos td{padding:9px 12px 9px 0;border-bottom:1px solid var(--linea,#ddd6c8);vertical-align:top}
+  table.datos td.n{text-align:right;font-variant-numeric:tabular-nums}
+  .c-id{white-space:nowrap;font-family:ui-monospace,Menlo,monospace;font-size:12.5px}
+  #sello{margin-top:18px;border:1px solid var(--oro,#a6812f);border-radius:4px;padding:16px 18px}
+  .sello-cab{display:flex;justify-content:space-between;align-items:center;gap:12px}
+  .sello-id{font-family:ui-monospace,Menlo,monospace;font-size:15px;font-weight:600}
+  .sello-hash{margin:14px 0 12px}
+  .sello-hash code{display:block;word-break:break-all;font-size:12.5px;margin:5px 0 8px}
+  .sello-copias{display:flex;gap:10px;flex-wrap:wrap}
+  .sello-comov{margin-top:14px;font-size:13.5px;line-height:1.6;max-width:74ch}
+  .sello-campos{margin-top:14px;display:flex;flex-wrap:wrap;gap:8px 22px;font-size:12.5px}
+  .lab{font-size:10px;letter-spacing:.12em;text-transform:uppercase;opacity:.65}
+  .fuente{margin-top:26px;padding-top:12px;border-top:1px solid var(--linea,#ddd6c8);
+    font-size:11.5px;opacity:.75;line-height:1.6}
+  .fuente code{font-size:11px}
+</style>
+</head>
+<body>
+<div class="app">
+
+  <nav class="rail" aria-label="Secciones">
+    <div class="logo">ROSETTA <span class="q">Q</span></div>
+    <button data-v="archivo" aria-current="true">Archivo</button>
+    <button data-v="corridas">Corridas</button>
+    <button data-v="biblioteca">Biblioteca</button>
+    <button data-v="maquinas">Máquinas</button>
+    <button data-v="lab">Laboratorio</button>
+    <button data-v="cuenta">Cuenta</button>
+  </nav>
+
+  <main>
+
+    <section class="vista" id="v-archivo">
+      <h1>Archivo público</h1>
+      <p class="nota">No requiere cuenta ni pago. Es la parte que permite que alguien nos
+        compruebe sin pedirnos permiso.</p>
+      <div class="cifras" id="archivo-cifras"></div>
+      <p class="lectura" id="archivo-lectura"></p>
+      <p class="nota" id="archivo-integridad"></p>
+    </section>
+
+    <section class="vista" id="v-corridas" hidden>
+      <h1>Corridas selladas</h1>
+      <p class="nota">Elige cualquiera y ábrela: verás su hash, sus dos copias públicas en
+        dominios distintos, y cómo recomputarlo tú mismo.</p>
+      <div class="barra">
+        <input id="corridas-filtro" type="search" placeholder="filtrar por id, clase, fecha…" aria-label="Filtrar corridas">
+        <span class="nota" id="corridas-den"></span>
+      </div>
+      <div id="corridas-caja">
+        <table class="datos">
+          <thead><tr><th>id</th><th>fecha</th><th>clase de problema</th><th>resultado</th><th></th></tr></thead>
+          <tbody id="corridas-cuerpo"></tbody>
+        </table>
+      </div>
+      <div id="sello" hidden></div>
+    </section>
+
+    <section class="vista" id="v-biblioteca" hidden>
+      <h1>Biblioteca</h1>
+      <p class="nota" id="biblioteca-den"></p>
+      <div id="biblioteca-lista"></div>
+    </section>
+
+    <section class="vista" id="v-maquinas" hidden>
+      <h1>Máquinas</h1>
+      <p class="nota">La columna que importa no es el precio por disparo: es lo que cuesta una
+        medición que sobrevive al ruido. Y esa sólo existe donde la medimos.</p>
+      <div id="maquinas-caja">
+        <table class="datos">
+          <thead><tr><th>dispositivo</th><th>proveedor</th><th>región</th><th class="n">qubits</th>
+            <th class="n">USD/disparo</th><th class="n">validez medida</th></tr></thead>
+          <tbody id="maquinas-cuerpo"></tbody>
+        </table>
+      </div>
+      <p class="nota" id="maquinas-nota"></p>
+    </section>
+
+    <section class="vista" id="v-lab" hidden>
+      <h1>Laboratorio</h1>
+      <p class="nota">Compón un experimento y mira lo que costaría. El presupuesto sale de los
+        precios publicados, no de una estimación. <b>Todavía no hay cola de envío</b>: esto
+        calcula, no encola.</p>
+      <div id="lab-caja" class="caja presu">
+        <label class="fila"><span>máquina</span><select id="lab-maquina"></select></label>
+        <label class="fila"><span>tareas</span><input id="lab-tareas" type="number" min="1" value="1"></label>
+        <label class="fila"><span>disparos por tarea</span><input id="lab-disparos" type="number" min="1" value="1000"></label>
+        <div class="fila total"><span>costo total</span><b id="lab-total">—</b></div>
+        <div class="nota" id="lab-desglose"></div>
+        <div class="fila"><span>por medición útil</span><span id="lab-util"></span></div>
+        <p class="nota" id="lab-aviso" hidden></p>
+      </div>
+    </section>
+
+    <section class="vista" id="v-cuenta" hidden>
+      <h1>Cuenta</h1>
+      <p class="nota">El alta todavía se conversa: no hay autoservicio. Los precios publicados
+        están en <a href="/es/precios/">/es/precios/</a> y en <a href="/pricing/">/pricing/</a>,
+        y se pagan a través de Paddle.</p>
+      <p class="nota">Se paga la medición, no el veredicto: un resultado negativo cuesta lo
+        mismo que uno positivo, porque cuesta lo mismo producirlo.</p>
+      <p class="nota">Escríbenos a <a href="mailto:hello@rosettaquantum.com">hello@rosettaquantum.com</a>.</p>
+    </section>
+
+    <p class="fuente">
+      Todo lo que ves en esta pantalla sale de la API pública, en vivo:
+      <code>/v1/state</code> · <code>/v1/runs</code> · <code>/v1/archive/&lt;id&gt;</code>.
+      Los precios salen de <code>/consola/costos.json</code>, generado desde
+      <code>quantum-run/costos.py</code>. Si alguna no responde, esta pantalla lo dice en su
+      panel en vez de mostrar datos guardados.
+    </p>
+
+  </main>
+</div>
+<script src="/consola/consola.js"></script>
+</body>
+</html>

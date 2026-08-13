@@ -1,0 +1,76 @@
+{
+  "braket": {
+    "rigetti-cepheus": {
+      "dispositivo": "Cepheus-1-108Q",
+      "proveedor": "Rigetti",
+      "region": "us-west-1",
+      "por_tarea": 0.3,
+      "por_disparo": 0.000425,
+      "qubits": 108,
+      "tipo": "superconductor",
+      "arn": "arn:aws:braket:us-west-1::device/qpu/rigetti/Cepheus-1-108Q"
+    },
+    "iqm-garnet": {
+      "dispositivo": "Garnet",
+      "proveedor": "IQM",
+      "region": "eu-north-1",
+      "por_tarea": 0.3,
+      "por_disparo": 0.00145,
+      "qubits": 20,
+      "tipo": "superconductor",
+      "arn": "arn:aws:braket:eu-north-1::device/qpu/iqm/Garnet"
+    },
+    "iqm-emerald": {
+      "dispositivo": "Emerald",
+      "proveedor": "IQM",
+      "region": "eu-north-1",
+      "por_tarea": 0.3,
+      "por_disparo": 0.0016,
+      "qubits": 54,
+      "tipo": "superconductor",
+      "arn": "arn:aws:braket:eu-north-1::device/qpu/iqm/Emerald"
+    },
+    "aqt-ibex": {
+      "dispositivo": "IBEX Q1",
+      "proveedor": "AQT",
+      "region": "eu-north-1",
+      "por_tarea": 0.3,
+      "por_disparo": 0.0235,
+      "qubits": 12,
+      "tipo": "iones atrapados",
+      "arn": "arn:aws:braket:eu-north-1::device/qpu/aqt/Ibex-Q1"
+    },
+    "ionq-forte": {
+      "dispositivo": "Forte 1",
+      "proveedor": "IonQ",
+      "region": "us-east-1",
+      "por_tarea": 0.3,
+      "por_disparo": 0.08,
+      "qubits": 36,
+      "tipo": "iones atrapados",
+      "arn": "arn:aws:braket:us-east-1::device/qpu/ionq/Forte-1"
+    }
+  },
+  "ibm": {
+    "dispositivo": "ibm_kingston",
+    "proveedor": "IBM",
+    "region": "—",
+    "por_tarea": 0.0,
+    "por_disparo": 0.0,
+    "qubits": 156,
+    "tipo": "superconductor",
+    "plan": "abierto",
+    "recurso_escaso": "minutos de QPU (~10 en total, NO se renuevan)",
+    "nota": "costo monetario cero, pero cuota finita: 'gratis' no es 'sin limite'"
+  },
+  "validez_medida": {
+    "ibm_kingston": 0.614
+  },
+  "fecha_precios": "2026-08-10",
+  "fuente": "https://aws.amazon.com/braket/pricing/",
+  "_origen": {
+    "archivo": "quantum-run/costos.py",
+    "sha256": "98d9f8f3d0077b55ea0b2d5e22a86bb0da4c00a33bc6d28fd7da7d9e378cfa9c",
+    "por_que": "Una sola lista de precios. La consola los lee de aca y no los repite: dos listas de precios ya divergieron en este proyecto."
+  }
+}

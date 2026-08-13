@@ -485,6 +485,55 @@ for (const ruta of ["/", "/es/"]) {
 // Es la pagina que Paddle revisa y la unica del sitio donde alguien va a poner
 // plata, asi que las cifras se comparan contra la fuente, no contra el recuerdo.
 // El "0 victorias" es el caso del "450+" otra vez: un numero que envejece solo.
+// 4 quater quinquies. La consola: ninguna cifra pegada.
+//
+// Es la pantalla con la que Nicholas vende en videollamada, y el archivo del que salio
+// traia numeros inventados —"4 selladas", "15 de 15 rutas responden", "6 propagadores"—
+// que nuestra propia API desmiente. El chequeo vigila lo unico que importa aca: que el
+// HTML servido NO traiga datos, solo contenedores, y que sus fuentes respondan.
+console.log("\n  -- la consola --");
+{
+  const c = await traer("/consola/");
+  comprobar("/consola/ responde", c.status === 200, `dio ${c.status}`);
+  if (c.status === 200) {
+    // El cuerpo de la pagina no puede traer las cifras: llegan por fetch. Si alguna
+    // aparece en el HTML servido, es que alguien la pego.
+    const inventadas = ["4 selladas", "15 de 15", "6 propagadores", "3 métricas", "0 en cola"];
+    const pegadas = inventadas.filter(x => c.txt.includes(x));
+    comprobar("la consola no sirve las cifras inventadas del archivo base",
+      pegadas.length === 0, `quedaron pegadas: ${pegadas.join(" | ")}`);
+    // Y tampoco las de verdad: si el numero real esta en el HTML, quedo congelado.
+    const st = await (await fetch(BASE + "/v1/state", { headers: { "x-rq-check": "1" } })).json();
+    const selladas = String(st.estado_medido.corridas_selladas);
+    const cuerpo = (c.txt.match(/<main>([\s\S]*?)<\/main>/) || [])[1] || "";
+    comprobar(`la consola no trae el contador (${selladas}) escrito en el HTML`,
+      !new RegExp(`>\\s*${selladas}\\s*<`).test(cuerpo),
+      "el numero esta en el HTML servido: quedaria congelado cuando D1 cambie");
+    comprobar("la consola declara de que endpoints sale lo que muestra",
+      /\/v1\/state/.test(c.txt) && /\/v1\/runs/.test(c.txt) && /v1\/archive/.test(c.txt),
+      "la pagina no dice de donde salen sus datos");
+  }
+  for (const r of ["/consola/consola.js", "/consola/consola.css", "/consola/costos.json"]) {
+    const x = await traer(r);
+    comprobar(`${r} responde`, x.status === 200, `dio ${x.status}`);
+  }
+  // Los precios de la consola tienen que ser los de costos.py, no una copia a mano.
+  const pj = await traer("/consola/costos.json");
+  if (pj.js) {
+    comprobar("los precios declaran el archivo del que salen",
+      !!(pj.js._origen && pj.js._origen.sha256), "el json no declara su origen");
+    comprobar("la validez medida existe para UN dispositivo y no se inventa para el resto",
+      Object.keys(pj.js.validez_medida || {}).length === 1,
+      `hay ${Object.keys(pj.js.validez_medida || {}).length} validez(es) declarada(s)`);
+  }
+  // El endpoint que alimenta la tabla tiene que entregar TODAS las corridas.
+  const runs = await traer("/v1/runs?limit=1000");
+  const st2 = await (await fetch(BASE + "/v1/state", { headers: { "x-rq-check": "1" } })).json();
+  comprobar(`/v1/runs entrega las ${st2.estado_medido.corridas_selladas} corridas que declara /v1/state`,
+    runs.js && runs.js.items && runs.js.items.length === st2.estado_medido.corridas_selladas,
+    `entrego ${runs.js && runs.js.items ? runs.js.items.length : "?"} y /v1/state declara ${st2.estado_medido.corridas_selladas}`);
+}
+
 // 4 quater quater. Las tres politicas legales, en los dos idiomas.
 //
 // Paddle no verifica el sitio si estas URLs no existen Y no estan enlazadas desde el.
