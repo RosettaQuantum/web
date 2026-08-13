@@ -80,13 +80,16 @@
         <input id="corridas-filtro" type="search" placeholder="filtrar por id, clase, fecha…" aria-label="Filtrar corridas">
         <span class="nota" id="corridas-den"></span>
       </div>
+      <!-- El sello va ARRIBA de la tabla a proposito. Debajo quedaba a 4.541 px del
+           tope con las 60 filas, o sea fuera de pantalla, y traerlo con scroll dependia
+           de que el scroll ocurriera. Aca aparece donde el ojo ya esta mirando. -->
+      <div id="sello" hidden></div>
       <div id="corridas-caja">
         <table class="datos">
           <thead><tr><th>id</th><th>fecha</th><th>clase de problema</th><th>resultado</th><th></th></tr></thead>
           <tbody id="corridas-cuerpo"></tbody>
         </table>
       </div>
-      <div id="sello" hidden></div>
     </section>
 
     <section class="vista" id="v-biblioteca" hidden>
