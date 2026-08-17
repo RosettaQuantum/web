@@ -49,10 +49,28 @@ function comoComprobar(row) {
     content_hash: row.content_hash,
     github_raw: row.github_url,
     codeberg_raw: row.codeberg_url,
+    // ESTA LINEA VIAJA EN CADA RESPUESTA. Es la instruccion que mas gente lee, y
+    // durante meses fue FALSA en dos puntos a la vez:
+    //
+    //  1. "recomputa el sha256" hace pensar que el content_hash es el sha256 DEL
+    //     ARCHIVO. No lo es: es el sha256 de un payload canonico —el documento sin
+    //     meta.content_hash, sin meta.schema y sin storage, con serializacion fija—.
+    //     Sobre RQ-EXP-EON-K20-002: declara 4ffdfeb4… y el sha256 del archivo es
+    //     a6ff6a5f…. Quien siguiera la instruccion al pie de la letra concluia que
+    //     mentimos.
+    //  2. Mandaba a /api-docs, que documentaba UNA convencion de cuatro. Sobre las
+    //     corridas v3 daba MISMATCH.
+    //
+    // Ahora nombra la herramienta que hace las cuatro y de donde bajar los bytes que
+    // de verdad reproducen el hash.
     como_verificar:
-      "Descarga cualquiera de las dos copias, recomputa el sha256 segun " +
-      `${SITE}/api-docs y compara con content_hash. Las dos copias deben ser ` +
-      "byte-identicas entre si. El sello ademas esta anclado en Bitcoin (OpenTimestamps).",
+      `Baja el archivo tal como se sello —de ${SITE}/v1/archive/<id>/raw o de cualquiera ` +
+      "de las dos copias publicas— y verificalo con " +
+      "https://github.com/RosettaQuantum/evidence/blob/main/tools/verificar.py, que prueba " +
+      "las cuatro convenciones del archivo y dice con cual calzo. OJO: content_hash NO es " +
+      "el sha256 del archivo, sino el de su forma canonica; la receta de cada convencion " +
+      `esta en ${SITE}/api-docs. Las dos copias publicas deben ser byte-identicas entre si, ` +
+      "y el sello esta anclado en Bitcoin (OpenTimestamps).",
   };
 }
 
@@ -145,6 +163,41 @@ async function listar(env, tipo, url) {
   args.push(limite);
   const { results = [] } = await env.DB.prepare(sql).bind(...args).all();
   return json({ total: results.length, filtro: { tipo, recipe }, items: results.map(resumenArchivo) });
+}
+
+/**
+ * El archivo sellado TAL CUAL: los bytes que se sellaron, sin volver a serializar.
+ *
+ * POR QUE EXISTE, y por que no basta con /v1/archive/{id}
+ * ------------------------------------------------------
+ * Ese endpoint hace `JSON.parse` del payload y lo vuelve a serializar en la respuesta.
+ * El viaje ida y vuelta es inocente salvo en un punto: un float de valor entero se
+ * guarda `6.0` y sale `6`. Los hashes de v1 y v2 se calculan sobre el texto que produce
+ * `json.dumps` de Python, asi que ese solo caracter cambia el hash.
+ *
+ * Medido sobre 20 corridas: por el espejo verifican 20 de 20; por la API, 17 de 20. El
+ * sello nunca estuvo mal — lo que se perdia era poder recomputarlo desde nuestra propia
+ * API, que es justo lo que la pagina promete. v3 es inmune porque JCS normaliza los
+ * numeros, que es para lo que se creo.
+ *
+ * Aca se devuelve `row.payload` sin tocar. Es la unica forma de que la promesa
+ * «bajalo y recomputalo» valga tambien por nuestro lado y no solo por el del espejo.
+ */
+async function porIdCrudo(env, id) {
+  const row = await env.DB.prepare(
+    "SELECT payload, content_hash FROM run_archives WHERE file_id=?"
+  ).bind(id).first();
+  if (!row) return json({ error: "no existe", id }, 404);
+  return new Response(row.payload, {
+    headers: {
+      "content-type": "application/json; charset=utf-8",
+      "cache-control": CACHE,
+      "access-control-allow-origin": "*",
+      // El hash declarado viaja en cabecera para poder comparar sin parsear el cuerpo.
+      "x-rq-content-hash": row.content_hash || "",
+      "x-rq-nota": "bytes tal como se sellaron; no re-serializado",
+    },
+  });
 }
 
 async function porId(env, id, completo) {
@@ -792,6 +845,9 @@ export const CATALOGO = [
     // no existia, y el chequeo lo atrapo: documentar un ejemplo que responde 404 es
     // la misma falla que la API que apuntaba a /api-docs cuando /api-docs no estaba.
     ejemplo: { id: "PR-CLEV-001" } },
+  { ruta: "/v1/archive/{id}/raw", grupo: "ledger",
+    resumen: "El archivo sellado TAL CUAL se sello, sin re-serializar: es el que sirve para recomputar el hash",
+    ejemplo: { id: "PR-CLEV-001" } },
   { ruta: "/v1/search", resumen: "Busqueda en texto de las corridas", grupo: "ledger",
     params: [["q", "obligatorio"]], ejemploQuery: "q=portfolio" },
   { ruta: "/v1/algorithms", resumen: "Archivador de algoritmos cuanticos", grupo: "archivador",
@@ -1179,6 +1235,11 @@ async function enrutar(request, env, url, info = {}) {
   const mc = p.match(/^\/v1\/challenges\/([^/]+)(?:\/([^/]+))?\/?$/);
   if (mc) return await challengePorId(env, decodeURIComponent(mc[1]),
                                       mc[2] ? decodeURIComponent(mc[2]) : null);
+
+  // Va ANTES del generico: `([^/]+)` no acepta la barra, pero el orden deja explicito
+  // que /raw es una ruta propia y no un id que casualmente termina en "raw".
+  const mr = p.match(/^\/v1\/archive\/([^/]+)\/raw\/?$/);
+  if (mr) return await porIdCrudo(env, decodeURIComponent(mr[1]));
 
   const m = p.match(/^\/v1\/archive\/([^/]+)\/?$/);
   if (m) return await porId(env, decodeURIComponent(m[1]), true);
