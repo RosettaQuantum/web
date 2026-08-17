@@ -21,8 +21,6 @@ export const ARRANQUE_AGENTES_CMD = [
   "curl -s -X POST https://rosettaquantum.com/mcp \\\n  -H 'content-type: application/json' \\\n  -d '{\"jsonrpc\":\"2.0\",\"id\":1,\"method\":\"tools/list\"}'",
 ];
 
-export const SELLO_FORMULA = "content_hash = sha256( json.dumps({\"meta\": meta_without_content_hash, <body>},\n                                  sort_keys=True, ensure_ascii=False) )";
-
-export const VERIFICAR_CMD = "F=$(curl -s https://rosettaquantum.com/v1/archive/V-0012)\necho \"$F\" | jq -r .content_hash\ndiff <(curl -s \"$(echo \"$F\" | jq -r .github_raw)\") \\\n     <(curl -s \"$(echo \"$F\" | jq -r .codeberg_raw)\") && echo IDENTICAL";
+export const VERIFICAR_CMD = "curl -s https://rosettaquantum.com/v1/archive/EXP-0012-001/raw -o sellado.json\ncurl -sO https://raw.githubusercontent.com/RosettaQuantum/evidence/main/tools/verificar.py\npython3 verificar.py sellado.json";
 
 export const MCP_CMD = "curl -X POST https://rosettaquantum.com/mcp -H 'content-type: application/json' \\\n  -d '{\"jsonrpc\":\"2.0\",\"id\":1,\"method\":\"tools/list\"}'";

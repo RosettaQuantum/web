@@ -6,7 +6,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 // de darla — justo lo contrario de lo que este archivo vende.
 // Los comandos viven en un solo lugar y los comparten las dos caras: un comando no se
 // traduce, y dos copias divergen. Los comentarios (#) si van en cada idioma.
-import { ARRANQUE_CMD, ARRANQUE_AGENTES_CMD, VERIFICAR_CMD, SELLO_FORMULA, MCP_CMD, SITE } from '../lib/api-docs-cmds.js';
+import { ARRANQUE_CMD, ARRANQUE_AGENTES_CMD, VERIFICAR_CMD, MCP_CMD, SITE } from '../lib/api-docs-cmds.js';
 
 const cm = (t) => `<span class="cm"># ${t}</span>`;
 const ARRANQUE = [
@@ -54,7 +54,7 @@ const ARRANQUE_AGENTES = [
         wrong and you can say so in public — that is the whole point:
         <strong>nothing here asks to be believed.</strong> The hash covers the file's
         content, not the file: <code>storage</code> is excluded because it says where a
-        copy lives, not what it says. The full convention is below under <em>The seal</em>.
+        copy lives, not what it says. The four conventions are below, under <em>How to verify anything this API tells you</em>.
       </p>
 
       <h3>For agents</h3>
@@ -93,24 +93,73 @@ const ARRANQUE_AGENTES = [
 
       <h2>How to verify anything this API tells you</h2>
       <p>
-        Every item carries <code>content_hash</code>, <code>github_raw</code> and
-        <code>codeberg_raw</code>. The seal is computed over the file's own content:
+        <strong><code>content_hash</code> is not the sha256 of the file.</strong> It is the
+        sha256 of a canonical payload: the document without <code>meta.content_hash</code>,
+        without <code>meta.schema</code> and without <code>storage</code>, serialised in a
+        fixed way. Hashing the file as downloaded gives a different value — for
+        <code>RQ-EXP-EON-K20-002</code> the declared hash is <code>4ffdfeb4…</code> while the
+        sha256 of the file is <code>a6ff6a5f…</code>. Both are correct; they are answers to
+        different questions.
       </p>
-      <pre><code>{SELLO_FORMULA}</code></pre>
+
+      <h3>Download the bytes as they were sealed</h3>
       <p>
-        where <code>&lt;body&gt;</code> is every top-level key except <code>meta</code>
-        and <code>storage</code>. <code>storage</code> is excluded on purpose: it says
-        where a copy lives, not what it says. Two conventions exist under the
-        <code>v1</code> tag for a documented historical reason — the verifier declares
-        which one each file used rather than hiding it. Full spec and the reference
-        verifier are in the
-        <a href="https://github.com/RosettaQuantum/evidence/blob/main/PROTOCOL.md">archive protocol</a>.
+        Use <code>GET /v1/archive/&lt;id&gt;/raw</code>, or either public mirror. Do not use
+        <code>GET /v1/archive/&lt;id&gt;</code> for verification: that endpoint re-serialises the
+        JSON, and a float written <code>6.0</code> comes back as <code>6</code>. The seal is
+        unaffected; your ability to recompute it is not. Measured over the 72 published runs:
+        <strong>72 of 72 verify from <code>/raw</code>, 17 of 72 from the re-serialised
+        endpoint.</strong> The <code>/raw</code> response carries the declared hash in the
+        <code>x-rq-content-hash</code> header so you can compare without parsing the body.
       </p>
-      <pre><code set:html={cm('fetch, recompute, compare — and check the two copies match each other') + '\n' + VERIFICAR_CMD} />
+
+      <h3>The four conventions, and why there are four</h3>
+      <p>
+        The archive grew in four stages, and <strong>a published hash is a public fact</strong>:
+        older files are not re-sealed to make the set uniform. Their hashes are anchored in
+        Bitcoin and third parties have already cited them — re-sealing would invalidate real
+        anchors. So verifying means trying the four and reporting which one reproduced. That is
+        history declared, not disorder.
+      </p>
+      <div class="tabla-scroll"><table>
+        <thead><tr><th>convention</th><th>payload</th><th>serialisation</th></tr></thead>
+        <tbody>
+          <tr><td class="nb"><code>v3</code></td>
+              <td>drops <code>meta.content_hash</code>, <code>meta.schema</code>, <code>storage</code></td>
+              <td>JCS, RFC 8785 — canonical in any language</td></tr>
+          <tr><td class="nb"><code>v2</code></td>
+              <td>same as v3</td>
+              <td>Python <code>json.dumps(sort_keys=True, ensure_ascii=False)</code></td></tr>
+          <tr><td class="nb"><code>v1 canonical</code></td>
+              <td>drops <code>meta.content_hash</code>, <code>storage</code> — <em>keeps</em> <code>schema</code></td>
+              <td>same as v2</td></tr>
+          <tr><td class="nb"><code>v1 legacy</code></td>
+              <td><code>meta.content_hash</code> set to <code>null</code>, body is <code>w6</code> only</td>
+              <td><code>separators=(",",":")</code>, <code>ensure_ascii</code> default — non-ASCII escaped</td></tr>
+        </tbody>
+      </table></div>
+      <p>
+        <strong>v3 is the one that travels.</strong> Under v1 and v2 the hash depends on how
+        Python prints numbers: it writes a float <code>6.0</code> where JavaScript, Go and Rust
+        write <code>6</code>. Parse such a file in another language, re-serialise it, and you get
+        a different hash — silently, and looking exactly like tampering. It is not. Under v3 that
+        limitation is gone: JCS normalises numbers, which is what it was designed for. New seals
+        go v3 and only forward.
+      </p>
+
+      <h3>The tool</h3>
+      <p>
+        <a href="https://github.com/RosettaQuantum/evidence/blob/main/tools/verificar.py">
+        <code>tools/verificar.py</code></a> — one file, no dependencies, all four conventions. It
+        reports which one reproduced each hash, or fails loudly. Verified over the full archive:
+        72 of 72.
+      </p>
+      <pre><code set:html={cm('download as sealed, then verify — prints VALID and the convention used') + '\n' + VERIFICAR_CMD} />
       </pre>
       <p>
         Each sealed file is also timestamp-anchored in Bitcoin via OpenTimestamps, on a
-        chain none of the parties to this archive controls.
+        chain none of the parties to this archive controls. Full spec in the
+        <a href="https://github.com/RosettaQuantum/evidence/blob/main/PROTOCOL.md">archive protocol</a>.
       </p>
 
       <h2>MCP server</h2>

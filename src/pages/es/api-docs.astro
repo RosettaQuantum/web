@@ -9,7 +9,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 // sólo para la mitad de los lectores, y falla en la página cuyo argumento entero es
 // que todo se puede comprobar. Los comentarios dentro del código sí van en español,
 // y por eso viajan aparte: son texto, no comando.
-import { ARRANQUE_CMD, ARRANQUE_AGENTES_CMD, VERIFICAR_CMD, SELLO_FORMULA, MCP_CMD, SITE } from '../../lib/api-docs-cmds.js';
+import { ARRANQUE_CMD, ARRANQUE_AGENTES_CMD, VERIFICAR_CMD, MCP_CMD, SITE } from '../../lib/api-docs-cmds.js';
 
 const cm = (t) => `<span class="cm"># ${t}</span>`;
 const ARRANQUE = [
@@ -57,7 +57,7 @@ const ARRANQUE_AGENTES = [
         estamos equivocados y puedes decirlo en público — de eso se trata:
         <strong>nada de esto pide que le crean.</strong> El hash cubre el contenido del
         archivo, no el archivo: <code>storage</code> queda fuera porque dice dónde vive
-        una copia, no qué dice. La convención completa está más abajo, en <em>El sello</em>.
+        una copia, no qué dice. Las cuatro convenciones están más abajo, en <em>Cómo comprobar cualquier cosa que esta API te diga</em>.
       </p>
 
       <h3>Para agentes</h3>
@@ -98,26 +98,74 @@ const ARRANQUE_AGENTES = [
 
       <h2>Cómo comprobar cualquier cosa que esta API te diga</h2>
       <p>
-        Cada ítem lleva <code>content_hash</code>, <code>github_raw</code> y
-        <code>codeberg_raw</code>. El sello se calcula sobre el contenido del propio
-        archivo:
+        <strong><code>content_hash</code> no es el sha256 del archivo.</strong> Es el sha256 de
+        una forma canónica: el documento sin <code>meta.content_hash</code>, sin
+        <code>meta.schema</code> y sin <code>storage</code>, serializado de una manera fija.
+        Calcular el sha256 del archivo tal como se baja da otro valor — en
+        <code>RQ-EXP-EON-K20-002</code> el declarado es <code>4ffdfeb4…</code> y el del archivo
+        es <code>a6ff6a5f…</code>. Los dos son correctos: responden preguntas distintas.
       </p>
-      <pre><code>{SELLO_FORMULA}</code></pre>
+
+      <h3>Baja los bytes tal como se sellaron</h3>
       <p>
-        donde <code>&lt;body&gt;</code> es toda clave de primer nivel salvo <code>meta</code>
-        y <code>storage</code>. <code>storage</code> queda fuera a propósito: dice dónde
-        vive una copia, no qué dice. Bajo la etiqueta <code>v1</code> existen dos
-        convenciones por una razón histórica documentada — el verificador declara cuál usó
-        cada archivo en vez de esconderlo. La especificación completa y el verificador de
-        referencia están en el
-        <a href="https://github.com/RosettaQuantum/evidence/blob/main/PROTOCOL.md">protocolo del archivo</a>.
+        Usa <code>GET /v1/archive/&lt;id&gt;/raw</code>, o cualquiera de las dos copias públicas.
+        Para verificar, <strong>no</strong> uses <code>GET /v1/archive/&lt;id&gt;</code>: ese
+        endpoint vuelve a serializar el JSON, y un decimal escrito <code>6.0</code> regresa como
+        <code>6</code>. El sello no se altera; lo que se pierde es tu capacidad de recomputarlo.
+        Medido sobre las 72 corridas publicadas: <strong>72 de 72 verifican desde
+        <code>/raw</code>, 17 de 72 desde el endpoint que re-serializa.</strong> La respuesta de
+        <code>/raw</code> trae el hash declarado en la cabecera <code>x-rq-content-hash</code>,
+        para comparar sin parsear el cuerpo.
       </p>
-      <pre><code set:html={cm('baja, recomputa, compara — y comprueba que las dos copias son iguales entre sí') + '\n' + VERIFICAR_CMD} />
+
+      <h3>Las cuatro convenciones, y por qué son cuatro</h3>
+      <p>
+        El archivo creció en cuatro etapas, y <strong>un hash publicado es un hecho
+        público</strong>: los archivos viejos no se re-sellan para uniformar el conjunto. Sus
+        hashes están anclados en Bitcoin y hay terceros que ya los citaron — re-sellarlos
+        invalidaría anclas reales. Así que verificar significa probar las cuatro y decir cuál
+        reprodujo. Es historia declarada, no desorden.
+      </p>
+      <div class="tabla-scroll"><table>
+        <thead><tr><th>convención</th><th>payload</th><th>serialización</th></tr></thead>
+        <tbody>
+          <tr><td class="nb"><code>v3</code></td>
+              <td>quita <code>meta.content_hash</code>, <code>meta.schema</code> y <code>storage</code></td>
+              <td>JCS, RFC 8785 — canónica en cualquier lenguaje</td></tr>
+          <tr><td class="nb"><code>v2</code></td>
+              <td>igual que v3</td>
+              <td><code>json.dumps(sort_keys=True, ensure_ascii=False)</code> de Python</td></tr>
+          <tr><td class="nb"><code>v1 canónica</code></td>
+              <td>quita <code>meta.content_hash</code> y <code>storage</code> — <em>conserva</em> <code>schema</code></td>
+              <td>igual que v2</td></tr>
+          <tr><td class="nb"><code>v1 legada</code></td>
+              <td><code>meta.content_hash</code> en <code>null</code>, y el cuerpo es sólo <code>w6</code></td>
+              <td><code>separators=(",",":")</code> y <code>ensure_ascii</code> por omisión — los no-ASCII escapados</td></tr>
+        </tbody>
+      </table></div>
+      <p>
+        <strong>La que viaja es v3.</strong> Bajo v1 y v2 el hash depende de cómo Python imprime
+        los números: escribe <code>6.0</code> donde JavaScript, Go y Rust escriben <code>6</code>.
+        Si parseas uno de esos archivos en otro lenguaje y lo vuelves a serializar, obtienes otro
+        hash — en silencio, y con toda la pinta de una alteración. No lo es. Con v3 esa limitación
+        desaparece: JCS normaliza los números, que es para lo que se creó. Los sellos nuevos van
+        en v3 y sólo hacia adelante.
+      </p>
+
+      <h3>La herramienta</h3>
+      <p>
+        <a href="https://github.com/RosettaQuantum/evidence/blob/main/tools/verificar.py">
+        <code>tools/verificar.py</code></a> — un archivo, sin dependencias, las cuatro
+        convenciones. Dice con cuál reprodujo cada hash, o falla con todas las letras. Verificado
+        sobre el archivo completo: 72 de 72.
+      </p>
+      <pre><code set:html={cm('baja el archivo tal como se selló y verifícalo — imprime VALIDO y la convención') + '\n' + VERIFICAR_CMD} />
       </pre>
       <p>
-        Cada archivo sellado está además anclado en el tiempo en Bitcoin vía
-        OpenTimestamps, en una cadena que no controla ninguna de las partes de este
-        archivo.
+        Cada archivo sellado está además anclado en el tiempo en Bitcoin vía OpenTimestamps, en
+        una cadena que no controla ninguna de las partes de este archivo. La especificación
+        completa está en el
+        <a href="https://github.com/RosettaQuantum/evidence/blob/main/PROTOCOL.md">protocolo del archivo</a>.
       </p>
 
       <h2>Servidor MCP</h2>
