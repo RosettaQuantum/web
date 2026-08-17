@@ -491,6 +491,30 @@ for (const ruta of ["/", "/es/"]) {
 // traia numeros inventados —"4 selladas", "15 de 15 rutas responden", "6 propagadores"—
 // que nuestra propia API desmiente. El chequeo vigila lo unico que importa aca: que el
 // HTML servido NO traiga datos, solo contenedores, y que sus fuentes respondan.
+// La prosa de /v1/state tiene que afirmar sobre el MISMO conjunto que su numero.
+//
+// Decia "en ninguna corrida sellada... le gano al campeon clasico" mientras cuatro
+// corridas selladas dicen "quantum win" en su propio campo. El numero contaba
+// veredictos; la frase hablaba de corridas. Nadie lo vio porque el numero estaba bien.
+console.log("\n  -- la lectura del contador dice sobre que conjunto habla --");
+{
+  const st = await traer("/v1/state");
+  const runs = await traer("/v1/runs?limit=1000");
+  const lectura = (st.js && st.js.estado_medido && st.js.estado_medido.lectura) || "";
+  const marcadas = ((runs.js && runs.js.items) || [])
+    .filter(c => (c.resultado || "").trim().toLowerCase() === "quantum win").length;
+
+  comprobar("la lectura del cero habla de VEREDICTOS, no de corridas",
+    /veredicto/i.test(lectura) && !/ninguna corrida sellada/i.test(lectura),
+    `dice: "${lectura.slice(0, 90)}…"`);
+
+  // Y el caso positivo que le da sentido: si algun dia no hubiera corridas marcadas, la
+  // distincion daria igual. Mientras las haya, la frase NO puede hablar de corridas.
+  comprobar(`hay ${marcadas} corrida(s) marcada(s) «quantum win», que es lo que hacia falsa la frase vieja`,
+    marcadas > 0,
+    "ya no hay corridas marcadas: revisa si la distincion sigue haciendo falta");
+}
+
 console.log("\n  -- la consola --");
 {
   const c = await traer("/consola/");

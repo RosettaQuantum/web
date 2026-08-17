@@ -101,9 +101,22 @@ async function estado(env) {
       victorias_cuanticas_medidas: victorias,
       // La lectura acompana al numero y tiene que seguirlo: un texto que dice
       // "Cero" junto a un contador que ya no dice cero es peor que no tener texto.
+      // LA FRASE TIENE QUE AFIRMAR LO QUE EL NUMERO SOSTIENE.
+      //
+      // Decia "en ninguna CORRIDA SELLADA hasta hoy un metodo cuantico le gano", y eso
+      // es falso: hay cuatro corridas selladas cuyo propio campo `resultado` dice
+      // "quantum win", las cuatro con es_demo=false. El numero nunca mintio —cuenta
+      // VEREDICTOS publicados con outcome win, y hay uno solo, que dice "not yet"—; la
+      // que mentia era la prosa, que hablaba de otro conjunto.
+      //
+      // Es la familia de defectos mas cara del proyecto: los campos medidos correctos y
+      // el texto de al lado afirmando de mas. Y aqui vive en la vitrina, al lado de
+      // identificadores que cualquiera puede abrir y contar.
+      //
+      // Se corrige la frase. NO se toca el numero y NO se re-sella ningun archivo.
       lectura: victorias === 0
-        ? "Cero. En ninguna corrida sellada hasta hoy un metodo cuantico le gano al " +
-          "campeon clasico. Ese resultado es el producto, no una falla del archivo."
+        ? "Cero. Ningun veredicto publicado hasta hoy declara que un metodo cuantico le " +
+          "gano al campeon clasico. Ese resultado es el producto, no una falla del archivo."
         : `${victorias} de ${(ver.results || [{ n: 0 }])[0].n} veredictos publicados ` +
           "miden una victoria cuantica. Cada uno esta sellado y se puede recomputar.",
     },
