@@ -5,7 +5,7 @@
 // tecleado por nadie: asi lo publicado es demostrablemente lo aprobado. Para
 // cambiarlo se edita el .md, se mueve el sha del armador y se regenera.
 //
-// texto fuente sha256: 4df54c6e83422bf9720f1c63efa3f9540041a30a6ae6885d3311db4dcedb3891
+// texto fuente sha256: c0e9457a3f9a559085d5cda08d83efe73b1c572ce4fd5a1bcc73a1949b866f9b
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import css from '../../styles/pages/precios.css?raw';
 ---
@@ -16,6 +16,11 @@ import css from '../../styles/pages/precios.css?raw';
   altUrl="/pricing"
   pageCss={css}>
   <article class="article wrap precios">
+      <!-- El h1 sale del titulo aprobado, sin la marca. La pagina no tenia NINGUN h1: el
+           "#" del documento es andamiaje de la propuesta y se omite a proposito, asi que
+           quedaba sin declarar de que es. No se inventa texto: es el mismo titulo que ya
+           viaja en la pestana. -->
+      <h1>Precios</h1>
       <blockquote><p><strong>Medimos bajo sello. Publicamos los negativos.</strong> Lo que compras es una medición que puedes comprobar sin pedirnos permiso: cada entrega viene con su hash, anclado en Bitcoin y publicado en tres copias independientes.</p>
         <p>Hoy nuestro archivo declara <strong>0 victorias cuánticas medidas</strong>. Ese número está en esta misma página porque es el producto, no un defecto.</p></blockquote>
 
@@ -54,11 +59,11 @@ import css from '../../styles/pages/precios.css?raw';
 
       <h2>Cómo se compra y cómo se devuelve</h2>
 
-      <blockquote><p>Los dos productos pagados se coordinan con nosotros: no hay autoservicio, porque cada medición se diseña con el cliente y se revisa antes de sellarla.</p>
+      <blockquote><p>El trabajo pagado se coordina con nosotros: no hay autoservicio, porque cada medición se diseña con el cliente y se revisa antes de sellarla.</p>
         <p><strong>Devolución completa</strong> si no entregamos en el plazo acordado o si el sello que entregamos no verifica. No hay devolución por el resultado: pagas la medición, no el veredicto.</p>
         <p>Escríbenos a <strong><a href="mailto:hello@rosettaquantum.com">hello@rosettaquantum.com</a></strong>. Vendido por Blue Tuna SpA a través de Paddle.com, que actúa como comerciante registrado.</p></blockquote>
 
       <p class="sello-fuente">Texto publicado desde su documento aprobado ·
-        <code>sha256:4df54c6e83422bf9…</code></p>
+        <code>sha256:c0e9457a3f9a5590…</code></p>
   </article>
 </BaseLayout>

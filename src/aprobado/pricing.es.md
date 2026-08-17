@@ -74,7 +74,7 @@ de cobro. Entidad legal: **Blue Tuna SpA**. Marca: **Rosetta Quantum**.
 
 ### Cómo se compra y cómo se devuelve
 
-> Los dos productos pagados se coordinan con nosotros: no hay autoservicio, porque cada
+> El trabajo pagado se coordina con nosotros: no hay autoservicio, porque cada
 > medición se diseña con el cliente y se revisa antes de sellarla.
 >
 > **Devolución completa** si no entregamos en el plazo acordado o si el sello que

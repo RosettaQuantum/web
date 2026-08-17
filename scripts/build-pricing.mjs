@@ -72,8 +72,12 @@ const IDIOMAS = [
     lang: "es",
     fuente: "src/aprobado/pricing.es.md",
     salida: "src/pages/es/precios.astro",
-    aprobado: "4df54c6e83422bf9720f1c63efa3f9540041a30a6ae6885d3311db4dcedb3891",
-    // Revision anterior: edcb8bc3… Trajo la fila "Programa de Medicion" y el correo
+    aprobado: "c0e9457a3f9a559085d5cda08d83efe73b1c572ce4fd5a1bcc73a1949b866f9b",
+    // Revision anterior: 4df54c6e… Cambio UNA linea, aprobada por Nicholas: «Los dos
+    // productos pagados» -> «El trabajo pagado». La frase decia dos y la tabla tres filas
+    // mas arriba muestra CUATRO de pago; la cara inglesa ya decia «Paid work is arranged
+    // with us», sin numero, asi que el espanol se alinea con lo aprobado alli.
+    // Revision anterior a esa: edcb8bc3… Trajo la fila "Programa de Medicion" y el correo
     // hi@ -> hello@, las dos confirmadas por Nicholas. hello@ esta verificado contra
     // su panel de Cloudflare: la regla existe y el catch-all esta en Drop, o sea que
     // un correo a hi@ se perdia sin rebote.
@@ -249,6 +253,11 @@ import css from '${L.relativo}styles/pages/precios.css?raw';
   altUrl="${L.alt}"
   pageCss={css}>
   <article class="article wrap precios">
+      <!-- El h1 sale del titulo aprobado, sin la marca. La pagina no tenia NINGUN h1: el
+           "#" del documento es andamiaje de la propuesta y se omite a proposito, asi que
+           quedaba sin declarar de que es. No se inventa texto: es el mismo titulo que ya
+           viaja en la pestana. -->
+      <h1>${L.titulo.split(" — ")[0]}</h1>
       ${cuerpo}
 
       <p class="sello-fuente">${L.lang === "es"
