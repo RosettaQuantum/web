@@ -40,3 +40,26 @@ table.datos tbody tr:hover{background:var(--tarjeta-2)}
 .btn:hover{border-color:var(--verde);color:var(--verde)}
 .btn-solid{background:var(--verde);border-color:var(--verde);color:var(--sobre-acento);font-weight:600}
 .btn-solid:hover{background:var(--verde-hover);border-color:var(--verde-hover);color:var(--sobre-acento)}
+
+/* MAQUETA PROPIA DE LA CONSOLA.
+ *
+ * La hoja base venia de la maqueta clara y trae su propia rejilla CON un punto de
+ * quiebre que la colapsa a una columna: a 800 px el riel se volvia una pila de botones
+ * de ancho completo y el contenido desaparecia. Aca la maqueta se declara entera para
+ * no depender de los quiebres de otra hoja — y el marco vive FUERA de .app, porque
+ * dentro se volvia una celda mas de la rejilla. */
+.marco{position:sticky;top:0;z-index:5}
+.app{display:grid;grid-template-columns:210px 1fr;min-height:calc(100vh - 58px);align-items:start}
+.rail{position:sticky;top:58px;height:auto;background:var(--panel);border-right:1px solid var(--borde);
+      border-bottom:0;display:flex;flex-direction:column;gap:2px;padding:16px 10px}
+.rail .logo{display:none}          /* el wordmark ya vive en el marco */
+.rail button{background:transparent;border:1px solid transparent;color:var(--txt-2);
+  font-family:var(--mono);font-size:13px;text-align:left;padding:7px 10px;cursor:pointer;width:100%}
+.rail button:hover{color:var(--verde);border-color:var(--borde-2)}
+.rail button[aria-current="true"]{color:var(--verde);border-color:var(--verde);background:var(--tarjeta)}
+main{padding:24px 28px 70px;max-width:1180px}
+@media (max-width:700px){
+  .app{grid-template-columns:1fr}
+  .rail{position:static;flex-direction:row;flex-wrap:wrap;border-right:0;border-bottom:1px solid var(--borde)}
+  .rail button{width:auto}
+}
