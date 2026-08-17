@@ -93,8 +93,12 @@ export function prosaSinTildes(fuente) {
  */
 const ES_SQL = /\b(SELECT|FROM|WHERE|GROUP BY|INSERT INTO)\b/;
 const ES_RUTA = c => /^\/[a-z0-9]/i.test(c) || /\{[a-z_]+\}/.test(c);
+// Un token snake_case es un IDENTIFICADOR: nombre de herramienta MCP, clave, columna. Un
+// agente llama `buscar_algoritmo_cuantico` por su nombre exacto — acentuarlo lo rompe, y
+// eso fue justo lo que mi barrido publico: el MCP contesto «herramienta desconocida».
+const ES_IDENT = c => /^[a-z][a-z0-9_]*$/.test(c);
 /** SQL e identificadores no son prosa: ni les faltan tildes ni les sobran. */
-const esCodigo = c => ES_SQL.test(c) || ES_RUTA(c);
+const esCodigo = c => ES_SQL.test(c) || ES_RUTA(c) || ES_IDENT(c);
 
 export function tildesDondeNoVan(fuente) {
   const codigo = fuente.replace(/\/\*[\s\S]*?\*\//g, "").replace(/^\s*\/\/.*$/gm, "");
@@ -106,6 +110,7 @@ export function tildesDondeNoVan(fuente) {
     if (!acentos) continue;
     if (ES_SQL.test(cad)) malas.push(["SQL", cad.slice(0, 60)]);
     else if (ES_RUTA(cad)) malas.push(["ruta", cad.slice(0, 60)]);
+    else if (/^[a-zá-ú][a-z0-9á-ú_]*$/.test(cad)) malas.push(["identificador", cad.slice(0, 60)]);
   }
   return malas;
 }
@@ -118,6 +123,8 @@ prueba("y grita con el alias SQL que casi publico",
   tildesDondeNoVan('const q = "SELECT count(*) n_proteínas FROM p";').length === 1);
 prueba("y grita con la ruta acentuada",
   tildesDondeNoVan('{ ruta: "/v1/challenges/{id}/{proteína}" }').length === 1);
+prueba("y grita con el nombre de herramienta MCP que rompi en produccion",
+  tildesDondeNoVan('{ name: "buscar_algoritmo_cuántico" }').length === 1);
 prueba("se calla con prosa acentuada normal",
   tildesDondeNoVan('const t = "esa proteína no está en la corrida";').length === 0);
 

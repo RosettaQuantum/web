@@ -101,7 +101,7 @@ function resumenArchivo(row) {
     // emite todavia. No son lo mismo.
     legible: legiblesDe(
       { clase_de_problema: q.problem_class, instancia: q.instance, resultado: q.outcome, metrica: q.metric },
-      ["clase_de_problema", "instancia", "resultado", "métrica"]),
+      ["clase_de_problema", "instancia", "resultado", "metrica"]),
     ...comoComprobar(row),
   };
 }
@@ -276,9 +276,9 @@ const ALIAS_ALGORITMO = {
   dqi: "optimization-by-decoded-quantum-interferometry",
 };
 
-const AVISO_CATALOGO =
+export const AVISO_CATALOGO =
   "speedup_declarado es lo que declara la fuente citada, NO una medición de Rosetta. " +
-  "Lo que Rosetta midió va en evidencia_rosetta, y para la mayoría del catálogo esta vacío.";
+  "Lo que Rosetta midió va en evidencia_rosetta, y para la mayoría del catálogo está vacío.";
 
 function filaAlgoritmo(row, recetas) {
   let refs = [], impl = [], remisiones = [];
@@ -566,7 +566,7 @@ export const HERRAMIENTAS = [
     },
   },
   {
-    name: "buscar_algoritmo_cuántico",
+    name: "buscar_algoritmo_cuantico",
     description:
       "Busca en el archivador de algoritmos cuánticos (catálogo canónico del Quantum " +
       "Algorithm Zoo, 60 entradas en 4 categorías) por nombre o por el problema que " +
@@ -604,7 +604,7 @@ export const HERRAMIENTAS = [
     },
   },
   {
-    name: "ver_propagación",
+    name: "ver_propagacion",
     description:
       "Devuelve los sitios PREDICHOS por caminata cuántica para un blanco de una " +
       "corrida, con el métrico usado, su pre-registro, y la matriz de conectividad " +
@@ -621,7 +621,7 @@ export const HERRAMIENTAS = [
     },
   },
   {
-    name: "listar_fuentes_cuánticas",
+    name: "listar_fuentes_cuanticas",
     description:
       "Lista las fuentes del campo cuántico catalogadas: fabricantes de QPU, librerías, " +
       "revistas y conferencias, blogs, catálogos y organismos de norma. Cada una con que " +
@@ -651,7 +651,7 @@ async function ejecutarHerramienta(env, nombre, args) {
     const r = await listar(env, args.tipo, u);
     return await r.json();
   }
-  if (nombre === "buscar_algoritmo_cuántico") {
+  if (nombre === "buscar_algoritmo_cuantico") {
     const u = new URL(SITE + "/x");
     if (args.consulta) u.searchParams.set("q", args.consulta);
     if (args.categoria) u.searchParams.set("categoria", args.categoria);
@@ -663,11 +663,11 @@ async function ejecutarHerramienta(env, nombre, args) {
     const r = await estructuras(env, args.pdb);
     return await r.json();
   }
-  if (nombre === "ver_propagación") {
+  if (nombre === "ver_propagacion") {
     const r = await propagaciones(env, args.run_id, args.target || null);
     return await r.json();
   }
-  if (nombre === "listar_fuentes_cuánticas") {
+  if (nombre === "listar_fuentes_cuanticas") {
     const u = new URL(SITE + "/x");
     if (args.tipo) u.searchParams.set("tipo", args.tipo);
     const r = await fuentes(env, u);

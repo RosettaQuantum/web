@@ -29,7 +29,12 @@
 import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
-import { CATALOGO } from "../api.js";
+import { CATALOGO, AVISO_CATALOGO } from "../api.js";
+
+// El aviso se compara SIN tildes contra el texto vivo: asi el chequeo no se rompe cuando
+// se acentua la prosa, pero sigue gritando si el aviso desaparece o cambia de palabras.
+// Antes era una copia del texto pegada aca, y por eso el barrido de tildes lo tumbo.
+const sinTildes = t => String(t).normalize("NFD").replace(/[\u0300-\u036f]/g, "");
 import { esperarRutas, esperarVersion } from "./lib/esperar.mjs";
 import { pyDumps, parseConLiterales } from "./lib/sello.mjs";
 
@@ -188,7 +193,7 @@ if (alg.js) {
   const v = validarVocabulario(alg.txt);
   comprobar("sin vocabulario prohibido", v === null, v || "");
   comprobar("el aviso catalogo-vs-ledger va en la respuesta",
-    /no es una medicion de Rosetta|NO una medicion/i.test(alg.txt), "falta el aviso");
+    sinTildes(alg.txt).includes(sinTildes(AVISO_CATALOGO)), "falta el aviso");
   comprobar("la procedencia declara el sha256 de la instantanea",
     !!(alg.js.procedencia && /^[0-9a-f]{64}$/.test(alg.js.procedencia.instantanea_sha256 || "")),
     "falta o es invalido procedencia.instantanea_sha256");
@@ -321,7 +326,7 @@ if (chal.js) {
   comprobar("declara que NO está validada experimentalmente",
     chal.js.validado_experimentalmente === false, "no declara el estado de validación");
   comprobar("el aviso de 'predicho, no validado' viaja en la respuesta",
-    /no estan validados|no están validados/i.test(chal.txt), "falta el aviso");
+    /no est[aá]n validados/i.test(chal.txt), "falta el aviso");
   // El "Top-5" que declaraba 5 y traia 2: ahora el numero sale del dato.
   comprobar("KRAS G12C publica sus 2 sitios reales, no un top-5 fijo",
     P.KRAS_G12C && P.KRAS_G12C.sitios_predichos === 2,
@@ -402,7 +407,7 @@ if (est.js) {
     /^https?:\/\//.test((est.js.procedencia || {}).estructura_url || ""),
     `procedencia = ${JSON.stringify(est.js.procedencia)}`);
   comprobar("la estructura aclara que se derivo solo de topología",
-    /solo de topologia|SOLO de topologia/i.test(est.js.aviso || ""), "falta el aviso");
+    /solo de topolog[ií]a/i.test(est.js.aviso || ""), "falta el aviso");
 }
 
 const prop = await traer("/v1/propagate/cleveland-2026-08-ciego");
