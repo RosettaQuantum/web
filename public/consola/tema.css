@@ -1,4 +1,9 @@
-/* AMBITO PROPIO: `body.consola`.
+/* AMBITO PROPIO: `:root body.consola`.
+ *
+ * El prefijo lleva `:root` a proposito y no es adorno: la regla de la base pesa
+ * (0,3,0) —`:root` + `[data-theme]` + `.btn`— y `body.consola .btn` pesa (0,2,1), asi
+ * que perdia. Conte la especificidad en vez de volver a tantear; con `:root` delante
+ * queda (0,3,1) y gana por un punto, que es lo justo.
  *
  * La hoja base trae reglas de tema oscuro con selector `:root:not([data-theme="light"])
  * .btn`, que pesa mas que un `.btn` pelado y GANA aunque el tema cargue despues. El
@@ -6,18 +11,18 @@
  * color lo ponia otra hoja. Ponerle a cada regla `body.consola` iguala el peso, y al
  * cargar ultimo, manda. */
 /* Tema terminal de la consola: negro con verde matrix.
-body.consola *
+:root body.consola *
  * Decision de marca de Nicholas (2026-08-17): DOS identidades deliberadas. La consola
  * es herramienta y va en negro terminal; los documentos,
-body.consola las entregas y el sitio
+:root body.consola las entregas y el sitio
  * publico siguen en crema/dorado/teal. El ORO cruza las dos y es lo que las hace la
  * misma casa — por eso aca esta reservado a sellos,
-body.consola advertencias y modo ensayo,
-body.consola y no
+:root body.consola advertencias y modo ensayo,
+:root body.consola y no
  * se usa de adorno.
  *
  * Los valores salen del README del paquete de diseno,
-body.consola no de una captura.
+:root body.consola no de una captura.
  */
 :root{
   --fondo:#050705; --panel:#0a0d0a; --panel-2:#0c0f0c;
@@ -32,55 +37,55 @@ body.consola no de una captura.
 }
 html,body{background:var(--fondo);color:var(--txt);font-family:var(--mono);font-size:14.5px}
 body{margin:0}
-body.consola a{color:var(--verde-dato)} a:hover{color:var(--verde-hover)}
-body.consola h1{font-family:var(--display);font-size:26px;font-weight:400;letter-spacing:.01em;color:var(--txt-claro)}
-body.consola .lab,
-body.consola .cif-k,
-body.consola table.datos th{color:var(--muy-tenue);letter-spacing:.18em;font-weight:600;font-size:10px}
-body.consola .cif-v{font-family:var(--display);font-size:44px;color:var(--txt-claro)}
-body.consola .nota{color:var(--txt-2)}
+:root body.consola a{color:var(--verde-dato)} a:hover{color:var(--verde-hover)}
+:root body.consola h1{font-family:var(--display);font-size:26px;font-weight:400;letter-spacing:.01em;color:var(--txt-claro)}
+:root body.consola .lab,
+:root body.consola .cif-k,
+:root body.consola table.datos th{color:var(--muy-tenue);letter-spacing:.18em;font-weight:600;font-size:10px}
+:root body.consola .cif-v{font-family:var(--display);font-size:44px;color:var(--txt-claro)}
+:root body.consola .nota{color:var(--txt-2)}
 /* Sin radios: estetica terminal. Lo provisional va punteado; el oro punteado es ensayo. */
-body.consola .app,
-body.consola .rail,
-body.consola table.datos,
-body.consola #sello,
-body.consola .tarj,
-body.consola .err,
-body.consola .marco{border-radius:0}
-body.consola .tarj,
-body.consola #sello{background:var(--tarjeta);border:1px solid var(--borde-2)}
-body.consola table.datos th{border-bottom:1px solid var(--borde)}
-body.consola table.datos td{border-bottom:1px solid var(--borde)}
-body.consola table.datos tbody tr:hover{background:var(--tarjeta-2)}
-body.consola .err{border:1px dashed var(--oro);background:rgba(201,162,77,.07);color:var(--oro-txt)}
-body.consola .sinmedir{color:var(--tenue);font-style:italic}
-body.consola #sello{border-color:var(--oro)}
-body.consola .btn{background:transparent;border:1px solid var(--borde-3);color:var(--txt);font-family:var(--mono);
+:root body.consola .app,
+:root body.consola .rail,
+:root body.consola table.datos,
+:root body.consola #sello,
+:root body.consola .tarj,
+:root body.consola .err,
+:root body.consola .marco{border-radius:0}
+:root body.consola .tarj,
+:root body.consola #sello{background:var(--tarjeta);border:1px solid var(--borde-2)}
+:root body.consola table.datos th{border-bottom:1px solid var(--borde)}
+:root body.consola table.datos td{border-bottom:1px solid var(--borde)}
+:root body.consola table.datos tbody tr:hover{background:var(--tarjeta-2)}
+:root body.consola .err{border:1px dashed var(--oro);background:rgba(201,162,77,.07);color:var(--oro-txt)}
+:root body.consola .sinmedir{color:var(--tenue);font-style:italic}
+:root body.consola #sello{border-color:var(--oro)}
+:root body.consola .btn{background:transparent;border:1px solid var(--borde-3);color:var(--txt);font-family:var(--mono);
      font-size:12.5px;padding:6px 12px;cursor:pointer}
-body.consola .btn:hover{border-color:var(--verde);color:var(--verde)}
-body.consola .btn-solid{background:var(--verde);border-color:var(--verde);color:var(--sobre-acento);font-weight:600}
-body.consola .btn-solid:hover{background:var(--verde-hover);border-color:var(--verde-hover);color:var(--sobre-acento)}
+:root body.consola .btn:hover{border-color:var(--verde);color:var(--verde)}
+:root body.consola .btn-solid{background:var(--verde);border-color:var(--verde);color:var(--sobre-acento);font-weight:600}
+:root body.consola .btn-solid:hover{background:var(--verde-hover);border-color:var(--verde-hover);color:var(--sobre-acento)}
 
 /* MAQUETA PROPIA DE LA CONSOLA.
-body.consola *
+:root body.consola *
  * La hoja base venia de la maqueta clara y trae su propia rejilla CON un punto de
  * quiebre que la colapsa a una columna: a 800 px el riel se volvia una pila de botones
  * de ancho completo y el contenido desaparecia. Aca la maqueta se declara entera para
  * no depender de los quiebres de otra hoja — y el marco vive FUERA de .app,
-body.consola porque
+:root body.consola porque
  * dentro se volvia una celda mas de la rejilla. */
 .marco{position:sticky;top:0;z-index:5}
-body.consola .app{display:grid;grid-template-columns:210px 1fr;min-height:calc(100vh - 58px);align-items:start}
-body.consola .rail{position:sticky;top:58px;height:auto;background:var(--panel);border-right:1px solid var(--borde);
+:root body.consola .app{display:grid;grid-template-columns:210px 1fr;min-height:calc(100vh - 58px);align-items:start}
+:root body.consola .rail{position:sticky;top:58px;height:auto;background:var(--panel);border-right:1px solid var(--borde);
       border-bottom:0;display:flex;flex-direction:column;gap:2px;padding:16px 10px}
-body.consola .rail .logo{display:none}          /* el wordmark ya vive en el marco */
-body.consola .rail button{background:transparent;border:1px solid transparent;color:var(--txt-2);
+:root body.consola .rail .logo{display:none}          /* el wordmark ya vive en el marco */
+:root body.consola .rail button{background:transparent;border:1px solid transparent;color:var(--txt-2);
   font-family:var(--mono);font-size:13px;text-align:left;padding:7px 10px;cursor:pointer;width:100%}
-body.consola .rail button:hover{color:var(--verde);border-color:var(--borde-2)}
-body.consola .rail button[aria-current="true"]{color:var(--verde);border-color:var(--verde);background:var(--tarjeta)}
-body.consola main{padding:24px 28px 70px;max-width:1180px}
+:root body.consola .rail button:hover{color:var(--verde);border-color:var(--borde-2)}
+:root body.consola .rail button[aria-current="true"]{color:var(--verde);border-color:var(--verde);background:var(--tarjeta)}
+:root body.consola main{padding:24px 28px 70px;max-width:1180px}
 @media (max-width:700px){
-body.consola .app{grid-template-columns:1fr}
-body.consola .rail{position:static;flex-direction:row;flex-wrap:wrap;border-right:0;border-bottom:1px solid var(--borde)}
-body.consola .rail button{width:auto}
+:root body.consola .app{grid-template-columns:1fr}
+:root body.consola .rail{position:static;flex-direction:row;flex-wrap:wrap;border-right:0;border-bottom:1px solid var(--borde)}
+:root body.consola .rail button{width:auto}
 }
