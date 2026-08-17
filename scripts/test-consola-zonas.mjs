@@ -131,6 +131,14 @@ if (process.argv.includes("--self-test")) {
     ["texto sin tildes", null, null, z => ({ ...z, DECLARADAS: z.DECLARADAS.map(d => d.id === "despacho"
       ? { ...d, proposito: "El panorama del dia: que cambio en el archivo desde ayer." } : d) }), "sin tildes"],
     ["clase con tamaño de la hoja base", h => h.replace('class="barra-filtro"', 'class="barra"'), null, null, "tamaño de otro contexto"],
+    // EL CASO PARADOJICO, y el unico que exige SILENCIO: un archivo donde los defectos
+    // estan DESCRITOS en un comentario y NO estan en el codigo. Si el guardia grita aqui,
+    // esta leyendo prosa — que es como se equivoco dos veces mientras lo escribia. No se
+    // le ocurre a nadie hasta que muerde.
+    ["prosa que describe defectos, sin defectos", h => h.replace("<style>", `<style>
+  /* NOTA: este contenedor NO puede llamarse .barra ni .rail, y el pie no debe declarar
+     /v1/inventada. Tampoco se escribe «51 de 72» a mano. Nada de esto esta en el codigo:
+     esto es la explicacion, no el defecto. */`), null, null, null],
     ["ruta pedida y no declarada", null, j => j.replace('pedir("/v1/state")', 'pedir("/v1/secreta")'), null, "el código pide /v1/secreta"],
     ["ruta declarada y no pedida", h => h.replace("<code>/v1/state</code>", "<code>/v1/inventada</code>"), null, null, "el pie declara /v1/inventada"],
   ];
@@ -143,6 +151,12 @@ if (process.argv.includes("--self-test")) {
 
   for (const [nombre, mh, mj, mz, esperado] of casos) {
     const fallos = revisar(mh ? mh(html) : html, mj ? mj(js) : js, mz ? mz(zonas) : zonas, base);
+    if (esperado === null) {
+      // Caso de silencio: el guardia NO tiene que decir nada.
+      if (fallos.length === 0) { ok++; console.log(`  ok   se calla con: ${nombre}`); }
+      else { mal++; console.log(`  FALLA gritó con prosa: ${nombre}\n         dijo: ${fallos.join(" | ")}`); }
+      continue;
+    }
     const grito = fallos.find(f => f.includes(esperado));
     if (grito) { ok++; console.log(`  ok   grita con: ${nombre}`); }
     else { mal++; console.log(`  FALLA no gritó con: ${nombre}\n         dijo: ${fallos.join(" | ") || "(nada)"}`); }
