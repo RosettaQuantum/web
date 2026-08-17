@@ -19,6 +19,21 @@
  *
  * Se ejerce con --self-test, que rompe cada regla a proposito y exige que grite. Un
  * guardia que nunca se vio fallar no es un guardia: es una linea que da confianza.
+ *
+ * LO QUE ESTE GUARDIA NO VE — leelo antes de confiar en su verde
+ * -------------------------------------------------------------
+ * Un control que no declara su punto ciego se lee como si cubriera todo. Este tiene dos,
+ * los dos descubiertos mirando la pantalla el 17-ago-2026:
+ *
+ * 1. EL TEXTO QUE LA API PINTA DESPUES. Solo mira `zonas.js` y el HTML estatico. La prosa
+ *    que llega en vivo de `/v1/...` —los resultados de las corridas, la lectura del
+ *    estado— no esta en ningun archivo de este repo cuando el guardia corre. Un `grep`
+ *    sobre el HTML NO la encuentra, y por ahi se colo la prosa sin tildes que se veia al
+ *    lado de «API publica». Eso lo vigila `test-legible.mjs`, no este.
+ * 2. LOS RECORTES POR HERENCIA DE LAYOUT. Un `overflow-x:hidden` en un ancestro dejando un
+ *    boton fuera del alcance del dedo a 375 px no deja rastro en ninguna clase compartida,
+ *    que es lo unico que esta regla 6 sabe analizar. Solo se atrapa midiendo en el
+ *    navegador. Ver HOJA-BASE.md.
  */
 import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
