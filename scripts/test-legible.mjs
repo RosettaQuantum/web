@@ -53,9 +53,83 @@ prueba("conserva la caja", legible("METODO Metodo metodo") === "MÉTODO Método 
 prueba("no toca las ambiguas",
   legible("mas solo esta replica") === null,
   `devolvio: ${legible("mas solo esta replica")}`);
+// Una entrada que no cambia nada —«predicciones: predicciones»— hace que el guardia de
+// api.js grite para siempre sobre un texto que ya estaba bien. Me paso con dos.
+prueba("ninguna entrada de la tabla es identica a su clave",
+  Object.entries(TILDES).every(([k, v]) => k !== v),
+  `identidades: ${Object.entries(TILDES).filter(([k, v]) => k === v).map(([k]) => k).join(", ")}`);
 prueba("las ambiguas no estan en la tabla",
   AMBIGUAS.every(a => !(a in TILDES)),
   `coladas: ${AMBIGUAS.filter(a => a in TILDES).join(", ")}`);
+
+// ------------------------------------- la prosa que emite api.js va con tildes
+//
+// El texto sellado lleva su campo derivado; las cadenas del propio api.js no tienen
+// excusa: las escribimos nosotros. Este chequeo mira SOLO las cadenas —los comentarios
+// del repo van en ASCII a proposito— y usa la misma tabla cerrada, asi que no puede
+// inventar reglas nuevas. Las ambiguas quedan fuera por definicion.
+export function prosaSinTildes(fuente) {
+  const codigo = fuente.replace(/\/\*[\s\S]*?\*\//g, "").replace(/^\s*\/\/.*$/gm, "");
+  const malas = [];
+  for (const m of codigo.matchAll(/"((?:[^"\\]|\\.)*)"|`((?:[^`\\]|\\.)*)`/g)) {
+    const cad = m[1] ?? m[2];
+    if (!cad || cad.length < 12 || esCodigo(cad)) continue;
+    const hits = [...new Set((cad.toLowerCase().match(/[a-z]+/g) || []).filter(w => TILDES[w]))];
+    if (hits.length) malas.push([hits.join(", "), cad.slice(0, 64)]);
+  }
+  return malas;
+}
+
+/**
+ * Lo que NO es prosa no lleva tildes, aunque lo parezca.
+ *
+ * Mi barrido de acentos toco dos cosas que no eran texto y casi las publica:
+ *  - el alias de una consulta SQL (`n_proteinas` -> `n_proteínas`), que el codigo lee sin
+ *    tilde tres lineas mas abajo: habria devuelto `undefined` en produccion, en silencio;
+ *  - una plantilla de ruta (`{proteina}` -> `{proteína}`), que es contrato publico.
+ *
+ * Uno lo caza test-usage.mjs; el otro lo encontre mirando. Este chequeo los cubre a los
+ * dos: dentro de SQL y dentro de rutas, ningun caracter acentuado.
+ */
+const ES_SQL = /\b(SELECT|FROM|WHERE|GROUP BY|INSERT INTO)\b/;
+const ES_RUTA = c => /^\/[a-z0-9]/i.test(c) || /\{[a-z_]+\}/.test(c);
+/** SQL e identificadores no son prosa: ni les faltan tildes ni les sobran. */
+const esCodigo = c => ES_SQL.test(c) || ES_RUTA(c);
+
+export function tildesDondeNoVan(fuente) {
+  const codigo = fuente.replace(/\/\*[\s\S]*?\*\//g, "").replace(/^\s*\/\/.*$/gm, "");
+  const malas = [];
+  for (const m of codigo.matchAll(/"((?:[^"\\]|\\.)*)"|`((?:[^`\\]|\\.)*)`/g)) {
+    const cad = m[1] ?? m[2];
+    if (!cad) continue;
+    const acentos = cad.normalize("NFD").match(/[\u0300-\u036f]/g);
+    if (!acentos) continue;
+    if (ES_SQL.test(cad)) malas.push(["SQL", cad.slice(0, 60)]);
+    else if (ES_RUTA(cad)) malas.push(["ruta", cad.slice(0, 60)]);
+  }
+  return malas;
+}
+
+const fuenteApi = readFileSync(join(RAIZ, "api.js"), "utf8");
+prueba("api.js: sin tildes dentro de SQL ni de plantillas de ruta",
+  tildesDondeNoVan(fuenteApi).length === 0,
+  tildesDondeNoVan(fuenteApi).slice(0, 4).map(([t, c]) => `[${t}] ${c}`).join("\n         "));
+prueba("y grita con el alias SQL que casi publico",
+  tildesDondeNoVan('const q = "SELECT count(*) n_proteínas FROM p";').length === 1);
+prueba("y grita con la ruta acentuada",
+  tildesDondeNoVan('{ ruta: "/v1/challenges/{id}/{proteína}" }').length === 1);
+prueba("se calla con prosa acentuada normal",
+  tildesDondeNoVan('const t = "esa proteína no está en la corrida";').length === 0);
+
+const malas = prosaSinTildes(fuenteApi);
+prueba("api.js: ninguna cadena tiene palabras sin tilde de la tabla",
+  malas.length === 0, malas.slice(0, 4).map(([w, c]) => `[${w}] ${c}`).join("\n         "));
+// La otra direccion: el chequeo TIENE que gritar con una cadena plantada. Sin esto,
+// `prosaSinTildes` podria devolver [] siempre y el verde no diria nada.
+prueba("y grita si alguien escribe una cadena sin tildes",
+  prosaSinTildes('const x = "el metodo cuantico no gana";').length === 1);
+prueba("se calla con ingles y con comentarios",
+  prosaSinTildes('const x = "the quantum method wins";\n// el metodo cuantico\n').length === 0);
 
 // -------------------------------------------------- los textos reales del archivo
 let textos = [];

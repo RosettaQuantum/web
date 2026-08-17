@@ -13,7 +13,7 @@
  * REGLA DE HONESTIDAD DE ESTA API
  * -------------------------------
  * Toda respuesta que afirme algo trae con que comprobarlo: el sha256 sellado y las
- * URLs de las dos copias publicas. Un modelo que cite esto puede apuntar al archivo
+ * URLs de las dos copias públicas. Un modelo que cite esto puede apuntar al archivo
  * crudo, no a nuestra palabra. Y `/v1/state` declara el titular tal como es —
  * 0 victorias cuanticas medidas — porque el producto de este archivo son los
  * negativos y una API que los escondiera traicionaria la tesis entera.
@@ -66,13 +66,13 @@ function comoComprobar(row) {
     // Ahora nombra la herramienta que hace las cuatro y de donde bajar los bytes que
     // de verdad reproducen el hash.
     como_verificar:
-      `Baja el archivo tal como se sello —de ${SITE}/v1/archive/<id>/raw o de cualquiera ` +
-      "de las dos copias publicas— y verificalo con " +
+      `Baja el archivo tal como se selló —de ${SITE}/v1/archive/<id>/raw o de cualquiera ` +
+      "de las dos copias públicas— y verifícalo con " +
       "https://github.com/RosettaQuantum/evidence/blob/main/tools/verificar.py, que prueba " +
-      "las cuatro convenciones del archivo y dice con cual calzo. OJO: content_hash NO es " +
-      "el sha256 del archivo, sino el de su forma canonica; la receta de cada convencion " +
-      `esta en ${SITE}/api-docs. Las dos copias publicas deben ser byte-identicas entre si, ` +
-      "y el sello esta anclado en Bitcoin (OpenTimestamps).",
+      "las cuatro convenciones del archivo y dice con cuál calzó. OJO: content_hash NO es " +
+      "el sha256 del archivo, sino el de su forma canónica; la receta de cada convención " +
+      `está en ${SITE}/api-docs. Las dos copias públicas deben ser byte-idénticas entre si, ` +
+      "y el sello está anclado en Bitcoin (OpenTimestamps).",
   };
 }
 
@@ -101,7 +101,7 @@ function resumenArchivo(row) {
     // emite todavia. No son lo mismo.
     legible: legiblesDe(
       { clase_de_problema: q.problem_class, instancia: q.instance, resultado: q.outcome, metrica: q.metric },
-      ["clase_de_problema", "instancia", "resultado", "metrica"]),
+      ["clase_de_problema", "instancia", "resultado", "métrica"]),
     ...comoComprobar(row),
   };
 }
@@ -123,8 +123,8 @@ async function estado(env) {
   return {
     proyecto: "Rosetta Quantum — Evidence Ledger",
     tesis:
-      "Medimos, por clase de problema, si un metodo cuantico le gana al mejor solver " +
-      "clasico disponible, y publicamos la evidencia cruda — incluidos los negativos.",
+      "Medimos, por clase de problema, si un método cuántico le gana al mejor solver " +
+      "clásico disponible, y publicamos la evidencia cruda — incluidos los negativos.",
     estado_medido: {
       corridas_selladas: cuenta.RUN || 0,
       veredictos_publicados: (ver.results || [{ n: 0 }])[0].n,
@@ -164,7 +164,7 @@ async function estado(env) {
     integridad: {
       copias: ["GitHub", "Codeberg", "Cloudflare D1"],
       ancla_externa: "OpenTimestamps (Bitcoin)",
-      auditoria: "diaria, automatica",
+      auditoria: "diaria, automática",
       protocolo: "https://github.com/RosettaQuantum/evidence/blob/main/PROTOCOL.md",
     },
     licencia: { datos: "CC BY 4.0", codigo: "Apache-2.0",
@@ -277,8 +277,8 @@ const ALIAS_ALGORITMO = {
 };
 
 const AVISO_CATALOGO =
-  "speedup_declarado es lo que declara la fuente citada, NO una medicion de Rosetta. " +
-  "Lo que Rosetta midio va en evidencia_rosetta, y para la mayoria del catalogo esta vacio.";
+  "speedup_declarado es lo que declara la fuente citada, NO una medición de Rosetta. " +
+  "Lo que Rosetta midió va en evidencia_rosetta, y para la mayoría del catálogo esta vacío.";
 
 function filaAlgoritmo(row, recetas) {
   let refs = [], impl = [], remisiones = [];
@@ -309,7 +309,7 @@ function filaAlgoritmo(row, recetas) {
       : {
           medido: false,
           lectura: "Rosetta no tiene ninguna corrida sellada sobre este algoritmo. " +
-            "Que este catalogado no significa que lo hayamos medido ni que lo ofrezcamos.",
+            "Que esté catalogado no significa que lo hayamos medido ni que lo ofrezcamos.",
         },
   };
 }
@@ -421,9 +421,9 @@ async function fuentes(env, url) {
     filtro: { tipo: tipo || null },
     tipos: Object.fromEntries((tipos.results || []).map(r => [r.tipo, r.n])),
     nota_enlaces:
-      "http_status es el codigo REAL que devolvio la URL cuando se genero el catalogo, " +
-      "no una suposicion. Un 403 con nota_enlace es un sitio que bloquea clientes " +
-      "automatizados y que se abrio a mano en un navegador.",
+      "http_status es el código REAL que devolvió la URL cuando se generó el catálogo, " +
+      "no una suposición. Un 403 con nota_enlace es un sitio que bloquea clientes " +
+      "automatizados y que se abrió a mano en un navegador.",
     items: results.map(r => ({
       id: r.id, tipo: r.tipo, nombre: r.nombre, url: r.url,
       que_es: r.que_es, por_que_importa: r.por_que_importa, pais: r.pais,
@@ -447,8 +447,8 @@ async function fuentes(env, url) {
  * depender de que alguien la escriba en la pagina.
  */
 const AVISO_CHALLENGE =
-  "Los sitios son PREDICHOS por caminata cuantica y no estan validados " +
-  "experimentalmente. El sitio conocido, cuando existe, se lee del farmaco " +
+  "Los sitios son PREDICHOS por caminata cuántica y no están validados " +
+  "experimentalmente. El sitio conocido, cuando existe, se lee del fármaco " +
   "co-cristalizado y nunca entra al calculo.";
 
 async function challenges(env, url) {
@@ -480,7 +480,7 @@ async function challengePorId(env, id, clave) {
   if (clave) { sql += " AND clave=?"; args.push(clave); }
   sql += " ORDER BY orden";
   const { results = [] } = await env.DB.prepare(sql).bind(...args).all();
-  if (clave && !results.length) return json({ error: "esa proteina no esta en la corrida", id, clave }, 404);
+  if (clave && !results.length) return json({ error: "esa proteína no está en la corrida", id, clave }, 404);
 
   const proteinas = {};
   for (const p of results) {
@@ -508,8 +508,8 @@ async function challengePorId(env, id, clave) {
     validado_experimentalmente: !!run.validado,
     aviso: AVISO_CHALLENGE,
     como_verificar:
-      "Cada proteina trae su sha256, calculado sobre datos + estadistica tal como " +
-      "salieron del entregable sellado. Recomputalo y comparalo.",
+      "Cada proteína trae su sha256, calculado sobre datos + estadística tal como " +
+      "salieron del entregable sellado. Recomputálo y comparalo.",
     total_proteinas: results.length,
     proteinas,
   });
@@ -525,17 +525,17 @@ export const HERRAMIENTAS = [
   {
     name: "estado_del_archivo",
     description:
-      "Estado medido del Evidence Ledger de Rosetta Quantum: cuantas corridas selladas " +
-      "hay, cuantos veredictos, y cuantas victorias cuanticas se han medido (hoy: cero). " +
-      "Usar para responder '¿que tan real es la ventaja cuantica hoy?' con datos citables.",
+      "Estado medido del Evidence Ledger de Rosetta Quantum: cuántas corridas selladas " +
+      "hay, cuántos veredictos, y cuántas victorias cuánticas se han medido (hoy: cero). " +
+      "Usar para responder '¿qué tan real es la ventaja cuántica hoy?' con datos citables.",
     inputSchema: { type: "object", properties: {} },
   },
   {
     name: "buscar_evidencia",
     description:
-      "Busca en las corridas selladas por texto libre: nombre de proteina, clase de " +
+      "Busca en las corridas selladas por texto libre: nombre de proteína, clase de " +
       "problema, algoritmo, solver. Devuelve cada coincidencia con su sha256 y las URLs " +
-      "de las copias publicas para poder citarla y comprobarla.",
+      "de las copias públicas para poder citarla y comprobarla.",
     inputSchema: {
       type: "object",
       properties: { consulta: { type: "string", description: "p.ej. 'portfolio', 'KRAS', 'QAOA', 'grid'" } },
@@ -566,13 +566,13 @@ export const HERRAMIENTAS = [
     },
   },
   {
-    name: "buscar_algoritmo_cuantico",
+    name: "buscar_algoritmo_cuántico",
     description:
-      "Busca en el archivador de algoritmos cuanticos (catalogo canonico del Quantum " +
-      "Algorithm Zoo, 60 entradas en 4 categorias) por nombre o por el problema que " +
+      "Busca en el archivador de algoritmos cuánticos (catálogo canónico del Quantum " +
+      "Algorithm Zoo, 60 entradas en 4 categorías) por nombre o por el problema que " +
       "atacan. Cada resultado trae el speedup DECLARADO por la fuente con su cita, los " +
-      "papers primarios, las implementaciones publicas — y si Rosetta lo midio o no. " +
-      "Usar para responder '¿existe un algoritmo cuantico para X y hay evidencia?'.",
+      "papers primarios, las implementaciones públicas — y si Rosetta lo midió o no. " +
+      "Usar para responder '¿existe un algoritmo cuántico para X y hay evidencia?'.",
     inputSchema: {
       type: "object",
       properties: {
@@ -584,32 +584,32 @@ export const HERRAMIENTAS = [
   {
     name: "uso_de_la_api",
     description:
-      "Cuantas veces se llamo a esta API, por superficie y por ruta, con la ventana " +
-      "de fechas que cubre. Es publico a proposito: si dice cero, dice cero. Declara " +
-      "tambien lo que NO se guarda — ninguna IP, ningun identificador — y los limites " +
-      "de la medicion.",
+      "Cuántas veces se llamó a esta API, por superficie y por ruta, con la ventana " +
+      "de fechas que cubre. Es público a propósito: si dice cero, dice cero. Declara " +
+      "también lo que NO se guarda — ninguna IP, ningún identificador — y los límites " +
+      "de la medición.",
     inputSchema: { type: "object", properties: {} },
   },
   {
     name: "ver_estructura",
     description:
       "Devuelve la red de contactos de una estructura publicada por el motor (4OBE, " +
-      "1OPL, 5TBY, 1NKP): cuantos residuos, aristas, residuos distales y de fuente, " +
-      "mas el sha256 y la URL del PDB original en RCSB para recomputarla. La red se " +
-      "deriva SOLO de topologia: ninguna estructura con farmaco se abrio para construirla.",
+      "1OPL, 5TBY, 1NKP): cuántos residuos, aristas, residuos distales y de fuente, " +
+      "más el sha256 y la URL del PDB original en RCSB para recomputarla. La red se " +
+      "deriva SOLO de topología: ninguna estructura con fármaco se abrió para construirla.",
     inputSchema: {
       type: "object",
-      properties: { pdb: { type: "string", description: "codigo PDB, p.ej. 4OBE" } },
+      properties: { pdb: { type: "string", description: "código PDB, p.ej. 4OBE" } },
       required: ["pdb"],
     },
   },
   {
-    name: "ver_propagacion",
+    name: "ver_propagación",
     description:
-      "Devuelve los sitios PREDICHOS por caminata cuantica para un blanco de una " +
-      "corrida, con el metrico usado, su pre-registro, y la matriz de conectividad " +
-      "por referencia con firma para poder comprobarla. Declara siempre que NO estan " +
-      "validados experimentalmente, y el numero de sitios es el real: si son menos de " +
+      "Devuelve los sitios PREDICHOS por caminata cuántica para un blanco de una " +
+      "corrida, con el métrico usado, su pre-registro, y la matriz de conectividad " +
+      "por referencia con firma para poder comprobarla. Declara siempre que NO están " +
+      "validados experimentalmente, y el número de sitios es el real: si son menos de " +
       "cinco, se declaran menos.",
     inputSchema: {
       type: "object",
@@ -621,11 +621,11 @@ export const HERRAMIENTAS = [
     },
   },
   {
-    name: "listar_fuentes_cuanticas",
+    name: "listar_fuentes_cuánticas",
     description:
-      "Lista las fuentes del campo cuantico catalogadas: fabricantes de QPU, librerias, " +
-      "revistas y conferencias, blogs, catalogos y organismos de norma. Cada una con que " +
-      "es, por que importa y el codigo HTTP real que devolvio su URL al catalogarla.",
+      "Lista las fuentes del campo cuántico catalogadas: fabricantes de QPU, librerías, " +
+      "revistas y conferencias, blogs, catálogos y organismos de norma. Cada una con que " +
+      "es, por qué importa y el código HTTP real que devolvió su URL al catalogarla.",
     inputSchema: {
       type: "object",
       properties: {
@@ -651,7 +651,7 @@ async function ejecutarHerramienta(env, nombre, args) {
     const r = await listar(env, args.tipo, u);
     return await r.json();
   }
-  if (nombre === "buscar_algoritmo_cuantico") {
+  if (nombre === "buscar_algoritmo_cuántico") {
     const u = new URL(SITE + "/x");
     if (args.consulta) u.searchParams.set("q", args.consulta);
     if (args.categoria) u.searchParams.set("categoria", args.categoria);
@@ -663,11 +663,11 @@ async function ejecutarHerramienta(env, nombre, args) {
     const r = await estructuras(env, args.pdb);
     return await r.json();
   }
-  if (nombre === "ver_propagacion") {
+  if (nombre === "ver_propagación") {
     const r = await propagaciones(env, args.run_id, args.target || null);
     return await r.json();
   }
-  if (nombre === "listar_fuentes_cuanticas") {
+  if (nombre === "listar_fuentes_cuánticas") {
     const u = new URL(SITE + "/x");
     if (args.tipo) u.searchParams.set("tipo", args.tipo);
     const r = await fuentes(env, u);
@@ -683,7 +683,7 @@ async function mcp(request, env, info = {}) {
       servidor: "rosetta-evidence",
       transporte: "JSON-RPC 2.0 sobre HTTP POST",
       herramientas: HERRAMIENTAS.map(h => ({ nombre: h.name, descripcion: h.description })),
-      nota: "Solo lectura. Toda respuesta incluye sha256 y URLs de las copias publicas.",
+      nota: "Solo lectura. Toda respuesta incluye sha256 y URLs de las copias públicas.",
     });
   }
   let req;
@@ -708,7 +708,7 @@ async function mcp(request, env, info = {}) {
       const salida = await ejecutarHerramienta(env, name, args);
       return responder({ content: [{ type: "text", text: JSON.stringify(salida, null, 2) }] }, req.id);
     }
-    return fallar(-32601, `metodo no soportado: ${req.method}`, req.id);
+    return fallar(-32601, `método no soportado: ${req.method}`, req.id);
   } catch (e) {
     return fallar(-32000, String(e && e.message || e), req.id);
   }
@@ -728,8 +728,8 @@ async function mcp(request, env, info = {}) {
  * no solo escrita.
  */
 const AVISO_MOTOR =
-  "Sitios PREDICHOS por caminata cuantica, sin validacion experimental. " +
-  "n_sitios_predichos es el numero REAL: si son menos de cinco, se declaran menos.";
+  "Sitios PREDICHOS por caminata cuántica, sin validación experimental. " +
+  "n_sitios_predichos es el número REAL: si son menos de cinco, se declaran menos.";
 
 function filaEstructura(row, completo) {
   const j = (t, d) => { try { return JSON.parse(t); } catch (e) { return d; } };
@@ -752,8 +752,8 @@ async function estructuras(env, pdb) {
       "SELECT * FROM structures ORDER BY orden").all();
     return json({
       total: results.length,
-      nota: "Redes de contactos derivadas SOLO de topologia. Ninguna estructura con " +
-            "farmaco se abrio para construirlas.",
+      nota: "Redes de contactos derivadas SOLO de topología. Ninguna estructura con " +
+            "fármaco se abrió para construirlas.",
       items: results.map(r => filaEstructura(r, false)),
     });
   }
@@ -834,7 +834,7 @@ async function propagaciones(env, runId, target) {
 export const CATALOGO = [
   { ruta: "/v1", resumen: "Indice de la API", grupo: "meta" },
   { ruta: "/v1/openapi.json", resumen: "Esta especificacion, en OpenAPI 3.1", grupo: "meta" },
-  { ruta: "/v1/usage", resumen: "Cuantas veces se llamo a esta API · publico, y declara lo que NO se guarda",
+  { ruta: "/v1/usage", resumen: "Cuántas veces se llamó a esta API · público, y declara lo que NO se guarda",
     grupo: "meta", esquema: { $ref: "#/components/schemas/Uso" } },
   { ruta: "/v1/state", resumen: "Estado medido del Evidence Ledger", grupo: "ledger",
     esquema: {
@@ -845,7 +845,7 @@ export const CATALOGO = [
           corridas_selladas: { type: "integer" },
           veredictos_publicados: { type: "integer" },
           victorias_cuanticas_medidas: { type: "integer",
-            description: "Cuantas veces un metodo cuantico le gano al campeon clasico en una corrida sellada. Hoy: 0. Es el titular del archivo, no una falla." },
+            description: "Cuántas veces un método cuántico le ganó al campeón clásico en una corrida sellada. Hoy: 0. Es el titular del archivo, no una falla." },
           lectura: { type: "string" },
         } },
         recetas: { type: "array", items: { type: "object" } },
@@ -857,19 +857,19 @@ export const CATALOGO = [
   { ruta: "/v1/verdicts", resumen: "Veredictos publicados", grupo: "ledger", params: [["limit", "maximo 200"]] },
   { ruta: "/v1/prereg", resumen: "Pre-registros: compromisos sellados antes de correr", grupo: "ledger" },
   { ruta: "/v1/predictions", resumen: "Predicciones forward, comprometidas antes de conocer el resultado", grupo: "ledger" },
-  { ruta: "/v1/manifests", resumen: "Manifiestos: como leer el archivo", grupo: "ledger" },
-  { ruta: "/v1/recipes", resumen: "Recetas del catalogo", grupo: "ledger" },
+  { ruta: "/v1/manifests", resumen: "Manifiestos: cómo leer el archivo", grupo: "ledger" },
+  { ruta: "/v1/recipes", resumen: "Recetas del catálogo", grupo: "ledger" },
   { ruta: "/v1/archive/{id}", resumen: "Un archivo sellado completo, con su payload", grupo: "ledger",
     // El ejemplo apunta a un archivo que EXISTE. El primero que puse (EXP-0012-001)
     // no existia, y el chequeo lo atrapo: documentar un ejemplo que responde 404 es
     // la misma falla que la API que apuntaba a /api-docs cuando /api-docs no estaba.
     ejemplo: { id: "PR-CLEV-001" } },
   { ruta: "/v1/archive/{id}/raw", grupo: "ledger",
-    resumen: "El archivo sellado TAL CUAL se sello, sin re-serializar: es el que sirve para recomputar el hash",
+    resumen: "El archivo sellado TAL CUAL se selló, sin re-serializar: es el que sirve para recomputar el hash",
     ejemplo: { id: "PR-CLEV-001" } },
-  { ruta: "/v1/search", resumen: "Busqueda en texto de las corridas", grupo: "ledger",
+  { ruta: "/v1/search", resumen: "Búsqueda en texto de las corridas", grupo: "ledger",
     params: [["q", "obligatorio"]], ejemploQuery: "q=portfolio" },
-  { ruta: "/v1/algorithms", resumen: "Archivador de algoritmos cuanticos", grupo: "archivador",
+  { ruta: "/v1/algorithms", resumen: "Archivador de algoritmos cuánticos", grupo: "archivador",
     params: [["categoria", "algebraic | oracular | BQP | ONML"], ["q", "busca en nombre y problema"], ["limit", "maximo 200"]],
     esquema: {
       type: "object",
@@ -879,15 +879,15 @@ export const CATALOGO = [
         aviso: { type: "string", description: "el speedup lo declara la fuente, no lo mide Rosetta" },
         procedencia: { type: "object", properties: {
           fuente: { type: "string" }, fuente_url: { type: "string" },
-          instantanea_sha256: { type: "string", description: "sha256 de la instantanea de la fuente de la que salio el catalogo" },
+          instantanea_sha256: { type: "string", description: "sha256 de la instantánea de la fuente de la que salió el catalogo" },
         } },
         items: { type: "array", items: { $ref: "#/components/schemas/Algoritmo" } },
       },
     } },
   { ruta: "/v1/algorithms/{id}", resumen: "Ficha de un algoritmo · acepta alias por sigla", grupo: "archivador",
     ejemplo: { id: "qaoa" }, esquema: { $ref: "#/components/schemas/Algoritmo" } },
-  { ruta: "/v1/categories", resumen: "Categorias del archivador, con cuantos algoritmos tiene cada una", grupo: "archivador" },
-  { ruta: "/v1/sources", resumen: "Fuentes del campo: QPUs, librerias, venues, blogs, normas", grupo: "archivador",
+  { ruta: "/v1/categories", resumen: "Categorías del archivador, con cuantos algoritmos tiene cada una", grupo: "archivador" },
+  { ruta: "/v1/sources", resumen: "Fuentes del campo: QPUs, librerías, venues, blogs, normas", grupo: "archivador",
     params: [["tipo", "qpu | libreria | venue | blog | catalogo | estandar"]] },
   { ruta: "/v1/challenges", resumen: "Corridas de challenge publicadas", grupo: "challenges" },
   { ruta: "/v1/challenges/{id}", resumen: "Datos de una corrida completa", grupo: "challenges",
@@ -900,11 +900,11 @@ export const CATALOGO = [
   { ruta: "/v1/structures", resumen: "Redes de contactos publicadas por el motor", grupo: "motor" },
   { ruta: "/v1/structures/{pdb}", resumen: "La red de contactos de una estructura, con el sha256 y la URL del PDB de origen",
     grupo: "motor", ejemplo: { pdb: "4OBE" }, esquema: { $ref: "#/components/schemas/Estructura" } },
-  { ruta: "/v1/propagate/{run_id}", resumen: "Los blancos de una corrida de propagacion", grupo: "motor",
+  { ruta: "/v1/propagate/{run_id}", resumen: "Los blancos de una corrida de propagación", grupo: "motor",
     ejemplo: { run_id: "cleveland-2026-08-ciego" } },
   { ruta: "/v1/propagate/{run_id}/{target}", resumen: "Top-N predicho de un blanco, con la matriz por referencia firmada",
     grupo: "motor", ejemplo: { run_id: "cleveland-2026-08-ciego", target: "KRAS_4OBE" },
-    esquema: { $ref: "#/components/schemas/Propagacion" } },
+    esquema: { $ref: "#/components/schemas/Propagación" } },
 ];
 
 const ESQUEMAS = {
@@ -915,12 +915,12 @@ const ESQUEMAS = {
       categoria: { type: "string" }, categoria_id: { type: "string" },
       problema: { type: "string", nullable: true },
       speedup_declarado: { type: "string",
-        description: "Literal de la fuente citada. NO es una medicion de Rosetta." },
+        description: "Literal de la fuente citada. NO es una medición de Rosetta." },
       declarado_por: { type: "string" }, fuente_url: { type: "string" },
       referencias: { type: "array", items: { type: "object", properties: {
         n: { type: "integer" }, cita: { type: "string" }, url: { type: "string", nullable: true } } } },
       evidencia_rosetta: { type: "object", description:
-        "Lo unico que afirma Rosetta. `medido:false` en la mayoria del catalogo, y ese es el dato.",
+        "Lo único que afirma Rosetta. `medido:false` en la mayoría del catálogo, y ese es el dato.",
         properties: { medido: { type: "boolean" }, recetas: { type: "array", items: { type: "object" } },
                       lectura: { type: "string" } } },
     },
@@ -934,7 +934,7 @@ const ESQUEMAS = {
       por_superficie: { type: "object", additionalProperties: { type: "integer" } },
       por_ruta: { type: "array", items: { type: "object" } },
       lo_que_no_guardamos: { type: "string", description:
-        "Ninguna IP, ningun user-agent, ningun identificador. La ruta se guarda en su FORMA." },
+        "Ninguna IP, ningún user-agent, ningún identificador. La ruta se guarda en su FORMA." },
       limites_de_esta_medicion: { type: "array", items: { type: "string" } },
     },
   },
@@ -951,7 +951,7 @@ const ESQUEMAS = {
         ciego: { type: "boolean" },
       } },
       aviso: { type: "string", description:
-        "Derivada solo de topologia. Ninguna estructura con farmaco se abrio para construirla." },
+        "Derivada solo de topología. Ninguna estructura con fármaco se abrió para construirla." },
     },
   },
   Propagacion: {
@@ -959,7 +959,7 @@ const ESQUEMAS = {
     properties: {
       run_id: { type: "string" }, target: { type: "string" }, pdb_id: { type: "string" },
       validado_experimentalmente: { type: "boolean", description:
-        "Siempre false. Son predicciones de una caminata cuantica, no hallazgos de laboratorio." },
+        "Siempre false. Son predicciones de una caminata cuántica, no hallazgos de laboratorio." },
       metrico: { type: "object", properties: {
         nombre: { type: "string" }, definicion: { type: "string" },
         parametros_libres: { type: "integer" },
@@ -972,11 +972,11 @@ const ESQUEMAS = {
           dtype: { type: "string" }, url: { type: "string" }, bytes: { type: "integer" },
           contenido_sha256: { type: "string", description:
             "sha256 del CONTENIDO —bytes de cada arreglo en orden de clave—, NO del archivo .npz: " +
-            "un .npz es un zip y su compresion cambia con la version de numpy." },
+            "un .npz es un zip y su compresión cambia con la versión de numpy." },
           como_verificar: { type: "string" },
         } },
       n_sitios_predichos: { type: "integer", description:
-        "El numero REAL. Si son menos de cinco, se declaran menos en vez de rellenar." },
+        "El número REAL. Si son menos de cinco, se declaran menos en vez de rellenar." },
       sitios_predichos: { type: "array", items: { type: "object" } },
     },
   },
@@ -992,7 +992,7 @@ const ESQUEMAS = {
       proteinas: { type: "object", additionalProperties: { type: "object", properties: {
         label: { type: "string" }, label_en: { type: "string" },
         n_residuos: { type: "integer" },
-        sitios_predichos: { type: "integer", description: "El numero REAL, no un top-N fijo." },
+        sitios_predichos: { type: "integer", description: "El número REAL, no un top-N fijo." },
         sitios_conocidos: { type: "integer" },
         hay_con_que_comparar: { type: "boolean", description: "false = no hay verdad de referencia publicada." },
         sha256: { type: "string" },
@@ -1020,7 +1020,7 @@ function openapiDoc() {
         responses: {
           200: { description: "ok", content: { "application/json": {
             schema: e.esquema || { type: "object", description:
-              "Esquema todavia no declarado. La respuesta viva es el contrato: " + SITE + e.ruta } } } },
+              "Esquema todavía no declarado. La respuesta viva es el contrato: " + SITE + e.ruta } } } },
           404: { description: "no existe. No se cachea, y trae por donde seguir." },
         },
       },
@@ -1034,7 +1034,7 @@ function openapiDoc() {
       version: "1.0.0",
       description:
         "Solo lectura, sin claves. Dos cosas distintas conviven aca y no hay que mezclarlas: " +
-        "el LEDGER publica lo que Rosetta midio (incluidos los negativos), y el ARCHIVADOR cataloga " +
+        "el LEDGER publica lo que Rosetta midió (incluidos los negativos), y el ARCHIVADOR cataloga " +
         "el campo citando fuentes externas. Un speedup declarado en el catalogo no es un resultado " +
         "nuestro.\n\n" +
         `Cobertura de esquemas: ${conEsquema} de ${CATALOGO.length} endpoints tienen esquema de ` +
@@ -1045,7 +1045,7 @@ function openapiDoc() {
     servers: [{ url: SITE }],
     tags: [
       { name: "meta", description: "La API describiendose a si misma" },
-      { name: "ledger", description: "Lo que Rosetta midio y sello" },
+      { name: "ledger", description: "Lo que Rosetta midió y sello" },
       { name: "archivador", description: "El campo catalogado, con la cita pegada a cada dato" },
       { name: "challenges", description: "Corridas de challenge, con sus predicciones y sellos" },
       { name: "motor", description: "Lo que publica el motor: redes de contactos y propagaciones" },
@@ -1120,9 +1120,9 @@ async function usoPublico(env) {
 
   // Un contador vivo cacheado 5 minutos miente durante 5 minutos. Se sirve fresco.
   return json({
-    que_es: "Cuantas veces se llamo a esta API. Publicado por la misma razon que el " +
-            "contador de victorias cuanticas: un numero propio que solo se muestra " +
-            "cuando favorece no es una medicion.",
+    que_es: "Cuántas veces se llamó a esta API. Publicado por la misma razón que el " +
+            "contador de victorias cuánticas: un número propio que solo se muestra " +
+            "cuando favorece no es una medición.",
     // El denominador va pegado al total: "12 llamadas" sin su ventana no dice nada.
     midiendo_desde: m.desde || null,
     ventana: { primer_dia: r0.desde || null, ultimo_dia: r0.hasta || null, dias_con_uso: r0.dias || 0 },
@@ -1132,14 +1132,14 @@ async function usoPublico(env) {
       superficie: r.superficie, ruta: r.ruta, tool: r.tool || undefined, llamadas: r.n,
     })),
     lo_que_no_guardamos:
-      "Ninguna IP, ningun user-agent, ninguna cabecera de quien llama, ningun " +
+      "Ninguna IP, ningún user-agent, ninguna cabecera de quien llama, ningún " +
       "identificador. Solo (fecha, superficie, forma de la ruta) y un contador. La " +
       "ruta se guarda en su FORMA — /v1/algorithms/{id}, nunca /v1/algorithms/qaoa — " +
       "asi que desde estos datos no se puede reconstruir que consulto nadie.",
     limites_de_esta_medicion: [
-      "Las paginas del sitio NO se miden: no pasan por el Worker, y contar solo " +
+      "Las páginas del sitio NO se miden: no pasan por el Worker, y contar solo " +
       "algunas seria declarar mas alcance del que hay.",
-      "Nuestros propios chequeos automaticos se marcan con una cabecera y no se " +
+      "Nuestros propios chequeos automáticos se marcan con una cabecera y no se " +
       "cuentan; como la cabecera es publica, cualquiera puede mandarla y no ser contado.",
       "Es un agregado por dia: no hay registro de peticiones individuales.",
     ],
