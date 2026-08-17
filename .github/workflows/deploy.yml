@@ -127,6 +127,12 @@ jobs:
       - name: Las zonas de la consola cuadran
         run: node scripts/test-consola-zonas.mjs
 
+      # El texto legible que emite la API: solo puede AGREGAR tildes al sellado. Corre
+      # contra las fijas (textos reales del archivo) para no depender de la red; el modo
+      # --vivo ejerce ademas lo que la API esta sirviendo de verdad.
+      - name: El texto legible dice lo mismo que el sellado
+        run: node scripts/test-legible.mjs
+
       # El contador de uso: lo que importa es que NUNCA pueda tumbar una respuesta.
       # El test fuerza el fallo de la escritura y comprueba que no propaga.
       - name: Tests del contador de uso

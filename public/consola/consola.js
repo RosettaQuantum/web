@@ -46,6 +46,20 @@ const usd = v => {
   while (/\d{3,}$/.test(t.split(",")[1] || "") && t.endsWith("0")) t = t.slice(0, -1);
   return "US$" + t;
 };
+/**
+ * El texto que se muestra: el legible que emite la API, y si no viene, el sellado.
+ *
+ * La prosa de los sellos va en ASCII —una tilde cambiaria el sha256— asi que la API
+ * deriva una version con tildes en `legible` y NO toca el sello. Esta pantalla muestra;
+ * no restituye tildes por su cuenta, porque seria la consola editando prosa sellada.
+ *
+ * `legible` AUSENTE y `legible` VACIO no son lo mismo: vacio significa «no hacia falta»
+ * (el texto ya estaba bien), ausente significa «este endpoint todavia no lo emite», y en
+ * ese caso se muestra el sellado Y SE DICE. Ausente no es vacio.
+ */
+const txt = (o, campo) => (o && o.legible && o.legible[campo]) || (o ? o[campo] : null);
+const sinLegible = o => !o || o.legible === undefined;
+
 const esc = s => String(s == null ? "" : s)
   .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
 
@@ -167,11 +181,11 @@ const recorta = t => {
 };
 
 function filaCorrida(c) {
-  const r = c.resultado || "";
+  const r = txt(c, "resultado") || "";
   return `<tr data-id="${esc(c.id)}">
     <td class="c-id">${esc(c.id)}</td>
     <td class="c-fecha">${esc(c.fecha || "—")}</td>
-    <td>${esc(c.clase_de_problema || "—")}</td>
+    <td>${esc(txt(c, "clase_de_problema") || "—")}</td>
     <td class="c-res" title="${esc(r)}">${esc(recorta(r)) || "—"}</td>
     <td class="c-ver"><button class="btn btn-ver" data-id="${esc(c.id)}">ver el sello</button></td>
   </tr>`;
@@ -237,7 +251,7 @@ function pintarCompromisos() {
     <td class="c-id">${esc(c.id)}</td>
     <td>${esc(etiquetaTipo(c.tipo))}</td>
     <td class="c-fecha">${c.fecha ? esc(c.fecha) : '<span class="sinmedir">sin fecha</span>'}</td>
-    <td class="c-res" title="${esc(c.resultado || "")}">${esc(recorta(c.resultado)) || "—"}</td>
+    <td class="c-res" title="${esc(txt(c, "resultado") || "")}">${esc(recorta(txt(c, "resultado"))) || "—"}</td>
     <td class="c-ver"><button class="btn btn-ver-c" data-id="${esc(c.id)}">ver el sello</button></td>
   </tr>`).join("");
 
@@ -310,8 +324,12 @@ async function abrirSello(id, panelSel = "#sello") {
     <div class="sello-campos">
       ${["fecha", "clase_de_problema", "instancia", "resultado", "metrica", "recipe_id"]
         .filter(k => a[k] != null && a[k] !== "")
-        .map(k => `<div><span class="lab">${esc(k)}</span> ${esc(a[k])}</div>`).join("")}
-    </div>`;
+        .map(k => `<div><span class="lab">${esc(k)}</span> ${esc(txt(a, k))}</div>`).join("")}
+    </div>
+    ${sinLegible(a)
+      ? `<p class="decl-n">Esta respuesta no trae versión legible de su prosa: se muestra el
+         texto <b>tal como está sellado</b>, en ASCII. No le ponemos tildes por nuestra cuenta.</p>`
+      : ""}`;
   // Traerlo a la vista: con sesenta filas, el panel abria fuera de pantalla y el
   // momento de la videollamada se perdia en un scroll.
   panel.scrollIntoView({ behavior: "smooth", block: "center" });

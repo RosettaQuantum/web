@@ -27,6 +27,8 @@ const CORS = {
   "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
   "Access-Control-Allow-Headers": "content-type",
 };
+import { legiblesDe } from "./lib/legible.mjs";
+
 const SITE = "https://rosettaquantum.com";
 const CACHE = "public, s-maxage=300";
 
@@ -88,6 +90,18 @@ function resumenArchivo(row) {
     instancia: q.instance || null,
     resultado: q.outcome || null,
     metrica: q.metric || null,
+    // La prosa del sello va en ASCII y NO se toca: una tilde cambia el sha256, y
+    // v1-legada ademas escapa los no-ASCII. Pero esa misma prosa se muestra al lado de
+    // «API publica» en la consola, y el texto que lee una persona lleva tildes.
+    //
+    // Asi que va DERIVADA, en un campo aparte. Escribirla a mano seria garantizar que un
+    // dia diga algo distinto del sello y que el que quede mal sea el que ve el comprador.
+    // `legible` solo puede AGREGAR tildes; lib/legible.mjs lo prueba sobre los textos
+    // reales del archivo. Objeto vacio = no hacia falta; ausente = este endpoint no lo
+    // emite todavia. No son lo mismo.
+    legible: legiblesDe(
+      { clase_de_problema: q.problem_class, instancia: q.instance, resultado: q.outcome, metrica: q.metric },
+      ["clase_de_problema", "instancia", "resultado", "metrica"]),
     ...comoComprobar(row),
   };
 }
@@ -132,11 +146,16 @@ async function estado(env) {
       // identificadores que cualquiera puede abrir y contar.
       //
       // Se corrige la frase. NO se toca el numero y NO se re-sella ningun archivo.
+      // Esta frase NO sale de ningun sello: es un literal de este archivo, y por eso va
+      // derecho con tildes en vez de llevar un campo «legible» al lado. El campo derivado
+      // existe para la prosa SELLADA, donde el ASCII es una restriccion real del hash;
+      // duplicar aqui un texto que podemos escribir bien seria maquinaria para un
+      // problema que no existe.
       lectura: victorias === 0
-        ? "Cero. Ningun veredicto publicado hasta hoy declara que un metodo cuantico le " +
-          "gano al campeon clasico. Ese resultado es el producto, no una falla del archivo."
+        ? "Cero. Ningún veredicto publicado hasta hoy declara que un método cuántico le " +
+          "ganó al campeón clásico. Ese resultado es el producto, no una falla del archivo."
         : `${victorias} de ${(ver.results || [{ n: 0 }])[0].n} veredictos publicados ` +
-          "miden una victoria cuantica. Cada uno esta sellado y se puede recomputar.",
+          "miden una victoria cuántica. Cada uno está sellado y se puede recomputar.",
     },
     recetas: (recetas.results || []).map(r => ({
       id: r.id, nombre: r.name, clase: r.problem_class,
