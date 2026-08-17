@@ -51,6 +51,16 @@ export function revisar(html, js, zonas) {
       if (!t) malos.push(`«${z.id}» no dice ${campo}`);
       // Regla 3: los digitos van medidos, no escritos.
       else if (/\d/.test(t)) malos.push(`«${z.id}» tiene una cifra escrita a mano en ${campo}: «${t.match(/[^.]*\d[^.]*/)[0].trim()}»`);
+      else {
+        // Regla 5: con tildes. Escribi "El panorama del dia: que cambio..." arrastrando el
+        // estilo sin acentos de los COMENTARIOS del codigo, y ese texto lo lee un cliente.
+        // La lista es corta y sin ambiguedad a proposito: "que"/"si"/"mas" cambian de
+        // significado con el acento y darian falsos positivos, y un falso positivo aca
+        // retiene texto bueno, que es peor.
+        const sinTilde = (t.toLowerCase().match(
+          /\b(dia|dias|historica|historico|tecnico|tecnica|decision|prediccion|maquina|maquinas|metrica|metricas|proposito|cambio en|termino|movio|aqui|asi|tambien|numero|estan|ademas|version|edicion|medicion|tamano|espanol)\b/g) || []);
+        if (sinTilde.length) malos.push(`«${z.id}» tiene texto sin tildes en ${campo}: ${sinTilde.join(", ")}`);
+      }
     }
   }
 
@@ -84,6 +94,9 @@ if (process.argv.includes("--self-test")) {
     ["zona sin su hueco", h => h.replace('id="z-mapa"', 'id="z-mapa-mal"'), null, null, "no tiene su hueco"],
     ["cifra escrita a mano", null, null, z => ({ ...z, DECLARADAS: z.DECLARADAS.map(d => d.id === "boveda" ? { ...d, falta: "Faltan 3 endpoints de escritura." } : d) }), "cifra escrita a mano"],
     ["zona muda", null, null, z => ({ ...z, DECLARADAS: z.DECLARADAS.map(d => d.id === "boveda" ? { ...d, falta: "" } : d) }), "no dice falta"],
+    // El caso REAL que se me escapo, con el texto tal como lo escribi.
+    ["texto sin tildes", null, null, z => ({ ...z, DECLARADAS: z.DECLARADAS.map(d => d.id === "despacho"
+      ? { ...d, proposito: "El panorama del dia: que cambio en el archivo desde ayer." } : d) }), "sin tildes"],
     ["ruta pedida y no declarada", null, j => j.replace('pedir("/v1/state")', 'pedir("/v1/secreta")'), null, "el código pide /v1/secreta"],
     ["ruta declarada y no pedida", h => h.replace("<code>/v1/state</code>", "<code>/v1/inventada</code>"), null, null, "el pie declara /v1/inventada"],
   ];

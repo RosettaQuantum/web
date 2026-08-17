@@ -36,10 +36,10 @@ export const DECLARADAS = [
     id: "despacho",
     nombre: "Despacho",
     proto: "z0",
-    proposito: "El panorama del dia: que cambio en el archivo desde ayer, que corrida " +
-      "termino, que precio se movio.",
+    proposito: "El panorama del día: qué cambió en el archivo desde ayer, qué corrida " +
+      "terminó, qué precio se movió.",
     falta: "Un registro de cambios con fecha. La API sirve el estado de hoy, no la " +
-      "diferencia contra ayer: sin serie historica no hay «que cambio», solo «que hay».",
+      "diferencia contra ayer: sin serie histórica no hay «qué cambió», sólo «qué hay».",
     medicion: null,
   },
   {
