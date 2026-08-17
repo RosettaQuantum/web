@@ -117,6 +117,16 @@ jobs:
       - name: Self-test de los comparadores de la especificacion
         run: node scripts/check-openapi.mjs --self-test
 
+      # Las zonas de la consola: riel, secciones y huecos tienen que corresponderse, las
+      # zonas declaradas no pueden llevar cifras escritas a mano, y el pie tiene que
+      # declarar EXACTAMENTE las rutas que el codigo pide. El --self-test rompe cada una
+      # de esas reglas a proposito y exige que el guardia grite.
+      - name: Self-test del guardia de zonas de la consola
+        run: node scripts/test-consola-zonas.mjs --self-test
+
+      - name: Las zonas de la consola cuadran
+        run: node scripts/test-consola-zonas.mjs
+
       # El contador de uso: lo que importa es que NUNCA pueda tumbar una respuesta.
       # El test fuerza el fallo de la escritura y comprueba que no propaga.
       - name: Tests del contador de uso

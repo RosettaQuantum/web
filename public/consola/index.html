@@ -67,6 +67,42 @@
   .marco-contador{font-size:11.5px;color:var(--txt-2);text-align:right;line-height:1.5}
   .marco-contador b{font-family:var(--display);font-size:19px;color:var(--txt-claro)}
   .marco-contador .dos{display:block;color:var(--tenue)}
+  /* Las tablas anchas hacen scroll DENTRO de su caja. Sin esto heredan el
+     `main{overflow-x:hidden}` y se recortan: medido a 375 px, el boton «ver el sello» de
+     Corridas caia en x=771 y no habia forma de llegar a el. En un telefono, el gesto que
+     sostiene el producto —abrir el sello y recomputar el hash— era inalcanzable. */
+  #corridas-caja,#compromisos-caja,#maquinas-caja{overflow-x:auto}
+  /* Este contenedor NO puede llamarse .barra: en la hoja base .barra es una barra de
+     progreso de 4 px con overflow:hidden, y con ese nombre el campo de filtro (22 px) y
+     el DENOMINADOR de las corridas quedaban recortados a una linea. Un denominador que
+     no se ve es exactamente el numero que este proyecto exige mostrar. */
+  .barra-filtro{display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin:14px 0 10px}
+  .barra-filtro input{flex:1 1 260px;background:var(--tarjeta,#0d110d);
+    border:1px solid var(--borde-2,#33402f);color:inherit;font:inherit;font-size:13px;padding:8px 11px}
+  /* El .btn heredado es de ancho completo, asi que en una tabla se estira hasta el ancho
+     de su celda: 116 px en Corridas y 220 px en Compromisos, para el mismo texto. El boton
+     se dimensiona por lo que dice, no por el hueco que le toco. */
+  :root body.consola table.datos .btn{width:auto;display:inline-flex;align-items:center;
+    justify-content:center;padding:7px 14px;white-space:nowrap}
+  /* El panel de sello de Compromisos es el mismo de Corridas, en su propia zona. */
+  #sello-c{margin-bottom:18px;border:1px solid var(--oro,#a6812f);border-radius:4px;padding:16px 18px}
+  #sello-c .btn{display:inline-flex;align-items:center;justify-content:center;width:auto;
+    padding:7px 14px;font-size:13px;white-space:nowrap}
+  #sello-c .btn-x{padding:4px 10px;font-size:14px;line-height:1}
+  /* En pantalla angosta el riel se vuelve una fila que envuelve, y el separador quedaba
+     ENTRE dos botones, leyendose como si «Cuenta» tambien fuera una zona sin construir.
+     Ocupa la fila entera para que el corte signifique lo que dice. */
+  :root body.consola .riel-sep{flex-basis:100%;margin:16px 4px 6px;font-size:9px;letter-spacing:.18em;
+    text-transform:uppercase;color:var(--muy-tenue,#5c6b59);border-top:1px solid var(--borde,#243024);padding-top:12px}
+  /* Las zonas declaradas. Punteado = provisional, que es lo que significa en esta linea
+     grafica; el prefijo :root gana a la regla base del riel, que si no pinta el borde. */
+  :root body.consola .rail button.z-decl{border:1px dashed var(--borde-2,#33402f);color:var(--tenue,#7f917c)}
+  :root body.consola .rail button.z-decl[aria-current="true"]{border-style:dashed;border-color:var(--oro-txt,#d8b25e);color:var(--oro-txt,#d8b25e)}
+  .decl{border:1px dashed var(--oro,#a6812f);border-radius:4px;padding:18px 20px;max-width:72ch}
+  .decl-p{margin:6px 0 0;font-size:14.5px;line-height:1.65}
+  .decl-falta{margin-top:16px;padding-top:14px;border-top:1px dashed var(--borde-2,#33402f)}
+  .decl-med{margin-top:16px;font-size:13px;line-height:1.6;color:var(--oro-txt,#d8b25e)}
+  .decl-n{margin-top:18px;font-size:12.5px;line-height:1.6;opacity:.75}
   .ver-hash{margin-top:14px;padding-top:12px;border-top:1px dashed var(--borde-2,#33402f)}
   .ver-res{margin-top:9px;font-size:12.5px;line-height:1.6}
   .ver-ok{color:var(--verde,#52e884)}
@@ -94,10 +130,21 @@
     <div class="logo">ROSETTA <span class="q">Q</span></div>
     <button data-v="archivo" aria-current="true">Archivo</button>
     <button data-v="corridas">Corridas</button>
+    <button data-v="compromisos">Compromisos</button>
     <button data-v="biblioteca">Biblioteca</button>
     <button data-v="maquinas">Máquinas</button>
     <button data-v="lab">Laboratorio</button>
     <button data-v="cuenta">Cuenta</button>
+    <!-- Las zonas del prototipo que todavia no tienen dato detras. Van en el riel, con
+         el borde punteado que en esta linea grafica significa "provisional", y no
+         escondidas: una zona ausente se lee como un olvido, y una declarada se lee como
+         una decision. El texto de cada una vive en zonas.js. -->
+    <div class="riel-sep">sin construir</div>
+    <button data-v="despacho" class="z-decl">Despacho</button>
+    <button data-v="traduccion" class="z-decl">Traducción</button>
+    <button data-v="mapa" class="z-decl">Mapa</button>
+    <button data-v="monitores" class="z-decl">Monitores</button>
+    <button data-v="boveda" class="z-decl">Bóveda</button>
   </nav>
 
   <main>
@@ -115,7 +162,7 @@
       <h1>Corridas selladas</h1>
       <p class="nota">Elige cualquiera y ábrela: verás su hash, sus dos copias públicas en
         dominios distintos, y cómo recomputarlo tú mismo.</p>
-      <div class="barra">
+      <div class="barra-filtro">
         <input id="corridas-filtro" type="search" placeholder="filtrar por id, clase, fecha…" aria-label="Filtrar corridas">
         <span class="nota" id="corridas-den"></span>
       </div>
@@ -129,6 +176,24 @@
           <tbody id="corridas-cuerpo"></tbody>
         </table>
       </div>
+    </section>
+
+    <section class="vista" id="v-compromisos" hidden>
+      <h1>Compromisos sellados</h1>
+      <p class="nota">Lo que se firmó <b>antes</b> de correr: el pre-registro dice qué se va
+        a medir y con qué criterio, la predicción se compromete con un resultado, y el
+        veredicto adjudica. Cada uno tiene su hash y sus dos copias.</p>
+      <p class="nota" id="compromisos-den">leyendo /v1/prereg, /v1/predictions y /v1/verdicts…</p>
+      <div id="sello-c" hidden></div>
+      <div id="compromisos-caja">
+        <table class="datos">
+          <thead><tr><th>id</th><th>tipo</th><th>fecha</th><th>resultado</th><th></th></tr></thead>
+          <tbody id="compromisos-cuerpo"></tbody>
+        </table>
+      </div>
+      <p class="nota">La cola ordenada por bits por dólar y las barras de creencia del
+        prototipo <b>no están</b>: haría falta una estimación de cuánta información compra
+        cada experimento, y hoy no se calcula en ninguna parte.</p>
     </section>
 
     <section class="vista" id="v-biblioteca" hidden>
@@ -177,9 +242,20 @@
       <p class="nota">Escríbenos a <a href="mailto:hello@rosettaquantum.com">hello@rosettaquantum.com</a>.</p>
     </section>
 
+    <!-- Las cinco declaradas. El HTML pone el titulo y el hueco; el texto lo pinta
+         consola.js desde zonas.js, para que no haya dos versiones de lo que falta. -->
+    <section class="vista" id="v-despacho" hidden><h1>Despacho</h1><div id="z-despacho"></div></section>
+    <section class="vista" id="v-traduccion" hidden><h1>Traducción</h1><div id="z-traduccion"></div></section>
+    <section class="vista" id="v-mapa" hidden><h1>Mapa de frontera</h1><div id="z-mapa"></div></section>
+    <section class="vista" id="v-monitores" hidden><h1>Monitores</h1><div id="z-monitores"></div></section>
+    <section class="vista" id="v-boveda" hidden><h1>Bóveda</h1><div id="z-boveda"></div></section>
+
     <p class="fuente">
       Todo lo que ves en esta pantalla sale de la API pública, en vivo:
-      <code>/v1/state</code> · <code>/v1/runs</code> · <code>/v1/archive/&lt;id&gt;</code>.
+      <code>/v1/state</code> · <code>/v1/runs</code> · <code>/v1/prereg</code> ·
+      <code>/v1/predictions</code> · <code>/v1/verdicts</code> · <code>/v1/archive/&lt;id&gt;</code> ·
+      <code>/v1/archive/&lt;id&gt;/raw</code>, que es de donde tu navegador baja los bytes
+      para recomputar el hash: son los bytes tal como se sellaron, sin re-serializar.
       Los precios salen de <code>/consola/costos.json</code>, generado desde
       <code>quantum-run/costos.py</code>. Si alguna no responde, esta pantalla lo dice en su
       panel en vez de mostrar datos guardados.

@@ -1,4 +1,5 @@
 import { verificarSello } from "./verificar.mjs";
+import { DECLARADAS } from "./zonas.js";
 
 /**
  * La consola: TODO lo que se ve sale de nuestra propia API, en el mismo origen.
@@ -194,9 +195,92 @@ function pintarCorridas() {
     `${vistas.length} de ${items.length} mostradas${selladas != null ? ` · ${selladas} selladas según /v1/state` : ""}${descuadre}`;
 }
 
+// -------------------------------------------------------------- compromisos
+
+/**
+ * Lo que se firmo ANTES de correr: pre-registros, predicciones y el veredicto.
+ *
+ * Es la mitad de "La Cola" del prototipo que SI tiene dato. La otra mitad —la cola
+ * ordenada por bits por dolar y las barras de creencia— no existe, y se dice abajo de
+ * la tabla en vez de dibujarse con numeros de ejemplo.
+ *
+ * Dos de los cinco pre-registros no traen fecha en el sello. No se rellena ni se
+ * esconde: se muestran como "sin fecha" y el conteo va a la vista, porque un compromiso
+ * sin fecha es justo el que hay que poder ver.
+ */
+let COMPROMISOS = null;
+
+/**
+ * El `tipo` llega del sello en ingles y en mayusculas —PREREG, PREDICTION, VERDICT—
+ * porque asi esta escrito en el archivo, y el archivo no se toca. Pero esta pantalla la
+ * lee alguien en espanol.
+ *
+ * Un tipo que no este en esta tabla se muestra TAL CUAL, no "otro": si el archivo
+ * empieza a sellar algo nuevo, tiene que verse que apareció, no esconderse en una
+ * categoria de relleno.
+ */
+const TIPOS = {
+  PREREG: ["pre-registro", "pre-registros"],
+  PREDICTION: ["predicción", "predicciones"],
+  VERDICT: ["veredicto", "veredictos"],
+};
+const etiquetaTipo = (t, n = 1) => {
+  const e = TIPOS[String(t || "").toUpperCase()];
+  return e ? (n === 1 ? e[0] : e[1]) : String(t || "—");
+};
+
+function pintarCompromisos() {
+  const cuerpo = $("#compromisos-cuerpo");
+  if (!COMPROMISOS) return;
+  const items = COMPROMISOS.items;
+  cuerpo.innerHTML = items.map(c => `<tr>
+    <td class="c-id">${esc(c.id)}</td>
+    <td>${esc(etiquetaTipo(c.tipo))}</td>
+    <td class="c-fecha">${c.fecha ? esc(c.fecha) : '<span class="sinmedir">sin fecha</span>'}</td>
+    <td class="c-res" title="${esc(c.resultado || "")}">${esc(recorta(c.resultado)) || "—"}</td>
+    <td class="c-ver"><button class="btn btn-ver-c" data-id="${esc(c.id)}">ver el sello</button></td>
+  </tr>`).join("");
+
+  const porTipo = {};
+  for (const c of items) porTipo[c.tipo || "sin tipo"] = (porTipo[c.tipo || "sin tipo"] || 0) + 1;
+  const sinFecha = items.filter(c => !c.fecha).length;
+  $("#compromisos-den").innerHTML =
+    Object.entries(porTipo).map(([t, n]) => `${num(n)} ${esc(etiquetaTipo(t, n))}`).join(" · ") +
+    ` · ${num(items.length)} en total` +
+    (sinFecha ? ` · <b class="ojo">${num(sinFecha)} de ${num(items.length)} sin fecha en el sello</b>` : "");
+}
+
+// --------------------------------------------------------- zonas declaradas
+
+/**
+ * Las zonas del prototipo que todavia no tienen con que existir.
+ *
+ * Se pintan desde `zonas.js` en vez de escribirse a mano en el HTML: una zona que se
+ * declara en dos lugares diverge, y la que diverge es siempre la que dice que le falta.
+ */
+function pintarDeclaradas() {
+  const corridas = (CORRIDAS && CORRIDAS.items) || [];
+  for (const z of DECLARADAS) {
+    const caja = $("#z-" + z.id);
+    if (!caja) continue;
+    const medido = z.medicion ? z.medicion(corridas) : null;
+    caja.innerHTML = `
+      <div class="decl">
+        <div class="lab">esta zona todavía no existe</div>
+        <p class="decl-p">${esc(z.proposito)}</p>
+        <div class="decl-falta"><span class="lab">qué falta para que exista</span>
+          <p class="decl-p">${esc(z.falta)}</p></div>
+        ${medido ? `<p class="decl-med">${esc(medido)}</p>` : ""}
+        <p class="decl-n">Está declarada y vacía a propósito. Dibujarla con datos de
+          ejemplo la haría indistinguible de las zonas medidas, y esa distinción es el
+          producto.</p>
+      </div>`;
+  }
+}
+
 /** El momento de la videollamada: se abre el sello, con su hash y sus dos copias. */
-async function abrirSello(id) {
-  const panel = $("#sello");
+async function abrirSello(id, panelSel = "#sello") {
+  const panel = $(panelSel);
   panel.hidden = false;
   panel.innerHTML = `<div class="sello-cargando">Leyendo <code>/v1/archive/${esc(id)}</code>…</div>`;
   panel.scrollIntoView({ behavior: "smooth", block: "center" });
@@ -234,19 +318,33 @@ async function abrirSello(id) {
   const btn = $("#ver-hash-btn"), res = $("#ver-hash-res");
   if (btn) btn.onclick = async () => {
     btn.disabled = true;
-    // Se baja del espejo de GitHub: Codeberg responde 200 pero NO manda CORS, asi que
-    // el navegador no puede leerlo desde aca. Abrirlo en pestana si funciona, y por eso
-    // el boton de Codeberg sigue estando: son dos caminos distintos, no uno roto.
-    res.innerHTML = `bajando la copia de <code>${esc(new URL(a.github_raw).host)}</code>…`;
+    // De donde se bajan los bytes, y por que en este orden:
+    //  1. /v1/archive/<id>/raw — nuestro, mismo origen, y sirve los bytes TAL CUAL se
+    //     sellaron. El endpoint sin /raw no sirve: re-serializa, y un 6.0 vuelve como 6.
+    //     Medido sobre el archivo completo: 72 de 72 desde /raw, 17 de 72 desde el otro.
+    //  2. el espejo de GitHub, si /raw no estuviera. Codeberg responde 200 pero NO manda
+    //     CORS, asi que el navegador no puede leerlo desde aca; su boton sigue estando
+    //     porque abrirlo en pestana si funciona. Son dos caminos distintos, no uno roto.
+    const fuentes = [
+      { url: `/v1/archive/${encodeURIComponent(a.id)}/raw`, nombre: "nuestra API, sin re-serializar" },
+      ...(a.github_raw ? [{ url: a.github_raw, nombre: new URL(a.github_raw).host }] : []),
+    ];
+    let crudo = null, de = null, ultimo = null;
+    for (const f of fuentes) {
+      res.innerHTML = `bajando los bytes sellados de <code>${esc(f.nombre)}</code>…`;
+      try {
+        const r = await fetch(f.url);
+        if (!r.ok) { ultimo = `${f.nombre} respondio ${r.status}`; continue; }
+        crudo = await r.text(); de = f.nombre; break;
+      } catch (e) { ultimo = `${f.nombre}: ${e.message}`; }
+    }
     try {
-      const r = await fetch(a.github_raw);
-      if (!r.ok) throw new Error(`el espejo respondio ${r.status}`);
-      const crudo = await r.text();
+      if (crudo == null) throw new Error(ultimo || "ninguna copia respondio");
       const v = await verificarSello(crudo);
       res.innerHTML = v.ok
         ? `<span class="ver-ok">✓ calza</span> · convención <b>${esc(v.convencion)}</b><br>` +
           `<code>${esc(v.calculado)}</code><br>` +
-          `<span class="lab">lo recomputó tu navegador, con los bytes que bajaste del espejo</span>`
+          `<span class="lab">lo recomputó tu navegador, con los bytes que bajaste de ${esc(de)}</span>`
         : `<span class="ver-mal">✗ no reprodujo el hash declarado</span><br>` +
           `<span class="lab">probé las ${v.probadas.length} convenciones:</span><br>` +
           v.probadas.map(p => `${esc(p.nombre)}: <code>${esc(p.calculado || p.error)}</code>`).join("<br>");
@@ -334,10 +432,13 @@ async function arrancar() {
   $$(".rail button").forEach(b => { b.onclick = () => navegar(b.dataset.v); });
   navegar((location.hash || "#archivo").slice(1));
 
-  const [est, cor, cos] = await Promise.all([
+  const [est, cor, cos, pre, pred, ver] = await Promise.all([
     pedir("/v1/state"),
     pedir("/v1/runs?limit=1000"),
     pedir("/consola/costos.json"),
+    pedir("/v1/prereg?limit=1000"),
+    pedir("/v1/predictions?limit=1000"),
+    pedir("/v1/verdicts?limit=1000"),
   ]);
 
   if (est.ok) { ESTADO = est.datos; pintarArchivo(); pintarBiblioteca(); pintarMarco(); }
@@ -345,6 +446,20 @@ async function arrancar() {
 
   if (cor.ok) { CORRIDAS = cor.datos; pintarCorridas(); pintarMarco(); }
   else falla($("#corridas-caja"), cor.error);
+
+  // Los compromisos vienen de TRES rutas. Si una cae, la zona no muestra las otras dos
+  // como si fueran el total: seria un denominador falso, que es el defecto que esta
+  // pantalla existe para no cometer.
+  const caidas = [["/v1/prereg", pre], ["/v1/predictions", pred], ["/v1/verdicts", ver]].filter(([, r]) => !r.ok);
+  if (caidas.length) falla($("#compromisos-caja"), caidas.map(([r, x]) => x.error || r).join(" · "));
+  else {
+    COMPROMISOS = { items: [...pre.datos.items, ...pred.datos.items, ...ver.datos.items] };
+    pintarCompromisos();
+  }
+
+  // Las declaradas se pintan siempre: no dependen de que la API responda, salvo la
+  // medicion del Mapa, que sale de las corridas ya leidas.
+  pintarDeclaradas();
 
   if (cos.ok) { COSTOS = cos.datos; llenarMaquinasSelect(); pintarMaquinas(); calcularPresupuesto(); }
   else { falla($("#maquinas-caja"), cos.error); falla($("#lab-caja"), cos.error); }
@@ -362,6 +477,10 @@ async function arrancar() {
   $("#corridas-cuerpo").addEventListener("click", e => {
     const b = e.target.closest(".btn-ver");
     if (b) abrirSello(b.dataset.id);
+  });
+  $("#compromisos-cuerpo").addEventListener("click", e => {
+    const b = e.target.closest(".btn-ver-c");
+    if (b) abrirSello(b.dataset.id, "#sello-c");
   });
   ["lab-maquina", "lab-tareas", "lab-disparos"].forEach(id =>
     $("#" + id).addEventListener("input", calcularPresupuesto));
