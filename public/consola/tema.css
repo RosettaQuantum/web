@@ -1,0 +1,42 @@
+/* Tema terminal de la consola: negro con verde matrix.
+ *
+ * Decision de marca de Nicholas (2026-08-17): DOS identidades deliberadas. La consola
+ * es herramienta y va en negro terminal; los documentos, las entregas y el sitio
+ * publico siguen en crema/dorado/teal. El ORO cruza las dos y es lo que las hace la
+ * misma casa — por eso aca esta reservado a sellos, advertencias y modo ensayo, y no
+ * se usa de adorno.
+ *
+ * Los valores salen del README del paquete de diseno, no de una captura.
+ */
+:root{
+  --fondo:#050705; --panel:#0a0d0a; --panel-2:#0c0f0c;
+  --tarjeta:#0d110d; --tarjeta-2:#111611;
+  --txt:#c9d8c4; --txt-claro:#d9e6d4; --txt-2:#9cae97; --tenue:#7f917c; --muy-tenue:#5c6b59;
+  --verde:#52e884; --verde-dato:#3fd873; --verde-hover:#8dffb4;
+  --oro:#c9a24d; --oro-txt:#d8b25e;
+  --borde:#243024; --borde-2:#33402f; --borde-3:#465446;
+  --sobre-acento:#050705;
+  --mono:'JetBrains Mono',ui-monospace,Menlo,monospace;
+  --display:'Share Tech Mono',var(--mono);
+}
+html,body{background:var(--fondo);color:var(--txt);font-family:var(--mono);font-size:14.5px}
+body{margin:0}
+a{color:var(--verde-dato)} a:hover{color:var(--verde-hover)}
+h1{font-family:var(--display);font-size:26px;font-weight:400;letter-spacing:.01em;color:var(--txt-claro)}
+.lab,.cif-k,table.datos th{color:var(--muy-tenue);letter-spacing:.18em;font-weight:600;font-size:10px}
+.cif-v{font-family:var(--display);font-size:44px;color:var(--txt-claro)}
+.nota{color:var(--txt-2)}
+/* Sin radios: estetica terminal. Lo provisional va punteado; el oro punteado es ensayo. */
+.app,.rail,table.datos,#sello,.tarj,.err,.marco{border-radius:0}
+.tarj,#sello{background:var(--tarjeta);border:1px solid var(--borde-2)}
+table.datos th{border-bottom:1px solid var(--borde)}
+table.datos td{border-bottom:1px solid var(--borde)}
+table.datos tbody tr:hover{background:var(--tarjeta-2)}
+.err{border:1px dashed var(--oro);background:rgba(201,162,77,.07);color:var(--oro-txt)}
+.sinmedir{color:var(--tenue);font-style:italic}
+#sello{border-color:var(--oro)}
+.btn{background:transparent;border:1px solid var(--borde-3);color:var(--txt);font-family:var(--mono);
+     font-size:12.5px;padding:6px 12px;cursor:pointer}
+.btn:hover{border-color:var(--verde);color:var(--verde)}
+.btn-solid{background:var(--verde);border-color:var(--verde);color:var(--sobre-acento);font-weight:600}
+.btn-solid:hover{background:var(--verde-hover);border-color:var(--verde-hover);color:var(--sobre-acento)}

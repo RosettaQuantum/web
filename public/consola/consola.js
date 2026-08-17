@@ -1,3 +1,5 @@
+import { verificarSello } from "./verificar.mjs";
+
 /**
  * La consola: TODO lo que se ve sale de nuestra propia API, en el mismo origen.
  *
@@ -73,6 +75,33 @@ function falla(caja, mensaje) {
 let ESTADO = null;   // /v1/state
 let CORRIDAS = null; // /v1/runs?limit=…
 let COSTOS = null;   // costos.json, generado desde quantum-run/costos.py
+
+// -------------------------------------------------------------------- marco
+
+/**
+ * El contador de victorias, con las DOS cifras y su definicion.
+ *
+ * El archivo tiene 4 corridas cuyo campo `resultado` dice "quantum win" —y no son
+ * demos: las 72 tienen es_demo=false— mientras `victorias_cuanticas_medidas` dice 0.
+ * No se contradicen: cuentan cosas distintas. El 0 son VEREDICTOS publicados con
+ * resultado `win`; las 4 son CORRIDAS individuales que ningun veredicto adjudico.
+ *
+ * Mostrar una sola seria elegir la que suena mejor — y aca la que suena mejor es la de
+ * 4. Van las dos, cada una con lo que cuenta.
+ */
+function pintarMarco() {
+  const caja = $("#marco-contador");
+  if (!ESTADO) { caja.textContent = "leyendo /v1/state…"; return; }
+  const e = ESTADO.estado_medido;
+  const corridas = (CORRIDAS && CORRIDAS.items) || [];
+  const marcadas = corridas.filter(c => (c.resultado || "").trim().toLowerCase() === "quantum win").length;
+  caja.innerHTML =
+    `<b>${num(e.victorias_cuanticas_medidas)}</b> victorias en veredictos publicados ` +
+    `<span class="lab">de ${num(e.corridas_selladas)} corridas selladas</span>` +
+    (corridas.length
+      ? `<span class="dos">${num(marcadas)} corridas marcadas «quantum win», ninguna adjudicada por un veredicto</span>`
+      : "");
+}
 
 // ------------------------------------------------------------------- archivo
 
@@ -188,6 +217,11 @@ async function abrirSello(id) {
       ${a.github_raw ? `<a class="btn btn-solid" href="${esc(a.github_raw)}" target="_blank" rel="noopener">abrir en GitHub</a>` : ""}
       ${a.codeberg_raw ? `<a class="btn btn-solid" href="${esc(a.codeberg_raw)}" target="_blank" rel="noopener">abrir en Codeberg</a>` : ""}
     </div>
+    <div class="ver-hash">
+      <div class="lab">no nos creas: recomputa el hash aquí</div>
+      <button class="btn btn-solid" id="ver-hash-btn">recomputar en tu navegador</button>
+      <div class="ver-res" id="ver-hash-res"></div>
+    </div>
     ${a.como_verificar ? `<div class="sello-comov"><div class="lab">cómo verificarlo</div><p>${esc(a.como_verificar)}</p></div>` : ""}
     <div class="sello-campos">
       ${["fecha", "clase_de_problema", "instancia", "resultado", "metrica", "recipe_id"]
@@ -197,6 +231,30 @@ async function abrirSello(id) {
   // Traerlo a la vista: con sesenta filas, el panel abria fuera de pantalla y el
   // momento de la videollamada se perdia en un scroll.
   panel.scrollIntoView({ behavior: "smooth", block: "center" });
+  const btn = $("#ver-hash-btn"), res = $("#ver-hash-res");
+  if (btn) btn.onclick = async () => {
+    btn.disabled = true;
+    // Se baja del espejo de GitHub: Codeberg responde 200 pero NO manda CORS, asi que
+    // el navegador no puede leerlo desde aca. Abrirlo en pestana si funciona, y por eso
+    // el boton de Codeberg sigue estando: son dos caminos distintos, no uno roto.
+    res.innerHTML = `bajando la copia de <code>${esc(new URL(a.github_raw).host)}</code>…`;
+    try {
+      const r = await fetch(a.github_raw);
+      if (!r.ok) throw new Error(`el espejo respondio ${r.status}`);
+      const crudo = await r.text();
+      const v = await verificarSello(crudo);
+      res.innerHTML = v.ok
+        ? `<span class="ver-ok">✓ calza</span> · convención <b>${esc(v.convencion)}</b><br>` +
+          `<code>${esc(v.calculado)}</code><br>` +
+          `<span class="lab">lo recomputó tu navegador, con los bytes que bajaste del espejo</span>`
+        : `<span class="ver-mal">✗ no reprodujo el hash declarado</span><br>` +
+          `<span class="lab">probé las ${v.probadas.length} convenciones:</span><br>` +
+          v.probadas.map(p => `${esc(p.nombre)}: <code>${esc(p.calculado || p.error)}</code>`).join("<br>");
+    } catch (e) {
+      res.innerHTML = `<span class="ver-mal">no pude bajar la copia:</span> ${esc(e.message)}`;
+    }
+    btn.disabled = false;
+  };
   $("#sello-cerrar").onclick = () => { panel.hidden = true; };
   $("#sello-copiar").onclick = async () => {
     await navigator.clipboard.writeText(a.content_hash || "");
@@ -282,15 +340,24 @@ async function arrancar() {
     pedir("/consola/costos.json"),
   ]);
 
-  if (est.ok) { ESTADO = est.datos; pintarArchivo(); pintarBiblioteca(); }
+  if (est.ok) { ESTADO = est.datos; pintarArchivo(); pintarBiblioteca(); pintarMarco(); }
   else { falla($("#archivo-cifras"), est.error); falla($("#biblioteca-lista"), est.error); }
 
-  if (cor.ok) { CORRIDAS = cor.datos; pintarCorridas(); }
+  if (cor.ok) { CORRIDAS = cor.datos; pintarCorridas(); pintarMarco(); }
   else falla($("#corridas-caja"), cor.error);
 
   if (cos.ok) { COSTOS = cos.datos; llenarMaquinasSelect(); pintarMaquinas(); calcularPresupuesto(); }
   else { falla($("#maquinas-caja"), cos.error); falla($("#lab-caja"), cos.error); }
 
+  // La barra copiloto filtra las corridas de verdad. NO traduce lenguaje natural a un
+  // experimento: no existe ese backend, y un campo que parece hacerlo y no lo hace es
+  // peor que uno que dice lo que hace.
+  $("#copiloto").addEventListener("submit", ev => {
+    ev.preventDefault();
+    $("#corridas-filtro").value = $("#copiloto-q").value;
+    navegar("corridas");
+    pintarCorridas();
+  });
   $("#corridas-filtro").addEventListener("input", pintarCorridas);
   $("#corridas-cuerpo").addEventListener("click", e => {
     const b = e.target.closest(".btn-ver");

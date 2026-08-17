@@ -1,0 +1,784 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import css from '../../styles/pages/informe-pqc.css?raw';
+
+// Ediciones: un JSON por mes. La más reciente manda; la anterior alimenta las variaciones.
+const mods = import.meta.glob('../../data/informe-pqc/*.json', { eager: true });
+// El nombre del archivo y el campo `edicion` deben decir lo mismo. Si no coinciden,
+// el build falla: no hay forma de saber cuál de los dos miente, y elegir uno en silencio
+// mueve el defecto en vez de arreglarlo.
+const ediciones = Object.entries(mods).map(([p, m]: any) => {
+  const archivo = p.split('/').pop()!;
+  const slug = archivo.replace(/\.json$/, '');
+  const d = m.default ?? m;
+  if (!/^\d{4}-\d{2}$/.test(slug))
+    throw new Error(`informe-pqc: el archivo "${archivo}" no se llama AAAA-MM.json`);
+  if (!/^\d{4}-\d{2}$/.test(d?.edicion ?? ''))
+    throw new Error(`informe-pqc: "${archivo}" no trae campo \`edicion\` con formato AAAA-MM`);
+  if (d.edicion !== slug)
+    throw new Error(`informe-pqc: "${archivo}" declara edicion="${d.edicion}". El nombre del archivo y el campo deben coincidir.`);
+  return { slug, archivo, d };
+}).sort((a, b) => b.slug.localeCompare(a.slug));
+
+if (!ediciones.length) throw new Error('informe-pqc: no hay ninguna edición en src/data/informe-pqc/');
+
+// La cadena de comparación tiene que ser consistente: si una edición dice de cuál viene,
+// esa tiene que ser la anterior real. Un `anterior` equivocado compara contra el mes que no es.
+for (let i = 0; i < ediciones.length - 1; i++) {
+  const esperada = ediciones[i + 1].slug;
+  const declarada = ediciones[i].d.anterior;
+  if (declarada != null && declarada !== esperada)
+    throw new Error(`informe-pqc: ${ediciones[i].slug} declara anterior="${declarada}" pero la anterior real es ${esperada}.`);
+}
+
+const { d } = ediciones[0];
+const prev = ediciones[1]?.d ?? null;
+
+const MESES = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
+const [yy, mm] = d.edicion.split('-').map(Number);
+const mesLargo = `${MESES[mm-1]} de ${yy}`;
+
+/** Variación contra la edición anterior. Sin anterior devuelve la marca de línea base. */
+/** Color según si subir es bueno o malo para ESA métrica. `polaridad:'mayor_mejor'`
+ *  invierte el semáforo. Sin declararla, se asume que subir es malo. */
+function pintar(dif: number, polaridad?: string) {
+  if (polaridad === 'neutra') return 'flat';   // moverse no es mejor ni peor: sin semáforo
+  const mejora = polaridad === 'mayor_mejor' ? dif > 0 : dif < 0;
+  return mejora ? 'down' : 'up';   // .down = verde (mejora) · .up = rojo (empeora)
+}
+function delta(id: string, valor: number) {
+  if (!prev) return { cls: 'new', txt: 'línea base' };
+  const ant = prev.titulares?.find((t: any) => t.id === id);
+  if (!ant) return { cls: 'new', txt: 'nuevo' };
+  const dif = +(valor - ant.v).toFixed(1);
+  if (dif === 0) return { cls: 'flat', txt: 'sin cambio' };
+  return { cls: pintar(dif, ant.polaridad), txt: `${dif > 0 ? '+' : ''}${dif}${ant.u ?? ''}` };
+}
+function deltaVert(id: string, ratio: number) {
+  if (!prev) return null;
+  const ant = prev.verticales?.find((v: any) => v.id === id);
+  if (!ant) return { cls: 'new', txt: 'nuevo' };
+  const dif = ratio - ant.ratio;
+  if (dif === 0) return { cls: 'flat', txt: '=' };
+  // adopción de híbrido: subir es mejor
+  return { cls: pintar(dif, 'mayor_mejor'), txt: `${dif > 0 ? '+' : ''}${dif}` };
+}
+
+const nf = (n: number) => n.toLocaleString('es-CL');
+const cdnPct = (o: any) => Math.round(o.hibrido / o.n * 100);
+
+const SECCIONES = [
+  ['panel','Panel de exposición'], ['ejecutivo','Resumen para directorio'],
+  ['medicion','La medición del mes'], ['trampa','La trampa del CDN'],
+  ['ruta','Ruta crítica por proveedor'], ['costo','El costo de esperar'],
+  ['entregable','Así se ve su informe'], ['contexto','Por qué existe el problema'],
+  ['reloj','Dónde está la máquina y cuándo llega'], ['glosario','Glosario'],
+  ['legal','Metodología, límites y aviso legal'],
+];
+---
+<BaseLayout
+  title={`${d.titulo} — Informe ${mesLargo} · Rosetta Quantum`}
+  description={`${d.subtitulo}. Edición ${d.numero}, ${mesLargo}. Medición técnica sobre endpoints reales, no encuesta.`}
+  lang="es" pageCss={css}>
+
+<div class="informe-doc">
+<div class="informe">
+
+  <header class="mast">
+    <div class="brandrow">
+      <svg class="slabmark" viewBox="0 0 40 40" aria-hidden="true">
+        <rect x="12.5" y="3.5" width="15" height="27" rx="7.5" fill="none" stroke="#9A7228" stroke-width="1.8"/>
+        <line x1="13.5" y1="35" x2="26.5" y2="35" stroke="#9A7228" stroke-width="1.8" stroke-linecap="round"/>
+        <circle cx="20" cy="12.5" r="3" fill="none" stroke="#3D372F" stroke-width="1.5"/>
+        <circle cx="20" cy="21.5" r="3" fill="#1E7A6E"/>
+      </svg>
+      <span class="brandname">Rosetta Quantum</span>
+    </div>
+
+    <div class="edicion">
+      <span class="num">Edición {String(d.numero).padStart(2,'0')}</span>
+      <span>{mesLargo}</span>
+      <span>Medición {d.ventana.desde} → {d.ventana.hasta}</span>
+      <span>{d.muestra.organizaciones} organizaciones · {d.muestra.verticales} verticales</span>
+      <span>{prev ? `Compara contra edición ${String(prev.numero).padStart(2,'0')}` : 'Primera edición · línea base'}</span>
+    </div>
+
+    <h1>{d.titulo}</h1>
+    <p class="standfirst">{d.subtitulo}</p>
+  </header>
+
+  {d.SIMULADO && (
+    <div class="draft" style="border-width:2px;background:#F8E6E1">
+      <strong>⚠ EDICIÓN CON DATOS SIMULADOS — NO PUBLICAR.</strong> {d.SIMULADO} Existe solo para verificar que la comparación mes a mes funciona.
+    </div>
+  )}
+  <div class="draft">
+    <strong>Borrador de trabajo.</strong> Pendiente antes de publicar: revisión legal de los seis puntos marcados en la sección 11, y aviso previo a las organizaciones con hallazgos.
+  </div>
+
+  <div class="measure" style="margin:32px 0 8px">
+    <p class="lede">
+      Este informe se publica todos los meses sobre la misma muestra y con el mismo método, para
+      que cada cifra pueda leerse como una serie y no como una foto. {prev
+        ? `Las variaciones respecto de la edición anterior aparecen junto a cada métrica.`
+        : `Esta primera edición fija la línea base: desde la próxima, cada métrica llevará su variación mensual.`}
+    </p>
+  </div>
+
+  <nav class="toc" id="contenido" aria-label="Contenido">
+    <h2>Contenido de esta edición</h2>
+    <ol>
+      {SECCIONES.map(([id, t]) => <li><a href={`#${id}`}>{t}</a></li>)}
+    </ol>
+  </nav>
+
+  <!-- 01 · PANEL -->
+  <section id="panel">
+    <div class="sechead">
+      <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9h18M8 9v11"/></svg>
+      <span class="snum">01 · Panel de exposición · lectura de 30 segundos</span>
+    </div>
+
+    <div class="panel">
+      <div class="panel-h">
+        <h3>Superficie criptográfica pública — gran empresa chilena</h3>
+        <span class="meta">n = {d.muestra.organizaciones} · {d.muestra.sondeadas} sondeadas</span>
+      </div>
+      <div class="tiles">
+        {d.titulares.map((t: any) => {
+          const dl = delta(t.id, t.v);
+          const sev = t.sev === 'asterisco' ? '' : t.sev === 'info' ? '' : t.sev;
+          return (
+            <div class={`tile ${sev}`}>
+              <span class="k">{t.k}{t.sev === 'asterisco' ? ' *' : ''}</span>
+              <span class="v">{nf(t.v)}{t.u}</span>
+              <span class="sub">
+                <span class={`delta ${dl.cls}`}>{dl.txt}</span>{' '}{t.sub}
+              </span>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+    <p class="src">* Métrica que un cambio de proveedor de CDN pone en verde sin modificar la exposición real. Ver sección 04.</p>
+
+    <div class="chart">
+      <div class="chart-h">
+        <p class="chart-t">Cuánta superficie pública tiene una gran empresa chilena</p>
+        <p class="chart-s">Nombres de host en registros públicos de certificados. n = {d.muestra.chilenas_analizadas}.</p>
+      </div>
+      <div class="chart-b">
+        <div class="bars">
+          {d.superficie.map((s: any) => (
+            <div class="bar-row">
+              <span class="bar-lab">{s.rango}</span>
+              <div class="bar-track"><div class={`bar-fill ${s.pct>=18?'lo':s.pct>=30?'mid':''}`} style={`width:${Math.round(s.pct/35*100)}%`}></div></div>
+              <span class="bar-val">{s.n} · {s.pct}%</span>
+            </div>
+          ))}
+        </div>
+        <p class="src">El 58% tiene más de 30 nombres de host públicos. El 82% tiene subdominios de tercer o cuarto nivel.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 02 · EJECUTIVO -->
+  <section id="ejecutivo">
+    <div class="sechead">
+      <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M7 9h10M7 13h7"/></svg>
+      <span class="snum">02 · Resumen para directorio · dos minutos</span>
+    </div>
+    <h2>Lo que un directorio necesita saber</h2>
+    <div class="measure">
+      <p class="lede">Toda la criptografía que hoy protege las transacciones, los contratos y los registros de su organización quedará obsoleta dentro del horizonte de vida útil de esos mismos datos. No es una hipótesis: es un calendario que otros ya fijaron.</p>
+    </div>
+
+    <div class="term">
+      <dl>
+        <dt>El riesgo, en una línea</dt>
+        <dd>Un adversario puede capturar tráfico cifrado <strong>hoy</strong> y descifrarlo cuando exista la máquina. Todo dato que deba seguir siendo secreto más allá de ~2035 está, en términos de riesgo, expuesto desde el momento en que se transmite.</dd>
+        <dt>Por qué ahora y no en cinco años</dt>
+        <dd>Una migración toma años y depende de proveedores que aún no se comprometen. El margen se calcula <strong>restando</strong>: vida útil del dato, más tiempo de migración, contra el horizonte de la amenaza.</dd>
+      </dl>
+    </div>
+
+    <div class="measure">
+      <h3>Tres hechos medidos, no opinados</h3>
+      <ul>
+        <li><strong>Casi la mitad de las grandes organizaciones chilenas no tiene protección post-cuántica en su infraestructura pública.</strong> Y de las que sí la tienen, prácticamente todas la obtuvieron como efecto secundario de su contrato de CDN.</li>
+        <li><strong>El 60% tiene ambientes de prueba o infraestructura sensible respondiendo en internet</strong>, y el 96% no tiene canal donde alguien pueda reportárselo.</li>
+        <li><strong>Ningún proveedor de core bancario o switch de pagos tiene soporte post-cuántico comprometido públicamente.</strong> El plazo real lo define un tercero que todavía no ha dicho cuándo.</li>
+      </ul>
+
+      <h3>Qué decidir</h3>
+      <ul>
+        <li><strong>Nombrar un responsable</strong> de agilidad criptográfica. Hoy nadie tiene el problema asignado.</li>
+        <li><strong>Levantar el inventario</strong> de dónde vive la criptografía. Primer requisito de todos los marcos internacionales.</li>
+        <li><strong>Preguntarle a los proveedores críticos</strong> por su fecha comprometida. Esa respuesta define el plazo mejor que cualquier pronóstico.</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- 03 · MEDICION -->
+  <section id="medicion">
+    <div class="sechead">
+      <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5 21 21"/></svg>
+      <span class="snum">03 · La medición del mes</span>
+    </div>
+    <h2>Qué encontramos en la infraestructura pública chilena</h2>
+    <div class="measure">
+      <p class="lede">Hasta donde alcanza la literatura pública, no existe ninguna medición técnica de preparación post-cuántica sobre endpoints reales de un país o sector. Los estudios que existen son encuestas de opinión. Este no lo es.</p>
+
+      <p>Revisamos alrededor de treinta y cinco publicaciones de consultoras, agencias nacionales de ciberseguridad y organismos intergubernamentales: McKinsey, Deloitte, Accenture, PwC, EY, KPMG, Capgemini, IBM, el Foro Económico Mundial, ENISA, el NIST, la CISA, el NCSC británico, el BSI alemán, la ANSSI francesa. <strong>Ninguna midió.</strong> Todas preguntaron.</p>
+
+      <p>La diferencia importa. Cuando el IBM Institute for Business Value reporta un índice de preparación de 25 sobre 100, ese número viene de ejecutivos describiendo su propia organización. Cuando la ANSSI encuestó entidades reguladas francesas, respondieron 38. El BSI alemán obtuvo 28 respuestas de más de 150 cuestionarios.</p>
+
+      <p>Y para América Latina no existe nada, ni por encuesta ni por medición. Lo verificamos por varias vías, incluyendo el sitio de la Agencia Nacional de Ciberseguridad chilena, que no contiene una sola mención a criptografía post-cuántica.</p>
+    </div>
+
+    <div class="term">
+      <dl>
+        <dt>Qué hicimos exactamente</dt>
+        <dd>Consultamos registros públicos de Certificate Transparency para descubrir la superficie de cada organización, y abrimos <strong>una conexión TLS por host, enviando un solo saludo inicial que ofrece explícitamente grupos post-cuánticos</strong>, para observar qué responde el servidor. No completamos el saludo, no transferimos datos, no accedimos a ningún sistema. La carga equivale a abrir el sitio una vez.</dd>
+        <dt>Por qué ofrecer explícitamente y no solo observar</dt>
+        <dd>Porque limitarse a mirar lo que se negocia por defecto <em>subestima</em> el soporte real. Es la advertencia metodológica central de la literatura académica reciente, y es la razón por la que este método mide capacidad y no casualidad.</dd>
+      </dl>
+    </div>
+
+    <div class="chart">
+      <div class="chart-h">
+        <p class="chart-t">Organizaciones cuyos endpoints públicos negocian criptografía híbrida</p>
+        <p class="chart-s">n = {d.muestra.sondeadas} sondeadas con éxito. {prev ? 'La variación es contra la edición anterior.' : 'Línea base — desde la próxima edición aparece la variación mensual.'}</p>
+      </div>
+      <div class="chart-b">
+        <div class="bars">
+          {d.verticales.map((v: any) => {
+            const dv = deltaVert(v.id, v.ratio);
+            return (
+              <div class="bar-row">
+                <span class="bar-lab">{v.n}</span>
+                <div class="bar-track"><div class={`bar-fill ${v.ratio>=65?'hi':v.ratio>=45?'mid':'lo'}`} style={`width:${v.ratio}%`}></div></div>
+                <span class="bar-val">{v.ratio}%{dv && <span class={`delta ${dv.cls}`}>{dv.txt}</span>}</span>
+              </div>
+            );
+          })}
+        </div>
+        <p class="src">Medición propia. Isapres y clínicas se reportan agrupadas como salud por la regla de anonimato estadístico (n ≥ 8).</p>
+      </div>
+    </div>
+
+    <div class="measure">
+      <p>El contraste es de {d.verticales[0].ratio - d.verticales[d.verticales.length-1].ratio} puntos entre el primero y el último. El sector que vende zapatillas y procesa pagos está más protegido que el que custodia la identidad, el padrón electoral, los registros tributarios y las fichas de salud de toda la población.</p>
+
+      <h3>Pero la causa no es la que parece</h3>
+      <p>Al cruzar cada resultado con la infraestructura que sirve el dominio, aparece la explicación:</p>
+    </div>
+
+    <div class="chart">
+      <div class="chart-h"><p class="chart-t">El factor que realmente predice la protección</p>
+      <p class="chart-s">Organizaciones con criptografía híbrida, según su proveedor de red de distribución.</p></div>
+      <div class="chart-b">
+        <div class="bars">
+          <div class="bar-row"><span class="bar-lab">Detrás de Cloudflare</span>
+            <div class="bar-track"><div class="bar-fill hi" style={`width:${cdnPct(d.cdn.cloudflare)}%`}></div></div>
+            <span class="bar-val">{cdnPct(d.cdn.cloudflare)}%</span></div>
+          <div class="bar-row"><span class="bar-lab">Todo el resto</span>
+            <div class="bar-track"><div class="bar-fill lo" style={`width:${cdnPct(d.cdn.resto)}%`}></div></div>
+            <span class="bar-val">{cdnPct(d.cdn.resto)}%</span></div>
+        </div>
+        <p class="src">{d.cdn.cloudflare.hibrido} de {d.cdn.cloudflare.n} organizaciones detrás de Cloudflare, sin excepción. {d.cdn.resto.hibrido} de {d.cdn.resto.n} fuera de Cloudflare.</p>
+      </div>
+    </div>
+
+    <div class="pull"><p>La mayor parte de la protección post-cuántica que hoy tiene Chile no la decidió ningún equipo de seguridad. La decidió un contrato de red de distribución de contenido.</p></div>
+
+    <div class="measure">
+      <p>Esto reordena por completo la lectura del gráfico anterior. Fintech y retail lideran porque viven del comercio electrónico y contrataron CDN; el Estado va último porque se autoaloja. La adopción observada mide, sobre todo, <strong>una decisión de proveedor</strong> — no la madurez criptográfica de la organización.</p>
+
+      <p>Y por eso la conclusión no es tranquilizadora para quien va bien: esa protección cubre el borde público y <strong>no dice nada</strong> sobre los sistemas internos, las VPN, los módulos de seguridad de hardware, la firma de código ni las bases de datos. Es la capa más visible y la más fácil de conseguir.</p>
+    </div>
+
+    <div class="term">
+      <dl>
+        <dt>Verifíquelo usted mismo en cinco minutos</dt>
+        <dd>Los registros de Certificate Transparency son públicos. Abra <span class="mono">crt.sh</span> y busque su dominio con el formato <span class="mono">%.sudominio.cl</span> — el porcentaje incluye todos los subdominios. Verá cada nombre de host que su organización ha certificado alguna vez.<br /><br />
+        Sobre {d.muestra.organizaciones} organizaciones, <strong>la mediana es 40 y el máximo pasa de 800.</strong> La reacción más común no es sorpresa por la cantidad, sino por los nombres que nadie reconoce.</dd>
+      </dl>
+    </div>
+
+    <div class="measure">
+      <h3>Chile frente al mundo</h3>
+      <p>Chile no está atrasado respecto del mundo. Está levemente por delante, y eso tampoco es buena noticia.</p>
+    </div>
+
+    <div class="tw">
+      <table>
+        <thead><tr><th>Métrica</th><th class="num">Global</th><th class="num">Chile</th><th>Fuente de la referencia</th></tr></thead>
+        <tbody>
+          <tr><td>Soporta intercambio híbrido post-cuántico</td><td class="num">{d.referencia_global.hibrido_global}%</td><td class="num"><strong>{d.referencia_global.hibrido_chile}%</strong></td><td>Medición sobre {nf(d.referencia_global.dominios_medidos)} dominios · {d.referencia_global.fuente}</td></tr>
+          <tr><td>Solo criptografía clásica</td><td class="num">{(100 - d.referencia_global.hibrido_global).toFixed(1)}%</td><td class="num">{(100 - d.referencia_global.hibrido_chile).toFixed(1)}%</td><td>ídem</td></tr>
+          <tr><td>Certificados post-cuánticos</td><td class="num">{d.referencia_global.certificados_pqc}%</td><td class="num">—</td><td>ídem; confirmado también por telemetría de CDN</td></tr>
+          <tr><td>Configuraciones de servidor con híbrido</td><td class="num">0%</td><td class="num">—</td><td>8.443 configuraciones Nginx reales · arXiv:2605.17955</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="measure">
+      <p>La aparente contradicción entre {d.referencia_global.hibrido_global}% y 0% no es un error: <strong>miden superficies distintas.</strong> La sesión negociada refleja lo que el proveedor de CDN activó por ti; la configuración del servidor refleja lo que la organización decidió. Nadie ha reconciliado esos números, y nadie lo había hecho para ningún país.</p>
+
+      <p>El promedio mundial deja la mitad de la infraestructura sin protección, y la autenticación —los certificados que prueban que un servidor es quien dice ser— sigue íntegramente clásica <strong>en todo el mundo</strong>. Estar en el promedio de eso no es una posición defendible.</p>
+
+      <p>El estudio global corrobora además nuestro hallazgo sectorial de forma independiente: reporta TLS obsoleto concentrado en banca y gobierno, y adopción desigual con las plataformas tecnológicas por delante de las infraestructuras heredadas. Es el mismo patrón, medido por otros, en otra población.</p>
+
+      <h3>Los estudios existentes preguntaron; este midió</h3>
+      <p>Vale la pena poner las cifras propias al lado de las que circulan, porque la diferencia de método explica la diferencia de resultado:</p>
+    </div>
+
+    <div class="tw">
+      <table>
+        <thead><tr><th>Estudio</th><th>Método</th><th class="num">Muestra</th><th>Hallazgo principal</th></tr></thead>
+        <tbody>
+          <tr><td>Capgemini Research Institute, 2025</td><td>Encuesta</td><td class="num">1.000</td><td>~10% califica como maduro; 13 países, ninguno latinoamericano</td></tr>
+          <tr><td>DigiCert, 2025 → 2026</td><td>Encuesta</td><td class="num">~1.000</td><td>Despliegue autodeclarado sube de 5% a 7% en un año</td></tr>
+          <tr><td>IBM Institute for Business Value, 2025</td><td>Encuesta</td><td class="num">750</td><td>Índice 25/100; 62% asume que sus proveedores resolverán</td></tr>
+          <tr><td>ISACA, 2025</td><td>Encuesta</td><td class="num">2.600</td><td>95% sin hoja de ruta; 44% nunca había oído de los estándares del NIST</td></tr>
+          <tr><td>BSI, Alemania, 2023</td><td>Encuesta</td><td class="num">28</td><td>Ninguna espera cumplir sus requisitos de confidencialidad en los 2030</td></tr>
+          <tr><td>ANSSI, Francia</td><td>Encuesta</td><td class="num">38</td><td>Reconocen la amenaza, no entienden el impacto en sus sistemas</td></tr>
+          <tr><td>HKMA + KPMG, Hong Kong, 2026</td><td>Autoevaluación</td><td class="num">—</td><td>Bancos de Hong Kong: 2,3 sobre 10</td></tr>
+          <tr><td><strong>Este informe</strong></td><td><strong>Medición técnica</strong></td><td class="num"><strong>{d.muestra.organizaciones}</strong></td><td><strong>Endpoints reales, sin preguntar a nadie</strong></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="measure">
+      <p>La distinción no es un detalle metodológico. Cuando el 62% de los ejecutivos encuestados por IBM declara que <em>asume que sus proveedores resolverán la transición</em>, y nuestra propia revisión encuentra que ningún proveedor de core bancario tiene un compromiso público, <strong>esas dos afirmaciones no pueden ser ciertas a la vez.</strong></p>
+    </div>
+  </section>
+
+  <!-- 04 · TRAMPA -->
+  <section id="trampa">
+    <div class="sechead">
+      <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 3.5 7.5v5c0 4.3 3.5 7.6 8.5 8.8 5-1.2 8.5-4.5 8.5-8.8v-5Z"/><path d="M12 8.5v4.5M12 16.2v.3"/></svg>
+      <span class="snum">04 · La trampa</span>
+    </div>
+    <h2>Poner un CDN adelante pone el número en verde sin cambiar su exposición</h2>
+    <div class="measure">
+      <p class="lede">Es la conclusión más incómoda de este estudio, y la que más conviene entender antes de tomar cualquier decisión de inversión.</p>
+
+      <p>El número que medimos —y el que mide cualquiera desde afuera— se vuelve verde con un cambio de configuración de proveedor. No con una migración. Contratar una red de distribución de contenido, o activar una opción en la que ya tiene, mueve a su organización del {cdnPct(d.cdn.resto)}% al {cdnPct(d.cdn.cloudflare)}% en la única métrica visible públicamente.</p>
+
+      <p>Eso protege algo real: el tráfico entre el navegador de su cliente y el borde de la red. No es nada. Pero <strong>es la parte de su criptografía que usted no gestiona, no la que define su riesgo</strong>, y es exactamente la que un auditor, un competidor o un periodista puede medir sin permiso.</p>
+    </div>
+
+    <div class="chart">
+      <div class="chart-h"><p class="chart-t">El factor que realmente predice la protección</p>
+      <p class="chart-s">Organizaciones con híbrido según proveedor de red de distribución.</p></div>
+      <div class="chart-b">
+        <div class="bars">
+          <div class="bar-row"><span class="bar-lab">Detrás de Cloudflare</span>
+            <div class="bar-track"><div class="bar-fill hi" style={`width:${cdnPct(d.cdn.cloudflare)}%`}></div></div>
+            <span class="bar-val">{cdnPct(d.cdn.cloudflare)}%</span></div>
+          <div class="bar-row"><span class="bar-lab">Todo el resto</span>
+            <div class="bar-track"><div class="bar-fill lo" style={`width:${cdnPct(d.cdn.resto)}%`}></div></div>
+            <span class="bar-val">{cdnPct(d.cdn.resto)}%</span></div>
+        </div>
+        <p class="src">{d.cdn.cloudflare.hibrido} de {d.cdn.cloudflare.n} detrás de Cloudflare, sin excepción. {d.cdn.resto.hibrido} de {d.cdn.resto.n} fuera.</p>
+      </div>
+    </div>
+
+    <div class="split">
+      <div class="sp yes">
+        <span class="cap">Lo que el CDN sí resuelve</span>
+        <h4>El borde público</h4>
+        <ul>
+          <li>Intercambio de claves en el tráfico web hacia visitantes</li>
+          <li>La métrica que este informe mide y que cualquiera puede medir</li>
+          <li>Se activa en horas, no en años</li>
+        </ul>
+      </div>
+      <div class="sp no">
+        <span class="cap">Lo que no toca en absoluto</span>
+        <h4>Todo lo que define su plazo real</h4>
+        <ul>
+          <li>Módulos de seguridad de hardware que custodian sus claves</li>
+          <li>Core bancario, switch de pagos, mainframe</li>
+          <li>VPN y accesos remotos</li>
+          <li>Firma de código y de firmware</li>
+          <li>Certificados internos y PKI privada</li>
+          <li>Cifrado en reposo de bases de datos</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="pull"><p>Un banco puede aparecer en verde en toda medición externa y tener una fecha de migración que no depende de él en absoluto.</p></div>
+    <div class="measure">
+      <p>Y hay un efecto secundario peor que no hacer nada: <strong>el verde barato produce una sensación de asunto resuelto.</strong> Una organización que ve su número en verde deja de preguntar, no levanta el inventario, no consulta a sus proveedores — y descubre el problema real cuando ya no queda margen para resolverlo.</p>
+    </div>
+  </section>
+
+  <!-- 05 · RUTA -->
+  <section id="ruta">
+    <div class="sechead">
+      <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20 9 9l4 6 3-4 4 9Z"/><circle cx="9" cy="9" r="1.5"/><circle cx="16" cy="11" r="1.5"/></svg>
+      <span class="snum">05 · Lo que sí define su plazo</span>
+    </div>
+    <h2>Su ruta crítica está fuera de su control</h2>
+    <div class="measure">
+      <p class="lede">Una migración no avanza más rápido que el proveedor más lento del sistema más crítico. Este es el estado del stack financiero, revisado y con fuente por fila.</p>
+    </div>
+
+    <div class="panel">
+      <div class="panel-h"><h3>Soporte post-cuántico por capa</h3><span class="meta">54 proveedores en el registro</span></div>
+      <div class="chart-b"><div class="tw">
+        <table>
+          <thead><tr><th>Capa</th><th>Proveedores</th><th>Estado</th><th>Qué significa</th></tr></thead>
+          <tbody>
+            {d.stack.map((r: any) => (
+              <tr>
+                <td>{r.capa}</td><td>{r.prov}</td>
+                <td><span class={`chip ${r.estado}`}>{r.estado === 'ok' ? 'soportado' : r.estado === 'warn' ? 'parcial' : 'sin fecha'}</span></td>
+                <td>{r.nota}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      <p class="src">"Sin fecha" significa que no encontramos compromiso público a la fecha de esta edición, no que el proveedor no piense hacerlo. Cada fila con documentación oficial, versión mínima y fecha de verificación.</p>
+      </div>
+    </div>
+
+    <div class="measure">
+      <p>Léalo de abajo hacia arriba y aparece el problema de fondo. Las capas donde <em>usted</em> puede actuar —sistema operativo, librerías, red— están mayormente resueltas o en camino. Las capas donde <strong>depende de un tercero</strong> —core bancario, switch de pagos, HSM de pagos— <strong>no tienen una sola fecha comprometida.</strong></p>
+
+      <p>Eso significa que el plazo de su organización no lo fija usted, ni su presupuesto, ni el regulador. Lo fija un proveedor que todavía no ha dicho cuándo. Y la única forma de saber cuál es ese proveedor y qué fecha maneja es <strong>preguntarle formalmente y por escrito</strong> — que es exactamente lo que casi nadie ha hecho.</p>
+    </div>
+  </section>
+
+  <!-- 06 · COSTO -->
+  <section id="costo">
+    <div class="sechead">
+      <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="M12 7v5l3.2 2"/><path d="M20.5 4.5 18 7"/></svg>
+      <span class="snum">06 · El costo de esperar</span>
+    </div>
+    <h2>Qué pasa si empieza en 2029 en vez de este año</h2>
+    <div class="measure">
+      <p class="lede">No hay que estimar la probabilidad de Q-Day. Basta restar contra fechas que ya fijaron terceros.</p>
+    </div>
+
+    <div class="chart">
+      <div class="chart-h"><p class="chart-t">Plazos regulatorios vigentes</p>
+      <p class="chart-s">Distinguimos obligación con fuerza legal de guía oficial, porque se confunden constantemente.</p></div>
+      <div class="chart-b"><div class="tw">
+        <table>
+          <thead><tr><th>Año</th><th>Qué exige</th><th>A quién</th><th>Carácter</th></tr></thead>
+          <tbody>
+            {d.plazos.map((p: any) => (
+              <tr><td class="num">{p.a}</td><td>{p.q}</td><td>{p.quien}</td>
+              <td>{p.tipo === 'obl' ? <strong>Obligación</strong> : p.tipo === 'guia' ? 'Guía' : 'Mixto'}</td></tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      <p class="src">Ninguna es un pronóstico de Q-Day: son plazos de acción. El documento del NIST que fija 2030 y 2035 para EE. UU. sigue siendo un borrador.</p>
+      </div>
+    </div>
+
+    <div class="measure">
+      <p>Con una migración de cinco años: arrancar en 2026 termina en 2031 y alcanza todos los plazos. <strong>Arrancar en 2029 termina en 2034, con Swift 2027, Estados Unidos 2030 y 2031, y Reino Unido y Canadá 2031 ya vencidos.</strong></p>
+      <p>Y el costo que llega primero no está en ninguna tabla: <strong>el cuestionario de un cliente enterprise, la casa matriz que unifica estándares, o la contraparte internacional que exige evidencia.</strong> Esa exigencia no avisa con años de anticipación — llega con un plazo de semanas, y a esa altura el inventario criptográfico ya debería existir.</p>
+
+      <h3>Tres precisiones que casi todo el material comercial confunde</h3>
+      <p><strong>Australia merece nota al pie.</strong> Es la fecha más agresiva del mundo —2030 contra el 2031 alemán y el 2035 de casi todos— y retira de aprobación no solo RSA y curvas elípticas, sino también AES-128, SHA-256 e incluso los parámetros post-cuánticos intermedios ML-KEM-768 y ML-DSA-65. Pero su fuerza legal es la más débil: el manual australiano declara expresamente que ninguna organización está obligada por ley a cumplirlo, y las fechas de 2030 viven en el texto explicativo, no en un control numerado.</p>
+
+      <p><strong>Ninguna de estas fechas es un pronóstico de Q-Day</strong> — son plazos de acción, deliberadamente conservadores. Y el documento del NIST que fija 2030 y 2035 para Estados Unidos <strong>sigue siendo un borrador</strong>: el propio memorándum de junio lo cita como tal, agregando "o el documento que lo suceda". Se está exigiendo cumplimiento contra un texto que aún no existe en versión final.</p>
+
+      <p><strong>Las tres autoridades técnicas más influyentes fuera de Estados Unidos se contradicen</strong> en el punto central de la transición. Australia sostiene que los esquemas híbridos no tienen valor práctico frente a un computador cuántico y no los recomienda. Alemania recomienda explícitamente el híbrido, con construcciones nombradas. Francia lo hace <em>obligatorio</em> para otorgar sus certificaciones. Una organización multinacional no puede satisfacer a las tres con una sola arquitectura.</p>
+
+      <h3>Y en América Latina, nada</h3>
+      <p>Buscamos instrumentos con plazos —mandato o guía técnica— en la región. <strong>No existe ninguno.</strong> Ningún país latinoamericano ha publicado una fecha, una obligación ni una hoja de ruta de migración criptográfica.</p>
+
+      <p>Eso deja a una organización chilena en una posición particular: <strong>ningún regulador local le va a exigir nada, mientras sus proveedores, sus casas matrices y sus contrapartes internacionales quedan sujetos a fechas obligatorias</strong> entre 2027 y 2031. La exigencia no va a llegar por el regulador. Va a llegar por la cadena de suministro — y en general sin aviso previo.</p>
+
+      <p>En el sector financiero, además, <strong>ningún regulador del mundo ha fijado una fecha obligatoria.</strong> El de Singapur emitió una circular consultiva en 2024, el Banco de Pagos Internacionales publica investigación, y el regulador financiero de Nueva York no ha emitido ninguna guía sobre el tema.</p>
+    </div>
+
+    <div class="cta">
+      <p>La primera pregunta de cualquier plan de migración es cuál es su ruta crítica. Se la podemos decir en una semana.</p>
+      <a class="btn" href="mailto:hello@rosettaquantum.com?subject=Ruta%20cr%C3%ADtica%20post-cu%C3%A1ntica">Conocer mi ruta crítica</a>
+    </div>
+  </section>
+
+  <!-- 07 · ENTREGABLE -->
+  <section id="entregable">
+    <div class="sechead">
+      <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 18h16"/><path d="M7 18v-5M12 18V7M17 18v-9"/></svg>
+      <span class="snum">07 · Qué se puede saber de su organización</span>
+    </div>
+    <h2>Así se ve el informe de una sola organización</h2>
+    <div class="measure">
+      <p class="lede">Este informe responde cómo está el país. Un gerente de riesgo necesita responder otra cosa: <em>cuál es mi exposición, qué la define, y qué hago el lunes.</em></p>
+      <p>El panel siguiente es una <strong>organización tipo del sector banca</strong>, construida con las medianas reales de las medidas en esta edición. No es una empresa concreta.</p>
+    </div>
+
+    <div class="panel">
+      <div class="panel-h"><h3>Banco tipo · perfil de exposición</h3><span class="meta">medianas reales · n = 12</span></div>
+      <div class="tiles">
+        <div class="tile"><span class="k">Hosts descubiertos</span><span class="v">76</span><span class="sub">máximo del sector: 378</span></div>
+        <div class="tile warn"><span class="k">Subdominios profundos</span><span class="v">14</span><span class="sub">sin dueño identificable</span></div>
+        <div class="tile crit"><span class="k">Ambientes no productivos</span><span class="v">4</span><span class="sub">respondiendo en internet</span></div>
+        <div class="tile crit"><span class="k">Infra sensible expuesta</span><span class="v">2</span><span class="sub">VPN, admin o webmail</span></div>
+        <div class="tile"><span class="k">Posición en su sector</span><span class="v">6/12</span><span class="sub">mediana exacta de banca</span></div>
+        <div class="tile crit"><span class="k">Proveedores sin fecha</span><span class="v">3</span><span class="sub">definen su ruta crítica</span></div>
+      </div>
+    </div>
+
+    <div class="tw">
+      <table>
+        <thead><tr><th>Plazo</th><th>Acción</th><th>Por qué ahora</th></tr></thead>
+        <tbody>
+          <tr><td class="mono">30 días</td><td>Reclamar o dar de baja los ambientes no productivos y endpoints expuestos</td><td>Riesgo inmediato, sin relación con lo cuántico. La corrección más barata</td></tr>
+          <tr><td class="mono">30 días</td><td>Publicar un canal de reporte de seguridad</td><td>96% del país no lo tiene. Un archivo de texto y una casilla</td></tr>
+          <tr><td class="mono">30 días</td><td>Enviar las cartas a los proveedores sin fecha comprometida</td><td>Su respuesta define el plazo de todo lo demás</td></tr>
+          <tr><td class="mono">90 días</td><td>Activar híbrido donde el proveedor ya lo soporta y está apagado</td><td>Sin proyecto ni presupuesto nuevo</td></tr>
+          <tr><td class="mono">90 días</td><td>Levantar el inventario criptográfico interno</td><td>Sin esto no hay plan posible</td></tr>
+          <tr><td class="mono">365 días</td><td>Verificar firmware de HSM y ruta de actualización de mensajería financiera</td><td>La única fecha dura del stack es julio 2027</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="measure">
+      <p><strong>Cinco de estas seis acciones no tienen nada que ver con computación cuántica.</strong> Son higiene, inventario y gobierno — cosas que ya deberían estar y que la transición post-cuántica simplemente obliga a mirar. Esa es la razón por la que este trabajo se paga solo aunque la máquina llegue en 2045.</p>
+
+      <h3>Lo que este informe no puede decirle</h3>
+      <p>Todo lo anterior se midió desde afuera, sobre superficie pública. Es la parte fácil, y es también la que menos importa. El borde público es lo que un CDN puede arreglar por contrato; lo que define de verdad el plazo está adentro y no es observable: los módulos de seguridad de hardware que custodian las claves, el core bancario, el switch de pagos, las VPN, la firma de código, el inventario de certificados internos.</p>
+
+      <p>Y sobre todo, algo que ninguna organización puede averiguar sola con costo razonable: <strong>qué van a hacer sus proveedores, y cuándo.</strong> Un banco puede tener su sitio web protegido y una fecha de migración que no depende de él en absoluto.</p>
+    </div>
+    <div class="note">Cualquier organización de la muestra puede solicitar su propio panel y su propio plan, sin costo y sin condiciones. Es su dato.</div>
+  </section>
+
+  <!-- 08 · CONTEXTO -->
+  <section id="contexto">
+    <div class="sechead">
+      <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>
+      <span class="snum">08 · Por qué existe el problema</span>
+    </div>
+    <h2>Alguien puede estar guardando su tráfico cifrado hoy para leerlo en 2035</h2>
+    <div class="measure">
+      <p class="lede">Se llama <em>Harvest Now, Decrypt Later</em> —cosechar ahora, descifrar después— y es la única amenaza de seguridad que no requiere que el atacante pueda hacer nada todavía.</p>
+
+      <p>La idea es simple y por eso incómoda. Casi todo el tráfico cifrado de internet se protege con dos familias de matemáticas: RSA y curvas elípticas. Ambas son seguras porque hay problemas que un computador clásico no sabe resolver rápido — factorizar un número enorme, por ejemplo. No es que sea imposible: es que tomaría más tiempo que la edad del universo.</p>
+
+      <p>En 1994 Peter Shor demostró que un computador cuántico —una máquina que todavía no existía— podría resolver exactamente ese problema en tiempo razonable. No fue un hallazgo empírico sino un <strong>teorema</strong>: se demostró que la matemática que protege el sistema financiero mundial tiene una puerta trasera, y se publicó la llave treinta años antes de que existiera la cerradura.</p>
+
+      <p>De ahí sale la asimetría que define el problema. Un adversario con paciencia y capacidad de almacenamiento puede capturar tráfico cifrado hoy —una transferencia bancaria, una ficha clínica, un contrato, comunicaciones de Estado— guardarlo, y esperar. El día que exista la máquina, todo ese archivo se abre retroactivamente.</p>
+    </div>
+
+    <div class="term">
+      <dl>
+        <dt>RSA y ECC</dt>
+        <dd>Los dos sistemas de clave pública que hoy protegen prácticamente toda conexión segura. Son los que Shor rompe.</dd>
+        <dt>CRQC · Cryptographically Relevant Quantum Computer</dt>
+        <dd>Un computador cuántico lo bastante grande y estable para ejecutar el algoritmo de Shor sobre claves reales. No existe. La discusión es cuándo.</dd>
+        <dt>ML-KEM (FIPS 203)</dt>
+        <dd>El nuevo estándar de intercambio de claves resistente a ataques cuánticos, publicado por el NIST en agosto de 2024. Reemplaza la parte de RSA y ECC que negocia la clave de sesión.</dd>
+        <dt>Híbrido · X25519MLKEM768</dt>
+        <dd>La transición práctica: se negocian dos claves a la vez, una clásica y una post-cuántica, y se combinan. Si una falla, la otra sostiene. Es lo que medimos en este informe.</dd>
+      </dl>
+    </div>
+
+    <div class="measure">
+      <p>La consecuencia práctica es que <strong>el reloj de este riesgo no empieza el día que exista la máquina: empieza el día que sus datos se transmiten.</strong> Un dato que debe permanecer confidencial diez años y que viaja hoy bajo criptografía clásica ya está, en términos de riesgo, expuesto.</p>
+    </div>
+
+    <div class="pull">
+      <p>Si su organización maneja datos que deben seguir siendo secretos en 2036, la pregunta no es si migrar. Es si alcanza.</p>
+    </div>
+
+    <div class="measure">
+      <h3>La regla que convierte esto en una decisión, no en una discusión</h3>
+      <p>Michele Mosca, del Institute for Quantum Computing, propuso una desigualdad que evita la pelea estéril sobre la fecha exacta:</p>
+    </div>
+
+    <div class="term">
+      <dl>
+        <dt>Vida útil del dato + Tiempo de migración &gt; Horizonte de la amenaza</dt>
+        <dd>Si la suma de los dos primeros supera al tercero, la organización <strong>ya está expuesta</strong>. No en el futuro: hoy, porque el dato que viaja hoy seguirá siendo secreto cuando la máquina exista.</dd>
+      </dl>
+    </div>
+
+    <div class="measure">
+      <p>Un banco cuyos registros deben permanecer confidenciales diez años, y cuya migración criptográfica tomará cinco, necesita que la amenaza esté a más de quince años de distancia. Y hay una consecuencia que se ve mejor con las fechas puestas: <strong>el último dato migrado en 2031 sigue siendo confidencial hasta 2041</strong> — cinco años más allá del horizonte donde el consenso experto concentra la probabilidad. Como se verá en la sección siguiente, ese consenso no ofrece esa holgura.</p>
+    </div>
+  </section>
+
+  <!-- 09 · RELOJ -->
+  <section id="reloj">
+    <div class="sechead">
+      <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="2.4"/><ellipse cx="12" cy="12" rx="9.5" ry="4" transform="rotate(30 12 12)"/><ellipse cx="12" cy="12" rx="9.5" ry="4" transform="rotate(-30 12 12)"/></svg>
+      <span class="snum">09 · Dónde está la máquina y cuándo llega</span>
+    </div>
+    <h2>El cálculo se acortó doscientas veces. El hardware no.</h2>
+    <div class="measure">
+      <p class="lede">Es la parte del problema donde más se exagera en ambas direcciones. Los datos verificados cuentan una historia más interesante que cualquiera de los dos extremos.</p>
+
+      <p>En 2019, Craig Gidney y Martin Ekerå publicaron la estimación de referencia: romper una clave RSA de 2048 bits requeriría <strong>20 millones de qubits físicos</strong> trabajando ocho horas. Con las máquinas de la época —Google tenía 53 qubits— eso ubicaba la amenaza en un futuro cómodo.</p>
+
+      <p>Seis años después, el mismo Gidney publicó una revisión: <strong>menos de un millón de qubits</strong>, menos de una semana. Y en febrero de 2026 un equipo en Sídney bajó la estimación a <strong>menos de cien mil</strong>.</p>
+
+      <p>Lo decisivo no es la magnitud de la caída sino su causa. Los tres trabajos <strong>asumen exactamente el mismo hardware</strong>: la misma tasa de error, el mismo ciclo, el mismo tiempo de reacción. La mejora es puramente algorítmica y arquitectónica. Nadie puede descartarla diciendo que suponen máquinas mejores, porque no lo hacen.</p>
+    </div>
+
+    <div class="chart">
+      <div class="chart-h"><p class="chart-t">Qubits físicos necesarios para romper RSA-2048</p>
+      <p class="chart-s">Escala logarítmica. Mismos supuestos de hardware en las tres estimaciones.</p></div>
+      <div class="chart-b">
+        <div class="bars">
+          {d.costoRsa.map((c: any) => (
+            <div class="bar-row">
+              <span class="bar-lab">{c.y} · {c.quien}</span>
+              <div class="bar-track"><div class="bar-fill" style={`width:${c.w}%`}></div></div>
+              <span class="bar-val">{c.q}</span>
+            </div>
+          ))}
+        </div>
+        <p class="src">Gidney &amp; Ekerå, <em>Quantum</em> 5, 433 (2021), revisado por pares · Gidney, arXiv:2505.15917 · Iceberg Quantum, arXiv:2602.11457. Los dos últimos son preprints.</p>
+      </div>
+    </div>
+
+    <div class="measure">
+      <h3>Y ahora el contrapeso, que es igual de importante</h3>
+      <p>Esa cifra mide qubits <em>físicos</em>. Lo que realmente hace falta son qubits <em>lógicos</em>, y la distinción es donde se pierde casi toda la conversación pública.</p>
+    </div>
+
+    <div class="term">
+      <dl>
+        <dt>Qubit físico</dt>
+        <dd>Un dispositivo real: un circuito superconductor, un ion atrapado. Ruidoso, frágil, se equivoca seguido.</dd>
+        <dt>Qubit lógico</dt>
+        <dd>Un qubit confiable construido a partir de muchos físicos mediante corrección de errores. La razón va de 100 a 1.000 físicos por cada lógico. <strong>Confundirlos infla las capacidades reales en dos o tres órdenes de magnitud</strong>, y es el error más frecuente en el material de proveedores.</dd>
+        <dt>Post-selección</dt>
+        <dd>Detectar que hubo un error y <em>descartar</em> esa corrida. No es corrección: es filtrado. Funciona en demostraciones y deja de funcionar cuando el circuito crece, porque la fracción de corridas útiles cae exponencialmente.</dd>
+      </dl>
+    </div>
+
+    <div class="measure">
+      <p>Para romper RSA-2048 se necesitan <strong>del orden de miles de qubits lógicos</strong> operando de forma sostenida. ¿Cuántos existen hoy?</p>
+
+      <p>En diciembre de 2024, Google demostró con el procesador Willow el primer código de superficie que opera <em>bajo el umbral</em>: agregar más qubits físicos <strong>mejora</strong> el qubit lógico en vez de degradarlo. Fue la pregunta abierta central del campo y se respondió que sí. Usó 101 qubits físicos para sostener <strong>un</strong> qubit lógico, y ese qubit vivió 2,4 veces más que el mejor físico del chip.</p>
+
+      <p>Es el único qubit lógico inequívocamente bajo umbral y sin post-selección jamás demostrado. Y era una <strong>memoria</strong>: almacenó información, no computó con ella.</p>
+
+      <p>Los conteos más altos que circulan —94 de Quantinuum, 70 de IBM— dependen todos de post-selección. Sus propios <em>abstracts</em> lo dicen: <span class="mono" style="font-size:.9em">"with reasonable postselection rates"</span>, <span class="mono" style="font-size:.9em">"after syndrome post-selection"</span>. Quantinuum incluso acuñó el término "parcialmente tolerante a fallos" para describirlo.</p>
+    </div>
+
+    <div class="pull"><p>A agosto de 2026 no existe ninguna máquina con más de cien qubits lógicos plenamente corregidos. Ni cerca.</p></div>
+
+    <div class="measure">
+      <p>La otra métrica que sí avanza de forma sostenida es la tasa de error de las compuertas de dos qubits, que cayó aproximadamente un orden de magnitud en siete años: de 0,62% en el Sycamore de Google (2019) a 0,079% en el Helios de Quantinuum (2025). Es progreso real y constante — pero es un orden de magnitud, no tres.</p>
+
+      <h3>El capital, y la fecha</h3>
+      <p class="lede">El capital comprometido en computación cuántica supera los 56.000 millones de dólares entre programas públicos de una docena de países e inversión privada, que alcanzó su récord en 2025 con 12.600 millones. Al mismo tiempo, las empresas cuánticas cotizadas se desplomaron entre 57% y 75% desde sus máximos. Ambas cosas son ciertas: el dinero sigue entrando, y el mercado dejó de creerle a los plazos cortos.</p>
+
+      <p>El Global Risk Institute encuesta cada año a un panel de expertos con una pregunta precisa: qué probabilidad hay de que exista un computador capaz de factorizar un número de 2048 bits en menos de 24 horas, dentro de cada horizonte. La edición más reciente recogió 26 respuestas.</p>
+    </div>
+
+    <div class="chart">
+      <div class="chart-h"><p class="chart-t">Probabilidad de que exista un computador capaz de romper RSA-2048</p>
+      <p class="chart-s">Consenso de 26 expertos. Las cifras de 15 y 20 años corresponden a la interpretación conservadora.</p></div>
+      <div class="chart-b">
+        <div class="bars">
+          {d.qday.map((q: any) => (
+            <div class="bar-row">
+              <span class="bar-lab">{q.h}</span>
+              <div class="bar-track"><div class={`bar-fill ${q.p>=51?'lo':'mid'}`} style={`width:${q.p}%`}></div></div>
+              <span class="bar-val">{q.lab}</span>
+            </div>
+          ))}
+        </div>
+        <p class="src">Global Risk Institute, <em>Quantum Threat Timeline Report 2025</em>, publicado marzo de 2026.</p>
+      </div>
+    </div>
+
+    <div class="measure">
+      <p>El hallazgo que los propios autores destacan: <strong>es la estimación a diez años más alta en los siete años de la serie.</strong> La masa de probabilidad se está desplazando hacia mediados de la próxima década.</p>
+
+      <p>Conviene decir también lo que esta encuesta no es. La muestra es pequeña, su composición cambia entre años, y las ediciones de 2019 a 2021 daban probabilidades <em>mayores</em> para el mismo horizonte. No es una predicción: es el mejor consenso disponible, con sus límites a la vista.</p>
+    </div>
+  </section>
+
+  <!-- 10 · GLOSARIO -->
+  <section id="glosario">
+    <div class="sechead">
+      <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 4.5h6a2.5 2.5 0 0 1 2.5 2.5v13"/><path d="M20 4.5h-6a2.5 2.5 0 0 0-2.5 2.5v13"/><path d="M4 4.5v13M20 4.5v13"/></svg>
+      <span class="snum">10 · Glosario</span>
+    </div>
+    <h2>Los términos, en una línea cada uno</h2>
+    <div class="gloss">
+      <div class="gi"><h4>Criptografía asimétrica</h4><span class="en">RSA, ECC</span><p>Permite a dos partes que nunca se han visto acordar una clave secreta. Es exactamente lo que un computador cuántico rompe.</p></div>
+      <div class="gi"><h4>Algoritmo de Shor</h4><span class="en">1994</span><p>Permitiría factorizar números grandes en tiempo razonable. Es un teorema demostrado: solo falta la máquina.</p></div>
+      <div class="gi"><h4>HNDL</h4><span class="en">Harvest Now, Decrypt Later</span><p>Capturar tráfico cifrado hoy para descifrarlo después. Por eso el riesgo empieza ahora.</p></div>
+      <div class="gi"><h4>CRQC</h4><span class="en">Cryptographically Relevant Quantum Computer</span><p>Máquina capaz de romper claves reales. No existe; el debate es cuándo.</p></div>
+      <div class="gi"><h4>Qubit físico</h4><span class="en">physical qubit</span><p>Dispositivo real de hardware. Ruidoso y frágil. Es la cifra que anuncian los fabricantes.</p></div>
+      <div class="gi"><h4>Qubit lógico</h4><span class="en">logical qubit</span><p>Qubit confiable hecho con muchos físicos. Entre 100 y 1.000 por cada uno. <strong>Confundirlos infla las capacidades en dos o tres órdenes de magnitud.</strong></p></div>
+      <div class="gi"><h4>Post-selección</h4><span class="en">post-selection</span><p>Detectar el error y descartar la corrida. No es corrección: es filtrado, y deja de funcionar al crecer el circuito.</p></div>
+      <div class="gi"><h4>Bajo umbral</h4><span class="en">below threshold</span><p>Agregar qubits físicos <em>mejora</em> el lógico en vez de degradarlo. Demostrado por primera vez en diciembre de 2024.</p></div>
+      <div class="gi"><h4>ML-KEM · FIPS 203</h4><span class="en">antes Kyber</span><p>Estándar de intercambio de claves post-cuántico, publicado por el NIST en agosto de 2024. Es lo que medimos.</p></div>
+      <div class="gi"><h4>ML-DSA · FIPS 204</h4><span class="en">antes Dilithium</span><p>Estándar de firma digital. Protege la autenticación. Su adopción global es del 0%.</p></div>
+      <div class="gi"><h4>Híbrido</h4><span class="en">X25519MLKEM768</span><p>Negociar dos claves a la vez, clásica y post-cuántica. Si una falla, la otra sostiene.</p></div>
+      <div class="gi"><h4>TLS 1.3</h4><span class="en">Transport Layer Security</span><p>El intercambio post-cuántico <strong>lo requiere</strong>: sin TLS 1.3 no hay migración posible.</p></div>
+      <div class="gi"><h4>Certificate Transparency</h4><span class="en">registros públicos</span><p>Registros auditables de cada certificado emitido. Permiten descubrir superficie sin tocar sistemas.</p></div>
+      <div class="gi"><h4>Agilidad criptográfica</h4><span class="en">crypto-agility</span><p>Poder cambiar de algoritmo sin rehacer los sistemas. El objetivo real de fondo.</p></div>
+      <div class="gi"><h4>Inventario criptográfico</h4><span class="en">CBOM</span><p>Registro de dónde vive cada mecanismo. Primer requisito de todos los marcos: no se migra lo que no se sabe que existe.</p></div>
+    </div>
+  </section>
+
+  <!-- 11 · LEGAL -->
+  <section id="legal" class="legal">
+    <div class="sechead">
+      <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3.5 4.5 6.5v5.2c0 4.4 3.1 7.6 7.5 8.8 4.4-1.2 7.5-4.4 7.5-8.8V6.5Z"/><path d="M9.3 12.2l1.9 1.9 3.6-3.8"/></svg>
+      <span class="snum">11 · Metodología, límites y aviso legal</span>
+    </div>
+    <h2>Cómo se hizo y qué no afirma</h2>
+
+    <div class="cols">
+      <div>
+        <h3>Qué hicimos</h3>
+        <p>Consultamos <strong>registros públicos de Certificate Transparency</strong> para descubrir los nombres de host de cada dominio. Sobre los hosts críticos abrimos <strong>una única conexión TCP y enviamos un solo saludo inicial de TLS</strong> que ofrece explícitamente grupos post-cuánticos, y observamos la respuesta.</p>
+        <p>El saludo <strong>no se completa</strong>. No se establece sesión, no se transmiten datos de aplicación, no se envían credenciales y no se ejecuta ninguna prueba de intrusión. La carga equivale a abrir el sitio una vez.</p>
+        <h3>Qué NO hicimos</h3>
+        <p>No accedimos a ningún sistema. No intentamos autenticarnos. No exploramos rutas ni directorios. No escaneamos rangos de direcciones. No recopilamos datos personales.</p>
+      </div>
+      <div>
+        <h3>Límites</h3>
+        <p>Estas mediciones observan <strong>únicamente la superficie pública</strong>. No dicen nada sobre sistemas internos, módulos de seguridad de hardware, redes privadas, firma de código ni bases de datos.</p>
+        <p>Un resultado favorable <strong>no implica</strong> preparación. Un resultado desfavorable <strong>no implica</strong> inseguridad, incidente ni incumplimiento.</p>
+        <h3>Naturaleza del documento</h3>
+        <p>Describe <strong>observaciones técnicas</strong> sobre infraestructura pública en la fecha indicada. No es auditoría, certificación, evaluación de cumplimiento ni dictamen legal. Rosetta Quantum no es organismo certificador ni estudio jurídico.</p>
+      </div>
+    </div>
+
+    <div class="rev">
+      <h4>Pendiente de revisión legal antes de publicar</h4>
+      <ol>
+        <li>Redacción del método frente a la legislación chilena sobre acceso no autorizado.</li>
+        <li>Publicación de agregados sectoriales sin nombrar organizaciones.</li>
+        <li>Umbral de anonimato: ninguna cifra sobre bases menores a ocho organizaciones.</li>
+        <li>Texto del aviso previo: que la entrega del hallazgo sea incondicional.</li>
+        <li>Menciones a proveedores como ausencia de declaración pública, no afirmación sobre el producto.</li>
+        <li>Suficiencia de los descargos de este apartado.</li>
+      </ol>
+    </div>
+
+    <div class="note"><strong>Derecho de exclusión y de acceso.</strong> Cualquier organización puede pedir su exclusión de futuras ediciones, o el detalle completo de lo observado en su superficie, sin costo y sin condiciones. Ambas dentro de 72 horas hábiles y sin justificación.</div>
+
+    <div class="measure" style="margin-top:34px">
+      <p style="font-family:var(--f-serif);font-size:1.2rem;line-height:1.4;color:var(--ink)">La transición post-cuántica no se resuelve el día que exista la máquina. Se resuelve en los años previos, con inventario, con preguntas incómodas a los proveedores y con alguien a cargo. Nada de eso requiere creer en una fecha — solo requiere empezar antes de que la fecha la fije otro.</p>
+    </div>
+
+    <p class="src">Rosetta Quantum · Edición {String(d.numero).padStart(2,'0')} · {mesLargo} · Blue Tuna SpA · Metodología y conjunto de datos agregado disponibles a solicitud.</p>
+  </section>
+
+</div>
+</div>
+</BaseLayout>

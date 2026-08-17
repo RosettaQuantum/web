@@ -1,0 +1,407 @@
+{
+ "edicion": "2026-09",
+ "numero": 2,
+ "titulo": "Criptografía post-cuántica en la gran empresa chilena",
+ "subtitulo": "Medición técnica sobre la infraestructura pública de 220 organizaciones",
+ "ventana": {
+  "desde": "2026-09-01",
+  "hasta": "2026-09-03"
+ },
+ "anterior": "2026-08",
+ "muestra": {
+  "organizaciones": 220,
+  "verticales": 12,
+  "sondeadas": 198,
+  "chilenas_analizadas": 176,
+  "hostnames": 14763
+ },
+ "titulares": [
+  {
+   "id": "ambientes",
+   "k": "Ambiente no productivo expuesto",
+   "v": 60,
+   "u": "%",
+   "sev": "crit",
+   "sub": "dev, QA o staging respondiendo en internet",
+   "base": 174,
+   "polaridad": "mayor_peor"
+  },
+  {
+   "id": "infra",
+   "k": "Infraestructura sensible expuesta",
+   "v": 57,
+   "u": "%",
+   "sev": "crit",
+   "sub": "VPN, admin, cpanel o webmail",
+   "base": 174,
+   "polaridad": "mayor_peor"
+  },
+  {
+   "id": "canal",
+   "k": "Sin canal de reporte de seguridad",
+   "v": 94,
+   "u": "%",
+   "sev": "crit",
+   "sub": "no existe dónde avisarles de un hallazgo",
+   "base": 140,
+   "polaridad": "mayor_peor"
+  },
+  {
+   "id": "proveedores",
+   "k": "Proveedores de core con fecha",
+   "v": 1,
+   "u": "",
+   "sev": "crit",
+   "sub": "de 11 revisados en el stack financiero",
+   "base": 11,
+   "polaridad": "mayor_mejor"
+  },
+  {
+   "id": "tls13",
+   "k": "Sin soporte de TLS 1.3",
+   "v": 7,
+   "u": "",
+   "sev": "warn",
+   "sub": "no pueden migrar aunque quieran",
+   "base": 220,
+   "polaridad": "mayor_peor"
+  },
+  {
+   "id": "superficie",
+   "k": "Nombres de host descubiertos",
+   "v": 15410,
+   "u": "",
+   "sev": "info",
+   "sub": "mediana 40 por organización",
+   "base": 174,
+   "polaridad": "neutra"
+  },
+  {
+   "id": "hibrido",
+   "k": "Con híbrido post-cuántico",
+   "v": 58,
+   "u": "%",
+   "sev": "asterisco",
+   "sub": "métrica que un cambio de CDN pone en verde",
+   "base": 194,
+   "polaridad": "mayor_mejor"
+  }
+ ],
+ "verticales": [
+  {
+   "n": "Fintech y pagos",
+   "id": "fintech",
+   "nprobe": 20,
+   "hibrido": 15,
+   "ratio": 78,
+   "gate": 66,
+   "medianaHosts": 32
+  },
+  {
+   "n": "Retail",
+   "id": "retail",
+   "nprobe": 17,
+   "hibrido": 12,
+   "ratio": 68,
+   "gate": 93,
+   "medianaHosts": 40
+  },
+  {
+   "n": "Seguros",
+   "id": "seguros",
+   "nprobe": 17,
+   "hibrido": 10,
+   "ratio": 59,
+   "gate": 56,
+   "medianaHosts": 76
+  },
+  {
+   "n": "Educación superior",
+   "id": "educacion",
+   "nprobe": 17,
+   "hibrido": 10,
+   "ratio": 59,
+   "gate": 66,
+   "medianaHosts": 156
+  },
+  {
+   "n": "Previsión",
+   "id": "prevision",
+   "nprobe": 16,
+   "hibrido": 9,
+   "ratio": 56,
+   "gate": 52,
+   "medianaHosts": 40
+  },
+  {
+   "n": "Energía y utilities",
+   "id": "energia",
+   "nprobe": 18,
+   "hibrido": 10,
+   "ratio": 56,
+   "gate": 78,
+   "medianaHosts": 37
+  },
+  {
+   "n": "Banca",
+   "id": "banca",
+   "nprobe": 15,
+   "hibrido": 8,
+   "ratio": 56,
+   "gate": 83,
+   "medianaHosts": 76
+  },
+  {
+   "n": "Minería",
+   "id": "mineria",
+   "nprobe": 17,
+   "hibrido": 8,
+   "ratio": 47,
+   "gate": 33,
+   "medianaHosts": 14
+  },
+  {
+   "n": "Telecomunicaciones",
+   "id": "telecom",
+   "nprobe": 16,
+   "hibrido": 7,
+   "ratio": 49,
+   "gate": 70,
+   "medianaHosts": 52
+  },
+  {
+   "n": "Salud",
+   "id": "salud",
+   "nprobe": 24,
+   "hibrido": 9,
+   "ratio": 41,
+   "gate": 47,
+   "medianaHosts": 26,
+   "nota": "isapres y clínicas agrupadas por regla de anonimato (n≥8)"
+  },
+  {
+   "n": "Gobierno",
+   "id": "gobierno",
+   "nprobe": 17,
+   "hibrido": 5,
+   "ratio": 35,
+   "gate": 64,
+   "medianaHosts": 37
+  }
+ ],
+ "cdn": {
+  "cloudflare": {
+   "n": 71,
+   "hibrido": 71
+  },
+  "resto": {
+   "n": 127,
+   "hibrido": 44
+  }
+ },
+ "superficie": [
+  {
+   "rango": "300 o más",
+   "n": 10,
+   "pct": 5
+  },
+  {
+   "rango": "100 – 299",
+   "n": 32,
+   "pct": 18
+  },
+  {
+   "rango": "30 – 99",
+   "n": 62,
+   "pct": 35
+  },
+  {
+   "rango": "10 – 29",
+   "n": 40,
+   "pct": 22
+  },
+  {
+   "rango": "menos de 10",
+   "n": 30,
+   "pct": 17
+  }
+ ],
+ "referencia_global": {
+  "hibrido_global": 49.3,
+  "hibrido_chile": 53.1,
+  "certificados_pqc": 0,
+  "dominios_medidos": 32011,
+  "fuente": "arXiv:2606.16473, junio 2026"
+ },
+ "stack": [
+  {
+   "capa": "Sistema operativo y librerías",
+   "prov": "Red Hat, OpenSSL",
+   "estado": "ok",
+   "nota": "Resuelto actualizando versión"
+  },
+  {
+   "capa": "Mainframe",
+   "prov": "IBM z/OS, IBM Z",
+   "estado": "ok",
+   "nota": "Disponible vía parche sobre z/OS 3.1"
+  },
+  {
+   "capa": "Base de datos",
+   "prov": "Oracle Database",
+   "estado": "warn",
+   "nota": "Solo transporte; no cubre cifrado en reposo"
+  },
+  {
+   "capa": "HSM y gestión de claves",
+   "prov": "Thales Luna, Utimaco, Entrust",
+   "estado": "ok",
+   "nota": "Requiere firmware específico"
+  },
+  {
+   "capa": "HSM de pagos",
+   "prov": "Thales payShield",
+   "estado": "crit",
+   "nota": "Sin declaración pública"
+  },
+  {
+   "capa": "Red y VPN",
+   "prov": "Cisco ASA / Secure Client",
+   "estado": "warn",
+   "nota": "ML-KEM real a fin de 2026; no se resuelve actualizando hoy"
+  },
+  {
+   "capa": "Red y VPN",
+   "prov": "Fortinet, Palo Alto, Check Point",
+   "estado": "ok",
+   "nota": "En Fortinet los grupos PQC no operan en modo FIPS"
+  },
+  {
+   "capa": "Core bancario",
+   "prov": "Temenos, Finacle, FIS, Fiserv",
+   "estado": "crit",
+   "nota": "Ninguno ha publicado fecha"
+  },
+  {
+   "capa": "Core bancario",
+   "prov": "Oracle FLEXCUBE",
+   "estado": "crit",
+   "nota": "No hereda el soporte de Oracle Database"
+  },
+  {
+   "capa": "Switch de pagos",
+   "prov": "Visa, ACI Worldwide",
+   "estado": "crit",
+   "nota": "Sin hoja de ruta pública"
+  },
+  {
+   "capa": "Mensajería financiera",
+   "prov": "Swift",
+   "estado": "warn",
+   "nota": "Julio 2027. Requiere Alliance 7.9; sin ruta desde 7.7"
+  },
+  {
+   "capa": "Certificados públicos",
+   "prov": "DigiCert, Sectigo",
+   "estado": "warn",
+   "nota": "Solo jerarquías privadas"
+  }
+ ],
+ "plazos": [
+  {
+   "a": "2026",
+   "q": "Estados miembros inician despliegue",
+   "quien": "Unión Europea",
+   "tipo": "guia"
+  },
+  {
+   "a": "2027",
+   "q": "Nuevas adquisiciones cumplen CNSA 2.0",
+   "quien": "Sistemas de seguridad nacional EE. UU.",
+   "tipo": "obl"
+  },
+  {
+   "a": "2027",
+   "q": "SwiftNet 8.0 habilitado para PQC",
+   "quien": "Mensajería financiera global",
+   "tipo": "obl"
+  },
+  {
+   "a": "2028",
+   "q": "Descubrimiento y plan inicial",
+   "quien": "Reino Unido",
+   "tipo": "guia"
+  },
+  {
+   "a": "2030",
+   "q": "Intercambio de claves post-cuántico",
+   "quien": "Gobierno federal civil EE. UU.",
+   "tipo": "obl"
+  },
+  {
+   "a": "2030",
+   "q": "Casos de alto riesgo transicionados",
+   "quien": "Unión Europea",
+   "tipo": "guia"
+  },
+  {
+   "a": "2031",
+   "q": "Firmas digitales post-cuánticas",
+   "quien": "Gobierno federal civil EE. UU.",
+   "tipo": "obl"
+  },
+  {
+   "a": "2035",
+   "q": "Migración completa",
+   "quien": "EE. UU. · RU · Canadá · UE",
+   "tipo": "mixto"
+  }
+ ],
+ "qday": [
+  {
+   "h": "5 años · 2031",
+   "p": 15,
+   "lab": "~15%"
+  },
+  {
+   "h": "10 años · 2036",
+   "p": 49,
+   "lab": "28–49%"
+  },
+  {
+   "h": "15 años · 2041",
+   "p": 51,
+   "lab": "≥51%"
+  },
+  {
+   "h": "20 años · 2046",
+   "p": 69,
+   "lab": "≥69%"
+  }
+ ],
+ "costoRsa": [
+  {
+   "y": "2019",
+   "quien": "Gidney & Ekerå",
+   "q": "20.000.000",
+   "w": 100,
+   "estado": "revisado por pares"
+  },
+  {
+   "y": "2025",
+   "quien": "Gidney",
+   "q": "< 1.000.000",
+   "w": 68,
+   "estado": "preprint"
+  },
+  {
+   "y": "2026",
+   "quien": "Iceberg Quantum",
+   "q": "< 100.000",
+   "w": 53,
+   "estado": "preprint"
+  }
+ ],
+ "cambios": [],
+ "SIMULADO": "Datos inventados para ver la mecánica de comparación. NO son una medición."
+}
