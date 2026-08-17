@@ -13,6 +13,10 @@ the Cloudflare Worker `rosetta-quantum`. Homogeneous, component-based, no client
 - `src/styles/global.css` (tokens+nav+footer) + `src/styles/pages/*.css` (page styles).
 - `public/js/*-fn-*.js` — functional scripts (console, ledger filter/detail), served as-is.
 - `worker.js` + `wrangler.jsonc` — Cloudflare deploy (serves `./dist`).
+- `public/consola/` — the console. Read [`HOJA-BASE.md`](HOJA-BASE.md) before touching its
+  CSS: it inherits a stylesheet from another context, and that inheritance produced four
+  defects that are invisible in the markup — including a button that was unreachable on a
+  phone. `scripts/test-consola-zonas.mjs` guards the part that can be checked statically.
 
 ## Run / deploy
 ```bash

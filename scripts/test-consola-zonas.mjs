@@ -27,9 +27,10 @@ import { dirname, join } from "node:path";
 const RAIZ = join(dirname(fileURLToPath(import.meta.url)), "..");
 const HTML = join(RAIZ, "public/consola/index.html");
 const JS = join(RAIZ, "public/consola/consola.js");
+const BASE = join(RAIZ, "public/consola/consola.css");
 
 /** Devuelve la lista de fallos. Vacia = todo bien. */
-export function revisar(html, js, zonas) {
+export function revisar(html, js, zonas, base = "") {
   const malos = [];
   const { CON_DATOS, DECLARADAS } = zonas;
 
@@ -64,6 +65,37 @@ export function revisar(html, js, zonas) {
     }
   }
 
+  // Regla 6: la hoja base pelea, y no se ve leyendo el HTML.
+  //
+  // La consola hereda consola.css de otro contexto, donde `.barra` era una barra de
+  // progreso de 4 px con overflow:hidden. Al reusar ese nombre para el contenedor del
+  // filtro, el buscador y el DENOMINADOR de las corridas quedaron recortados a una linea
+  // — invisible leyendo el markup, porque el markup estaba bien.
+  //
+  // Se marcan solo las clases que la base restringe EN TAMANO (height, width, max-*,
+  // overflow:hidden) y que la pagina no vuelve a definir. Es un conjunto chico a
+  // proposito: precision sobre cobertura, porque un falso positivo aqui retiene trabajo
+  // bueno. No dice "esto esta mal": dice "esta clase trae un tamano de otro contexto,
+  // decide a proposito".
+  // Los comentarios se quitan ANTES de leer, y esto ya me mordio dos veces hoy: el
+  // comentario que EXPLICA por que el contenedor no puede llamarse `.barra` contiene la
+  // palabra `.barra`, asi que el guardia la contaba como redefinida y se callaba. Un
+  // instrumento que lee la explicacion del defecto en vez del codigo aprueba el defecto.
+  const propias = new Set([...(html.match(/<style>[\s\S]*?<\/style>/) || [""])[0]
+    .replace(/\/\*[\s\S]*?\*\//g, "")
+    .matchAll(/\.([a-z0-9-]+)/g)].map(m => m[1]));
+  const usadas = new Set([...html.matchAll(/class="([^"]+)"/g)].flatMap(m => m[1].split(/\s+/)));
+  for (const m of (base || "").matchAll(/([^{}]+)\{([^}]*)\}/g)) {
+    const cuerpo = m[2];
+    if (!/(^|;)\s*(height|max-height|max-width|width)\s*:/.test(cuerpo) && !/overflow\s*:\s*hidden/.test(cuerpo)) continue;
+    for (const sel of m[1].split(",")) {
+      const c = (sel.trim().match(/^\.([a-z0-9-]+)$/i) || [])[1];
+      if (c && usadas.has(c) && !propias.has(c)) {
+        malos.push(`«.${c}» viene de la hoja base con un tamaño de otro contexto (${cuerpo.trim().split(";")[0]}) y la consola la usa sin redefinirla`);
+      }
+    }
+  }
+
   // Regla 4: el pie contra el codigo. Se comparan los dos conjuntos, en los dos sentidos.
   const pie = (html.match(/<p class="fuente">([\s\S]*?)<\/p>/) || ["", ""])[1];
   // `${...}` y `<id>` son el MISMO agujero escrito en dos lenguajes; se normalizan a uno.
@@ -82,6 +114,7 @@ export function revisar(html, js, zonas) {
 
 const html = readFileSync(HTML, "utf8");
 const js = readFileSync(JS, "utf8");
+const base = readFileSync(BASE, "utf8");
 const zonas = await import(join(RAIZ, "public/consola/zonas.js"));
 
 if (process.argv.includes("--self-test")) {
@@ -97,18 +130,19 @@ if (process.argv.includes("--self-test")) {
     // El caso REAL que se me escapo, con el texto tal como lo escribi.
     ["texto sin tildes", null, null, z => ({ ...z, DECLARADAS: z.DECLARADAS.map(d => d.id === "despacho"
       ? { ...d, proposito: "El panorama del dia: que cambio en el archivo desde ayer." } : d) }), "sin tildes"],
+    ["clase con tamaño de la hoja base", h => h.replace('class="barra-filtro"', 'class="barra"'), null, null, "tamaño de otro contexto"],
     ["ruta pedida y no declarada", null, j => j.replace('pedir("/v1/state")', 'pedir("/v1/secreta")'), null, "el código pide /v1/secreta"],
     ["ruta declarada y no pedida", h => h.replace("<code>/v1/state</code>", "<code>/v1/inventada</code>"), null, null, "el pie declara /v1/inventada"],
   ];
   let ok = 0, mal = 0;
   // Primero el caso positivo: el archivo REAL tiene que pasar. Sin esto, un guardia roto
   // que grita con todo tambien "aprobaria" el self-test.
-  const base = revisar(html, js, zonas);
-  if (base.length === 0) { ok++; console.log("  ok   el archivo real pasa"); }
-  else { mal++; console.log(`  FALLA el archivo real no pasa:\n         ${base.join("\n         ")}`); }
+  const propio = revisar(html, js, zonas, base);
+  if (propio.length === 0) { ok++; console.log("  ok   el archivo real pasa"); }
+  else { mal++; console.log(`  FALLA el archivo real no pasa:\n         ${propio.join("\n         ")}`); }
 
   for (const [nombre, mh, mj, mz, esperado] of casos) {
-    const fallos = revisar(mh ? mh(html) : html, mj ? mj(js) : js, mz ? mz(zonas) : zonas);
+    const fallos = revisar(mh ? mh(html) : html, mj ? mj(js) : js, mz ? mz(zonas) : zonas, base);
     const grito = fallos.find(f => f.includes(esperado));
     if (grito) { ok++; console.log(`  ok   grita con: ${nombre}`); }
     else { mal++; console.log(`  FALLA no gritó con: ${nombre}\n         dijo: ${fallos.join(" | ") || "(nada)"}`); }
@@ -117,7 +151,7 @@ if (process.argv.includes("--self-test")) {
   process.exit(mal ? 1 : 0);
 }
 
-const fallos = revisar(html, js, zonas);
+const fallos = revisar(html, js, zonas, base);
 if (fallos.length) {
   console.error("Las zonas de la consola no cuadran:\n  - " + fallos.join("\n  - "));
   process.exit(1);
