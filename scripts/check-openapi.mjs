@@ -82,13 +82,30 @@ export function rutasDelCodigo(fuente) {
     const cuerpo = fuente.slice(desde, hasta);
     const base = (cuerpo.match(/^(\w+)/) || [])[1];
     if (base) {
-      const capturas = (cuerpo.match(/\(\[\^\/\]\+\)/g) || []).length;
-      // un grupo opcional es "(?:...)?" y hace que esa captura pueda faltar
-      const opcionales = (cuerpo.match(/\(\?:[\s\S]*?\)\?/g) || []).length;
-      const fijas = Math.max(1, capturas - opcionales);
-      for (let extra = 0; extra <= opcionales; extra++) {
-        rutas.add(`/v1/${base}` + "/{}".repeat(fijas + extra));
+      // Se recorren los SEGMENTOS, no se cuentan capturas.
+      //
+      // La version anterior contaba `([^/]+)` y armaba `/v1/base` + "/{}"×n, asi que un
+      // segmento LITERAL despues de una captura desaparecia: `/v1/archive/([^/]+)/raw`
+      // salia como `/v1/archive/{}` y el chequeo declaraba «documentada y no atendida»
+      // una ruta que el enrutador si atiende. Un falso positivo retiene trabajo bueno y
+      // ensena a ignorar el chequeo.
+      //
+      // Va en DOS pasos porque mi primer intento de caminar los segmentos de una sola
+      // pasada rompio los casos simples: el `\/?$` final quedaba como un segmento "?"
+      // y el grupo opcional se partia por la mitad. Primero se saca el grupo opcional,
+      // despues se camina lo que queda.
+      let resto = cuerpo.slice(base.length);
+      const opcionales = (resto.match(/\(\?:[\s\S]*?\)\?/g) || []).length;
+      resto = resto.replace(/\(\?:[\s\S]*?\)\?/g, "");     // fuera el opcional
+      resto = resto.replace(/\\\/\?$/, "");                  // fuera la barra final opcional
+      let fija = `/v1/${base}`;
+      for (const seg of resto.split("\\/").filter(x => x !== "" && x !== "?")) {
+        if (/\(\[\^\/\]\+\)/.test(seg)) { fija += "/{}"; continue; }
+        const literal = seg.replace(/[()?]/g, "").trim();
+        if (literal) fija += "/" + literal;
       }
+      rutas.add(fija);
+      for (let k = 1; k <= opcionales; k++) rutas.add(fija + "/{}".repeat(k));
     }
     i = hasta;
   }
@@ -123,6 +140,14 @@ if (SELF) {
     diferencia(rutasDelCodigo('p.match(/^\\/v1\\/structures\\/([^/]+)\\/?$/)'),
                ["/v1/structures/{pdb}"].map(formaDeRuta)).calzan,
     "marco como divergencia dos formas iguales con distinto nombre de parametro");
+  // El defecto real: un segmento literal DESPUES de una captura desaparecia.
+  comprobar("un segmento literal despues de la captura no se pierde",
+    rutasDelCodigo('p.match(/^\\/v1\\/archive\\/([^/]+)\\/raw\\/?$/)').includes("/v1/archive/{}/raw"),
+    `dio ${JSON.stringify(rutasDelCodigo('p.match(/^\\/v1\\/archive\\/([^/]+)\\/raw\\/?$/)'))}`);
+  comprobar("y la ruta sin el literal NO se declara sola",
+    !rutasDelCodigo('p.match(/^\\/v1\\/archive\\/([^/]+)\\/raw\\/?$/)').includes("/v1/archive/{}"),
+    "invento una ruta que el enrutador no atiende");
+
   // Un grupo opcional atiende DOS formas y las dos tienen que estar declaradas.
   comprobar("un grupo opcional produce las dos formas",
     (() => { const r = rutasDelCodigo('p.match(/^\\/v1\\/propagate\\/([^/]+)(?:\\/([^/]+))?\\/?$/)');
