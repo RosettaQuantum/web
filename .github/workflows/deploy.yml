@@ -124,6 +124,17 @@ jobs:
       - name: Self-test del sello de version
         run: node scripts/test-sellar-version.mjs
 
+      # ¿Se puede TOCAR lo que la pagina muestra? El 17-ago el boton «ver el sello» de
+      # Corridas quedaba en x=771 de una ventana de 375, dentro de un contenedor que
+      # heredaba overflow-x:hidden: existia en el DOM y no habia forma de llegar a el con
+      # el dedo. Ningun analisis estatico lo ve. Chrome viene preinstalado en el runner
+      # (google-chrome 151 en ubuntu-24.04) y se maneja por CDP sin dependencias nuevas.
+      - name: Self-test del chequeo de alcance
+        run: node scripts/check-alcance.mjs --self-test
+
+      - name: Todo lo interactivo se puede tocar (375 y 1280 px)
+        run: node scripts/check-alcance.mjs
+
       # Las zonas de la consola: riel, secciones y huecos tienen que corresponderse, las
       # zonas declaradas no pueden llevar cifras escritas a mano, y el pie tiene que
       # declarar EXACTAMENTE las rutas que el codigo pide. El --self-test rompe cada una
