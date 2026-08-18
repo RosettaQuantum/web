@@ -7,7 +7,7 @@ const R = 92, C = 2 * Math.PI * R, SCORE = 28, dash = (SCORE/100)*C;
 const t = es ? {
   eyebrow:'Informe de ejemplo · Q-Ready External',
   demo:'Datos ilustrativos · empresa ficticia, no un cliente real',
-  h1:'Auditoría de preparación post-cuántica',
+  h1:'Informe de exposición criptográfica post-cuántica',
   print:'Descargar PDF', back:'← Volver a Q-Ready',
   co:'Acme Bank LatAm', dom:'acme-bank.example', date:'Emitido 2026-07-30 · válido a la fecha de escaneo',
   s1:'Resumen ejecutivo', band:'Not ready', bandR:'0–29 · sin postura post-cuántica',
@@ -56,12 +56,12 @@ const t = es ? {
   gaps:['Inventario de HSM/KMS y llaves internas','Apps, VPN y mTLS interno','Bases de datos cifradas y backups','Roadmaps PQC de proveedores'],
   gapCta:'Subir a Assisted →',
   s10:'Apéndice · metodología y límites',
-  method:'Evidencia de superficie pública únicamente: Certificate Transparency, resolución DNS, probe TLS (ClientHello con grupos híbridos), cadena de confianza pública y OSINT ligero. Sin exploits, sin port-scan agresivo, User-Agent identificado. No es una certificación ni sustituye una auditoría interna.',
+  method:'Evidencia de superficie pública únicamente: Certificate Transparency, resolución DNS, probe TLS (ClientHello con grupos híbridos), cadena de confianza pública y OSINT ligero. Sin exploits, sin port-scan agresivo, User-Agent identificado. No es una certificación ni sustituye una revisión interna formal.',
   s11:'Sello Rosetta', sealP:'Cada informe se sella con el hash del JSON de evidencia. En producción se ancla al Evidence Ledger (aquí, muestra sin anclar).',
 } : {
   eyebrow:'Sample report · Q-Ready External',
   demo:'Illustrative data · fictional company, not a real client',
-  h1:'Post-quantum readiness audit',
+  h1:'Post-quantum cryptographic exposure report',
   print:'Download PDF', back:'← Back to Q-Ready',
   co:'Acme Bank LatAm', dom:'acme-bank.example', date:'Issued 2026-07-30 · valid as of scan date',
   s1:'Executive brief', band:'Not ready', bandR:'0–29 · no post-quantum posture',
@@ -110,7 +110,7 @@ const t = es ? {
   gaps:['HSM/KMS inventory and internal keys','Apps, VPN and internal mTLS','Encrypted databases and backups','Vendor PQC roadmaps'],
   gapCta:'Upgrade to Assisted →',
   s10:'Appendix · methodology & limits',
-  method:'Public-surface evidence only: Certificate Transparency, DNS resolution, TLS probe (ClientHello with hybrid groups), public trust chain and light OSINT. No exploits, no aggressive port-scan, identified User-Agent. Not a certification and no substitute for an internal audit.',
+  method:'Public-surface evidence only: Certificate Transparency, DNS resolution, TLS probe (ClientHello with hybrid groups), public trust chain and light OSINT. No exploits, no aggressive port-scan, identified User-Agent. Not a certification and no substitute for a formal internal review.',
   s11:'Rosetta seal', sealP:'Each report is sealed with the hash of the evidence JSON. In production it anchors to the Evidence Ledger (here, a sample, unanchored).',
 };
 const sevClass = (s) => s.toLowerCase();
@@ -128,7 +128,7 @@ const sevClass = (s) => s.toLowerCase();
     <div class="rep-head">
       <div>
         <div class="rep-meta">{t.co} · {t.dom}</div>
-        <div class="rep-title">{t.h1}</div>
+        <h1 class="rep-title">{t.h1}</h1>
         <div class="rep-meta">{t.date}</div>
         <p class="prose" style="margin-top:14px" set:html={t.execP}></p>
       </div>
@@ -146,7 +146,7 @@ const sevClass = (s) => s.toLowerCase();
     </div>
 
     <div class="rep-section">
-      <h3>{t.top5}</h3>
+      <h2>{t.top5}</h2>
       <ul class="top5">
         {t.findings.map(([sv, txt]) => (
           <li><span class={`sev ${sevClass(sv)}`}>{sv}</span><span>{txt}</span></li>
@@ -157,19 +157,19 @@ const sevClass = (s) => s.toLowerCase();
 
     <!-- 2 · education -->
     <div class="rep-section">
-      <h3>{t.s2}</h3>
+      <h2>{t.s2}</h2>
       <p class="rep-lead" set:html={t.edu}></p>
     </div>
 
     <!-- 3 · good -->
     <div class="rep-section">
-      <h3 class="faience">{t.s3}</h3>
+      <h2 class="faience">{t.s3}</h2>
       <ul class="top5">{t.good.map(g => <li><span class="sev low">ok</span><span>{g}</span></li>)}</ul>
     </div>
 
     <!-- 4 · wrong -->
     <div class="rep-section">
-      <h3>{t.s4}</h3>
+      <h2>{t.s4}</h2>
       <div class="findtbl">
         <div class="findrow h"><div>{t.sev}</div><div>{t.findingCol}</div><div class="hide-m">{t.detailCol}</div></div>
         {t.sevtbl.map(([sv, f, d]) => (
@@ -180,7 +180,7 @@ const sevClass = (s) => s.toLowerCase();
 
     <!-- 5 · inventory -->
     <div class="rep-section">
-      <h3>{t.s5}</h3>
+      <h2>{t.s5}</h2>
       <table class="invtbl">
         <thead><tr>{t.invcols.map(c => <th>{c}</th>)}</tr></thead>
         <tbody>{t.inv.map(r => (
@@ -191,7 +191,7 @@ const sevClass = (s) => s.toLowerCase();
 
     <!-- 6 · HNDL scenarios -->
     <div class="rep-section">
-      <h3>{t.s6}</h3>
+      <h2>{t.s6}</h2>
       <p class="rep-lead">{t.hndlP}</p>
       <div class="roadmap">
         {t.scen.map(([n, z, v, c]) => (
@@ -202,7 +202,7 @@ const sevClass = (s) => s.toLowerCase();
 
     <!-- 7 · score breakdown + bands -->
     <div class="rep-section">
-      <h3>{t.s7}</h3>
+      <h2>{t.s7}</h2>
       <p class="rep-lead">{t.scoreP}</p>
       <table class="invtbl">
         <thead><tr><th>{es?'Dimensión':'Dimension'}</th><th>{es?'Peso':'Weight'}</th><th>0–100</th></tr></thead>
@@ -213,7 +213,7 @@ const sevClass = (s) => s.toLowerCase();
 
     <!-- 8 · roadmap -->
     <div class="rep-section">
-      <h3>{t.s8}</h3>
+      <h2>{t.s8}</h2>
       <div class="roadmap">
         {t.rm.map(([hd, sub, items]) => (
           <div class="rm-col"><div class="hd">{hd}</div><div class="sub">{sub}</div><ul>{items.map(x => <li>{x}</li>)}</ul></div>
@@ -223,7 +223,7 @@ const sevClass = (s) => s.toLowerCase();
 
     <!-- 9 · gaps / upsell -->
     <div class="rep-section">
-      <h3>{t.s9}</h3>
+      <h2>{t.s9}</h2>
       <div class="upsell">
         <p class="muted" style="margin-bottom:10px">{t.gapP}</p>
         <ul class="top5">{t.gaps.map(g => <li><span class="sev info">gap</span><span>{g}</span></li>)}</ul>
@@ -233,13 +233,13 @@ const sevClass = (s) => s.toLowerCase();
 
     <!-- 10 · appendix -->
     <div class="rep-section">
-      <h3>{t.s10}</h3>
+      <h2>{t.s10}</h2>
       <p class="rep-lead">{t.method}</p>
     </div>
 
     <!-- 11 · seal -->
     <div class="rep-section">
-      <h3>{t.s11}</h3>
+      <h2>{t.s11}</h2>
       <p class="rep-lead">{t.sealP}</p>
       <div class="seal">content_hash = <span class="h">sha256:9f2c1a7e…d40b</span><br/>rosettaq-archive/v2 · <span class="faint">sample · not anchored</span></div>
     </div>

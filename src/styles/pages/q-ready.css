@@ -199,7 +199,17 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:var(--faience)
 .sev.low{color:#7FC9BE;border:1px solid var(--stone-line)}
 .sev.info{color:var(--papyrus-dim);border:1px solid var(--stone-line)}
 .rep-section{border-top:1px solid var(--stone-line);padding:34px 0}
-.rep-section h3{margin-bottom:6px}
+/* El titulo del informe paso de un DIV a un encabezado de primer nivel, y sus once
+   secciones de nivel tres a nivel dos, por jerarquia semantica (encargo de indexacion,
+   18-ago). El h2 generico de arriba es el de la LANDING (26-37px, para el hero de cada
+   seccion): sin este override, los encabezados del informe habrian saltado del tamano
+   chico que tenian a ese. Se fija el mismo tamano que tenian antes — cambia el tag, no
+   la apariencia.
+   OJO al escribir este comentario: nombrar una etiqueta con los angulos de HTML aca
+   adentro (una vez lo hice) deja un texto que un grep que no filtra <style> cuenta como
+   si fuera la etiqueta real — el mismo defecto de la §4 bis con comentarios de JS,
+   aplicado a CSS inlineado. Por eso los tags se nombran en prosa, sin < >.*/
+.rep-section h2{margin-bottom:6px;font-size:20px;max-width:none}
 .rep-lead{color:var(--papyrus-dim);font-size:15.5px;margin-bottom:16px;max-width:70ch}
 .findtbl{border:1px solid var(--stone-line);border-radius:4px;overflow:hidden;font-family:'IBM Plex Mono',monospace;font-size:13px;background:var(--basalt-2)}
 .findrow{display:grid;grid-template-columns:110px 1.1fr 1.3fr;gap:0;border-bottom:1px solid var(--stone-line);align-items:center}
