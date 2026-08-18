@@ -62,9 +62,13 @@ jobs:
           npx wrangler d1 execute rosettaq-ledger --remote --json \
             --command "SELECT count(*) n_total FROM qready_leads" \
             | tee total-despues.json
-          echo "::notice::antes de prueba=$(cat antes.json | grep -o '\"n_prueba\":[0-9]*') total=$(cat total-antes.json | grep -o '\"n_total\":[0-9]*')"
-          echo "::notice::despues de prueba=$(cat despues.json | grep -o '\"n_prueba\":[0-9]*') total=$(cat total-despues.json | grep -o '\"n_total\":[0-9]*')"
-          if grep -q '"n_prueba":0' despues.json; then
+          echo "::notice::antes de prueba=$(cat antes.json | grep -oE '"n_prueba": *[0-9]+') total=$(cat total-antes.json | grep -oE '"n_total": *[0-9]+')"
+          echo "::notice::despues de prueba=$(cat despues.json | grep -oE '"n_prueba": *[0-9]+') total=$(cat total-despues.json | grep -oE '"n_total": *[0-9]+')"
+          # El JSON real trae espacio despues de los dos puntos ("n_prueba": 0), y mi
+          # primera version del grep no lo esperaba: el DELETE funciono bien (9 -> 0)
+          # pero este chequeo dijo "fallo" igual. La operacion estaba bien; el
+          # instrumento que la verificaba, no.
+          if grep -qE '"n_prueba": *0' despues.json; then
             echo "::notice::limpieza confirmada: 0 filas [PRUEBA restantes"
           else
             echo "::error::quedaron filas [PRUEBA sin borrar"
