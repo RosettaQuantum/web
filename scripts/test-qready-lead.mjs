@@ -18,22 +18,25 @@ const LEAD_OK = { legal: "Acme Bank", name: "Jane CISO", email: "jane@acme.com",
 // Una base que anota lo escrito, y variantes rotas — igual que test-usage.mjs.
 const baseOk = () => {
   const escrito = [];
-  return { escrito, prepare: sql => ({ bind: (...a) => ({
-    run: async () => { escrito.push({ sql, a }); return { meta: { last_row_id: escrito.length } }; }
-  }) }), exec: async () => {} };
+  return { escrito, prepare: sql => ({
+    bind: (...a) => ({ run: async () => { escrito.push({ sql, a }); return { meta: { last_row_id: escrito.length } }; } }),
+    run: async () => { escrito.push({ sql, a: [] }); return {}; },  // CREATE TABLE via .prepare().run(), sin .bind()
+  }) };
 };
 const baseSinTabla = () => {
   // Simula el primer envio de siempre: la tabla no existe hasta que se crea sola.
   let creada = false;
   const escrito = [];
   return { escrito, get creada() { return creada; },
-    prepare: sql => ({ bind: (...a) => ({ run: async () => {
-      if (/^INSERT/.test(sql) && !creada) throw new Error("no such table: qready_leads");
-      escrito.push({ sql, a }); return { meta: { last_row_id: escrito.length } };
-    } }) }),
-    exec: async () => { creada = true; } };
+    prepare: sql => ({
+      bind: (...a) => ({ run: async () => {
+        if (/^INSERT/.test(sql) && !creada) throw new Error("no such table: qready_leads");
+        escrito.push({ sql, a }); return { meta: { last_row_id: escrito.length } };
+      } }),
+      run: async () => { creada = true; escrito.push({ sql, a: [] }); },  // el CREATE TABLE
+    }) };
 };
-const baseRota = () => ({ prepare: () => { throw new Error("D1 caida"); }, exec: async () => {} });
+const baseRota = () => ({ prepare: () => { throw new Error("D1 caida"); } });
 
 const enviarOk = async () => {};
 const enviarRoto = async () => { throw new Error("MAILER rechazo el mensaje"); };
