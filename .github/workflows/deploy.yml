@@ -117,6 +117,13 @@ jobs:
       - name: Self-test de los comparadores de la especificacion
         run: node scripts/check-openapi.mjs --self-test
 
+      # El sello de version va en TODA pagina servida, no solo en las de Astro: la consola
+      # y las dos caras de Cleveland son HTML plano y nunca pasan por el layout, asi que
+      # esperar su 200 no distinguia lo viejo de lo nuevo. El postbuild lo estampa y falla
+      # cerrado; esto prueba que sabe estampar Y que no estampa dos veces.
+      - name: Self-test del sello de version
+        run: node scripts/test-sellar-version.mjs
+
       # Las zonas de la consola: riel, secciones y huecos tienen que corresponderse, las
       # zonas declaradas no pueden llevar cifras escritas a mano, y el pie tiene que
       # declarar EXACTAMENTE las rutas que el codigo pide. El --self-test rompe cada una

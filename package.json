@@ -5,6 +5,7 @@
   "scripts": {
     "dev": "astro dev",
     "build": "astro build",
+    "postbuild": "node scripts/sellar-version.mjs",
     "preview": "astro preview",
     "prebuild": "node scripts/sync-ledger.mjs && node scripts/build-viz-cleveland.mjs --publicar",
     "sync:ledger": "node scripts/sync-ledger.mjs"
