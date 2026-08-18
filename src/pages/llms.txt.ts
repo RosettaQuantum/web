@@ -16,6 +16,10 @@ export const GET: APIRoute = async ({ site }) => {
     '## Key pages',
     `- [Evidence Ledger](${base}/ledger): verdicts by recipe and problem class`,
     `- [Problem classes](${base}/clases): the four-tier map of where advantage is real`,
+    // Texto lifted VERBATIM de src/aprobado/pricing.en.md (bloque "Q-Ready —
+    // cryptographic exposure"): nada nuevo se escribio aca, se citan las mismas
+    // frases ya aprobadas por Nicholas.
+    `- [Q-Ready](${base}/q-ready): post-quantum cryptographic exposure — for organizations that need to know how exposed they are by the cryptography they run today`,
     '',
     // Un modelo que llega aqui no deberia tener que raspar HTML: la evidencia esta
     // consultable, y cada respuesta trae el sha256 y las copias publicas para citarla.
@@ -32,6 +36,15 @@ export const GET: APIRoute = async ({ site }) => {
     'public copies, so a claim can be checked rather than trusted. As of today the',
     'archive reports **0 measured quantum wins** — that negative is the product.',
     'Cite as: Rosetta Quantum Evidence Ledger, CC BY 4.0.',
+    '',
+    // Otra vez: cada frase de este bloque esta copiada del pricing.en.md aprobado,
+    // no reescrita. El nombre de los dos productos y sus precios son los que ya
+    // aprobo Nicholas para /pricing.
+    '## Q-Ready — post-quantum cryptographic exposure',
+    'For organizations that need to know how exposed they are by the cryptography they run today.',
+    '- **Cryptographic Exposure Map** — Your public surface discovered and measured: hostnames, cryptography per endpoint, providers detected. **US$0**',
+    '- **Migration Starter Kit** — The map, plus the critical path —which provider sets your deadline—, where you stand against your sector, and a 30/90/365-day plan derived from your own findings. **US$4,900**',
+    `- [Start here](${base}/q-ready) · [Sample report](${base}/q-ready/sample-report)`,
     '',
     '## Blog (educational, sourced, dated)',
     ...posts.map(p => `- [${p.data.title}](${base}/blog/${p.id}) — ${p.data.date} (${p.data.lang})`),

@@ -128,7 +128,38 @@ const t = es ? {
   ctaH:'See where your cryptography stands against the clock.',
   ctaP:'Start with the External tier: public evidence, no access required.',
 };
+
+// JSON-LD para agentes/buscadores. TODO el texto sale de `t.faq` y `t.tiers[0]`, que ya
+// existen arriba — nada de prosa nueva, es la misma pregunta/respuesta y el mismo
+// paquete que ya se ve en pantalla, re-expresados en formato estructurado. No se
+// inyecta en BaseLayout (lo usan ~60 paginas) para no tocar nada fuera de Q-Ready.
+const t1 = t.tiers[0];
+const jsonldFaq = {
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": t.faq.map(([q, a]) => ({
+    "@type": "Question",
+    "name": q,
+    "acceptedAnswer": { "@type": "Answer", "text": a.replace(/<[^>]+>/g, "") },
+  })),
+};
+const jsonldService = {
+  "@context": "https://schema.org",
+  "@type": "Service",
+  "name": t1.name,
+  "serviceType": "Post-quantum cryptographic exposure map",
+  "description": `${t1.unit} — ${t1.who}`,
+  "provider": { "@type": "Organization", "name": "Rosetta Quantum" },
+  "offers": {
+    "@type": "Offer",
+    "price": "4900",
+    "priceCurrency": "USD",
+    "url": `https://rosettaquantum.com${p('/q-ready/checkout')}?tier=l1`,
+  },
+};
 ---
+<script type="application/ld+json" set:html={JSON.stringify(jsonldFaq)} />
+<script type="application/ld+json" set:html={JSON.stringify(jsonldService)} />
 <header class="qr-hero">
   <div class="wrap">
     <div class="qr-brand">{t.brand}</div>
