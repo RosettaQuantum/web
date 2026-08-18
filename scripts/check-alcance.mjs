@@ -90,7 +90,7 @@ export function auditarTodo() {
   };
 
   const rieles = [...document.querySelectorAll(".rail button[data-v]")];
-  if (!rieles.length) return { ...unaPantalla(), zonas: 1 };
+  if (!rieles.length) return { ...unaPantalla(), zonas: 1, ancho: innerWidth };
   const malos = [];
   let vistos = 0, desbordaBody = false;
   for (const b of rieles) {
@@ -100,7 +100,7 @@ export function auditarTodo() {
     desbordaBody = desbordaBody || r.desbordaBody;
     malos.push(...r.malos.map(m => ({ ...m, zona: b.dataset.v })));
   }
-  return { vistos, malos, desbordaBody, zonas: rieles.length };
+  return { vistos, malos, desbordaBody, zonas: rieles.length, ancho: innerWidth };
 }
 
 // ------------------------------------------------------------------ self-test
@@ -147,8 +147,12 @@ for (const ancho of ANCHOS) {
     if (r.malos.length) problemas.push(...r.malos.map(m =>
       `«${m.texto}» en x=${m.x}..${m.derecha} de ${m.ventana}, recortado por ${m.ancestro}`));
     if (r.desbordaBody) problemas.push("el body desborda horizontalmente");
-    if (problemas.length) { fallos += problemas.length; console.log(`  FALLA ${ruta} @${ancho}px\n         ${problemas.join("\n         ")}`); }
-    else console.log(`  ok   ${ruta} @${ancho}px · ${r.vistos} elementos alcanzables en ${r.zonas} zona(s)`);
+    // La condicion declarada se compara consigo misma: pedir 375 no es obtener 375
+    // —Chrome tiene un ancho minimo de ventana— y una linea que dice «@375px» sin haberlo
+    // medido es un verde con la etiqueta equivocada.
+    if (r.ancho !== ancho) problemas.push(`pedi ${ancho} px de ancho y la pagina midio ${r.ancho}`);
+    if (problemas.length) { fallos += problemas.length; console.log(`  FALLA ${ruta} @${r.ancho}px\n         ${problemas.join("\n         ")}`); }
+    else console.log(`  ok   ${ruta} @${r.ancho}px medidos · ${r.vistos} elementos alcanzables en ${r.zonas} zona(s)`);
   }
   await c.cerrar();
 }
