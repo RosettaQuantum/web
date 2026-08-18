@@ -135,6 +135,12 @@ jobs:
       - name: Todo lo interactivo se puede tocar (375 y 1280 px)
         run: node scripts/check-alcance.mjs
 
+      # El lead de /q-ready/checkout: la fila se escribe ANTES del aviso por correo,
+      # asi que un correo caido nunca pierde el lead, y una escritura caida nunca
+      # confirma algo que no paso. Los dos casos van probados con fixtures falsas.
+      - name: El lead de Q-Ready no se pierde ni miente
+        run: node scripts/test-qready-lead.mjs
+
       # Las zonas de la consola: riel, secciones y huecos tienen que corresponderse, las
       # zonas declaradas no pueden llevar cifras escritas a mano, y el pie tiene que
       # declarar EXACTAMENTE las rutas que el codigo pide. El --self-test rompe cada una

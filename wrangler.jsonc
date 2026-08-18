@@ -17,5 +17,15 @@
   },
   "d1_databases": [
     { "binding": "DB", "database_name": "rosettaq-ledger", "database_id": "f0919403-5bd0-4842-a1d3-0954fdd47633" }
+  ],
+  // Envio nativo de correo (Cloudflare Email Routing), sin API de terceros ni secreto
+  // nuevo. Confirmado por DNS PUBLICO, sin token: el MX de rosettaquantum.com apunta a
+  // *.mx.cloudflare.net y el SPF incluye _spf.mx.cloudflare.net, o sea Email Routing ya
+  // esta activo en la zona. `destination_address` tiene que ser una direccion YA
+  // verificada en el panel de Email Routing — hello@ ya recibe correo real (memoria del
+  // proyecto: "hello@ esta verificado, la regla existe"), asi que se asume verificada;
+  // si no lo estuviera, el proximo deploy lo va a decir.
+  "send_email": [
+    { "name": "MAILER", "destination_address": "hello@rosettaquantum.com" }
   ]
 }

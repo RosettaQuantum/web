@@ -1,4 +1,5 @@
 import { manejarApi } from "./api.js";
+import { manejarQreadyLead } from "./lib/qready-lead.mjs";
 
 // Serves the static Astro build (dist/), redirects to the canonical host,
 // accepts lead submissions at POST /api/lead -> D1 `leads`, and serves
@@ -32,6 +33,18 @@ export default {
       } catch (e) {
         return json({ ok: false, error: "server error" }, 500);
       }
+    }
+
+    // El lead del formulario Enterprise de /q-ready/checkout (tier=l3). Distinto del
+    // /api/lead de arriba: campos distintos (razon social, telefono) y ademas avisa por
+    // correo. El defecto que esto reemplaza: el formulario solo hacia preventDefault y
+    // mostraba "Solicitud enviada" sin mandar nada a ningun lado — una promesa falsa a
+    // una persona real. Ver lib/qready-lead.mjs para el porque de cada decision.
+    if (url.pathname === "/api/qready-lead" && request.method === "POST") {
+      let b;
+      try { b = await request.json(); } catch (e) { return json({ ok: false, error: "bad json" }, 400); }
+      const { status, cuerpo } = await manejarQreadyLead(b, env);
+      return json(cuerpo, status);
     }
 
     // --- D1-backed Library: publish a post by INSERT, no rebuild needed ---

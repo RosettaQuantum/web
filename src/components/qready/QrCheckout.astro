@@ -30,6 +30,7 @@ const t = es ? {
   fName:'Nombre y cargo', fNamePh:'Nombre · CISO', fPhone:'Teléfono (opcional)',
   fNotes:'Contexto (opcional)', fNotesPh:'N° de dominios, nubes, marcos regulatorios…',
   l3cta:'Solicitar contacto', l3ok:'Solicitud enviada. Un partner de Rosetta le escribirá dentro de 1–2 días hábiles.',
+  l3err:'Algo falló. Reintenta o escríbenos.',
   paidBadge:'Piloto early-adopter aplicable en checkout real',
 } : {
   eye:'Rosetta Q-Ready · checkout',
@@ -58,6 +59,7 @@ const t = es ? {
   fName:'Name and role', fNamePh:'Name · CISO', fPhone:'Phone (optional)',
   fNotes:'Context (optional)', fNotesPh:'Number of domains, clouds, regulatory frameworks…',
   l3cta:'Request contact', l3ok:'Request sent. A Rosetta partner will reach out within 1–2 business days.',
+  l3err:'Something failed. Retry or email us.',
   paidBadge:'Early-adopter pilot applies at real checkout',
 };
 
@@ -113,7 +115,7 @@ const priceL2 = es ? 'USD 24.900' : 'USD 24,900';
     </form>
 
     <!-- LEAD MODE (L3) -->
-    <form class="co-grid" id="co-lead" hidden>
+    <form class="co-grid" id="co-lead" hidden data-l3ok={t.l3ok}>
       <div class="panel">
         <div class="lab">{t.l3lab}</div>
         <label for="l-legal">{t.fLegal}</label>
@@ -148,6 +150,7 @@ const priceL2 = es ? 'USD 24.900' : 'USD 24,900';
   ledel2: t.ledel2,
   l1item: t.itemL1,
   l2item: t.itemL2,
+  l3err: t.l3err,
   l1price: priceL1,
   l2price: priceL2,
 }}>
@@ -200,9 +203,34 @@ const priceL2 = es ? 'USD 24.900' : 'USD 24,900';
     e.preventDefault();
     if (!leadForm.checkValidity()) { leadForm.reportValidity(); return; }
     var leadBtn = document.getElementById('lead-btn');
+    var okMsg = document.getElementById('lead-ok');
     leadBtn.disabled = true;
     leadBtn.style.opacity = .5;
-    document.getElementById('lead-ok').hidden = false;
+    okMsg.hidden = true;
+    // La confirmacion se deriva del resultado real de /api/qready-lead: nunca se
+    // muestra "enviado" antes de saber que el lead quedo escrito. Antes este handler
+    // no mandaba nada a ningun lado y mostraba la misma frase siempre.
+    var data = Object.fromEntries(new FormData(leadForm).entries());
+    data.lang = es ? 'es' : 'en';
+    data.tier = 'l3';
+    fetch('/api/qready-lead', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) })
+      .then(function(r){ return r.json().then(function(j){ return { ok: r.ok && !!j.ok }; }); })
+      .catch(function(){ return { ok: false }; })
+      .then(function(res){
+        if (res.ok) {
+          okMsg.style.color = 'var(--faience)';
+          okMsg.textContent = leadForm.dataset.l3ok;
+          okMsg.hidden = false;
+          leadForm.reset();
+          // el boton se queda deshabilitado: es una solicitud, no un formulario reusable
+        } else {
+          okMsg.style.color = '#E0895E';
+          okMsg.textContent = l3err;
+          okMsg.hidden = false;
+          leadBtn.disabled = false;
+          leadBtn.style.opacity = '';
+        }
+      });
   });
 })();
 </script>
