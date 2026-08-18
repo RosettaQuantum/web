@@ -1,0 +1,72 @@
+# Mantenimiento manual: borra las filas de prueba de qready_leads.
+#
+# POR QUE ES UN WORKFLOW APARTE Y NO UN ENDPOINT
+# -----------------------------------------------
+# No hay endpoint de borrado en produccion. Exponer un DELETE en /api/*, aunque fuera
+# atras de un token, es superficie publica nueva sobre una tabla que hoy solo tiene
+# datos de prueba. Este workflow SOLO corre por workflow_dispatch (nunca en push) y usa
+# el mismo CLOUDFLARE_API_TOKEN de deploy.yml, que ya tiene D1:Edit — no hace falta
+# ningun secreto nuevo.
+#
+# ALCANCE, A PROPOSITO ESTRECHO: solo borra filas cuyo `legal` empiece con "[PRUEBA".
+# Un cliente real nunca escribe eso como razon social, asi que no hay forma de que
+# esto alcance un lead de verdad por accidente.
+name: Mantenimiento — limpiar leads de prueba de Q-Ready
+on:
+  workflow_dispatch:
+    inputs:
+      confirmar:
+        description: 'Escribe exactamente: SI-BORRAR-PRUEBAS'
+        required: true
+
+jobs:
+  limpiar:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22, cache: npm }
+      - run: npm ci
+      - name: Verificar la frase de confirmacion
+        run: |
+          if [ "${{ github.event.inputs.confirmar }}" != "SI-BORRAR-PRUEBAS" ]; then
+            echo "::error::confirmar debe ser exactamente SI-BORRAR-PRUEBAS, no un dispatch por error"
+            exit 1
+          fi
+      - name: Contar antes (denominador)
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          npx wrangler d1 execute rosettaq-ledger --remote --json \
+            --command "SELECT count(*) n_prueba FROM qready_leads WHERE legal LIKE '[PRUEBA%'" \
+            | tee antes.json
+          npx wrangler d1 execute rosettaq-ledger --remote --json \
+            --command "SELECT count(*) n_total FROM qready_leads" \
+            | tee total-antes.json
+      - name: Borrar SOLO legal LIKE '[PRUEBA%'
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          npx wrangler d1 execute rosettaq-ledger --remote --json \
+            --command "DELETE FROM qready_leads WHERE legal LIKE '[PRUEBA%'"
+      - name: Contar despues — 0 de prueba, total intacto salvo las borradas
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          npx wrangler d1 execute rosettaq-ledger --remote --json \
+            --command "SELECT count(*) n_prueba FROM qready_leads WHERE legal LIKE '[PRUEBA%'" \
+            | tee despues.json
+          npx wrangler d1 execute rosettaq-ledger --remote --json \
+            --command "SELECT count(*) n_total FROM qready_leads" \
+            | tee total-despues.json
+          echo "::notice::antes de prueba=$(cat antes.json | grep -o '\"n_prueba\":[0-9]*') total=$(cat total-antes.json | grep -o '\"n_total\":[0-9]*')"
+          echo "::notice::despues de prueba=$(cat despues.json | grep -o '\"n_prueba\":[0-9]*') total=$(cat total-despues.json | grep -o '\"n_total\":[0-9]*')"
+          if grep -q '"n_prueba":0' despues.json; then
+            echo "::notice::limpieza confirmada: 0 filas [PRUEBA restantes"
+          else
+            echo "::error::quedaron filas [PRUEBA sin borrar"
+            exit 1
+          fi

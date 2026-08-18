@@ -7,7 +7,7 @@
  * test-usage.mjs (baseOk/baseRota/baseRotaAlCorrer) — para no depender de D1 ni de
  * "cloudflare:email", que no existe fuera del runtime de Workers.
  */
-import { manejarQreadyLead, validar, CREAR_TABLA } from "../lib/qready-lead.mjs";
+import { manejarQreadyLead, validar, CREAR_TABLA, construirCorreo } from "../lib/qready-lead.mjs";
 
 let ok = 0, mal = 0;
 const prueba = (n, c, d = "") => c ? (ok++, console.log(`  ok   ${n}`))
@@ -91,6 +91,38 @@ prueba("acepta el caso valido", validar(LEAD_OK) === null);
 }
 
 prueba("CREAR_TABLA menciona las columnas de aviso", /emailed/.test(CREAR_TABLA) && /email_error/.test(CREAR_TABLA));
+
+// --------------------------------------------------------------- Reply-To
+// El pedido: que Nicholas pueda responderle al prospecto con un clic desde Gmail.
+{
+  const correo = construirCorreo({ ...LEAD_OK, id: 9, tier: "l3" });
+  prueba("el correo lleva Reply-To con el email del lead",
+    correo.includes("Reply-To: jane@acme.com"), correo.slice(0, 200));
+}
+
+// El caso que importa: un lead no puede inyectar cabeceras nuevas via email/legal/notas.
+// Vector real: \r\nBcc: ... en un campo que se interpola en Subject o Reply-To.
+{
+  const malo = { ...LEAD_OK, id: 10, legal: "Acme\r\nBcc: atacante@evil.com",
+    email: "jane@acme.com\r\nBcc: atacante@evil.com" };
+  const correo = construirCorreo(malo);
+  // El limite que importa es la linea en blanco: lo que va ANTES son cabeceras de
+  // verdad, lo que va DESPUES es cuerpo de texto plano. Un "Bcc:" dentro del CUERPO
+  // no es una cabecera — un cliente de correo lo muestra como texto, no lo obedece.
+  // Mi primera version de esta prueba partia el correo ENTERO y encontraba el "Bcc:"
+  // que el cuerpo (sin sanear, y esta bien que no lo este) arrastraba del input —
+  // gritaba contra algo que no era el defecto que queria probar.
+  const [cabeceras] = correo.split("\r\n\r\n");
+  const lineasCabecera = cabeceras.split("\r\n");
+  const conBcc = lineasCabecera.filter(l => /^Bcc:/i.test(l));
+  prueba("un \\r\\n en legal o email NO agrega una cabecera Bcc de verdad",
+    conBcc.length === 0, JSON.stringify(lineasCabecera));
+  prueba("las cabeceras siguen siendo exactamente 4 lineas, ni una de mas",
+    lineasCabecera.length === 5, JSON.stringify(lineasCabecera));
+  prueba("el email inyectado queda neutralizado en una sola linea de Reply-To",
+    /^Reply-To: jane@acme\.com Bcc: atacante@evil\.com$/m.test(correo), correo.split("\r\n").find(l=>l.startsWith("Reply-To")));
+}
+
 
 console.log(`\n${ok} pasaron, ${mal} fallaron`);
 process.exit(mal ? 1 : 0);
