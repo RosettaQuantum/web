@@ -32,6 +32,7 @@ const t = es ? {
     ['0 %','Sus hosts con híbrido',`contra ${PARES.hibridoSector} % del sector`],
   ],
   absPos:'Dónde queda', absAcc:'Las tres cosas que haría primero',
+  absReal:'La empresa de este ejemplo es ficticia. Las cifras del sector contra las que se compara NO lo son: salen del estudio de agosto de 2026 sobre 220 organizaciones chilenas, y son las mismas que publica el informe mensual.',
   top5:'Top 5 hallazgos',
   findings:[
     ['Critical','0% de los hosts negocian ML-KEM híbrido; todo el key exchange es clásico (X25519/ECDHE).'],
@@ -140,6 +141,7 @@ const t = es ? {
     ['0 %','Your hosts with hybrid',`against ${PARES.hibridoSector} % of the sector`],
   ],
   absPos:'Where this lands', absAcc:'The first three things to do',
+  absReal:'The company in this example is fictional. The sector figures it is compared against are NOT: they come from the August 2026 study of 220 Chilean organizations, and are the same ones published in the monthly report.',
   top5:'Top 5 findings',
   findings:[
     ['Critical','0% of hosts negotiate hybrid ML-KEM; all key exchange is classical (X25519/ECDHE).'],
@@ -286,6 +288,7 @@ const sevClass = (s) => s.toLowerCase();
           <span><i class="sw med"></i>{es?`Mediana de ${PARES.sector.toLowerCase()}`:`${PARES.sector} median`} · {PARES.mediana}</span>
           <span><i class="sw band"></i>{es?'Mitad central del sector':'Sector middle half'} · {PARES.p25}–{PARES.p75}</span>
         </div>
+        <p class="rep-note"><strong>{t.absReal}</strong></p>
         <p class="rep-note">{es
           ? `Su puntaje queda por debajo del mínimo que medimos en la banca chilena (${PARES.min}). De las ${PARES.n} organizaciones de banca con índice calculado, ninguna está tan abajo. En soporte de intercambio híbrido, el sector va en ${PARES.hibridoSector} % (n = ${PARES.hibridoN}) y usted en 0 %.`
           : `Your score falls below the minimum we measured in Chilean banking (${PARES.min}). Of the ${PARES.n} banking organizations with a computed index, none sits this low. On hybrid key exchange support the sector runs at ${PARES.hibridoSector} % (n = ${PARES.hibridoN}); you are at 0 %.`}</p>
