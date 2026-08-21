@@ -11,20 +11,6 @@ const v3 = (hex) => new THREE.Vector3(((hex>>16)&255)/255, ((hex>>8)&255)/255, (
 // Mismo dato y misma cámara en las cuatro. Lo que cambia es material, paleta y pase.
 const LOOKS = [
   {
-    // La combinación que eligió Nicholas: el fondo de TINTA con el dibujo de CRISTAL.
-    // Sobre papel, el vidrio se lee por especular y contorno, no por resplandor:
-    // el bloom baja casi a cero y sube el umbral, si no el crema se lava entero.
-    id: 'oro', rot: 'VIDRIO SOBRE PAPEL', sub: 'la combinación: fondo de tinta, dibujo de cristal',
-    paleta: [0x1f7fd0, 0xff2d9b, 0xf2ece0],
-    fondoAlto: 0xf6f1e7, fondoBajo: 0xe4dac8, niebla: 0xeee7d9,
-    exposicion: 1.62, bloomF: 0.28, bloomU: 0.86, contorno: 0.95, tinta: 0x16304a,
-    gradSombra: 0x11304f, gradLuz: 0xfffaf0, gradMezcla: 0.20, vineta: 0.18, grano: 0.030,
-    lavado: 0.30,
-    rampa: [0xdfe9ec, 0x3bb4e2, 0x11418f], acento: 0xff2d9b,
-    material: (c) => new THREE.MeshStandardMaterial({ color: c, metalness: 0.30, roughness: 0.16, emissive: 0x0b1c3a, emissiveIntensity: 0.28 }),
-    luces: [[0xffffff, 2.6, 1, 1.25, 1.1], [0x9fd8ff, 1.1, -1.2, -0.5, -0.9], [0xffd0e8, 0.6, 0.2, -1, 0.6]], ambiente: 1.05,
-  },
-  {
     id: 'cristal', rot: 'CRISTAL', sub: 'interferencia · vidrio y luz interior',
     paleta: [0x35e8ff, 0xff4fd8, 0x120a26],
     fondoAlto: 0x1b1038, fondoBajo: 0x05030e, niebla: 0x0d0722,
@@ -290,7 +276,7 @@ function reparto() {
     const l = LOOKS.find(x => x.id === estado.solo) || LOOKS[0];
     return [{ look: l, x: 0, yArriba: 0, an: w, al: h, uv: [0, 0, 1, 1] }];
   }
-  const cols = 3, filas = Math.ceil(LOOKS.length / cols);
+  const cols = LOOKS.length <= 4 ? 2 : 3, filas = Math.ceil(LOOKS.length / cols);
   return LOOKS.map((l, i) => {
     const c = i % cols, f = Math.floor(i / cols);
     const an = w/cols, al = h/filas;
