@@ -131,3 +131,15 @@ footer{border-top:1px solid var(--stone-line);padding:44px 0 40px;margin-top:36p
   .hero{padding:44px 0 22px}
   section{padding:28px 0}
 }
+
+/* ── Erratas: "nos auditamos a nosotros mismos" ── */
+#erratas-sec{border-top:1px solid var(--stone-line)}
+.errH{font-family:'Marcellus',serif;font-weight:400;font-size:clamp(22px,3vw,30px);color:var(--papyrus)}
+.err-list{margin-top:22px;display:flex;flex-direction:column;gap:12px}
+.err-list .nota{font-family:'IBM Plex Mono',monospace;font-size:13px;color:var(--papyrus-dim)}
+.err-card{border:1px solid var(--stone-line);border-radius:4px;padding:18px 20px;background:var(--basalt-2)}
+.err-meta{font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--gold);letter-spacing:.04em}
+.err-nota{margin-top:8px;font-size:15px;color:var(--papyrus-dim);line-height:1.5}
+.err-links{margin-top:12px;font-family:'IBM Plex Mono',monospace;font-size:12.5px}
+.err-links a{color:var(--faience)}
+.err-links a:hover{text-decoration:underline}

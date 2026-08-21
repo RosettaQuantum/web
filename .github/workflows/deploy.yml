@@ -117,6 +117,11 @@ jobs:
       - name: Self-test de los comparadores de la especificacion
         run: node scripts/check-openapi.mjs --self-test
 
+      # estado_medido reportaba 4 de las 8 categorias que run_archives ya contaba
+      # (MANIFEST/PREDICTION/REPORT/ERRATA invisibles); publicado e invisible otra vez.
+      - name: Self-test de /v1/state completo y de las erratas
+        run: node scripts/check-estado-completo.mjs --self-test
+
       # El sello de version va en TODA pagina servida, no solo en las de Astro: la consola
       # y las dos caras de Cleveland son HTML plano y nunca pasan por el layout, asi que
       # esperar su 200 no distinguia lo viejo de lo nuevo. El postbuild lo estampa y falla
@@ -192,3 +197,8 @@ jobs:
         env:
           GITHUB_SHA: ${{ github.sha }}
         run: node scripts/check-openapi.mjs --esperar 120
+
+      # Las 8 categorias contra produccion, y la promesa central de una errata: que el
+      # sello original que corrige siga respondiendo 200, no solo que la errata exista.
+      - name: /v1/state completo y las erratas contra produccion
+        run: node scripts/check-estado-completo.mjs --esperar

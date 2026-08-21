@@ -15,7 +15,10 @@ const t = es ? {
   inst:'Instancia', qside:'Lado cuántico', cchamp:'Campeón clásico', seed:'Semilla',
   nb:'Descargar notebook reproducible — pronto',
   st:{ 'pending':'pendiente','measuring':'midiendo…','in test':'en test','queued':'en cola','verified':'verificado','negative':'negativo' },
-  out:{ 'not yet':'todavía no','win':'gana','negative':'negativo' }
+  out:{ 'not yet':'todavía no','win':'gana','negative':'negativo' },
+  errH:'Nos auditamos a nosotros mismos', errLede:'Un sello publicado nunca se reescribe. Cuando encontramos un error propio, publicamos la corrección como un archivo nuevo que cita al original por su hash — el original queda intacto y consultable.',
+  errCargando:'leyendo /v1/erratas…', errVacio:'sin erratas publicadas todavía',
+  errCorrige:'Corrige', errOriginal:'sello original', errVer:'ver la corrección ↗',
 } : {
   eyebrow:'The evidence ledger', h1:'Every verdict, with the raw proof.',
   lede:"The public record of Rosetta's verdicts: per recipe and problem class, whether quantum beat the best classical solver, at what size, with reproducible evidence.",
@@ -29,7 +32,10 @@ const t = es ? {
   inst:'Instance', qside:'Quantum side', cchamp:'Classical champion', seed:'Seed',
   nb:'Download reproducible notebook — coming soon',
   st:{ 'pending':'pending','measuring':'measuring…','in test':'in test','queued':'queued','verified':'verified','negative':'negative' },
-  out:{ 'not yet':'not yet','win':'win','negative':'negative' }
+  out:{ 'not yet':'not yet','win':'win','negative':'negative' },
+  errH:'We audit ourselves', errLede:"A published seal is never rewritten. When we find our own error, we publish the correction as a new file that cites the original by its hash — the original stays intact and checkable.",
+  errCargando:'reading /v1/erratas…', errVacio:'no errata published yet',
+  errCorrige:'Corrects', errOriginal:'original seal', errVer:'view the correction ↗',
 };
 // The "illustrative preview" tag only belongs on the page while NOTHING on it is
 // measured. The moment a single recipe carries sealed experiments, the tag becomes
@@ -128,6 +134,41 @@ const cls = (r) => es ? r.class_es : r.class_en;
     ))}
   </div>
 </section>
+
+<section id="erratas-sec">
+  <div class="wrap">
+    <h2 class="errH">{t.errH}</h2>
+    <p class="lede">{t.errLede}</p>
+    <div id="erratas-list" class="err-list" data-cargando={t.errCargando} data-vacio={t.errVacio}
+      data-corrige={t.errCorrige} data-original={t.errOriginal} data-ver={t.errVer}>
+      <div class="nota">{t.errCargando}</div>
+    </div>
+  </div>
+</section>
+
+<script is:inline>
+  (function () {
+    var box = document.getElementById('erratas-list');
+    if (!box) return;
+    var d = box.dataset;
+    fetch('/v1/erratas').then(function (r) { return r.json(); }).then(function (data) {
+      var items = (data.items || []).filter(function (x) { return x.errata; });
+      if (!items.length) { box.innerHTML = '<div class="nota">' + d.vacio + '</div>'; return; }
+      box.innerHTML = items.map(function (e) {
+        var origHref = '/v1/archive/' + encodeURIComponent(e.errata.corrige_id || '');
+        var verHref = '/v1/archive/' + encodeURIComponent(e.id);
+        return '<div class="err-card">' +
+          '<div class="err-meta">' + e.id + ' · ' + (e.fecha || '').slice(0, 10) + '</div>' +
+          '<div class="err-nota">' + (e.errata.afirmacion_corregida || e.errata.nota || '') + '</div>' +
+          '<div class="err-links">' +
+            '<a href="' + origHref + '" target="_blank" rel="noopener">' + d.original + ': ' + (e.errata.corrige_id || '') + '</a>' +
+            ' · <a href="' + verHref + '" target="_blank" rel="noopener">' + d.ver + '</a>' +
+          '</div>' +
+        '</div>';
+      }).join('');
+    }).catch(function () { box.innerHTML = '<div class="nota">' + d.vacio + '</div>'; });
+  })();
+</script>
 
 <script is:inline>
   document.querySelectorAll('#filters .fl').forEach(function(b){
