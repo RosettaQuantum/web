@@ -79,5 +79,57 @@ for (const [k, v] of Object.entries(esperado)) {
   }
 }
 
+// --- Todo desglose suma su total (agregado 2026-08-20) ---
+// Hermano del guardia del score. Nace de un defecto real: el informe publicaba
+// `certificados_detalle = {rsa2048:128, ecdsa_p256:48, rsa_mayor:10, total:187}`
+// y 128+48+10 = 186. Un lector tecnico suma tres numeros en diez segundos, y lo
+// hacia en la dimension que pesa 40 %.
+//
+// Recorre la edicion entera buscando cualquier objeto que declare un `total` y
+// tenga al lado partes sumables. No hay lista de casos: lo que se agregue
+// manana queda cubierto solo.
+function partes(o) {
+  // (a) un array de partes con n
+  for (const k of ['distribucion', 'desglose', 'partes', 'tramos']) {
+    const a = o[k];
+    if (Array.isArray(a) && a.length && a.every((x) => x && typeof x.n === 'number'))
+      return { via: k, suma: a.reduce((s, x) => s + x.n, 0) };
+  }
+  // (b) hermanos numericos del propio total.
+  //
+  // Preciso a proposito: un falso positivo retiene trabajo bueno, que es peor
+  // que dejar pasar un caso. La primera version tomaba `soporta` y `pct` del
+  // desglose de CDN como si fueran partes de `total` y gritaba siete veces
+  // sobre datos correctos.
+  //
+  // Tres condiciones, y las tres hacen falta:
+  //   - se descartan las claves que nunca son una parte (porcentajes, pesos)
+  //   - tienen que quedar AL MENOS DOS hermanos: con uno solo no hay desglose
+  //     que verificar, es un subconjunto (soporta 12 de 12)
+  //   - ninguna parte puede exceder el total
+  const NO_ES_PARTE = /^(pct|porcentaje|peso|pos|orden|version|anio|ano|year)$/i;
+  const nums = Object.entries(o).filter(([k, v]) =>
+    k !== 'total' && typeof v === 'number' && Number.isInteger(v) && !NO_ES_PARTE.test(k));
+  if (nums.length >= 2 && nums.every(([, v]) => v <= o.total))
+    return { via: nums.map(([k]) => k).join(' + '), suma: nums.reduce((s, [, v]) => s + v, 0) };
+  return null;
+}
+function recorrer(o, ruta) {
+  if (!o || typeof o !== 'object') return;
+  if (Array.isArray(o)) return o.forEach((x, i) => recorrer(x, `${ruta}[${i}]`));
+  if (typeof o.total === 'number') {
+    const p = partes(o);
+    if (!p) console.log(`  — ${ruta.padEnd(34)} declara total ${o.total} y no tiene partes sumables`);
+    else if (p.suma !== o.total) {
+      console.log(`  ✗ ${ruta.padEnd(34)} total ${o.total} · sus partes (${p.via}) suman ${p.suma}`);
+      fallas++;
+    } else console.log(`  ✓ ${ruta.padEnd(34)} total ${o.total} = suma de sus partes`);
+  }
+  for (const [k, v] of Object.entries(o)) recorrer(v, ruta ? `${ruta}.${k}` : k);
+}
+console.log('\ndesgloses que declaran un total:');
+recorrer(edicion, '');
+
+
 console.log(`\n${cubiertos} recomputados · ${saltados} sin cobertura · ${fallas} fallas`);
 if (fallas) process.exit(1);

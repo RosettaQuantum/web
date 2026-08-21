@@ -592,7 +592,9 @@
     "indice": 71,
     "cert": 75,
     "higiene": 60,
-    "edge": 100
+    "edge": 100,
+    "cert_n": 15,
+    "cert_iguales": 15
    },
    {
     "n": "Retail",
@@ -601,7 +603,9 @@
     "indice": 71,
     "cert": 75,
     "higiene": 60,
-    "edge": 100
+    "edge": 100,
+    "cert_n": 14,
+    "cert_iguales": 14
    },
    {
     "n": "Educación superior",
@@ -610,7 +614,9 @@
     "indice": 62,
     "cert": 75,
     "higiene": 50,
-    "edge": 100
+    "edge": 100,
+    "cert_n": 15,
+    "cert_iguales": 15
    },
    {
     "n": "Minería",
@@ -619,7 +625,9 @@
     "indice": 62,
     "cert": 75,
     "higiene": 60,
-    "edge": 0
+    "edge": 0,
+    "cert_n": 11,
+    "cert_iguales": 8
    },
    {
     "n": "Seguros",
@@ -628,7 +636,9 @@
     "indice": 58,
     "cert": 75,
     "higiene": 60,
-    "edge": 100
+    "edge": 100,
+    "cert_n": 16,
+    "cert_iguales": 14
    },
    {
     "n": "Previsión",
@@ -637,7 +647,9 @@
     "indice": 56,
     "cert": 75,
     "higiene": 60,
-    "edge": 100
+    "edge": 100,
+    "cert_n": 17,
+    "cert_iguales": 14
    },
    {
     "n": "Energía y utilities",
@@ -646,7 +658,9 @@
     "indice": 56,
     "cert": 75,
     "higiene": 60,
-    "edge": 100
+    "edge": 100,
+    "cert_n": 19,
+    "cert_iguales": 18
    },
    {
     "n": "Banca",
@@ -655,7 +669,9 @@
     "indice": 57,
     "cert": 75,
     "higiene": 55,
-    "edge": 100
+    "edge": 100,
+    "cert_n": 12,
+    "cert_iguales": 12
    },
    {
     "n": "Telecomunicaciones",
@@ -664,7 +680,9 @@
     "indice": 51,
     "cert": 75,
     "higiene": 60,
-    "edge": 0
+    "edge": 0,
+    "cert_n": 10,
+    "cert_iguales": 10
    },
    {
     "n": "Clínicas",
@@ -673,7 +691,9 @@
     "indice": 50,
     "cert": 75,
     "higiene": 60,
-    "edge": 0
+    "edge": 0,
+    "cert_n": 17,
+    "cert_iguales": 17
    },
    {
     "n": "Isapres",
@@ -682,7 +702,9 @@
     "indice": 50,
     "cert": 75,
     "higiene": 60,
-    "edge": 0
+    "edge": 0,
+    "cert_n": 9,
+    "cert_iguales": 8
    },
    {
     "n": "Gobierno",
@@ -691,7 +713,9 @@
     "indice": 48,
     "cert": 75,
     "higiene": 60,
-    "edge": 0
+    "edge": 0,
+    "cert_n": 15,
+    "cert_iguales": 14
    }
   ],
   "hallazgo_cert": {
@@ -704,11 +728,22 @@
    "Perímetro migrado": 23
   },
   "certificados_detalle": {
-   "rsa2048": 128,
-   "ecdsa_p256": 48,
-   "rsa_mayor": 10,
-   "total": 187,
-   "pct_parametros_deprecados": 94
+   "recomputable_desde": "indice-agosto-2026.json · dimensión certificados",
+   "distribucion": [
+    {
+     "valor": 75,
+     "n": 159,
+     "pct": 94
+    },
+    {
+     "valor": 100,
+     "n": 11,
+     "pct": 6
+    }
+   ],
+   "total": 170,
+   "pct_valor_dominante": 94,
+   "sin_archivar": "El desglose por algoritmo y tamaño de clave no está archivado: en el corpus no existe ningún dato de certificado por organización. La versión anterior de este bloque publicaba 128 + 48 + 10 sobre un total de 187 — tres partes que suman 186. Se retira hasta volver a medir y guardar el artefacto crudo."
   },
   "discriminacion": {
    "dims": [
@@ -835,5 +870,11 @@
   ],
   "discrepancia": 0,
   "leccion": "Nuestra primera medición fue la tercera pregunta y la publicamos como si fuera la primera. Akamai Enhanced TLS aparecía en 0 % cuando está en 100 %."
+ },
+ "prosa": {
+  "mas30_pct": 60,
+  "profundos_pct": 83,
+  "sin_hibrido_pct": 35,
+  "base": 170
  }
 }

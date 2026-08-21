@@ -225,7 +225,7 @@ const SECCIONES = [
             </div>
           ))}
         </div>
-        <p class="src">El 58% tiene más de 30 nombres de host públicos. El 82% tiene subdominios de tercer o cuarto nivel.</p>
+        <p class="src">El {d.prosa.mas30_pct}% tiene más de 30 nombres de host públicos. El {d.prosa.profundos_pct}% tiene subdominios de tercer o cuarto nivel.</p>
       </div>
     </div>
   </section>
@@ -252,12 +252,12 @@ const SECCIONES = [
 
     <div class="measure">
       <h3>El número, y qué significa</h3>
-      <p>La mediana nacional del <strong>{d.indice.nombre}</strong> es <strong>{d.indice.mediana} sobre {d.indice.tope}</strong>, con todas las organizaciones medidas entre {d.indice.min} y {d.indice.max}. Ese apiñamiento es el dato más importante del informe: <strong>no hay líderes.</strong> El {d.indice.certificados_detalle.pct_parametros_deprecados}% firma con parámetros que quedan deprecados después de 2030, y esa capa no la resuelve ningún proveedor.</p>
+      <p>La mediana nacional del <strong>{d.indice.nombre}</strong> es <strong>{d.indice.mediana} de 100</strong> —con techo externo {d.indice.tope}—, con todas las organizaciones medidas entre {d.indice.min} y {d.indice.max}. Ese apiñamiento es el dato más importante del informe: <strong>no hay líderes.</strong> El {d.indice.certificados_detalle.pct_valor_dominante}% comparte exactamente el mismo puntaje en esa dimensión, y esa capa no la resuelve ningún proveedor.</p>
 
       <h3>Tres hechos medidos, no opinados</h3>
       <ul>
-        <li><strong>Casi la mitad de las grandes organizaciones chilenas no tiene protección post-cuántica en su infraestructura pública.</strong> Y de las que sí la tienen, prácticamente todas la obtuvieron como efecto secundario de su contrato de CDN.</li>
-        <li><strong>El 60% tiene ambientes de prueba o infraestructura sensible respondiendo en internet</strong>, y el 96% no tiene canal donde alguien pueda reportárselo.</li>
+        <li><strong>El {d.prosa.sin_hibrido_pct}% de las grandes organizaciones chilenas no negocia criptografía post-cuántica en su infraestructura pública.</strong> Y de las que sí la tienen, prácticamente todas la obtuvieron como efecto secundario de su contrato de CDN.</li>
+        <li><strong>El {d.titulares.find((t: any) => t.id === 'ambientes').v}% tiene ambientes de prueba respondiendo en internet y el {d.titulares.find((t: any) => t.id === 'infra').v}% infraestructura sensible</strong>, y el {d.titulares.find((t: any) => t.id === 'canal').v}% no tiene canal donde alguien pueda reportárselo.</li>
         <li><strong>Ningún proveedor de core bancario o switch de pagos tiene soporte post-cuántico comprometido públicamente.</strong> El plazo real lo define un tercero que todavía no ha dicho cuándo.</li>
       </ul>
 
@@ -387,10 +387,12 @@ const SECCIONES = [
       <p>La curva es angosta y eso <em>es</em> el hallazgo: entre el mejor y el peor hay {d.indice.max - d.indice.min} puntos, y {Math.round(100*Math.max(...Object.values(d.indice.bandas_conteo as Record<string,number>))/d.indice.n)}% de la muestra cae en una sola banda. No hay líderes ni rezagados marcados. <strong>Todo el país está en el mismo lugar.</strong></p>
     </div>
 
-    <div class="pull"><p>El {d.indice.certificados_detalle.pct_parametros_deprecados}% de las organizaciones medidas firma con parámetros que el borrador del NIST deprecia después de 2030. Nadie se diferencia porque nadie ha empezado.</p></div>
+    <div class="pull"><p>El {d.indice.certificados_detalle.pct_valor_dominante}% de las organizaciones medidas obtiene el mismo puntaje en la dimensión que más pesa. Nadie se diferencia porque nadie ha empezado.</p></div>
 
     <div class="measure">
-      <p>La dimensión de mayor peso —certificados, {d.indice.dimensiones[0].peso}%— resulta <strong>prácticamente constante</strong>: el {d.indice.hallazgo_cert.constante_pct}% de la muestra obtiene el mismo valor. De {d.indice.certificados_detalle.total} certificados leídos, {d.indice.certificados_detalle.rsa2048} son RSA-2048 y {d.indice.certificados_detalle.ecdsa_p256} son ECDSA sobre curva P-256. Solo {d.indice.certificados_detalle.rsa_mayor} usan parámetros mayores.</p>
+      <p>La dimensión de mayor peso —certificados, {d.indice.dimensiones[0].peso}%— resulta <strong>prácticamente constante</strong>: {d.indice.certificados_detalle.distribucion[0].n} de {d.indice.certificados_detalle.total} organizaciones obtienen el mismo valor, el {d.indice.certificados_detalle.pct_valor_dominante}% de la muestra. Sólo {d.indice.certificados_detalle.distribucion[1].n} se separan.</p>
+
+      <p class="src"><strong>Lo que no publicamos, y por qué.</strong> {d.indice.certificados_detalle.sin_archivar}</p>
       <p>Eso importa por una razón que separa esta dimensión de todas las demás: <strong>el certificado lo emite y lo gestiona la organización.</strong> No hay proveedor de infraestructura que lo resuelva por contrato, como sí ocurre con el intercambio de claves en el borde.</p>
     </div>
 
@@ -434,7 +436,7 @@ const SECCIONES = [
               <tr>
                 <td>{v.n}</td><td class="num">{v.norg}</td>
                 <td class="num"><strong>{v.indice}</strong></td>
-                <td class="num">{v.cert}</td><td class="num">{v.higiene}</td><td class="num">{v.edge}</td>
+                <td class="num">{v.cert}<br /><span class="mono" style="font-size:10.5px;opacity:.6">{v.cert_iguales}/{v.cert_n}</span></td><td class="num">{v.higiene}</td><td class="num">{v.edge}</td>
                 <td><span class={`chip ${v.indice>=70?'ok':v.indice>=50?'warn':'crit'}`}>{banda(v.indice).n}</span></td>
               </tr>
             ))}
