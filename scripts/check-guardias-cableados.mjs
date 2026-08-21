@@ -11,6 +11,13 @@
  *
  * Punto ciego declarado: comprueba que el guardia este NOMBRADO en un script de
  * npm. No comprueba que ese script corra en CI, ni que alguien mire su salida.
+ *
+ * Y NO distingue guardias de build de auditorias de produccion, que es una
+ * diferencia que ya costo dos veces: check-alcance y check-openapi miden el sitio
+ * VIVO (`BASE = https://rosettaquantum.com`). Cableados en prebuild hacen fallar
+ * el build por el estado de produccion -- o por el trabajo de otra rama que si
+ * esta desplegada y esta no conoce. Van en `npm run check:prod`, despues de
+ * desplegar. Antes de cablear un guardia nuevo: mirar si tiene un BASE.
  */
 import { readFileSync, readdirSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';

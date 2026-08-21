@@ -2,7 +2,9 @@
 const { lang = 'en' } = Astro.props;
 const es = lang === 'es';
 const p = (path) => es ? `/es${path}` : path;
-import { PESOS, ORDEN, score, banda, leyenda } from '../../lib/qex.js';
+import { PESOS, ORDEN, BANDAS, score, banda, leyenda } from '../../lib/qex.js';
+import { GRUPOS, ACCION, TRAMPAS, JURISDICCIONES } from '../../lib/qready-proveedores.js';
+const JUR = JURISDICCIONES.cl;
 
 /* Dimensiones medidas de la empresa de ejemplo. El score NO se escribe a mano:
    sale de estos valores con la ponderacion canonica (src/lib/qex.js). */
@@ -16,6 +18,28 @@ const VALORES = { cert: 40, higiene: 52, hndl: 15, edge: 40 };
 const SCORE = score(VALORES);
 const B = banda(SCORE);
 const R = 92, C = 2 * Math.PI * R, dash = (SCORE/100)*C;
+
+/* ---------- «El Runway»: un grafico, tres preguntas ----------
+   Donde esta la organizacion (el punto), contra su sector (la banda), y cuanto
+   tiempo antes de que el riesgo sea probable (las zonas de fondo, del GRI).
+   Nada decorativo: cada elemento es un dato del informe.
+
+   NO lleva linea de trayectoria proyectada a proposito -- no existe un modelo que
+   calcule que puntaje resulta de ejecutar el roadmap, y dibujarla seria inventar
+   un dato. La ausencia de esa linea es una decision, no un olvido. */
+const RW = { x0: 150, x1: 880, y0: 30, y1: 350, anios: 15 };
+const rwY = (v: number) => RW.y1 - (v / 100) * (RW.y1 - RW.y0);
+const rwX = (a: number) => RW.x0 + (a / RW.anios) * (RW.x1 - RW.x0);
+/* Zonas de probabilidad del Global Risk Institute. El ano se convierte a distancia
+   desde hoy, asi que la edicion del proximo mes las desplaza sola. */
+const HOY = 2026;
+const ZONAS = [
+  { a: 2030, es: '2030 · GRI: ≥1 en 4', en: '2030 · GRI: ≥1 in 4', op: .06 },
+  { a: 2035, es: '2035 · GRI: ≥1 en 2', en: '2035 · GRI: ≥1 in 2', op: .11 },
+  { a: 2041, es: '~2041 · 51–70 %',     en: '~2041 · 51–70 %',     op: .17 },
+];
+const BANDAS_RW = [...BANDAS].reverse();
+
 
 /* Comparacion con pares. Sale del estudio nacional de agosto de 2026
    (cortes-por-sector-2026-08.json), no de una estimacion. La regla n>=8 se
@@ -53,6 +77,40 @@ const t = es ? {
   s2:'Contexto · el reloj y el HNDL',
   edu:'La criptografía RSA/ECC será vulnerable a Shor en un CRQC. Los estándares de reemplazo (FIPS 203/204/205) existen desde 2024; NIST IR 8547 depreca RSA-2048/ECC en 2030 y los elimina en 2035. Bajo <b>harvest now, decrypt later</b>, el tráfico cifrado hoy puede descifrarse cuando exista un CRQC.',
   eduPie:'Este informe mide exposición criptográfica, no ventaja cuántica. Son cosas distintas: que Shor rompa RSA es un teorema demostrado; que un computador cuántico le gane a un método clásico en un problema de optimización es una pregunta empírica abierta, y no es lo que este informe responde.',
+  hndlEye:'Antes de leer el resto de este informe',
+  hndlH:'Su tráfico de hoy ya se está guardando.',
+  hndlP1:'No es una amenaza futura. Interceptar y almacenar tráfico cifrado para descifrarlo más adelante —cuando exista una máquina capaz de romperlo— es una práctica <b>activa hoy</b>, documentada conjuntamente por CISA, la NSA y NIST bajo el nombre <b>harvest now, decrypt later</b>.',
+  hndlP2:'No sabemos si el tráfico de <b>acme-bank.example</b> está siendo capturado en este momento. Lo que sí es verificable: cualquier tráfico cifrado con criptografía clásica —como el de 3 de sus 5 hosts públicos, los que no tienen ningún CDN por delante— es interceptable hoy y descifrable el día en que exista un computador cuántico criptográficamente relevante. Esa fecha no la elige usted.',
+  hndlCaveat:'No afirmamos que esta organización esté siendo cosechada — no lo sabemos. Afirmamos lo que está documentado: la práctica existe, el tráfico clásico es interceptable, y la ventana de confidencialidad corre desde hoy.',
+  hndlSeq:[
+    ['01 · HOY','Se captura','Cualquier tráfico sin híbrido post-cuántico es interceptable en este momento.'],
+    ['02','Se guarda','El costo de almacenar tráfico cifrado es bajo; la práctica está documentada.'],
+    ['03','Se descifra','El día en que exista la máquina — no antes, y no cuando usted lo decida.'],
+    ['04','Se mide','Recién aquí entra el índice de este informe: cuánto le expone su superficie hoy.'],
+  ],
+  hndlBridge:'Lo que sigue mide qué tan protegido está usted frente a este reloj — no si el reloj existe.',
+  hndlSrc:'CISA, NSA y NIST — hoja informativa conjunta de preparación cuántica, 2023.',
+  anclaA:'~10 %', anclaAL:'de los servidores de origen soportan intercambio post-cuántico',
+  anclaB:'60 %+', anclaBL:'de los navegadores ya lo ofrecen',
+  anclaNota:'El borde de la red y los navegadores ya resolvieron esto. <b>El servidor de origen —el suyo— es donde se estancó la migración.</b> Sus tres hosts sin CDN están directamente en ese 90 % que todavía no lo hace.',
+  anclaSrc:'Cloudflare Radar · Post-Quantum Encryption, 27-feb-2026.',
+  p1Tag:'Parte 1', p1H:'Lo que sí detectamos en su superficie',
+  p1Sub:'Esto no es biblioteca general: es su inventario real, cruzado contra lo que cada proveedor hace por usted.',
+  p1:[
+    ['Su borde: Cloudflare (www, online)','Cloudflare activa el intercambio híbrido por defecto, en todos sus planes y en ambos tramos. Estos dos hosts ya lo traen sin que usted haga nada; lo único que le toca es confirmar que ninguna restricción de cipher suites en su zona lo esté apagando.'],
+    ['api, legacy, mail — sin CDN','No hay ningún proveedor entre su servidor y quien mire, y por eso siguen en criptografía puramente clásica. Lo que haga o no haga Cloudflare no les aplica: su exposición depende enteramente de lo que ustedes configuren.'],
+  ],
+  p2Tag:'Parte 2', p2H:'La biblioteca de proveedores',
+  p2Sub:'Los proveedores típicos de su industria, con lo que a usted le tocaría hacer en cada caso. Cada fila con su fuente; lo no confirmado se declara así.',
+  trampasH:'Trampas de palabras — el mismo hallazgo dicho al revés',
+  regH:'Marco regulatorio', regJur:`Jurisdicción cargada: ${'Chile'} — este bloque es un módulo por país, no texto fijo.`,
+  regCols:['Norma','Qué establece','¿Exige PQC?'],
+  rwH:'Dónde está, contra quién, y cuánto tiempo le queda',
+  rwSub:'Un gráfico, tres preguntas. Su puntaje (el punto), la mitad central de su sector (la banda), y las zonas de probabilidad de que la amenaza exista (el fondo, citado al Global Risk Institute).',
+  rwYou:'Usted, hoy', rwSector:`Mitad central de ${'banca'}`, rwMed:'Mediana del sector',
+  rwHoy:'hoy', rwFin:'~15 años', rwHitos:'los primeros 12 meses de su roadmap',
+  rwCap:'<b>Sin línea de trayectoria.</b> No existe hoy un modelo que calcule qué puntaje resulta de ejecutar el roadmap, y dibujarla sería inventar un dato. La ausencia de esa línea es una decisión.',
+  rwSrc:'Zonas de tiempo: Global Risk Institute, Quantum Threat Timeline Report 2025. Banda sectorial: estudio Rosetta de agosto de 2026 sobre 220 organizaciones chilenas.',
   s2b:'Los cuatro relojes',
   relP:'La objeción razonable es «ninguna norma me obliga todavía». Es cierta, y no cambia nada: hay cuatro relojes corriendo y el del regulador es el más lento.',
   rel:[
@@ -160,6 +218,40 @@ const t = es ? {
   s2:'Context · the clock and HNDL',
   edu:'RSA/ECC will be vulnerable to Shor on a CRQC. Replacement standards (FIPS 203/204/205) have existed since 2024; NIST IR 8547 deprecates RSA-2048/ECC by 2030 and disallows them by 2035. Under <b>harvest now, decrypt later</b>, traffic encrypted today can be decrypted once a CRQC exists.',
   eduPie:'This report measures cryptographic exposure, not quantum advantage. They are different things: that Shor breaks RSA is a proven theorem; that a quantum computer beats a classical method on an optimization problem is an open empirical question, and not what this report answers.',
+  hndlEye:'Before you read the rest of this report',
+  hndlH:'Your traffic is already being stored.',
+  hndlP1:'This is not a future threat. Intercepting and storing encrypted traffic to decrypt it later —once a machine capable of breaking it exists— is an <b>active practice today</b>, jointly documented by CISA, the NSA and NIST under the name <b>harvest now, decrypt later</b>.',
+  hndlP2:'We do not know whether <b>acme-bank.example</b>’s traffic is being captured right now. What is verifiable: any traffic encrypted with classical cryptography —such as 3 of your 5 public hosts, the ones with no CDN in front— is interceptable today and decryptable the day a cryptographically relevant quantum computer exists. You do not choose that date.',
+  hndlCaveat:'We do not claim this organization is being harvested — we do not know. We claim what is documented: the practice exists, classical traffic is interceptable, and the confidentiality window runs from today.',
+  hndlSeq:[
+    ['01 · TODAY','It is captured','Any traffic without a post-quantum hybrid is interceptable right now.'],
+    ['02','It is stored','Storing encrypted traffic is cheap; the practice is documented.'],
+    ['03','It is decrypted','The day the machine exists — not before, and not when you decide.'],
+    ['04','It is measured','Only here does this report’s index come in: how much your surface exposes you today.'],
+  ],
+  hndlBridge:'What follows measures how protected you are against this clock — not whether the clock exists.',
+  hndlSrc:'CISA, NSA and NIST — joint quantum-readiness factsheet, 2023.',
+  anclaA:'~10 %', anclaAL:'of origin servers support post-quantum key exchange',
+  anclaB:'60 %+', anclaBL:'of browsers already offer it',
+  anclaNota:'The network edge and the browsers have already solved this. <b>The origin server — yours — is where the migration stalled.</b> Your three hosts without a CDN sit squarely in that 90 % that has not moved.',
+  anclaSrc:'Cloudflare Radar · Post-Quantum Encryption, 27-Feb-2026.',
+  p1Tag:'Part 1', p1H:'What we did detect on your surface',
+  p1Sub:'This is not a general library: it is your actual inventory, crossed against what each vendor does for you.',
+  p1:[
+    ['Your edge: Cloudflare (www, online)','Cloudflare enables hybrid key exchange by default, on every plan and on both legs. These two hosts already have it without you doing anything; all that is left is confirming that no restricted cipher-suite configuration in your zone is switching it off.'],
+    ['api, legacy, mail — no CDN','There is no provider between your server and anyone watching, which is why they remain fully classical. What Cloudflare does or does not do never reaches them: their exposure depends entirely on what you configure.'],
+  ],
+  p2Tag:'Part 2', p2H:'The vendor library',
+  p2Sub:'The typical vendors in your industry, with what you would have to do in each case. Every row carries its source; anything unconfirmed is declared as such.',
+  trampasH:'Word traps — the same finding stated backwards',
+  regH:'Regulatory framework', regJur:'Loaded jurisdiction: Chile — this block is a per-country module, not fixed text.',
+  regCols:['Rule','What it establishes','Requires PQC?'],
+  rwH:'Where you stand, against whom, and how much time is left',
+  rwSub:'One chart, three questions. Your score (the dot), your sector’s middle half (the band), and the probability zones for the threat existing (the background, cited to the Global Risk Institute).',
+  rwYou:'You, today', rwSector:'Sector middle half', rwMed:'Sector median',
+  rwHoy:'today', rwFin:'~15 years', rwHitos:'the first 12 months of your roadmap',
+  rwCap:'<b>No trajectory line.</b> No model exists today that computes what score results from executing the roadmap, and drawing one would be inventing data. That absence is a decision.',
+  rwSrc:'Time zones: Global Risk Institute, Quantum Threat Timeline Report 2025. Sector band: Rosetta’s August 2026 study of 220 Chilean organizations.',
   s2b:'The four clocks',
   relP:'The fair objection is “no rule obliges me yet”. It is true, and it changes nothing: four clocks are running and the regulator’s is the slowest.',
   rel:[
@@ -273,6 +365,24 @@ const sevClass = (s) => s.toLowerCase();
       </div>
     </div>
 
+    <!-- 0 · HNDL, apertura conceptual: lo primero que el lector entiende, antes del score -->
+    <div class="rep-section hndl-open">
+      <div class="eyebrow crit">{t.hndlEye}</div>
+      <h2 class="hndl-h">{t.hndlH}</h2>
+      <p class="rep-lead" set:html={t.hndlP1}></p>
+      <p class="rep-lead" set:html={t.hndlP2}></p>
+      <p class="hndl-caveat">{t.hndlCaveat}</p>
+      <div class="hndl-seq">
+        {t.hndlSeq.map(([n, h, d], i) => (
+          <div class={`st ${i === 0 ? 'now' : ''}`}>
+            <span class="n">{n}</span><h3>{h}</h3><p>{d}</p>
+          </div>
+        ))}
+      </div>
+      <p class="hndl-bridge"><b>{t.hndlBridge}</b></p>
+      <p class="rep-note">{t.hndlSrc}</p>
+    </div>
+
     <!-- 1 bis · abstract de una pagina: 3 numeros + posicion vs sector + 3 acciones -->
     <div class="rep-section abstract">
       <h3>{t.absNum}</h3>
@@ -308,6 +418,73 @@ const sevClass = (s) => s.toLowerCase();
       </ol>
     </div>
 
+    <!-- El Runway: score + sector + tiempo en un solo objeto -->
+    <div class="rep-section">
+      <h2>{t.rwH}</h2>
+      <p class="rep-lead">{t.rwSub}</p>
+      <div class="runway">
+        <svg viewBox="0 0 900 430" role="img" aria-label={t.rwH}>
+          {ZONAS.map((z, i) => {
+            const xi = rwX(i === 0 ? 0 : ZONAS[i - 1].a - HOY);
+            const xf = rwX(z.a - HOY);
+            return (
+              <g>
+                <rect x={xi} y={RW.y0} width={xf - xi} height={RW.y1 - RW.y0}
+                      fill="var(--crit)" opacity={z.op} />
+                <line x1={xf} y1={RW.y0} x2={xf} y2={RW.y1} stroke="var(--crit)"
+                      stroke-width="1" stroke-dasharray="3 4" opacity=".55" />
+                <text x={xf - 6} y={RW.y0 + 14} text-anchor="end" class="mono"
+                      font-size="11" fill="var(--crit)" opacity=".9">{es ? z.es : z.en}</text>
+              </g>
+            );
+          })}
+
+          {BANDAS_RW.map((b: any) => (
+            <g>
+              <line x1={RW.x0} y1={rwY(b.max)} x2={RW.x1} y2={rwY(b.max)}
+                    stroke="var(--stone-line)" stroke-width="1" stroke-dasharray="2 5" opacity=".6" />
+              <text x={RW.x0 - 12} y={rwY(b.max) + 13} text-anchor="end" font-size="12"
+                    fill="var(--papyrus-dim)">{b.n}</text>
+            </g>
+          ))}
+
+          {/* La banda del sector es GENUINAMENTE angosta -- banca va de 56 a 58, dos
+              puntos. No se ensancha para que se vea mejor: se le pone borde para que
+              se lea como banda, y la etiqueta dice su rango real. */}
+          <rect x={RW.x0} y={rwY(PARES.p75)} width={RW.x1 - RW.x0} height={rwY(PARES.p25) - rwY(PARES.p75)}
+                fill="var(--faience)" opacity=".18" stroke="var(--faience)" stroke-width=".75" stroke-opacity=".5" />
+          <text x={RW.x0 + 8} y={rwY(PARES.p75) - 6} class="mono" font-size="10.5"
+                fill="var(--faience)" opacity=".85">{t.rwSector} · {PARES.p25}–{PARES.p75}</text>
+          <line x1={RW.x0} y1={rwY(PARES.mediana)} x2={RW.x1} y2={rwY(PARES.mediana)}
+                stroke="var(--faience)" stroke-width="1.5" />
+          <text x={RW.x1 - 4} y={rwY(PARES.mediana) - 7} text-anchor="end" class="mono"
+                font-size="11" fill="var(--faience)">{t.rwMed} · {PARES.mediana}</text>
+
+          <line x1={RW.x0} y1={RW.y0} x2={RW.x0} y2={RW.y1} stroke="var(--papyrus-dim)" stroke-width="1" />
+          <circle cx={RW.x0} cy={rwY(SCORE)} r="7" fill="var(--crit)" />
+          <text x={RW.x0 + 16} y={rwY(SCORE) + 4} font-size="13" fill="var(--papyrus)">
+            {t.rwYou}: {SCORE}/100
+          </text>
+
+          {/* 30d, 90d y 365d ocupan 48 px de 730 en un eje de 15 anios: dibujados como
+              marcas separadas se encaraman y no se leen. Van como UN corchete con su
+              rango dicho en la etiqueta. */}
+          <g>
+            <path d={`M ${RW.x0} ${RW.y1 + 6} L ${RW.x0} ${RW.y1 + 12} L ${rwX(1)} ${RW.y1 + 12} L ${rwX(1)} ${RW.y1 + 6}`}
+                  fill="none" stroke="var(--faience)" stroke-width="1.5" />
+            <text x={rwX(1) + 8} y={RW.y1 + 16} class="mono" font-size="10.5" fill="var(--faience)">
+              {t.rwHitos}
+            </text>
+          </g>
+          <text x={RW.x0} y={RW.y1 + 40} class="mono" font-size="11" fill="var(--papyrus-dim)">{t.rwHoy} · {PARES.escaneo.slice(-10)}</text>
+          <text x={RW.x1} y={RW.y1 + 40} text-anchor="end" class="mono" font-size="11" fill="var(--papyrus-dim)">{t.rwFin}</text>
+          
+        </svg>
+      </div>
+      <p class="rep-note" set:html={t.rwCap}></p>
+      <p class="rep-note">{t.rwSrc}</p>
+    </div>
+
     <div class="rep-section">
       <h2>{t.top5}</h2>
       <ul class="top5">
@@ -337,6 +514,19 @@ const sevClass = (s) => s.toLowerCase();
         ))}
       </ul>
       <div class="honesty" style="margin-top:16px"><p><b class="gold">{t.chileH}.</b> <span set:html={t.chileP}></span></p></div>
+
+      <h3 style="margin-top:26px">{t.regH}</h3>
+      <table class="invtbl">
+        <thead><tr>{t.regCols.map((c: string) => <th>{c}</th>)}</tr></thead>
+        <tbody>{JUR.normas.map((n: any) => (
+          <tr>
+            <td>{n.n}{!n.verificado && <span class="gold" style="font-family:'IBM Plex Mono',monospace;font-size:10px"> · por verificar</span>}</td>
+            <td>{es ? n.es : n.en}</td>
+            <td><span class="ok" style="font-family:'IBM Plex Mono',monospace">{n.pqc ? (es ? 'Sí' : 'Yes') : 'No'}</span></td>
+          </tr>
+        ))}</tbody>
+      </table>
+      <p class="rep-note">{t.regJur}</p>
     </div>
 
     <!-- 3 · good -->
@@ -367,18 +557,64 @@ const sevClass = (s) => s.toLowerCase();
       </table>
     </div>
 
-    <!-- 5 bis · camino critico de proveedores -->
+    <!-- 5 bis · inteligencia de proveedores: lo detectado, la biblioteca y las trampas -->
     <div class="rep-section">
       <h2>{t.s5b}</h2>
       <p class="rep-lead">{t.provP}</p>
-      <table class="invtbl">
-        <thead><tr>{t.provCols.map(c => <th>{c}</th>)}</tr></thead>
-        <tbody>{t.prov.map(([capa, prov, est, sev, sig]) => (
-          <tr><td>{capa}</td><td>{prov}</td>
-            <td><span class={sev==='crit'?'bad':(sev==='ok'?'ok':'gold')}>{est}</span></td>
-            <td>{sig}</td></tr>
-        ))}</tbody>
-      </table>
+
+      <div class="anchor-stat">
+        <div class="half"><span class="v bad">{t.anclaA}</span><span class="l">{t.anclaAL}</span></div>
+        <div class="half"><span class="v ok">{t.anclaB}</span><span class="l">{t.anclaBL}</span></div>
+      </div>
+      <p class="rep-lead" set:html={t.anclaNota}></p>
+      <p class="rep-note">{t.anclaSrc}</p>
+
+      <div class="part-h"><span class="tag2 p1">{t.p1Tag}</span><h3>{t.p1H}</h3></div>
+      <p class="rep-lead">{t.p1Sub}</p>
+      {t.p1.map(([h, d]) => (
+        <div class="cross-box"><b>{h}</b><p>{d}</p></div>
+      ))}
+
+      <div class="part-h"><span class="tag2 p2">{t.p2Tag}</span><h3>{t.p2H}</h3></div>
+      <p class="rep-lead">{t.p2Sub}</p>
+
+      {GRUPOS.map((g: any) => (
+        <div>
+          <p class="vgroup-h">{es ? g.t.es : g.t.en}</p>
+          <table class="invtbl">
+            {g.dosTramos ? (
+              <>
+                <thead><tr>{(es ? g.cols.es : g.cols.en).map((c: string) => <th>{c}</th>)}</tr></thead>
+                <tbody>{g.dosTramos.map((r: any) => (
+                  <tr><td>{r.p}</td>
+                    <td><span class={r.sev === 'ok' ? 'ok' : r.sev === 'crit' ? 'bad' : 'gold'}>{es ? r.c.es : r.c.en}</span></td>
+                    <td><span class={r.sev === 'ok' ? 'ok' : r.sev === 'crit' ? 'bad' : 'gold'}>{es ? r.o.es : r.o.en}</span></td></tr>
+                ))}</tbody>
+              </>
+            ) : (
+              <>
+                <thead><tr><th>{es ? 'Proveedor · producto' : 'Vendor · product'}</th><th>{es ? 'Qué le toca' : 'What you must do'}</th><th>{es ? 'Detalle' : 'Detail'}</th></tr></thead>
+                <tbody>{g.filas.map((r: any) => {
+                  const a = ACCION[r.a];
+                  return (
+                    <tr><td>{r.p}</td>
+                      <td style="white-space:nowrap"><span class={a.sev === 'ok' ? 'ok' : a.sev === 'crit' ? 'bad' : 'gold'}>{es ? a.es : a.en}</span></td>
+                      <td>{es ? r.es : r.en}</td></tr>
+                  );
+                })}</tbody>
+              </>
+            )}
+          </table>
+        </div>
+      ))}
+
+      <div class="word-trap">
+        <p class="t">{t.trampasH}</p>
+        {TRAMPAS.map((x: any) => (
+          <p class="row"><b>{x.p}</b> — {es ? x.es : x.en}</p>
+        ))}
+      </div>
+
       <p class="rep-note">{t.provNota}</p>
     </div>
 
@@ -485,4 +721,65 @@ const sevClass = (s) => s.toLowerCase();
 .invtbl{display:block;overflow-x:auto;max-width:100%}
 .invtbl thead,.invtbl tbody{display:table;width:100%;min-width:340px}
 .abs-acc{margin:.4em 0 0;padding-left:1.2em} .abs-acc li{margin-bottom:.35em}
+</style>
+
+<style>
+/* Apertura HNDL: cambia la jerarquia del documento — es lo primero que el lector
+   entiende, antes del score. Por eso lleva marco propio y color de alerta. */
+.hndl-open{border:1px solid var(--crit);border-radius:6px;
+  background:linear-gradient(180deg,rgba(224,112,92,.07),rgba(224,112,92,.02));
+  padding:30px 30px 26px;margin-bottom:22px;border-top:1px solid var(--crit)}
+.hndl-open .eyebrow.crit{color:var(--crit)}
+.hndl-h{font-size:1.5rem;max-width:24ch;margin:0 0 14px}
+.hndl-caveat{font-size:.83rem;opacity:.7;font-style:italic;max-width:66ch;margin:12px 0 20px}
+.hndl-seq{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--stone-line);
+  border:1px solid var(--stone-line);border-radius:4px;overflow:hidden}
+@media(max-width:760px){.hndl-seq{grid-template-columns:1fr 1fr}}
+.hndl-seq .st{background:var(--basalt-3,#100E0B);padding:15px 14px}
+.hndl-seq .st.now{background:rgba(224,112,92,.09)}
+.hndl-seq .st .n{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--crit);letter-spacing:.08em}
+.hndl-seq .st h3{font-size:.92rem;margin:7px 0 6px}
+.hndl-seq .st p{font-size:.78rem;opacity:.8;margin:0}
+.hndl-bridge{margin-top:18px;padding-top:15px;border-top:1px dotted var(--stone-line);font-size:.88rem}
+
+/* Ancla: dos cifras enfrentadas. El borde ya resolvio esto; el origen no. */
+.anchor-stat{display:flex;border:1px solid var(--gold);border-radius:4px;overflow:hidden;margin:18px 0 14px}
+@media(max-width:620px){.anchor-stat{flex-direction:column}}
+.anchor-stat .half{flex:1;padding:18px 20px}
+.anchor-stat .half:first-child{border-right:1px solid var(--stone-line)}
+@media(max-width:620px){.anchor-stat .half:first-child{border-right:none;border-bottom:1px solid var(--stone-line)}}
+.anchor-stat .v{font-family:'Source Serif 4',Georgia,serif;font-size:2rem;display:block;line-height:1}
+.anchor-stat .l{font-family:'IBM Plex Mono',monospace;font-size:10.5px;text-transform:uppercase;
+  letter-spacing:.05em;opacity:.8;margin-top:5px;display:block;line-height:1.4}
+
+/* Parte 1 / Parte 2: separa lo detectado en SU superficie de la biblioteca general. */
+.part-h{display:flex;align-items:baseline;gap:10px;margin:28px 0 6px}
+.part-h .tag2{font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.08em;
+  text-transform:uppercase;padding:3px 8px;border-radius:2px;flex:none}
+.part-h .tag2.p1{color:var(--faience);border:1px solid var(--faience)}
+.part-h .tag2.p2{border:1px solid var(--stone-line);opacity:.75}
+.part-h h3{margin:0}
+.cross-box{border-left:2px solid var(--faience);background:rgba(77,196,181,.05);
+  padding:14px 18px;border-radius:0 4px 4px 0;margin-bottom:10px}
+.cross-box b{display:block;margin-bottom:5px}
+.cross-box p{margin:0;font-size:.87rem;opacity:.85}
+.vgroup-h{font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.1em;
+  text-transform:uppercase;color:var(--gold);margin:22px 0 8px}
+
+/* Trampas de palabras: el mismo hallazgo dicho de forma que suena a lo contrario. */
+.word-trap{border:1px dashed var(--gold);border-radius:4px;padding:16px 18px;margin-top:20px}
+.word-trap .t{font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.08em;
+  text-transform:uppercase;color:var(--gold);margin:0 0 10px}
+.word-trap .row{font-size:.84rem;opacity:.88;margin:0 0 9px}
+.word-trap .row:last-child{margin-bottom:0}
+</style>
+
+<style>
+/* El Runway. `overflow-x:auto` porque a 375 px el grafico no encoge sin volverse
+   ilegible: scrollea dentro de su caja en vez de empujar la pagina. */
+.runway{border:1px solid var(--stone-line);border-radius:6px;padding:20px 22px 14px;
+  margin-top:10px;overflow-x:auto}
+.runway svg{width:100%;min-width:640px;height:auto;display:block}
+.runway svg text{font-family:-apple-system,'Segoe UI',Roboto,sans-serif}
+.runway svg text.mono{font-family:'IBM Plex Mono',ui-monospace,monospace}
 </style>
