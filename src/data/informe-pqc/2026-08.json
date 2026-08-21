@@ -321,16 +321,64 @@
    "nota": "Disponible vía parche sobre z/OS 3.1"
   },
   {
+   "capa": "HSM · Entrust",
+   "prov": "nShield 5s / 5c",
+   "estado": "ok",
+   "nota": "Firmware v13.8+. La función post-cuántica viene activa, sin licencia aparte."
+  },
+  {
+   "capa": "HSM · Entrust",
+   "prov": "nShield Connect XC / Solo XC",
+   "estado": "warn",
+   "nota": "Firmware Y licencia PostQuantum comprada por separado — a diferencia de la línea 5."
+  },
+  {
+   "capa": "HSM · Thales",
+   "prov": "Luna 7 (firmware 7.9.0+)",
+   "estado": "ok",
+   "nota": "ML-KEM y ML-DSA nativos desde jul-2025 sobre el hardware que ya tiene."
+  },
+  {
+   "capa": "HSM · Thales",
+   "prov": "Luna 8",
+   "estado": "crit",
+   "nota": "No es actualización de firmware: es reemplazo de hardware. Es presupuesto, no un ticket."
+  },
+  {
+   "capa": "HSM · Utimaco",
+   "prov": "Quantum Protect (u.trust Se / CSe)",
+   "estado": "warn",
+   "nota": "Paquete adicional con licencia, actualizable en campo sin cambiar hardware."
+  },
+  {
+   "capa": "HSM · Utimaco",
+   "prov": "CP5 / eIDAS",
+   "estado": "crit",
+   "nota": "Sin ruta post-cuántica publicada. Si su caso es firma cualificada eIDAS, hoy no hay camino."
+  },
+  {
+   "capa": "Gestión de llaves en la nube",
+   "prov": "Azure Key Vault · Managed HSM · Cloud HSM",
+   "estado": "crit",
+   "nota": "Sin post-cuántico, sin vista previa y sin fecha anunciada."
+  },
+  {
+   "capa": "Gestión de llaves en la nube",
+   "prov": "AWS KMS",
+   "estado": "warn",
+   "nota": "Ofrece ML-DSA como tipo de llave para firmar (ML_DSA_44/65/87, desde jun-2025). NO ofrece ML-KEM como servicio de encapsulación — el híbrido de AWS está en el TLS hacia la API, que es otra capa. Y ML-KEM es justo lo que mitiga cosecha-hoy-descifra-mañana."
+  },
+  {
+   "capa": "Gestión de llaves en la nube",
+   "prov": "Google Cloud KMS",
+   "estado": "warn",
+   "nota": "Firmas post-cuánticas en disponibilidad general (jul-2026). El nivel de protección —si es sólo software o llega al HSM— queda por confirmar."
+  },
+  {
    "capa": "Base de datos",
    "prov": "Oracle Database",
    "estado": "warn",
    "nota": "Solo transporte; no cubre cifrado en reposo"
-  },
-  {
-   "capa": "HSM y gestión de claves",
-   "prov": "Thales Luna, Utimaco, Entrust",
-   "estado": "ok",
-   "nota": "Requiere firmware específico"
   },
   {
    "capa": "HSM de pagos",
@@ -896,5 +944,6 @@
     "nota": "Ocurre entre dos infraestructuras que no son públicas. Ninguna medición externa lo alcanza."
    }
   ]
- }
+ },
+ "stack_nota": "El estado de cada proveedor sale de su documentación pública, con fecha de consulta. Un «sin fecha» no significa que el fabricante no esté trabajando en ello: significa que usted no puede planificar contra nada. Esta tabla reemplaza a una fila anterior que agrupaba Thales, Utimaco y Entrust en un solo «requiere firmware específico» — cuatro de esos seis productos necesitan algo más que firmware, y uno no tiene ruta."
 }
