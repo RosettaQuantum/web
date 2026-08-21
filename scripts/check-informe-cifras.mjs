@@ -12,21 +12,62 @@
  * 'canal', 'proveedores' y 'tls13' vienen de conteos manuales y se marcan SIN COBERTURA
  * en vez de darse por buenos.
  */
-import { readFileSync } from 'node:fs';
+import { readFileSync, existsSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { dirname, resolve } from 'node:path';
 
-const raiz = resolve(dirname(fileURLToPath(import.meta.url)), '../../..');
-const leer = (p) => JSON.parse(readFileSync(resolve(raiz, p), 'utf8'));
+const aqui = dirname(fileURLToPath(import.meta.url));
+/* DOS RAICES, y confundirlas fue lo que tumbo un deploy (2026-08-21).
+ *
+ *   REPO    = la raiz del repositorio. Todo lo del sitio vive aqui y existe en
+ *             cualquier maquina, incluido CI.
+ *   PROYECTO= la carpeta del proyecto, DOS niveles arriba del repo. Ahi vive el
+ *             corpus del estudio, que NO esta versionado y no puede estarlo: trae
+ *             hallazgos por organizacion con nombre y este repositorio es publico.
+ *
+ * La version anterior calculaba una sola raiz como `../../..` desde scripts/, que
+ * en mi Mac daba la carpeta del proyecto y en CI daba /home/runner/work. Con eso
+ * buscaba hasta el JSON del propio informe fuera del repo y reventaba con ENOENT.
+ * Nunca habia corrido en CI, asi que nadie lo supo hasta que lo cablee. */
+const REPO = resolve(aqui, '..');
+const PROYECTO = resolve(REPO, '../..');
+const leer     = (p) => JSON.parse(readFileSync(resolve(REPO, p), 'utf8'));
+const leerCorp = (p) => JSON.parse(readFileSync(resolve(PROYECTO, p), 'utf8'));
 
-const edicion  = leer('Rosetta-21jul/rosetta-astro/src/data/informe-pqc/2026-08.json');
-const desc     = leer('estudio-chile-descubrimiento.json');
-const result   = leer('estudio-chile-resultados.json');
+/* EL CORPUS DEL ESTUDIO NO ESTA EN ESTE REPOSITORIO, Y NO PUEDE ESTAR.
+ *
+ * `estudio-chile-*.json`, `indice-agosto-2026.json` y `rescan-soporte-*.json`
+ * traen los hallazgos POR ORGANIZACION CON NOMBRE de 220 empresas chilenas que
+ * todavia no han sido notificadas. Este repositorio es PUBLICO. Commitearlos
+ * publicaria exactamente lo que prometimos mantener confidencial.
+ *
+ * Asi que este guardia corre de verdad donde el corpus existe --la maquina desde
+ * la que se prepara la edicion-- y en CI declara que no pudo correr. NO pasa en
+ * silencio: un chequeo que no se pudo ejercer entra al resumen, nunca a una
+ * linea de arriba. (CLAUDE.md 5 quater regla 4.)
+ *
+ * Costo de no saberlo: el deploy de CI se cayo con ENOENT y produccion se quedo
+ * sirviendo una edicion con datos simulados. (2026-08-21) */
+const CORPUS = ['estudio-chile-descubrimiento.json', 'estudio-chile-resultados.json',
+                'indice-agosto-2026.json', 'rescan-soporte-2026-08.json'];
+const faltan = CORPUS.filter((f) => !existsSync(resolve(PROYECTO, f)));
+if (faltan.length) {
+  console.log('informe · cifras: SIN CORPUS, no pude recomputar nada');
+  console.log(`  — faltan ${faltan.length} de ${CORPUS.length} archivos del estudio en esta maquina`);
+  console.log('  — es lo esperado en CI: el corpus trae hallazgos por organizacion con nombre');
+  console.log('    y este repositorio es publico. Se verifica antes de desplegar, no aqui.');
+  console.log('\n0 recomputados · ' + CORPUS.length + ' sin corpus · 0 fallas');
+  process.exit(0);
+}
+
+const edicion  = leer('src/data/informe-pqc/2026-08.json');
+const desc     = leerCorp('estudio-chile-descubrimiento.json');
+const result   = leerCorp('estudio-chile-resultados.json');
 // El hibrido ya NO sale de result: ese escaneo medía PREFERENCIA, no soporte
 // (key_share de x25519). Akamai Enhanced TLS salía 0% cuando es 100%. La
 // medicion válida es el re-escaneo forzado. (2026-08-20)
-const rescan   = leer('rescan-soporte-2026-08.json');
-const indice   = leer('indice-agosto-2026.json');
+const rescan   = leerCorp('rescan-soporte-2026-08.json');
+const indice   = leerCorp('indice-agosto-2026.json');
 
 const enIndice = new Set(indice.map((r) => r.domain));
 const base     = desc.filter((r) => enIndice.has(r.domain));   // 170: la base del indice
