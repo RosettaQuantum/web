@@ -471,5 +471,12 @@ const sevClass = (s) => s.toLowerCase();
 .peer-legend .sw{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:6px;vertical-align:-1px}
 .peer-legend .sw.you{background:var(--crit)} .peer-legend .sw.med{background:var(--gold)}
 .peer-legend .sw.band{background:rgba(217,184,122,.35)}
+
+/* Las tablas de este informe son anchas por naturaleza (accion / esfuerzo / costo,
+   proveedor / estado / que significa). Sin un contenedor que las haga scrollear,
+   empujaban la pagina a 434 px en un telefono de 375. Se hace scrollear la tabla
+   misma: no hay envoltorio que agregar en cada uso. (2026-08-21) */
+.invtbl{display:block;overflow-x:auto;max-width:100%}
+.invtbl thead,.invtbl tbody{display:table;width:100%;min-width:340px}
 .abs-acc{margin:.4em 0 0;padding-left:1.2em} .abs-acc li{margin-bottom:.35em}
 </style>

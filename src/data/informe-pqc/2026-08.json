@@ -301,10 +301,11 @@
  ],
  "referencia_global": {
   "hibrido_global": 49.3,
-  "hibrido_chile": 53.1,
+  "hibrido_chile": 64.6,
   "certificados_pqc": 0,
   "dominios_medidos": 32011,
-  "fuente": "arXiv:2606.16473, junio 2026"
+  "fuente": "arXiv:2606.16473, junio 2026",
+  "nota_comparabilidad": "El 49,3 % global proviene de un estudio externo cuyo método de sondeo no conocemos en detalle. Hoy sabemos que la forma de preguntar cambia el resultado en más de diez puntos —soporte 65 %, disposición a pagar un viaje extra 54 %—, así que esta comparación se lee como orden de magnitud y no como diferencia exacta. Nuestra cifra es soporte real, forzando el híbrido como único grupo ofrecido."
  },
  "stack": [
   {
