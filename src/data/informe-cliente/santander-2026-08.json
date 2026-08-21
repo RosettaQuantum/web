@@ -51,7 +51,7 @@
     "suyo": 100,
     "pais": 100,
     "tipo": "medido",
-    "lectura": "Completo. Su borde negocia X25519MLKEM768 con cualquier cliente moderno. No hay nada que activar acá."
+    "lectura": "Completo en el tramo que medimos: su borde negocia X25519MLKEM768 con cualquier cliente moderno, y no hay nada que activar. Pero este 100 mide el tramo hasta el borde, no el que va del borde a su origen — ese no lo ve ninguna medición externa. Ver el recuadro de arriba."
    }
   ]
  },

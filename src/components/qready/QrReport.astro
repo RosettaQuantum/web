@@ -6,7 +6,13 @@ import { PESOS, ORDEN, score, banda, leyenda } from '../../lib/qex.js';
 
 /* Dimensiones medidas de la empresa de ejemplo. El score NO se escribe a mano:
    sale de estos valores con la ponderacion canonica (src/lib/qex.js). */
-const VALORES = { cert: 40, higiene: 52, hndl: 15, edge: 5 };
+/* El valor de `edge` sale del inventario, no de una impresion: 2 de los 5 hosts
+   (www y online, detras de Cloudflare) negocian el hibrido; los otros 3 no tienen
+   CDN de por medio y van en clasico puro. 2/5 = 40.
+   Antes decia 5 y el inventario marcaba «No» en los cinco, mientras la seccion
+   «que esta bien» afirmaba que Cloudflare ya lo negocia. Tres numeros del mismo
+   informe contradiciendose. (2026-08-21) */
+const VALORES = { cert: 40, higiene: 52, hndl: 15, edge: 40 };
 const SCORE = score(VALORES);
 const B = banda(SCORE);
 const R = 92, C = 2 * Math.PI * R, dash = (SCORE/100)*C;
@@ -25,17 +31,17 @@ const t = es ? {
   print:'Descargar PDF', back:'← Volver a Q-Ready',
   co:'Acme Bank LatAm', dom:'acme-bank.example', date:`Emitido 2026-07-30 · medición del ${PARES.escaneo}`,
   s1:'Resumen ejecutivo', band:B.n, bandR:`${B.rango} · ${B.sigEs}`,
-  execP:'La superficie pública de <b>acme-bank.example</b> no negocia intercambio de llaves híbrido post-cuántico en ningún host observado. Como banco, sus datos deben permanecer secretos durante décadas; bajo cualquier escenario razonable, la organización llega tarde. La brecha es de <b>postura</b>, no de una sola falla — y es corregible con un roadmap acotado.',
+  execP:'La superficie pública de <b>acme-bank.example</b> negocia intercambio de llaves híbrido sólo donde su proveedor de CDN lo trae por defecto — 2 de 5 hosts. Los otros 3 no tienen ningún CDN de por medio y quedan en criptografía puramente clásica, así que <b>la protección que hoy tiene no la decidió usted</b>. Como banco, sus datos deben permanecer secretos durante décadas; bajo cualquier escenario razonable, la organización llega tarde. La brecha es de <b>postura</b>, no de una sola falla — y es corregible con un roadmap acotado.',
   absNum:'Los tres números', absKpi:[
     [String(SCORE),'Índice QEX', `de 100 · techo externo 84`],
     [`${PARES.mediana}`,`Mediana de ${PARES.sector.toLowerCase()}`,`n = ${PARES.n} organizaciones medidas`],
-    ['0 %','Sus hosts con híbrido',`contra ${PARES.hibridoSector} % del sector`],
+    ['2 de 5','Sus hosts con híbrido',`y ninguno por decisión suya · el sector va en ${PARES.hibridoSector} %`],
   ],
   absPos:'Dónde queda', absAcc:'Las tres cosas que haría primero',
   absReal:'La empresa de este ejemplo es ficticia. Las cifras del sector contra las que se compara NO lo son: salen del estudio de agosto de 2026 sobre 220 organizaciones chilenas, y son las mismas que publica el informe mensual.',
   top5:'Top 5 hallazgos',
   findings:[
-    ['Critical','0% de los hosts negocian ML-KEM híbrido; todo el key exchange es clásico (X25519/ECDHE).'],
+    ['Critical','3 de 5 hosts (api, legacy, mail) negocian sólo criptografía clásica: no tienen ningún CDN por delante que les traiga el híbrido.'],
     ['Critical','Sector banca (alto horizonte de confidencialidad) sin postura PQC → índice HNDL crítico.'],
     ['High','Host legacy con TLS 1.1 y certificado leaf RSA-1024 en un subdominio vivo.'],
     ['Medium','Wildcards en 4 hosts amplían el radio de impacto; 6 hostnames huérfanos en CT.'],
@@ -58,10 +64,10 @@ const t = es ? {
   chileH:'Y en Chile, con todas sus letras',
   chileP:'<b>Al corte de este informe, ningún regulador chileno exige criptografía post-cuántica.</b> Ni la CMF, ni la ANCI, ni la Agencia de Protección de Datos. Lo que sí existe son obligaciones de gestión de riesgo operacional y seguridad de la información bajo las cuales un supervisor puede preguntar por su plan. Este informe no va a insinuar una obligación que no existe.',
   s3:'Qué está bien',
-  good:['Edge en Cloudflare en los hosts principales. Ojo: eso NO es una victoria pendiente — Cloudflare ya negocia el híbrido por defecto, así que esos hosts no dependen de una acción suya.','TLS 1.3 presente en www y online; sin export ciphers observados.','DMARC y SPF configurados en el dominio de correo.'],
+  good:['www y online negocian el híbrido hoy, porque Cloudflare lo trae encendido de fábrica. No es una victoria pendiente ni una decisión suya: es un efecto secundario de su contrato de CDN, y sólo cubre 2 de sus 5 hosts.','TLS 1.3 presente en www y online; sin export ciphers observados.','DMARC y SPF configurados en el dominio de correo.'],
   s4:'Qué está mal / crítico', sev:'Severidad', findingCol:'Hallazgo', detailCol:'Detalle',
   sevtbl:[
-    ['Critical','Key exchange 100% clásico','Ningún host negocia X25519MLKEM768.'],
+    ['Critical','3 de 5 hosts en clásico puro','api, legacy y mail no negocian X25519MLKEM768. La protección que sí tiene llega sólo donde el CDN la trae.'],
     ['Critical','HNDL banca sin mitigación','Datos de largo plazo expuestos bajo criptografía clásica.'],
     ['High','TLS 1.1 + RSA-1024','legacy.acme-bank.example acepta protocolos y llaves obsoletas.'],
     ['Medium','Wildcards + huérfanos CT','Radio de impacto amplio; superficie no gestionada.'],
@@ -83,8 +89,8 @@ const t = es ? {
   provNota:'Estado declarado por cada fabricante en fuentes públicas, con fecha de consulta. Un «sin fecha» no significa que el proveedor no esté trabajando en ello: significa que usted no puede planificar contra nada.',
   s5:'Inventario observado', invcols:['Host','TLS / algoritmos','Híbrido','Edge'],
   inv:[
-    ['www.acme-bank.example','TLS 1.3 · X25519 / RSA-2048','No','Cloudflare'],
-    ['online.acme-bank.example','TLS 1.3 · X25519 / RSA-2048','No','Cloudflare'],
+    ['www.acme-bank.example','TLS 1.3 · X25519MLKEM768 / RSA-2048','Sí · por defecto del CDN','Cloudflare'],
+    ['online.acme-bank.example','TLS 1.3 · X25519MLKEM768 / RSA-2048','Sí · por defecto del CDN','Cloudflare'],
     ['api.acme-bank.example','TLS 1.2 · ECDHE / ECDSA P-256','No','—'],
     ['legacy.acme-bank.example','TLS 1.1 · RSA / RSA-1024','No','—'],
     ['mail.acme-bank.example','STARTTLS · ECDHE / RSA-2048','No','—'],
@@ -110,8 +116,8 @@ const t = es ? {
       ['Reemplazar el certificado RSA-1024','horas','sin costo'],
       ['Publicar security.txt con un canal de contacto','minutos','sin costo']]],
     ['90 días','Híbrido donde falta',[
-      ['Cambiar el origen de Akamai a Enhanced TLS en los hosts que hoy usan Standard','días','cambio de contrato'],
-      ['Ajustar la política del listener en AWS para que ofrezca el grupo híbrido','horas','sin costo'],
+      ['Habilitar X25519MLKEM768 en los tres hosts sin CDN (api, legacy, mail): OpenSSL 3.5+ o el equivalente de su servidor','días','sin costo'],
+      ['Verificar que ninguna restricción de cipher suites esté apagando el híbrido que Cloudflare ya trae en www y online','minutos','sin costo'],
       ['Consolidar wildcards y retirar hostnames huérfanos','días','sin costo'],
       ['Nombrar responsable de agilidad criptográfica y definir rotación de llaves','días','sin costo']]],
     ['365 días','Interior',[
@@ -134,17 +140,17 @@ const t = es ? {
   print:'Download PDF', back:'← Back to Q-Ready',
   co:'Acme Bank LatAm', dom:'acme-bank.example', date:`Issued 2026-07-30 · measured ${PARES.escaneo}`,
   s1:'Executive brief', band:B.n, bandR:`${B.rango} · ${B.sigEn}`,
-  execP:'The public surface of <b>acme-bank.example</b> negotiates no post-quantum hybrid key exchange on any observed host. As a bank, its data must stay secret for decades; under any reasonable scenario, the organization is late. The gap is one of <b>posture</b>, not a single flaw — and it is fixable with a bounded roadmap.',
+  execP:'The public surface of <b>acme-bank.example</b> negotiates hybrid key exchange only where its CDN brings it by default — 2 of 5 hosts. The other 3 have no CDN in front and remain fully classical, so <b>the protection you have today was not your decision</b>. As a bank, its data must stay secret for decades; under any reasonable scenario, the organization is late. The gap is one of <b>posture</b>, not a single flaw — and it is fixable with a bounded roadmap.',
   absNum:'The three numbers', absKpi:[
     [String(SCORE),'QEX index', `of 100 · external ceiling 84`],
     [`${PARES.mediana}`,`${PARES.sector} median`,`n = ${PARES.n} measured organizations`],
-    ['0 %','Your hosts with hybrid',`against ${PARES.hibridoSector} % of the sector`],
+    ['2 of 5','Your hosts with hybrid',`and none by your own decision · the sector runs at ${PARES.hibridoSector} %`],
   ],
   absPos:'Where this lands', absAcc:'The first three things to do',
   absReal:'The company in this example is fictional. The sector figures it is compared against are NOT: they come from the August 2026 study of 220 Chilean organizations, and are the same ones published in the monthly report.',
   top5:'Top 5 findings',
   findings:[
-    ['Critical','0% of hosts negotiate hybrid ML-KEM; all key exchange is classical (X25519/ECDHE).'],
+    ['Critical','3 of 5 hosts (api, legacy, mail) negotiate classical cryptography only: no CDN in front to bring them the hybrid.'],
     ['Critical','Banking sector (long confidentiality horizon) with no PQC posture → critical HNDL index.'],
     ['High','Legacy host with TLS 1.1 and an RSA-1024 leaf certificate on a live subdomain.'],
     ['Medium','Wildcards on 4 hosts widen the blast radius; 6 orphan hostnames in CT.'],
@@ -165,10 +171,10 @@ const t = es ? {
   chileH:'And in Chile, plainly',
   chileP:'<b>As of this report, no Chilean regulator requires post-quantum cryptography.</b> Not the CMF, not the ANCI, not the data protection agency. What does exist are operational-risk and information-security obligations under which a supervisor may ask about your plan. This report will not imply an obligation that does not exist.',
   s3:'What is good',
-  good:['Cloudflare edge on the main hosts. Note: this is NOT a pending win — Cloudflare already negotiates the hybrid by default, so those hosts do not depend on any action of yours.','TLS 1.3 present on www and online; no export ciphers observed.','DMARC and SPF configured on the mail domain.'],
+  good:['www and online negotiate the hybrid today because Cloudflare ships it on by default. It is neither a pending win nor a decision of yours: it is a side effect of your CDN contract, and it covers only 2 of your 5 hosts.','TLS 1.3 present on www and online; no export ciphers observed.','DMARC and SPF configured on the mail domain.'],
   s4:'What is wrong / critical', sev:'Severity', findingCol:'Finding', detailCol:'Detail',
   sevtbl:[
-    ['Critical','Key exchange 100% classical','No host negotiates X25519MLKEM768.'],
+    ['Critical','3 of 5 hosts fully classical','api, legacy and mail do not negotiate X25519MLKEM768. The protection you do have arrives only where the CDN brings it.'],
     ['Critical','Banking HNDL, unmitigated','Long-lived data exposed under classical cryptography.'],
     ['High','TLS 1.1 + RSA-1024','legacy.acme-bank.example accepts obsolete protocols and keys.'],
     ['Medium','Wildcards + CT orphans','Wide blast radius; unmanaged surface.'],
@@ -190,8 +196,8 @@ const t = es ? {
   provNota:'Status as declared by each manufacturer in public sources, with the date consulted. A “no date” does not mean the vendor is not working on it: it means you cannot plan against anything.',
   s5:'Observed inventory', invcols:['Host','TLS / algorithms','Hybrid','Edge'],
   inv:[
-    ['www.acme-bank.example','TLS 1.3 · X25519 / RSA-2048','No','Cloudflare'],
-    ['online.acme-bank.example','TLS 1.3 · X25519 / RSA-2048','No','Cloudflare'],
+    ['www.acme-bank.example','TLS 1.3 · X25519MLKEM768 / RSA-2048','Sí · por defecto del CDN','Cloudflare'],
+    ['online.acme-bank.example','TLS 1.3 · X25519MLKEM768 / RSA-2048','Sí · por defecto del CDN','Cloudflare'],
     ['api.acme-bank.example','TLS 1.2 · ECDHE / ECDSA P-256','No','—'],
     ['legacy.acme-bank.example','TLS 1.1 · RSA / RSA-1024','No','—'],
     ['mail.acme-bank.example','STARTTLS · ECDHE / RSA-2048','No','—'],
@@ -217,8 +223,8 @@ const t = es ? {
       ['Replace the RSA-1024 certificate','hours','no cost'],
       ['Publish security.txt with a contact channel','minutes','no cost']]],
     ['90 days','Hybrid where it is missing',[
-      ['Move the Akamai origin to Enhanced TLS on hosts still on Standard','days','contract change'],
-      ['Adjust the AWS listener policy to offer the hybrid group','hours','no cost'],
+      ['Enable X25519MLKEM768 on the three hosts with no CDN (api, legacy, mail): OpenSSL 3.5+ or your server\u2019s equivalent','days','no cost'],
+      ['Check that no cipher-suite restriction is disabling the hybrid Cloudflare already brings on www and online','minutes','no cost'],
       ['Consolidate wildcards and retire orphan hostnames','days','no cost'],
       ['Name a crypto-agility owner and define key rotation','days','no cost']]],
     ['365 days','Interior',[
@@ -290,8 +296,8 @@ const sevClass = (s) => s.toLowerCase();
         </div>
         <p class="rep-note"><strong>{t.absReal}</strong></p>
         <p class="rep-note">{es
-          ? `Su puntaje queda por debajo del mínimo que medimos en la banca chilena (${PARES.min}). De las ${PARES.n} organizaciones de banca con índice calculado, ninguna está tan abajo. En soporte de intercambio híbrido, el sector va en ${PARES.hibridoSector} % (n = ${PARES.hibridoN}) y usted en 0 %.`
-          : `Your score falls below the minimum we measured in Chilean banking (${PARES.min}). Of the ${PARES.n} banking organizations with a computed index, none sits this low. On hybrid key exchange support the sector runs at ${PARES.hibridoSector} % (n = ${PARES.hibridoN}); you are at 0 %.`}</p>
+          ? `Su puntaje queda por debajo del mínimo que medimos en la banca chilena (${PARES.min}). De las ${PARES.n} organizaciones de banca con índice calculado, ninguna está tan abajo. En soporte de intercambio híbrido el sector va en ${PARES.hibridoSector} % (n = ${PARES.hibridoN}); usted lo tiene en 2 de sus 5 hosts, y en los dos por defecto de su CDN, no por una decisión propia.`
+          : `Your score falls below the minimum we measured in Chilean banking (${PARES.min}). Of the ${PARES.n} banking organizations with a computed index, none sits this low. On hybrid key exchange support the sector runs at ${PARES.hibridoSector} % (n = ${PARES.hibridoN}); you have it on 2 of your 5 hosts, and on both by CDN default rather than by your own decision.`}</p>
       </div>
 
       <h3>{t.absAcc}</h3>
