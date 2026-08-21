@@ -76,7 +76,7 @@ function comoComprobar(row) {
   };
 }
 
-function resumenArchivo(row) {
+export function resumenArchivo(row) {
   let payload = {};
   try { payload = JSON.parse(row.payload || "{}"); } catch (e) {}
   const q = (payload.w6 || {}).que || {};
@@ -102,11 +102,21 @@ function resumenArchivo(row) {
     legible: legiblesDe(
       { clase_de_problema: q.problem_class, instancia: q.instance, resultado: q.outcome, metrica: q.metric },
       ["clase_de_problema", "instancia", "resultado", "metrica"]),
+    // Una errata no tiene la forma de una corrida (w6.que.problem_class etc.) — tiene
+    // la suya propia, en meta.corrige y meta.scope_note. Sin esto, /v1/erratas listaria
+    // el ID y la fecha y nada mas: publicado e invisible otra vez, la misma falla que
+    // ya se documento arriba para /v1/predictions.
+    ...(payload.meta && payload.meta.type === "ERRATA" ? { errata: {
+      nota: payload.meta.scope_note || null,
+      corrige_id: (payload.meta.corrige || {}).file_id || null,
+      corrige_hash: (payload.meta.corrige || {}).content_hash || null,
+      afirmacion_corregida: ((payload.w6 || {}).que || {}).afirmacion_corregida || null,
+    } } : {}),
     ...comoComprobar(row),
   };
 }
 
-async function estado(env) {
+export async function estado(env) {
   const [tipos, recetas, ver, gana] = await env.DB.batch([
     env.DB.prepare("SELECT type, count(*) n FROM run_archives GROUP BY type"),
     env.DB.prepare("SELECT id,name,problem_class,vertical,algorithm,status FROM recipes ORDER BY id"),
@@ -130,6 +140,13 @@ async function estado(env) {
       veredictos_publicados: (ver.results || [{ n: 0 }])[0].n,
       pre_registros: cuenta.PREREG || 0,
       recetas: cuenta.RECIPE || 0,
+      // Las cuatro que faltaban: ya se contaban en `cuenta` (la misma consulta GROUP BY
+      // que arma corridas/pre-registros/recetas) pero nadie las sacaba de ahi para la
+      // vitrina — un tipo que solo vive en /v1/archive/{id} esta publicado e invisible.
+      manifiestos: cuenta.MANIFEST || 0,
+      predicciones: cuenta.PREDICTION || 0,
+      reportes: cuenta.REPORT || 0,
+      erratas: cuenta.ERRATA || 0,
       victorias_cuanticas_medidas: victorias,
       // La lectura acompana al numero y tiene que seguirlo: un texto que dice
       // "Cero" junto a un contador que ya no dice cero es peor que no tener texto.
@@ -555,11 +572,11 @@ export const HERRAMIENTAS = [
   },
   {
     name: "listar_por_tipo",
-    description: "Lista archivos sellados de un tipo: RUN, VERDICT, PREREG, PREDICTION, MANIFEST o RECIPE.",
+    description: "Lista archivos sellados de un tipo: RUN, VERDICT, PREREG, PREDICTION, MANIFEST, RECIPE, REPORT o ERRATA.",
     inputSchema: {
       type: "object",
       properties: {
-        tipo: { type: "string", enum: ["RUN", "VERDICT", "PREREG", "PREDICTION", "MANIFEST", "RECIPE"] },
+        tipo: { type: "string", enum: ["RUN", "VERDICT", "PREREG", "PREDICTION", "MANIFEST", "RECIPE", "REPORT", "ERRATA"] },
         recipe: { type: "string", description: "opcional: filtrar por receta, p.ej. RQ-0012" },
       },
       required: ["tipo"],
@@ -844,6 +861,13 @@ export const CATALOGO = [
         estado_medido: { type: "object", properties: {
           corridas_selladas: { type: "integer" },
           veredictos_publicados: { type: "integer" },
+          pre_registros: { type: "integer" },
+          recetas: { type: "integer" },
+          manifiestos: { type: "integer" },
+          predicciones: { type: "integer" },
+          reportes: { type: "integer" },
+          erratas: { type: "integer",
+            description: "Correcciones publicadas sobre sellos propios ya anclados. El original nunca se reescribe: la errata es un archivo nuevo que lo cita por content_hash." },
           victorias_cuanticas_medidas: { type: "integer",
             description: "Cuántas veces un método cuántico le ganó al campeón clásico en una corrida sellada. Hoy: 0. Es el titular del archivo, no una falla." },
           lectura: { type: "string" },
@@ -859,6 +883,8 @@ export const CATALOGO = [
   { ruta: "/v1/predictions", resumen: "Predicciones forward, comprometidas antes de conocer el resultado", grupo: "ledger" },
   { ruta: "/v1/manifests", resumen: "Manifiestos: cómo leer el archivo", grupo: "ledger" },
   { ruta: "/v1/recipes", resumen: "Recetas del catálogo", grupo: "ledger" },
+  { ruta: "/v1/reports", resumen: "Reportes de metodología (p.ej. la postulación a Cleveland)", grupo: "ledger" },
+  { ruta: "/v1/erratas", resumen: "Correcciones publicadas sobre sellos propios ya anclados — el original no se reescribe", grupo: "ledger" },
   { ruta: "/v1/archive/{id}", resumen: "Un archivo sellado completo, con su payload", grupo: "ledger",
     // El ejemplo apunta a un archivo que EXISTE. El primero que puse (EXP-0012-001)
     // no existia, y el chequeo lo atrapo: documentar un ejemplo que responde 404 es
@@ -1220,6 +1246,8 @@ async function enrutar(request, env, url, info = {}) {
   if (p === "/v1/predictions") return await listar(env, "PREDICTION", url);
   if (p === "/v1/manifests") return await listar(env, "MANIFEST", url);
   if (p === "/v1/recipes") return await listar(env, "RECIPE", url);
+  if (p === "/v1/reports") return await listar(env, "REPORT", url);
+  if (p === "/v1/erratas") return await listar(env, "ERRATA", url);
   if (p === "/v1/search") {
     const q = url.searchParams.get("q");
     if (!q) return json({ error: "falta el parametro q" }, 400);
