@@ -4,7 +4,27 @@ import css from '../../styles/pages/informe-pqc.css?raw';
 
 // Un JSON por cliente. Misma hoja de estilo y mismos componentes que el informe agregado:
 // para el lector, los dos documentos salen de la misma máquina.
+/* REGLA, y no es una preferencia tecnica:
+ *
+ *   Un informe de cliente se entrega POR ARCHIVO a su destinatario, nunca
+ *   sirviendolo desde la web publica. Ni con URL secreta, ni con noindex,
+ *   ni "temporalmente". La web sirve lo agregado y anonimo; lo individual
+ *   viaja como documento a quien le pertenece.
+ *
+ * Decision de Nicholas, 2026-08-21, textual: «ese informe es privado».
+ * Queda escrita aqui, donde se ejerce, para que dentro de un mes nadie la
+ * reabra como una opcion tecnica.
+ *
+ * Por eso esta ruta NO se construye salvo que se pida a proposito:
+ *
+ *   INFORME_CLIENTE=1 npm run build     -> genera el documento para enviarlo
+ *   npm run build                       -> no lo genera. Produccion nunca lo tiene.
+ *
+ * Falla cerrado por omision: si alguien borra esta guarda, el guardia
+ * scripts/check-informe-confidencial.mjs detiene el build.
+ */
 export async function getStaticPaths() {
+  if (!import.meta.env.INFORME_CLIENTE) return [];
   const mods = import.meta.glob('../../data/informe-cliente/*.json', { eager: true });
   return Object.entries(mods).map(([p, m]: any) => {
     const d = m.default ?? m;

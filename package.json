@@ -5,9 +5,9 @@
   "scripts": {
     "dev": "astro dev",
     "build": "astro build",
-    "postbuild": "node scripts/sellar-version.mjs",
+    "postbuild": "node scripts/sellar-version.mjs && node scripts/check-informe-confidencial.mjs",
     "preview": "astro preview",
-    "prebuild": "node scripts/check-qex-formula.mjs && node scripts/check-informe-geometria.mjs && node scripts/sync-ledger.mjs && node scripts/build-viz-cleveland.mjs --publicar",
+    "prebuild": "node scripts/check-qex-formula.mjs && node scripts/check-informe-geometria.mjs && node scripts/check-informe-confidencial.mjs && node scripts/sync-ledger.mjs && node scripts/build-viz-cleveland.mjs --publicar",
     "sync:ledger": "node scripts/sync-ledger.mjs"
   },
   "dependencies": {
