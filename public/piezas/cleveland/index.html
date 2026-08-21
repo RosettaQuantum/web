@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Rosetta · hoja de contactos</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<style>
+  *{box-sizing:border-box}
+  html,body{margin:0;height:100%;overflow:hidden;background:#0b0b0d}
+  body{font-family:'JetBrains Mono',ui-monospace,Menlo,monospace; color:#d5d8d2}
+  canvas{display:block; position:fixed; inset:0; z-index:1}
+  .capa{position:fixed; inset:0; pointer-events:none; z-index:3}
+  .cuadro{position:fixed; padding:12px 14px; font-size:11.5px; line-height:1.5}
+  .cuadro b{display:block; font-family:'Share Tech Mono',monospace; font-size:15px; letter-spacing:1px; font-weight:400}
+  .cuadro i{font-style:normal; opacity:.72; display:block; margin-top:1px}
+  .chips{display:flex; gap:5px; margin-top:7px}
+  .chip{width:20px;height:9px; border:1px solid rgba(255,255,255,.22)}
+  .barra{
+    position:fixed; left:0; right:0; bottom:0; height:46px; background:#08080a;
+    border-top:1px solid #1c1c20; display:flex; align-items:center; gap:18px; padding:0 16px;
+    font-size:11.5px; color:#8b908a; z-index:5;
+  }
+  .barra b{color:#d5d8d2; font-weight:500}
+  .barra button{
+    background:#111114; color:#d5d8d2; border:1px solid #2a2a30; font:inherit; font-size:11.5px;
+    padding:5px 10px; cursor:pointer;
+  }
+  .barra button:hover{border-color:#484850}
+  #cargando{position:fixed; inset:0; display:grid; place-items:center; color:#8b908a; font-size:13px}
+</style>
+</head>
+<body>
+<div id="cargando">pidiendo la proteína…</div>
+<div class="capa" id="etiquetas"></div>
+<div id="caminata" style="position:fixed;left:0;right:0;bottom:46px;background:#08080a;border-top:1px solid #1c1c20;padding:7px 16px;font-size:11px;color:#8b908a;z-index:6"></div>
+<div class="barra">
+  <b>Hoja de contactos</b>
+  <span>La misma molécula, la misma cámara, el mismo dato — cuatro direcciones de arte.</span>
+  <span style="flex:1"></span>
+  <span id="vistas" style="display:flex;gap:5px"></span>
+  <button id="girar">órbita</button>
+  <button id="caminar">caminata</button>
+  <span id="reloj" style="color:#8b908a"></span>
+  <button id="proteina">cambiar proteína</button>
+  <span id="pie"></span>
+</div>
+<script type="importmap">{ "imports": { "three": "../vendor/three.module.js" } }</script>
+<script type="module" src="./app.js"></script>
+</body>
+</html>

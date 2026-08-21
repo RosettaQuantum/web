@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Rosetta · el archivero</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --fondo:#050705; --panel:rgba(8,11,8,.82); --texto:#c9d8c4; --tenue:#7d8f79;
+    --verde:#52e884; --verde-dato:#3fd873; --borde:#243024; --borde2:#33402f;
+    --oro:#c9a24d; --teal:#2c8c80;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;height:100%;overflow:hidden;background:var(--fondo)}
+  body{color:var(--texto); font-family:'JetBrains Mono',ui-monospace,Menlo,monospace; font-size:13.5px}
+  canvas{display:block}
+  .capa{position:fixed; inset:0; pointer-events:none}
+  .marco{position:fixed; padding:18px 20px; pointer-events:none}
+  .tl{top:0;left:0} .tr{top:0;right:0;text-align:right} .bl{bottom:0;left:0} .br{bottom:0;right:0;text-align:right}
+  h1{font-family:'Share Tech Mono',monospace; font-size:19px; font-weight:400; margin:0; letter-spacing:1px}
+  h1 i{font-style:normal; color:var(--verde)}
+  .lema{color:var(--tenue); font-size:11.5px; margin-top:3px; max-width:330px; line-height:1.55}
+  .rot{color:var(--tenue); font-size:10px; letter-spacing:1.4px; text-transform:uppercase; margin-bottom:6px}
+  .cifra{font-family:'Share Tech Mono',monospace; font-size:26px; line-height:1.05; color:var(--verde-dato)}
+  .cifra.oro{color:var(--oro)}
+  .cifra small{display:block; font-family:'JetBrains Mono',monospace; font-size:10.5px; color:var(--tenue); letter-spacing:.3px; margin-top:2px}
+  .fila{display:flex; gap:26px}
+  .aviso{max-width:430px; color:#b9a878; font-size:11px; line-height:1.6; border-left:2px solid var(--oro); padding-left:9px}
+  .proc{color:#5d6b5a; font-size:10px; line-height:1.6; margin-top:9px; word-break:break-all; max-width:430px}
+  #escalas{position:fixed; left:20px; top:50%; transform:translateY(-50%); pointer-events:auto}
+  #escalas button{
+    display:block; background:none; border:none; border-left:2px solid var(--borde2);
+    color:var(--tenue); font:inherit; font-size:12px; text-align:left; padding:7px 0 7px 11px;
+    cursor:pointer; width:190px;
+  }
+  #escalas button:hover{color:var(--texto); border-left-color:var(--borde)}
+  #escalas button[aria-pressed="true"]{color:var(--verde); border-left-color:var(--verde)}
+  #escalas button small{display:block; color:#5d6b5a; font-size:10px; margin-top:2px}
+  #escalas button[aria-pressed="true"] small{color:#4e7a5e}
+  #ficha{
+    position:fixed; pointer-events:none; background:rgba(5,7,5,.95); border:1px solid var(--verde);
+    padding:8px 10px; font-size:11.5px; line-height:1.55; max-width:330px; display:none;
+  }
+  #ficha b{color:var(--verde)}
+  #ficha .cat{color:var(--tenue); font-size:10px; letter-spacing:1px; text-transform:uppercase}
+  #ficha .oro{color:var(--oro)}
+  #cargando{position:fixed; inset:0; display:grid; place-items:center; color:var(--tenue); font-size:13px}
+</style>
+</head>
+<body>
+<div id="cargando">pidiendo el archivo…</div>
+
+<div class="marco tl">
+  <h1>ROSETTA <i>·</i> EL ARCHIVERO</h1>
+  <div class="lema" id="lema"></div>
+</div>
+
+<div class="marco tr">
+  <div class="fila" id="contadores" style="justify-content:flex-end"></div>
+</div>
+
+<div id="escalas"></div>
+
+<div class="marco bl">
+  <div class="aviso" id="aviso"></div>
+  <div class="proc" id="proc"></div>
+</div>
+
+<div id="ficha"></div>
+
+<script type="importmap">
+{ "imports": { "three": "../vendor/three.module.js" } }
+</script>
+<script type="module" src="./app.js"></script>
+</body>
+</html>
