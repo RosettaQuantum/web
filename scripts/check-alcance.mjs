@@ -30,10 +30,20 @@ import { writeFileSync, mkdtempSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 
+/* OJO: por defecto mide PRODUCCION, no el build local. Es lo correcto para un
+   chequeo de alcance —lo que importa es si el usuario puede tocar lo que ve en
+   el sitio vivo— pero significa que NO sirve como guardia de prebuild: fallaria
+   por el estado de produccion, no por el del build. Va en `npm run check:prod`,
+   despues de desplegar. Para auditar un build local: --base http://127.0.0.1:PUERTO
+   Costo real de no saberlo: media hora persiguiendo un desborde de 550 px que
+   estaba en produccion y ya estaba arreglado en el codigo. (2026-08-21) */
 const BASE = process.argv.includes("--base") ? process.argv[process.argv.indexOf("--base") + 1]
                                              : "https://rosettaquantum.com";
 /** Las paginas donde alguien tiene que poder HACER algo. */
-const PAGINAS = ["/consola/", "/cleveland/", "/es/cleveland/", "/es/precios/", "/pricing/", "/api-docs/", "/es/api-docs/"];
+const PAGINAS = ["/consola/", "/cleveland/", "/es/cleveland/", "/es/precios/", "/pricing/", "/api-docs/", "/es/api-docs/",
+  // Q-Ready y los informes, agregados 2026-08-20. Son las paginas que un cliente
+  // lee para decidir una compra y las que nadie habia mirado renderizadas.
+  "/informe-pqc/", "/q-ready/", "/es/q-ready/", "/q-ready/sample-report/", "/es/q-ready/sample-report/"];
 const ANCHOS = [375, 1280];
 
 /**
