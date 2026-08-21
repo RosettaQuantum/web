@@ -1,0 +1,277 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import css from '../../styles/pages/informe-pqc.css?raw';
+
+// Un JSON por cliente. Misma hoja de estilo y mismos componentes que el informe agregado:
+// para el lector, los dos documentos salen de la misma máquina.
+export async function getStaticPaths() {
+  const mods = import.meta.glob('../../data/informe-cliente/*.json', { eager: true });
+  return Object.entries(mods).map(([p, m]: any) => {
+    const d = m.default ?? m;
+    const archivo = p.split('/').pop()!.replace('.json', '');
+    if (!archivo.startsWith(d.slug + '-'))
+      throw new Error(`informe-cliente: "${archivo}.json" declara slug="${d.slug}". El nombre del archivo debe empezar con el slug.`);
+    return { params: { cliente: d.slug }, props: { d } };
+  });
+}
+const { d } = Astro.props;
+const MESES = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
+const [yy, mm] = d.edicion.split('-').map(Number);
+const mesLargo = `${MESES[mm-1]} de ${yy}`;
+import { score as qexScore, banda as qexBanda, TOPE } from '../../lib/qex.js';
+/* El score NO se lee del JSON: se deriva de las dimensiones con la ponderacion
+   canonica. Si el JSON trae otro numero, el build se detiene aqui — un informe
+   que se cobra no puede mostrar un puntaje que su propia tabla no produce. */
+const DIMS = Object.fromEntries(d.irec.dimensiones.map((x: any) =>
+  [{'Certificados y PKI':'cert','Higiene de superficie':'higiene','Postura HNDL':'hndl','PQC en el edge':'edge'}[x.k], x.suyo]));
+const SCORE = qexScore(DIMS);
+const B = qexBanda(SCORE);
+if (SCORE !== d.irec.score)
+  throw new Error(`informe-cliente ${d.slug}: el JSON declara score ${d.irec.score} y sus dimensiones producen ${SCORE}.`);
+if (B.n !== d.irec.banda)
+  throw new Error(`informe-cliente ${d.slug}: el JSON declara banda "${d.irec.banda}" y el score ${SCORE} cae en "${B.n}".`);
+
+const dif = d.irec.score - d.irec.mediana_pais;
+const difSec = d.irec.score - d.irec.mediana_sector;
+
+const SECCIONES = [
+  ['indice','Su índice'], ['hallazgo','El hallazgo principal'], ['superficie','Su superficie pública'],
+  ['ruta','Su ruta crítica'], ['plan','Plan 30 · 90 · 365'], ['alcance','Alcance y límites'],
+];
+---
+<BaseLayout
+  title={`${d.cliente} — Informe individual ${mesLargo} · Rosetta Quantum`}
+  description={`Informe confidencial de exposición criptográfica para ${d.cliente}.`}
+  lang="es" pageCss={css}>
+
+<div class="informe-doc">
+<div class="informe">
+
+  <header class="mast">
+    <div class="brandrow">
+      <svg class="slabmark" viewBox="0 0 40 40" aria-hidden="true">
+        <rect x="12.5" y="3.5" width="15" height="27" rx="7.5" fill="none" stroke="#9A7228" stroke-width="1.8"/>
+        <line x1="13.5" y1="35" x2="26.5" y2="35" stroke="#9A7228" stroke-width="1.8" stroke-linecap="round"/>
+        <circle cx="20" cy="12.5" r="3" fill="none" stroke="#3D372F" stroke-width="1.5"/>
+        <circle cx="20" cy="21.5" r="3" fill="#1E7A6E"/>
+      </svg>
+      <span class="brandname">Rosetta Quantum</span>
+    </div>
+
+    <div class="edicion">
+      <span class="num">Informe individual</span>
+      <span>{mesLargo}</span>
+      <span>Medición {d.ventana.desde} → {d.ventana.hasta}</span>
+      <span class="mono">{d.dominio}</span>
+      <span>Vertical: {d.vertical}</span>
+    </div>
+
+    <h1>{d.cliente}</h1>
+    <p class="standfirst">Exposición criptográfica observable desde la superficie pública, medida con el mismo método del informe mensual de la industria chilena.</p>
+  </header>
+
+  {d.confidencial && (
+    <div class="draft">
+      <strong>Documento confidencial.</strong> Dirigido exclusivamente a {d.cliente}. Los hallazgos individuales no se publican, no se comparten con terceros y no aparecen en el informe agregado, que es anónimo por sector.
+    </div>
+  )}
+
+  <nav class="toc" id="contenido" aria-label="Contenido">
+    <h2>Contenido</h2>
+    <ol>
+      {SECCIONES.map(([id, t]) => <li><a href={`#${id}`}><span class="tl">{t}</span></a></li>)}
+    </ol>
+  </nav>
+
+  <!-- 01 · SU INDICE -->
+  <section id="indice">
+    <div class="sechead">
+      <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 20h18"/><path d="M6 20V9M11 20V5M16 20v-7M21 20v-4"/></svg>
+      <span class="snum">01 · Su índice</span>
+    </div>
+    <h2>QEX — Quantum Exposure Index, by Rosetta</h2>
+
+    <div class="panel">
+      <div class="panel-h">
+        <h3>Su posición · {mesLargo}</h3>
+        <span class="meta">QEX-1.0 · techo externo {TOPE}</span>
+      </div>
+      <div class="tiles">
+        <div class={`tile ${SCORE >= 70 ? 'ok' : SCORE >= 50 ? 'warn' : 'crit'}`}><span class="k">Su índice QEX</span><span class="v">{SCORE}</span><span class="sub">de 100 · techo externo {TOPE} · {B.n}</span></div>
+        <div class="tile"><span class="k">Mediana nacional</span><span class="v">{d.irec.mediana_pais}</span><span class="sub"><span class="delta up">{dif} pts</span> bajo el país</span></div>
+        <div class="tile"><span class="k">Mediana de {d.vertical.toLowerCase()}</span><span class="v">{d.irec.mediana_sector}</span><span class="sub"><span class="delta up">{difSec} pts</span> bajo su sector</span></div>
+        <div class="tile"><span class="k">Posición en su sector</span><span class="v" style="font-size:1.25rem;line-height:1.5">{d.irec.posicion_sector}</span><span class="sub">de {d.irec.n_sector} organizaciones medidas</span></div>
+      </div>
+    </div>
+
+    <div class="chart">
+      <div class="chart-h">
+        <p class="chart-t">Desglose por dimensión, contra la mediana del país</p>
+        <p class="chart-s">Barra sólida: su valor. Marca: la mediana nacional.</p>
+      </div>
+      <div class="chart-b">
+        <div class="bars">
+          {d.irec.dimensiones.map((x: any) => (
+            <div class="bar-row">
+              <span class="bar-lab">{x.k}<br /><span style="font-size:.72rem;color:var(--muted)">peso {x.peso}%</span></span>
+              <div class="bar-track">
+                <div class={`bar-fill ${x.suyo >= x.pais ? 'hi' : x.suyo >= x.pais * 0.8 ? 'mid' : 'lo'}`} style={`width:${x.suyo}%`}></div>
+                <div style={`position:absolute;left:${x.pais}%;top:-3px;bottom:-3px;width:2px;background:var(--ink)`}></div>
+              </div>
+              <span class="bar-val">{x.suyo} <span style="color:var(--muted)">/ {x.pais}</span></span>
+            </div>
+          ))}
+        </div>
+        <p class="src">Tres dimensiones se miden sobre sus endpoints reales. La postura HNDL <span class="chip warn">modelo</span> se deriva del perfil de su sector y se ajusta con datos suyos en el nivel Assisted.</p>
+      </div>
+    </div>
+
+    <div class="measure">
+      {d.irec.dimensiones.map((x: any) => (
+        <p><strong>{x.k} · {x.suyo}</strong> — {x.lectura}</p>
+      ))}
+    </div>
+  </section>
+
+  <!-- 02 · EL HALLAZGO -->
+  <section id="hallazgo">
+    <div class="sechead">
+      <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 3.5 7.5v5c0 4.3 3.5 7.6 8.5 8.8 5-1.2 8.5-4.5 8.5-8.8v-5Z"/><path d="M12 8.5v4.5M12 16.2v.3"/></svg>
+      <span class="snum">02 · El hallazgo principal</span>
+    </div>
+    <h2>{d.hallazgo.titulo}</h2>
+    <div class="measure">
+      <p set:html={d.hallazgo.cuerpo}></p>
+      <p><strong>Lo medimos:</strong> {d.hallazgo.medicion}</p>
+    </div>
+    <div class="pull"><p>{d.hallazgo.consecuencia}</p></div>
+  </section>
+
+  <!-- 03 · SUPERFICIE -->
+  <section id="superficie">
+    <div class="sechead">
+      <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5 21 21"/></svg>
+      <span class="snum">03 · Su superficie pública</span>
+    </div>
+    <h2>Qué encontramos en registros públicos</h2>
+
+    <div class="panel">
+      <div class="panel-h"><h3>Superficie descubierta</h3><span class="meta">Certificate Transparency</span></div>
+      <div class="tiles">
+        <div class="tile warn"><span class="k">Nombres de host</span><span class="v">{d.superficie.hostnames}</span><span class="sub">mediana de su sector: {d.superficie.mediana_sector}</span></div>
+        <div class="tile warn"><span class="k">Subdominios profundos</span><span class="v">{d.superficie.profundos}</span><span class="sub">tercer y cuarto nivel, sin dueño claro</span></div>
+        <div class="tile crit"><span class="k">Infra sensible expuesta</span><span class="v">{d.superficie.infra_expuesta}</span><span class="sub">alcanzable desde internet</span></div>
+        <div class="tile crit"><span class="k">Ambiente no productivo</span><span class="v">{d.superficie.no_productivo}</span><span class="sub">respondiendo en internet</span></div>
+      </div>
+      <div class="chart-b" style="border-top:1px solid var(--rule)"><div class="tw">
+        <table>
+          <thead><tr><th>Host</th><th>Qué parece ser</th><th>Por qué importa</th></tr></thead>
+          <tbody>
+            {d.superficie.hallazgos.map((h: any) => (
+              <tr>
+                <td class="mono" style="font-size:.82rem">{h.host}</td>
+                <td>{h.que} <span class={`chip ${h.sev}`}>{h.sev === 'crit' ? 'atención' : 'revisar'}</span></td>
+                <td>{h.porque}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      <p class="src">No accedimos a ninguno de estos sistemas. Solo constatamos que existen y que responden.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 04 · RUTA CRITICA -->
+  <section id="ruta">
+    <div class="sechead">
+      <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20 9 9l4 6 3-4 4 9Z"/><circle cx="9" cy="9" r="1.5"/><circle cx="16" cy="11" r="1.5"/></svg>
+      <span class="snum">04 · Su ruta crítica</span>
+    </div>
+    <h2>Quién fija realmente su plazo</h2>
+    <div class="measure">
+      <p class="lede">Proveedores detectados desde su superficie pública y cruzados contra nuestro registro. Su migración no avanza más rápido que el más lento de ellos.</p>
+    </div>
+    <div class="chart"><div class="chart-b"><div class="tw">
+      <table>
+        <thead><tr><th>Proveedor</th><th>Cómo lo detectamos</th><th>Estado</th><th>Qué significa para usted</th></tr></thead>
+        <tbody>
+          {d.proveedores.map((p: any) => (
+            <tr>
+              <td><strong>{p.p}</strong></td>
+              <td style="color:var(--muted)">{p.como}</td>
+              <td><span class={`chip ${p.estado}`}>{p.estado === 'ok' ? 'soportado' : p.estado === 'warn' ? 'parcial' : 'sin fecha'}</span></td>
+              <td>{p.que}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+    <p class="src">"Sin fecha" significa que no encontramos compromiso público a la fecha de esta medición, no que el proveedor no piense hacerlo. Cada fila del registro lleva documentación oficial, versión mínima y fecha de verificación.</p>
+    </div></div>
+    <div class="measure">
+      <p><strong>Dos de los proveedores que suelen fijar el plazo —el core bancario y el módulo de seguridad de pagos— no son observables desde afuera.</strong> Identificarlos requiere su participación.</p>
+    </div>
+  </section>
+
+  <!-- 05 · PLAN -->
+  <section id="plan">
+    <div class="sechead">
+      <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 18h16"/><path d="M7 18v-5M12 18V7M17 18v-9"/></svg>
+      <span class="snum">05 · Plan 30 · 90 · 365</span>
+    </div>
+    <h2>Qué hacer, en qué orden</h2>
+    <div class="measure">
+      <p class="lede">Cada acción sale de un hallazgo de este informe, no de una lista genérica.</p>
+    </div>
+    <div class="tw">
+      <table class="roadmap">
+        <thead><tr><th>Plazo</th><th>Acción</th><th>De dónde sale</th><th class="num">Esfuerzo</th></tr></thead>
+        <tbody>
+          {d.plan.map((x: any) => (
+            <tr><td class="mono">{x.p}</td><td>{x.a}</td><td style="color:var(--muted)">{x.o}</td><td class="num">{x.e}</td></tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+    <div class="measure">
+      <p><strong>Las primeras cuatro acciones no requieren presupuesto ni proyecto.</strong> Son configuración, baja de un host, publicar un archivo de texto y enviar un correo. Entre las cuatro mueven {d.irec.dimensiones[3].peso} puntos del índice y cierran los hallazgos de mayor severidad.</p>
+    </div>
+
+    <div class="panel">
+      <div class="panel-h"><h3>Qué va adjunto a este informe</h3></div>
+      <div class="chart-b">
+        <ul>{d.adjuntos.map((a: string) => <li>{a}</li>)}</ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- 06 · ALCANCE -->
+  <section id="alcance" class="legal">
+    <div class="sechead">
+      <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3.5 4.5 6.5v5.2c0 4.4 3.1 7.6 7.5 8.8 4.4-1.2 7.5-4.4 7.5-8.8V6.5Z"/><path d="M9.3 12.2l1.9 1.9 3.6-3.8"/></svg>
+      <span class="snum">06 · Alcance y límites</span>
+    </div>
+    <h2>Qué mide este informe y qué no</h2>
+    <div class="cols">
+      <div>
+        <h3>Cómo se midió</h3>
+        <p>Consultamos <strong>registros públicos de Certificate Transparency</strong> para descubrir sus nombres de host. Sobre los hosts críticos abrimos <strong>una conexión TCP y enviamos un solo saludo inicial de TLS</strong> que ofrece explícitamente grupos post-cuánticos, y observamos la respuesta.</p>
+        <p>El saludo <strong>no se completa</strong>. No se estableció sesión, no se transfirieron datos de aplicación, no se enviaron credenciales y no se ejecutó ninguna prueba de intrusión. La carga generada equivale a abrir su sitio una vez.</p>
+      </div>
+      <div>
+        <h3>Qué NO dice</h3>
+        <p>Se midió <strong>solo superficie pública</strong>. Este informe no dice nada sobre sus módulos de seguridad de hardware, su core, sus redes privadas, su firma de código ni su cifrado en reposo — que es donde está el trabajo real de una migración.</p>
+        <p>Un índice de {SCORE} <strong>no significa que {d.cliente} sea inseguro</strong>. Significa que, de lo observable desde afuera, hay hallazgos corregibles — y que los más caros no se resuelven con configuración, sino con respuestas de sus proveedores.</p>
+        <p>El índice está topado en {d.irec.tope} porque una medición externa <strong>nunca puede afirmar que una organización está preparada</strong> — solo que no lo está.</p>
+      </div>
+    </div>
+    <div class="note">
+      <strong>Derecho de acceso y exclusión.</strong> Este informe es suyo. Puede pedirnos el detalle completo de cualquier medición, la metodología reproducible, o su exclusión de futuras ediciones del estudio agregado — sin costo, sin condiciones y sin justificación, dentro de 72 horas hábiles.
+    </div>
+    <p class="src">Rosetta Quantum · Blue Tuna SpA · Informe individual · {mesLargo} · Método idéntico al del informe mensual de la industria chilena.</p>
+  </section>
+
+</div>
+</div>
+</BaseLayout>

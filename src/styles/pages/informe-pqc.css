@@ -132,7 +132,9 @@ footer a{color:var(--papyrus-dim)} footer a:hover{color:var(--gold)}
 .bars{display:grid;gap:8px;min-width:430px}
 .bar-row{display:grid;grid-template-columns:150px 1fr 92px;align-items:center;gap:13px}
 .bar-lab{font-size:.85rem;text-align:right}
-.bar-track{height:21px;background:var(--grid);border-radius:2px}
+.bar-track{position:relative;height:21px;background:var(--grid);border-radius:2px}  /* relative: la marca de mediana del informe individual se ancla AQUI. Sin esto
+     escapaba al ancestro posicionado y se dibujaba como una linea de 821 px que
+     cruzaba la pagina entera del documento que se cobra (defecto real, 19-ago). */
 .bar-fill{height:100%;background:var(--ink);border-radius:0 2px 2px 0}
 .bar-fill.hi{background:var(--ok)} .bar-fill.mid{background:var(--warn)} .bar-fill.lo{background:var(--danger)}
 .bar-val{font-family:var(--f-mono);font-size:.82rem;color:var(--ink);

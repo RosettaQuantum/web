@@ -3,8 +3,12 @@ const { lang = 'en' } = Astro.props;
 const es = lang === 'es';
 const p = (path) => es ? `/es${path}` : path;
 
-/* sample score ring geometry */
-const R = 88, C = 2 * Math.PI * R, SCORE = 28;
+/* sample score ring geometry — el score del ejemplo se deriva, no se escribe */
+import { score, banda } from '../../lib/qex.js';
+const VALORES = { cert: 40, higiene: 52, hndl: 15, edge: 5 };
+const SCORE = score(VALORES);
+const B = banda(SCORE);
+const R = 88, C = 2 * Math.PI * R;
 const dash = (SCORE / 100) * C;
 
 const t = es ? {
@@ -12,7 +16,7 @@ const t = es ? {
   h1:'¿Qué tan lista está su criptografía para el momento cuántico?',
   lede:'Mapa automatizado de su exposición criptográfica post-cuántica. <strong>Evidencia de superficie pública</strong>, un score Q-Ready e informe board-ready — sin pedirle acceso a su red en el nivel External.',
   ctaMain:'Mapear mi dominio', ctaSec:'Ver informe de ejemplo',
-  ringSub:'Ejemplo · banda', ringBand:'Not ready', ringNote:'ver informe de ejemplo →',
+  ringSub:'Ejemplo · banda', ringBand:B.n, ringNote:'ver informe de ejemplo →',
   s2eye:'El problema · un calendario que ya es política', s2h:'El reloj criptográfico ya está corriendo.',
   s2p:'La criptografía de clave pública que protege casi todo el tráfico empresarial (RSA, ECC) será vulnerable a un computador cuántico criptográficamente relevante vía el algoritmo de Shor. Los reemplazos ya son estándar. La migración toma años. El timeline de defensa está fijado por política pública; el de ataque es una distribución de probabilidad.',
   clock:[
@@ -72,7 +76,7 @@ const t = es ? {
   h1:'How ready is your cryptography for the quantum clock?',
   lede:'Automated map of your post-quantum cryptographic exposure. <strong>Public-surface evidence</strong>, a Q-Ready score, and a board-ready report — no network access required at the External tier.',
   ctaMain:'Map my domain', ctaSec:'See a sample report',
-  ringSub:'Sample · band', ringBand:'Not ready', ringNote:'see the sample report →',
+  ringSub:'Sample · band', ringBand:B.n, ringNote:'see the sample report →',
   s2eye:'The problem · a calendar that is already policy', s2h:'The cryptographic clock is already running.',
   s2p:'The public-key cryptography protecting almost all enterprise traffic (RSA, ECC) will be vulnerable to a cryptographically relevant quantum computer via Shor’s algorithm. The replacements are already standards. Migration takes years. The defense timeline is fixed by public policy; the attack timeline is a probability distribution.',
   clock:[
@@ -176,12 +180,12 @@ const jsonldService = {
         <div class="ring">
           <svg viewBox="0 0 200 200" width="200" height="200" aria-hidden="true">
             <circle cx="100" cy="100" r={R} fill="none" stroke="#3D372F" stroke-width="12"/>
-            <circle cx="100" cy="100" r={R} fill="none" stroke="#E0705C" stroke-width="12" stroke-linecap="round"
+            <circle cx="100" cy="100" r={R} fill="none" stroke={B.hex} stroke-width="12" stroke-linecap="round"
               stroke-dasharray={`${dash} ${C}`} />
           </svg>
-          <div class="ring-num"><span class="n crit">{SCORE}</span><span class="of">/ 100</span></div>
+          <div class="ring-num"><span class="n" style={`color:${B.hex}`}>{SCORE}</span><span class="of">/ 100</span></div>
         </div>
-        <span class="band notready">{t.ringBand}</span>
+        <span class={`band ${B.cls}`}>{t.ringBand}</span>
         <span class="mono faint" style="font-size:11px">{t.ringNote}</span>
       </a>
     </div>
@@ -251,11 +255,11 @@ const jsonldService = {
         <div class="ring">
           <svg viewBox="0 0 200 200" width="180" height="180">
             <circle cx="100" cy="100" r={R} fill="none" stroke="#3D372F" stroke-width="12"/>
-            <circle cx="100" cy="100" r={R} fill="none" stroke="#E0705C" stroke-width="12" stroke-linecap="round" stroke-dasharray={`${dash} ${C}`} />
+            <circle cx="100" cy="100" r={R} fill="none" stroke={B.hex} stroke-width="12" stroke-linecap="round" stroke-dasharray={`${dash} ${C}`} />
           </svg>
-          <div class="ring-num"><span class="n crit">{SCORE}</span><span class="of">/ 100</span></div>
+          <div class="ring-num"><span class="n" style={`color:${B.hex}`}>{SCORE}</span><span class="of">/ 100</span></div>
         </div>
-        <span class="band notready">{t.ringBand}</span>
+        <span class={`band ${B.cls}`}>{t.ringBand}</span>
       </a>
     </div>
   </div>

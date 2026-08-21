@@ -2,16 +2,36 @@
 const { lang = 'en' } = Astro.props;
 const es = lang === 'es';
 const p = (path) => es ? `/es${path}` : path;
-const R = 92, C = 2 * Math.PI * R, SCORE = 28, dash = (SCORE/100)*C;
+import { PESOS, ORDEN, score, banda, leyenda } from '../../lib/qex.js';
+
+/* Dimensiones medidas de la empresa de ejemplo. El score NO se escribe a mano:
+   sale de estos valores con la ponderacion canonica (src/lib/qex.js). */
+const VALORES = { cert: 40, higiene: 52, hndl: 15, edge: 5 };
+const SCORE = score(VALORES);
+const B = banda(SCORE);
+const R = 92, C = 2 * Math.PI * R, dash = (SCORE/100)*C;
+
+/* Comparacion con pares. Sale del estudio nacional de agosto de 2026
+   (cortes-por-sector-2026-08.json), no de una estimacion. La regla n>=8 se
+   aplica por metrica: banca tiene n=12 en indice y n=15 en soporte hibrido. */
+const PARES = { sector:'Banca', n:12, mediana:57, p25:56, p75:58, min:46, max:60,
+                nacMediana:57, nacN:170, hibridoSector:93, hibridoN:15,
+                escaneo:'2026-07-31 → 2026-08-02' };
 
 const t = es ? {
   eyebrow:'Informe de ejemplo · Q-Ready External',
   demo:'Datos ilustrativos · empresa ficticia, no un cliente real',
   h1:'Informe de exposición criptográfica post-cuántica',
   print:'Descargar PDF', back:'← Volver a Q-Ready',
-  co:'Acme Bank LatAm', dom:'acme-bank.example', date:'Emitido 2026-07-30 · válido a la fecha de escaneo',
-  s1:'Resumen ejecutivo', band:'Not ready', bandR:'0–29 · sin postura post-cuántica',
-  execP:'La superficie pública de <b>acme-bank.example</b> no negocia intercambio de llaves híbrido post-cuántico en ningún host observado. Como banco, su horizonte de confidencialidad es largo; bajo cualquier escenario CRQC razonable, la organización llega tarde. La brecha es de <b>postura</b>, no de una sola falla — y es corregible con un roadmap acotado.',
+  co:'Acme Bank LatAm', dom:'acme-bank.example', date:`Emitido 2026-07-30 · medición del ${PARES.escaneo}`,
+  s1:'Resumen ejecutivo', band:B.n, bandR:`${B.rango} · ${B.sigEs}`,
+  execP:'La superficie pública de <b>acme-bank.example</b> no negocia intercambio de llaves híbrido post-cuántico en ningún host observado. Como banco, sus datos deben permanecer secretos durante décadas; bajo cualquier escenario razonable, la organización llega tarde. La brecha es de <b>postura</b>, no de una sola falla — y es corregible con un roadmap acotado.',
+  absNum:'Los tres números', absKpi:[
+    [String(SCORE),'Índice QEX', `de 100 · techo externo 84`],
+    [`${PARES.mediana}`,`Mediana de ${PARES.sector.toLowerCase()}`,`n = ${PARES.n} organizaciones medidas`],
+    ['0 %','Sus hosts con híbrido',`contra ${PARES.hibridoSector} % del sector`],
+  ],
+  absPos:'Dónde queda', absAcc:'Las tres cosas que haría primero',
   top5:'Top 5 hallazgos',
   findings:[
     ['Critical','0% de los hosts negocian ML-KEM híbrido; todo el key exchange es clásico (X25519/ECDHE).'],
@@ -20,11 +40,24 @@ const t = es ? {
     ['Medium','Wildcards en 4 hosts amplían el radio de impacto; 6 hostnames huérfanos en CT.'],
     ['Info','Sin security.txt ni política de crypto-agility publicada; edge en Cloudflare (señal parcial positiva).'],
   ],
-  costH:'Costo de inacción (Mosca)', cost:'X (confidencialidad ~8 años) + Y (migración ~9 años) = 17 > Z (CRQC ~9 años). Cada trimestre de demora reduce el margen y aumenta el volumen de tráfico ya recolectable.',
+  costH:'Por qué ya va tarde',
+  cost:'Sus datos deben permanecer secretos <b>8 años</b>. Migrar le va a tomar <b>9</b>. Necesita <b>17 años</b> de protección por delante — y la estimación mediana sitúa la amenaza en <b>9</b>. <b>Va 8 años tarde.</b> Cada trimestre de demora no recupera ese margen: lo empeora, porque suma tráfico que ya salió cifrado con criptografía clásica.',
+  costPie:'Formulación de Mosca: vida útil del secreto (X) + tiempo de migración (Y) > horizonte de la amenaza (Z). Aquí 8 + 9 = 17 > 9.',
   s2:'Contexto · el reloj y el HNDL',
-  edu:'La criptografía RSA/ECC será vulnerable a Shor en un CRQC. Los estándares de reemplazo (FIPS 203/204/205) existen desde 2024; NIST IR 8547 depreca RSA-2048/ECC en 2030 y los elimina en 2035. Bajo <b>harvest now, decrypt later</b>, el tráfico cifrado hoy puede descifrarse cuando exista un CRQC. <b>Nota de categoría:</b> un teorema (Shor) frente a un veredicto medido (Evidence Ledger: ¿ganó quantum al baseline clásico?). Q-Ready no mide ventaja en optimización.',
+  edu:'La criptografía RSA/ECC será vulnerable a Shor en un CRQC. Los estándares de reemplazo (FIPS 203/204/205) existen desde 2024; NIST IR 8547 depreca RSA-2048/ECC en 2030 y los elimina en 2035. Bajo <b>harvest now, decrypt later</b>, el tráfico cifrado hoy puede descifrarse cuando exista un CRQC.',
+  eduPie:'Este informe mide exposición criptográfica, no ventaja cuántica. Son cosas distintas: que Shor rompa RSA es un teorema demostrado; que un computador cuántico le gane a un método clásico en un problema de optimización es una pregunta empírica abierta, y no es lo que este informe responde.',
+  s2b:'Los cuatro relojes',
+  relP:'La objeción razonable es «ninguna norma me obliga todavía». Es cierta, y no cambia nada: hay cuatro relojes corriendo y el del regulador es el más lento.',
+  rel:[
+    ['Su fecha límite la pone la vida útil de sus datos','crit','Un crédito hipotecario tiene que seguir siendo secreto por décadas. Su plazo no lo fija la CMF: lo fija cuánto tiempo sus datos deben permanecer secretos.'],
+    ['La deuda ya está corriendo','crit','El tráfico que sale cifrado hoy puede estar guardándose ahora para leerse después. Nada de lo que haga en 2030 protege lo que salió en 2026.'],
+    ['La exigencia le llega por contrato antes que por ley','warn','Su casa matriz, un banco corresponsal o el cuestionario de seguridad de un cliente grande van a preguntar antes que cualquier regulador chileno.'],
+    ['Las fechas técnicas ya están escritas','warn','NIST fija deprecación de RSA y curvas elípticas en 2030 y prohibición en 2035. El documento (IR 8547) sigue siendo borrador público inicial y así lo decimos: no es obligación vigente, pero es contra esa fecha que planifican sus proveedores.'],
+  ],
+  chileH:'Y en Chile, con todas sus letras',
+  chileP:'<b>Al corte de este informe, ningún regulador chileno exige criptografía post-cuántica.</b> Ni la CMF, ni la ANCI, ni la Agencia de Protección de Datos. Lo que sí existe son obligaciones de gestión de riesgo operacional y seguridad de la información bajo las cuales un supervisor puede preguntar por su plan. Este informe no va a insinuar una obligación que no existe.',
   s3:'Qué está bien',
-  good:['Edge en Cloudflare en los hosts principales → híbrido PQC activable con un toggle, sin re-arquitectura.','TLS 1.3 presente en www y online; sin export ciphers observados.','DMARC y SPF configurados en el dominio de correo.'],
+  good:['Edge en Cloudflare en los hosts principales. Ojo: eso NO es una victoria pendiente — Cloudflare ya negocia el híbrido por defecto, así que esos hosts no dependen de una acción suya.','TLS 1.3 presente en www y online; sin export ciphers observados.','DMARC y SPF configurados en el dominio de correo.'],
   s4:'Qué está mal / crítico', sev:'Severidad', findingCol:'Hallazgo', detailCol:'Detalle',
   sevtbl:[
     ['Critical','Key exchange 100% clásico','Ningún host negocia X25519MLKEM768.'],
@@ -33,6 +66,20 @@ const t = es ? {
     ['Medium','Wildcards + huérfanos CT','Radio de impacto amplio; superficie no gestionada.'],
     ['Low','Sin crypto-agility policy','No hay owner ni proceso de rotación declarado.'],
   ],
+  s5b:'Su camino crítico pasa por sus proveedores',
+  provP:'Cruzamos los proveedores visibles en su superficie y los típicos de su industria contra el estado post-cuántico declarado por cada fabricante. Esto es lo que decide su plazo real — y no depende de usted.',
+  provCols:['Capa','Proveedor','Estado post-cuántico','Qué significa para usted'],
+  prov:[
+    ['Borde público','Cloudflare','Disponible y encendido por defecto','ok','Nada que hacer. Ya está.'],
+    ['Borde público','Akamai Enhanced TLS','Disponible y encendido por defecto','ok','Nada que hacer si su origen está en Enhanced.'],
+    ['Borde público','Akamai Standard TLS','No disponible en ese nivel','crit','Cambio de nivel de producto. Es contrato, no ingeniería.'],
+    ['Core bancario','Temenos · Finacle · FIS · Fiserv','Ninguno ha publicado fecha','crit','El eslabón más largo y el que usted no controla. Pregúnteles por escrito ahora.'],
+    ['Switch de pagos','Visa · ACI Worldwide','Sin hoja de ruta pública','crit','Igual que el anterior: sin fecha del proveedor no hay plan propio posible.'],
+    ['HSM de pagos','Thales payShield','Sin declaración pública','crit','Donde viven sus llaves. Sin respuesta del fabricante, el resto del plan es teórico.'],
+    ['Mensajería financiera','Swift','Julio 2027 · requiere Alliance 7.9','warn','Hay fecha. Si usted está en 7.7 no hay ruta directa: planifique el salto.'],
+    ['Red y VPN','Cisco ASA / Secure Client','ML-KEM real a fin de 2026','warn','No se resuelve actualizando hoy. Espere la versión y planifique la ventana.'],
+  ],
+  provNota:'Estado declarado por cada fabricante en fuentes públicas, con fecha de consulta. Un «sin fecha» no significa que el proveedor no esté trabajando en ello: significa que usted no puede planificar contra nada.',
   s5:'Inventario observado', invcols:['Host','TLS / algoritmos','Híbrido','Edge'],
   inv:[
     ['www.acme-bank.example','TLS 1.3 · X25519 / RSA-2048','No','Cloudflare'],
@@ -42,16 +89,37 @@ const t = es ? {
     ['mail.acme-bank.example','STARTTLS · ECDHE / RSA-2048','No','—'],
   ],
   s6:'Índice HNDL + escenarios CRQC', hndlP:'Banca = horizonte de confidencialidad alto. El índice HNDL combina el sector con la exposición observada:',
-  scen:[['Agresivo','Z ≈ 2030','Tarde por ~7 años','crit'],['Mediano','Z ≈ 2033','Tarde por ~4 años','warn'],['Conservador','Z ≈ 2037','Tarde por ~1 año','warn']],
-  s7:'Nota global Q-Ready', scoreP:'Media ponderada de las dimensiones medibles en el nivel External:',
-  dims:[['Edge TLS PQC','35%','5'],['Certificados / CNI pública','25%','40'],['Superficie & higiene','15%','52'],['Postura HNDL (tiempo)','25%','15']],
-  bands:['Not ready (0–29)','Aware (30–49)','Piloting (50–69)','Hybrid at edge (70–84)','Crypto-agile (85–100)'],
-  s8:'Roadmap',
-  rm:[
-    ['30 días','Higiene y visibilidad',['Inventariar certificados públicos y hostnames en CT','Forzar TLS 1.3; deshabilitar TLS 1.1 en legacy','Reemplazar el leaf RSA-1024','Publicar security.txt']],
-    ['90 días','Híbrido en el edge',['Activar X25519MLKEM768 en Cloudflare (toggle)','Consolidar wildcards; retirar hostnames huérfanos','Nombrar owner de crypto-agility','Definir política de rotación de llaves']],
-    ['365 días','Inventario interno',['CBOM CycloneDX de sistemas internos (nivel Assisted)','Roadmap PQC con vendors de HSM/KMS','Migrar firmas a ML-DSA donde haya soporte','Re-escaneo trimestral (Monitor)']],
+  scen:[
+    ['5 años · 2031','~15 %','Su migración va a la mitad. Cuatro años con la amenaza viva mientras migra.','crit'],
+    ['10 años · 2036','28–49 %','Su migración recién termina. Todo lo cosechado antes sigue siendo legible.','crit'],
+    ['15 años · 2041','≥ 51 %','Protegido de ahí en adelante; no lo que salió antes de 2035.','warn'],
+    ['20 años · 2046','≥ 69 %','Protegido.','ok'],
   ],
+  scenFuente:'Global Risk Institute · Quantum Threat Timeline Report 2025 (7.ª edición, marzo 2026, 26 expertos). Probabilidad agregada de que exista un computador capaz de factorizar 2048 bits en menos de 24 horas.',
+  scenAdv:'Muestra pequeña y de composición variable entre años; los rangos de probabilidad no son uniformes. Las encuestas de 2019–2021 daban una probabilidad mayor para el mismo horizonte.',
+  s7:'Nota global Q-Ready', scoreP:'Media ponderada de las dimensiones medibles en el nivel External:',
+  dims:ORDEN.map(k => [{cert:'Certificados / CNI pública', higiene:'Superficie & higiene', hndl:'Postura HNDL (tiempo)', edge:'Edge TLS PQC'}[k], PESOS[k]+'%', String(VALORES[k])]),
+  bands:leyenda(SCORE, true),
+  s8:'Roadmap',
+  rmCols:['Acción','Esfuerzo','Costo'],
+  rm:[
+    ['30 días','Higiene y visibilidad',[
+      ['Inventariar certificados públicos y hostnames en Certificate Transparency','horas','sin costo'],
+      ['Forzar TLS 1.3 y deshabilitar TLS 1.1 en el host legacy','horas','sin costo'],
+      ['Reemplazar el certificado RSA-1024','horas','sin costo'],
+      ['Publicar security.txt con un canal de contacto','minutos','sin costo']]],
+    ['90 días','Híbrido donde falta',[
+      ['Cambiar el origen de Akamai a Enhanced TLS en los hosts que hoy usan Standard','días','cambio de contrato'],
+      ['Ajustar la política del listener en AWS para que ofrezca el grupo híbrido','horas','sin costo'],
+      ['Consolidar wildcards y retirar hostnames huérfanos','días','sin costo'],
+      ['Nombrar responsable de agilidad criptográfica y definir rotación de llaves','días','sin costo']]],
+    ['365 días','Interior',[
+      ['Inventario de criptografía de sistemas internos (CBOM)','semanas','requiere presupuesto'],
+      ['Plan post-cuántico con los proveedores de HSM y gestión de llaves','semanas','requiere presupuesto'],
+      ['Migrar firmas a ML-DSA donde el proveedor ya lo soporte','semanas','requiere presupuesto'],
+      ['Re-escaneo trimestral','—','suscripción']]],
+  ],
+  rmNota:'Las acciones «sin costo» no requieren compra: son trabajo de su equipo con las herramientas que ya tiene. Ninguna de ellas es «activar un toggle en Cloudflare»: en los hosts que ya están detrás de Cloudflare el híbrido viene encendido de fábrica, y no hay nada que activar.',
   s9:'Brechas de visibilidad', gapP:'El nivel External no observa el interior. Estas brechas se cierran con Assisted (uploads + integraciones) y Enterprise (partner):',
   gaps:['Inventario de HSM/KMS y llaves internas','Apps, VPN y mTLS interno','Bases de datos cifradas y backups','Roadmaps PQC de proveedores'],
   gapCta:'Subir a Assisted →',
@@ -63,9 +131,15 @@ const t = es ? {
   demo:'Illustrative data · fictional company, not a real client',
   h1:'Post-quantum cryptographic exposure report',
   print:'Download PDF', back:'← Back to Q-Ready',
-  co:'Acme Bank LatAm', dom:'acme-bank.example', date:'Issued 2026-07-30 · valid as of scan date',
-  s1:'Executive brief', band:'Not ready', bandR:'0–29 · no post-quantum posture',
-  execP:'The public surface of <b>acme-bank.example</b> negotiates no post-quantum hybrid key exchange on any observed host. As a bank, its confidentiality horizon is long; under any reasonable CRQC scenario, the organization is late. The gap is one of <b>posture</b>, not a single flaw — and it is fixable with a bounded roadmap.',
+  co:'Acme Bank LatAm', dom:'acme-bank.example', date:`Issued 2026-07-30 · measured ${PARES.escaneo}`,
+  s1:'Executive brief', band:B.n, bandR:`${B.rango} · ${B.sigEn}`,
+  execP:'The public surface of <b>acme-bank.example</b> negotiates no post-quantum hybrid key exchange on any observed host. As a bank, its data must stay secret for decades; under any reasonable scenario, the organization is late. The gap is one of <b>posture</b>, not a single flaw — and it is fixable with a bounded roadmap.',
+  absNum:'The three numbers', absKpi:[
+    [String(SCORE),'QEX index', `of 100 · external ceiling 84`],
+    [`${PARES.mediana}`,`${PARES.sector} median`,`n = ${PARES.n} measured organizations`],
+    ['0 %','Your hosts with hybrid',`against ${PARES.hibridoSector} % of the sector`],
+  ],
+  absPos:'Where this lands', absAcc:'The first three things to do',
   top5:'Top 5 findings',
   findings:[
     ['Critical','0% of hosts negotiate hybrid ML-KEM; all key exchange is classical (X25519/ECDHE).'],
@@ -76,9 +150,20 @@ const t = es ? {
   ],
   costH:'Cost of inaction (Mosca)', cost:'X (confidentiality ~8 yr) + Y (migration ~9 yr) = 17 > Z (CRQC ~9 yr). Every quarter of delay shrinks the margin and grows the volume of already-harvestable traffic.',
   s2:'Context · the clock and HNDL',
-  edu:'RSA/ECC will be vulnerable to Shor on a CRQC. Replacement standards (FIPS 203/204/205) have existed since 2024; NIST IR 8547 deprecates RSA-2048/ECC by 2030 and disallows them by 2035. Under <b>harvest now, decrypt later</b>, traffic encrypted today can be decrypted once a CRQC exists. <b>Category note:</b> a theorem (Shor) versus a measured verdict (Evidence Ledger: did quantum beat the classical baseline?). Q-Ready does not measure optimization advantage.',
+  edu:'RSA/ECC will be vulnerable to Shor on a CRQC. Replacement standards (FIPS 203/204/205) have existed since 2024; NIST IR 8547 deprecates RSA-2048/ECC by 2030 and disallows them by 2035. Under <b>harvest now, decrypt later</b>, traffic encrypted today can be decrypted once a CRQC exists.',
+  eduPie:'This report measures cryptographic exposure, not quantum advantage. They are different things: that Shor breaks RSA is a proven theorem; that a quantum computer beats a classical method on an optimization problem is an open empirical question, and not what this report answers.',
+  s2b:'The four clocks',
+  relP:'The fair objection is “no rule obliges me yet”. It is true, and it changes nothing: four clocks are running and the regulator’s is the slowest.',
+  rel:[
+    ['Your deadline is set by the shelf life of your data','crit','A mortgage has to stay secret for decades. Your deadline is not set by the regulator: it is set by how long your data must remain secret.'],
+    ['The debt is already running','crit','Traffic leaving encrypted today may be stored now to be read later. Nothing you do in 2030 protects what left in 2026.'],
+    ['The requirement reaches you by contract before it reaches you by law','warn','Your parent company, a correspondent bank or a large client’s security questionnaire will ask before any Chilean regulator does.'],
+    ['The technical dates are already written','warn','NIST sets deprecation of RSA and elliptic curves at 2030 and disallowance at 2035. The document (IR 8547) is still an initial public draft and we say so: not a binding obligation, but the date your vendors plan against.'],
+  ],
+  chileH:'And in Chile, plainly',
+  chileP:'<b>As of this report, no Chilean regulator requires post-quantum cryptography.</b> Not the CMF, not the ANCI, not the data protection agency. What does exist are operational-risk and information-security obligations under which a supervisor may ask about your plan. This report will not imply an obligation that does not exist.',
   s3:'What is good',
-  good:['Cloudflare edge on the main hosts → hybrid PQC is a toggle away, no re-architecture.','TLS 1.3 present on www and online; no export ciphers observed.','DMARC and SPF configured on the mail domain.'],
+  good:['Cloudflare edge on the main hosts. Note: this is NOT a pending win — Cloudflare already negotiates the hybrid by default, so those hosts do not depend on any action of yours.','TLS 1.3 present on www and online; no export ciphers observed.','DMARC and SPF configured on the mail domain.'],
   s4:'What is wrong / critical', sev:'Severity', findingCol:'Finding', detailCol:'Detail',
   sevtbl:[
     ['Critical','Key exchange 100% classical','No host negotiates X25519MLKEM768.'],
@@ -87,6 +172,20 @@ const t = es ? {
     ['Medium','Wildcards + CT orphans','Wide blast radius; unmanaged surface.'],
     ['Low','No crypto-agility policy','No declared owner or rotation process.'],
   ],
+  s5b:'Your critical path runs through your vendors',
+  provP:'We cross the vendors visible on your surface, and the typical ones for your industry, against each manufacturer’s declared post-quantum status. This is what sets your real timeline — and it does not depend on you.',
+  provCols:['Layer','Vendor','Post-quantum status','What it means for you'],
+  prov:[
+    ['Public edge','Cloudflare','Available and on by default','ok','Nothing to do. Already there.'],
+    ['Public edge','Akamai Enhanced TLS','Available and on by default','ok','Nothing to do if your origin is on Enhanced.'],
+    ['Public edge','Akamai Standard TLS','Not available at that tier','crit','A product-tier change. Contract, not engineering.'],
+    ['Core banking','Temenos · Finacle · FIS · Fiserv','None has published a date','crit','The longest link, and the one you do not control. Ask them in writing now.'],
+    ['Payment switch','Visa · ACI Worldwide','No public roadmap','crit','Same as above: with no vendor date there is no plan you can make.'],
+    ['Payment HSM','Thales payShield','No public statement','crit','Where your keys live. Without an answer, the rest of the plan is theoretical.'],
+    ['Financial messaging','Swift','July 2027 · requires Alliance 7.9','warn','There is a date. If you are on 7.7 there is no direct path: plan the jump.'],
+    ['Network & VPN','Cisco ASA / Secure Client','Real ML-KEM late 2026','warn','Updating today does not fix it. Wait for the release and plan the window.'],
+  ],
+  provNota:'Status as declared by each manufacturer in public sources, with the date consulted. A “no date” does not mean the vendor is not working on it: it means you cannot plan against anything.',
   s5:'Observed inventory', invcols:['Host','TLS / algorithms','Hybrid','Edge'],
   inv:[
     ['www.acme-bank.example','TLS 1.3 · X25519 / RSA-2048','No','Cloudflare'],
@@ -96,16 +195,37 @@ const t = es ? {
     ['mail.acme-bank.example','STARTTLS · ECDHE / RSA-2048','No','—'],
   ],
   s6:'HNDL index + CRQC scenarios', hndlP:'Banking = high confidentiality horizon. The HNDL index combines sector with observed exposure:',
-  scen:[['Aggressive','Z ≈ 2030','Late by ~7 yr','crit'],['Median','Z ≈ 2033','Late by ~4 yr','warn'],['Conservative','Z ≈ 2037','Late by ~1 yr','warn']],
-  s7:'Global Q-Ready score', scoreP:'Weighted mean of the dimensions measurable at the External tier:',
-  dims:[['Edge TLS PQC','35%','5'],['Certificates / public PKI','25%','40'],['Surface & hygiene','15%','52'],['HNDL posture (time)','25%','15']],
-  bands:['Not ready (0–29)','Aware (30–49)','Piloting (50–69)','Hybrid at edge (70–84)','Crypto-agile (85–100)'],
-  s8:'Roadmap',
-  rm:[
-    ['30 days','Hygiene & visibility',['Inventory public certs and CT hostnames','Force TLS 1.3; disable TLS 1.1 on legacy','Replace the RSA-1024 leaf','Publish security.txt']],
-    ['90 days','Hybrid at the edge',['Enable X25519MLKEM768 on Cloudflare (toggle)','Consolidate wildcards; retire orphan hostnames','Name a crypto-agility owner','Define a key-rotation policy']],
-    ['365 days','Internal inventory',['CycloneDX CBOM of internal systems (Assisted tier)','PQC roadmap with HSM/KMS vendors','Migrate signatures to ML-DSA where supported','Quarterly re-scan (Monitor)']],
+  scen:[
+    ['5 years · 2031','~15 %','Your migration is half done. Four years with a live threat while you migrate.','crit'],
+    ['10 years · 2036','28–49 %','Your migration just finished. Everything harvested before is still readable.','crit'],
+    ['15 years · 2041','≥ 51 %','Protected from then on; not what left before 2035.','warn'],
+    ['20 years · 2046','≥ 69 %','Protected.','ok'],
   ],
+  scenFuente:'Global Risk Institute · Quantum Threat Timeline Report 2025 (7th edition, March 2026, 26 experts). Aggregate probability that a computer able to factor 2048 bits in under 24 hours exists.',
+  scenAdv:'Small sample with varying composition year to year; probability bins are not uniform. The 2019–2021 surveys gave a higher probability for the same horizon.',
+  s7:'Global Q-Ready score', scoreP:'Weighted mean of the dimensions measurable at the External tier:',
+  dims:ORDEN.map(k => [{cert:'Certificates / public PKI', higiene:'Surface & hygiene', hndl:'HNDL posture (time)', edge:'Edge TLS PQC'}[k], PESOS[k]+'%', String(VALORES[k])]),
+  bands:leyenda(SCORE, false),
+  s8:'Roadmap',
+  rmCols:['Action','Effort','Cost'],
+  rm:[
+    ['30 days','Hygiene & visibility',[
+      ['Inventory public certificates and CT hostnames','hours','no cost'],
+      ['Force TLS 1.3 and disable TLS 1.1 on the legacy host','hours','no cost'],
+      ['Replace the RSA-1024 certificate','hours','no cost'],
+      ['Publish security.txt with a contact channel','minutes','no cost']]],
+    ['90 days','Hybrid where it is missing',[
+      ['Move the Akamai origin to Enhanced TLS on hosts still on Standard','days','contract change'],
+      ['Adjust the AWS listener policy to offer the hybrid group','hours','no cost'],
+      ['Consolidate wildcards and retire orphan hostnames','days','no cost'],
+      ['Name a crypto-agility owner and define key rotation','days','no cost']]],
+    ['365 days','Interior',[
+      ['Cryptographic inventory of internal systems (CBOM)','weeks','needs budget'],
+      ['Post-quantum plan with HSM and key-management vendors','weeks','needs budget'],
+      ['Migrate signatures to ML-DSA where the vendor already supports it','weeks','needs budget'],
+      ['Quarterly re-scan','—','subscription']]],
+  ],
+  rmNota:'The “no cost” actions require no purchase: they are your own team’s work with tools you already have. None of them is “flip a toggle on Cloudflare”: on hosts already behind Cloudflare the hybrid ships on by default, and there is nothing to enable.',
   s9:'Visibility gaps', gapP:'The External tier does not observe the interior. These gaps close with Assisted (uploads + integrations) and Enterprise (partner):',
   gaps:['HSM/KMS inventory and internal keys','Apps, VPN and internal mTLS','Encrypted databases and backups','Vendor PQC roadmaps'],
   gapCta:'Upgrade to Assisted →',
@@ -136,13 +256,47 @@ const sevClass = (s) => s.toLowerCase();
         <div class="ring">
           <svg viewBox="0 0 208 208" width="200" height="200">
             <circle cx="104" cy="104" r={R} fill="none" stroke="#3D372F" stroke-width="13"/>
-            <circle cx="104" cy="104" r={R} fill="none" stroke="#E0705C" stroke-width="13" stroke-linecap="round" stroke-dasharray={`${dash} ${C}`} />
+            <circle cx="104" cy="104" r={R} fill="none" stroke={B.hex} stroke-width="13" stroke-linecap="round" stroke-dasharray={`${dash} ${C}`} />
           </svg>
-          <div class="ring-num"><span class="n crit">{SCORE}</span><span class="of">/ 100</span></div>
+          <div class="ring-num"><span class="n" style={`color:${B.hex}`}>{SCORE}</span><span class="of">/ 100</span></div>
         </div>
-        <span class="band notready">{t.band}</span>
+        <span class={`band ${B.cls}`}>{t.band}</span>
         <span class="mono faint" style="font-size:10.5px">{t.bandR}</span>
       </div>
+    </div>
+
+    <!-- 1 bis · abstract de una pagina: 3 numeros + posicion vs sector + 3 acciones -->
+    <div class="rep-section abstract">
+      <h3>{t.absNum}</h3>
+      <div class="abs-kpis">
+        {t.absKpi.map(([n, k, sub]) => (
+          <div class="abs-kpi"><span class="n">{n}</span><span class="k">{k}</span><span class="sub">{sub}</span></div>
+        ))}
+      </div>
+
+      <h3>{t.absPos}</h3>
+      <div class="peer">
+        <div class="peer-scale">
+          <div class="peer-band" style={`left:${PARES.p25}%;width:${PARES.p75 - PARES.p25}%`}></div>
+          <div class="peer-med" style={`left:${PARES.mediana}%`}></div>
+          <div class="peer-you" style={`left:${SCORE}%`}></div>
+        </div>
+        <div class="peer-legend">
+          <span><i class="sw you"></i>{es?'Usted':'You'} · {SCORE}</span>
+          <span><i class="sw med"></i>{es?`Mediana de ${PARES.sector.toLowerCase()}`:`${PARES.sector} median`} · {PARES.mediana}</span>
+          <span><i class="sw band"></i>{es?'Mitad central del sector':'Sector middle half'} · {PARES.p25}–{PARES.p75}</span>
+        </div>
+        <p class="rep-note">{es
+          ? `Su puntaje queda por debajo del mínimo que medimos en la banca chilena (${PARES.min}). De las ${PARES.n} organizaciones de banca con índice calculado, ninguna está tan abajo. En soporte de intercambio híbrido, el sector va en ${PARES.hibridoSector} % (n = ${PARES.hibridoN}) y usted en 0 %.`
+          : `Your score falls below the minimum we measured in Chilean banking (${PARES.min}). Of the ${PARES.n} banking organizations with a computed index, none sits this low. On hybrid key exchange support the sector runs at ${PARES.hibridoSector} % (n = ${PARES.hibridoN}); you are at 0 %.`}</p>
+      </div>
+
+      <h3>{t.absAcc}</h3>
+      <ol class="abs-acc">
+        {t.rm[0][2].slice(0, 2).concat([t.rm[1][2][0]]).map(([acc, esf, cost]) => (
+          <li>{acc} <span class="mono faint">· {esf} · {cost}</span></li>
+        ))}
+      </ol>
     </div>
 
     <div class="rep-section">
@@ -152,13 +306,28 @@ const sevClass = (s) => s.toLowerCase();
           <li><span class={`sev ${sevClass(sv)}`}>{sv}</span><span>{txt}</span></li>
         ))}
       </ul>
-      <div class="honesty" style="margin-top:18px"><p><b class="gold">{t.costH}.</b> {t.cost}</p></div>
+      <div class="honesty" style="margin-top:18px"><p><b class="gold">{t.costH}.</b> <span set:html={t.cost}></span></p>
+        <p class="rep-note" style="margin:.6em 0 0">{t.costPie}</p></div>
     </div>
 
     <!-- 2 · education -->
     <div class="rep-section">
       <h2>{t.s2}</h2>
       <p class="rep-lead" set:html={t.edu}></p>
+      <p class="rep-note">{t.eduPie}</p>
+    </div>
+
+    <!-- 2 bis · los cuatro relojes -->
+    <div class="rep-section">
+      <h2>{t.s2b}</h2>
+      <p class="rep-lead">{t.relP}</p>
+      <ul class="top5">
+        {t.rel.map(([n, sev, txt]) => (
+          <li><span class={`sev ${sev === 'crit' ? 'critical' : 'high'}`}>{sev === 'crit' ? (es ? 'Ya corre' : 'Running') : (es ? 'Se acerca' : 'Approaching')}</span>
+            <span><b>{n}.</b> {txt}</span></li>
+        ))}
+      </ul>
+      <div class="honesty" style="margin-top:16px"><p><b class="gold">{t.chileH}.</b> <span set:html={t.chileP}></span></p></div>
     </div>
 
     <!-- 3 · good -->
@@ -189,15 +358,35 @@ const sevClass = (s) => s.toLowerCase();
       </table>
     </div>
 
+    <!-- 5 bis · camino critico de proveedores -->
+    <div class="rep-section">
+      <h2>{t.s5b}</h2>
+      <p class="rep-lead">{t.provP}</p>
+      <table class="invtbl">
+        <thead><tr>{t.provCols.map(c => <th>{c}</th>)}</tr></thead>
+        <tbody>{t.prov.map(([capa, prov, est, sev, sig]) => (
+          <tr><td>{capa}</td><td>{prov}</td>
+            <td><span class={sev==='crit'?'bad':(sev==='ok'?'ok':'gold')}>{est}</span></td>
+            <td>{sig}</td></tr>
+        ))}</tbody>
+      </table>
+      <p class="rep-note">{t.provNota}</p>
+    </div>
+
     <!-- 6 · HNDL scenarios -->
     <div class="rep-section">
       <h2>{t.s6}</h2>
       <p class="rep-lead">{t.hndlP}</p>
-      <div class="roadmap">
-        {t.scen.map(([n, z, v, c]) => (
-          <div class="rm-col"><div class="hd" style={c==='crit'?'color:var(--crit)':'color:var(--gold)'}>{n}</div><div class="sub">{z}</div><div class={c==='crit'?'crit':'gold'} style="font-family:'IBM Plex Mono',monospace;font-size:14px">{v}</div></div>
-        ))}
-      </div>
+      <table class="invtbl">
+        <thead><tr><th>{es?'Si la amenaza llega en':'If the threat arrives in'}</th><th>{es?'Probabilidad':'Probability'}</th><th>{es?'Qué significa para usted':'What it means for you'}</th></tr></thead>
+        <tbody>{t.scen.map(([n, prob, v, c]) => (
+          <tr><td>{n}</td>
+            <td><span class={c==='crit'?'bad':(c==='ok'?'ok':'')} style="font-family:'IBM Plex Mono',monospace">{prob}</span></td>
+            <td>{v}</td></tr>
+        ))}</tbody>
+      </table>
+      <p class="rep-note">{t.scenFuente}</p>
+      <p class="rep-note">{es?'Límites de la fuente: ':'Source limits: '}{t.scenAdv}</p>
     </div>
 
     <!-- 7 · score breakdown + bands -->
@@ -208,17 +397,26 @@ const sevClass = (s) => s.toLowerCase();
         <thead><tr><th>{es?'Dimensión':'Dimension'}</th><th>{es?'Peso':'Weight'}</th><th>0–100</th></tr></thead>
         <tbody>{t.dims.map(d => <tr><td>{d[0]}</td><td>{d[1]}</td><td><span class={+d[2]<30?'bad':(+d[2]<50?'':'ok')}>{d[2]}</span></td></tr>)}</tbody>
       </table>
-      <div class="bands-legend">{t.bands.map((b,i) => <span class="b" style={i===0?'color:var(--crit);border-color:var(--crit)':''}>{b}</span>)}</div>
+      <div class="bands-legend">{t.bands.map(b => <span class="b" style={b.activa?`color:${b.hex};border-color:${b.hex}`:''}>{b.txt}</span>)}</div>
     </div>
 
     <!-- 8 · roadmap -->
     <div class="rep-section">
       <h2>{t.s8}</h2>
-      <div class="roadmap">
-        {t.rm.map(([hd, sub, items]) => (
-          <div class="rm-col"><div class="hd">{hd}</div><div class="sub">{sub}</div><ul>{items.map(x => <li>{x}</li>)}</ul></div>
-        ))}
-      </div>
+      {t.rm.map(([hd, sub, items]) => (
+        <div style="margin-bottom:20px">
+          <h3 style="margin:0 0 2px"><span class="gold" style="font-family:'IBM Plex Mono',monospace">{hd}</span> · {sub}</h3>
+          <table class="invtbl">
+            <thead><tr><th>{t.rmCols[0]}</th><th>{t.rmCols[1]}</th><th>{t.rmCols[2]}</th></tr></thead>
+            <tbody>{items.map(([acc, esf, cost]) => (
+              <tr><td>{acc}</td>
+                <td style="white-space:nowrap;font-family:'IBM Plex Mono',monospace">{esf}</td>
+                <td style="white-space:nowrap"><span class={/presupuesto|budget|contrato|contract|suscrip|subscri/.test(cost) ? 'gold' : 'ok'}>{cost}</span></td></tr>
+            ))}</tbody>
+          </table>
+        </div>
+      ))}
+      <p class="rep-note">{t.rmNota}</p>
     </div>
 
     <!-- 9 · gaps / upsell -->
@@ -249,3 +447,26 @@ const sevClass = (s) => s.toLowerCase();
 <script is:inline>
   (function(){ var b=document.getElementById('qr-print'); if(b) b.addEventListener('click', function(){ window.print(); }); })();
 </script>
+
+<style>
+/* Abstract de una pagina: lo que el comprador imprime y lleva a pedir presupuesto. */
+.abstract{border:1px solid var(--stone-line);border-radius:4px;padding:20px 22px;margin-bottom:22px}
+.abs-kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:18px;margin-bottom:20px}
+.abs-kpi{display:flex;flex-direction:column;gap:3px}
+.abs-kpi .n{font-size:2.1rem;line-height:1;font-family:'Source Serif 4',Georgia,serif}
+.abs-kpi .k{font-family:'IBM Plex Mono',monospace;font-size:10.5px;letter-spacing:.09em;text-transform:uppercase;opacity:.75}
+.abs-kpi .sub{font-size:.78rem;opacity:.62;line-height:1.35}
+/* La escala de pares es 0-100 y las marcas se posicionan en %, asi que el
+   contenedor tiene que sujetarlas: sin position:relative se anclan a un ancestro
+   lejano y cruzan la pagina. Lo vigila check-informe-geometria.mjs. */
+.peer-scale{position:relative;height:26px;border-radius:3px;background:rgba(255,255,255,.06);
+  border:1px solid var(--stone-line);margin:10px 0 12px;overflow:hidden}
+.peer-band{position:absolute;top:0;bottom:0;background:rgba(217,184,122,.22)}
+.peer-med{position:absolute;top:-2px;bottom:-2px;width:2px;background:var(--gold)}
+.peer-you{position:absolute;top:-2px;bottom:-2px;width:3px;background:var(--crit)}
+.peer-legend{display:flex;flex-wrap:wrap;gap:8px 20px;font-size:.76rem;opacity:.8}
+.peer-legend .sw{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:6px;vertical-align:-1px}
+.peer-legend .sw.you{background:var(--crit)} .peer-legend .sw.med{background:var(--gold)}
+.peer-legend .sw.band{background:rgba(217,184,122,.35)}
+.abs-acc{margin:.4em 0 0;padding-left:1.2em} .abs-acc li{margin-bottom:.35em}
+</style>

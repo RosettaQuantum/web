@@ -1,4 +1,5 @@
 ---
+import { banda } from '../../lib/qex.js';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import css from '../../styles/pages/informe-pqc.css?raw';
 
@@ -65,11 +66,11 @@ function deltaVert(id: string, ratio: number) {
 }
 
 const nf = (n: number) => n.toLocaleString('es-CL');
-const cdnPct = (o: any) => Math.round(o.hibrido / o.n * 100);
+const cdnPct = (o: any) => o.pct;
 
 const SECCIONES = [
   ['panel','Panel de exposición'], ['ejecutivo','Resumen para directorio'],
-  ['medicion','La medición del mes'], ['trampa','La trampa del CDN'],
+  ['indice','El índice QEX'], ['medicion','La medición del mes'], ['trampa','La trampa del CDN'],
   ['ruta','Ruta crítica por proveedor'], ['costo','El costo de esperar'],
   ['entregable','Así se ve su informe'], ['contexto','Por qué existe el problema'],
   ['reloj','Dónde está la máquina y cuándo llega'], ['glosario','Glosario'],
@@ -118,19 +119,66 @@ const SECCIONES = [
 
   <div class="measure" style="margin:32px 0 8px">
     <p class="lede">
-      Este informe se publica todos los meses sobre la misma muestra y con el mismo método, para
-      que cada cifra pueda leerse como una serie y no como una foto. {prev
-        ? `Las variaciones respecto de la edición anterior aparecen junto a cada métrica.`
-        : `Esta primera edición fija la línea base: desde la próxima, cada métrica llevará su variación mensual.`}
+      <strong>Este es un informe mensual, no un estudio puntual.</strong> Cada edición mide la misma
+      muestra de {d.muestra.organizaciones} organizaciones con el mismo método y publica el mismo índice,
+      para que las cifras puedan leerse como una serie. {prev
+        ? `Las variaciones respecto de la edición anterior aparecen junto a cada métrica y en cada barra.`
+        : `Esta primera edición fija la línea base: desde la próxima, cada métrica llevará su variación mensual y podrá verse quién se movió y hacia dónde.`}
     </p>
   </div>
 
   <nav class="toc" id="contenido" aria-label="Contenido">
     <h2>Contenido de esta edición</h2>
     <ol>
-      {SECCIONES.map(([id, t]) => <li><a href={`#${id}`}>{t}</a></li>)}
+      <li><a href="#panel"><span class="tl">Panel de exposición · lectura de 30 segundos</span></a></li>
+      <li><a href="#ejecutivo"><span class="tl">Resumen para directorio · dos minutos</span></a></li>
+      <li><a href="#relojes"><span class="tl">Los cuatro relojes</span></a></li>
+      <li><a href="#indice"><span class="tl">El índice</span></a></li>
+      <li><a href="#medicion"><span class="tl">La medición</span></a></li>
+      <li><a href="#trampa"><span class="tl">La trampa</span></a></li>
+      <li><a href="#ruta"><span class="tl">Lo que sí define su plazo</span></a></li>
+      <li><a href="#costo"><span class="tl">El costo de esperar</span></a></li>
+      <li><a href="#entregable"><span class="tl">Qué se puede saber de su organización</span></a></li>
+      <li><a href="#contexto"><span class="tl">Por qué existe el problema</span></a></li>
+      <li><a href="#reloj"><span class="tl">Dónde está la máquina y cuándo llega</span></a></li>
+      <li><a href="#glosario"><span class="tl">Glosario</span></a></li>
+      <li><a href="#legal"><span class="tl">Metodología, límites y aviso legal</span></a></li>
     </ol>
   </nav>
+
+  <!-- CONTEXTO GLOBAL -->
+  <div class="chart" style="margin:34px 0 6px">
+    <div class="chart-h">
+      <p class="chart-t">Dónde está el mundo, y dónde está Chile</p>
+      <p class="chart-s">Todas las cifras provienen de mediciones técnicas sobre endpoints, no de encuestas.</p>
+    </div>
+    <div class="chart-b"><div class="tw">
+      <table>
+        <thead><tr><th>Qué se mide</th><th class="num">Mundo</th><th class="num">Chile</th><th>De dónde sale la referencia</th></tr></thead>
+        <tbody>
+          <tr><td>Endpoints que negocian intercambio híbrido</td>
+            <td class="num">{d.referencia_global.hibrido_global}%</td>
+            <td class="num"><strong>{d.referencia_global.hibrido_chile}%</strong></td>
+            <td>{nf(d.referencia_global.dominios_medidos)} dominios · {d.referencia_global.fuente}</td></tr>
+          <tr><td>Servidores configurados por su dueño con híbrido</td>
+            <td class="num">0%</td><td class="num">—</td>
+            <td>8.443 configuraciones Nginx reales · arXiv:2605.17955</td></tr>
+          <tr><td>Certificados post-cuánticos en producción</td>
+            <td class="num">0%</td><td class="num">0%</td>
+            <td>Todas las mediciones publicadas coinciden</td></tr>
+          <tr><td>Países con mandato o guía técnica con plazos</td>
+            <td class="num">12+</td><td class="num"><strong>0</strong></td>
+            <td>Revisión propia de instrumentos regulatorios</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="src">Chile está cuatro puntos por encima del promedio mundial en la métrica visible — y ese promedio deja la mitad de la infraestructura sin proteger. La autenticación sigue íntegramente clásica en todo el mundo.</p>
+    </div>
+  </div>
+
+  <div class="measure" style="margin-bottom:8px">
+    <p>Tres cosas conviene tener claras antes de mirar cualquier número de este informe. <strong>La primera</strong> es que Chile no está atrasado respecto del mundo: está levemente por delante, y eso no es una buena noticia sino una medida de lo bajo que está el promedio. <strong>La segunda</strong> es que la única métrica donde el mundo avanza —el intercambio de claves en el borde— es también la que un proveedor de infraestructura activa por contrato, sin que la organización decida nada. <strong>Y la tercera</strong> es que la autenticación, que es la mitad del problema, está en cero en todas partes.</p>
+  </div>
 
   <!-- 01 · PANEL -->
   <section id="panel">
@@ -165,7 +213,7 @@ const SECCIONES = [
     <div class="chart">
       <div class="chart-h">
         <p class="chart-t">Cuánta superficie pública tiene una gran empresa chilena</p>
-        <p class="chart-s">Nombres de host en registros públicos de certificados. n = {d.muestra.chilenas_analizadas}.</p>
+        <p class="chart-s">Nombres de host en registros públicos de certificados. n = {d.muestra.con_indice}.</p>
       </div>
       <div class="chart-b">
         <div class="bars">
@@ -203,6 +251,9 @@ const SECCIONES = [
     </div>
 
     <div class="measure">
+      <h3>El número, y qué significa</h3>
+      <p>La mediana nacional del <strong>{d.indice.nombre}</strong> es <strong>{d.indice.mediana} sobre {d.indice.tope}</strong>, con todas las organizaciones medidas entre {d.indice.min} y {d.indice.max}. Ese apiñamiento es el dato más importante del informe: <strong>no hay líderes.</strong> El {d.indice.certificados_detalle.pct_parametros_deprecados}% firma con parámetros que quedan deprecados después de 2030, y esa capa no la resuelve ningún proveedor.</p>
+
       <h3>Tres hechos medidos, no opinados</h3>
       <ul>
         <li><strong>Casi la mitad de las grandes organizaciones chilenas no tiene protección post-cuántica en su infraestructura pública.</strong> Y de las que sí la tienen, prácticamente todas la obtuvieron como efecto secundario de su contrato de CDN.</li>
@@ -219,11 +270,251 @@ const SECCIONES = [
     </div>
   </section>
 
-  <!-- 03 · MEDICION -->
+  <!-- 04 · EL INDICE -->
+  <!-- 03 · LOS CUATRO RELOJES -->
+  <section id="relojes">
+    <div class="sechead">
+      <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2"/></svg>
+      <span class="snum">03 · Los cuatro relojes</span>
+    </div>
+    <h2>Nadie lo va a multar este año. Igual va tarde.</h2>
+    <div class="measure">
+      <p class="lede">La objeción razonable a todo este informe es «no hay ninguna norma que me
+      obligue». Es cierta, y no cambia nada. Hay cuatro relojes corriendo y sólo uno de ellos es
+      el del regulador — que además es el que va más lento.</p>
+    </div>
+
+    {d.relojes.map((r: any, i: number) => (
+      <div class="panel">
+        <div class="panel-h">
+          <h3>{i + 1} · {r.n}</h3>
+          <span class={`chip ${r.sev}`}>{r.sub}</span>
+        </div>
+        <div class="tile">
+          <p style="margin:0">{r.cuerpo}</p>
+          {r.pie && <p class="src" style="margin:.7em 0 0">{r.pie}</p>}
+        </div>
+      </div>
+    ))}
+
+    <h3>Y en Chile, con todas sus letras</h3>
+    <div class="measure">
+      <p><strong>{d.chile.afirmacion}</strong> {d.chile.matiz}</p>
+    </div>
+
+    <div class="chart">
+      <div class="chart-h">
+        <p class="chart-t">Lo que sí está vigente o por entrar en vigencia</p>
+        <p class="chart-s">Ninguna de estas normas nombra criptografía post-cuántica.</p>
+      </div>
+      <div class="chart-b"><div class="tw">
+        <table>
+          <thead><tr><th>Norma</th><th>Qué establece</th><th>Estado</th></tr></thead>
+          <tbody>
+            {d.chile.normas.map((n: any) => (
+              <tr>
+                <td>{n.n}</td>
+                <td>{n.q}</td>
+                <td><span class={`chip ${n.estado === 'ok' ? 'ok' : n.estado === 'pendiente' ? 'warn' : 'crit'}`}>{n.f}</span></td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      <p class="src">Las marcadas «por verificar» no se publican hasta confirmarse contra la fuente primaria del regulador. Se muestran acá porque este documento es un borrador de trabajo.</p>
+      </div>
+    </div>
+
+    <div class="pull"><p>El regulador es el único de los cuatro relojes que le va a avisar antes. Los otros tres ya sonaron.</p></div>
+  </section>
+
+  <section id="indice">
+    <div class="sechead">
+      <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 20h18"/><path d="M6 20V9M11 20V5M16 20v-7M21 20v-4"/></svg>
+      <span class="snum">04 · El índice</span>
+    </div>
+    <h2>{d.indice.nombre}</h2>
+    <div class="measure">
+      <p class="lede">Un número entre 0 y {d.indice.tope} que resume la exposición criptográfica observable de una organización desde afuera. Se recalcula cada mes con el mismo método, para que la serie signifique algo.</p>
+      <p>La diferencia con cualquier otro estudio de ciberseguridad está en el origen del dato: <strong>estas cuatro dimensiones se miden sobre endpoints reales</strong>, no se preguntan. Y las declaramos completas —incluidos sus pesos y sus límites— para que cualquiera pueda reproducir el cálculo o discutirlo.</p>
+    </div>
+
+    <div class="panel">
+      <div class="panel-h">
+        <h3>Cómo se compone · {d.indice.version}</h3>
+        <span class="meta">n = {d.indice.n} organizaciones chilenas</span>
+      </div>
+      <div class="chart-b"><div class="tw">
+        <table>
+          <thead><tr><th>Dimensión</th><th class="num">Peso</th><th>Origen</th><th>Qué mide y por qué pesa lo que pesa</th><th class="num">Mediana</th></tr></thead>
+          <tbody>
+            {d.indice.dimensiones.map((x: any) => (
+              <tr>
+                <td><strong>{x.k}</strong></td>
+                <td class="num">{x.peso}%</td>
+                <td><span class={`chip ${x.tipo === 'medido' ? 'ok' : 'warn'}`}>{x.tipo}</span></td>
+                <td>{x.que}<br /><span style="color:var(--muted)">{x.porque}</span></td>
+                <td class="num">{x.mediana}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      <p class="src">Una dimensión marcada <strong>modelo</strong> no se midió en sus sistemas: se deriva del perfil de su sector. La distinción se conserva en todo el informe.</p>
+      </div>
+    </div>
+
+    <div class="chart">
+      <div class="chart-h">
+        <p class="chart-t">Dónde cae la gran empresa chilena</p>
+        <p class="chart-s">Distribución del índice sobre {d.indice.n} organizaciones. Mediana {d.indice.mediana}, rango {d.indice.min}–{d.indice.max}.</p>
+      </div>
+      <div class="chart-b">
+        <div class="bars">
+          {d.indice.distribucion.map((t: any) => (
+            <div class="bar-row">
+              <span class="bar-lab">{t.rango}</span>
+              <div class="bar-track"><div class={`bar-fill ${t.n===0?'':'mid'}`} style={`width:${Math.round(t.pct/28*100)}%`}></div></div>
+              <span class="bar-val">{t.n > 0 ? `${t.n} · ${t.pct}%` : '—'}</span>
+            </div>
+          ))}
+        </div>
+        <p class="src">Ninguna organización alcanza el tope de {d.indice.tope}. {d.indice.tope_razon}</p>
+      </div>
+    </div>
+
+    <div class="measure">
+      <p>La curva es angosta y eso <em>es</em> el hallazgo: entre el mejor y el peor hay {d.indice.max - d.indice.min} puntos, y {Math.round(100*Math.max(...Object.values(d.indice.bandas_conteo as Record<string,number>))/d.indice.n)}% de la muestra cae en una sola banda. No hay líderes ni rezagados marcados. <strong>Todo el país está en el mismo lugar.</strong></p>
+    </div>
+
+    <div class="pull"><p>El {d.indice.certificados_detalle.pct_parametros_deprecados}% de las organizaciones medidas firma con parámetros que el borrador del NIST deprecia después de 2030. Nadie se diferencia porque nadie ha empezado.</p></div>
+
+    <div class="measure">
+      <p>La dimensión de mayor peso —certificados, {d.indice.dimensiones[0].peso}%— resulta <strong>prácticamente constante</strong>: el {d.indice.hallazgo_cert.constante_pct}% de la muestra obtiene el mismo valor. De {d.indice.certificados_detalle.total} certificados leídos, {d.indice.certificados_detalle.rsa2048} son RSA-2048 y {d.indice.certificados_detalle.ecdsa_p256} son ECDSA sobre curva P-256. Solo {d.indice.certificados_detalle.rsa_mayor} usan parámetros mayores.</p>
+      <p>Eso importa por una razón que separa esta dimensión de todas las demás: <strong>el certificado lo emite y lo gestiona la organización.</strong> No hay proveedor de infraestructura que lo resuelva por contrato, como sí ocurre con el intercambio de claves en el borde.</p>
+    </div>
+
+    <div class="chart">
+      <div class="chart-h">
+        <p class="chart-t">La escala, y dónde cae Chile en ella</p>
+        <p class="chart-s">Cinco niveles de madurez. Describen el estado de la organización, nunca la técnica que usa. n = {d.indice.n}.</p>
+      </div>
+      <div class="chart-b"><div class="tw">
+        <table>
+          <thead><tr><th>Nivel</th><th>Rango</th><th>Qué significa</th><th class="num">Organizaciones</th></tr></thead>
+          <tbody>
+            {d.indice.bandas.map((b: any) => {
+              const n = (d.indice.bandas_conteo as Record<string, number>)[b.n] ?? 0;
+              return (
+                <tr style={n === 0 ? 'opacity:.55' : ''}>
+                  <td><strong>{b.n}</strong></td>
+                  <td class="mono">{b.rango}</td>
+                  <td>{b.sig}</td>
+                  <td class="num">{n === 0 ? '—' : `${n} · ${Math.round(n / d.indice.n * 100)}%`}</td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
+      <p class="src">El nivel más alto es inalcanzable desde afuera por diseño: ninguna medición externa observa el interior, y por eso el índice se corta en 84. Ninguna organización de esta muestra alcanza los dos extremos.</p>
+      </div>
+    </div>
+
+    <div class="chart">
+      <div class="chart-h">
+        <p class="chart-t">Índice por vertical</p>
+        <p class="chart-s">Mediana de cada sector y desglose por dimensión. {prev ? 'La variación es contra la edición anterior.' : 'Línea base.'}</p>
+      </div>
+      <div class="chart-b"><div class="tw">
+        <table>
+          <thead><tr><th>Vertical</th><th class="num">n</th><th class="num">Índice</th><th class="num">Cert.</th><th class="num">Higiene</th><th class="num">Edge</th><th>Banda</th></tr></thead>
+          <tbody>
+            {d.indice.verticales.map((v: any) => (
+              <tr>
+                <td>{v.n}</td><td class="num">{v.norg}</td>
+                <td class="num"><strong>{v.indice}</strong></td>
+                <td class="num">{v.cert}</td><td class="num">{v.higiene}</td><td class="num">{v.edge}</td>
+                <td><span class={`chip ${v.indice>=70?'ok':v.indice>=50?'warn':'crit'}`}>{banda(v.indice).n}</span></td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      <p class="src">Verticales con menos de 3 organizaciones medidas se omiten. Isapres y clínicas se reportan por separado solo cuando cada una alcanza n ≥ 8.</p>
+      </div>
+    </div>
+
+    <h3>Por qué el índice todavía no separa mucho, y por qué eso es el hallazgo</h3>
+    <p class="measure">Medimos cuánto separa cada dimensión a las organizaciones entre sí. El resultado
+    incomoda: <strong>la dimensión que más pesa es la que menos distingue</strong>. {d.indice.discriminacion.dims[0].concentracion}%
+    de la muestra comparte exactamente el mismo puntaje de certificados.</p>
+
+    <div class="chart">
+      <div class="chart-h">
+        <p class="chart-t">Cuánto separa cada dimensión</p>
+        <p class="chart-s">«Aporte» es la dispersión que la dimensión entrega al puntaje final, en puntos. n = {d.indice.n}.</p>
+      </div>
+      <div class="chart-b"><div class="tw">
+        <table>
+          <thead><tr><th>Dimensión</th><th class="num">Peso</th><th class="num">Valores distintos</th><th class="num">Concentración</th><th class="num">Aporte</th></tr></thead>
+          <tbody>
+            {d.indice.discriminacion.dims.map((x: any) => (
+              <tr>
+                <td>{x.k}</td>
+                <td class="num">{x.peso}%</td>
+                <td class="num">{x.distintos}</td>
+                <td class="num">{x.concentracion}%</td>
+                <td class="num"><strong>{String(x.aporte).replace('.', ',')}</strong></td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      <p class="src">Concentración = porcentaje de organizaciones que comparten el valor más común de esa dimensión.</p>
+      </div>
+    </div>
+
+    <p class="measure">Eso podría leerse como que el índice está mal ponderado. No lo está: <strong>está
+    fechado</strong>. Los certificados son idénticos porque en agosto de 2026, en Chile, nadie ha empezado
+    a migrar. No hay variación que capturar todavía.</p>
+
+    <p class="measure">La consecuencia, dicha sin adornos: hoy el índice de una organización lo mueven
+    sobre todo <strong>su sector y su proveedor de CDN</strong> —las dos dimensiones que más dispersión
+    aportan— y no algo que ella haya decidido sobre criptografía. Quitando el efecto del sector, la
+    dispersión cae de {String(d.indice.discriminacion.disp_total).replace('.', ',')} a
+    {' '}{String(d.indice.discriminacion.disp_sin_sector).replace('.', ',')} puntos.</p>
+
+    <p class="measure">Por eso el índice sirve como <strong>indicador adelantado</strong>: el mes en que
+    la dimensión de certificados empiece a separar es el mes en que la migración empezó de verdad en
+    Chile. Está construido para capturar exactamente ese momento.</p>
+
+    <div class="panel">
+      <div class="panel-h"><h3>Lo que no afirmamos, aunque lo parezca</h3>
+        <span class="meta">control de honestidad</span></div>
+      <div class="tile">
+        <p style="margin:0">En los primeros puestos hay organizaciones con superficies mínimas: 74 puntos
+        con 5 nombres de host, 71 con 3. Es tentador concluir que el índice premia tener poco expuesto.
+        <strong>Lo medimos y no se sostiene</strong>: la correlación entre puntaje y tamaño de superficie
+        es {String(d.indice.discriminacion.rho_superficie).replace('.', ',')} en
+        {' '}{d.indice.discriminacion.rho_n} organizaciones, es decir, prácticamente nula. El efecto vive
+        sólo en los extremos y desaparece en el grueso de la muestra.</p>
+        <p style="margin:.8em 0 0">Queda escrito porque la afirmación es atractiva, suena sofisticada, y
+        habría sido falsa. Sí es una razón para no leer el ranking como una lista de los mejores.</p>
+      </div>
+    </div>
+
+    <div class="cta">
+      <p>Su organización tiene un número en esta curva. Podemos calcularlo con el mismo método y entregarle el desglose por dimensión.</p>
+      <a class="btn" href="mailto:hello@rosettaquantum.com?subject=Mi%20%C3%ADndice%20QEX">Calcular mi índice</a>
+    </div>
+  </section>
+
+  <!-- 05 · MEDICION -->
   <section id="medicion">
     <div class="sechead">
       <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5 21 21"/></svg>
-      <span class="snum">03 · La medición del mes</span>
+      <span class="snum">05 · La medición</span>
     </div>
     <h2>Qué encontramos en la infraestructura pública chilena</h2>
     <div class="measure">
@@ -270,24 +561,84 @@ const SECCIONES = [
     <div class="measure">
       <p>El contraste es de {d.verticales[0].ratio - d.verticales[d.verticales.length-1].ratio} puntos entre el primero y el último. El sector que vende zapatillas y procesa pagos está más protegido que el que custodia la identidad, el padrón electoral, los registros tributarios y las fichas de salud de toda la población.</p>
 
-      <h3>Pero la causa no es la que parece</h3>
+      <h3>Cómo se mide ese 65 %, y por qué el sondeo obvio da otro número</h3>
+    <div class="measure">
+      <p>Si usted reproduce esta medición con el método intuitivo —anunciar el híbrido y mandar
+      la llave de x25519— le va a dar <strong>{d.tres_preguntas.filas[2].pct} %</strong>, no
+      {d.tres_preguntas.filas[0].pct} %. No es que uno esté mal: <strong>son tres preguntas
+      distintas al mismo servidor</strong>, y sólo las dos primeras hablan de seguridad.</p>
+    </div>
+
+    <div class="chart">
+      <div class="chart-h">
+        <p class="chart-t">Tres preguntas, tres números</p>
+        <p class="chart-s">Sobre las mismas {d.tres_preguntas.n} organizaciones sondeadas.</p>
+      </div>
+      <div class="chart-b"><div class="tw">
+        <table>
+          <thead><tr><th>Pregunta</th><th>Cómo se sondea</th><th class="num">Resultado</th><th>Qué mide</th></tr></thead>
+          <tbody>
+            {d.tres_preguntas.filas.map((f: any) => (
+              <tr>
+                <td><strong>{f.q}</strong></td>
+                <td set:html={f.como}></td>
+                <td class="num"><strong>{f.pct} %</strong><br /><span class="mono" style="font-size:11px;opacity:.6">{f.v} de {d.tres_preguntas.n}</span></td>
+                <td><span class={`chip ${f.sev}`}>{f.tipo}</span></td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      <p class="src">Organizaciones que soportan el híbrido pero no lo eligen cuando pueden: <strong>{d.tres_preguntas.discrepancia}</strong>. Soportar y elegir resultaron ser lo mismo en toda la muestra.</p>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-h"><h3>El error fue nuestro, y lo decimos acá</h3>
+        <span class="meta">corrección de método</span></div>
+      <div class="tile">
+        <p style="margin:0">{d.tres_preguntas.leccion} Un servidor que acepta x25519 cuando el
+        cliente ya le mandó esa llave no está renunciando a nada: se está ahorrando una vuelta
+        de saludo, que es comportamiento correcto de TLS. Nosotros leímos ese ahorro como
+        ausencia de capacidad.</p>
+        <p style="margin:.8em 0 0"><strong>Si nuestro propio instrumento confundió «el proveedor
+        no lo tiene» con «no se lo pedimos bien», una organización con quince proveedores no
+        tiene ninguna posibilidad de responderse esto sola.</strong> Ese es, en una frase, el
+        problema que este informe existe para mostrar.</p>
+      </div>
+    </div>
+
+    <h3>Pero la causa no es la que parece</h3>
       <p>Al cruzar cada resultado con la infraestructura que sirve el dominio, aparece la explicación:</p>
     </div>
 
     <div class="chart">
       <div class="chart-h"><p class="chart-t">El factor que realmente predice la protección</p>
-      <p class="chart-s">Organizaciones con criptografía híbrida, según su proveedor de red de distribución.</p></div>
+      <p class="chart-s">Organizaciones cuyo borde soporta el intercambio de claves híbrido, por proveedor de red de distribución. n = {d.cdn.conCdn.n + d.cdn.sinCdn.n}.</p></div>
       <div class="chart-b">
         <div class="bars">
-          <div class="bar-row"><span class="bar-lab">Detrás de Cloudflare</span>
-            <div class="bar-track"><div class="bar-fill hi" style={`width:${cdnPct(d.cdn.cloudflare)}%`}></div></div>
-            <span class="bar-val">{cdnPct(d.cdn.cloudflare)}%</span></div>
-          <div class="bar-row"><span class="bar-lab">Todo el resto</span>
-            <div class="bar-track"><div class="bar-fill lo" style={`width:${cdnPct(d.cdn.resto)}%`}></div></div>
-            <span class="bar-val">{cdnPct(d.cdn.resto)}%</span></div>
+          {d.cdn.desglose.map((c: any) => (
+            <div class="bar-row"><span class="bar-lab">{c.n}</span>
+              <div class="bar-track"><div class={`bar-fill ${c.pct >= 70 ? 'hi' : 'lo'}`} style={`width:${c.pct}%`}></div></div>
+              <span class="bar-val">{c.pct}%</span></div>
+          ))}
         </div>
-        <p class="src">{d.cdn.cloudflare.hibrido} de {d.cdn.cloudflare.n} organizaciones detrás de Cloudflare, sin excepción. {d.cdn.resto.hibrido} de {d.cdn.resto.n} fuera de Cloudflare.</p>
+        <p class="src">Detrás de una red de distribución reconocida: {d.cdn.conCdn.soporta} de {d.cdn.conCdn.n} ({d.cdn.conCdn.pct}%). Sobre infraestructura propia: {d.cdn.sinCdn.soporta} de {d.cdn.sinCdn.n} ({d.cdn.sinCdn.pct}%).</p>
       </div>
+    </div>
+
+    <div class="measure">
+      <p>La lectura fácil sería «contrate una red de distribución». La tabla dice algo más
+      incómodo: <strong>dos organizaciones con el mismo proveedor pueden estar en extremos
+      opuestos</strong>. Las {d.cdn.mismoProveedor.altoN} que usan {d.cdn.mismoProveedor.proveedor}
+      {' '}{d.cdn.mismoProveedor.alto} están al {d.cdn.mismoProveedor.altoPct}%; las
+      {' '}{d.cdn.mismoProveedor.bajoN} que usan {d.cdn.mismoProveedor.bajo}, al
+      {' '}{d.cdn.mismoProveedor.bajoPct}%. Mismo proveedor, mismo país, distinto nivel de
+      producto contratado.</p>
+
+      <p>Lo que separa a esas dos mitades no es una decisión de seguridad. Es una línea en un
+      contrato comercial que probablemente firmó otra gerencia, hace años, por razones de
+      rendimiento y costo.</p>
     </div>
 
     <div class="pull"><p>La mayor parte de la protección post-cuántica que hoy tiene Chile no la decidió ningún equipo de seguridad. La decidió un contrato de red de distribución de contenido.</p></div>
@@ -355,34 +706,34 @@ const SECCIONES = [
     </div>
   </section>
 
-  <!-- 04 · TRAMPA -->
+  <!-- 05 · TRAMPA -->
   <section id="trampa">
     <div class="sechead">
       <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 3.5 7.5v5c0 4.3 3.5 7.6 8.5 8.8 5-1.2 8.5-4.5 8.5-8.8v-5Z"/><path d="M12 8.5v4.5M12 16.2v.3"/></svg>
-      <span class="snum">04 · La trampa</span>
+      <span class="snum">06 · La trampa</span>
     </div>
     <h2>Poner un CDN adelante pone el número en verde sin cambiar su exposición</h2>
     <div class="measure">
       <p class="lede">Es la conclusión más incómoda de este estudio, y la que más conviene entender antes de tomar cualquier decisión de inversión.</p>
 
-      <p>El número que medimos —y el que mide cualquiera desde afuera— se vuelve verde con un cambio de configuración de proveedor. No con una migración. Contratar una red de distribución de contenido, o activar una opción en la que ya tiene, mueve a su organización del {cdnPct(d.cdn.resto)}% al {cdnPct(d.cdn.cloudflare)}% en la única métrica visible públicamente.</p>
+      <p>El número que medimos —y el que mide cualquiera desde afuera— se vuelve verde con un cambio de configuración de proveedor. No con una migración. Contratar una red de distribución de contenido, o activar una opción en la que ya tiene, mueve a su organización del {d.cdn.sinCdn.pct}% al {d.cdn.conCdn.pct}% en la única métrica visible públicamente.</p>
 
       <p>Eso protege algo real: el tráfico entre el navegador de su cliente y el borde de la red. No es nada. Pero <strong>es la parte de su criptografía que usted no gestiona, no la que define su riesgo</strong>, y es exactamente la que un auditor, un competidor o un periodista puede medir sin permiso.</p>
     </div>
 
     <div class="chart">
-      <div class="chart-h"><p class="chart-t">El factor que realmente predice la protección</p>
-      <p class="chart-s">Organizaciones con híbrido según proveedor de red de distribución.</p></div>
+      <div class="chart-h"><p class="chart-t">Mismo proveedor, resultado opuesto</p>
+      <p class="chart-s">Organizaciones sobre {d.cdn.mismoProveedor.proveedor}, según el nivel de producto contratado.</p></div>
       <div class="chart-b">
         <div class="bars">
-          <div class="bar-row"><span class="bar-lab">Detrás de Cloudflare</span>
-            <div class="bar-track"><div class="bar-fill hi" style={`width:${cdnPct(d.cdn.cloudflare)}%`}></div></div>
-            <span class="bar-val">{cdnPct(d.cdn.cloudflare)}%</span></div>
-          <div class="bar-row"><span class="bar-lab">Todo el resto</span>
-            <div class="bar-track"><div class="bar-fill lo" style={`width:${cdnPct(d.cdn.resto)}%`}></div></div>
-            <span class="bar-val">{cdnPct(d.cdn.resto)}%</span></div>
+          <div class="bar-row"><span class="bar-lab">{d.cdn.mismoProveedor.proveedor} {d.cdn.mismoProveedor.alto}</span>
+            <div class="bar-track"><div class="bar-fill hi" style={`width:${d.cdn.mismoProveedor.altoPct}%`}></div></div>
+            <span class="bar-val">{d.cdn.mismoProveedor.altoPct}%</span></div>
+          <div class="bar-row"><span class="bar-lab">{d.cdn.mismoProveedor.proveedor} {d.cdn.mismoProveedor.bajo}</span>
+            <div class="bar-track"><div class="bar-fill lo" style={`width:${Math.max(d.cdn.mismoProveedor.bajoPct, 0.6)}%`}></div></div>
+            <span class="bar-val">{d.cdn.mismoProveedor.bajoPct}%</span></div>
         </div>
-        <p class="src">{d.cdn.cloudflare.hibrido} de {d.cdn.cloudflare.n} detrás de Cloudflare, sin excepción. {d.cdn.resto.hibrido} de {d.cdn.resto.n} fuera.</p>
+        <p class="src">{d.cdn.mismoProveedor.altoN} organizaciones en {d.cdn.mismoProveedor.alto}, todas protegidas. {d.cdn.mismoProveedor.bajoN} en {d.cdn.mismoProveedor.bajo}, ninguna. Es la misma empresa proveedora y el mismo país: cambia la línea del contrato.</p>
       </div>
     </div>
 
@@ -416,11 +767,11 @@ const SECCIONES = [
     </div>
   </section>
 
-  <!-- 05 · RUTA -->
+  <!-- 06 · RUTA -->
   <section id="ruta">
     <div class="sechead">
       <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20 9 9l4 6 3-4 4 9Z"/><circle cx="9" cy="9" r="1.5"/><circle cx="16" cy="11" r="1.5"/></svg>
-      <span class="snum">05 · Lo que sí define su plazo</span>
+      <span class="snum">07 · Lo que sí define su plazo</span>
     </div>
     <h2>Su ruta crítica está fuera de su control</h2>
     <div class="measure">
@@ -454,11 +805,11 @@ const SECCIONES = [
     </div>
   </section>
 
-  <!-- 06 · COSTO -->
+  <!-- 07 · COSTO -->
   <section id="costo">
     <div class="sechead">
       <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="M12 7v5l3.2 2"/><path d="M20.5 4.5 18 7"/></svg>
-      <span class="snum">06 · El costo de esperar</span>
+      <span class="snum">08 · El costo de esperar</span>
     </div>
     <h2>Qué pasa si empieza en 2029 en vez de este año</h2>
     <div class="measure">
@@ -508,11 +859,11 @@ const SECCIONES = [
     </div>
   </section>
 
-  <!-- 07 · ENTREGABLE -->
+  <!-- 08 · ENTREGABLE -->
   <section id="entregable">
     <div class="sechead">
       <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 18h16"/><path d="M7 18v-5M12 18V7M17 18v-9"/></svg>
-      <span class="snum">07 · Qué se puede saber de su organización</span>
+      <span class="snum">09 · Qué se puede saber de su organización</span>
     </div>
     <h2>Así se ve el informe de una sola organización</h2>
     <div class="measure">
@@ -523,6 +874,7 @@ const SECCIONES = [
     <div class="panel">
       <div class="panel-h"><h3>Banco tipo · perfil de exposición</h3><span class="meta">medianas reales · n = 12</span></div>
       <div class="tiles">
+        <div class="tile warn"><span class="k">Índice QEX</span><span class="v">{d.indice.verticales.find((v:any)=>v.id==='banca')?.indice ?? '—'}</span><span class="sub">mediana nacional {d.indice.mediana} · tope {d.indice.tope}</span></div>
         <div class="tile"><span class="k">Hosts descubiertos</span><span class="v">76</span><span class="sub">máximo del sector: 378</span></div>
         <div class="tile warn"><span class="k">Subdominios profundos</span><span class="v">14</span><span class="sub">sin dueño identificable</span></div>
         <div class="tile crit"><span class="k">Ambientes no productivos</span><span class="v">4</span><span class="sub">respondiendo en internet</span></div>
@@ -557,11 +909,11 @@ const SECCIONES = [
     <div class="note">Cualquier organización de la muestra puede solicitar su propio panel y su propio plan, sin costo y sin condiciones. Es su dato.</div>
   </section>
 
-  <!-- 08 · CONTEXTO -->
+  <!-- 09 · CONTEXTO -->
   <section id="contexto">
     <div class="sechead">
       <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>
-      <span class="snum">08 · Por qué existe el problema</span>
+      <span class="snum">10 · Por qué existe el problema</span>
     </div>
     <h2>Alguien puede estar guardando su tráfico cifrado hoy para leerlo en 2035</h2>
     <div class="measure">
@@ -612,11 +964,11 @@ const SECCIONES = [
     </div>
   </section>
 
-  <!-- 09 · RELOJ -->
+  <!-- 10 · RELOJ -->
   <section id="reloj">
     <div class="sechead">
       <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="2.4"/><ellipse cx="12" cy="12" rx="9.5" ry="4" transform="rotate(30 12 12)"/><ellipse cx="12" cy="12" rx="9.5" ry="4" transform="rotate(-30 12 12)"/></svg>
-      <span class="snum">09 · Dónde está la máquina y cuándo llega</span>
+      <span class="snum">11 · Dónde está la máquina y cuándo llega</span>
     </div>
     <h2>El cálculo se acortó doscientas veces. El hardware no.</h2>
     <div class="measure">
@@ -707,11 +1059,11 @@ const SECCIONES = [
     </div>
   </section>
 
-  <!-- 10 · GLOSARIO -->
+  <!-- 11 · GLOSARIO -->
   <section id="glosario">
     <div class="sechead">
       <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 4.5h6a2.5 2.5 0 0 1 2.5 2.5v13"/><path d="M20 4.5h-6a2.5 2.5 0 0 0-2.5 2.5v13"/><path d="M4 4.5v13M20 4.5v13"/></svg>
-      <span class="snum">10 · Glosario</span>
+      <span class="snum">12 · Glosario</span>
     </div>
     <h2>Los términos, en una línea cada uno</h2>
     <div class="gloss">
@@ -733,11 +1085,11 @@ const SECCIONES = [
     </div>
   </section>
 
-  <!-- 11 · LEGAL -->
+  <!-- 12 · LEGAL -->
   <section id="legal" class="legal">
     <div class="sechead">
       <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3.5 4.5 6.5v5.2c0 4.4 3.1 7.6 7.5 8.8 4.4-1.2 7.5-4.4 7.5-8.8V6.5Z"/><path d="M9.3 12.2l1.9 1.9 3.6-3.8"/></svg>
-      <span class="snum">11 · Metodología, límites y aviso legal</span>
+      <span class="snum">13 · Metodología, límites y aviso legal</span>
     </div>
     <h2>Cómo se hizo y qué no afirma</h2>
 
@@ -750,6 +1102,10 @@ const SECCIONES = [
         <p>No accedimos a ningún sistema. No intentamos autenticarnos. No exploramos rutas ni directorios. No escaneamos rangos de direcciones. No recopilamos datos personales.</p>
       </div>
       <div>
+        <h3>Sobre el índice</h3>
+        <p>El <strong>{d.indice.nombre} ({d.indice.sigla})</strong>, versión <span class="mono">{d.indice.version}</span>, combina cuatro dimensiones con los pesos publicados en la sección 03. Tres se miden sobre endpoints reales; la cuarta —postura HNDL— <strong>se deriva del perfil del sector y se declara como modelo, no como medición</strong>.</p>
+        <p>El índice está topado en {d.indice.tope}: una medición externa no observa el interior de una organización y por lo tanto <strong>nunca puede afirmar que está preparada</strong>, solo que no lo está. La banda superior requiere evidencia asistida por el propio cliente.</p>
+        <p>Cuando una dimensión no se puede medir en una organización, el peso se renormaliza sobre las disponibles y el hecho se registra. <strong>Una dimensión ausente no se cuenta como cero.</strong></p>
         <h3>Límites</h3>
         <p>Estas mediciones observan <strong>únicamente la superficie pública</strong>. No dicen nada sobre sistemas internos, módulos de seguridad de hardware, redes privadas, firma de código ni bases de datos.</p>
         <p>Un resultado favorable <strong>no implica</strong> preparación. Un resultado desfavorable <strong>no implica</strong> inseguridad, incidente ni incumplimiento.</p>
