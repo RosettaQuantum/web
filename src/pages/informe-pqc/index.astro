@@ -645,6 +645,39 @@ const SECCIONES = [
 
     <div class="pull"><p>La mayor parte de la protección post-cuántica que hoy tiene Chile no la decidió ningún equipo de seguridad. La decidió un contrato de red de distribución de contenido.</p></div>
 
+    <h3>{d.dos_tramos.titulo}</h3>
+    <div class="measure">
+      <p set:html={d.dos_tramos.cuerpo}></p>
+    </div>
+
+    <div class="chart">
+      <div class="chart-h">
+        <p class="chart-t">Qué alcanza nuestra medición y qué no</p>
+        <p class="chart-s">El camino del tráfico cuando hay una red de distribución de por medio.</p>
+      </div>
+      <div class="chart-b"><div class="tw">
+        <table>
+          <thead><tr><th>Tramo</th><th>Estado</th><th>Qué significa</th></tr></thead>
+          <tbody>
+            {d.dos_tramos.tramos.map((t: any) => (
+              <tr>
+                <td><strong>{t.n}</strong></td>
+                <td><span class={`chip ${t.estado === 'medido' ? 'ok' : 'crit'}`}>{t.estado}</span></td>
+                <td>{t.nota}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      <p class="src">{d.dos_tramos.evidencia}</p>
+      </div>
+    </div>
+
+    <div class="measure">
+      <p set:html={d.dos_tramos.consecuencia}></p>
+      <p>{d.dos_tramos.que_hacemos}</p>
+    </div>
+
     <div class="measure">
       <p>Esto reordena por completo la lectura del gráfico anterior. Fintech y retail lideran porque viven del comercio electrónico y contrataron CDN; el Estado va último porque se autoaloja. La adopción observada mide, sobre todo, <strong>una decisión de proveedor</strong> — no la madurez criptográfica de la organización.</p>
 

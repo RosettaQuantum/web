@@ -164,7 +164,31 @@ const SECCIONES = [
       <p set:html={d.hallazgo.cuerpo}></p>
       <p><strong>Lo medimos:</strong> {d.hallazgo.medicion}</p>
     </div>
-    <div class="pull"><p>{d.hallazgo.consecuencia}</p></div>
+    <div class="pull"><p set:html={d.hallazgo.consecuencia}></p></div>
+
+    {d.dos_tramos && (
+      <div class="panel">
+        <div class="panel-h"><h3>{d.dos_tramos.titulo}</h3>
+          <span class="meta">límite de la medición</span></div>
+        <div class="tile">
+          <p style="margin:0" set:html={d.dos_tramos.cuerpo}></p>
+        </div>
+        <div class="tiles">
+          {d.dos_tramos.tramos.map((t: any) => (
+            <div class={`tile ${t.estado === 'medido' ? 'ok' : 'crit'}`}>
+              <span class="k">{t.n}</span>
+              <span class="v" style="font-size:1rem">{t.estado}</span>
+              <span class="sub">{t.nota}</span>
+            </div>
+          ))}
+        </div>
+        <div class="tile">
+          <p style="margin:0" set:html={d.dos_tramos.consecuencia}></p>
+          <p class="src" style="margin:.7em 0 0">{d.dos_tramos.evidencia}</p>
+          <p style="margin:.8em 0 0" set:html={d.dos_tramos.accion}></p>
+        </div>
+      </div>
+    )}
   </section>
 
   <!-- 03 · SUPERFICIE -->

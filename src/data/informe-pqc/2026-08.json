@@ -877,5 +877,24 @@
   "profundos_pct": 83,
   "sin_hibrido_pct": 35,
   "base": 170
+ },
+ "dos_tramos": {
+  "titulo": "Hay dos conexiones, no una — y sólo medimos la primera",
+  "cuerpo": "Cuando una organización sirve su sitio detrás de una red de distribución de contenido, el tráfico no viaja por una conexión cifrada sino por dos: del navegador al borde del proveedor, y del borde al servidor de la organización. Nuestro sondeo llega al borde y recibe su respuesta. Mide bien ese primer tramo. <strong>Del segundo no sabemos nada</strong>, y no lo puede saber nadie desde fuera de la organización.",
+  "consecuencia": "Para una organización detrás de un CDN, «su borde ya negocia criptografía post-cuántica» es cierto y es incompleto. No significa que su tráfico esté protegido de punta a punta: significa que lo está <strong>hasta el borde</strong>. Si el segundo tramo va en criptografía clásica, hay un punto donde el tráfico vuelve a ser interceptable — dentro de la red del proveedor, no de la suya, pero interceptable.",
+  "evidencia": "No es hipotético: los proveedores tratan los dos tramos como funciones separadas, con calendarios y opciones de configuración propias. Akamai documenta «PQC Client to Edge» y «PQC to Origin» como comportamientos independientes.",
+  "que_hacemos": "Lo declaramos y no lo puntuamos. La dimensión de borde mide el primer tramo y dice que mide el primer tramo; meter el segundo en el índice sería inventarlo. La pregunta «¿y el tramo hasta mi origen?» es de las primeras que conviene hacerle a su proveedor.",
+  "tramos": [
+   {
+    "n": "Navegador → borde del proveedor",
+    "estado": "medido",
+    "nota": "Es lo que reporta este informe. 65 % de la muestra lo soporta."
+   },
+   {
+    "n": "Borde del proveedor → su servidor",
+    "estado": "invisible",
+    "nota": "Ocurre entre dos infraestructuras que no son públicas. Ninguna medición externa lo alcanza."
+   }
+  ]
  }
 }

@@ -59,7 +59,7 @@
   "titulo": "Su borde ya negocia criptografía post-cuántica. Y nuestra primera medición dijo lo contrario.",
   "cuerpo": "Sirve <span class=\"mono\">www.santander.cl</span> a través de Akamai <strong>Enhanced TLS</strong>, confirmado por el registro CNAME <span class=\"mono\">wild.santander.edgekey.net</span>. En ese nivel de producto Akamai trae el intercambio híbrido <strong>encendido de fábrica</strong>: no hay ninguna opción que usted deba activar.",
   "medicion": "Nuestro primer sondeo lo registró en cero, y era un defecto nuestro. Anunciábamos el híbrido pero enviábamos la llave de x25519, así que su borde aceptaba x25519 para ahorrarse un viaje de ida y vuelta — comportamiento correcto de TLS, que nosotros leímos como ausencia. Al volver a medir sin esa llave, su servidor pide X25519MLKEM768. Y cuando lo dejamos elegir libremente, también lo elige. Lo mismo pasó con las 16 organizaciones sobre Enhanced TLS: las 16 lo soportan y las 16 lo eligen.",
-  "consecuencia": "Los 10 puntos de la dimensión edge ya son suyos. Su trabajo pendiente no está en el borde: está en la higiene de su superficie y en los proveedores de su camino crítico, que es donde no hay atajo de configuración."
+  "consecuencia": "Los 10 puntos de la dimensión edge ya son suyos. Pero ese número mide <strong>un tramo de dos</strong>, y conviene que lo sepa antes de darlo por cerrado — el detalle está justo abajo."
  },
  "superficie": {
   "hostnames": 220,
@@ -158,6 +158,12 @@
   },
   {
    "p": "30 días",
+   "a": "Preguntarle a Akamai si «PQC to Origin» está habilitado en sus properties",
+   "o": "Nuestra medición llega al borde y no más allá; ese tramo sólo lo sabe su proveedor",
+   "e": "S"
+  },
+  {
+   "p": "30 días",
    "a": "Reclamar o dar de baja pre.fxenlinea.santander.cl",
    "o": "Descubrimiento en Certificate Transparency",
    "e": "S"
@@ -205,5 +211,24 @@
   "Los 220 nombres de host clasificados, indicando cuáles responden y cuáles no",
   "Una página para directorio: su número, su posición y la decisión que hay que tomar",
   "Metodología completa para que su equipo reproduzca cualquier medición"
- ]
+ ],
+ "dos_tramos": {
+  "titulo": "Lo que este informe NO puede decirle sobre su borde",
+  "cuerpo": "Su tráfico no viaja por una conexión cifrada sino por dos: de su cliente al borde de Akamai, y del borde de Akamai a su servidor de origen. <strong>Nosotros medimos la primera y llegamos hasta ahí.</strong> La segunda ocurre entre la infraestructura de su proveedor y la suya: no la vemos, y no la puede ver nadie desde fuera de su organización.",
+  "consecuencia": "Así que «su borde ya negocia criptografía post-cuántica» es cierto y es incompleto. Su tráfico está protegido <strong>hasta el borde</strong>. Si el tramo hasta su origen va en criptografía clásica, hay un punto donde vuelve a ser interceptable — dentro de la red de Akamai, no de la suya, pero interceptable.",
+  "evidencia": "Akamai trata los dos tramos como funciones separadas y documentadas por separado: «PQC Client to Edge» y «PQC to Origin». Tienen calendarios y configuración propios.",
+  "accion": "Es una pregunta de una línea a su ejecutivo de cuenta, y la respuesta la tiene él, no nosotros: <strong>¿está habilitado PQC to Origin en nuestras properties?</strong> No podemos responderla midiendo desde afuera, y preferimos decírselo antes que dejar que el 100 % de esta dimensión se lea como más de lo que es.",
+  "tramos": [
+   {
+    "n": "Su cliente → borde de Akamai",
+    "estado": "medido",
+    "nota": "Negocia X25519MLKEM768. Verificado el 2026-08-21."
+   },
+   {
+    "n": "Borde de Akamai → su origen",
+    "estado": "no medible",
+    "nota": "Fuera del alcance de cualquier medición externa. Pregúntele a su proveedor."
+   }
+  ]
+ }
 }
