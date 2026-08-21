@@ -1,0 +1,95 @@
+---
+// Pieza del home · Cleveland Clinic.
+//
+// Las cifras se hornean EN EL BUILD desde la API pública: quedan en el HTML, así que
+// un buscador o un LLM las lee sin ejecutar nada. El lienzo 3D es la capa de encima y
+// no arranca hasta que la sección entra en pantalla.
+//
+// Falla cerrada: si la API no responde durante el build, el build se cae. Es preferible
+// a publicar una cifra vieja sin que nadie se entere.
+const API = 'https://rosettaquantum.com/v1/challenges/cleveland-2026-07';
+const TARGET = 'KRAS_G12C';
+
+const respuesta = await fetch(API);
+if (!respuesta.ok) {
+  throw new Error(`Pieza Cleveland: la API respondió ${respuesta.status}. El build se detiene en vez de publicar cifras viejas.`);
+}
+const reto = await respuesta.json();
+const p = reto.proteinas[TARGET];
+if (!p) throw new Error(`Pieza Cleveland: ${TARGET} no está en ${API}`);
+
+const ctqw = p.estadistica?.null?.ctqw;
+---
+
+<section class="pieza pieza--cleveland" aria-labelledby="pieza-cleveland-titulo">
+  <div class="pieza__lienzo" data-pieza="cleveland" data-pdb={p.pdb} data-target={TARGET} aria-hidden="true"></div>
+
+  <div class="pieza__texto">
+    <p class="pieza__caso">Cleveland Clinic · sitios alostéricos</p>
+    <h2 id="pieza-cleveland-titulo">Dónde tocar una proteína para apagarla sin tocar su sitio activo</h2>
+    <p>
+      Un sitio alostérico es un punto distante desde el que se puede cambiar el
+      comportamiento de una proteína. Encontrarlos abre fármacos donde hoy no los hay.
+      Rosetta los busca con una caminata cuántica sobre la red de contactos de la
+      molécula: la señal entra por los residuos que hacen el trabajo y se propaga.
+    </p>
+
+    <dl class="pieza__cifras">
+      <div><dt>Proteína</dt><dd>{p.label}</dd></div>
+      <div><dt>Residuos</dt><dd>{p.n_residuos}</dd></div>
+      <div><dt>Sitios predichos</dt><dd>{p.sitios_predichos}</dd></div>
+      {ctqw && <div><dt>Percentil del sitio conocido</dt><dd>{ctqw.percentil_observado}</dd></div>}
+    </dl>
+
+    <p class="pieza__aviso">{reto.aviso}</p>
+
+    <p class="pieza__procedencia">
+      Receta <strong>{reto.recipe_id}</strong> · pre-registro <strong>{reto.pre_registro}</strong> ·
+      instantánea <code>{p.sha256.slice(0, 16)}…</code>
+      <a href={API} rel="nofollow">estos datos, en crudo</a>
+    </p>
+    <p class="pieza__nota" data-nota-caminata>
+      La caminata que se ve se calcula en tu navegador con los parámetros que declara el
+      archivo sellado. No es una animación decorativa ni un dato sellado: es el mismo
+      cálculo, hecho aquí.
+    </p>
+  </div>
+</section>
+
+<script type="module" is:inline>
+  const el = document.querySelector('[data-pieza="cleveland"]');
+  if (el && !matchMedia('(max-width: 520px)').matches) {
+    const { montar } = await import('/piezas/home/cleveland.js');
+    el.addEventListener('pieza:lista', (e) => {
+      const nota = document.querySelector('[data-nota-caminata]');
+      if (nota) nota.insertAdjacentHTML('beforeend',
+        ` <span class="pieza__rho">Red de ${e.detail.nodos} nodos y ${e.detail.aristas} aristas;
+        reproduce el ranking sellado con ρ de Spearman ${e.detail.rho.toFixed(3)}.</span>`);
+    });
+    montar(el, { pdb: el.dataset.pdb, target: el.dataset.target });
+  }
+</script>
+
+<style>
+  .pieza {
+    display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
+    gap: clamp(1.5rem, 4vw, 3.5rem); align-items: center;
+    padding: clamp(2rem, 5vw, 4.5rem) 0;
+  }
+  .pieza__lienzo {
+    position: relative; aspect-ratio: 4 / 3; border-radius: 2px; overflow: hidden;
+    background: linear-gradient(180deg, #1b1038, #05030e);
+  }
+  .pieza__caso { font-size: .78rem; letter-spacing: .12em; text-transform: uppercase; opacity: .7; margin: 0 0 .6rem; }
+  .pieza h2 { margin: 0 0 .9rem; line-height: 1.15; }
+  .pieza__cifras { display: flex; flex-wrap: wrap; gap: 1.4rem; margin: 1.4rem 0; }
+  .pieza__cifras dt { font-size: .72rem; letter-spacing: .1em; text-transform: uppercase; opacity: .6; }
+  .pieza__cifras dd { margin: .2rem 0 0; font-size: 1.5rem; line-height: 1; }
+  .pieza__aviso { font-size: .85rem; line-height: 1.6; border-left: 2px solid #c9a24d; padding-left: .8rem; opacity: .85; }
+  .pieza__procedencia, .pieza__nota { font-size: .74rem; line-height: 1.6; opacity: .6; }
+  .pieza__rho { display: block; margin-top: .3rem; }
+  @media (max-width: 860px) {
+    .pieza { grid-template-columns: 1fr; }
+    .pieza__lienzo { aspect-ratio: 16 / 10; }
+  }
+</style>

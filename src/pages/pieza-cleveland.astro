@@ -1,0 +1,24 @@
+---
+// Página de revisión de la pieza, para mirarla antes de ponerla en el home.
+import PiezaCleveland from '../components/piezas/PiezaCleveland.astro';
+---
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Pieza · Cleveland</title>
+  <meta name="robots" content="noindex" />
+  <style>
+    body { margin:0; background:#07060c; color:#e6e3ee; font-family:ui-sans-serif,system-ui,sans-serif; }
+    main { max-width:1180px; margin:0 auto; padding:0 clamp(1rem,4vw,2.5rem); }
+    .relleno { height:70vh; display:grid; place-items:center; opacity:.35; font-size:.85rem; }
+  </style>
+</head>
+<body>
+  <main>
+    <div class="relleno">baja para ver la pieza — no arranca hasta entrar en pantalla</div>
+    <PiezaCleveland />
+    <div class="relleno">y se detiene sola al salir</div>
+  </main>
+</body>
+</html>
