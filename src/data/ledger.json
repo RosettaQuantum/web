@@ -1,4 +1,7 @@
 {
+  "_procedencia": {
+    "fuente": "d1"
+  },
   "counter": {
     "pipeline": 4,
     "published": 1,

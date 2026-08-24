@@ -43,7 +43,14 @@ try {
     // esto la contesta el propio artefacto. `snapshot` significa que D1 no respondio y
     // esto es una copia vieja republicada: en CI el deploy se detiene antes de llegar
     // ahi, y en local queda declarado en vez de invisible.
-    _procedencia: { fuente: 'd1', fecha: new Date().toISOString() },
+    // SIN FECHA cuando viene de D1, y es a proposito. La marca de tiempo cambiaba en
+    // CADA build, asi que este archivo —que esta commiteado— salia sucio siempre y todo
+    // PR arrastraba su diff. Asi es como la gente aprende a ignorar los diffs de un
+    // archivo, que es exactamente donde una deriva real pasaria desapercibida: el ruido
+    // no es cosmetico, se come la senal. El build ya esta fechado por su propio sha.
+    // La fecha SI se escribe en el camino del respaldo, donde "de cuando es esta copia"
+    // es la pregunta que importa.
+    _procedencia: { fuente: 'd1' },
     // `sealed` is derived from the experiments table, never hardcoded: the counter
     // must not be able to lead the evidence.
     counter: { pipeline: recipes.length, published, sealed: exps.length },

@@ -165,14 +165,13 @@ jobs:
       # victorias_cuanticas_medidas: 0. Un cliente lo desmiente con un curl a nuestra
       # propia API (CLAUDE.md §1 ter).
       #
-      # VA SIN BLOQUEAR A PROPOSITO, y esto es temporal: el defecto esta en main HOY, asi
-      # que hacerlo bloqueante ahora detiene el deploy de todos por algo que Nicholas
-      # todavia no decidio (declararlo estimacion, anclarlo a la fuente aprobada, o
-      # retirarlo). En cuanto esa decision aterrice, se borra el continue-on-error y pasa
-      # a fallar cerrado. Mientras tanto la contradiccion queda VISIBLE en cada deploy en
-      # vez de invisible, que es lo que importa.
+      # FALLA CERRADO desde el 2026-08-24. Nacio sin bloquear a proposito —el defecto
+      # estaba en main y detener el deploy de tres sesiones por una decision pendiente
+      # habria sido un bloqueador que retiene trabajo bueno—. Nicholas decidio sacar el
+      # multiplicador del modelo, el guardia dejo de tener contra que gritar, y recien
+      # ahi se cerro. El orden importa: primero se arregla el defecto, despues se cierra
+      # la puerta. Al reves solo se consigue que alguien desactive el guardia.
       - name: No se promete ventaja mientras el contador diga cero
-        continue-on-error: true
         run: node scripts/check-ventaja-cero.mjs
 
       - name: Self-test del guardia de ventaja-cero
