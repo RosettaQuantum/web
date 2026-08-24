@@ -11,15 +11,21 @@
   });
 
   var FLAVORS = [
-    // Rates derived from unit-economics model (Braket list prices Jul 2026, royalty = 4x break-even, advRate = billed wins per request after free pre-flight screening)
+    // Rates derived from unit-economics model (Braket list prices Jul 2026, royalty = 4x break-even).
+    // NO hay factor de victoria: se cobra POR MEDICION, gane o pierda. `advRate` existia para
+    // expresar "solo cobramos las que ganan" y suponia 50-60% de victorias facturables mientras
+    // /v1/state publica victorias_cuanticas_medidas: 0. Se retiro del modelo el 2026-08-24 con OK
+    // de Nicholas, junto con el cobro condicional del texto. NO reintroducir con otro nombre: un
+    // 0,60 renombrado a "tasa de filtrado" seria la misma cifra no medida respondiendo otra
+    // pregunta. Si algun dia hace falta un factor, se mide primero.
     {id:"RQ-0012", name:"Portfolio optimization", q:"\u201cOptimal risk across N assets?\u201d",
-     unit:"assets", min:50, max:2000, def:500, hwBase:12, hwPerUnit:0.006, royBase:55, royPerUnit:0.04, advRate:0.60},
+     unit:"assets", min:50, max:2000, def:500, hwBase:12, hwPerUnit:0.006, royBase:55, royPerUnit:0.04},
     {id:"RQ-0007", name:"Molecular binding", q:"\u201cHow does this compound bind?\u201d",
-     unit:"compounds / batch", min:100, max:10000, def:2000, hwBase:300, hwPerUnit:0.04, royBase:1500, royPerUnit:0.16, advRate:0.50},
+     unit:"compounds / batch", min:100, max:10000, def:2000, hwBase:300, hwPerUnit:0.04, royBase:1500, royPerUnit:0.16},
     {id:"RQ-0019", name:"Fleet & route optimization", q:"\u201cRoute N vehicles, live constraints?\u201d",
-     unit:"vehicles", min:10, max:500, def:80, hwBase:13, hwPerUnit:0.03, royBase:65, royPerUnit:0.15, advRate:0.58},
+     unit:"vehicles", min:10, max:500, def:80, hwBase:13, hwPerUnit:0.03, royBase:65, royPerUnit:0.15},
     {id:"RQ-0033", name:"Grid / energy balancing", q:"\u201cBalance N nodes with renewables?\u201d",
-     unit:"grid nodes", min:100, max:5000, def:800, hwBase:20, hwPerUnit:0.005, royBase:100, royPerUnit:0.02, advRate:0.55}
+     unit:"grid nodes", min:100, max:5000, def:800, hwBase:20, hwPerUnit:0.005, royBase:100, royPerUnit:0.02}
   ];
   var sel = 0;
   var flavorsEl = document.getElementById('flavors');
@@ -45,7 +51,7 @@
     var solves = Math.round(5 + 995*Math.pow(freq.value/100, 2));
     var hw = f.hwBase + f.hwPerUnit*units;
     var roy = f.royBase + f.royPerUnit*units;
-    var monthly = solves*f.advRate*(hw+roy);
+    var monthly = solves*(hw+roy);   // por medicion, sin factor de victoria
     return {f:f, units:units, solves:solves, hw:hw, roy:roy, monthly:monthly};
   }
   function update(){
@@ -55,7 +61,6 @@
     document.getElementById('freqVal').textContent = p.solves.toLocaleString('en-US')+' /mo';
     document.getElementById('eHw').textContent = fmt2(p.hw)+' /solve';
     document.getElementById('eRoy').textContent = fmt2(p.roy)+' /solve';
-    document.getElementById('eAdvRate').textContent = '('+Math.round(p.f.advRate*100)+'%)';
     document.getElementById('eMonth').textContent = fmt(p.monthly);
   }
   scale.addEventListener('input', update);
