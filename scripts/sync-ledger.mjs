@@ -36,6 +36,14 @@ try {
   const published = verdicts.filter(v => !v.is_demo).length;
 
   const out = {
+    // PROCEDENCIA — de donde salio este archivo y cuando. Lo pidio la sesion Comercial
+    // (2026-08-24) con el argumento exacto: "el snapshot del repo dice 48 y produccion
+    // dice 48, asi que no se si el ultimo build leyo D1 o se quedo con el snapshot".
+    // Sin esto la pregunta solo se contesta leyendo el log del build, que caduca; con
+    // esto la contesta el propio artefacto. `snapshot` significa que D1 no respondio y
+    // esto es una copia vieja republicada: en CI el deploy se detiene antes de llegar
+    // ahi, y en local queda declarado en vez de invisible.
+    _procedencia: { fuente: 'd1', fecha: new Date().toISOString() },
     // `sealed` is derived from the experiments table, never hardcoded: the counter
     // must not be able to lead the evidence.
     counter: { pipeline: recipes.length, published, sealed: exps.length },
@@ -83,5 +91,10 @@ try {
     process.exit(2);
   }
   const snap = JSON.parse(readFileSync('src/data/ledger.json','utf8'));
+  // Se REESCRIBE la procedencia: lo que queda publicado es una copia vieja, y tiene que
+  // decirlo el propio archivo. Sin esto, un snapshot republicado se ve exactamente igual
+  // que uno recien traido de D1 — que es como la ausencia de dato se disfraza de dato.
+  snap._procedencia = { fuente: 'snapshot', fecha: new Date().toISOString() };
+  writeFileSync('src/data/ledger.json', JSON.stringify(snap, null, 2));
   console.warn(`[sync-ledger] D1 unreachable — keeping snapshot (${snap.recipes.length} recipes). ${String(err).split('\n')[0]}`);
 }

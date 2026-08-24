@@ -57,7 +57,11 @@ export function compararLedger({ snapshot, d1 }) {
   const idsB = (d1.recipes ?? []).map((r) => r.id).sort().join(",");
   if (idsA !== idsB) difs.push({ campo: "ids de recetas", snapshot: idsA, d1: idsB });
 
-  const cuerpoIgual = JSON.stringify(snapshot) === JSON.stringify(d1);
+  // `_procedencia` lleva una marca de tiempo que cambia en cada corrida, asi que
+  // compararla haria gritar al guardia SIEMPRE — un falso positivo permanente, que es
+  // como se aprende a ignorar un guardia. Se compara todo MENOS eso.
+  const sinProcedencia = (o) => { const c = { ...o }; delete c._procedencia; return JSON.stringify(c); };
+  const cuerpoIgual = sinProcedencia(snapshot) === sinProcedencia(d1);
   if (!difs.length && !cuerpoIgual) {
     difs.push({ campo: "contenido", snapshot: "(totales e ids calzan)", d1: "algun campo interno cambio" });
   }
@@ -121,6 +125,13 @@ if (args.includes("--self-test")) {
     }],
     ["grita distinto: snapshot ilegible es INDETERMINADO", () => compararLedger({ snapshot: null, d1: base }).estado === "indeterminado"],
     ["reporta denominador", () => compararLedger({ snapshot: base, d1: clonar(base) }).comparados === 5],
+    // Sin excluir _procedencia, su marca de tiempo hace gritar al guardia en CADA
+    // corrida. Un guardia que grita siempre es un guardia que se aprende a ignorar.
+    ["CALLA: solo cambia la marca de tiempo de _procedencia", () => {
+      const a = { ...base, _procedencia: { fuente: "d1", fecha: "2026-08-24T10:00:00Z" } };
+      const b = { ...clonar(base), _procedencia: { fuente: "d1", fecha: "2026-08-24T20:00:00Z" } };
+      return compararLedger({ snapshot: a, d1: b }).estado === "al-dia";
+    }],
     // — publicacion —
     ["CALLA: vino de D1, en CI", () => evaluarPublicacion({ fuente: "d1", enCI: true }).ok === true],
     ["CALLA: vino del snapshot, en local (build sin red debe funcionar)", () => evaluarPublicacion({ fuente: "snapshot", enCI: false }).ok === true],
