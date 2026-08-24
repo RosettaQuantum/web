@@ -40,14 +40,33 @@ const leer = (p) => readFileSync(resolve(REPO, p), 'utf8');
    se prefiere la de afuera cuando esta: la de afuera es la que manda, la copia
    existe para que el guardia pueda correr en cualquier maquina.
    Si las dos existen y difieren, eso TAMBIEN es una divergencia y se grita. */
+/* La primera version de esto tenia el defecto del dia dentro: cuando el original
+ * no estaba en la maquina, devolvia la COPIA y la comparaba consigo misma. En CI
+ * salia verde siempre. **Un control que se compara contra si mismo siempre se da
+ * la razon.** Lo encontro CTO. (2026-08-21)
+ *
+ * Desde CI es genuinamente imposible saber si el original --que vive fuera del
+ * repo-- cambio. Asi que no se finge: se DECLARA que esa comprobacion no se pudo
+ * hacer, y entra al resumen como «sin verificar», nunca como aprobada.
+ * Quien edite el original y no sincronice la copia lo va a ver en su propia
+ * maquina, que es donde si se puede comprobar. */
+let sincroniaVerificada = false;
 const leerPy = () => {
   const fuera = resolve(PROYECTO, 'calcular_qex.py');
   const dentro = resolve(aqui, 'lib/calcular_qex.py');
   const copia = readFileSync(dentro, 'utf8');
-  if (!existsSync(fuera)) { console.log('  — calcular_qex.py: uso la copia del repo (la original no esta en esta maquina)'); return copia; }
-  const orig = readFileSync(fuera, 'utf8');
-  if (orig !== copia) mal('scripts/lib/calcular_qex.py quedo desactualizada respecto de la original del proyecto');
-  return orig;
+  if (!existsSync(fuera)) {
+    console.log('  ? sincronia con calcular_qex.py: SIN VERIFICAR — la original no esta en esta maquina');
+    console.log('    (vive fuera del repo; desde CI no hay forma de saber si cambio)');
+    return copia;
+  }
+  if (readFileSync(fuera, 'utf8') !== copia) {
+    mal('scripts/lib/calcular_qex.py quedo desactualizada respecto de la original del proyecto');
+    return copia;
+  }
+  sincroniaVerificada = true;
+  bien('scripts/lib/calcular_qex.py coincide con la original del proyecto');
+  return copia;
 };
 
 let fallas = 0;
@@ -103,5 +122,7 @@ for (const f of ['src/components/qready/QrReport.astro', 'src/components/qready/
   else bien('score() recorta en el techo');
 }
 
-console.log(fallas ? `\nQEX: ${fallas} divergencia(s). El build se detiene.` : '\nQEX: una sola formula, sin numeros escritos a mano.');
+console.log(fallas
+  ? `\nQEX: ${fallas} divergencia(s). El build se detiene.`
+  : `\nQEX: una sola formula, sin numeros escritos a mano.${sincroniaVerificada ? '' : ' (1 comprobacion sin verificar: ver arriba)'}`);
 process.exit(fallas ? 1 : 0);
