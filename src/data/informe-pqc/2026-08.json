@@ -945,5 +945,45 @@
    }
   ]
  },
- "stack_nota": "El estado de cada proveedor sale de su documentación pública, con fecha de consulta. Un «sin fecha» no significa que el fabricante no esté trabajando en ello: significa que usted no puede planificar contra nada. Esta tabla reemplaza a una fila anterior que agrupaba Thales, Utimaco y Entrust en un solo «requiere firmware específico» — cuatro de esos seis productos necesitan algo más que firmware, y uno no tiene ruta."
+ "stack_nota": "El estado de cada proveedor sale de su documentación pública, con fecha de consulta. Un «sin fecha» no significa que el fabricante no esté trabajando en ello: significa que usted no puede planificar contra nada. Esta tabla reemplaza a una fila anterior que agrupaba Thales, Utimaco y Entrust en un solo «requiere firmware específico» — cuatro de esos seis productos necesitan algo más que firmware, y uno no tiene ruta.",
+ "higiene_vs_edge": {
+  "estratos": [
+   {
+    "n": "Superficie chica",
+    "hosts": 11,
+    "conN": 24,
+    "con": 67.5,
+    "sinN": 26,
+    "sin": 66.2,
+    "dif": 1.3
+   },
+   {
+    "n": "Superficie mediana",
+    "hosts": 43,
+    "conN": 34,
+    "con": 55.9,
+    "sinN": 16,
+    "sin": 60,
+    "dif": -4.1
+   },
+   {
+    "n": "Superficie grande",
+    "hosts": 153,
+    "conN": 35,
+    "con": 50.3,
+    "sinN": 16,
+    "sin": 55,
+    "dif": -4.7
+   }
+  ],
+  "pond": -2.5,
+  "p": 0.02,
+  "crudo": -4.6,
+  "pCrudo": 0.003,
+  "n": 151,
+  "titulo": "Tener el borde protegido no viene con mejor higiene — y en las grandes viene con peor",
+  "cuerpo": "Si el borde midiera madurez, las organizaciones con intercambio híbrido tendrían también mejor higiene de superficie. No la tienen. Pero el efecto crudo engaña, y por eso va controlado: <strong>el tamaño de la superficie mueve la higiene 15 puntos y además predice quién tiene CDN</strong>, así que arrastra las dos variables a la vez.",
+  "lectura": "Controlando por tamaño el efecto se reduce a la mitad —de −4,6 a −2,5 puntos— y deja de ser uniforme: <strong>en las organizaciones chicas el signo se da vuelta</strong>. Lo que sobrevive es que tener el borde protegido <strong>no predice</strong> una superficie más ordenada, y en las medianas y grandes va con una algo peor.",
+  "cautela": "Es una asociación sobre 151 organizaciones, no una causa, y la estratificación por terciles de superficie es <em>un</em> control razonable, no <em>el</em> control — dos celdas quedan en n=16. Lo defendible es la forma del resultado, no el decimal."
+ }
 }

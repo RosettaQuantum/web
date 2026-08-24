@@ -645,6 +645,41 @@ const SECCIONES = [
 
     <div class="pull"><p>La mayor parte de la protección post-cuántica que hoy tiene Chile no la decidió ningún equipo de seguridad. La decidió un contrato de red de distribución de contenido.</p></div>
 
+    <h3>{d.higiene_vs_edge.titulo}</h3>
+    <div class="measure">
+      <p set:html={d.higiene_vs_edge.cuerpo}></p>
+    </div>
+
+    <div class="chart">
+      <div class="chart-h">
+        <p class="chart-t">Higiene de superficie, controlando por tamaño</p>
+        <p class="chart-s">Media de la dimensión de higiene, dentro de cada tercil de superficie. n = {d.higiene_vs_edge.n}.</p>
+      </div>
+      <div class="chart-b"><div class="tw">
+        <table>
+          <thead><tr><th>Tercil</th><th class="num">Hostnames</th><th class="num">Con borde protegido</th><th class="num">Sin borde protegido</th><th class="num">Diferencia</th></tr></thead>
+          <tbody>
+            {d.higiene_vs_edge.estratos.map((e: any) => (
+              <tr>
+                <td>{e.n}</td>
+                <td class="num mono">{e.hosts}</td>
+                <td class="num">{String(e.con).replace('.', ',')} <span class="mono" style="opacity:.55;font-size:11px">n={e.conN}</span></td>
+                <td class="num">{String(e.sin).replace('.', ',')} <span class="mono" style="opacity:.55;font-size:11px">n={e.sinN}</span></td>
+                <td class="num"><strong class={e.dif > 0 ? 'ok' : ''}>{e.dif > 0 ? '+' : ''}{String(e.dif).replace('.', ',')}</strong></td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      <p class="src">Ponderada controlando por tamaño: {String(d.higiene_vs_edge.pond).replace('.', ',')} puntos, p = {String(d.higiene_vs_edge.p).replace('.', ',')}. Sin controlar daba {String(d.higiene_vs_edge.crudo).replace('.', ',')} y p = {String(d.higiene_vs_edge.pCrudo).replace('.', ',')}.</p>
+      </div>
+    </div>
+
+    <div class="measure">
+      <p set:html={d.higiene_vs_edge.lectura}></p>
+      <p class="src">{d.higiene_vs_edge.cautela}</p>
+    </div>
+
     <h3>{d.dos_tramos.titulo}</h3>
     <div class="measure">
       <p set:html={d.dos_tramos.cuerpo}></p>
