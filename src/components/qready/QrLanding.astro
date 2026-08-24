@@ -13,8 +13,15 @@ const dash = (SCORE / 100) * C;
 
 const t = es ? {
   brand:'Rosetta Q-Ready · exposición criptográfica post-cuántica',
-  h1:'Lo que cifra hoy se puede leer en 2035.',
-  lede:'Y eso no se arregla después: el tráfico que sale hoy se puede guardar hoy. <strong>Le medimos en 72 horas, sin tocar su red</strong>, qué parte de su criptografía pública ya está expuesta, dónde queda contra su sector, y cuál de sus proveedores le fija el plazo real.',
+  /* El gancho NO nombra un año. La version anterior decia «se puede leer en 2035»
+     y la FAQ de esta misma pagina dice «2035 son de politica, no de hardware»:
+     el titular presentaba como fecha de maquina lo que el cuerpo llama fecha de
+     norma, y el lector que baja encuentra nuestra propia pagina refutandonos.
+     Lo cazo Rosetta Q Main. Lo que si se puede firmar es el presente: guardar
+     trafico cifrado hoy es una practica documentada, sin depender de ninguna
+     fecha. (2026-08-21) */
+  h1:'Su tráfico cifrado de hoy ya se puede guardar.',
+  lede:'Y el día que exista la máquina para abrirlo, se abre con la fecha de hoy — por eso es lo único que no se arregla después. <strong>Le medimos en 72 horas, sin tocar su red</strong>, qué parte de su criptografía pública ya está expuesta, dónde queda contra su sector, y cuál de sus proveedores le fija el plazo real.',
   proof:'Medimos 220 grandes empresas chilenas. <strong>El 35 % no negocia criptografía post-cuántica</strong> — y de las que sí, casi ninguna lo decidió: se lo trajo su proveedor de CDN sin que nadie lo pidiera.',
   ctaMain:'Mapear mi dominio', ctaSec:'Ver informe de ejemplo',
   ringSub:'Ejemplo · banda', ringBand:B.n, ringNote:'ver informe de ejemplo →',
@@ -75,8 +82,8 @@ const t = es ? {
   ctaP:'Empiece por el nivel External: evidencia pública, sin pedirle acceso.',
 } : {
   brand:'Rosetta Q-Ready · post-quantum cryptographic exposure',
-  h1:'What you encrypt today can be read in 2035.',
-  lede:'And that cannot be fixed later: traffic leaving today can be stored today. <strong>In 72 hours, without touching your network</strong>, we measure which part of your public cryptography is already exposed, where you stand against your sector, and which of your vendors sets your real deadline.',
+  h1:'Your encrypted traffic can already be stored today.',
+  lede:'And the day a machine exists to open it, it opens with today’s date — which is why this is the one thing that cannot be fixed later. <strong>In 72 hours, without touching your network</strong>, we measure which part of your public cryptography is already exposed, where you stand against your sector, and which of your vendors sets your real deadline.',
   proof:'We measured 220 large Chilean organizations. <strong>35 % negotiate no post-quantum cryptography</strong> — and of those that do, almost none decided it: their CDN vendor brought it without anyone asking.',
   ctaMain:'Map my domain', ctaSec:'See a sample report',
   ringSub:'Sample · band', ringBand:B.n, ringNote:'see the sample report →',
