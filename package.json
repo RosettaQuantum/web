@@ -12,7 +12,8 @@
     "check:prod": "node scripts/check-alcance.mjs && node scripts/check-openapi.mjs && node scripts/check-quantum-catalog.mjs && node scripts/check-estado-completo.mjs && node scripts/check-deploy-solo-main.mjs --deriva && node scripts/check-ledger-deriva.mjs",
     "predeploy": "node scripts/check-deploy-solo-main.mjs",
     "deploy": "npm run build && ./node_modules/.bin/wrangler deploy",
-    "check:ledger": "node scripts/check-ledger-deriva.mjs"
+    "check:ledger": "node scripts/check-ledger-deriva.mjs",
+    "check:ventaja": "node scripts/check-ventaja-cero.mjs"
   },
   "dependencies": {
     "@astrojs/rss": "latest",

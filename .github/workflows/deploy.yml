@@ -159,6 +159,25 @@ jobs:
       - name: Las politicas legales siguen siendo el texto aprobado
         run: node scripts/build-legal.mjs --verificar
 
+      # NO SE PROMETE UNA TASA DE VICTORIA MIENTRAS EL CONTADOR DIGA CERO.
+      # El calculador de la portada multiplica por advRate (0,50-0,60) y su propio
+      # comentario dice que son "billed wins per request", mientras /v1/state publica
+      # victorias_cuanticas_medidas: 0. Un cliente lo desmiente con un curl a nuestra
+      # propia API (CLAUDE.md §1 ter).
+      #
+      # VA SIN BLOQUEAR A PROPOSITO, y esto es temporal: el defecto esta en main HOY, asi
+      # que hacerlo bloqueante ahora detiene el deploy de todos por algo que Nicholas
+      # todavia no decidio (declararlo estimacion, anclarlo a la fuente aprobada, o
+      # retirarlo). En cuanto esa decision aterrice, se borra el continue-on-error y pasa
+      # a fallar cerrado. Mientras tanto la contradiccion queda VISIBLE en cada deploy en
+      # vez de invisible, que es lo que importa.
+      - name: No se promete ventaja mientras el contador diga cero
+        continue-on-error: true
+        run: node scripts/check-ventaja-cero.mjs
+
+      - name: Self-test del guardia de ventaja-cero
+        run: node scripts/check-ventaja-cero.mjs --self-test
+
       - name: Self-test de los comparadores de la especificacion
         run: node scripts/check-openapi.mjs --self-test
 
