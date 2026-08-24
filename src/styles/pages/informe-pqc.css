@@ -46,10 +46,21 @@ html{scroll-behavior:smooth}
    vive dentro del envoltorio del documento. Lo deduje de las posiciones en el
    HTML y me equivoque; hubo que preguntarle al DOM. (2026-08-21) */
 body nav.sitenav{background:var(--basalt);backdrop-filter:none;color:var(--papyrus);border-bottom:1px solid var(--stone-line)}
+/* El CTA del nav se pinta solo (fondo fayenza, texto basalto). Mis reglas de
+   abajo le ponian color de enlace encima y lo dejaban en 1,06:1 de contraste
+   -- practicamente invisible, y el minimo legible es 4,5:1. Se excluye.
+   Lo cazo Nicholas a ojo. Al medirlo aparecio el MISMO defecto en el selector de
+   idioma activo (.lang-toggle a.on): tambien tiene fondo propio y tambien quedaba
+   en 1,06:1. Regla: en esta barra, todo elemento con fondo propio se pinta solo
+   -- las reglas de enlace no pueden alcanzarlo. (2026-08-21) */
+body nav.sitenav .nav-cta,
+body nav.sitenav a.nav-cta,
+body nav.sitenav .lang-toggle a.on{color:var(--basalt) !important}
+body nav.sitenav a.nav-cta{background:var(--faience)}
 .sitenav{color:var(--papyrus);border-bottom:1px solid var(--stone-line)}
-.sitenav a{color:var(--papyrus)}
-.sitenav .wm-sub,.sitenav .nav-links a{color:var(--papyrus-dim)}
-.sitenav .nav-links a:hover,.sitenav a:hover{color:var(--gold)}
+.sitenav a:not(.nav-cta):not(.on){color:var(--papyrus)}
+.sitenav .wm-sub,.sitenav .nav-links a:not(.nav-cta):not(.on){color:var(--papyrus-dim)}
+.sitenav .nav-links a:not(.nav-cta):not(.on):hover,.sitenav a:not(.nav-cta):not(.on):hover{color:var(--gold)}
 footer{background:var(--basalt);color:var(--papyrus-dim)}
 footer a{color:var(--papyrus-dim)} footer a:hover{color:var(--gold)}
 .informe-doc img,.informe-doc svg{max-width:100%;height:auto}
@@ -207,10 +218,21 @@ td.num{font-family:var(--f-mono);font-variant-numeric:tabular-nums;text-align:ri
   margin:34px 0;border-radius:3px;display:flex;flex-wrap:wrap;gap:18px;
   align-items:center;justify-content:space-between}
 .cta p{margin:0;font-family:var(--f-serif);font-size:1.12rem;color:var(--ink);max-width:46ch}
-.btn{display:inline-block;padding:13px 24px;font-size:15px;font-weight:600;border-radius:2px;
-  background:var(--faience);color:#0D0B09;font-family:var(--f-sans);white-space:nowrap;
-  transition:transform .15s,background .15s}
-.btn:hover{background:#5FD9C9;transform:translateY(-1px)}
+/* OJO, y es la segunda vez en este archivo: `.informe-doc a` (0,2,0) le gana a
+   `.btn` (0,1,0) por ESPECIFICIDAD y le impone el color de enlace. Un boton que
+   es un <a> dentro de este documento necesita `.informe-doc a.btn` o queda con
+   tinta sobre tinta. Lo mismo paso con `nav.sitenav` arriba.
+   Regla para este archivo: si un selector pinta un <a>, comprobar que gane.
+
+   Este documento es papiro y tinta, con el oro como acento. Un boton fayenza
+   brillante viene de la paleta de la consola, no de esta: dentro de la caja
+   crema con borde dorado se lee como pegado de otro sitio.
+   Va en basalto sobre papiro -- la misma tinta del texto, que es lo que hace que
+   parezca parte del documento y no un widget. (2026-08-21) */
+.informe-doc a.btn,.btn{display:inline-block;padding:13px 26px;font-size:15px;font-weight:600;border-radius:2px;
+  background:var(--ink);color:var(--papyrus);font-family:var(--f-sans);white-space:nowrap;
+  border:1px solid var(--ink);transition:background .15s,color .15s}
+.informe-doc a.btn:hover,.btn:hover{background:transparent;color:var(--ink)}
 
 .draft{background:var(--danger-soft);border:1px solid #e8c6bd;padding:13px 18px;
   font-size:.85rem;margin:28px 0;border-radius:3px}

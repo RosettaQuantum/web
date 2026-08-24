@@ -13,11 +13,13 @@ const dash = (SCORE / 100) * C;
 
 const t = es ? {
   brand:'Rosetta Q-Ready · exposición criptográfica post-cuántica',
-  h1:'¿Qué tan lista está su criptografía para el momento cuántico?',
-  lede:'Mapa automatizado de su exposición criptográfica post-cuántica. <strong>Evidencia de superficie pública</strong>, un score Q-Ready e informe board-ready — sin pedirle acceso a su red en el nivel External.',
+  h1:'Lo que cifra hoy se puede leer en 2035.',
+  lede:'Y eso no se arregla después: el tráfico que sale hoy se puede guardar hoy. <strong>Le medimos en 72 horas, sin tocar su red</strong>, qué parte de su criptografía pública ya está expuesta, dónde queda contra su sector, y cuál de sus proveedores le fija el plazo real.',
+  proof:'Medimos 220 grandes empresas chilenas. <strong>El 35 % no negocia criptografía post-cuántica</strong> — y de las que sí, casi ninguna lo decidió: se lo trajo su proveedor de CDN sin que nadie lo pidiera.',
   ctaMain:'Mapear mi dominio', ctaSec:'Ver informe de ejemplo',
   ringSub:'Ejemplo · banda', ringBand:B.n, ringNote:'ver informe de ejemplo →',
-  s2eye:'El problema · un calendario que ya es política', s2h:'El reloj criptográfico ya está corriendo.',
+  s2eye:'Por qué ahora', s2h:'No es una amenaza futura. Es una deuda que ya corre.',
+  porqueP:'Un adversario con horizonte largo puede recolectar tráfico cifrado hoy y descifrarlo cuando exista la máquina — es la única vulnerabilidad que no se puede parchear en retrospectiva. Y la cuenta que decide su plazo no la pone un regulador: la ponen sus propios datos. <strong>Si sus datos deben permanecer secretos 8 años y migrar le toma 9, necesita 17 años de protección.</strong> Las estimaciones no dan 17.',
   s2p:'La criptografía de clave pública que protege casi todo el tráfico empresarial (RSA, ECC) será vulnerable a un computador cuántico criptográficamente relevante vía el algoritmo de Shor. Los reemplazos ya son estándar. La migración toma años. El timeline de defensa está fijado por política pública; el de ataque es una distribución de probabilidad.',
   clock:[
     ['2024', 'FIPS 203/204/205 finalizados (ML-KEM · ML-DSA · SLH-DSA)', true, false],
@@ -42,7 +44,7 @@ const t = es ? {
   moscaVerdict:'X + Y = 17 años > Z = 9 años  →  llega 8 años tarde. La ventana de decisión es ahora, no en 2033.',
   s5eye:'Qué entregamos', s5h:'Un informe que un directorio puede leer, con evidencia detrás.',
   deliver:['<b>Score Q-Ready 0–100</b> con banda y semáforo','Top 5 hallazgos y costo de inacción (Mosca)','Inventario observado: hosts, algoritmos, híbrido, CDN','Índice HNDL por industria + escenarios CRQC','Roadmap accionable 30 / 90 / 365 días','Sello Rosetta: hash del JSON + ledger (evidencia)'],
-  s6eye:'Tres niveles', s6h:'Desde una mirada externa hasta un programa con partner.',
+  s6eye:'Precios', s6h:'El primero no toca su red y llega en 72 horas.',
   tiers:[
     {lvl:'Nivel 1 · External', name:'Q-Ready External', price:'USD 4.900', unit:'1 dominio raíz · hasta 50 hosts', who:'Solo dominio + industria. 100% Rosetta, sin acceso a su red.',
      li:['Evidencia de superficie pública','Probe TLS PQC + Certificate Transparency','Score + informe PDF + portal','Entrega en 24–72 h'], cta:'Mapear mi dominio', feat:true, badge:'Piloto early-adopter: ~USD 2.500'},
@@ -73,11 +75,13 @@ const t = es ? {
   ctaP:'Empiece por el nivel External: evidencia pública, sin pedirle acceso.',
 } : {
   brand:'Rosetta Q-Ready · post-quantum cryptographic exposure',
-  h1:'How ready is your cryptography for the quantum clock?',
-  lede:'Automated map of your post-quantum cryptographic exposure. <strong>Public-surface evidence</strong>, a Q-Ready score, and a board-ready report — no network access required at the External tier.',
+  h1:'What you encrypt today can be read in 2035.',
+  lede:'And that cannot be fixed later: traffic leaving today can be stored today. <strong>In 72 hours, without touching your network</strong>, we measure which part of your public cryptography is already exposed, where you stand against your sector, and which of your vendors sets your real deadline.',
+  proof:'We measured 220 large Chilean organizations. <strong>35 % negotiate no post-quantum cryptography</strong> — and of those that do, almost none decided it: their CDN vendor brought it without anyone asking.',
   ctaMain:'Map my domain', ctaSec:'See a sample report',
   ringSub:'Sample · band', ringBand:B.n, ringNote:'see the sample report →',
-  s2eye:'The problem · a calendar that is already policy', s2h:'The cryptographic clock is already running.',
+  s2eye:'Why now', s2h:'Not a future threat. A debt that is already running.',
+  porqueP:'An adversary with a long horizon can collect encrypted traffic today and decrypt it once the machine exists — the one vulnerability that cannot be patched retroactively. And the arithmetic that sets your deadline is not the regulator’s: it is your own data’s. <strong>If your data must stay secret for 8 years and migrating takes 9, you need 17 years of protection.</strong> The estimates do not give 17.',
   s2p:'The public-key cryptography protecting almost all enterprise traffic (RSA, ECC) will be vulnerable to a cryptographically relevant quantum computer via Shor’s algorithm. The replacements are already standards. Migration takes years. The defense timeline is fixed by public policy; the attack timeline is a probability distribution.',
   clock:[
     ['2024', 'FIPS 203/204/205 finalized (ML-KEM · ML-DSA · SLH-DSA)', true, false],
@@ -102,7 +106,7 @@ const t = es ? {
   moscaVerdict:'X + Y = 17 years > Z = 9 years  →  8 years late. The decision window is now, not 2033.',
   s5eye:'What we deliver', s5h:'A report a board can read, with the evidence behind it.',
   deliver:['<b>Q-Ready score 0–100</b> with band and traffic-light','Top 5 findings and the cost of inaction (Mosca)','Observed inventory: hosts, algorithms, hybrid, CDN','HNDL index by industry + CRQC scenarios','Actionable roadmap 30 / 90 / 365 days','Rosetta seal: JSON hash + ledger (evidence)'],
-  s6eye:'Three tiers', s6h:'From an external look to a partner-run program.',
+  s6eye:'Pricing', s6h:'The first one never touches your network and lands in 72 hours.',
   tiers:[
     {lvl:'Tier 1 · External', name:'Q-Ready External', price:'USD 4,900', unit:'1 root domain · up to 50 hosts', who:'Domain + industry only. 100% Rosetta, no network access.',
      li:['Public-surface evidence','TLS PQC probe + Certificate Transparency','Score + PDF report + portal','Delivery in 24–72 h'], cta:'Map my domain', feat:true, badge:'Early-adopter pilot: ~USD 2,500'},
@@ -171,6 +175,7 @@ const jsonldService = {
       <div>
         <h1>{t.h1}</h1>
         <p class="lede" set:html={t.lede}></p>
+        <p class="qr-proof" set:html={t.proof}></p>
         <div class="qr-cta">
           <a class="btn btn-solid" href={p('/q-ready/checkout') + '?tier=l1'}>{t.ctaMain}</a>
           <a class="btn btn-ghost" href={p('/q-ready/sample-report')}>{t.ctaSec}</a>
@@ -192,12 +197,44 @@ const jsonldService = {
   </div>
 </header>
 
-<!-- 2 · clock -->
+<!-- 2 · PRECIOS, arriba: lo segundo que se ve -->
+<section>
+  <div class="wrap">
+    <div class="sec-eyebrow">{t.s6eye}</div>
+    <h2>{t.s6h}</h2>
+    <div class="tiers">
+      {t.tiers.map((tr, i) => (
+        <div class={`tier${tr.feat ? ' feat' : ''}`}>
+          <div class="lvl">{tr.lvl}</div>
+          <div class="name">{tr.name}</div>
+          <div class="price">{tr.price}</div>
+          <div class="who">{tr.unit} — {tr.who}</div>
+          <ul>{tr.li.map(x => <li>{x}</li>)}</ul>
+          {tr.badge && <span class="badge">{tr.badge}</span>}
+          <a class={`btn ${tr.feat ? 'btn-solid' : 'btn-ghost'}`} style="margin-top:14px" href={p('/q-ready/checkout') + (i===0 ? '?tier=l1' : i===1 ? '?tier=l2' : '?tier=l3')}>{tr.cta}</a>
+        </div>
+      ))}
+    </div>
+  </div>
+</section>
+
+<!-- 3 · POR QUE AHORA: las tres secciones de antes (reloj, HNDL, Mosca) en una.
+     Eran tres argumentos del mismo punto y sumaban tres pantallas. -->
 <section>
   <div class="wrap">
     <div class="sec-eyebrow">{t.s2eye}</div>
     <h2>{t.s2h}</h2>
-    <p class="prose">{t.s2p}</p>
+    <p class="prose" set:html={t.porqueP}></p>
+
+    <div class="mosca">
+      <div class="mosca-ex">
+        <div class="m"><div class="k">{t.moscaX}</div><div class="v faience">8 <span class="muted mono yr-unit">{t.yrUnit}</span></div></div>
+        <div class="m"><div class="k">{t.moscaY}</div><div class="v gold">9 <span class="muted mono yr-unit">{t.yrUnit}</span></div></div>
+        <div class="m"><div class="k">{t.moscaZ}</div><div class="v crit">9 <span class="muted mono yr-unit">{t.yrUnit}</span></div></div>
+      </div>
+      <div class="mosca-verdict">{t.moscaVerdict}</div>
+    </div>
+
     <div class="clock">
       {t.clock.map(([yr, txt, now, crqc]) => (
         <div class={`clock-row${now ? ' now' : ''}${crqc ? ' crqc' : ''}`}>
@@ -205,41 +242,6 @@ const jsonldService = {
           <div class="clock-txt" set:html={txt}></div>
         </div>
       ))}
-    </div>
-  </div>
-</section>
-
-<!-- 3 · HNDL -->
-<section>
-  <div class="wrap">
-    <div class="sec-eyebrow">{t.s3eye}</div>
-    <h2>{t.s3h}</h2>
-    <p class="prose" set:html={t.s3p}></p>
-    <div class="flow">
-      {t.flow.map(([n, h, p2], i) => (
-        <div class={`flow-step${i===3 ? ' danger' : ''}`}>
-          <div class="n">{n}</div><h4>{h}</h4><p>{p2}</p>
-        </div>
-      ))}
-    </div>
-    <p class="mono faint" style="margin-top:14px;font-size:12px">{t.flowNote}</p>
-  </div>
-</section>
-
-<!-- 4 · Mosca -->
-<section>
-  <div class="wrap">
-    <div class="sec-eyebrow">{t.s4eye}</div>
-    <h2>{t.s4h}</h2>
-    <p class="prose">{t.s4p}</p>
-    <div class="mosca">
-      <div class="mosca-eq"><span class="x">X</span> <span class="op">+</span> <span class="y">Y</span> <span class="op">&gt;</span> <span class="z">Z</span></div>
-      <div class="mosca-ex">
-        <div class="m"><div class="k">{t.moscaX}</div><div class="v faience">8 <span class="muted mono yr-unit">{t.yrUnit}</span></div></div>
-        <div class="m"><div class="k">{t.moscaY}</div><div class="v gold">9 <span class="muted mono yr-unit">{t.yrUnit}</span></div></div>
-        <div class="m"><div class="k">{t.moscaZ}</div><div class="v crit">9 <span class="muted mono yr-unit">{t.yrUnit}</span></div></div>
-      </div>
-      <div class="mosca-verdict">{t.moscaVerdict}</div>
     </div>
   </div>
 </section>
@@ -261,27 +263,6 @@ const jsonldService = {
         </div>
         <span class={`band ${B.cls}`}>{t.ringBand}</span>
       </a>
-    </div>
-  </div>
-</section>
-
-<!-- 6 · tiers -->
-<section>
-  <div class="wrap">
-    <div class="sec-eyebrow">{t.s6eye}</div>
-    <h2>{t.s6h}</h2>
-    <div class="tiers">
-      {t.tiers.map((tr, i) => (
-        <div class={`tier${tr.feat ? ' feat' : ''}`}>
-          <div class="lvl">{tr.lvl}</div>
-          <div class="name">{tr.name}</div>
-          <div class="price">{tr.price}</div>
-          <div class="who">{tr.unit} — {tr.who}</div>
-          <ul>{tr.li.map(x => <li>{x}</li>)}</ul>
-          {tr.badge && <span class="badge">{tr.badge}</span>}
-          <a class={`btn ${tr.feat ? 'btn-solid' : 'btn-ghost'}`} style="margin-top:14px" href={p('/q-ready/checkout') + (i===0 ? '?tier=l1' : i===1 ? '?tier=l2' : '?tier=l3')}>{tr.cta}</a>
-        </div>
-      ))}
     </div>
   </div>
 </section>
@@ -352,3 +333,10 @@ const jsonldService = {
     </div>
   </div>
 </section>
+
+<style>
+/* La prueba del hero: la cifra que hace creible todo lo demas, justo bajo el lede. */
+.qr-proof{border-left:2px solid var(--gold);padding:10px 0 10px 16px;margin:16px 0 0;
+  font-size:.92rem;opacity:.9;max-width:60ch}
+.qr-proof strong{color:var(--papyrus)}
+</style>

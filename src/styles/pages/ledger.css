@@ -107,7 +107,7 @@ footer{border-top:1px solid var(--stone-line);padding:44px 0 40px;margin-top:36p
 .foot-inner{display:flex;justify-content:space-between;flex-wrap:wrap;gap:24px;align-items:center}
 .foot-links{display:flex;gap:22px;font-size:14px;color:var(--papyrus-dim);flex-wrap:wrap}
 .foot-links a:hover{color:var(--faience)}
-.foot-line{margin-top:26px;font-family:'IBM Plex Mono',monospace;font-size:12px;color:#5C554A}
+.foot-line{margin-top:26px;font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--faint)}
 @media(max-width:640px){.wrap{padding:0 20px}}
 
 /* ── Móvil: tabla apilada + áreas táctiles ≥44px (Cowork, 25 jul) ── */

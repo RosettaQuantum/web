@@ -737,7 +737,11 @@ const sevClass = (s) => s.toLowerCase();
 @media(max-width:760px){.hndl-seq{grid-template-columns:1fr 1fr}}
 .hndl-seq .st{background:var(--basalt-3,#100E0B);padding:15px 14px}
 .hndl-seq .st.now{background:rgba(224,112,92,.09)}
-.hndl-seq .st .n{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--crit);letter-spacing:.08em}
+/* El numero de paso iba en --crit sobre el tinte crit: 3,32:1, legible pero bajo
+   el umbral de 4,5. Sube a papiro con el punto en crit, que separa igual sin
+   perder contraste. (2026-08-21) */
+.hndl-seq .st .n{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--papyrus-dim);letter-spacing:.08em}
+.hndl-seq .st.now .n{color:var(--papyrus)}
 .hndl-seq .st h3{font-size:.92rem;margin:7px 0 6px}
 .hndl-seq .st p{font-size:.78rem;opacity:.8;margin:0}
 .hndl-bridge{margin-top:18px;padding-top:15px;border-top:1px dotted var(--stone-line);font-size:.88rem}

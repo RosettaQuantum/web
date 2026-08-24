@@ -76,7 +76,11 @@ footer{border-top:1px solid var(--stone-line);padding:44px 0 40px;margin-top:36p
 .foot-inner{display:flex;justify-content:space-between;flex-wrap:wrap;gap:24px;align-items:center}
 .foot-links{display:flex;gap:22px;font-size:14px;color:var(--papyrus-dim);flex-wrap:wrap}
 .foot-links a:hover{color:var(--faience)}
-.foot-line{margin-top:26px;font-family:'IBM Plex Mono',monospace;font-size:12px;color:#5C554A}
+/* #5C554A daba 2,54:1 sobre el basalto del pie -- por debajo de lo legible, y en
+   las cinco paginas. Sube al gris de de-enfasis de la casa (--faint, 3,34:1), que
+   es el mismo que usan los otros textos secundarios: se sigue leyendo como pie,
+   pero se lee. Lo encontro check-contraste.mjs. (2026-08-21) */
+.foot-line{margin-top:26px;font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--faint)}
 .eyebrow{font-family:'IBM Plex Mono',monospace;font-size:12px;letter-spacing:.22em;text-transform:uppercase;color:var(--gold);margin-bottom:16px}
 .blog-hero{padding:64px 0 24px}
 .blog-hero h1{font-family:'Marcellus',serif;font-weight:400;font-size:clamp(28px,3.6vw,40px);line-height:1.16}
