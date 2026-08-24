@@ -2,8 +2,20 @@
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import content from '../../content_html/index.es.html?raw';
 import css from '../../styles/pages/index.css?raw';
+import PiezaCleveland from '../../components/piezas/PiezaCleveland.astro';
 import refs from '../../content_html/index.refs.json';
+// El HTML del home vive en un archivo aparte y no se toca: se parte en dos por un
+// marcador estructural y la pieza entra en medio. Falla cerrada — si el marcador no
+// aparece exactamente una vez, el build se detiene en vez de mover la pieza de sitio
+// en silencio.
+const MARCA = '<section id="what"';
+if (content.split(MARCA).length !== 2) {
+  throw new Error(`Home: el marcador ${MARCA} no aparece exactamente una vez. La pieza no se coloca a ciegas.`);
+}
+const [antesDeWhat, restoDelHome] = content.split(MARCA);
 ---
 <BaseLayout title={'Rosetta Quantum — Respuestas que ningún computador clásico alcanza.'} description={'Algoritmos cuánticos verificados detrás de una sola API. Tu problema, tu baseline como árbitro.'} lang="es" altUrl="/" pageCss={css} scripts={refs}>
-  <Fragment set:html={content} />
+  <Fragment set:html={antesDeWhat} />
+  <PiezaCleveland lang="es" />
+  <Fragment set:html={MARCA + restoDelHome} />
 </BaseLayout>

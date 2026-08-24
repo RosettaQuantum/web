@@ -7,6 +7,7 @@
 //
 // Falla cerrada: si la API no responde durante el build, el build se cae. Es preferible
 // a publicar una cifra vieja sin que nadie se entere.
+const { lang = 'es' } = Astro.props;
 const API = 'https://rosettaquantum.com/v1/challenges/cleveland-2026-07';
 const TARGET = 'KRAS_G12C';
 
@@ -17,42 +18,64 @@ if (!respuesta.ok) {
 const reto = await respuesta.json();
 const p = reto.proteinas[TARGET];
 if (!p) throw new Error(`Pieza Cleveland: ${TARGET} no está en ${API}`);
-
 const ctqw = p.estadistica?.null?.ctqw;
+
+// El aviso y `como_verificar` la API sólo los sirve en español — `titulo` sí es bilingüe.
+// En inglés se muestra una traducción ROTULADA como tal, y debajo el original sellado
+// palabra por palabra, para que quien cite tenga la fuente y no mi versión.
+const T = {
+  es: {
+    caso: 'Cleveland Clinic · sitios alostéricos',
+    titulo: 'Dónde tocar una proteína para apagarla sin tocar su sitio activo',
+    cuerpo: 'Un sitio alostérico es un punto distante desde el que se puede cambiar el comportamiento de una proteína. Encontrarlos abre fármacos donde hoy no los hay. Rosetta los busca con una caminata cuántica sobre la red de contactos de la molécula: la señal entra por los residuos que hacen el trabajo y se propaga.',
+    proteina: 'Proteína', residuos: 'Residuos', sitios: 'Sitios predichos',
+    percentil: 'Percentil del sitio conocido',
+    avisoRotulo: null, avisoTexto: reto.aviso, original: null,
+    receta: 'Receta', prereg: 'pre-registro', instantanea: 'instantánea', crudo: 'estos datos, en crudo',
+    nota: 'La caminata que se ve se calcula en tu navegador con los parámetros que declara el archivo sellado. No es una animación decorativa ni un dato sellado: es el mismo cálculo, hecho aquí.',
+  },
+  en: {
+    caso: 'Cleveland Clinic · allosteric sites',
+    titulo: 'Where to touch a protein to switch it off — without touching its active site',
+    cuerpo: 'An allosteric site is a distant point from which a protein’s behaviour can be changed. Finding them opens drugs where today there are none. Rosetta searches for them with a quantum walk over the molecule’s contact network: the signal enters through the residues that do the work, and spreads.',
+    proteina: 'Protein', residuos: 'Residues', sitios: 'Predicted sites',
+    percentil: 'Percentile of the known site',
+    avisoRotulo: 'Notice from the sealed archive — translation:',
+    avisoTexto: 'Sites are PREDICTED by a quantum walk and are not experimentally validated. The known site, when it exists, is read from the co-crystallised drug and never enters the calculation.',
+    original: reto.aviso,
+    receta: 'Recipe', prereg: 'pre-registration', instantanea: 'snapshot', crudo: 'this data, raw',
+    nota: 'The walk you see is computed in your browser from the parameters the sealed archive declares. It is neither a decorative animation nor sealed data: it is the same computation, done here.',
+  },
+}[lang];
 ---
 
 <section class="pieza pieza--cleveland" aria-labelledby="pieza-cleveland-titulo">
   <div class="pieza__lienzo" data-pieza="cleveland" data-pdb={p.pdb} data-target={TARGET} aria-hidden="true"></div>
 
   <div class="pieza__texto">
-    <p class="pieza__caso">Cleveland Clinic · sitios alostéricos</p>
-    <h2 id="pieza-cleveland-titulo">Dónde tocar una proteína para apagarla sin tocar su sitio activo</h2>
-    <p>
-      Un sitio alostérico es un punto distante desde el que se puede cambiar el
-      comportamiento de una proteína. Encontrarlos abre fármacos donde hoy no los hay.
-      Rosetta los busca con una caminata cuántica sobre la red de contactos de la
-      molécula: la señal entra por los residuos que hacen el trabajo y se propaga.
-    </p>
+    <p class="pieza__caso">{T.caso}</p>
+    <h2 id="pieza-cleveland-titulo">{T.titulo}</h2>
+    <p>{T.cuerpo}</p>
 
     <dl class="pieza__cifras">
-      <div><dt>Proteína</dt><dd>{p.label}</dd></div>
-      <div><dt>Residuos</dt><dd>{p.n_residuos}</dd></div>
-      <div><dt>Sitios predichos</dt><dd>{p.sitios_predichos}</dd></div>
-      {ctqw && <div><dt>Percentil del sitio conocido</dt><dd>{ctqw.percentil_observado}</dd></div>}
+      <div><dt>{T.proteina}</dt><dd>{p.label}</dd></div>
+      <div><dt>{T.residuos}</dt><dd>{p.n_residuos}</dd></div>
+      <div><dt>{T.sitios}</dt><dd>{p.sitios_predichos}</dd></div>
+      {ctqw && <div><dt>{T.percentil}</dt><dd>{ctqw.percentil_observado}</dd></div>}
     </dl>
 
-    <p class="pieza__aviso">{reto.aviso}</p>
+    <p class="pieza__aviso">
+      {T.avisoRotulo && <span class="pieza__rotulo">{T.avisoRotulo}</span>}
+      {T.avisoTexto}
+      {T.original && <span class="pieza__original" lang="es">{T.original}</span>}
+    </p>
 
     <p class="pieza__procedencia">
-      Receta <strong>{reto.recipe_id}</strong> · pre-registro <strong>{reto.pre_registro}</strong> ·
-      instantánea <code>{p.sha256.slice(0, 16)}…</code>
-      <a href={API} rel="nofollow">estos datos, en crudo</a>
+      {T.receta} <strong>{reto.recipe_id}</strong> · {T.prereg} <strong>{reto.pre_registro}</strong> ·
+      {T.instantanea} <code>{p.sha256.slice(0, 16)}…</code>
+      <a href={API} rel="nofollow">{T.crudo}</a>
     </p>
-    <p class="pieza__nota" data-nota-caminata>
-      La caminata que se ve se calcula en tu navegador con los parámetros que declara el
-      archivo sellado. No es una animación decorativa ni un dato sellado: es el mismo
-      cálculo, hecho aquí.
-    </p>
+    <p class="pieza__nota" data-nota-caminata>{T.nota}</p>
   </div>
 </section>
 
@@ -63,8 +86,7 @@ const ctqw = p.estadistica?.null?.ctqw;
     el.addEventListener('pieza:lista', (e) => {
       const nota = document.querySelector('[data-nota-caminata]');
       if (nota) nota.insertAdjacentHTML('beforeend',
-        ` <span class="pieza__rho">Red de ${e.detail.nodos} nodos y ${e.detail.aristas} aristas;
-        reproduce el ranking sellado con ρ de Spearman ${e.detail.rho.toFixed(3)}.</span>`);
+        ` <span class="pieza__rho">${e.detail.nodos} · ${e.detail.aristas} · ρ ${e.detail.rho.toFixed(3)}</span>`);
     });
     montar(el, { pdb: el.dataset.pdb, target: el.dataset.target });
   }
@@ -85,9 +107,11 @@ const ctqw = p.estadistica?.null?.ctqw;
   .pieza__cifras { display: flex; flex-wrap: wrap; gap: 1.4rem; margin: 1.4rem 0; }
   .pieza__cifras dt { font-size: .72rem; letter-spacing: .1em; text-transform: uppercase; opacity: .6; }
   .pieza__cifras dd { margin: .2rem 0 0; font-size: 1.5rem; line-height: 1; }
-  .pieza__aviso { font-size: .85rem; line-height: 1.6; border-left: 2px solid #c9a24d; padding-left: .8rem; opacity: .85; }
+  .pieza__aviso { font-size: .85rem; line-height: 1.6; border-left: 2px solid #c9a24d; padding-left: .8rem; opacity: .9; }
+  .pieza__rotulo, .pieza__original { display: block; font-size: .72rem; opacity: .6; }
+  .pieza__original { margin-top: .5rem; font-style: italic; }
   .pieza__procedencia, .pieza__nota { font-size: .74rem; line-height: 1.6; opacity: .6; }
-  .pieza__rho { display: block; margin-top: .3rem; }
+  .pieza__rho { opacity: .8; }
   @media (max-width: 860px) {
     .pieza { grid-template-columns: 1fr; }
     .pieza__lienzo { aspect-ratio: 16 / 10; }
