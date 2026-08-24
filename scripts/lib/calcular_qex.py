@@ -31,10 +31,46 @@ TOPE = 84
 def irec(dim, tope=TOPE):
     """Puntaje 0-100 a partir de las cuatro dimensiones.
 
-    Una dimension en None es una dimension NO MEDIDA: no puntua y no penaliza.
-    Se renormaliza sobre los pesos efectivamente usables, de modo que no medir
-    algo nunca mejora ni empeora el puntaje por el solo hecho de faltar.
-    (CLAUDE.md 5 quater: una clave que falta no es un cero.)
+    Una dimension en None es una dimension NO MEDIDA: se renormaliza sobre los
+    pesos efectivamente usables. Eso evita que una ausencia se lea como un cero
+    (CLAUDE.md 5 quater: una clave que falta no es un cero).
+
+    LO QUE NO HACE, y antes este comentario lo afirmaba de mas: renormalizar NO
+    garantiza neutralidad. Solo es neutral si el valor tipico de la dimension
+    ausente iguala el promedio ponderado del resto. Cuando no lo iguala, excluirla
+    sesga.
+
+    Medido en la edicion de agosto-2026, sobre las 19 de 170 sin borde medido:
+
+        si su edge fuera 100  ->  +3 a +5 puntos sobre lo publicado
+        si su edge fuera 0    ->  -5 a -7 puntos
+        de las 151 medidas, 93 (62 %) sacan edge=100
+
+    LO QUE SE PUEDE AFIRMAR SIN SUPONER NADA: el sesgo por organizacion esta
+    **acotado entre -5 y +7 puntos**, y su valor esperado depende de la
+    distribucion de borde de las no medidas -- que por definicion no observamos.
+    Ponderar por la tasa de las medidas (62 %) da +0,2, pero eso ASUME que ambos
+    grupos se distribuyen igual, que es justo lo que no se sabe.
+
+    DOS ATAJOS QUE YA SE TOMARON, para que no se repitan:
+
+    1. «El caso mas probable gana ~+4, luego el sesgo es +4» -- no. El 62 %
+       ganaria +4 y el 38 % perderia -6; la perdida es mayor. Tomar la moda por
+       el valor esperado da -3 a -5: diez veces el sesgo y con el signo cambiado.
+
+    2. «Las no medidas son las mejor defendidas, luego el sesgo va contra el
+       segmento preparado» -- **se probo con el corpus de agosto-2026 y se
+       refuto**. Y la primera prueba tampoco servia: comparar MEDIANAS no
+       discrimina cuando `certificados` tiene 2 valores (94 % iguales) y `hndl`
+       es constante por sector -- las medianas coinciden por construccion.
+       Mirando la distribucion completa de `higiene`, las 19 resultan BIMODALES:
+       26 % en 20-30, un tramo donde NINGUNA de las 151 aparece, y a la vez
+       sobrerrepresentadas en 70. Media 53,7 contra 58,5: en promedio son
+       PEORES, no mejores.
+
+       El mecanismo que lo explica: un sondeo falla por dos razones opuestas --
+       un WAF que lo bloquea, o infraestructura rota o abandonada. Las dos dan
+       «sin medir», y por eso el grupo mezcla los mejores con los peores.
     """
     num = den = 0.0
     for k, p in PESOS.items():
