@@ -55,7 +55,7 @@
     document.getElementById('freqVal').textContent = p.solves.toLocaleString('en-US')+' /mo';
     document.getElementById('eHw').textContent = fmt2(p.hw)+' /solve';
     document.getElementById('eRoy').textContent = fmt2(p.roy)+' /solve';
-    document.getElementById('eAdvRate').textContent = '('+Math.round(p.f.advRate*100)+'% of requests, after free screening)';
+    document.getElementById('eAdvRate').textContent = '('+Math.round(p.f.advRate*100)+'%)';
     document.getElementById('eMonth').textContent = fmt(p.monthly);
   }
   scale.addEventListener('input', update);
