@@ -59,11 +59,35 @@ jobs:
           GITHUB_SHA: ${{ github.sha }}
         run: |
           npm run build 2>&1 | tee build.log
+          # ANTES ERA UN WARNING, Y ESO ESTABA MAL. Si sync-ledger cae al snapshot, este
+          # deploy publica el ledger COMMITEADO como si fuera el vivo — y el snapshot en
+          # main puede estar meses atras, porque CI lo regenera pero nunca lo commitea de
+          # vuelta. Un paso que no produce nada es un fallo, no un aviso (CLAUDE.md §5
+          # quater 3): la ausencia de dato se disfrazaba de dato.
+          #
+          # Es seguro tenerlo cerrado: verificado en el run 32772386543 que el token SI
+          # lee D1 ("[sync-ledger] pulled 4 recipes, 1 verdicts from D1"). El texto viejo
+          # de este bloque culpaba a un "falta permiso D1:Edit" que el terreno desmiente.
+          #
+          # Si algun dia falla de verdad: el deploy se detiene y produccion queda como
+          # esta, que es el modo de fallo correcto. Se arregla el acceso a D1, no esto.
           if grep -q "D1 unreachable" build.log; then
-            echo "::warning::sync-ledger cayó al snapshot — el token no pudo leer la D1 (falta permiso D1:Edit)"
-          else
-            grep "\[sync-ledger\]" build.log | head -1 | sed 's/^/::notice::/'
+            echo "::error::sync-ledger cayó al snapshot: se estaría publicando el ledger viejo como si fuera el vivo. Deploy detenido; producción queda intacta."
+            exit 1
           fi
+          grep "\[sync-ledger\]" build.log | head -1 | sed 's/^/::notice::/'
+
+      # El snapshot commiteado es lo que se publicaria si D1 cayera. Si ya no dice lo
+      # mismo que D1, ese respaldo publicaria otra cosa — y nunca se probo contra el caso
+      # para el que existe. Informativo: la deriva es normal entre commits y no debe
+      # tumbar el deploy (un falso positivo retiene trabajo bueno); lo que SI tumba es
+      # que el respaldo se use, y eso lo cierra el paso de arriba.
+      - name: El snapshot del ledger sigue diciendo lo que dice D1
+        continue-on-error: true
+        run: node scripts/check-ledger-deriva.mjs
+
+      - name: Self-test del guardia de deriva del ledger
+        run: node scripts/check-ledger-deriva.mjs --self-test
 
       - name: Deploy Worker
         env:

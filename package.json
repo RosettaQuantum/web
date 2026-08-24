@@ -9,9 +9,10 @@
     "preview": "astro preview",
     "prebuild": "node scripts/check-guardias-cableados.mjs && node scripts/check-qex-formula.mjs && node scripts/check-informe-cifras.mjs && node scripts/check-informe-geometria.mjs && node scripts/check-informe-confidencial.mjs && node scripts/sync-ledger.mjs && node scripts/build-viz-cleveland.mjs --publicar",
     "sync:ledger": "node scripts/sync-ledger.mjs",
-    "check:prod": "node scripts/check-alcance.mjs && node scripts/check-openapi.mjs && node scripts/check-quantum-catalog.mjs && node scripts/check-estado-completo.mjs && node scripts/check-deploy-solo-main.mjs --deriva",
+    "check:prod": "node scripts/check-alcance.mjs && node scripts/check-openapi.mjs && node scripts/check-quantum-catalog.mjs && node scripts/check-estado-completo.mjs && node scripts/check-deploy-solo-main.mjs --deriva && node scripts/check-ledger-deriva.mjs",
     "predeploy": "node scripts/check-deploy-solo-main.mjs",
-    "deploy": "npm run build && ./node_modules/.bin/wrangler deploy"
+    "deploy": "npm run build && ./node_modules/.bin/wrangler deploy",
+    "check:ledger": "node scripts/check-ledger-deriva.mjs"
   },
   "dependencies": {
     "@astrojs/rss": "latest",
