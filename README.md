@@ -23,8 +23,15 @@ the Cloudflare Worker `rosetta-quantum`. Homogeneous, component-based, no client
 npm install
 npm run build     # -> dist/  (9 routes: en + es + blog + llms.txt + rss + sitemap)
 ```
-Deploy: Cloudflare → Workers → `rosetta-quantum` → Settings → Build → Connect to Git →
-org RosettaQuantum, repo `web`, branch main, build `npm run build`. Push = auto-deploy.
+Deploy: **push a `main`**. Lo publica `.github/workflows/deploy.yml`, que es el único
+escritor sancionado del Worker (ver «Deploy» más abajo).
+
+> **No conectes la integración Git de Cloudflare** (Workers → Settings → Build → Connect to
+> Git). Sería un segundo publicador sobre el mismo Worker, y dos fuentes de verdad sobre la
+> misma superficie se revierten entre sí sin conflicto y sin aviso — nos costó dos despliegues
+> el 2026-08-24. Si alguien la conecta igual, el detector de deriva lo caza: el build de
+> Cloudflare no exporta `GITHUB_SHA`, así que sella `local` y
+> `scripts/check-deploy-solo-main.mjs --deriva` grita.
 
 ## Ledger from D1 (H19 — done, build-time)
 
@@ -37,11 +44,26 @@ it keeps the committed snapshot so the build never breaks.
 - Add/update a verdict in D1 -> next `npm run build` picks it up -> deploy publishes it.
 - No SSR, no runtime binding: fully static, fast, safe. Source of truth is D1.
 
-## Deploy (Claude Code, authenticated)
+## Deploy — una superficie, un escritor
+
+**Publicar = mergear a `main`.** No lo hagas a mano: `.github/workflows/deploy.yml` construye,
+despliega, purga la caché y corre los chequeos contra la URL viva.
+
+`npx wrangler deploy` desde una rama **está bloqueado a propósito**
+(`scripts/check-deploy-solo-main.mjs`, cableado en `predeploy`). El 2026-08-24 un deploy a mano
+desde una rama sobrescribió lo que CI acababa de publicar desde `main`, sin conflicto de git y
+sin aviso: Cloudflare no integra dos fuentes, aplica la última que llegó. Costó dos despliegues.
+
 ```bash
 npm install
-npm run build       # runs sync-ledger (pulls D1) then astro build -> dist/
-npx wrangler deploy # publishes dist/ to the rosetta-quantum worker
+npm run build   # sync-ledger (lee D1) + astro build -> dist/
+# publicar: git push y merge a main. CI hace el resto.
+```
+
+Para comprobar en cualquier momento que lo desplegado viene de `main`:
+
+```bash
+node scripts/check-deploy-solo-main.mjs --deriva
 ```
 
 ## Contact modal + leads (new)

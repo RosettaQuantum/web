@@ -13,11 +13,32 @@ on:
     branches: [main]
   workflow_dispatch:
 
+# Una superficie, un escritor. Dos corridas a la vez publican sobre el mismo Worker y la
+# segunda revierte a la primera sin conflicto: se serializan, y NO se cancela la que va en
+# vuelo (cancelarla dejaria produccion a medio publicar).
+concurrency:
+  group: deploy-produccion
+  cancel-in-progress: false
+
 jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
+      # fetch-depth: 0 — el detector de deriva necesita el historial para preguntar
+      # `git merge-base --is-ancestor <sello-vivo> origin/main`. Con el clon superficial
+      # por defecto, esa pregunta no se puede responder.
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      # El guardia preventivo, en el unico lugar donde no se puede saltear.
+      - name: Solo main publica
+        env:
+          GITHUB_REF: ${{ github.ref }}
+        run: node scripts/check-deploy-solo-main.mjs
+
+      - name: Self-test del guardia de una-sola-fuente
+        run: node scripts/check-deploy-solo-main.mjs --self-test
 
       - uses: actions/setup-node@v4
         with:
@@ -181,6 +202,14 @@ jobs:
           V="../../evidence-staging/jcs_vectores.json"
           S="sha256:8044a29a48c88184884b41708373a05715e13ce2d4b4db4bd312674ac5c96bcd"
           if [ -f "$V" ]; then node scripts/cross-jcs.mjs "$V" --sello "$S"; else echo "::notice::sin vectores JCS en este clon — se salta"; fi
+
+      # La mitad que de verdad cierra la clase: el guardia de arriba pide colaboracion —
+      # quien escriba `wrangler deploy` a mano lo saltea entero. Esto mira el TERRENO y
+      # grita si lo que sirve produccion no viene de origin/main (un deploy a mano no
+      # tiene GITHUB_SHA y sella "local"; uno desde una rama sella un sha que no es
+      # ancestro). Va DESPUES del smoke test: primero que este arriba el build nuevo.
+      - name: Lo desplegado viene de main (deteccion de deriva)
+        run: node scripts/check-deploy-solo-main.mjs --deriva
 
       # Vigila lo desplegado, no el repo: que ninguna fila afirme sin cita, que el
       # catalogo no encoja, que nadie declare evidencia que no tiene, y que los
