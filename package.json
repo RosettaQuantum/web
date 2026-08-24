@@ -13,7 +13,9 @@
     "predeploy": "node scripts/check-deploy-solo-main.mjs",
     "deploy": "npm run build && ./node_modules/.bin/wrangler deploy",
     "check:ledger": "node scripts/check-ledger-deriva.mjs",
-    "check:ventaja": "node scripts/check-ventaja-cero.mjs"
+    "check:ventaja": "node scripts/check-ventaja-cero.mjs",
+    "check:posts": "node scripts/check-posts-sobrescritura.mjs --self-test",
+    "migrate:posts": "node scripts/migrate-posts-to-d1.mjs"
   },
   "dependencies": {
     "@astrojs/rss": "latest",

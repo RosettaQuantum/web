@@ -16,8 +16,15 @@
 import fs from "node:fs";
 import path from "node:path";
 import os from "node:os";
+import { clasificar, decidir, CAMPOS } from "./check-posts-sobrescritura.mjs";
 
 const DRY = process.argv.includes("--dry");
+// `worker.js` declara que D1 es "la copia viva y editable sin push". Este script escribia
+// encima con INSERT OR REPLACE sobre TODOS los posts, sin comparar: correrlo despues de
+// editar un post en D1 borraba la edicion viva sin conflicto y sin aviso. El --dry existia
+// pero era opt-in, y un candado que hay que acordarse de poner no es un candado.
+// Ahora se compara antes de escribir y los divergentes NO se tocan sin pedirlo aqui.
+const SOBRESCRIBIR = process.argv.includes("--sobrescribir");
 const ACCOUNT = "6398d10da6c1f1e8b38b5e7c15d2410f";
 const DB_UUID = "f0919403-5bd0-4842-a1d3-0954fdd47633";
 
@@ -111,13 +118,46 @@ console.log(`posts encontrados: ${files.length} | a migrar: ${rows.length} | omi
 for (const [id, why] of skipped) console.log(`  omitido ${id}: ${why}`);
 for (const r of rows) console.log(`  ${r.id.padEnd(42)} ${r.lang} ${r.date} P${r.pillar} ${r.body_html.length}B`);
 
-if (DRY) { console.log("\n--dry: no se escribió nada"); process.exit(0); }
+
+// ── Antes de escribir: mirar que hay. ────────────────────────────────────────────────────
+const enD1 = (await d1(`SELECT id,${CAMPOS.join(",")} FROM posts`, [])).results ?? [];
+const c = clasificar({ generado: rows, enD1 });
+
+// Denominador siempre: cuantos vio, cuantos de cada clase. Un total sin denominador no es
+// un resultado.
+console.log(`\nen D1 hoy: ${enD1.length} | generados: ${c.vistos} -> nuevos ${c.nuevos.length} · iguales ${c.iguales.length} · DIVERGENTES ${c.divergentes.length}`);
+
+for (const d of c.divergentes) console.log(`  ! ${d.id.padEnd(42)} difiere en: ${d.campos.join(", ")}`);
+
+const plan = decidir({ clasificacion: c, sobrescribir: SOBRESCRIBIR });
+
+// --dry sale DESPUES de clasificar, no antes: lo que uno quiere saber de una corrida en
+// seco es justamente si hay algo que se pisaria, no solo que se generaria.
+if (DRY) {
+  console.log(`\n--dry: no se escribió nada. Sin --dry se escribirian ${plan.escribir.length} post(s)` +
+              (plan.bloqueado ? ` y se DETENDRIA por ${c.divergentes.length} divergente(s).` : "."));
+  process.exit(0);
+}
+
+if (plan.bloqueado) {
+  console.error(`\n[posts] ${plan.motivo}`);
+  console.error("[posts] No se puede saber desde aca quien tiene razon: puede que alguien");
+  console.error("[posts] editara el post en D1 (el camino que worker.js recomienda) o que");
+  console.error("[posts] editara el markdown para publicarlo. Adivinar borra trabajo ajeno.");
+  console.error("[posts] Mira el diff y decide: si el markdown manda, corre con --sobrescribir.");
+  if (c.nuevos.length) console.error(`[posts] (los ${c.nuevos.length} post(s) NUEVOS tampoco se escribieron: corre de nuevo cuando resuelvas esto)`);
+  process.exit(1);
+}
 
 const SQL = "INSERT OR REPLACE INTO posts (id,slug_base,lang,title,tldr,date,pillar,sources_json,body_html,published,created_at) VALUES (?,?,?,?,?,?,?,?,?,1,?)";
+const aEscribir = SOBRESCRIBIR ? rows : c.nuevos;
+if (SOBRESCRIBIR && c.divergentes.length) {
+  console.log(`\n--sobrescribir: se van a PISAR ${c.divergentes.length} version(es) viva(s) en D1.`);
+}
 let n = 0;
-for (const r of rows) {
+for (const r of aEscribir) {
   await d1(SQL, [r.id, r.slug_base, r.lang, r.title, r.tldr, r.date, r.pillar,
                  r.sources_json, r.body_html, new Date().toISOString().slice(0, 10)]);
-  if (++n % 6 === 0 || n === rows.length) console.log(`  ${n}/${rows.length}`);
+  if (++n % 6 === 0 || n === aEscribir.length) console.log(`  ${n}/${aEscribir.length}`);
 }
-console.log(`migrados ${n} post(s) a D1`);
+console.log(`escritos ${n} post(s) a D1 (de ${c.vistos} generados; ${c.iguales.length} ya estaban iguales)`);

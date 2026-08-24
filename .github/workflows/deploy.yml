@@ -177,6 +177,13 @@ jobs:
       - name: Self-test del guardia de ventaja-cero
         run: node scripts/check-ventaja-cero.mjs --self-test
 
+      # El migrador de posts no puede pisar una edicion viva de D1 sin decirlo. Su primera
+      # corrida real encontro dos posts (quantum-drug-discovery-{en,es}) editados en D1 el
+      # 29-jul contra un markdown del 21-jul: correrlo habria revertido ocho dias de
+      # trabajo, sin conflicto y sin aviso.
+      - name: Self-test del guardia de sobrescritura de posts
+        run: node scripts/check-posts-sobrescritura.mjs --self-test
+
       - name: Self-test de los comparadores de la especificacion
         run: node scripts/check-openapi.mjs --self-test
 
