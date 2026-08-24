@@ -34,7 +34,19 @@ html{scroll-behavior:smooth}
   font-size:17px;line-height:1.62;-webkit-font-smoothing:antialiased;
   padding-bottom:1px}
 /* el nav y el pie conservan su tratamiento de marca en basalto sobre el documento en papiro */
-.sitenav{background:var(--basalt);color:var(--papyrus);border-bottom:1px solid var(--stone-line)}
+/* La barra del sitio es translucida (global.css: nav.sitenav, rgba .92 + blur).
+   Sobre un fondo oscuro no se nota; sobre el papiro de este documento el
+   contenido claro se transparenta al hacer scroll y se ven lineas cruzando el
+   logo. Se veia solo en telefono, renderizando la pagina — ningun chequeo de
+   HTML lo alcanzaba.
+   Va con `.informe-doc nav.sitenav` y no con `.sitenav`: la regla del sitio es
+   `nav.sitenav` y gana por ESPECIFICIDAD, no por orden de carga. Subir el
+   archivo de lugar no habria servido.
+   Y va con `body`, no con `.informe-doc`: la barra es hija directa de BODY, no
+   vive dentro del envoltorio del documento. Lo deduje de las posiciones en el
+   HTML y me equivoque; hubo que preguntarle al DOM. (2026-08-21) */
+body nav.sitenav{background:var(--basalt);backdrop-filter:none;color:var(--papyrus);border-bottom:1px solid var(--stone-line)}
+.sitenav{color:var(--papyrus);border-bottom:1px solid var(--stone-line)}
 .sitenav a{color:var(--papyrus)}
 .sitenav .wm-sub,.sitenav .nav-links a{color:var(--papyrus-dim)}
 .sitenav .nav-links a:hover,.sitenav a:hover{color:var(--gold)}
@@ -129,10 +141,17 @@ footer a{color:var(--papyrus-dim)} footer a:hover{color:var(--gold)}
 .chart-t{font-family:var(--f-serif);font-size:1.02rem;color:var(--ink);margin:0}
 .chart-s{font-size:.79rem;color:var(--muted);margin:4px 0 0}
 .chart-b{padding:20px;overflow-x:auto}
-.bars{display:grid;gap:8px;min-width:430px}
+/* Va con `.informe .bars` y NO con `.bars` a secas: la barra del sitio usa
+   `<span class="bars">` para el icono del menu hamburguesa. Sin acotar, ese
+   icono heredaba min-width:430px y empujaba la pagina a 550 px en telefono.
+   Colision de nombre de clase entre la hoja base y esta: se veia solo
+   renderizando a 375 px. (2026-08-21) */
+.informe .bars{display:grid;gap:8px;min-width:430px}
 .bar-row{display:grid;grid-template-columns:150px 1fr 92px;align-items:center;gap:13px}
 .bar-lab{font-size:.85rem;text-align:right}
-.bar-track{height:21px;background:var(--grid);border-radius:2px}
+.bar-track{position:relative;height:21px;background:var(--grid);border-radius:2px}  /* relative: la marca de mediana del informe individual se ancla AQUI. Sin esto
+     escapaba al ancestro posicionado y se dibujaba como una linea de 821 px que
+     cruzaba la pagina entera del documento que se cobra (defecto real, 19-ago). */
 .bar-fill{height:100%;background:var(--ink);border-radius:0 2px 2px 0}
 .bar-fill.hi{background:var(--ok)} .bar-fill.mid{background:var(--warn)} .bar-fill.lo{background:var(--danger)}
 .bar-val{font-family:var(--f-mono);font-size:.82rem;color:var(--ink);

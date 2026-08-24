@@ -12,28 +12,39 @@
   "organizaciones": 220,
   "verticales": 12,
   "sondeadas": 194,
-  "chilenas_analizadas": 174,
-  "hostnames": 14763
+  "con_descubrimiento": 191,
+  "con_indice": 170,
+  "hostnames": 14656
  },
  "titulares": [
   {
+   "id": "irec",
+   "k": "Índice QEX · mediana nacional",
+   "v": 57,
+   "u": "",
+   "sev": "warn",
+   "sub": "rango 45–74 · tope 84",
+   "base": 170,
+   "polaridad": "mayor_mejor"
+  },
+  {
    "id": "ambientes",
    "k": "Ambiente no productivo expuesto",
-   "v": 60,
+   "v": 62,
    "u": "%",
    "sev": "crit",
    "sub": "dev, QA o staging respondiendo en internet",
-   "base": 174,
+   "base": 170,
    "polaridad": "mayor_peor"
   },
   {
    "id": "infra",
    "k": "Infraestructura sensible expuesta",
-   "v": 60,
+   "v": 61,
    "u": "%",
    "sev": "crit",
    "sub": "VPN, admin, cpanel o webmail",
-   "base": 174,
+   "base": 170,
    "polaridad": "mayor_peor"
   },
   {
@@ -69,21 +80,21 @@
   {
    "id": "superficie",
    "k": "Nombres de host descubiertos",
-   "v": 14763,
+   "v": 14656,
    "u": "",
    "sev": "info",
-   "sub": "mediana 40 por organización",
-   "base": 174,
+   "sub": "mediana 41 por organización",
+   "base": 170,
    "polaridad": "neutra"
   },
   {
    "id": "hibrido",
    "k": "Con híbrido post-cuántico",
-   "v": 53,
+   "v": 65,
    "u": "%",
    "sev": "asterisco",
-   "sub": "métrica que un cambio de CDN pone en verde",
-   "base": 194,
+   "sub": "soporte real; el CDN decide buena parte",
+   "base": 192,
    "polaridad": "mayor_mejor"
   }
  ],
@@ -92,8 +103,8 @@
    "n": "Fintech y pagos",
    "id": "fintech",
    "nprobe": 20,
-   "hibrido": 15,
-   "ratio": 75,
+   "hibrido": 18,
+   "ratio": 90,
    "gate": 66,
    "medianaHosts": 32
   },
@@ -101,8 +112,8 @@
    "n": "Retail",
    "id": "retail",
    "nprobe": 17,
-   "hibrido": 12,
-   "ratio": 71,
+   "hibrido": 16,
+   "ratio": 94,
    "gate": 93,
    "medianaHosts": 40
   },
@@ -110,17 +121,17 @@
    "n": "Seguros",
    "id": "seguros",
    "nprobe": 17,
-   "hibrido": 10,
-   "ratio": 59,
+   "hibrido": 14,
+   "ratio": 82,
    "gate": 56,
    "medianaHosts": 76
   },
   {
    "n": "Educación superior",
    "id": "educacion",
-   "nprobe": 17,
+   "nprobe": 16,
    "hibrido": 10,
-   "ratio": 59,
+   "ratio": 62,
    "gate": 66,
    "medianaHosts": 156
   },
@@ -128,8 +139,8 @@
    "n": "Previsión",
    "id": "prevision",
    "nprobe": 16,
-   "hibrido": 9,
-   "ratio": 56,
+   "hibrido": 10,
+   "ratio": 62,
    "gate": 52,
    "medianaHosts": 40
   },
@@ -146,8 +157,8 @@
    "n": "Banca",
    "id": "banca",
    "nprobe": 15,
-   "hibrido": 8,
-   "ratio": 53,
+   "hibrido": 14,
+   "ratio": 93,
    "gate": 83,
    "medianaHosts": 76
   },
@@ -155,8 +166,8 @@
    "n": "Minería",
    "id": "mineria",
    "nprobe": 17,
-   "hibrido": 8,
-   "ratio": 47,
+   "hibrido": 10,
+   "ratio": 59,
    "gate": 33,
    "medianaHosts": 14
   },
@@ -182,21 +193,83 @@
   {
    "n": "Gobierno",
    "id": "gobierno",
-   "nprobe": 17,
-   "hibrido": 5,
-   "ratio": 29,
+   "nprobe": 16,
+   "hibrido": 6,
+   "ratio": 38,
    "gate": 64,
    "medianaHosts": 37
   }
  ],
  "cdn": {
-  "cloudflare": {
-   "n": 64,
-   "hibrido": 64
+  "desglose": [
+   {
+    "n": "Cloudflare",
+    "total": 63,
+    "soporta": 63,
+    "pct": 100,
+    "propio": false
+   },
+   {
+    "n": "Akamai Enhanced TLS",
+    "total": 16,
+    "soporta": 16,
+    "pct": 100,
+    "propio": false
+   },
+   {
+    "n": "CloudFront",
+    "total": 12,
+    "soporta": 12,
+    "pct": 100,
+    "propio": false
+   },
+   {
+    "n": "Imperva",
+    "total": 4,
+    "soporta": 4,
+    "pct": 100,
+    "propio": false
+   },
+   {
+    "n": "Azure",
+    "total": 6,
+    "soporta": 0,
+    "pct": 0,
+    "propio": false
+   },
+   {
+    "n": "Akamai Standard TLS",
+    "total": 4,
+    "soporta": 0,
+    "pct": 0,
+    "propio": false
+   },
+   {
+    "n": "Sin CDN reconocido / infraestructura propia",
+    "total": 87,
+    "soporta": 29,
+    "pct": 33,
+    "propio": true
+   }
+  ],
+  "conCdn": {
+   "n": 105,
+   "soporta": 95,
+   "pct": 90
   },
-  "resto": {
-   "n": 130,
-   "hibrido": 39
+  "sinCdn": {
+   "n": 87,
+   "soporta": 29,
+   "pct": 33
+  },
+  "mismoProveedor": {
+   "proveedor": "Akamai",
+   "alto": "Enhanced TLS",
+   "altoN": 16,
+   "altoPct": 100,
+   "bajo": "Standard TLS",
+   "bajoN": 4,
+   "bajoPct": 0
   }
  },
  "superficie": [
@@ -228,10 +301,11 @@
  ],
  "referencia_global": {
   "hibrido_global": 49.3,
-  "hibrido_chile": 53.1,
+  "hibrido_chile": 64.6,
   "certificados_pqc": 0,
   "dominios_medidos": 32011,
-  "fuente": "arXiv:2606.16473, junio 2026"
+  "fuente": "arXiv:2606.16473, junio 2026",
+  "nota_comparabilidad": "El 49,3 % global proviene de un estudio externo cuyo método de sondeo no conocemos en detalle. Hoy sabemos que la forma de preguntar cambia el resultado en más de diez puntos —soporte 65 %, disposición a pagar un viaje extra 54 %—, así que esta comparación se lee como orden de magnitud y no como diferencia exacta. Nuestra cifra es soporte real, forzando el híbrido como único grupo ofrecido."
  },
  "stack": [
   {
@@ -247,16 +321,64 @@
    "nota": "Disponible vía parche sobre z/OS 3.1"
   },
   {
+   "capa": "HSM · Entrust",
+   "prov": "nShield 5s / 5c",
+   "estado": "ok",
+   "nota": "Firmware v13.8+. La función post-cuántica viene activa, sin licencia aparte."
+  },
+  {
+   "capa": "HSM · Entrust",
+   "prov": "nShield Connect XC / Solo XC",
+   "estado": "warn",
+   "nota": "Firmware Y licencia PostQuantum comprada por separado — a diferencia de la línea 5."
+  },
+  {
+   "capa": "HSM · Thales",
+   "prov": "Luna 7 (firmware 7.9.0+)",
+   "estado": "ok",
+   "nota": "ML-KEM y ML-DSA nativos desde jul-2025 sobre el hardware que ya tiene."
+  },
+  {
+   "capa": "HSM · Thales",
+   "prov": "Luna 8",
+   "estado": "crit",
+   "nota": "No es actualización de firmware: es reemplazo de hardware. Es presupuesto, no un ticket."
+  },
+  {
+   "capa": "HSM · Utimaco",
+   "prov": "Quantum Protect (u.trust Se / CSe)",
+   "estado": "warn",
+   "nota": "Paquete adicional con licencia, actualizable en campo sin cambiar hardware."
+  },
+  {
+   "capa": "HSM · Utimaco",
+   "prov": "CP5 / eIDAS",
+   "estado": "crit",
+   "nota": "Sin ruta post-cuántica publicada. Si su caso es firma cualificada eIDAS, hoy no hay camino."
+  },
+  {
+   "capa": "Gestión de llaves en la nube",
+   "prov": "Azure Key Vault · Managed HSM · Cloud HSM",
+   "estado": "crit",
+   "nota": "Sin post-cuántico, sin vista previa y sin fecha anunciada."
+  },
+  {
+   "capa": "Gestión de llaves en la nube",
+   "prov": "AWS KMS",
+   "estado": "warn",
+   "nota": "Ofrece ML-DSA como tipo de llave para firmar (ML_DSA_44/65/87, desde jun-2025). NO ofrece ML-KEM como servicio de encapsulación — el híbrido de AWS está en el TLS hacia la API, que es otra capa. Y ML-KEM es justo lo que mitiga cosecha-hoy-descifra-mañana."
+  },
+  {
+   "capa": "Gestión de llaves en la nube",
+   "prov": "Google Cloud KMS",
+   "estado": "warn",
+   "nota": "Firmas post-cuánticas en disponibilidad general (jul-2026). El nivel de protección —si es sólo software o llega al HSM— queda por confirmar."
+  },
+  {
    "capa": "Base de datos",
    "prov": "Oracle Database",
    "estado": "warn",
    "nota": "Solo transporte; no cubre cifrado en reposo"
-  },
-  {
-   "capa": "HSM y gestión de claves",
-   "prov": "Thales Luna, Utimaco, Entrust",
-   "estado": "ok",
-   "nota": "Requiere firmware específico"
   },
   {
    "capa": "HSM de pagos",
@@ -402,5 +524,426 @@
    "estado": "preprint"
   }
  ],
- "cambios": []
+ "cambios": [],
+ "indice": {
+  "nombre": "QEX — Quantum Exposure Index, by Rosetta",
+  "sigla": "QEX",
+  "version": "QEX-1.0",
+  "tope": 84,
+  "tope_razon": "Una medición externa no observa el interior. La banda superior requiere evidencia asistida.",
+  "n": 170,
+  "mediana": 57,
+  "promedio": 57.5,
+  "min": 45,
+  "max": 74,
+  "dimensiones": [
+   {
+    "k": "Certificados y PKI",
+    "peso": 40,
+    "tipo": "medido",
+    "id": "cert",
+    "que": "Algoritmo de firma, tamaño de clave y vigencia del certificado del endpoint.",
+    "porque": "Es la capa que la organización emite y gestiona. Ningún proveedor de infraestructura la resuelve por contrato.",
+    "mediana": 75
+   },
+   {
+    "k": "Higiene de superficie",
+    "peso": 25,
+    "tipo": "medido",
+    "id": "higiene",
+    "que": "Soporte de TLS 1.3, ambientes no productivos expuestos, infraestructura sensible alcanzable, sistemas marcados como legado.",
+    "porque": "TLS 1.3 es requisito del intercambio post-cuántico: sin él la migración es imposible.",
+    "mediana": 60
+   },
+   {
+    "k": "Postura HNDL",
+    "peso": 25,
+    "tipo": "modelo",
+    "id": "hndl",
+    "que": "Desigualdad de Mosca aplicada al perfil del sector: vida útil del dato más tiempo de migración contra el horizonte de amenaza.",
+    "porque": "Deriva del sector, no de sus sistemas. Se declara como modelo y no como medición.",
+    "mediana": 12
+   },
+   {
+    "k": "PQC en el edge",
+    "peso": 10,
+    "tipo": "medido",
+    "id": "edge",
+    "que": "Si el endpoint público negocia intercambio de claves híbrido post-cuántico.",
+    "porque": "Mide sobre todo qué proveedor de CDN se contrató. Por eso pesa poco: es la señal más visible y la menos propia.",
+    "mediana": 100
+   }
+  ],
+  "bandas": [
+   {
+    "rango": "0–29",
+    "n": "Expuesto",
+    "sig": "Sin postura observable"
+   },
+   {
+    "rango": "30–49",
+    "n": "Consciente",
+    "sig": "Higiene parcial, sin transición material"
+   },
+   {
+    "rango": "50–69",
+    "n": "En transición",
+    "sig": "Avances puntuales, no sistemáticos"
+   },
+   {
+    "rango": "70–84",
+    "n": "Perímetro migrado",
+    "sig": "Borde público protegido; interior sin observar"
+   },
+   {
+    "rango": "85–100",
+    "n": "Cripto-ágil",
+    "sig": "Inalcanzable por medición externa"
+   }
+  ],
+  "distribucion": [
+   {
+    "rango": "45–49",
+    "n": 28,
+    "pct": 16
+   },
+   {
+    "rango": "50–54",
+    "n": 34,
+    "pct": 20
+   },
+   {
+    "rango": "55–59",
+    "n": 47,
+    "pct": 28
+   },
+   {
+    "rango": "60–64",
+    "n": 30,
+    "pct": 18
+   },
+   {
+    "rango": "65–69",
+    "n": 8,
+    "pct": 5
+   },
+   {
+    "rango": "70–74",
+    "n": 23,
+    "pct": 14
+   }
+  ],
+  "verticales": [
+   {
+    "n": "Fintech y pagos",
+    "id": "fintech",
+    "norg": 15,
+    "indice": 71,
+    "cert": 75,
+    "higiene": 60,
+    "edge": 100,
+    "cert_n": 15,
+    "cert_iguales": 15
+   },
+   {
+    "n": "Retail",
+    "id": "retail",
+    "norg": 14,
+    "indice": 71,
+    "cert": 75,
+    "higiene": 60,
+    "edge": 100,
+    "cert_n": 14,
+    "cert_iguales": 14
+   },
+   {
+    "n": "Educación superior",
+    "id": "educacion",
+    "norg": 15,
+    "indice": 62,
+    "cert": 75,
+    "higiene": 50,
+    "edge": 100,
+    "cert_n": 15,
+    "cert_iguales": 15
+   },
+   {
+    "n": "Minería",
+    "id": "mineria",
+    "norg": 11,
+    "indice": 62,
+    "cert": 75,
+    "higiene": 60,
+    "edge": 0,
+    "cert_n": 11,
+    "cert_iguales": 8
+   },
+   {
+    "n": "Seguros",
+    "id": "seguros",
+    "norg": 16,
+    "indice": 58,
+    "cert": 75,
+    "higiene": 60,
+    "edge": 100,
+    "cert_n": 16,
+    "cert_iguales": 14
+   },
+   {
+    "n": "Previsión",
+    "id": "prevision",
+    "norg": 17,
+    "indice": 56,
+    "cert": 75,
+    "higiene": 60,
+    "edge": 100,
+    "cert_n": 17,
+    "cert_iguales": 14
+   },
+   {
+    "n": "Energía y utilities",
+    "id": "energia",
+    "norg": 19,
+    "indice": 56,
+    "cert": 75,
+    "higiene": 60,
+    "edge": 100,
+    "cert_n": 19,
+    "cert_iguales": 18
+   },
+   {
+    "n": "Banca",
+    "id": "banca",
+    "norg": 12,
+    "indice": 57,
+    "cert": 75,
+    "higiene": 55,
+    "edge": 100,
+    "cert_n": 12,
+    "cert_iguales": 12
+   },
+   {
+    "n": "Telecomunicaciones",
+    "id": "telecom",
+    "norg": 10,
+    "indice": 51,
+    "cert": 75,
+    "higiene": 60,
+    "edge": 0,
+    "cert_n": 10,
+    "cert_iguales": 10
+   },
+   {
+    "n": "Clínicas",
+    "id": "salud_clinica",
+    "norg": 17,
+    "indice": 50,
+    "cert": 75,
+    "higiene": 60,
+    "edge": 0,
+    "cert_n": 17,
+    "cert_iguales": 17
+   },
+   {
+    "n": "Isapres",
+    "id": "salud_isapre",
+    "norg": 9,
+    "indice": 50,
+    "cert": 75,
+    "higiene": 60,
+    "edge": 0,
+    "cert_n": 9,
+    "cert_iguales": 8
+   },
+   {
+    "n": "Gobierno",
+    "id": "gobierno",
+    "norg": 15,
+    "indice": 48,
+    "cert": 75,
+    "higiene": 60,
+    "edge": 0,
+    "cert_n": 15,
+    "cert_iguales": 14
+   }
+  ],
+  "hallazgo_cert": {
+   "constante_pct": 94,
+   "texto": "La dimensión de mayor peso es prácticamente constante en toda la muestra."
+  },
+  "bandas_conteo": {
+   "En transición": 119,
+   "Consciente": 28,
+   "Perímetro migrado": 23
+  },
+  "certificados_detalle": {
+   "recomputable_desde": "indice-agosto-2026.json · dimensión certificados",
+   "distribucion": [
+    {
+     "valor": 75,
+     "n": 159,
+     "pct": 94
+    },
+    {
+     "valor": 100,
+     "n": 11,
+     "pct": 6
+    }
+   ],
+   "total": 170,
+   "pct_valor_dominante": 94,
+   "sin_archivar": "El desglose por algoritmo y tamaño de clave no está archivado: en el corpus no existe ningún dato de certificado por organización. La versión anterior de este bloque publicaba 128 + 48 + 10 sobre un total de 187 — tres partes que suman 186. Se retira hasta volver a medir y guardar el artefacto crudo."
+  },
+  "discriminacion": {
+   "dims": [
+    {
+     "k": "Certificados",
+     "peso": 40,
+     "distintos": 2,
+     "concentracion": 94,
+     "aporte": 2.5
+    },
+    {
+     "k": "Higiene",
+     "peso": 25,
+     "distintos": 6,
+     "concentracion": 36,
+     "aporte": 2.6
+    },
+    {
+     "k": "HNDL",
+     "peso": 25,
+     "distintos": 3,
+     "concentracion": 68,
+     "aporte": 5.1
+    },
+    {
+     "k": "Borde",
+     "peso": 10,
+     "distintos": 2,
+     "concentracion": 62,
+     "aporte": 4.9
+    }
+   ],
+   "disp_total": 7.8,
+   "disp_sin_sector": 5.3,
+   "rho_superficie": -0.12,
+   "rho_n": 169
+  }
+ },
+ "relojes": [
+  {
+   "id": "vida",
+   "n": "Su fecha límite la pone la vida útil de sus datos",
+   "sub": "no el regulador",
+   "sev": "crit",
+   "cuerpo": "Un contrato hipotecario, una historia clínica o un expediente laboral tienen que seguir siendo secretos durante décadas. Si sus datos deben permanecer secretos 8 años y migrar le tomará 9, necesita 17 años de protección por delante. Las estimaciones de la amenaza no dan 17 años. La resta ya salió negativa: no es que vaya a llegar tarde, es que ya va tarde.",
+   "pie": "Formulación de Mosca: vida útil del secreto + tiempo de migración > horizonte de la amenaza."
+  },
+  {
+   "id": "deuda",
+   "n": "La deuda ya está corriendo",
+   "sub": "cosecha hoy, descifra mañana",
+   "sev": "crit",
+   "cuerpo": "El tráfico que sale cifrado de su organización hoy puede estar siendo almacenado por alguien que no puede leerlo todavía. Cuando pueda, lo leerá con la fecha de hoy. Nada de lo que haga en 2030 protege lo que salió en 2026. Es el único riesgo de esta lista que no se puede remediar después.",
+   "pie": null
+  },
+  {
+   "id": "contrato",
+   "n": "La regulación le va a llegar por contrato antes que por ley",
+   "sub": "su matriz, sus corresponsales, el cuestionario de proveedores",
+   "sev": "warn",
+   "cuerpo": "El primer requerimiento formal no va a venir de un regulador chileno. Va a venir de su casa matriz, de un banco corresponsal, de una contraparte que exporta, o del cuestionario de seguridad de un cliente grande. Ese cuestionario ya trae la pregunta en varias industrias, y se responde con un plan o con un silencio que cuesta.",
+   "pie": null
+  },
+  {
+   "id": "nist",
+   "n": "Las fechas técnicas ya están escritas",
+   "sub": "aunque todavía en borrador",
+   "sev": "warn",
+   "cuerpo": "NIST publicó su calendario de transición: deprecación de RSA y curvas elípticas en 2030, prohibición en 2035. El documento —IR 8547— sigue siendo borrador público inicial y lo decimos así: no es una obligación vigente. Pero es la fecha contra la que sus proveedores están planificando sus versiones, y eso sí lo va a sentir.",
+   "pie": "NIST IR 8547, Initial Public Draft, 12-nov-2024. La versión final aún no existe."
+  }
+ ],
+ "chile": {
+  "afirmacion": "Al corte de este informe, ningún regulador chileno exige criptografía post-cuántica.",
+  "matiz": "Lo que sí existe son obligaciones de gestión de riesgo operacional y de seguridad de la información bajo las cuales un supervisor puede preguntar por el plan. Ninguna norma chilena nombra PQC, y este informe no va a insinuar que sí.",
+  "normas": [
+   {
+    "n": "Ley 21.663 · Ley Marco de Ciberseguridad",
+    "q": "Crea la ANCI y el régimen de Operadores de Importancia Vital",
+    "f": "vigente",
+    "estado": "ok"
+   },
+   {
+    "n": "Ley 21.719 · Protección de datos personales",
+    "q": "Nueva Agencia, notificación de brechas en 72 horas, multas hasta 20.000 UTM",
+    "f": "vigencia 1-dic-2026",
+    "estado": "pendiente"
+   },
+   {
+    "n": "CMF · Recopilación Actualizada de Normas",
+    "q": "Riesgo operacional y seguridad de la información en bancos",
+    "f": "por verificar",
+    "estado": "noverificado"
+   }
+  ]
+ },
+ "tres_preguntas": {
+  "n": 192,
+  "filas": [
+   {
+    "q": "¿Lo soporta?",
+    "como": "Se ofrece sólo X25519MLKEM768 en <code>supported_groups</code>, con <code>key_share</code> vacío. El servidor no tiene alternativa: o lo pide por HelloRetryRequest, o rechaza el saludo.",
+    "v": 124,
+    "pct": 65,
+    "tipo": "Capacidad real",
+    "sev": "ok"
+   },
+   {
+    "q": "¿Lo elige?",
+    "como": "Se ofrecen el híbrido y x25519, con <code>key_share</code> vacío. El servidor elige libremente cuál prefiere.",
+    "v": 124,
+    "pct": 65,
+    "tipo": "Lo que negocia un navegador moderno",
+    "sev": "ok"
+   },
+   {
+    "q": "¿Paga un viaje extra?",
+    "como": "Se ofrecen ambos y se manda <code>key_share</code> de x25519. Sólo responde HelloRetryRequest quien esté dispuesto a gastar una vuelta más para mejorar a un cliente que no ofreció la llave híbrida.",
+    "v": 103,
+    "pct": 54,
+    "tipo": "Política de latencia del proveedor — no es seguridad",
+    "sev": "warn"
+   }
+  ],
+  "discrepancia": 0,
+  "leccion": "Nuestra primera medición fue la tercera pregunta y la publicamos como si fuera la primera. Akamai Enhanced TLS aparecía en 0 % cuando está en 100 %."
+ },
+ "prosa": {
+  "mas30_pct": 60,
+  "profundos_pct": 83,
+  "sin_hibrido_pct": 35,
+  "base": 170
+ },
+ "dos_tramos": {
+  "titulo": "Hay dos conexiones, no una — y sólo medimos la primera",
+  "cuerpo": "Cuando una organización sirve su sitio detrás de una red de distribución de contenido, el tráfico no viaja por una conexión cifrada sino por dos: del navegador al borde del proveedor, y del borde al servidor de la organización. Nuestro sondeo llega al borde y recibe su respuesta. Mide bien ese primer tramo. <strong>Del segundo no sabemos nada</strong>, y no lo puede saber nadie desde fuera de la organización.",
+  "consecuencia": "Para una organización detrás de un CDN, «su borde ya negocia criptografía post-cuántica» es cierto y es incompleto. No significa que su tráfico esté protegido de punta a punta: significa que lo está <strong>hasta el borde</strong>. Si el segundo tramo va en criptografía clásica, hay un punto donde el tráfico vuelve a ser interceptable — dentro de la red del proveedor, no de la suya, pero interceptable.",
+  "evidencia": "No es hipotético: los proveedores tratan los dos tramos como funciones separadas, con calendarios y opciones de configuración propias. Akamai documenta «PQC Client to Edge» y «PQC to Origin» como comportamientos independientes.",
+  "que_hacemos": "Lo declaramos y no lo puntuamos. La dimensión de borde mide el primer tramo y dice que mide el primer tramo; meter el segundo en el índice sería inventarlo. La pregunta «¿y el tramo hasta mi origen?» es de las primeras que conviene hacerle a su proveedor.",
+  "tramos": [
+   {
+    "n": "Navegador → borde del proveedor",
+    "estado": "medido",
+    "nota": "Es lo que reporta este informe. 65 % de la muestra lo soporta."
+   },
+   {
+    "n": "Borde del proveedor → su servidor",
+    "estado": "invisible",
+    "nota": "Ocurre entre dos infraestructuras que no son públicas. Ninguna medición externa lo alcanza."
+   }
+  ]
+ },
+ "stack_nota": "El estado de cada proveedor sale de su documentación pública, con fecha de consulta. Un «sin fecha» no significa que el fabricante no esté trabajando en ello: significa que usted no puede planificar contra nada. Esta tabla reemplaza a una fila anterior que agrupaba Thales, Utimaco y Entrust en un solo «requiere firmware específico» — cuatro de esos seis productos necesitan algo más que firmware, y uno no tiene ruta."
 }

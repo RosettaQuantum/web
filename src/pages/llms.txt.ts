@@ -14,7 +14,7 @@ export const GET: APIRoute = async ({ site }) => {
     '> including the negatives. Show, don\'t claim.',
     '',
     '## Key pages',
-    `- [Evidence Ledger](${base}/ledger): verdicts by recipe and problem class`,
+    `- [Evidence Ledger](${base}/ledger): verdicts by recipe and problem class — including published self-corrections (errata) that cite the original sealed file and never overwrite it`,
     `- [Problem classes](${base}/clases): the four-tier map of where advantage is real`,
     // Texto lifted VERBATIM de src/aprobado/pricing.en.md (bloque "Q-Ready —
     // cryptographic exposure"): nada nuevo se escribio aca, se citan las mismas

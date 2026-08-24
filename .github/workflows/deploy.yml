@@ -13,11 +13,32 @@ on:
     branches: [main]
   workflow_dispatch:
 
+# Una superficie, un escritor. Dos corridas a la vez publican sobre el mismo Worker y la
+# segunda revierte a la primera sin conflicto: se serializan, y NO se cancela la que va en
+# vuelo (cancelarla dejaria produccion a medio publicar).
+concurrency:
+  group: deploy-produccion
+  cancel-in-progress: false
+
 jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
+      # fetch-depth: 0 — el detector de deriva necesita el historial para preguntar
+      # `git merge-base --is-ancestor <sello-vivo> origin/main`. Con el clon superficial
+      # por defecto, esa pregunta no se puede responder.
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      # El guardia preventivo, en el unico lugar donde no se puede saltear.
+      - name: Solo main publica
+        env:
+          GITHUB_REF: ${{ github.ref }}
+        run: node scripts/check-deploy-solo-main.mjs
+
+      - name: Self-test del guardia de una-sola-fuente
+        run: node scripts/check-deploy-solo-main.mjs --self-test
 
       - uses: actions/setup-node@v4
         with:
@@ -38,11 +59,35 @@ jobs:
           GITHUB_SHA: ${{ github.sha }}
         run: |
           npm run build 2>&1 | tee build.log
+          # ANTES ERA UN WARNING, Y ESO ESTABA MAL. Si sync-ledger cae al snapshot, este
+          # deploy publica el ledger COMMITEADO como si fuera el vivo — y el snapshot en
+          # main puede estar meses atras, porque CI lo regenera pero nunca lo commitea de
+          # vuelta. Un paso que no produce nada es un fallo, no un aviso (CLAUDE.md §5
+          # quater 3): la ausencia de dato se disfrazaba de dato.
+          #
+          # Es seguro tenerlo cerrado: verificado en el run 32772386543 que el token SI
+          # lee D1 ("[sync-ledger] pulled 4 recipes, 1 verdicts from D1"). El texto viejo
+          # de este bloque culpaba a un "falta permiso D1:Edit" que el terreno desmiente.
+          #
+          # Si algun dia falla de verdad: el deploy se detiene y produccion queda como
+          # esta, que es el modo de fallo correcto. Se arregla el acceso a D1, no esto.
           if grep -q "D1 unreachable" build.log; then
-            echo "::warning::sync-ledger cayó al snapshot — el token no pudo leer la D1 (falta permiso D1:Edit)"
-          else
-            grep "\[sync-ledger\]" build.log | head -1 | sed 's/^/::notice::/'
+            echo "::error::sync-ledger cayó al snapshot: se estaría publicando el ledger viejo como si fuera el vivo. Deploy detenido; producción queda intacta."
+            exit 1
           fi
+          grep "\[sync-ledger\]" build.log | head -1 | sed 's/^/::notice::/'
+
+      # El snapshot commiteado es lo que se publicaria si D1 cayera. Si ya no dice lo
+      # mismo que D1, ese respaldo publicaria otra cosa — y nunca se probo contra el caso
+      # para el que existe. Informativo: la deriva es normal entre commits y no debe
+      # tumbar el deploy (un falso positivo retiene trabajo bueno); lo que SI tumba es
+      # que el respaldo se use, y eso lo cierra el paso de arriba.
+      - name: El snapshot del ledger sigue diciendo lo que dice D1
+        continue-on-error: true
+        run: node scripts/check-ledger-deriva.mjs
+
+      - name: Self-test del guardia de deriva del ledger
+        run: node scripts/check-ledger-deriva.mjs --self-test
 
       - name: Deploy Worker
         env:
@@ -114,8 +159,32 @@ jobs:
       - name: Las politicas legales siguen siendo el texto aprobado
         run: node scripts/build-legal.mjs --verificar
 
+      # NO SE PROMETE UNA TASA DE VICTORIA MIENTRAS EL CONTADOR DIGA CERO.
+      # El calculador de la portada multiplica por advRate (0,50-0,60) y su propio
+      # comentario dice que son "billed wins per request", mientras /v1/state publica
+      # victorias_cuanticas_medidas: 0. Un cliente lo desmiente con un curl a nuestra
+      # propia API (CLAUDE.md §1 ter).
+      #
+      # VA SIN BLOQUEAR A PROPOSITO, y esto es temporal: el defecto esta en main HOY, asi
+      # que hacerlo bloqueante ahora detiene el deploy de todos por algo que Nicholas
+      # todavia no decidio (declararlo estimacion, anclarlo a la fuente aprobada, o
+      # retirarlo). En cuanto esa decision aterrice, se borra el continue-on-error y pasa
+      # a fallar cerrado. Mientras tanto la contradiccion queda VISIBLE en cada deploy en
+      # vez de invisible, que es lo que importa.
+      - name: No se promete ventaja mientras el contador diga cero
+        continue-on-error: true
+        run: node scripts/check-ventaja-cero.mjs
+
+      - name: Self-test del guardia de ventaja-cero
+        run: node scripts/check-ventaja-cero.mjs --self-test
+
       - name: Self-test de los comparadores de la especificacion
         run: node scripts/check-openapi.mjs --self-test
+
+      # estado_medido reportaba 4 de las 8 categorias que run_archives ya contaba
+      # (MANIFEST/PREDICTION/REPORT/ERRATA invisibles); publicado e invisible otra vez.
+      - name: Self-test de /v1/state completo y de las erratas
+        run: node scripts/check-estado-completo.mjs --self-test
 
       # El sello de version va en TODA pagina servida, no solo en las de Astro: la consola
       # y las dos caras de Cleveland son HTML plano y nunca pasan por el layout, asi que
@@ -177,6 +246,14 @@ jobs:
           S="sha256:8044a29a48c88184884b41708373a05715e13ce2d4b4db4bd312674ac5c96bcd"
           if [ -f "$V" ]; then node scripts/cross-jcs.mjs "$V" --sello "$S"; else echo "::notice::sin vectores JCS en este clon — se salta"; fi
 
+      # La mitad que de verdad cierra la clase: el guardia de arriba pide colaboracion —
+      # quien escriba `wrangler deploy` a mano lo saltea entero. Esto mira el TERRENO y
+      # grita si lo que sirve produccion no viene de origin/main (un deploy a mano no
+      # tiene GITHUB_SHA y sella "local"; uno desde una rama sella un sha que no es
+      # ancestro). Va DESPUES del smoke test: primero que este arriba el build nuevo.
+      - name: Lo desplegado viene de main (deteccion de deriva)
+        run: node scripts/check-deploy-solo-main.mjs --deriva
+
       # Vigila lo desplegado, no el repo: que ninguna fila afirme sin cita, que el
       # catalogo no encoja, que nadie declare evidencia que no tiene, y que los
       # endpoints del ledger sigan intactos (api.js es compartido).
@@ -192,3 +269,8 @@ jobs:
         env:
           GITHUB_SHA: ${{ github.sha }}
         run: node scripts/check-openapi.mjs --esperar 120
+
+      # Las 8 categorias contra produccion, y la promesa central de una errata: que el
+      # sello original que corrige siga respondiendo 200, no solo que la errata exista.
+      - name: /v1/state completo y las erratas contra produccion
+        run: node scripts/check-estado-completo.mjs --esperar
