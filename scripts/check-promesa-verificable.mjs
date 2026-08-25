@@ -39,6 +39,7 @@
  *   node scripts/check-promesa-verificable.mjs --self-test
  */
 import { createHash } from "node:crypto";
+import { esperarVersion, esperarRutas } from "./lib/esperar.mjs";
 
 const BASE = process.argv.includes("--base")
   ? process.argv[process.argv.indexOf("--base") + 1] : "https://rosettaquantum.com";
@@ -100,6 +101,18 @@ if (process.argv.includes("--self-test")) {
 }
 
 // ── modo real: seguir la instruccion como un tercero ─────────────────────────────────────
+//
+// PRIMERO SE ESPERA A QUE EL BORDE SIRVA ESTE BUILD, y esto no es prolijidad: la primera
+// version de este guardia no esperaba y tumbo un despliegue que estaba bien. Dio "2 de 4"
+// —propagacion PARCIAL, unos nodos con la ruta nueva y otros sin ella— y a los dos minutos
+// daba 4 de 4 a mano. Un guardia que reporta roto lo que esta sano se desactiva solo, en
+// la cabeza del que revisa.
+//
+// El helper ya existe y lo usan los otros chequeos: una sola definicion, importada.
+const ESPERA_MAX = 90;
+await esperarVersion(BASE, process.env.GITHUB_SHA, ESPERA_MAX);
+await esperarRutas(BASE, [`/v1/challenges/${CORRIDA}`], ESPERA_MAX);
+
 let corrida;
 try { corrida = await (await fetch(`${BASE}/v1/challenges/${CORRIDA}`, { headers: { "User-Agent": "rosetta promesa check" } })).json(); }
 catch (e) { console.error(`[promesa] no se pudo leer la corrida: ${String(e).split("\n")[0]}`); process.exit(2); }
@@ -110,13 +123,20 @@ if (!claves.length) { console.error("[promesa] la corrida no trae proteínas: no
 let ok = 0; const malos = [];
 for (const clave of claves) {
   const declarado = corrida.proteinas[clave]?.sha256;
-  let cuerpo = null, cabecera;
-  try {
-    const r = await fetch(`${BASE}/v1/challenges/${CORRIDA}/${encodeURIComponent(clave)}/raw`,
-                          { headers: { "User-Agent": "rosetta promesa check" } });
-    if (r.ok) { cuerpo = await r.text(); cabecera = r.headers.get("x-rq-sha256") || undefined; }
-    else malos.push({ clave, estado: "http-" + r.status, motivo: "la ruta que la instrucción manda a bajar no responde" });
-  } catch (e) { malos.push({ clave, estado: "sin-red", motivo: String(e).split("\n")[0] }); }
+  let cuerpo = null, cabecera, ultimo = null;
+  // Hasta 3 intentos: el borde propaga por nodo, no de golpe, asi que dos peticiones
+  // seguidas pueden caer en nodos distintos. Comprobar varias veces antes de concluir
+  // es la regla de la casa para este sitio.
+  for (let intento = 1; intento <= 3 && cuerpo == null; intento++) {
+    try {
+      const r = await fetch(`${BASE}/v1/challenges/${CORRIDA}/${encodeURIComponent(clave)}/raw`,
+                            { headers: { "User-Agent": "rosetta promesa check", "x-rq-check": "1" } });
+      if (r.ok) { cuerpo = await r.text(); cabecera = r.headers.get("x-rq-sha256") || undefined; }
+      else { ultimo = { estado: "http-" + r.status, motivo: `la ruta que la instrucción manda a bajar no responde (tras ${intento} intento(s))` }; }
+    } catch (e) { ultimo = { estado: "sin-red", motivo: String(e).split("\n")[0] }; }
+    if (cuerpo == null && intento < 3) await new Promise((res) => setTimeout(res, 5000));
+  }
+  if (cuerpo == null && ultimo) malos.push({ clave, ...ultimo });
 
   if (cuerpo == null && !malos.some((m) => m.clave === clave)) continue;
   if (cuerpo == null) continue;
