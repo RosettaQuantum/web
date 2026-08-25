@@ -152,6 +152,70 @@ export function evaluarWorkflows({ workflows }) {
 }
 
 /**
+ * El veredicto de un repo es EL PEOR de sus workflows, no un agregado de sus corridas.
+ *
+ * EL DEFECTO QUE ARREGLA, y lo medi contra el incidente real antes de creerlo. La primera
+ * version mezclaba las corridas de TODOS los workflows del repo y miraba la ultima. Eso
+ * hace que un guardia rojo quede tapado por otro verde:
+ *
+ *   21-ago 13:26  Auditoria del archivo  failure
+ *   21-ago 13:26  Mirror to Codeberg     success   <- reinicia el reloj del "ultimo verde"
+ *
+ *   al 21-ago 13:30, mezclando todo:  rojo-fresco          (nada que escalar)
+ *   al 21-ago 13:30, solo Auditoria:  rojo-persistente 41h (ESCALAR)
+ *
+ * O sea: **el monitor no habria cazado el incidente para el que fue construido**, y no
+ * siempre — sólo cuando otro workflow corriera en medio. Un fallo intermitente que
+ * ademas se ve como si funcionara.
+ *
+ * WORKFLOW MUDO: uno `active` que nunca corrio sale con cero corridas, y cero corridas
+ * entre hermanos verdes se pierde. Pero NO todo silencio es sospechoso: un workflow que
+ * solo se dispara a mano y nadie ha necesitado esta legitimamente callado — `Experimento
+ * E.ON estocastico` en evidence es exactamente eso, y gritarle todos los dias seria el
+ * falso positivo permanente que nos entrena a ignorar el monitor.
+ *
+ * La distincion es barata: **si tiene disparador automatico y nunca corrio, deberia haber
+ * corrido.** Si solo es manual, su silencio no dice nada.
+ *
+ * @param {{porWorkflow: {nombre:string, corridas:object[], automatico:boolean, estado:string}[], ahora:string}} ctx
+ */
+export function evaluarRepoPorWorkflow({ porWorkflow, ahora }) {
+  // "manual" va PRIMERO —es el estado mas benigno— porque no es un problema: es un
+  // workflow que no se juzga. Ponerlo sobre "verde" hacia que UN workflow manual dominara
+  // el veredicto del repo entero y los tres salieran "manual" teniendo todo sano. Un
+  // estado que no es malo no puede mandar sobre uno que es bueno.
+  const PEOR = ["manual", "verde", "recuperado", "rojo-fresco", "mudo", "sin-datos", "apagado", "rojo-persistente"];
+  const detalle = [];
+
+  for (const w of porWorkflow ?? []) {
+    // El apagado se juzga siempre: alguien apagando un guardia importa sea manual o no.
+    if (w.estado && w.estado !== "active") { detalle.push({ ...w, veredicto: "apagado" }); continue; }
+
+    // LA REGLA DEL TIEMPO EN ROJO SOLO APLICA A LOS AUTOMATICOS, y lo aprendi a golpes:
+    // la primera version reportaba "162h en rojo" del workflow de mantenimiento de web.
+    // Fui a mirar por que fallo y **fallo porque su propio candado lo rechazo** — alguien
+    // lo disparo sin la frase de confirmacion y el guardia dijo que no. El sistema
+    // funcionando. Igual con una corrida cancelada de hace tres semanas en quantum-run.
+    //
+    // "Horas desde el ultimo verde" no significa nada en un workflow que corre cuando un
+    // humano decide: nadie lo esta corriendo, asi que el reloj mide desatencion, no
+    // rotura. Gritarlo a diario es el falso positivo permanente que nos entrena a ignorar
+    // el monitor entero — que es exactamente como se llego a 201 correos invisibles.
+    if (!w.automatico) { detalle.push({ ...w, veredicto: "manual" }); continue; }
+
+    if (!w.corridas?.length) { detalle.push({ ...w, veredicto: "mudo" }); continue; }
+
+    const r = evaluarRepo({ corridas: w.corridas, ahora });
+    detalle.push({ ...w, veredicto: r.estado, horasEnRojo: r.horasEnRojo });
+  }
+
+  const peor = detalle.reduce((acc, d) =>
+    PEOR.indexOf(d.veredicto) > PEOR.indexOf(acc) ? d.veredicto : acc, "verde");
+
+  return { estado: peor, workflows: detalle.length, detalle };
+}
+
+/**
  * ¿Sigue vivo el monitor? Lo pregunta el deploy, no el monitor.
  *
  * @param {{ultimoExito: string|null, ahora: string, maxHoras?: number}} ctx
@@ -266,6 +330,65 @@ if (process.argv.includes("--self-test")) {
     ["grita distinto: monitor que NUNCA corrio no es 'vivo'", () =>
       evaluarLatido({ ultimoExito: null, ahora: "2026-08-25T18:00:00Z" }).estado === "nunca"],
 
+    // ── el veredicto es el PEOR workflow, no el agregado ──
+    // EL CASO REAL, y es el que prueba que la primera version estaba mal: el 21-ago a las
+    // 13:26 la Auditoria fallaba y Mirror to Codeberg salia verde en el MISMO minuto.
+    // Mezclando las corridas, el verde reiniciaba el reloj y el monitor decia
+    // "rojo-fresco". Por workflow, la Auditoria llevaba 41h en rojo.
+    ["GRITA: un guardia rojo tapado por otro verde del mismo repo", () => {
+      const r = evaluarRepoPorWorkflow({ ahora: "2026-08-21T13:30:00Z", porWorkflow: [
+        { nombre: "Auditoria", automatico: true, estado: "active", corridas: [
+          { conclusion: "success", createdAt: "2026-08-19T20:19:00Z" },
+          { conclusion: "failure", createdAt: "2026-08-21T13:26:00Z" }] },
+        { nombre: "Mirror", automatico: true, estado: "active", corridas: [
+          { conclusion: "success", createdAt: "2026-08-21T13:26:00Z" }] },
+      ]});
+      return r.estado === "rojo-persistente";
+    }],
+    ["CALLA: todos los workflows verdes", () =>
+      evaluarRepoPorWorkflow({ ahora: "2026-08-25T18:00:00Z", porWorkflow: [
+        { nombre: "a", automatico: true, estado: "active", corridas: [{ conclusion: "success", createdAt: "2026-08-25T17:00:00Z" }] },
+        { nombre: "b", automatico: true, estado: "active", corridas: [{ conclusion: "success", createdAt: "2026-08-25T16:00:00Z" }] },
+      ]}).estado === "verde"],
+    // Un workflow AUTOMATICO que nunca corrio deberia haber corrido: es mudo.
+    ["grita: workflow automatico que nunca corrio", () =>
+      evaluarRepoPorWorkflow({ ahora: "2026-08-25T18:00:00Z", porWorkflow: [
+        { nombre: "sano", automatico: true, estado: "active", corridas: [{ conclusion: "success", createdAt: "2026-08-25T17:00:00Z" }] },
+        { nombre: "mudo", automatico: true, estado: "active", corridas: [] },
+      ]}).estado === "mudo"],
+    // Y EL CASO DE SILENCIO QUE EVITA EL FALSO POSITIVO PERMANENTE: uno que solo se
+    // dispara a mano y nadie ha necesitado. `Experimento E.ON estocastico` es este caso
+    // real; gritarle a diario nos entrenaria a ignorar el monitor entero.
+    // LOS DOS CASOS REALES que mi primera version reportaba como defectos y NO lo eran:
+    // el mantenimiento de `web` fallo porque su propio candado rechazo un disparo sin la
+    // frase de confirmacion, y la caminata cuantica tiene una corrida cancelada de hace
+    // tres semanas. Ninguno es automatico: nadie los esta corriendo.
+    ["CALLA: workflow manual cuya ultima corrida fallo hace 162h", () =>
+      evaluarRepoPorWorkflow({ ahora: "2026-08-25T18:00:00Z", porWorkflow: [
+        { nombre: "Mantenimiento", automatico: false, estado: "active", corridas: [
+          { conclusion: "failure", createdAt: "2026-08-18T22:52:00Z" }] },
+      ]}).estado !== "rojo-persistente"],
+    ["CALLA: workflow manual con una sola corrida cancelada", () =>
+      evaluarRepoPorWorkflow({ ahora: "2026-08-25T18:00:00Z", porWorkflow: [
+        { nombre: "Caminata", automatico: false, estado: "active", corridas: [
+          { conclusion: "cancelled", createdAt: "2026-08-01T12:05:00Z" }] },
+      ]}).estado !== "sin-datos"],
+    // Pero un AUTOMATICO rojo hace 162h sigue gritando: ahi el reloj si mide rotura.
+    ["grita: el mismo rojo de 162h en un workflow AUTOMATICO", () =>
+      evaluarRepoPorWorkflow({ ahora: "2026-08-25T18:00:00Z", porWorkflow: [
+        { nombre: "Auditoria", automatico: true, estado: "active", corridas: [
+          { conclusion: "failure", createdAt: "2026-08-18T22:52:00Z" }] },
+      ]}).estado === "rojo-persistente"],
+    ["CALLA: workflow SOLO MANUAL que nunca corrio (silencio legitimo)", () =>
+      evaluarRepoPorWorkflow({ ahora: "2026-08-25T18:00:00Z", porWorkflow: [
+        { nombre: "manual", automatico: false, estado: "active", corridas: [] },
+      ]}).estado === "verde"],
+    ["el apagado tambien manda sobre el verde de sus hermanos", () =>
+      evaluarRepoPorWorkflow({ ahora: "2026-08-25T18:00:00Z", porWorkflow: [
+        { nombre: "sano", automatico: true, estado: "active", corridas: [{ conclusion: "success", createdAt: "2026-08-25T17:00:00Z" }] },
+        { nombre: "off", automatico: true, estado: "disabled_manually", corridas: [] },
+      ]}).estado === "apagado"],
+
     // ── guardias apagados: se pregunta, no se infiere ──
     ["CALLA: todos los workflows activos", () =>
       evaluarWorkflows({ workflows: [{ name: "a", state: "active" }, { name: "b", state: "active" }] }).apagados.length === 0],
@@ -302,7 +425,14 @@ if (process.argv.includes("--self-test")) {
   process.exit(fallos ? 1 : 0);
 }
 
-// ── modo latido: lo corre el DEPLOY, no el monitor ───────────────────────────────────────
+// ── CLI ──────────────────────────────────────────────────────────────────────────────────
+// Sólo corre si se invoca directo. Sin esta guarda, importar el modulo lo EJECUTA — y un
+// modulo que no se puede importar sin dispararlo no se puede probar desde afuera.
+const { fileURLToPath: _fu } = await import("node:url");
+const esPrincipal = process.argv[1] && _fu(import.meta.url) === (await import("node:path")).resolve(process.argv[1]);
+if (!esPrincipal) { /* importado para pruebas: no se ejecuta nada */ }
+else {
+
 const ahora = new Date().toISOString();
 const gh = (args) => JSON.parse(execSync(`gh ${args}`, { encoding: "utf8", stdio: ["ignore", "pipe", "pipe"] }));
 
@@ -322,34 +452,66 @@ if (process.argv.includes("--latido")) {
 }
 
 // ── modo real: revisar los repos ─────────────────────────────────────────────────────────
+//
+// Se consulta POR WORKFLOW, no el monton de corridas del repo. Mezclarlas hacia que un
+// guardia rojo quedara tapado por otro verde — medido contra el incidente real del 21-ago.
+
+/** ¿Este workflow deberia correr solo? Solo se pregunta para los que tienen 0 corridas. */
+function tieneDisparadorAutomatico(repo, ruta) {
+  try {
+    const yml = execSync(`gh api repos/${repo}/contents/${ruta} --jq .content | base64 -d`,
+                         { encoding: "utf8", stdio: ["ignore", "pipe", "pipe"] });
+    // Se mira SOLO el bloque `on:`, no el archivo entero: un `schedule` mencionado en un
+    // comentario no es un disparador (CLAUDE.md §4 bis — un control que lee prosa aprueba
+    // prosa).
+    const bloque = (yml.split(/\njobs:/)[0] || "").replace(/^\s*#.*$/gm, "");
+    return /^\s*(schedule|push|pull_request|release|repository_dispatch)\s*:/m.test(bloque);
+  } catch (e) { return true; }   // si no se puede leer, se asume automatico: falla cerrado
+}
+
 let hallazgos = 0;
 for (const repo of REPOS) {
-  let corridas = [];
-  try { corridas = gh(`run list --repo ${repo} --branch main --limit 40 --json conclusion,createdAt`); }
-  catch (e) { console.error(`  ! ${repo}: no se pudo consultar — ${String(e).split("\n")[0]}`); hallazgos++; continue; }
+  let wfs = [];
+  try { wfs = gh(`api repos/${repo}/actions/workflows --jq '[.workflows[] | {id, name, state, path}]'`); }
+  catch (e) { console.error(`  ! ${repo}: no se pudo leer sus workflows — ${String(e).split("\n")[0]}`); hallazgos++; continue; }
 
-  const r = evaluarRepo({ corridas, ahora });
+  const porWorkflow = [];
+  for (const w of wfs) {
+    let corridas = [];
+    try { corridas = gh(`run list --repo ${repo} --workflow=${w.id} --branch main --limit 20 --json conclusion,createdAt`); }
+    catch (e) { corridas = []; }
+    porWorkflow.push({
+      nombre: w.name, estado: w.state, corridas,
+      // SIEMPRE se pregunta, nunca se deduce de tener corridas. La primera version
+      // asumia "si corrio alguna vez, es automatico" — y por eso reportaba como roto el
+      // workflow de mantenimiento, que es manual y cuya unica corrida fallo porque su
+      // propio candado la rechazo. Comprobar cuesta una llamada; deducir costo dos falsos
+      // positivos. Son ~16 llamadas una vez al dia.
+      automatico: tieneDisparadorAutomatico(repo, w.path),
+    });
+  }
 
-  // El estado de los workflows se PREGUNTA. Cero corridas puede ser "no paso nada" o
-  // "alguien apago el guardia", y desde las corridas esas dos son indistinguibles.
-  let w = { vistos: 0, activos: 0, apagados: [] };
-  try { w = evaluarWorkflows({ workflows: gh(`api repos/${repo}/actions/workflows --jq '[.workflows[] | {name, state}]'`) }); }
-  catch (e) { console.error(`  ! ${repo}: no se pudo leer el estado de los workflows — ${String(e).split("\n")[0]}`); hallazgos++; }
+  const r = evaluarRepoPorWorkflow({ porWorkflow, ahora });
+  const malos = r.detalle.filter((d) => ["rojo-persistente", "mudo", "apagado", "sin-datos"].includes(d.veredicto));
 
-  const linea = `  ${repo.padEnd(28)} ${r.estado}${r.horasEnRojo ? ` (${r.horasEnRojo}h)` : ""} · ${r.vistas} corrida(s) · ${w.activos}/${w.vistos} workflow(s) activo(s)`;
-
-  if (r.estado === "rojo-persistente") { console.error(linea + "  <-- ESCALAR"); hallazgos++; }
-  else if (r.estado === "sin-datos") { console.error(linea + "  <-- sin datos no es verde"); hallazgos++; }
-  else console.log(linea);
-
-  for (const a of w.apagados) {
-    const porque = a.estado === "disabled_inactivity"
-      ? "GitHub lo apagó tras 60 días sin actividad del repo (aplica a repos PÚBLICOS)"
-      : "alguien lo apagó a mano — eso cambia la garantía que damos hacia afuera";
-    console.error(`    ! guardia APAGADO en ${repo}: "${a.nombre}" (${a.estado}) — ${porque}`);
+  console.log(`  ${repo.padEnd(28)} ${r.estado} · ${r.workflows} workflow(s)`);
+  for (const d of malos) {
+    const porque = {
+      "rojo-persistente": `lleva ${d.horasEnRojo}h en rojo`,
+      "mudo": "tiene disparador automatico y NUNCA corrio: deberia haber corrido",
+      "apagado": d.estado === "disabled_inactivity"
+        ? "GitHub lo apago tras 60 dias sin actividad (repos PUBLICOS)"
+        : "alguien lo apago a mano — eso cambia la garantia que damos hacia afuera",
+      "sin-datos": "sin corridas utiles: sin datos no es verde",
+    }[d.veredicto];
+    console.error(`    ! ${repo} · "${d.nombre}": ${d.veredicto} — ${porque}`);
     hallazgos++;
   }
+  const recuperados = r.detalle.filter((d) => d.veredicto === "recuperado");
+  for (const d of recuperados) console.log(`    ~ ${repo} · "${d.nombre}": RECUPERADO (volvio a verde)`);
 }
 
 console.log(`[ci-salud] ${REPOS.length} repo(s) revisados · ${hallazgos} que escalar. Consumidor: la sesión CTO.`);
 process.exit(hallazgos ? 1 : 0);
+
+}  // fin del CLI
