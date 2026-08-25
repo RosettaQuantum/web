@@ -968,10 +968,14 @@ export const CATALOGO = [
   { ruta: "/v1/challenges", resumen: "Corridas de challenge publicadas", grupo: "challenges" },
   { ruta: "/v1/challenges/{id}", resumen: "Datos de una corrida completa", grupo: "challenges",
     ejemplo: { id: "cleveland-2026-07" }, esquema: { $ref: "#/components/schemas/Corrida" } },
+  // El ejemplo NO es decorativo: el chequeo de la especificacion EJERCE cada ruta
+  // documentada, y sin ejemplo no puede construir la peticion. Una ruta declarada que no
+  // se puede ejercer es documentacion que nadie comprobo — §1 bis, en codigo.
+  { ruta: "/v1/challenges/{id}/{proteina}/raw", grupo: "challenges",
+    resumen: "Los bytes exactos sobre los que se calculó el sha256 publicado — sin serializar nada",
+    ejemplo: { id: "cleveland-2026-07", proteina: "KRAS_G12C" } },
   // Esta ruta la atendia el enrutador y NO estaba declarada: la encontro el chequeo
   // comparando el codigo contra el catalogo, que es justo para lo que existe.
-  { ruta: "/v1/challenges/{id}/{proteina}/raw", grupo: "challenges",
-    resumen: "Los bytes exactos sobre los que se calculó el sha256 publicado — sin serializar nada" },
   { ruta: "/v1/challenges/{id}/{proteina}", resumen: "Una sola proteína de una corrida", grupo: "challenges",
     ejemplo: { id: "cleveland-2026-07", proteina: "KRAS_G12C" },
     esquema: { $ref: "#/components/schemas/Corrida" } },
