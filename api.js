@@ -76,6 +76,49 @@ function comoComprobar(row) {
   };
 }
 
+/**
+ * Los bytes exactos sobre los que se calculo el sha256 de una proteina.
+ *
+ * POR QUE EXISTE (2026-08-25). El `como_verificar` de este endpoint decia "recomputa el
+ * sha256 sobre datos + estadistica". Comercial fue a seguirlo como un tercero y
+ * **reprodujo 1 de 4** probando 60 canonicalizaciones; con 84 sale igual, y con la receta
+ * mas natural de Python sale **0 de 4**.
+ *
+ * La causa: el hash se calcula con `JSON.stringify` de JavaScript
+ * (scripts/seed-challenge-cleveland.mjs), y JS y Python formatean algunos flotantes
+ * distinto. Estas proteinas traen miles de coordenadas. Con Node reproduce 4 de 4.
+ *
+ * Nombrar el serializador en la instruccion arreglaba la letra y dejaba el problema:
+ * seria pedirle a un lector de Python que **emule el formato de flotantes de otro
+ * lenguaje**. Eso no es verificar, es adivinar con instrucciones.
+ *
+ * Por eso la salida es que **no haga falta serializar nada**: aca van los bytes tal cual
+ * se hashearon, y la instruccion pasa a ser "baja esto y sacale el sha256". Es el mismo
+ * patron de /v1/archive/<id>/raw, que ya funciona.
+ *
+ * NOTA para el que lea esto en el futuro: `datos_json` y `stats_json` son las cadenas que
+ * el sembrador hasheo, guardadas tal cual. NO se parsean aca a proposito — parsear y
+ * volver a serializar es exactamente lo que rompe la reproducibilidad.
+ */
+async function challengeCrudo(env, id, clave) {
+  const row = await env.DB.prepare(
+    "SELECT datos_json, stats_json, sha256 FROM challenge_proteins p " +
+    "JOIN challenge_runs r ON r.id = p.run_id " +
+    "WHERE p.run_id=? AND p.clave=? AND r.publicado=1"
+  ).bind(id, clave).first();
+  if (!row) return json({ error: "no existe esa proteína en esa corrida", id, clave }, 404);
+
+  return new Response((row.datos_json || "") + (row.stats_json || ""), {
+    headers: {
+      "content-type": "application/json; charset=utf-8",
+      "cache-control": CACHE,
+      "access-control-allow-origin": "*",
+      "x-rq-sha256": row.sha256 || "",
+      "x-rq-nota": "bytes tal como se hashearon; no re-serializado. sha256 de ESTE cuerpo = x-rq-sha256",
+    },
+  });
+}
+
 export function resumenArchivo(row) {
   let payload = {};
   try { payload = JSON.parse(row.payload || "{}"); } catch (e) {}
@@ -466,7 +509,7 @@ async function fuentes(env, url) {
 const AVISO_CHALLENGE =
   "Los sitios son PREDICHOS por caminata cuántica y no están validados " +
   "experimentalmente. El sitio conocido, cuando existe, se lee del fármaco " +
-  "co-cristalizado y nunca entra al calculo.";
+  "co-cristalizado y nunca entra al cálculo.";
 
 async function challenges(env, url) {
   const { results = [] } = await env.DB.prepare(
@@ -524,9 +567,16 @@ async function challengePorId(env, id, clave) {
     recipe_id: run.recipe_id, pre_registro: run.prereg,
     validado_experimentalmente: !!run.validado,
     aviso: AVISO_CHALLENGE,
+    // NO decir "recomputa sobre datos + estadistica": eso dependia de con que
+    // serializador, en que orden de claves y con que separadores — tres cosas que la
+    // instruccion no nombraba. Un tercero reproducia 1 de 4 (0 de 4 con la receta mas
+    // natural de Python). Ahora se baja el cuerpo ya hasheado y no hay nada que serializar.
     como_verificar:
-      "Cada proteína trae su sha256, calculado sobre datos + estadística tal como " +
-      "salieron del entregable sellado. Recomputálo y comparalo.",
+      `Baja ${SITE}/v1/challenges/${run.id}/<proteína>/raw y sácale el sha256 al cuerpo ` +
+      "tal como viene: eso es lo que declara el campo `sha256` de cada proteína. No hay " +
+      "que serializar nada ni acertarle a una convención — el hash es del archivo que " +
+      "bajas. El mismo valor viaja en la cabecera x-rq-sha256 para poder comparar sin " +
+      "parsear el cuerpo.",
     total_proteinas: results.length,
     proteinas,
   });
@@ -920,6 +970,8 @@ export const CATALOGO = [
     ejemplo: { id: "cleveland-2026-07" }, esquema: { $ref: "#/components/schemas/Corrida" } },
   // Esta ruta la atendia el enrutador y NO estaba declarada: la encontro el chequeo
   // comparando el codigo contra el catalogo, que es justo para lo que existe.
+  { ruta: "/v1/challenges/{id}/{proteina}/raw", grupo: "challenges",
+    resumen: "Los bytes exactos sobre los que se calculó el sha256 publicado — sin serializar nada" },
   { ruta: "/v1/challenges/{id}/{proteina}", resumen: "Una sola proteína de una corrida", grupo: "challenges",
     ejemplo: { id: "cleveland-2026-07", proteina: "KRAS_G12C" },
     esquema: { $ref: "#/components/schemas/Corrida" } },
@@ -1279,6 +1331,12 @@ async function enrutar(request, env, url, info = {}) {
   const mp = p.match(/^\/v1\/propagate\/([^/]+)(?:\/([^/]+))?\/?$/);
   if (mp) return await propagaciones(env, decodeURIComponent(mp[1]),
                                      mp[2] ? decodeURIComponent(mp[2]) : null);
+  // Los bytes EXACTOS sobre los que se calculo el sha256 publicado. Va antes del
+  // generico por la misma razon que en /v1/archive: /raw es una ruta propia, no una
+  // proteina que casualmente se llame "raw".
+  const mcr = p.match(/^\/v1\/challenges\/([^/]+)\/([^/]+)\/raw\/?$/);
+  if (mcr) return await challengeCrudo(env, decodeURIComponent(mcr[1]), decodeURIComponent(mcr[2]));
+
   const mc = p.match(/^\/v1\/challenges\/([^/]+)(?:\/([^/]+))?\/?$/);
   if (mc) return await challengePorId(env, decodeURIComponent(mc[1]),
                                       mc[2] ? decodeURIComponent(mc[2]) : null);

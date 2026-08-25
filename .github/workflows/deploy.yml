@@ -184,6 +184,32 @@ jobs:
       - name: Self-test del guardia de sobrescritura de posts
         run: node scripts/check-posts-sobrescritura.mjs --self-test
 
+      # Lo que la API sirve como texto sellado ES el sellado, byte a byte. Ese texto tiene
+      # SEIS copias en dos repos mas D1 mas la respuesta: hoy coinciden por disciplina, no
+      # por construccion. Al volver bilingue el campo, el riesgo concreto es que alguien
+      # "mejore" el lado espanol —ponerle las tildes que el sellado no tiene— y deje de
+      # ser el sellado sin que nada avise.
+      - name: Lo servido como sellado es el sellado
+        run: node scripts/check-api-vs-sello.mjs
+
+      - name: Self-test del guardia de texto sellado
+        run: node scripts/check-api-vs-sello.mjs --self-test
+
+      - name: Self-test del guardia de paridad bilingue
+        run: node scripts/check-api-bilingue.mjs --self-test
+
+      # LA PROMESA SE EJERCE, no se escribe. El `como_verificar` de /v1/challenges decia
+      # "recomputa el sha256 sobre datos + estadistica" y un tercero reproducia 1 de 4
+      # (0 de 4 con la receta mas natural de Python): el hash dependia del serializador,
+      # del orden de claves y de los separadores, y la instruccion no nombraba ninguno.
+      # Llevaba un MES publicado sin que nadie la siguiera. Una regla que vive en la
+      # cabeza de la gente no es una regla: es una intencion.
+      - name: La instruccion de verificacion se puede seguir
+        run: node scripts/check-promesa-verificable.mjs
+
+      - name: Self-test del guardia de la promesa
+        run: node scripts/check-promesa-verificable.mjs --self-test
+
       - name: Self-test de los comparadores de la especificacion
         run: node scripts/check-openapi.mjs --self-test
 
