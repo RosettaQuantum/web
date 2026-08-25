@@ -466,7 +466,7 @@ async function fuentes(env, url) {
 const AVISO_CHALLENGE =
   "Los sitios son PREDICHOS por caminata cuántica y no están validados " +
   "experimentalmente. El sitio conocido, cuando existe, se lee del fármaco " +
-  "co-cristalizado y nunca entra al calculo.";
+  "co-cristalizado y nunca entra al cálculo.";
 
 async function challenges(env, url) {
   const { results = [] } = await env.DB.prepare(
@@ -526,7 +526,7 @@ async function challengePorId(env, id, clave) {
     aviso: AVISO_CHALLENGE,
     como_verificar:
       "Cada proteína trae su sha256, calculado sobre datos + estadística tal como " +
-      "salieron del entregable sellado. Recomputálo y comparalo.",
+      "salieron del entregable sellado. Recompútalo y compáralo.",
     total_proteinas: results.length,
     proteinas,
   });
