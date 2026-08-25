@@ -18,7 +18,8 @@
     "migrate:posts": "node scripts/migrate-posts-to-d1.mjs",
     "check:bilingue": "node scripts/check-api-bilingue.mjs",
     "check:sello": "node scripts/check-api-vs-sello.mjs",
-    "check:promesa": "node scripts/check-promesa-verificable.mjs"
+    "check:promesa": "node scripts/check-promesa-verificable.mjs",
+    "check:ci": "node scripts/check-ci-salud.mjs"
   },
   "dependencies": {
     "@astrojs/rss": "latest",
