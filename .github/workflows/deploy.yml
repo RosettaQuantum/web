@@ -184,6 +184,20 @@ jobs:
       - name: Self-test del guardia de sobrescritura de posts
         run: node scripts/check-posts-sobrescritura.mjs --self-test
 
+      # Lo que la API sirve como texto sellado ES el sellado, byte a byte. Ese texto tiene
+      # SEIS copias en dos repos mas D1 mas la respuesta: hoy coinciden por disciplina, no
+      # por construccion. Al volver bilingue el campo, el riesgo concreto es que alguien
+      # "mejore" el lado espanol —ponerle las tildes que el sellado no tiene— y deje de
+      # ser el sellado sin que nada avise.
+      - name: Lo servido como sellado es el sellado
+        run: node scripts/check-api-vs-sello.mjs
+
+      - name: Self-test del guardia de texto sellado
+        run: node scripts/check-api-vs-sello.mjs --self-test
+
+      - name: Self-test del guardia de paridad bilingue
+        run: node scripts/check-api-bilingue.mjs --self-test
+
       - name: Self-test de los comparadores de la especificacion
         run: node scripts/check-openapi.mjs --self-test
 
