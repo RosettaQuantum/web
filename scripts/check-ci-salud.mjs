@@ -64,6 +64,11 @@
  * Un monitor con un hueco declarado es honesto. Uno que promete cubrirlo todo fabrica
  * confianza, que es lo peor que puede hacer un monitor.
  *
+ * LO QUE ESTE MONITOR **NO** DICE, y el nombre enganna: no dice «el CI esta sano», dice
+ * «la punta de `main` esta sana». Un guardia roto en una rama de trabajo no lo ve. Es
+ * correcto para lo que vigila —lo que respalda las entregas es `main`— pero en tres meses
+ * alguien va a leer el nombre y suponer lo primero.
+ *
  * Uso:
  *   node scripts/check-ci-salud.mjs                # revisa los repos activos
  *   node scripts/check-ci-salud.mjs --latido       # ¿sigue vivo el monitor? (lo usa deploy.yml)
@@ -71,7 +76,12 @@
  */
 import { execSync } from "node:child_process";
 
-const REPOS = ["RosettaQuantum/web", "RosettaQuantum/evidence"];
+// `quantum-run` guarda el motor de experimentos y el trabajo de Cleveland, entregado el
+// 13-ago. Esta legitimamente DORMIDO, no abandonado — y dormido, sin vigilancia y
+// cargando lo que respalda una entrega ya hecha es la peor combinacion de las tres: el
+// perfil exacto del repo que nadie mira hasta que importa. Ser privado lo salva del
+// apagado por inactividad, no de romperse en silencio.
+const REPOS = ["RosettaQuantum/web", "RosettaQuantum/evidence", "RosettaQuantum/quantum-run"];
 const UMBRAL_HORAS = 24;        // un rojo mas viejo que esto ya es informacion
 const LATIDO_MAX_HORAS = 48;    // el monitor corre a diario: dos dias sin latir es que murio
 
@@ -110,6 +120,34 @@ export function evaluarRepo({ corridas, ahora, umbralHoras = UMBRAL_HORAS }) {
     estado: enRojo > umbralHoras ? "rojo-persistente" : "rojo-fresco",
     horasEnRojo: Math.round(enRojo),
     vistas,
+  };
+}
+
+/**
+ * ¿Hay guardias APAGADOS? No se infiere de la ausencia de corridas: se PREGUNTA.
+ *
+ * Un workflow deshabilitado deja de producir corridas, y «cero corridas nuevas» se ve
+ * igual que «no ha habido cambios». Yo habia dado ese hueco por incerrable —cubierto por
+ * la disciplina de avisar cuando alguien relaja un guardia— y la sesion que coordina hizo
+ * notar lo obvio: **la API de Actions expone el `state` de cada workflow.** No hay que
+ * deducirlo de un silencio; se consulta.
+ *
+ * Y distingue las dos causas, que piden respuestas distintas:
+ *   disabled_inactivity  → GitHub lo apago solo tras 60 dias sin actividad (repos
+ *                          PUBLICOS). Es la causa verificada de muerte silenciosa.
+ *   disabled_manually    → alguien apago un guardia. Eso cambia la garantia que damos
+ *                          hacia afuera, y ahora se caza por mecanismo y no porque
+ *                          alguien se acuerde de avisar.
+ *
+ * @param {{workflows: {name:string, state:string}[]}} ctx
+ */
+export function evaluarWorkflows({ workflows }) {
+  const lista = workflows ?? [];
+  const apagados = lista.filter((w) => w.state && w.state !== "active");
+  return {
+    vistos: lista.length,
+    activos: lista.length - apagados.length,
+    apagados: apagados.map((w) => ({ nombre: w.name, estado: w.state })),
   };
 }
 
@@ -228,6 +266,26 @@ if (process.argv.includes("--self-test")) {
     ["grita distinto: monitor que NUNCA corrio no es 'vivo'", () =>
       evaluarLatido({ ultimoExito: null, ahora: "2026-08-25T18:00:00Z" }).estado === "nunca"],
 
+    // ── guardias apagados: se pregunta, no se infiere ──
+    ["CALLA: todos los workflows activos", () =>
+      evaluarWorkflows({ workflows: [{ name: "a", state: "active" }, { name: "b", state: "active" }] }).apagados.length === 0],
+    // El caso que yo daba por incerrable: alguien apago un guardia. Antes se veia igual
+    // que "no ha habido cambios"; ahora tiene nombre.
+    ["grita: alguien apago un guardia a mano", () => {
+      const r = evaluarWorkflows({ workflows: [{ name: "Auditoria", state: "disabled_manually" }] });
+      return r.apagados.length === 1 && r.apagados[0].estado === "disabled_manually";
+    }],
+    ["grita: GitHub lo apago por inactividad", () => {
+      const r = evaluarWorkflows({ workflows: [{ name: "Monitor", state: "disabled_inactivity" }] });
+      return r.apagados[0].estado === "disabled_inactivity";
+    }],
+    ["reporta denominador de workflows", () => {
+      const r = evaluarWorkflows({ workflows: [{ name: "a", state: "active" }, { name: "b", state: "disabled_manually" }] });
+      return r.vistos === 2 && r.activos === 1;
+    }],
+    ["CALLA: sin workflows no inventa apagados", () =>
+      evaluarWorkflows({ workflows: [] }).apagados.length === 0],
+
     // ── la confesion del propio hueco ──
     ["el monitor confiesa un hueco de 3 dias", () =>
       confesarHueco({ corridaPrevia: "2026-08-22T18:00:00Z", ahora: "2026-08-25T18:00:00Z" }).hubo === true],
@@ -271,11 +329,26 @@ for (const repo of REPOS) {
   catch (e) { console.error(`  ! ${repo}: no se pudo consultar — ${String(e).split("\n")[0]}`); hallazgos++; continue; }
 
   const r = evaluarRepo({ corridas, ahora });
-  const linea = `  ${repo.padEnd(28)} ${r.estado}${r.horasEnRojo ? ` (${r.horasEnRojo}h)` : ""} · ${r.vistas} corrida(s) vistas`;
+
+  // El estado de los workflows se PREGUNTA. Cero corridas puede ser "no paso nada" o
+  // "alguien apago el guardia", y desde las corridas esas dos son indistinguibles.
+  let w = { vistos: 0, activos: 0, apagados: [] };
+  try { w = evaluarWorkflows({ workflows: gh(`api repos/${repo}/actions/workflows --jq '[.workflows[] | {name, state}]'`) }); }
+  catch (e) { console.error(`  ! ${repo}: no se pudo leer el estado de los workflows — ${String(e).split("\n")[0]}`); hallazgos++; }
+
+  const linea = `  ${repo.padEnd(28)} ${r.estado}${r.horasEnRojo ? ` (${r.horasEnRojo}h)` : ""} · ${r.vistas} corrida(s) · ${w.activos}/${w.vistos} workflow(s) activo(s)`;
 
   if (r.estado === "rojo-persistente") { console.error(linea + "  <-- ESCALAR"); hallazgos++; }
   else if (r.estado === "sin-datos") { console.error(linea + "  <-- sin datos no es verde"); hallazgos++; }
   else console.log(linea);
+
+  for (const a of w.apagados) {
+    const porque = a.estado === "disabled_inactivity"
+      ? "GitHub lo apagó tras 60 días sin actividad del repo (aplica a repos PÚBLICOS)"
+      : "alguien lo apagó a mano — eso cambia la garantía que damos hacia afuera";
+    console.error(`    ! guardia APAGADO en ${repo}: "${a.nombre}" (${a.estado}) — ${porque}`);
+    hallazgos++;
+  }
 }
 
 console.log(`[ci-salud] ${REPOS.length} repo(s) revisados · ${hallazgos} que escalar. Consumidor: la sesión CTO.`);
