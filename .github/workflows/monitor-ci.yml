@@ -1,0 +1,45 @@
+# ¿Hay algún guardia rojo que nadie esté mirando?
+#
+# NACE DEL 2026-08-25. Nicholas recibía por correo cada fallo de CI de los tres repos —201
+# alertas en 90 días, todas a la única persona que no podía arreglarlas, y ninguna con su
+# aviso de resolución—. Ya desactivó ese correo. Pero eso arregla que le lleguen síntomas,
+# NO arregla que alguien mire: pasaba de una alerta con el consumidor equivocado a una
+# alerta sin consumidor, y la segunda se ve mejor.
+#
+# El ruido tapó algo real: la «Auditoría del archivo» de `evidence` estuvo roja del 19 al
+# 21 de agosto y nadie lo notó, porque un rojo diario era indistinguible de los otros
+# doscientos. Ese es el guardia que vigila que los sellos no cambien.
+#
+# SU CONSUMIDOR: la sesión CTO. A Nicholas no le llega nunca, ni en el caso grave — eso
+# sube por la sesión que coordina, ya diagnosticado (COORDINACION §12 ter).
+#
+# EL FALLO DEL WORKFLOW **ES** LA NOTIFICACIÓN. No manda correo: aparece rojo en Actions,
+# que es donde el CTO ya mira. Una alerta más que nadie lee sería repetir el problema.
+name: Monitor CI
+
+on:
+  schedule:
+    # 13:00 UTC ≈ 09:00 en Chile. Diario: el umbral de escalamiento es un día, así que
+    # revisar más seguido no agrega información — sólo ruido, que es como se llegó a 201.
+    - cron: "0 13 * * *"
+  workflow_dispatch:
+
+jobs:
+  revisar:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      # Sin `npm ci`: el monitor sólo usa Node de base y el `gh` que ya trae el runner.
+      # Un monitor con dependencias es un monitor que se cae por un paquete de un tercero.
+      - name: Revisar la punta de main de los repos activos
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: node scripts/check-ci-salud.mjs
+
+      - name: Self-test del monitor
+        run: node scripts/check-ci-salud.mjs --self-test
