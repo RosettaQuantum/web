@@ -210,6 +210,27 @@ jobs:
       - name: Self-test del guardia de la promesa
         run: node scripts/check-promesa-verificable.mjs --self-test
 
+      # ¿QUIÉN VIGILA AL VIGILANTE? Esto.
+      #
+      # Un monitor que muere en silencio es PEOR que ninguno: fabrica confianza, porque su
+      # silencio se ve idéntico a "todo verde". No se arregla agregando otro vigilante
+      # —eso mueve la pregunta un piso—: se arregla haciendo que el latido lo compruebe
+      # algo que YA corre por sus propias razones y que BLOQUEA al que puede arreglarlo.
+      #
+      # Si el monitor lleva más de dos días sin latir, este deploy no sale. No depende de
+      # la disciplina de nadie: depende de la conveniencia del CTO, que es más confiable.
+      #
+      # El latido no es un archivo: es el historial de corridas de `monitor-ci.yml`. Un
+      # latido commiteado ensuciaría el repo en cada corrida, y un archivo que sale
+      # modificado siempre es uno cuyos diffs la gente aprende a saltarse.
+      - name: El monitor de CI sigue vivo
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: node scripts/check-ci-salud.mjs --latido
+
+      - name: Self-test del monitor de CI
+        run: node scripts/check-ci-salud.mjs --self-test
+
       - name: Self-test de los comparadores de la especificacion
         run: node scripts/check-openapi.mjs --self-test
 
