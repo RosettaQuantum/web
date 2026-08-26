@@ -39,6 +39,12 @@
  *   node scripts/check-semilla-encoge.mjs db/quantum.seed.sql
  *   node scripts/check-semilla-encoge.mjs db/quantum.seed.sql --encoger   # decision explicita
  */
+/** Quien actua esta senal, y que hace al recibirla. Declarado aqui, no en un documento aparte. */
+export const CONSUMIDOR = {
+  quien: "sesion CTO",
+  hace: "revisa el generador de la semilla antes de aplicarla; si el encogimiento es real, --encoger",
+};
+
 import { readFileSync, existsSync } from "node:fs";
 import { execSync } from "node:child_process";
 

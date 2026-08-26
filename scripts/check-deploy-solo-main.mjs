@@ -27,6 +27,12 @@
  *   node scripts/check-deploy-solo-main.mjs --deriva     # detector contra produccion viva
  *   node scripts/check-deploy-solo-main.mjs --self-test  # rompe cada regla a proposito y exige el grito
  */
+/** Quien actua esta senal, y que hace al recibirla. Declarado aqui, no en un documento aparte. */
+export const CONSUMIDOR = {
+  quien: "quien intenta desplegar",
+  hace: "hace merge a main y deja que el CI publique, en vez de desplegar desde la rama",
+};
+
 import { execSync } from "node:child_process";
 
 export const RAZON =

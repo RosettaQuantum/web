@@ -36,6 +36,12 @@
  *   node scripts/check-produccion-fresca.mjs --emitir    # lo llama check:prod al terminar
  *   node scripts/check-produccion-fresca.mjs             # lo llama predeploy; bloquea
  */
+/** Quien actua esta senal, y que hace al recibirla. Declarado aqui, no en un documento aparte. */
+export const CONSUMIDOR = {
+  quien: "quien intenta desplegar",
+  hace: "corre npm run check:prod contra este commit y reintenta",
+};
+
 import { readFileSync, writeFileSync, existsSync } from "node:fs";
 import { execSync } from "node:child_process";
 

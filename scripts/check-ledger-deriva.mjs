@@ -28,6 +28,12 @@
  *
  * Salidas: 0 = al dia · 1 = hay deriva · 2 = no se pudo comprobar (≠ "esta bien").
  */
+/** Quien actua esta senal, y que hace al recibirla. Declarado aqui, no en un documento aparte. */
+export const CONSUMIDOR = {
+  quien: "sesion CTO",
+  hace: "regenera el snapshot del ledger en el build y vuelve a desplegar",
+};
+
 import { execSync } from "node:child_process";
 import { readFileSync } from "node:fs";
 

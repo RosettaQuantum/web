@@ -33,6 +33,12 @@
  *   node scripts/check-esquema-deriva.mjs --self-test
  *   node scripts/check-esquema-deriva.mjs
  */
+/** Quien actua esta senal, y que hace al recibirla. Declarado aqui, no en un documento aparte. */
+export const CONSUMIDOR = {
+  quien: "sesion CTO",
+  hace: "recupera desde sqlite_master la definicion de la tabla que vive sin declararse",
+};
+
 import { readFileSync, readdirSync, existsSync } from "node:fs";
 import { join } from "node:path";
 import { execSync } from "node:child_process";

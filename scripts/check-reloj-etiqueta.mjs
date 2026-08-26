@@ -65,6 +65,12 @@
  *   node scripts/check-reloj-etiqueta.mjs --archivo <dir>     # audita, reporta, no bloquea
  *   node scripts/check-reloj-etiqueta.mjs --deposito <dir>    # exige reloj, bloquea
  */
+/** Quien actua esta senal, y que hace al recibirla. Declarado aqui, no en un documento aparte. */
+export const CONSUMIDOR = {
+  quien: "sesion CTO",
+  hace: "arregla el generador para que la hora la ponga el depositario, no el nombre del archivo",
+};
+
 import { readdirSync, readFileSync, statSync, existsSync } from "node:fs";
 import { join, basename } from "node:path";
 

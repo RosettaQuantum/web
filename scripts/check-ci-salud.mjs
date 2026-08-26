@@ -74,6 +74,12 @@
  *   node scripts/check-ci-salud.mjs --latido       # ¿sigue vivo el monitor? (lo usa deploy.yml)
  *   node scripts/check-ci-salud.mjs --self-test
  */
+/** Quien actua esta senal, y que hace al recibirla. Declarado aqui, no en un documento aparte. */
+export const CONSUMIDOR = {
+  quien: "sesion CTO",
+  hace: "abre el workflow rojo, lo arregla o lo apaga si ya no aplica",
+};
+
 import { execSync } from "node:child_process";
 
 // `quantum-run` guarda el motor de experimentos y el trabajo de Cleveland, entregado el
