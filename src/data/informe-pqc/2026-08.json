@@ -777,22 +777,100 @@
    "Perímetro migrado": 23
   },
   "certificados_detalle": {
-   "recomputable_desde": "indice-agosto-2026.json · dimensión certificados",
+   "recomputable_desde": "certificados-2026-08.json · medición directa del certificado servido",
+   "medidas": 149,
+   "sin_medir": 21,
+   "base_indice": 170,
+   "regla": "100 si los parámetros superan el mínimo vigente (RSA ≥ 4096 o curva ≥ P-384); 75 si están en el mínimo (RSA-2048 o P-256); menos si están por debajo.",
+   "reproduce": "149 de 149",
+   "clave": [
+    {
+     "k": "rsaEncryption 2048",
+     "n": 104,
+     "pct": 69.8
+    },
+    {
+     "k": "EC/prime256v1 256",
+     "n": 41,
+     "pct": 27.5
+    },
+    {
+     "k": "rsaEncryption 4096",
+     "n": 3,
+     "pct": 2.0
+    },
+    {
+     "k": "EC/secp384r1 384",
+     "n": 1,
+     "pct": 0.7
+    }
+   ],
+   "firma": [
+    {
+     "k": "sha256WithRSAEncryption",
+     "n": 106,
+     "pct": 71.1
+    },
+    {
+     "k": "ecdsa-with-SHA256",
+     "n": 30,
+     "pct": 20.1
+    },
+    {
+     "k": "ecdsa-with-SHA384",
+     "n": 12,
+     "pct": 8.1
+    },
+    {
+     "k": "sha512WithRSAEncryption",
+     "n": 1,
+     "pct": 0.7
+    }
+   ],
+   "emisores": [
+    {
+     "k": "GlobalSign nv-sa",
+     "n": 34
+    },
+    {
+     "k": "DigiCert Inc",
+     "n": 34
+    },
+    {
+     "k": "Google Trust Services",
+     "n": 31
+    },
+    {
+     "k": "Let's Encrypt",
+     "n": 19
+    },
+    {
+     "k": "Amazon",
+     "n": 16
+    },
+    {
+     "k": "Sectigo Limited",
+     "n": 9
+    }
+   ],
+   "bajo_minimo": 0,
+   "sha1": 0,
    "distribucion": [
     {
      "valor": 75,
-     "n": 159,
-     "pct": 94
+     "n": 145,
+     "pct": 97
     },
     {
      "valor": 100,
-     "n": 11,
-     "pct": 6
+     "n": 4,
+     "pct": 3
     }
    ],
-   "total": 170,
-   "pct_valor_dominante": 94,
-   "sin_archivar": "El desglose por algoritmo y tamaño de clave no está archivado: en el corpus no existe ningún dato de certificado por organización. La versión anterior de este bloque publicaba 128 + 48 + 10 sobre un total de 187 — tres partes que suman 186. Se retira hasta volver a medir y guardar el artefacto crudo."
+   "total": 149,
+   "pct_valor_dominante": 97,
+   "hallazgo": "Ninguna organización de la muestra está por debajo del mínimo vigente: cero claves RSA bajo 2048 bits, cero curvas bajo P-256, cero firmas con SHA-1. Y ninguna está por encima de forma significativa. La dimensión no separa porque todas cumplen el mismo piso — y el piso, hoy, es criptografía clásica.",
+   "sin_pqc": "No existe todavía ningún certificado TLS post-cuántico públicamente confiable: los Baseline Requirements del CA/B Forum sólo permiten RSA y ECDSA. Ninguna autoridad puede emitir uno aunque quiera, así que esta dimensión no puede premiar algo que aún no se puede comprar."
   },
   "discriminacion": {
    "dims": [
