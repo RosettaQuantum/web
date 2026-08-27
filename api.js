@@ -232,16 +232,69 @@ export async function estado(env) {
   };
 }
 
+/**
+ * Listar un tipo de archivo, diciendo de cuantos.
+ *
+ * EL DEFECTO QUE ARREGLA (medido en produccion el 2026-08-27). `/v1/runs` sin parametros
+ * devolvia 50 con `total: 50`, y el archivo tiene 93. Tres fallos encadenados:
+ *
+ *     GET /v1/runs             items=50  total=50    <- el archivo tiene 93
+ *     GET /v1/runs?offset=50   items=50  total=50    <- LAS MISMAS 50, sin error
+ *     GET /v1/state            93                    <- nuestro propio endpoint lo desmiente
+ *
+ * **`total` significaba «cuantos te devolvi», no «cuantos hay».** El archivo subdeclaraba el
+ * 46 % de si mismo **y traia un campo llamado `total` confirmandoselo al llamador.** Y `offset`
+ * no fallaba: se ignoraba — un agente que pagine bien gira para siempre o concluye que hay 50.
+ * **Las dos salidas son peores que un 400.**
+ *
+ * Importa mas de lo que parece porque nos posicionamos como laboratorio **para agentes**, y
+ * `llms.txt` senala esta ruta: lo primero que hace un agente es pedirla sin parametros. Y el
+ * lector que nos interesa —el que compara dos superficies antes de contestar— veia 50 en una y
+ * 93 en la otra.
+ *
+ * LA CONVENCION viene de `/v1/sources`, que ya lo hacia bien. **`total` se conserva con su
+ * significado de siempre** —cuantos van en esta respuesta— porque cambiarlo romperia a todo
+ * parser existente; lo que se agrega es el denominador con un nombre que no se puede confundir.
+ */
 async function listar(env, tipo, url) {
   const recipe = url.searchParams.get("recipe");
   const limite = Math.min(parseInt(url.searchParams.get("limit") || "50", 10) || 50, 200);
-  let sql = "SELECT file_id,type,recipe_id,is_demo,archived_at,content_hash,github_url,codeberg_url,payload FROM run_archives WHERE type=?";
-  const args = [tipo];
-  if (recipe) { sql += " AND recipe_id=?"; args.push(recipe); }
-  sql += " ORDER BY archived_at DESC, file_id DESC LIMIT ?";
-  args.push(limite);
-  const { results = [] } = await env.DB.prepare(sql).bind(...args).all();
-  return json({ total: results.length, filtro: { tipo, recipe }, items: results.map(resumenArchivo) });
+
+  // `offset` funciona o falla con 400. Lo que no puede es ignorarse en silencio.
+  const offsetCrudo = url.searchParams.get("offset");
+  const offset = offsetCrudo === null ? 0 : parseInt(offsetCrudo, 10);
+  if (offsetCrudo !== null && (!Number.isInteger(offset) || offset < 0)) {
+    return json({ error: "offset invalido", detalle: "offset tiene que ser un entero >= 0" }, 400);
+  }
+
+  const filtro = recipe ? " AND recipe_id=?" : "";
+  const argsFiltro = recipe ? [tipo, recipe] : [tipo];
+
+  // El denominador se consulta, no se deduce del largo de la pagina.
+  const totalRow = await env.DB
+    .prepare("SELECT count(*) n FROM run_archives WHERE type=?" + filtro)
+    .bind(...argsFiltro).first();
+  const totalArchivo = totalRow ? totalRow.n : null;
+
+  const sql = "SELECT file_id,type,recipe_id,is_demo,archived_at,content_hash,github_url,codeberg_url,payload"
+    + " FROM run_archives WHERE type=?" + filtro
+    + " ORDER BY archived_at DESC, file_id DESC LIMIT ? OFFSET ?";
+  const { results = [] } = await env.DB.prepare(sql).bind(...argsFiltro, limite, offset).all();
+
+  return json({
+    // `total` = cuantos van en esta respuesta. Se conserva por compatibilidad.
+    total: results.length,
+    // `devueltos` dice lo mismo sin ambiguedad, y `total_archivo` es el denominador:
+    // "50 items" sin decir de cuantos no es un resultado.
+    devueltos: results.length,
+    total_archivo: totalArchivo,
+    offset,
+    limit: limite,
+    // Para que un agente sepa cuando parar sin tener que adivinar ni comparar paginas.
+    hay_mas: totalArchivo === null ? null : offset + results.length < totalArchivo,
+    filtro: { tipo, recipe },
+    items: results.map(resumenArchivo),
+  });
 }
 
 /**
