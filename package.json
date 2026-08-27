@@ -28,7 +28,8 @@
     "check:consultable": "node scripts/check-artefacto-consultable.mjs --self-test",
     "check:oro": "node scripts/check-oro-semantico.mjs --self-test && node scripts/check-oro-semantico.mjs public/consola",
     "experimento": "node scripts/experimento-nuevo.mjs",
-    "check:listado": "node scripts/check-listado-denominador.mjs --self-test"
+    "check:listado": "node scripts/check-listado-denominador.mjs --self-test",
+    "check:empujar": "node scripts/check-empujar-es-desplegar.mjs --self-test && node scripts/check-empujar-es-desplegar.mjs"
   },
   "dependencies": {
     "@astrojs/rss": "latest",
