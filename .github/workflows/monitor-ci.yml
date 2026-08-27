@@ -38,7 +38,13 @@ jobs:
       # Un monitor con dependencias es un monitor que se cae por un paquete de un tercero.
       - name: Revisar la punta de main de los repos activos
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # NO es `secrets.GITHUB_TOKEN`. El token automatico de Actions solo alcanza al
+          # repo donde corre, asi que no podia leer `quantum-run` —que es privado— y el
+          # monitor llevaba 32 h en rojo por negarse a decir «verde» sobre lo que no miro.
+          # Fallar cerrado era correcto; lo que faltaba era darle con que ver.
+          # GH_TOKEN_MONITOR es de alcance fino: Actions read-only sobre los tres repos y
+          # nada mas. No puede escribir, ni disparar flujos, ni leer contenido.
+          GH_TOKEN: ${{ secrets.GH_TOKEN_MONITOR }}
         run: node scripts/check-ci-salud.mjs
 
       - name: Self-test del monitor
