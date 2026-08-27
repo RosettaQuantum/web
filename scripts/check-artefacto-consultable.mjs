@@ -105,6 +105,57 @@ const vacio = (v) => v === undefined || v === null || v === "" ||
   (typeof v === "object" && !Array.isArray(v) && Object.keys(v).length === 0);
 
 /**
+ * Las corridas YA PUBLICADAS que no traen veredicto bajo ningun nombre que este guardia
+ * conozca. **Lista cerrada y fechada al 2026-08-27.** Solo puede encoger.
+ *
+ * POR QUE EXISTE, y la objecion es del laboratorio: estas 12 no se pueden arreglar —publicado
+ * es publicado— y **no pueden recibir una excepcion**, porque la excepcion se firma en un
+ * pre-registro antes de correr y ellas ya corrieron. Entonces el guardia las marcaria **para
+ * siempre**, y **un rojo que nadie puede apagar deja de leerse**. Congeladas aqui, el guardia
+ * sale verde con excepciones declaradas y **cualquier rojo nuevo es real**.
+ *
+ * LA DIFERENCIA CON SILENCIARLAS es que la lista es cerrada: si aparece un decimotercero,
+ * grita. Una lista abierta taparia los futuros, que es lo que se quiere impedir.
+ *
+ * Y POR QUE NO SE ARREGLA AGRANDANDO `SINONIMOS`, que era mi primer reflejo. Las abri una por
+ * una —despues de afirmar sin abrirlas que ninguna adjudicaba, que estaba mal— y **diez de las
+ * doce SI adjudican**, cada una bajo un nombre distinto: `RESULTADO`, `HALLAZGO`,
+ * `LA_IDENTIFICACION_SE_ROMPE`, `cruce_ventaja_cuantica: "0"`, y una literalmente bajo
+ * `el_veredicto_sigue_siendo`. Agregar esos cinco no cierra nada: **mientras el normalizador
+ * viva del lado del lector y nada obligue al escritor, aparece un sexto nombre y el guardia lo
+ * reporta como falta de veredicto — un falso rojo.** El puente es para lo viejo y lleva fecha;
+ * quien emite el canonico es el escritor, y eso ya vive en `que_canonico()`.
+ *
+ * COMO SE ARMO ESTA LISTA, porque la primera version estuvo mal: transcribi los nombres de una
+ * salida que yo mismo habia truncado a 88 caracteres, y **6 de los 12 no existian**. Lo cazo el
+ * contador de `COHORTE_CONGELADA_EN` al primer intento — que es exactamente para lo que esta.
+ * Se generan desde el disco, nunca a mano:
+ *
+ *     python3 -c "...recorre runs/, type=RUN, sin veredicto bajo ningun nombre..."
+ *
+ * LAS DOS QUE DE VERDAD NO ADJUDICAN, y por una razon real esta vez: `RQ-EXP-HSBC-BASE-001` y
+ * `RQ-EXP-HSBC-IEEE-001` son **baselines clasicos** — miden un lado, no comparan dos. Van en la
+ * misma lista porque el efecto es el mismo, pero la causa no lo es.
+ */
+export const COHORTE_HISTORICA = new Set([
+  "RosettaQ__RUN__RQ-EON-QPU-001__20260817T1800Z__qaoa-p2-case118-K10-en-ibm-marrakesh.json",
+  "RosettaQ__RUN__RQ-EON-QPU-002__20260817T2000Z__qaoa-p1-case118-K10--elegida-a-posteriori.json",
+  "RosettaQ__RUN__RQ-EON-QPU-003__20260817T2200Z__qaoa-p1-variables-permutadas--la-antipreferencia-no-es-del-metodo.json",
+  "RosettaQ__RUN__RQ-EXP-AIRBUS-DETECCION-001__20260825T1437Z__que-puede-detectar-el-benchmark-del-enunciado.json",
+  "RosettaQ__RUN__RQ-EXP-AIRBUS-EJE-001__20260824T2039Z__tiempo-y-error-vs-reynolds-con-malla-acoplada.json",
+  "RosettaQ__RUN__RQ-EXP-AIRBUS-NOLIN-001__20260824T2039Z__la-no-linealidad-se-anula-en-el-vortice-del-enunciado.json",
+  "RosettaQ__RUN__RQ-EXP-AIRBUS-RANGO-001__20260825T1437Z__el-eje-de-memoria-es-ciego-al-de-no-linealidad.json",
+  "RosettaQ__RUN__RQ-EXP-EON-ESTOCASTICO-001__20260814T2000Z__frontera-de-prueba-de-optimalidad--dos-etapas.json",
+  "RosettaQ__RUN__RQ-EXP-HSBC-ATAQUE-001__20260821T2000Z__replicacion-adversarial--salida-1-implementacion-validada.json",
+  "RosettaQ__RUN__RQ-EXP-HSBC-BASE-001__20260821T1325Z__baseline-clasico-ulb-particion-temporal.json",
+  "RosettaQ__RUN__RQ-EXP-HSBC-IEEE-001__20260825T1420Z__baseline-clasico-ieee-cis-particion-temporal.json",
+  "RosettaQ__RUN__RQ-EXP-HSBC-Q-002__20260826T0142Z__salidas-5-2-probabilidad-calibrada-binaria-y-atribucion-local.json",
+]);
+
+/** Cerrada al 27-ago-2026. Si este numero sube, alguien la abrio y hay que preguntar por que. */
+export const COHORTE_CONGELADA_EN = 12;
+
+/**
  * El esquema canonico es **de las corridas**, y solo de ellas.
  *
  * EL DEFECTO DE ESTE MISMO GUARDIA, medido el 2026-08-27 al correrlo contra el archivo. Su
@@ -144,7 +195,7 @@ export function queDe(artefacto) {
  *
  * @param {{artefacto:object, obligatorios?:string[], deseables?:string[]}} ctx
  */
-export function evaluar({ artefacto, obligatorios = CAMPOS_CONSULTABLES, deseables = CAMPOS_DESEABLES }) {
+export function evaluar({ artefacto, nombre = null, obligatorios = CAMPOS_CONSULTABLES, deseables = CAMPOS_DESEABLES, cohorte = COHORTE_HISTORICA }) {
   const tipo = artefacto?.meta?.type;
   if (tipo === undefined || tipo === null || tipo === "") {
     return { estado: "sin_tipo", tipo: null, motivo: "el artefacto no declara meta.type: no se puede saber que esquema le toca" };
@@ -165,6 +216,13 @@ export function evaluar({ artefacto, obligatorios = CAMPOS_CONSULTABLES, deseabl
   const sinDeseables = deseables.filter((c) => vacio(que[c]));
   const narrativos = Object.keys(que)
     .filter((k) => !obligatorios.includes(k) && !deseables.includes(k) && !ALIAS.has(k));
+
+  // Una corrida ya publicada de la cohorte congelada se informa y no bloquea. No se le puede
+  // pedir que se arregle: publicado es publicado.
+  if (faltan.length && nombre && cohorte.has(nombre)) {
+    return { estado: "historica", tipo, faltan, porAlias, sinDeseables, narrativos: narrativos.length,
+             motivo: `publicada antes del esquema canonico; en la cohorte congelada del 2026-08-27 (${cohorte.size})` };
+  }
 
   if (faltan.length) {
     return { estado: "no_consultable", tipo, motivo: `faltan ${faltan.length} campo(s) por los que la API busca`, faltan, porAlias, sinDeseables, narrativos: narrativos.length };
@@ -290,6 +348,36 @@ if (_esPrincipal && process.argv.includes("--self-test")) {
       return conFiltro === "no_aplica" && sinFiltro.length === 3;
     }],
 
+    // ── la cohorte congelada ──
+    ["CALLA: una corrida de la cohorte historica se informa y no bloquea", () => {
+      const [uno] = [...COHORTE_HISTORICA];
+      return evaluar({ artefacto: { meta: { type: "RUN" }, w6: { que: { narrativa: "x" } } }, nombre: uno }).estado === "historica";
+    }],
+
+    ["la cohorte esta CERRADA en su tamano declarado", () =>
+      COHORTE_HISTORICA.size === COHORTE_CONGELADA_EN],
+
+    // EL PUNTO ENTERO de que la lista sea cerrada: el decimotercero grita.
+    ["grita: una corrida NUEVA sin veredicto no esta en la lista y bloquea", () =>
+      evaluar({ artefacto: { meta: { type: "RUN" }, w6: { que: { narrativa: "x" } } },
+                nombre: "RosettaQ__RUN__RQ-LO-QUE-SEA-013__20260901T0000Z__nueva.json" }).estado === "no_consultable"],
+
+    // Estar en la lista no indulta lo que SI cumple: sigue evaluandose y sale ok.
+    ["una historica que ademas cumple sale ok, no `historica`", () => {
+      const [uno] = [...COHORTE_HISTORICA];
+      return evaluar({ artefacto: { meta: { type: "RUN" }, w6: { que: { problem_class: "a", instance: "b", outcome: "c" } } }, nombre: uno }).estado === "ok";
+    }],
+
+    // MUTACION: con la lista ABIERTA —cualquier corrida de agosto indultada— el decimotercero
+    // pasaria. Es la diferencia entre congelar y silenciar.
+    ["MUTACION: una lista abierta taparia al decimotercero", () => {
+      const nueva = "RosettaQ__RUN__RQ-LO-QUE-SEA-013__20260901T0000Z__nueva.json";
+      const cerrada = evaluar({ artefacto: { meta: { type: "RUN" }, w6: { que: { n: "x" } } }, nombre: nueva }).estado;
+      const abierta = evaluar({ artefacto: { meta: { type: "RUN" }, w6: { que: { n: "x" } } }, nombre: nueva,
+                                cohorte: { has: () => true, size: 99 } }).estado;
+      return cerrada === "no_consultable" && abierta === "historica";
+    }],
+
     // ── mutacion ──
     // Sin la tabla de sinonimos, los tres de julio se bloquean. Es la medicion que corrige el
     // error: exigir el nombre exacto retiene 3 de 51; aceptando los viejos, 0.
@@ -330,7 +418,7 @@ if (_esPrincipal && !process.argv.includes("--self-test")) {
         else if (e.endsWith(".json")) {
           try {
             const a = JSON.parse(readFileSync(p, "utf8"));
-            if (a && typeof a === "object" && !Array.isArray(a) && queDe(a)) filas.push([p, evaluar({ artefacto: a })]);
+            if (a && typeof a === "object" && !Array.isArray(a) && queDe(a)) filas.push([p, evaluar({ artefacto: a, nombre: e })]);
           } catch { /* JSON ilegible: asunto de otro guardia */ }
         }
       }
@@ -341,10 +429,14 @@ if (_esPrincipal && !process.argv.includes("--self-test")) {
     const corridas = filas.filter(([, r]) => r.estado !== "no_aplica" && r.estado !== "sin_tipo");
     const otros = filas.filter(([, r]) => r.estado === "no_aplica");
     const sinTipo = filas.filter(([, r]) => r.estado === "sin_tipo");
-    const mal = corridas.filter(([, r]) => r.estado !== "ok");
+    const historicas = corridas.filter(([, r]) => r.estado === "historica");
+    const mal = corridas.filter(([, r]) => r.estado !== "ok" && r.estado !== "historica");
 
     console.log(`[consultable] auditoria · ${filas.length} artefactos con w6.que en total`);
-    console.log(`   ${corridas.length} del tipo ${TIPO_CON_ESQUEMA} — ${corridas.length - mal.length} consultables, ${mal.length} no`);
+    console.log(`   ${corridas.length} del tipo ${TIPO_CON_ESQUEMA} — ${corridas.length - mal.length - historicas.length} consultables, ${historicas.length} historicas declaradas, ${mal.length} no`);
+    if (historicas.length !== COHORTE_CONGELADA_EN) {
+      console.error(`   OJO: la cohorte se congelo en ${COHORTE_CONGELADA_EN} y aqui aparecen ${historicas.length}. Una lista cerrada que cambia dejo de ser cerrada.`);
+    }
     console.log(`   ${otros.length} de otros tipos: el esquema de las corridas no les toca, no se cuentan`);
     if (sinTipo.length) console.log(`   ${sinTipo.length} SIN meta.type — no se puede saber que esquema les toca`);
     for (const [p, r] of mal.slice(0, 10)) console.log(`   ${r.estado.padEnd(16)} ${basename(p).slice(0, 58)}`);
@@ -362,9 +454,14 @@ if (_esPrincipal && !process.argv.includes("--self-test")) {
   try { artefacto = JSON.parse(readFileSync(archivo, "utf8")); }
   catch (e) { console.error(`[consultable] NO SE PUDO COMPROBAR: JSON ilegible. ${String(e).split("\n")[0]}`); process.exit(2); }
 
-  const r = evaluar({ artefacto });
+  const r = evaluar({ artefacto, nombre: basename(archivo) });
   console.log(`[consultable] ${basename(archivo)}${r.tipo ? `  ·  type=${r.tipo}` : ""}`);
 
+  if (r.estado === "historica") {
+    console.log(`   ${r.motivo}.`);
+    console.log(`   falta: ${r.faltan.join(", ")} — no se re-sella: publicado es publicado.`);
+    process.exit(0);
+  }
   if (r.estado === "no_aplica") {
     console.log(`   ${r.motivo}. Nada que exigir aqui.`);
     process.exit(0);
