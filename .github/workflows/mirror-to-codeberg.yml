@@ -1,0 +1,102 @@
+# Segunda copia del repositorio de codigo, en Codeberg.
+#
+# POR QUE EXISTE (medido el 2026-08-27). El archivo de evidencia tiene tres copias —GitHub,
+# Codeberg y D1— y se publicita asi. **El repositorio de CODIGO tenia una.** Todo lo que vive
+# aqui —los diez archivos de esquema, los guardias, el esquema de produccion recuperado desde
+# D1— existia en un solo remoto.
+#
+# Y la distincion que costo entender: **las tres copias protegen el registro de lo que paso, y
+# ninguna protege la maquina que lo produce.** No es que la promesa fuera falsa: es que el
+# codigo nunca estuvo dentro de lo que cubre.
+#
+# TODAS LAS RAMAS, NO SOLO `main`, y es la unica diferencia de fondo con el espejo del archivo:
+#
+#   - `evidence` es de UNA rama por diseno: la cadena notarial publica a `main` y sellar en una
+#     rama seria sellar fuera del alcance del espejo. Ahi copiar solo `main` es correcto.
+#   - `web` tiene 24 ramas y el trabajo en vuelo vive en ellas. **Esto es recuperacion ante
+#     desastre, no colaboracion.** Un respaldo que exige decidir que vale la pena copiar no es
+#     un respaldo: es una curaduria, y se equivoca justo el dia que hace falta. Copiar 24 ramas
+#     cuesta almacenamiento; decidir cuales importan cuesta criterio, **y el criterio no esta
+#     disponible cuando se perdio el remoto.**
+#
+# EL GUARDIA DE RETROCESO viene del espejo de `evidence` y no se toca. `--mirror` mantiene las
+# dos copias identicas, que es lo que queremos — **pero tambien significa que si el historial de
+# GitHub retrocediera, este flujo destruiria fielmente la copia 2**, que es justo la que existe
+# para sobrevivir a eso. Un espejo que se deja arrastrar no es una segunda copia: es una
+# replica, y una replica no prueba nada.
+#
+# CONSUMIDOR: la sesion CTO. Si esto grita, o el historial divergio —lo mira una persona— o el
+# token perdio permiso. En ninguno de los dos casos lo arregla reintentar.
+
+name: Espejo a Codeberg
+
+on:
+  push:
+    branches: ["**"]          # todas, no solo main
+    tags: ["**"]
+  schedule:
+    - cron: "40 5 * * *"      # red de seguridad diaria: un push que fallo no queda sin copia
+  workflow_dispatch:
+
+concurrency:
+  group: espejo-codeberg      # un escritor por superficie, tambien aca
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  espejar:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Traer el repo COMPLETO
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0      # sin esto se espeja una copia truncada y parece que funciono
+          ref: ${{ github.ref }}
+
+      - name: Empujar a Codeberg
+        env:
+          CODEBERG_TOKEN: ${{ secrets.CODEBERG_TOKEN }}
+        run: |
+          set -euo pipefail
+
+          if [ -z "${CODEBERG_TOKEN}" ]; then
+            echo "::error::No hay CODEBERG_TOKEN. Sin credencial no hay segunda copia — y no se finge que la hay."
+            exit 1
+          fi
+
+          # Forgejo/Codeberg: el token va como usuario de basic-auth. La forma "oauth2:TOKEN"
+          # de GitLab la rechaza con exit 128. Se limpian espacios que el secreto pueda traer.
+          TOKEN="$(printf '%s' "${CODEBERG_TOKEN}" | tr -d '[:space:]')"
+          git remote add codeberg "https://${TOKEN}@codeberg.org/RosettaQuantum/web.git"
+
+          git fetch --prune codeberg "+refs/heads/*:refs/remotes/codeberg/*" || true
+
+          # EL GUARDIA DE RETROCESO, rama por rama. Del espejo de `evidence`, sin cambios de
+          # fondo: si la copia 2 no avanzaria sino que retrocederia, se aborta. **Falla cerrado:
+          # ante la duda no se empuja.** Perder un empujon no cuesta nada; perder historia si.
+          RETROCEDEN=""
+          for REF in $(git for-each-ref --format='%(refname:short)' refs/heads/); do
+            ESPEJO="refs/remotes/codeberg/${REF}"
+            git rev-parse --verify -q "$ESPEJO" >/dev/null || continue
+            ANTES=$(git rev-parse "$ESPEJO")
+            AHORA=$(git rev-parse "refs/heads/${REF}")
+            if [ "$ANTES" != "$AHORA" ] && ! git merge-base --is-ancestor "$ANTES" "$AHORA"; then
+              RETROCEDEN="${RETROCEDEN} ${REF}"
+              echo "::error::${REF}: Codeberg esta en ${ANTES} y no es ancestro de ${AHORA}."
+              git log --oneline "${AHORA}..${ANTES}" | head -10 || true
+            fi
+          done
+
+          if [ -n "${RETROCEDEN}" ]; then
+            echo "::error::ABORTADO — estas ramas perderian historia:${RETROCEDEN}"
+            echo "  Divergencia = lo mira una persona, no lo resuelve un bot."
+            exit 1
+          fi
+
+          # Comprobado que ninguna retrocede: ahora si, identicas.
+          git push --prune codeberg "+refs/heads/*:refs/heads/*"
+          git push --force codeberg "+refs/tags/*:refs/tags/*"
+
+          echo "ramas espejadas: $(git for-each-ref --format='%(refname:short)' refs/heads/ | wc -l)"
