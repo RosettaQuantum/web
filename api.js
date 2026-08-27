@@ -212,9 +212,9 @@ export async function estado(env) {
       // duplicar aqui un texto que podemos escribir bien seria maquinaria para un
       // problema que no existe.
       lectura: victorias === 0
-        ? "Cero. Ningún veredicto publicado hasta hoy declara que un método cuántico le " +
+        ? "Cero. Ninguno de los veredictos de este archivo declara que un método cuántico le " +
           "ganó al campeón clásico. Ese resultado es el producto, no una falla del archivo."
-        : `${victorias} de ${(ver.results || [{ n: 0 }])[0].n} veredictos publicados ` +
+        : `${victorias} de ${(ver.results || [{ n: 0 }])[0].n} veredictos de este archivo ` +
           "miden una victoria cuántica. Cada uno está sellado y se puede recomputar.",
     },
     recetas: (recetas.results || []).map(r => ({
@@ -593,8 +593,9 @@ export const HERRAMIENTAS = [
     name: "estado_del_archivo",
     description:
       "Estado medido del Evidence Ledger de Rosetta Quantum: cuántas corridas selladas " +
-      "hay, cuántos veredictos, y cuántas victorias cuánticas se han medido (hoy: cero). " +
-      "Usar para responder '¿qué tan real es la ventaja cuántica hoy?' con datos citables.",
+      "hay, cuántos veredictos, y cuántas veces un método cuántico le ganó al campeón " +
+      "clásico en una corrida sellada DE ESTE ARCHIVO (hoy: 0). El ledger publica lo que " +
+      "Rosetta midió; no describe el estado del campo.",
     inputSchema: { type: "object", properties: {} },
   },
   {
