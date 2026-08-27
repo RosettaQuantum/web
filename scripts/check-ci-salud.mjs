@@ -498,7 +498,25 @@ for (const repo of REPOS) {
   }
 
   const r = evaluarRepoPorWorkflow({ porWorkflow, ahora });
-  const malos = r.detalle.filter((d) => ["rojo-persistente", "mudo", "apagado", "sin-datos"].includes(d.veredicto));
+  // DOS EXCLUSIONES, y las dos nacieron de mirar al monitor mirarse (2026-08-27).
+  //
+  // 1) EL MONITOR NO SE JUZGA A SI MISMO. Si se cuenta, **una sola corrida roja lo deja
+  //    rojo para siempre**: su ultima corrida completada es la que fallo, asi que se
+  //    reporta rojo, asi que falla, asi que su ultima corrida es roja. Un lazo del que no
+  //    se sale. Su estado se imprime igual —abajo— porque ocultarlo seria peor; lo que no
+  //    hace es escalar por si mismo. Que el monitor este caido lo dice GitHub en su propia
+  //    interfaz, que es donde de verdad se ve.
+  //
+  // 2) `sin-datos` SE REPORTA Y NO ESCALA. «Sin datos no es verde» sigue siendo cierto y
+  //    la linea se imprime igual de fuerte. Pero escalar significa **alguien tiene que
+  //    actuar**, y aqui nadie puede: se resuelve solo cuando ese workflow tenga una corrida
+  //    util. Contarlo como hallazgo deja la alarma encendida en un estado que nadie puede
+  //    apagar — y una alarma que no se puede apagar se aprende a ignorar, que es
+  //    exactamente como se llega a doscientas.
+  const ESTE_MONITOR = "Monitor CI";
+  const reportables = r.detalle.filter((d) => ["rojo-persistente", "mudo", "apagado", "sin-datos"].includes(d.veredicto));
+  const malos = reportables.filter((d) => d.nombre !== ESTE_MONITOR && d.veredicto !== "sin-datos");
+  const soloAviso = reportables.filter((d) => d.nombre === ESTE_MONITOR || d.veredicto === "sin-datos");
 
   console.log(`  ${repo.padEnd(28)} ${r.estado} · ${r.workflows} workflow(s)`);
   for (const d of malos) {
@@ -513,6 +531,13 @@ for (const repo of REPOS) {
     console.error(`    ! ${repo} · "${d.nombre}": ${d.veredicto} — ${porque}`);
     hallazgos++;
   }
+  for (const d of soloAviso) {
+    const nota = d.nombre === ESTE_MONITOR
+      ? "es este mismo monitor: se informa, no se escala (no puede juzgarse a si mismo)"
+      : "sin corridas utiles: sin datos no es verde, pero nadie puede actuarlo hasta que corra";
+    console.log(`    ~ ${repo} · "${d.nombre}": ${d.veredicto} — ${nota}`);
+  }
+
   const recuperados = r.detalle.filter((d) => d.veredicto === "recuperado");
   for (const d of recuperados) console.log(`    ~ ${repo} · "${d.nombre}": RECUPERADO (volvio a verde)`);
 }
