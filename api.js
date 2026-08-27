@@ -593,9 +593,9 @@ export const HERRAMIENTAS = [
     name: "estado_del_archivo",
     description:
       "Estado medido del Evidence Ledger de Rosetta Quantum: cuántas corridas selladas " +
-      "hay, cuántos veredictos, y cuántas veces un método cuántico le ganó al campeón " +
-      "clásico en una corrida sellada DE ESTE ARCHIVO (hoy: 0). El ledger publica lo que " +
-      "Rosetta midió; no describe el estado del campo.",
+      "hay, cuántos veredictos, y cuántos VEREDICTOS PUBLICADOS de este archivo declaran " +
+      "que un método cuántico le ganó al campeón clásico (hoy: 0). Cuenta veredictos, no " +
+      "corridas. El ledger publica lo que Rosetta midió; no describe el estado del campo.",
     inputSchema: { type: "object", properties: {} },
   },
   {
@@ -920,7 +920,7 @@ export const CATALOGO = [
           erratas: { type: "integer",
             description: "Correcciones publicadas sobre sellos propios ya anclados. El original nunca se reescribe: la errata es un archivo nuevo que lo cita por content_hash." },
           victorias_cuanticas_medidas: { type: "integer",
-            description: "Cuántas veces un método cuántico le ganó al campeón clásico en una corrida sellada. Hoy: 0. Es el titular del archivo, no una falla." },
+            description: "Cuántos veredictos publicados de este archivo declaran que un método cuántico le ganó al campeón clásico. Hoy: 0. CUENTA VEREDICTOS, NO CORRIDAS: hay corridas selladas donde el lado cuántico puntuó más alto en una instancia, y eso no basta para llamar un veredicto. Es el titular del archivo, no una falla." },
           lectura: { type: "string" },
         } },
         recetas: { type: "array", items: { type: "object" } },
