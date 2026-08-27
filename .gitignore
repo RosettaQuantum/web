@@ -3,3 +3,15 @@ dist/
 .astro/
 .wrangler/
 *.log
+
+# El corpus del estudio chileno: hallazgos POR ORGANIZACION CON NOMBRE de 220
+# empresas que todavia no han sido notificadas. Este repositorio es PUBLICO.
+# Hoy estos archivos viven FUERA del arbol, asi que la contencion era posicional
+# y no declarada: nada impedia que un `git add -A` los publicara si alguien los
+# copiaba aca. Y algo invitaba a copiarlos — calcular_qex.py resolvia el corpus
+# contra su propio directorio, que dentro del repo no existe. (2026-08-26)
+estudio-chile-*.json
+indice-agosto-*.json
+rescan-soporte-*.json
+certificados-*.json
+informe-estudio-chile-*.html

@@ -107,8 +107,39 @@ def verificar(ruta):
     return filas
 
 
+def _ruta_corpus(nombre="indice-agosto-2026.json"):
+    """Busca el corpus del estudio subiendo desde este archivo.
+
+    Existe porque esta implementacion vive en DOS lugares —junto al corpus, y
+    copiada dentro del repositorio web, que es PUBLICO— y un guardia exige que
+    las dos copias sean identicas byte a byte. La version anterior resolvia
+    contra el directorio propio: correcta junto al corpus, y apuntando a un
+    archivo inexistente dentro del repo. El arreglo intuitivo para ese
+    FileNotFoundError es copiar el corpus al lado del script — y el corpus trae
+    los hallazgos POR ORGANIZACION CON NOMBRE de 220 empresas chilenas que
+    todavia no notificamos. La ruta rota invitaba a commitear justo aquello que
+    prometimos mantener confidencial. (2026-08-26)
+    """
+    d = os.path.dirname(os.path.abspath(__file__))
+    for _ in range(6):
+        candidato = os.path.join(d, nombre)
+        if os.path.exists(candidato):
+            return candidato
+        padre = os.path.dirname(d)
+        if padre == d:
+            break
+        d = padre
+    sys.exit(
+        f"No encontre {nombre} subiendo desde "
+        f"{os.path.dirname(os.path.abspath(__file__))}\n"
+        "Corre esto donde vive el corpus del estudio.\n"
+        "NO lo copies al lado de este script si estas dentro del repositorio web:\n"
+        "es publico, y el corpus trae 220 organizaciones con nombre sin notificar."
+    )
+
+
 if __name__ == "__main__":
-    ruta = os.path.join(os.path.dirname(os.path.abspath(__file__)), "indice-agosto-2026.json")
+    ruta = _ruta_corpus()
     if "--explicar" in sys.argv:
         dom = sys.argv[sys.argv.index("--explicar") + 1]
         r = next(x for x in json.load(open(ruta, encoding="utf-8")) if x["domain"] == dom)
