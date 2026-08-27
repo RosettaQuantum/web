@@ -57,7 +57,7 @@ body{margin:0}
 :root body.consola table.datos th{border-bottom:1px solid var(--borde)}
 :root body.consola table.datos td{border-bottom:1px solid var(--borde)}
 :root body.consola table.datos tbody tr:hover{background:var(--tarjeta-2)}
-:root body.consola .err{border:1px dashed var(--oro);background:rgba(201,162,77,.07);color:var(--oro-txt)}
+:root body.consola .err{border:1px dashed var(--oro);background:color-mix(in srgb, var(--oro) 7%, transparent);color:var(--oro-txt)}
 :root body.consola .sinmedir{color:var(--tenue);font-style:italic}
 :root body.consola #sello{border-color:var(--oro)}
 :root body.consola .btn{background:transparent;border:1px solid var(--borde-3);color:var(--txt);font-family:var(--mono);

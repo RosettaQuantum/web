@@ -86,7 +86,7 @@
   .chk{display:flex;align-items:center;gap:8px;padding:7px 9px;border:1px solid var(--linea);border-radius:3px;cursor:pointer;font-size:13px;background:var(--fondo)}
   .chk input{accent-color:var(--teal);margin:0}
   .chk.q{border-left:2px solid var(--teal)}
-  .chk.c{border-left:2px solid var(--oro)}
+  .chk.c{border-left:2px solid var(--verde)}
   .chk small{color:var(--debil);font-family:var(--mono);font-size:10.5px;margin-left:auto}
 
   .lateral{position:sticky;top:22px;align-self:start}
@@ -97,7 +97,7 @@
   .total{margin-top:9px;padding-top:11px;border-top:1px solid var(--linea);display:flex;justify-content:space-between;align-items:baseline}
   .total .v{font-family:var(--serif);font-size:25px;color:var(--tinta-alta);font-variant-numeric:tabular-nums}
   .btn{width:100%;margin-top:13px;padding:10px;border:0;border-radius:3px;background:var(--teal-hondo);color:#fff;font:600 14px var(--sans);cursor:pointer}
-  .btn:hover{filter:brightness(1.08)} .btn:focus-visible{outline:2px solid var(--oro);outline-offset:2px}
+  .btn:hover{filter:brightness(1.08)} .btn:focus-visible{outline:2px solid var(--teal);outline-offset:2px}
   :root[data-theme="dark"] .btn,:root:not([data-theme="light"]) .btn{color:#0f0d0a}
   @media (prefers-color-scheme:light){:root:not([data-theme="dark"]) .btn{color:#fff}}
 

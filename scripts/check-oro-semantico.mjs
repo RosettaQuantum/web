@@ -47,7 +47,7 @@ export const CONSUMIDOR = {
 };
 
 /** El eje probatorio: lo sellado y lo citable. Aqui el oro es correcto. */
-export const EJE_PROBATORIO = ["#sello", ".sello", ".sello .t", ".err", ".chk.c"];
+export const EJE_PROBATORIO = ["#sello", ".sello", ".sello .t", ".err"];
 
 /**
  * Excepciones **declaradas**: hoy usan oro, NO caen en el eje, y son decision de diseno
@@ -65,20 +65,22 @@ export const EXCEPCIONES = {
 };
 
 /**
- * Sin decidir. **No entran a la lista blanca por inferencia.**
+ * Sin decidir. **Nada entra aqui por inferencia y hoy la lista esta vacia.**
  *
- * `.chk.c` — Diseno pidio preguntarle a quien la escribio. Lo que dice el codigo: `.chk.q` es
- *   teal y `.chk.c` es oro, **son un par**, lo que sugiere brazo cuantico / brazo clasico. Si
- *   es eso, NO es eje probatorio y el oro ahi seria un tercer significado. Es una inferencia
- *   de dos letras y por eso no se resuelve aqui.
- * `.btn:focus-visible` — el unico foco en oro: `.nav`, `select`, `input` y `.chk` usan teal.
- *   Puede ser accion primaria a proposito o una inconsistencia.
+ * Estuvieron `.chk.c` y `.btn:focus-visible`. Los dos se resolvieron el 2026-08-27 y salieron
+ * del oro, asi que ya no aparecen:
+ *
+ *   `.chk.c` — el par `q`/`c` es **cuantico contra clasico**: una distincion de metodo, no de
+ *     evidencia. El oro ahi era el tercer significado que esta regla existe para impedir. Paso
+ *     a `--verde`. Se pudo cambiar sin costo porque **ninguna pantalla instancia esa clase**.
+ *   `.btn:focus-visible` — era el unico foco en oro contra cuatro en teal. **El foco es donde
+ *     esta el cursor, no evidencia de nada**; si el oro tambien dice «aca estas parado», deja
+ *     de decir «esto quedo sellado». Paso a `--teal`.
+ *
+ * La lista se conserva vacia y no se borra: **el dia que aparezca un uso de oro que nadie sabe
+ * clasificar, tiene donde quedar visible en vez de colarse a la lista blanca.**
  */
-export const SIN_DECIDIR = {
-  ".chk.c": "¿brazo clasico o item completado? .chk.q es teal — parecen un par",
-  ".btn:focus-visible": "unico anillo de foco en oro; los otros cuatro son teal",
-};
-
+export const SIN_DECIDIR = {};
 /** Un color es oro si su tono cae en la banda calida con saturacion real. */
 export function esColorOro(txt) {
   const hex = /#([0-9a-f]{6})\b/i.exec(txt);
@@ -185,10 +187,21 @@ if (_esPrincipal && process.argv.includes("--self-test")) {
       return r.declaradas.length === 2 && r.bloquea === false;
     }],
 
+    // El mecanismo de «sin decidir» se prueba con una lista INYECTADA, no con la real: hoy la
+    // real esta vacia porque los dos casos se resolvieron, y una prueba atada al contenido de
+    // hoy se cae cada vez que alguien decide algo. Se prueba la maquinaria, no el inventario.
     ["CALLA: lo sin decidir no se aprueba ni se bloquea — se muestra", () => {
-      const r = evaluar({ usos: usosDeOro(".chk.c{border-left:2px solid var(--oro)}") });
+      const r = evaluar({
+        usos: usosDeOro(".loquesea{border-left:2px solid var(--oro)}"),
+        sinDecidir: { ".loquesea": "caso de prueba" },
+      });
       return r.pendientes.length === 1 && r.bloquea === false;
     }],
+
+    // Y el complemento: con la lista real VACIA, ese mismo uso bloquea. Sin esto, «sin decidir»
+    // seria un agujero por donde se cuela cualquier oro nuevo.
+    ["grita: con la lista de indecisos vacia, ese mismo uso bloquea", () =>
+      evaluar({ usos: usosDeOro(".loquesea{border-left:2px solid var(--oro)}") }).bloquea === true],
 
     ["CALLA: teal en cualquier parte no es asunto de este guardia", () =>
       usosDeOro(".loquesea{color:var(--teal)}").length === 0],
