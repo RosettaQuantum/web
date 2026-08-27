@@ -55,6 +55,16 @@ jobs:
           fetch-depth: 0      # sin esto se espeja una copia truncada y parece que funciono
           ref: ${{ github.ref }}
 
+      # `fetch-depth: 0` trae la historia completa **de la rama consultada**, no las 24. Sin
+      # este paso el espejo copiaba UNA rama y el workflow decia `success` — un verde que hace
+      # la decima parte del trabajo, que es peor que un rojo. Se descubrio midiendo el DESTINO
+      # y no leyendo el log: Codeberg tenia 1 rama.
+      - name: Traer TODAS las ramas y etiquetas
+        run: |
+          set -euo pipefail
+          git fetch --prune --tags origin "+refs/heads/*:refs/heads/*"
+          echo "ramas locales tras el fetch: $(git for-each-ref refs/heads/ | wc -l)"
+
       - name: Empujar a Codeberg
         env:
           CODEBERG_TOKEN: ${{ secrets.CODEBERG_TOKEN }}
@@ -99,4 +109,13 @@ jobs:
           git push --prune codeberg "+refs/heads/*:refs/heads/*"
           git push --force codeberg "+refs/tags/*:refs/tags/*"
 
-          echo "ramas espejadas: $(git for-each-ref --format='%(refname:short)' refs/heads/ | wc -l)"
+          # No se confia en el exit code del push: se cuenta el destino. Un espejo que dice
+          # `success` habiendo copiado una rama de 24 ya paso una vez.
+          LOCALES=$(git for-each-ref refs/heads/ | wc -l | tr -d ' ')
+          git fetch --prune codeberg "+refs/heads/*:refs/remotes/codeberg/*"
+          ALLA=$(git for-each-ref refs/remotes/codeberg/ | wc -l | tr -d ' ')
+          echo "ramas aqui: ${LOCALES} · ramas en Codeberg: ${ALLA}"
+          if [ "${LOCALES}" != "${ALLA}" ]; then
+            echo "::error::La copia 2 quedo con ${ALLA} ramas y aqui hay ${LOCALES}. No es un espejo."
+            exit 1
+          fi
