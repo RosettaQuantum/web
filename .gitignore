@@ -3,4 +3,40 @@ dist/
 .astro/
 .wrangler/
 *.log
+# El corpus del estudio chileno: hallazgos POR ORGANIZACION CON NOMBRE de 220
+# empresas que todavia no han sido notificadas. Este repositorio es PUBLICO.
+# Hoy estos archivos viven FUERA del arbol, asi que la contencion era posicional
+# y no declarada: nada impedia que un `git add -A` los publicara si alguien los
+# copiaba aca. Y algo invitaba a copiarlos — calcular_qex.py resolvia el corpus
+# contra su propio directorio, que dentro del repo no existe. (2026-08-26)
+estudio-chile-*.json
+indice-agosto-*.json
+rescan-soporte-*.json
+certificados-*.json
+informe-estudio-chile-*.html
+
+# Secretos. Este repositorio es PUBLICO y no tenia NINGUNA regla de entorno:
+# un `.env` creado aca se commiteaba. Se encontro el 2026-08-26, el mismo dia en
+# que se pidio crear un token de Codeberg "que va a .env ignorado" — no lo estaba.
+# .dev.vars es donde Wrangler guarda secretos de Cloudflare en local.
+.env
+.env.*
+!.env.example
+.dev.vars
+.dev.vars.*
+*.pem
+*.key
+
+# Informes de cliente. Llevan nombre de empresa, dominio y hallazgos de seguridad,
+# y el propio JSON se marca `confidencial: true`. El gate INFORME_CLIENTE y
+# check-informe-confidencial.mjs impiden que la PAGINA se sirva — y funcionan.
+# Nadie vigilaba el DATO: el JSON entro por tres commits normales y quedaba
+# descargable desde raw.githubusercontent en un repo PUBLICO. (2026-08-26)
+src/data/informe-cliente/*.json
+!src/data/informe-cliente/*-ejemplo.json
+
+# Recibo local de los chequeos de produccion. Lo escribe `check:prod` y lo exige
+# `predeploy`: dice contra QUE commit se corrieron los ocho guardias. Es estado de
+# quien despliega, no fuente — si se commiteara, un recibo ajeno daria por buenos
+# chequeos que esta maquina nunca corrio. (2026-08-26)
 .recibo-produccion.json
