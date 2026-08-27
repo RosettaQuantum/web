@@ -52,6 +52,16 @@
  * esa frase es exactamente lo que este chequeo verifica, y sin correr es una afirmacion sin
  * medir. Nacio de que Comercial siguiera la receta publicada y reprodujera 1 de 4.
  */
+
+export const CONSUMIDOR = {
+  quien: "Rosetta Q Main (coordinacion del archivo)",
+  hace: "sigue la instruccion publicada como si fuera un tercero, sin atajos ni conocimiento "
+      + "interno. Si no reproduce se corrige LA INSTRUCCION, nunca el chequeo: una receta que "
+      + "solo funciona sabiendo algo que no publicamos es una receta que no existe.",
+  bloquea: "ninguna superficie publica puede decir «compruebelo usted mismo» si este chequeo no "
+         + "corrio — esa frase es exactamente lo que verifica.",
+};
+
 import { createHash } from "node:crypto";
 import { esperarVersion, esperarRutas } from "./lib/esperar.mjs";
 

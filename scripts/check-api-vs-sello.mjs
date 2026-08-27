@@ -43,6 +43,16 @@
  * SI ESTE GUARDIA NO CORRIO, no se publica un entregable que cite el endpoint como fuente
  * verificable — es la promesa que sostiene, y sin correr no esta sostenida.
  */
+
+export const CONSUMIDOR = {
+  quien: "Rosetta Q Main (coordinacion del archivo)",
+  hace: "abre el artefacto sellado, compara byte a byte contra lo que sirve el endpoint y decide "
+      + "cual de los dos esta mal. Si el sello esta bien se arregla la API; si el sello esta mal "
+      + "NO se re-sella: va errata.",
+  bloquea: "no se publica un entregable que cite el endpoint como fuente verificable si este "
+         + "chequeo no corrio — es la promesa que sostiene, y sin correr no esta sostenida.",
+};
+
 import { readFileSync } from "node:fs";
 
 const BASE = "https://rosettaquantum.com";
