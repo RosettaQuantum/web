@@ -27,3 +27,11 @@ informe-estudio-chile-*.html
 .dev.vars.*
 *.pem
 *.key
+
+# Informes de cliente. Llevan nombre de empresa, dominio y hallazgos de seguridad,
+# y el propio JSON se marca `confidencial: true`. El gate INFORME_CLIENTE y
+# check-informe-confidencial.mjs impiden que la PAGINA se sirva — y funcionan.
+# Nadie vigilaba el DATO: el JSON entro por tres commits normales y quedaba
+# descargable desde raw.githubusercontent en un repo PUBLICO. (2026-08-26)
+src/data/informe-cliente/*.json
+!src/data/informe-cliente/*-ejemplo.json
