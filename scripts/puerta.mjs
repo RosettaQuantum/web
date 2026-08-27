@@ -39,6 +39,26 @@
  *   node scripts/puerta.mjs --self-test
  */
 
+/**
+ * **Contra que epoca valida este modulo.** Declarado, no deducible del codigo.
+ *
+ * DE DONDE SALE ESTA DECLARACION, y costo una manana: el Depositario exigia `compile_sha` —un
+ * campo real, especificado, que emite **el Compilador**— contra un archivo producido antes de
+ * que el Compilador existiera. Rechazaba **93 de 93 corridas**, y la salida se leia como
+ * «archivo sucio» y no como «guardia fuera de epoca».
+ *
+ * El barrido posterior cruzo TODOS los campos que exige cada modulo contra los 266 artefactos
+ * del archivo y marco seis mas en cero. **Ninguno era un defecto** —son modulos de escritor,
+ * que imponen vocabulario a lo nuevo— pero **eso no se podia saber leyendolos.** Un lector ve
+ * «exige cinco campos, el archivo trae cero» y no puede distinguir un guardia roto de uno que
+ * mira hacia adelante. Por eso se declara aqui en vez de deducirse.
+ */
+export const ALCANCE = {
+  lado: "escritor",
+  valida: "peticiones que entran, antes de que exista nada",
+  no_valida: "artefactos ya producidos: no lee el archivo",
+};
+
 /** Quien actua esta senal, y que hace al recibirla. Declarado aqui, no en un documento aparte. */
 export const CONSUMIDOR = {
   quien: "quien llama la API o el MCP — un agente, un cliente, la consola",
