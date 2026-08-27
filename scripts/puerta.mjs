@@ -72,35 +72,35 @@ export const CONSUMIDOR = {
  * viajan tal cual para que el que llama vea el rechazo completo en una sola respuesta.
  */
 export const RECHAZOS = {
-  SIN_CLAVE_DE_IDEMPOTENCIA: {
+  MISSING_IDEMPOTENCY_KEY: {
     http: 400,
-    dice: "falta la cabecera Idempotency-Key, que es obligatoria",
-    detalle: "manda `Idempotency-Key` con un valor unico por trabajo. Si reintentas, manda EL MISMO valor: asi el segundo intento devuelve el resultado del primero en vez de cobrar dos veces.",
+    dice: "the Idempotency-Key header is required",
+    detalle: "Send Idempotency-Key with a value unique to this job. When you retry, send THE SAME value: the second attempt returns the first one's result instead of being charged twice.",
   },
-  CLAVE_REUSADA_CON_OTRO_CUERPO: {
+  IDEMPOTENCY_KEY_REUSED: {
     http: 409,
-    dice: "esta clave ya se uso para una peticion distinta",
-    detalle: "o cambiaste el cuerpo de un trabajo que ya mandaste —entonces usa una clave nueva— o reciclaste una clave vieja sin querer. El orden de los campos no cuenta: se compara el contenido.",
+    dice: "this key was already used for a different request",
+    detalle: "Either you changed the body of a job you already submitted — then use a new key — or you reused an old key by accident. Field order does not count: the contents are compared.",
   },
-  PETICION_INVALIDA: {
+  INVALID_REQUEST: {
     http: 422,
-    dice: "a la peticion le faltan campos obligatorios",
-    detalle: "la respuesta lista cuales en `faltan`. Toda peticion lleva al menos `receta` y `params`.",
+    dice: "the request is missing required fields",
+    detalle: "This response lists them under `missing`. Every request carries at least `recipe` and `params`.",
   },
-  RECETA_DESCONOCIDA: {
+  UNKNOWN_RECIPE: {
     http: 422,
-    dice: "no hay una receta con ese identificador",
-    detalle: "pide GET /v1/recipes para ver el catalogo vigente. La respuesta dice cuantas hay en `hay`.",
+    dice: "no recipe exists with that identifier",
+    detalle: "GET /v1/recipes returns the current catalogue. This response reports how many exist under `available`.",
   },
-  SIN_CREDENCIAL: {
+  MISSING_CREDENTIAL: {
     http: 401,
-    dice: "ejecutar de verdad necesita una credencial",
-    detalle: "el ensayo en seco (`dry_run: true`) no necesita ninguna: usalo para validar la peticion y ver el plan antes de tener cuenta.",
+    dice: "running for real requires a credential",
+    detalle: "The dry run (`dry_run: true`) needs none: use it to validate your request and see the plan before you have an account.",
   },
-  NO_CONSTRUIDO: {
+  NOT_BUILT_YET: {
     http: 501,
-    dice: "la ejecucion real todavia no existe",
-    detalle: "hoy la Puerta solo contesta en seco. Manda `dry_run: true` y recibiras el plan y los rechazos que habria, sin consumir nada.",
+    dice: "real execution does not exist yet",
+    detalle: "Today the gate only answers dry runs. Send `dry_run: true` and you get the plan and the rejections you would hit, consuming nothing.",
   },
 };
 
@@ -140,33 +140,41 @@ export function huellaDelCuerpo(cuerpo) {
  * @param {{peticion:object, clave:string|null, catalogo:string[], vistas?:Map, credencial?:string|null}} ctx
  */
 export function evaluarPeticion({ peticion, clave, catalogo, vistas = new Map(), credencial = null }) {
-  const no = (codigo, extra = {}) => ({
-    estado: "rechazado", codigo,
-    http: RECHAZOS[codigo].http,
-    motivo: RECHAZOS[codigo].dice,
+  // **El sobre tambien va en ingles, no solo los codigos.** Un rechazo con `code` en ingles y
+  // `motivo` en espanol le deja a un tercero la mitad del contrato en un idioma que no pidio, y
+  // la mitad es peor que ninguna: parece un descuido y hace dudar del resto.
+  //
+  // OJO — lo que esto NO resuelve, y es decision de Nicholas, no mia: **las rutas que YA existen
+  // usan claves en espanol** (`filtro`, `tipo`, `total_archivo`, `devueltos`, `items`). Esta
+  // superficie es nueva y ponerla en ingles cuesta cero; migrar las viejas es un cambio
+  // incompatible para quien ya las consume. No lo hago por mi cuenta.
+  const no = (code, extra = {}) => ({
+    status: "rejected", code,
+    http: RECHAZOS[code].http,
+    reason: RECHAZOS[code].dice,
     // El detalle viaja SIEMPRE: un codigo cuyo unico significado vive en el chat donde se
     // invento se publica roto por mas bueno que sea el nombre.
-    detalle: RECHAZOS[codigo].detalle,
-    ...(DEFINICIONES_EN ? { definicion: `${DEFINICIONES_EN}#${codigo}` } : {}),
+    detail: RECHAZOS[code].detalle,
+    ...(DEFINICIONES_EN ? { definition: `${DEFINICIONES_EN}#${code}` } : {}),
     ...extra,
   });
 
   // 1) La clave va PRIMERO, y tambien en seco. Si solo se exigiera al ejecutar, el cliente
   //    aprende a llamar sin ella y el dia que ejecute de verdad no la tiene puesta.
-  if (vacio(clave)) return no("SIN_CLAVE_DE_IDEMPOTENCIA");
+  if (vacio(clave)) return no("MISSING_IDEMPOTENCY_KEY");
 
   // 2) Misma clave y cuerpo distinto es ambiguo, y lo ambiguo no se adivina.
   const huella = huellaDelCuerpo(peticion);
   const previa = vistas.get(clave);
-  if (previa !== undefined && previa !== huella) return no("CLAVE_REUSADA_CON_OTRO_CUERPO", { clave });
+  if (previa !== undefined && previa !== huella) return no("IDEMPOTENCY_KEY_REUSED", { key: clave });
 
   // 3) La forma.
   const faltan = CAMPOS_PETICION.filter((c) => vacio(peticion?.[c]));
-  if (faltan.length) return no("PETICION_INVALIDA", { faltan });
+  if (faltan.length) return no("INVALID_REQUEST", { missing: faltan });
 
   // 4) El catalogo se CONSULTA. Nunca una lista escrita aqui: una lista que vive en dos
   //    lugares ya divergio, y el catalogo real vive en D1.
-  if (!catalogo.includes(peticion.receta)) return no("RECETA_DESCONOCIDA", { pidio: peticion.receta, hay: catalogo.length });
+  if (!catalogo.includes(peticion.receta)) return no("UNKNOWN_RECIPE", { requested: peticion.receta, available: catalogo.length });
 
   // 5) Repeticion legitima: misma clave, mismo cuerpo. **No es un error**: es la respuesta
   //    correcta a un reintento, y por eso devuelve el mismo plan sin volver a cobrar.
@@ -175,22 +183,22 @@ export function evaluarPeticion({ peticion, clave, catalogo, vistas = new Map(),
   // 6) En seco se contesta el plan y se acaba. Ejecutar de verdad necesita credencial Y un
   //    ejecutor que no existe — y se dice cual de los dos falta, no un 501 mudo.
   if (!peticion.dry_run) {
-    if (vacio(credencial)) return no("SIN_CREDENCIAL");
-    return no("NO_CONSTRUIDO");
+    if (vacio(credencial)) return no("MISSING_CREDENTIAL");
+    return no("NOT_BUILT_YET");
   }
 
   return {
-    estado: "en_seco",
-    repetida,
+    status: "dry_run",
+    repeated: repetida,
     plan: {
-      receta: peticion.receta,
+      recipe: peticion.receta,
       params: peticion.params,
-      clave,
+      idempotency_key: clave,
       // Lo que NO se hizo, dicho aqui y no en la documentacion: sin esto un lector supone
       // que algo quedo encolado.
-      no_se_ejecuto: "ensayo en seco: no se encolo trabajo, no se consumio cuota y no se escribio nada",
-      costo_estimado: null,
-      por_que_sin_costo: "no hay tarifa medida todavia; un costo inventado es peor que ninguno",
+      not_executed: "dry run: no work was queued, no quota was consumed and nothing was written",
+      estimated_cost: null,
+      why_no_cost: "no measured tariff exists yet; an invented cost is worse than none",
     },
   };
 }
@@ -210,40 +218,40 @@ if (_esPrincipal && process.argv.includes("--self-test")) {
   const casos = [
     // ── grita ──
     ["grita: sin Idempotency-Key, incluso en seco", () =>
-      evaluarPeticion({ peticion: OK, clave: null, catalogo: CATALOGO }).codigo === "SIN_CLAVE_DE_IDEMPOTENCIA"],
+      evaluarPeticion({ peticion: OK, clave: null, catalogo: CATALOGO }).code === "MISSING_IDEMPOTENCY_KEY"],
 
     ["grita: misma clave con cuerpo distinto", () => {
       const vistas = new Map([["k1", huellaDelCuerpo(OK)]]);
-      return evaluarPeticion({ peticion: { ...OK, params: { n: 99 } }, clave: "k1", catalogo: CATALOGO, vistas }).codigo === "CLAVE_REUSADA_CON_OTRO_CUERPO";
+      return evaluarPeticion({ peticion: { ...OK, params: { n: 99 } }, clave: "k1", catalogo: CATALOGO, vistas }).code === "IDEMPOTENCY_KEY_REUSED";
     }],
 
     ["grita: receta que no esta en el catalogo, y dice cuantas hay", () => {
       const r = evaluarPeticion({ peticion: { ...OK, receta: "NO-EXISTE" }, clave: "k", catalogo: CATALOGO });
-      return r.codigo === "RECETA_DESCONOCIDA" && r.hay === 4;
+      return r.code === "UNKNOWN_RECIPE" && r.available === 4;
     }],
 
     ["grita: falta un campo obligatorio y dice cual", () => {
       const r = evaluarPeticion({ peticion: { receta: "RQ-0033", dry_run: true }, clave: "k", catalogo: CATALOGO });
-      return r.codigo === "PETICION_INVALIDA" && r.faltan.includes("params");
+      return r.code === "INVALID_REQUEST" && r.missing.includes("params");
     }],
 
     // Los dos motivos de no poder ejecutar son DISTINTOS y se distinguen. Un 501 mudo haria
     // que un cliente sin credencial creyera que el problema es nuestro.
     ["grita distinto: ejecutar sin credencial es 401, no 501", () =>
-      evaluarPeticion({ peticion: { ...OK, dry_run: false }, clave: "k", catalogo: CATALOGO }).codigo === "SIN_CREDENCIAL"],
+      evaluarPeticion({ peticion: { ...OK, dry_run: false }, clave: "k", catalogo: CATALOGO }).code === "MISSING_CREDENTIAL"],
 
-    ["grita distinto: con credencial, ejecutar es 501 NO_CONSTRUIDO y lo dice", () =>
-      evaluarPeticion({ peticion: { ...OK, dry_run: false }, clave: "k", catalogo: CATALOGO, credencial: "x" }).codigo === "NO_CONSTRUIDO"],
+    ["grita distinto: con credencial, ejecutar es 501 NOT_BUILT_YET y lo dice", () =>
+      evaluarPeticion({ peticion: { ...OK, dry_run: false }, clave: "k", catalogo: CATALOGO, credencial: "x" }).code === "NOT_BUILT_YET"],
 
     // ── calla ──
     ["CALLA: peticion valida en seco", () =>
-      evaluarPeticion({ peticion: OK, clave: "k", catalogo: CATALOGO }).estado === "en_seco"],
+      evaluarPeticion({ peticion: OK, clave: "k", catalogo: CATALOGO }).status === "dry_run"],
 
     // EL CASO QUE DEFINE LA IDEMPOTENCIA: repetir no es fallar.
     ["CALLA: misma clave y MISMO cuerpo es una repeticion legitima, no un 409", () => {
       const vistas = new Map([["k1", huellaDelCuerpo(OK)]]);
       const r = evaluarPeticion({ peticion: OK, clave: "k1", catalogo: CATALOGO, vistas });
-      return r.estado === "en_seco" && r.repetida === true;
+      return r.status === "dry_run" && r.repeated === true;
     }],
 
     ["el mismo trabajo con las claves en otro orden NO da un 409 falso", () => {
@@ -253,12 +261,12 @@ if (_esPrincipal && process.argv.includes("--self-test")) {
     }],
 
     ["el ensayo en seco declara que NO ejecuto nada", () =>
-      /no se encolo|no se consumio/.test(evaluarPeticion({ peticion: OK, clave: "k", catalogo: CATALOGO }).plan.no_se_ejecuto)],
+      /no work was queued|nothing was written/.test(evaluarPeticion({ peticion: OK, clave: "k", catalogo: CATALOGO }).plan.not_executed)],
 
     // Un costo inventado seria una cifra sin medicion viajando como si la tuviera (§1 quater).
     ["el costo va en null con su razon, no en un numero inventado", () => {
       const p = evaluarPeticion({ peticion: OK, clave: "k", catalogo: CATALOGO }).plan;
-      return p.costo_estimado === null && typeof p.por_que_sin_costo === "string";
+      return p.estimated_cost === null && typeof p.why_no_cost === "string";
     }],
 
     // ── contrato publico ──
@@ -267,25 +275,54 @@ if (_esPrincipal && process.argv.includes("--self-test")) {
 
     // Un codigo cuyo unico significado vive en la conversacion donde se invento se publica roto.
     ["el detalle viaja en la respuesta, no solo en la tabla", () =>
-      typeof evaluarPeticion({ peticion: OK, clave: null, catalogo: CATALOGO }).detalle === "string"],
+      typeof evaluarPeticion({ peticion: OK, clave: null, catalogo: CATALOGO }).detail === "string"],
 
     // §1 bis: ya publicamos una API que apuntaba a una pagina 404. Mientras no exista, no hay
     // enlace — y este caso lo obliga.
     ["no se emite enlace a definiciones mientras la pagina no exista", () =>
       DEFINICIONES_EN === null &&
-      evaluarPeticion({ peticion: OK, clave: null, catalogo: CATALOGO }).definicion === undefined],
+      evaluarPeticion({ peticion: OK, clave: null, catalogo: CATALOGO }).definition === undefined],
 
     // El codigo nombra el DEFECTO, no el mecanismo. Un tercero necesita saber que arreglar.
     ["ningun codigo nombra el mecanismo que lo detecto", () =>
-      !Object.keys(RECHAZOS).some((k) => /RELOJ|PROVISTO|SPEC|REPLAY|GENERADOR/.test(k))],
+      !Object.keys(RECHAZOS).some((k) => /RELOJ|PROVISTO|SPEC|REPLAY|GENERADOR|CLOCK|PROVIDED/.test(k))],
+
+    // DECIDIDO por Nicholas el 27-ago-2026: la API va en ingles. Los codigos y su `detalle` son
+    // contrato publico y los lee un agente o un jurado internacional; la prosa interna del
+    // modulo se queda en espanol, que es donde trabajamos.
+    // EL DEFECTO QUE ESTE CASO IMPIDE, y lo cometi al traducir: el `detail` de UNKNOWN_RECIPE
+    // decia «how many exist under `hay`» **despues** de renombrar ese campo a `available`. La
+    // instruccion apuntaba a un campo que ya no existia — §1 bis en miniatura, dentro del texto
+    // que existe para que el tercero no necesite preguntarnos.
+    ["todo campo que un `detail` nombra existe de verdad en la respuesta", () => {
+      const casos = [
+        [{ receta: "X", params: {}, dry_run: true }, "UNKNOWN_RECIPE"],
+        [{ receta: "RQ-0033", dry_run: true }, "INVALID_REQUEST"],
+      ];
+      return casos.every(([pet, esperado]) => {
+        const r = evaluarPeticion({ peticion: pet, clave: "k", catalogo: ["RQ-0033"] });
+        if (r.code !== esperado) return false;
+        const nombrados = [...String(r.detail).matchAll(/`([a-z_]+)`/g)].map((m) => m[1]);
+        return nombrados.every((n) => n in r || n === "recipe" || n === "params" || n.startsWith("/"));
+      });
+    }],
+
+    // El sobre entero, no solo las llaves: media respuesta traducida es peor que ninguna.
+    ["ninguna clave del sobre publico queda en espanol", () => {
+      const r = evaluarPeticion({ peticion: { receta: "X", params: {}, dry_run: true }, clave: "k", catalogo: ["Y"] });
+      return Object.keys(r).every((k) => !/^(estado|codigo|motivo|detalle|definicion|clave|pidio|hay|faltan|repetida)$/.test(k));
+    }],
+
+    ["los codigos publicos estan en ingles, como se decidio", () =>
+      Object.keys(RECHAZOS).every((k) => !/[ÑÁÉÍÓÚ]/.test(k) && !/\b(SIN|CLAVE|PETICION|RECETA)\b/.test(k))],
 
     // ── mutacion ──
     // Si la clave solo se exigiera al ejecutar, el cliente aprende a no mandarla y el dia que
     // ejecute de verdad no la tiene. Por eso se exige TAMBIEN en seco.
     ["MUTACION: si la clave solo se exigiera al ejecutar, el ensayo en seco pasaria sin ella", () => {
-      const conRegla = evaluarPeticion({ peticion: OK, clave: null, catalogo: CATALOGO }).codigo;
+      const conRegla = evaluarPeticion({ peticion: OK, clave: null, catalogo: CATALOGO }).code;
       const siSoloAlEjecutar = OK.dry_run === true; // en seco no se miraria la clave
-      return conRegla === "SIN_CLAVE_DE_IDEMPOTENCIA" && siSoloAlEjecutar === true;
+      return conRegla === "MISSING_IDEMPOTENCY_KEY" && siSoloAlEjecutar === true;
     }],
 
     // Si la huella no ordenara las claves, el mismo trabajo escrito distinto daria 409.
@@ -298,7 +335,7 @@ if (_esPrincipal && process.argv.includes("--self-test")) {
     // El catalogo se consulta; si estuviera escrito aqui, agregar una receta en D1 no la
     // habilitaria y nadie sabria por que.
     ["el catalogo entra por parametro: no hay lista escrita en este archivo", () =>
-      evaluarPeticion({ peticion: { ...OK, receta: "RQ-NUEVA" }, clave: "k", catalogo: ["RQ-NUEVA"] }).estado === "en_seco"],
+      evaluarPeticion({ peticion: { ...OK, receta: "RQ-NUEVA" }, clave: "k", catalogo: ["RQ-NUEVA"] }).status === "dry_run"],
   ];
 
   let fallos = 0;
