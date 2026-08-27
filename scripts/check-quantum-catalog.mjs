@@ -157,7 +157,9 @@ export const RUTAS_CRITICAS = [
   // error que tumbo el CI cuatro veces: la lista existia, pero cada endpoint nuevo
   // habia que acordarse de agregarlo. Ahora agregar un endpoint lo mete solo en la
   // espera de propagacion y en los chequeos.
-  ...CATALOGO.map(e => {
+  // Solo las de LECTURA entran aqui: a una ruta que muta no se le puede pedir 200 con un GET.
+  // Las demas se ejercen abajo, contra el contrato de error que ellas mismas declaran.
+  ...CATALOGO.filter(e => (e.metodo || "GET") === "GET").map(e => {
     let r = e.ruta;
     for (const m of e.ruta.matchAll(/\{(\w+)\}/g)) {
       const v = e.ejemplo && e.ejemplo[m[1]];
@@ -916,6 +918,33 @@ console.log("\n  -- las rutas criticas responden --");
 for (const ruta of RUTAS_CRITICAS) {
   const r = await traer(ruta);
   comprobar(`GET ${ruta}`, r.status === 200, `respondio ${r.status}`);
+}
+
+// Las rutas que MUTAN se ejercen distinto, y esta seccion existe por un defecto propio.
+//
+// Dije «cuatro sitios asumen GET» al declarar `POST /v1/jobs` —el generador de OpenAPI, el
+// indice de /v1, la sonda de check-openapi y su cobertura de esquemas— y arregle los cuatro.
+// **Habia un quinto: este.** `RUTAS_CRITICAS` deriva del catalogo, que es la decision correcta
+// —escribir las rutas aparte tumbo el CI cuatro veces—, pero derivaba asumiendo GET. El
+// despliegue salio con el CI en rojo por `FALLA GET /v1/jobs`, sobre una ruta que funcionaba.
+//
+// **Declare un denominador de cuatro y era de cinco**, que es exactamente lo que este proyecto
+// persigue en otros. Y aparecio despues de desplegar, no antes: el guardia que lo habria
+// cazado es este mismo, y no corria contra la rama.
+//
+// A una ruta que muta se le pide lo que se le puede pedir: **que rechace un cuerpo vacio con
+// uno de los codigos que ella misma declara.** Eso ejerce el contrato de error sin acoplar el
+// guardia al catalogo de recetas.
+console.log("\n  -- las rutas que mutan rechazan bien --");
+for (const e of CATALOGO.filter(x => (x.metodo || "GET") !== "GET")) {
+  const declarados = Object.keys(e.respuestas || {}).map(Number).filter(Boolean);
+  const rr = await fetch(BASE + e.ruta, {
+    method: e.metodo, redirect: "manual",
+    headers: { "content-type": "application/json", "x-rq-check": "1" }, body: "{}",
+  });
+  comprobar(`${e.metodo} ${e.ruta} contesta con un codigo que declara`,
+    declarados.includes(rr.status),
+    `respondio ${rr.status} y declara ${declarados.join(", ") || "(ninguno)"}`);
 }
 
 // 5. REGRESION: api.js es compartido; el ledger tiene que seguir intacto.

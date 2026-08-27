@@ -72,8 +72,8 @@ export function esServido(ruta) {
 export function evaluarEmpuje({ archivos, rama }) {
   const servidos = (archivos || []).filter(esServido);
   if (!servidos.length) {
-    return { estado: "no_sale", servidos: [], total: (archivos || []).length,
-             motivo: "ningun archivo de este empuje sale a produccion" };
+    return { estado: "no_cambia_lo_servido", servidos: [], total: (archivos || []).length,
+             motivo: "ningun archivo de este empuje cambia el codigo que se sirve" };
   }
   if (rama !== "main") {
     return { estado: "en_rama", servidos, total: archivos.length,
@@ -110,11 +110,11 @@ if (_esPrincipal && process.argv.includes("--self-test")) {
     // 18 de 22 commits del dia son asi. Si el guardia los marcara, seria fricción sobre trabajo
     // bueno y se aprenderia a ignorarlo.
     ["CALLA: un guardia no se sirve — 18 de los 22 commits del dia son esto", () =>
-      evaluarEmpuje({ archivos: REAL_GUARDIA, rama: "main" }).estado === "no_sale"],
+      evaluarEmpuje({ archivos: REAL_GUARDIA, rama: "main" }).estado === "no_cambia_lo_servido"],
 
     ["CALLA: workflows, migraciones y tests tampoco salen", () =>
       [".github/workflows/deploy.yml", "db/quantum.seed.sql", "test/x.spec.js", "docs/a.md"]
-        .every((f) => evaluarEmpuje({ archivos: [f], rama: "main" }).estado === "no_sale")],
+        .every((f) => evaluarEmpuje({ archivos: [f], rama: "main" }).estado === "no_cambia_lo_servido")],
 
     // Toca lo servido pero va a una rama: se avisa distinto, no se bloquea. El despliegue
     // ocurre al fusionar, y ahi es donde va el OK.
@@ -187,8 +187,15 @@ if (_esPrincipal && !process.argv.includes("--self-test")) {
   const r = evaluarEmpuje({ archivos, rama });
   console.log(`[empujar] rama '${rama}' · ${r.total} archivo(s) sin empujar (${rango})`);
 
-  if (r.estado === "no_sale") {
-    console.log(`   ${r.motivo}. Empujar aqui no despliega.`);
+  if (r.estado === "no_cambia_lo_servido") {
+    console.log(`   ${r.motivo}.`);
+    // PRECISION, y la primera version decia «empujar aqui no despliega», que es FALSO.
+    // `deploy.yml` corre `npm run build` y `wrangler deploy` en CADA push a main, mire lo que
+    // mire el diff. Y el build REGENERA el ledger desde D1, asi que un empuje de solo guardias
+    // igual republica — con datos frescos. Lo que no cambia es el CODIGO servido, que es otra
+    // cosa y es la que importa para pedir turno.
+    console.log("   OJO: el CI despliega igual en cada push a main, y el build regenera el");
+    console.log("   ledger desde D1. No cambia el codigo servido; el despliegue ocurre igual.");
     process.exit(0);
   }
   if (r.estado === "en_rama") {
