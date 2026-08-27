@@ -68,8 +68,18 @@ export const CAMPOS_CONSUMO = ["cpu_s", "costo_proveedor"];
  *
  * EL DEFECTO DE ESTE MODULO, encontrado el 2026-08-27 al ejercerlo por primera vez contra el
  * archivo real: rechazaba **93 de 93 corridas** con `SIN_COMPILE_SHA`. El campo `compile_sha`
- * **no existe en el archivo: cero apariciones.** Es un nombre que invente yo al escribir esto,
- * y despues rechace todo lo que no lo usara.
+ * **no existe en el archivo: cero apariciones.**
+ *
+ * Y la razon es mas interesante que un nombre mal elegido, que fue mi primer diagnostico.
+ * `compile_sha` **si esta especificado**: es lo que emite **el Compilador**, la etapa que
+ * convierte un enunciado en circuito + rival clasico. Lo que pasa es que **el Compilador
+ * todavia no existe**, asi que ningun artefacto del archivo pudo traerlo nunca.
+ *
+ * O sea: **este modulo exigia el contrato de manana sobre los datos de ayer.** Esa clase falla
+ * el 100 % por construccion, y —lo peor— **se lee como un defecto de los datos**: la salida
+ * decia «93 corridas sin identificar su codigo», que suena a archivo sucio y no a guardia
+ * fuera de epoca. Un guardia que valida contra una pieza no construida no encuentra cero
+ * defectos: encuentra todos, y ninguno es real.
  *
  * Lo que existe, y es exactamente la cosa que el campo pretendia capturar:
  *
@@ -83,8 +93,9 @@ export const CAMPOS_CONSUMO = ["cpu_s", "costo_proveedor"];
  * solo puede hacerlo el archivo. CLAUDE.md §5 ter — modo informe contra datos reales antes de
  * escribir nada — y aqui costo un modulo entero que rechazaba el 100%.
  *
- * Y es la misma forma que corregi hoy en `check-artefacto-consultable`, cometida por mi, el
- * mismo dia, en otro modulo: **medi el nombre del campo y crei haber medido la cosa.**
+ * La regla que sale: **un guardia declara contra que epoca valida.** Si su campo lo produce
+ * una pieza que no existe, no se cablea todavia — o acepta lo que hay hoy y dice hasta cuando,
+ * que es lo que hace la lista de abajo.
  *
  * SIGUE RECHAZANDO SI FALTA, y el dato dice que se puede: la cobertura por mes es
  * **agosto 42/42, julio 10/51**. Lo que se produce hoy trae la huella siempre, asi que fallar
