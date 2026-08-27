@@ -159,12 +159,25 @@ if (_esPrincipal && process.argv.includes("--self-test")) {
 // ── CLI ──────────────────────────────────────────────────────────────────────────────────
 if (_esPrincipal && !process.argv.includes("--self-test")) {
   const sh = (c) => execSync(c, { encoding: "utf8" }).trim();
-  let rama, archivos;
+  let rama, archivos, rango = null;
   try {
     rama = sh("git rev-parse --abbrev-ref HEAD");
-    // Lo que este empuje llevaria: lo que hay aqui y no en el remoto.
-    const rango = sh(`git rev-parse --verify --quiet origin/${rama} || true`)
-      ? `origin/${rama}..HEAD` : "HEAD~1..HEAD";
+    // QUE SE COMPARA CONTRA QUE, y la primera version lo tenia mal de una forma que solo
+    // aparecio al ensayarla: sin rama remota caia a `HEAD~1..HEAD`, o sea **el ultimo commit**,
+    // no lo que el empuje llevaria. En una rama con tres commits habria reportado uno y callado
+    // dos — un subconteo silencioso, que es la clase que este proyecto persigue.
+    //
+    // Lo que un empuje lleva de verdad es lo que hay aqui y no esta publicado:
+    //   - con rama remota: contra ella.
+    //   - rama nueva: contra `origin/main`, porque eso es lo que se fusionaria.
+    // Sin ninguna de las dos NO se adivina: se sale con 2 y se dice.
+    if (sh(`git rev-parse --verify --quiet origin/${rama} || true`)) rango = `origin/${rama}..HEAD`;
+    else if (sh("git rev-parse --verify --quiet origin/main || true")) rango = "origin/main..HEAD";
+    if (!rango) {
+      console.error(`[empujar] NO SE PUDO COMPROBAR: no hay origin/${rama} ni origin/main con que comparar.`);
+      console.error("[empujar] Sin punto de comparacion no se sabe que llevaria el empuje, y no se supone.");
+      process.exit(2);
+    }
     archivos = sh(`git diff --name-only ${rango}`).split("\n").filter(Boolean);
   } catch (e) {
     console.error(`[empujar] NO SE PUDO COMPROBAR: ${String(e).split("\n")[0]}`);
@@ -172,7 +185,7 @@ if (_esPrincipal && !process.argv.includes("--self-test")) {
   }
 
   const r = evaluarEmpuje({ archivos, rama });
-  console.log(`[empujar] rama '${rama}' · ${r.total} archivo(s) sin empujar`);
+  console.log(`[empujar] rama '${rama}' · ${r.total} archivo(s) sin empujar (${rango})`);
 
   if (r.estado === "no_sale") {
     console.log(`   ${r.motivo}. Empujar aqui no despliega.`);
