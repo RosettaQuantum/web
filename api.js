@@ -108,13 +108,35 @@ async function challengeCrudo(env, id, clave) {
   ).bind(id, clave).first();
   if (!row) return json({ error: "no existe esa proteína en esa corrida", id, clave }, 404);
 
-  return new Response((row.datos_json || "") + (row.stats_json || ""), {
+  // EL CUERPO SON DOS DOCUMENTOS JSON PEGADOS, y por eso NO se declara `application/json`.
+  //
+  // Medido en produccion el 2026-08-27: esta ruta devolvia 200 con
+  // `content-type: application/json` y 12.788 bytes que **no parsean** —«Extra data: line 1
+  // column 9263»—, porque `datos_json` y `stats_json` son dos objetos concatenados. Cualquier
+  // agente que haga `response.json()` recibe una excepcion, **en una ruta que `llms.txt`
+  // senala** y en una casa que se presenta como laboratorio para agentes.
+  //
+  // NO SE ARREGLA TOCANDO EL CUERPO, y esa es la parte importante: estos son los bytes tal como
+  // se hashearon. Envolverlos en un objeto, o parsear y re-serializar, **cambia el sha256 y
+  // rompe todos los sellos publicados** — ademas de reintroducir el problema de formato de
+  // flotantes que este diseno vino a evitar. Los bytes se quedan exactamente como estan.
+  //
+  // Lo que estaba mal era la ETIQUETA: el objeto es correcto y su tipo declarado era falso.
+  // Ahora dice lo que es, y ademas dice **donde parte en dos**, para que un consumidor pueda
+  // leer cada mitad sin adivinar el corte.
+  const datos = row.datos_json || "";
+  const stats = row.stats_json || "";
+  return new Response(datos + stats, {
     headers: {
-      "content-type": "application/json; charset=utf-8",
+      // No es JSON: son dos documentos JSON pegados. Declararlo `application/json` hacia que
+      // un parser estricto fallara sobre un cuerpo que es exactamente el que se hasheo.
+      "content-type": "application/octet-stream",
       "cache-control": CACHE,
       "access-control-allow-origin": "*",
       "x-rq-sha256": row.sha256 || "",
-      "x-rq-nota": "bytes tal como se hashearon; no re-serializado. sha256 de ESTE cuerpo = x-rq-sha256",
+      "x-rq-partes": `datos_json=0-${Math.max(datos.length - 1, 0)},stats_json=${datos.length}-${datos.length + stats.length - 1}`,
+      "x-rq-nota": "dos documentos JSON concatenados, en los bytes exactos que se hashearon; NO re-serializado. " +
+        "sha256 de ESTE cuerpo = x-rq-sha256. Para leerlos, cortar por x-rq-partes y parsear cada mitad.",
     },
   });
 }

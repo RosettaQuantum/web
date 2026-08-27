@@ -96,6 +96,23 @@ export function validarDenominador(devueltos, totalDeclarado, minimo) {
 
 if (SELF) {
   console.log("SELF-TEST — cada validador tiene que gritar contra un defecto real:\n");
+
+  // El content-type manda, no la ruta. Salio de un defecto real: `/v1/.../raw` cuelga de `/v1/`
+  // y NO es JSON a proposito —son dos documentos pegados, en los bytes exactos que se hashearon—,
+  // asi que una regla por ruta lo marcaba como defecto y retenia trabajo bueno.
+  comprobar("exigeJson grita cuando el servidor declara JSON",
+    exigeJson("application/json; charset=utf-8") === true && exigeJson("application/json") === true,
+    "no exigio JSON a algo que se declara JSON");
+  comprobar("exigeJson CALLA con lo que no se declara JSON",
+    ["application/octet-stream", "text/html; charset=utf-8", "text/plain", null, ""].every((t) => exigeJson(t) === false),
+    "exigio JSON a algo que no lo declara");
+  comprobar("exigeJson no confunde application/jsonl con application/json",
+    exigeJson("application/jsonl") === false,
+    "trato jsonl como json: son formatos distintos");
+  // MUTACION: con la regla por ruta, el /raw legitimo quedaba retenido.
+  comprobar("MUTACION: la regla por RUTA marcaria el /raw legitimo como defecto",
+    "/v1/challenges/x/y/raw".startsWith("/v1/") === true && exigeJson("application/octet-stream") === false,
+    "la mutacion ya no distingue las dos reglas");
   comprobar("validarCitas grita si falta la cita",
     validarCitas([{ id: "x", declarado_por: null, fuente_url: null }]) !== null,
     "no grito con una fila sin fuente_url");
@@ -155,6 +172,25 @@ const ESPERA_MAX = args.includes("--esperar") ? Number(args[args.indexOf("--espe
 await esperarVersion(BASE, process.env.GITHUB_SHA, ESPERA_MAX);
 await esperarRutas(BASE, RUTAS_CRITICAS, ESPERA_MAX);
 
+
+/**
+ * ¿Este documento esta obligado a parsear como JSON?
+ *
+ * **Se le pregunta al servidor, no a la ruta.** La primera version decidia por la forma del
+ * camino —todo lo que colgara de `/v1/`— y eso es adivinar la intencion. Preguntandole al
+ * `content-type` el guardia no puede equivocarse sobre que se pretendia: **si el servidor dice
+ * `application/json`, el cuerpo tiene que ser JSON, y si no lo dice, no se le exige.**
+ *
+ * La diferencia la mostro `/v1/challenges/<id>/<proteina>/raw`, que cuelga de `/v1/` y NO es
+ * JSON a proposito: son dos documentos pegados, en los bytes exactos que se hashearon. La regla
+ * por ruta lo marcaba como defecto; la regla por declaracion lo deja pasar en cuanto el
+ * servidor declara la verdad. **Un guardia que exige mas de lo que el objeto promete retiene
+ * trabajo bueno.**
+ */
+export function exigeJson(contentType) {
+  return /\bapplication\/json\b/i.test(String(contentType || ""));
+}
+
 async function traer(ruta) {
   // OJO trampa conocida de este proyecto: las rutas exactas del Worker no aceptan
   // query string arbitrario. Se piden tal cual, sin cache-buster.
@@ -173,6 +209,33 @@ async function traer(ruta) {
   const txt = await r.text();
   let js = null;
   try { js = JSON.parse(txt); } catch (e) {}
+
+  // EL DEFECTO QUE ESTO ARREGLA, reproducido el 2026-08-27 con un proxy fiel a produccion que
+  // rompe UN endpoint —200 con cuerpo no-JSON, el caso de un CDN sirviendo su pagina de error
+  // con status 200—:
+  //
+  //     control (nada roto)          254 pasaron, 0 fallaron   EXIT=0
+  //     con /v1/sources roto         251 pasaron, 0 fallaron   EXIT=0   <- VERDE
+  //
+  // Las tres que desaparecieron, sin dejar rastro en el resumen:
+  //
+  //     ok  las fuentes traen denominador
+  //     ok  toda fuente declara el codigo HTTP medido de su enlace
+  //     ok  ninguna fuente publica un enlace roto sin explicarlo
+  //
+  // **La comprobacion que caza enlaces rotos la desactiva una respuesta rota.** `js` quedaba en
+  // null, los 25 bloques `if (x.js)` se saltaban enteros, y nada los contaba: §5 quater 4, verde
+  // no es lo mismo que cubierto.
+  //
+  // La regla no es una lista de 25 sitios ni una forma de ruta: **se le exige al servidor lo que
+  // el servidor declara**. Si el content-type dice `application/json`, el cuerpo tiene que
+  // parsear. Solo en 2xx: un 404 con otro cuerpo es harina de otro costal, y ensancharlo aqui
+  // seria perder precision.
+  if (exigeJson(r.headers.get("content-type")) && r.status >= 200 && r.status < 300 && js === null) {
+    mal(`${ruta} cumple el content-type que declara`,
+      `declara application/json, respondio ${r.status}, y el cuerpo no parsea (${txt.slice(0, 60).replace(/\s+/g, " ")}…). ` +
+      `Las comprobaciones que dependen de este documento NO se ejecutaron: no es un verde, es una ausencia.`);
+  }
   return { status: r.status, js, txt };
 }
 
