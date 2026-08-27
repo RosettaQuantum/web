@@ -41,3 +41,8 @@ src/data/informe-cliente/*.json
 # chequeos que esta maquina nunca corrio. (2026-08-26)
 .recibo-produccion.json
 experimentos/
+
+# El recibo de despliegue de check-produccion-fresca: es LOCAL de cada maquina
+# (registra que sha desplego ESTE arbol). Sin ignorar aparecia sucio para todos y
+# un `git add -A` ajeno se lo llevaba — el mismo peligro que arreglamos en notarize.py.
+.recibo-produccion.json
