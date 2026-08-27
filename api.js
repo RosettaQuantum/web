@@ -28,6 +28,7 @@ const CORS = {
   "Access-Control-Allow-Headers": "content-type",
 };
 import { legiblesDe } from "./lib/legible.mjs";
+import { evaluarPeticion, RECHAZOS as RECHAZOS_PUERTA, huellaDelCuerpo } from "./lib/puerta.mjs";
 
 const SITE = "https://rosettaquantum.com";
 const CACHE = "public, s-maxage=300";
@@ -975,6 +976,24 @@ async function propagaciones(env, runId, target) {
  * resultado.
  */
 export const CATALOGO = [
+  { ruta: "/v1/jobs", metodo: "POST", grupo: "puerta",
+    resumen: "Dry run only: validates a request and returns the plan without queueing work, consuming quota or writing anything. Requires the Idempotency-Key header.",
+    cuerpo: {
+      type: "object", required: ["receta", "params", "dry_run"],
+      properties: {
+        receta: { type: "string", description: "Recipe id from GET /v1/recipes" },
+        params: { type: "object", description: "Recipe parameters" },
+        dry_run: { type: "boolean", description: "Must be true today: real execution is not built yet and returns 501." },
+      },
+    },
+    respuestas: {
+      400: { description: "Missing Idempotency-Key" },
+      401: { description: "Real execution needs a credential; a dry run does not" },
+      409: { description: "The key was already used for a different request" },
+      503: { description: "The recipe catalogue could not be read: the request cannot be validated" },
+      422: { description: "Invalid request, or unknown recipe" },
+      501: { description: "Real execution does not exist yet" },
+    } },
   { ruta: "/v1", resumen: "Indice de la API", grupo: "meta" },
   { ruta: "/v1/openapi.json", resumen: "Esta especificacion, en OpenAPI 3.1", grupo: "meta" },
   { ruta: "/v1/usage", resumen: "Cuántas veces se llamó a esta API · público, y declara lo que NO se guarda",
@@ -1170,8 +1189,13 @@ function openapiDoc() {
     for (const [nombre, desc] of e.params || []) {
       parametros.push({ name: nombre, in: "query", required: false, description: desc, schema: { type: "string" } });
     }
+    // EL METODO SE DECLARA, no se asume. Hasta hoy toda entrada era GET implicito y habia
+    // cuatro sitios que lo daban por hecho: aqui, el indice de /v1, el guardia de la
+    // especificacion y su sonda. **Un valor implicito en cuatro lugares es una lista que vive
+    // en cuatro lugares**, y la primera ruta que no fuera GET los rompia de a uno en silencio.
+    const metodo = (e.metodo || "GET").toLowerCase();
     paths[e.ruta] = {
-      get: {
+      [metodo]: {
         summary: e.resumen,
         tags: [e.grupo],
         parameters: parametros.length ? parametros : undefined,
@@ -1180,7 +1204,9 @@ function openapiDoc() {
             schema: e.esquema || { type: "object", description:
               "Esquema todavía no declarado. La respuesta viva es el contrato: " + SITE + e.ruta } } } },
           404: { description: "no existe. No se cachea, y trae por donde seguir." },
+          ...(e.respuestas || {}),
         },
+        ...(e.cuerpo ? { requestBody: { required: true, content: { "application/json": { schema: e.cuerpo } } } } : {}),
       },
     };
   }
@@ -1333,6 +1359,65 @@ export async function manejarApi(request, env, url, ctx) {
   return res;
 }
 
+/**
+ * La Puerta, en ensayo en seco.
+ *
+ * QUE HACE Y QUE NO, dicho aqui para que nadie lo descubra leyendo: **valida y contesta el plan.
+ * No encola trabajo, no consume cuota, no escribe nada y no cobra.** Una peticion real devuelve
+ * 501 con su motivo en vez de fingir una cola.
+ *
+ * La logica vive en `lib/puerta.mjs` con sus 21 casos; aqui solo esta el transporte. Se separan
+ * a proposito: las reglas se prueban sin levantar un Worker, y el dia que exista MCP la misma
+ * funcion contesta por los dos caminos sin duplicar el criterio.
+ *
+ * EL CATALOGO SE CONSULTA, no se escribe aqui: sale de D1 por el mismo camino que
+ * `GET /v1/recipes`. Una lista de recetas escrita en el enrutador ya habria divergido.
+ */
+async function puerta(request, env) {
+  const clave = request.headers.get("idempotency-key");
+
+  let peticion;
+  try { peticion = await request.json(); }
+  catch (e) {
+    return json({ status: "rejected", code: "INVALID_REQUEST", http: 422,
+      reason: "the body is not readable JSON",
+      detail: "Send a JSON object. GET /v1/openapi.json describes the shape." }, 422);
+  }
+
+  // SI EL CATALOGO NO SE PUEDE LEER, NO SE ADIVINA. Con la lista vacia, toda receta saldria
+  // como `UNKNOWN_RECIPE` — le diriamos al cliente que SU receta no existe cuando lo que pasa
+  // es que no pudimos mirar. **Un cero por no haber podido leer no es un cero medido**, y aqui
+  // ademas culpa al que llama de un problema nuestro.
+  //
+  // Aparecio levantando el Worker en local: la excepcion cruda de D1 salia como 500 con la ruta
+  // del archivo y la traza dentro. Un error interno filtrado es lo primero que mira quien
+  // audita una API.
+  let catalogo;
+  try {
+    const { results = [] } = await env.DB
+      .prepare("SELECT recipe_id FROM run_archives WHERE type='RECIPE'").all();
+    catalogo = results.map(r => r.recipe_id).filter(Boolean);
+  } catch (e) {
+    return json({ status: "rejected", code: "CATALOGUE_UNAVAILABLE", http: 503,
+      reason: "the recipe catalogue could not be read, so this request cannot be validated",
+      detail: "This is on our side, not yours. Nothing was queued or charged. Retry shortly; GET /v1/recipes reports whether the catalogue is back." }, 503);
+  }
+
+  // `vistas` va vacio: sin almacen de claves todavia, una repeticion no se puede reconocer.
+  // **Se declara en la respuesta en vez de fingir que se comprobo** — un 409 que nunca puede
+  // dispararse es un criterio que no esta probado, y ya sabemos como termina eso.
+  const r = evaluarPeticion({ peticion, clave, catalogo });
+
+  if (r.status === "rejected") {
+    return json(r, r.http);
+  }
+  return json({
+    ...r,
+    idempotency_not_yet_stored:
+      "keys are validated but not remembered yet: a repeat cannot be recognised, so no request is ever answered from a previous one",
+  }, 200);
+}
+
 async function enrutar(request, env, url, info = {}) {
   if (request.method === "OPTIONS") return new Response(null, { status: 204, headers: CORS });
 
@@ -1341,6 +1426,22 @@ async function enrutar(request, env, url, info = {}) {
   // HEAD se atiende como GET y se devuelve sin cuerpo. Sin esto, `curl -I`, los
   // chequeos de salud y varios clientes HTTP reciben un 404 sobre una ruta que si
   // existe — el tipo de discrepancia que hace dudar de una API antes de usarla.
+  // LA PUERTA: la unica ruta que no es de lectura, y hoy solo contesta en seco.
+  //
+  // Va ANTES del corte de metodo, porque ese corte es el que hacia que un POST cayera al
+  // servidor de archivos y devolviera una pagina en vez de una respuesta de API. Un POST a una
+  // ruta de API que contesta HTML es peor que un 404: el que llama no sabe si se equivoco de
+  // ruta o de metodo.
+  if (p === "/v1/jobs" || p === "/v1/jobs/") {
+    if (request.method !== "POST") {
+      return json({ status: "rejected", code: "METHOD_NOT_ALLOWED", http: 405,
+        reason: "this endpoint only accepts POST",
+        detail: "Send POST with a JSON body and an Idempotency-Key header. GET /v1/openapi.json describes the shape." },
+        405, { allow: "POST, OPTIONS" });
+    }
+    return await puerta(request, env);
+  }
+
   const esHead = request.method === "HEAD";
   if (request.method !== "GET" && !esHead) return null;
   if (esHead) {
@@ -1353,11 +1454,11 @@ async function enrutar(request, env, url, info = {}) {
     // una lista escrita a mano al lado del enrutador: dos listas, que es como se
     // pierde una ruta sin que nadie lo note.
     return json({
-      api: "Rosetta Quantum — Evidence Ledger y archivador, solo lectura",
+      api: "Rosetta Quantum — Evidence Ledger y archivador. Lectura, mas /v1/jobs en ensayo en seco",
       especificacion: SITE + "/v1/openapi.json",
       mcp: SITE + "/mcp",
       endpoints: Object.fromEntries(CATALOGO.map(e => [
-        "GET " + e.ruta,
+        (e.metodo || "GET") + " " + e.ruta,
         e.resumen + ((e.params || []).length ? " · " + e.params.map(([n]) => "?" + n + "=").join(" ") : ""),
       ])),
       nota_catalogo:

@@ -254,25 +254,51 @@ if (doc) {
 
   // La promesa se ejerce: cada ruta documentada tiene que responder.
   console.log("\n  -- cada ruta documentada responde de verdad --");
+  // EL METODO SALE DE LA ESPECIFICACION, no se asume GET. Hasta que existio `/v1/jobs` toda
+  // ruta era GET, y esta sonda hacia `doc.paths[ruta].get` a secas: con una ruta POST
+  // documentada habria pedido GET, recibido 405 y **reportado como defecto una ruta que
+  // funciona**. Un falso positivo retiene trabajo bueno, que es peor que dejar pasar un caso.
+  const metodoDe = (ruta) => ["get", "post", "put", "delete", "patch"].find((m) => doc.paths[ruta][m]) || "get";
   let vivas = 0;
   for (const ruta of enSpecCrudo) {
-    const e = (doc.paths[ruta].get || {});
+    const metodo = metodoDe(ruta);
+    const e = (doc.paths[ruta][metodo] || {});
     let url = ruta;
     for (const par of (e.parameters || []).filter(p => p.in === "path")) {
-      if (!par.example) { mal(`GET ${ruta}`, `el parametro {${par.name}} no trae ejemplo, no se puede ejercer`); url = null; break; }
+      if (!par.example) { mal(`${metodo.toUpperCase()} ${ruta}`, `el parametro {${par.name}} no trae ejemplo, no se puede ejercer`); url = null; break; }
       url = url.replace(`{${par.name}}`, encodeURIComponent(par.example));
     }
     if (url === null) continue;
     if (ruta === "/v1/search") url += "?q=portfolio";   // parametro obligatorio
-    const rr = await fetch(BASE + url, { redirect: "manual", headers: { "User-Agent": "rosetta openapi check", "x-rq-check": "1" } });
-    if (rr.status === 200) vivas++;
-    comprobar(`GET ${url}`, rr.status === 200, `respondio ${rr.status}`);
+    const rr = await fetch(BASE + url, {
+      method: metodo.toUpperCase(), redirect: "manual",
+      headers: { "User-Agent": "rosetta openapi check", "x-rq-check": "1",
+                 ...(metodo === "post" ? { "content-type": "application/json" } : {}) },
+      ...(metodo === "post" ? { body: "{}" } : {}),
+    });
+
+    if (metodo === "get") {
+      if (rr.status === 200) vivas++;
+      comprobar(`GET ${url}`, rr.status === 200, `respondio ${rr.status}`);
+      continue;
+    }
+
+    // A una ruta que MUTA no se le puede pedir 200 sin inventarle una peticion valida, y
+    // fabricar una acoplaria este guardia al catalogo de recetas. Se le pide algo mejor:
+    // **que rechace un cuerpo vacio con uno de los codigos que ella misma declara.** Eso
+    // ejerce el contrato de error, que es la parte que un tercero lee cuando algo le falla —
+    // y es justo la que nadie prueba.
+    const declarados = Object.keys(e.responses || {}).map(Number).filter(Boolean);
+    const esperado = declarados.includes(rr.status);
+    if (esperado) vivas++;
+    comprobar(`${metodo.toUpperCase()} ${url} contesta con un codigo que declara`,
+      esperado, `respondio ${rr.status} y la especificacion declara ${declarados.join(", ") || "(ninguno)"}`);
   }
   console.log(`  => ${vivas} de ${enSpecCrudo.length} rutas documentadas responden 200`);
 
   // Cobertura de esquemas: se declara, no se finge.
   const conEsquema = enSpecCrudo.filter(p => {
-    const s = ((doc.paths[p].get || {}).responses || {})["200"];
+    const s = ((doc.paths[p][metodoDe(p)] || {}).responses || {})["200"];
     const esq = s && s.content && s.content["application/json"] && s.content["application/json"].schema;
     return esq && (esq.$ref || esq.properties);
   }).length;
