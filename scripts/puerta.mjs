@@ -52,13 +52,45 @@ export const CONSUMIDOR = {
  * viajan tal cual para que el que llama vea el rechazo completo en una sola respuesta.
  */
 export const RECHAZOS = {
-  SIN_IDEMPOTENCIA: { http: 400, dice: "falta la cabecera Idempotency-Key, que es obligatoria: sin ella un reintento se cobra dos veces" },
-  IDEMPOTENCIA_REPLAY: { http: 409, dice: "esta clave ya se uso con un cuerpo distinto: o es el mismo trabajo y el cuerpo cambio, o la clave se reciclo" },
-  SPEC_INVALIDA: { http: 422, dice: "la peticion no cumple el esquema de su receta" },
-  RECETA_DESCONOCIDA: { http: 422, dice: "no hay una receta con ese identificador en el catalogo" },
-  SIN_CREDENCIAL: { http: 401, dice: "hace falta una credencial para ejecutar; el ensayo en seco no la necesita" },
-  NO_CONSTRUIDO: { http: 501, dice: "la ejecucion real todavia no existe: hoy la Puerta solo contesta en seco (dry_run)" },
+  SIN_CLAVE_DE_IDEMPOTENCIA: {
+    http: 400,
+    dice: "falta la cabecera Idempotency-Key, que es obligatoria",
+    detalle: "manda `Idempotency-Key` con un valor unico por trabajo. Si reintentas, manda EL MISMO valor: asi el segundo intento devuelve el resultado del primero en vez de cobrar dos veces.",
+  },
+  CLAVE_REUSADA_CON_OTRO_CUERPO: {
+    http: 409,
+    dice: "esta clave ya se uso para una peticion distinta",
+    detalle: "o cambiaste el cuerpo de un trabajo que ya mandaste —entonces usa una clave nueva— o reciclaste una clave vieja sin querer. El orden de los campos no cuenta: se compara el contenido.",
+  },
+  PETICION_INVALIDA: {
+    http: 422,
+    dice: "a la peticion le faltan campos obligatorios",
+    detalle: "la respuesta lista cuales en `faltan`. Toda peticion lleva al menos `receta` y `params`.",
+  },
+  RECETA_DESCONOCIDA: {
+    http: 422,
+    dice: "no hay una receta con ese identificador",
+    detalle: "pide GET /v1/recipes para ver el catalogo vigente. La respuesta dice cuantas hay en `hay`.",
+  },
+  SIN_CREDENCIAL: {
+    http: 401,
+    dice: "ejecutar de verdad necesita una credencial",
+    detalle: "el ensayo en seco (`dry_run: true`) no necesita ninguna: usalo para validar la peticion y ver el plan antes de tener cuenta.",
+  },
+  NO_CONSTRUIDO: {
+    http: 501,
+    dice: "la ejecucion real todavia no existe",
+    detalle: "hoy la Puerta solo contesta en seco. Manda `dry_run: true` y recibiras el plan y los rechazos que habria, sin consumir nada.",
+  },
 };
+
+/**
+ * Donde se publica la definicion de cada codigo. **En `null` mientras la pagina no exista**, por
+ * §1 bis: ya publicamos una API que decia «recomputa el hash segun /api-docs» cuando esa pagina
+ * daba 404. Un enlace roto pide confianza en vez de darla, asi que hasta que exista viaja el
+ * `detalle` completo y ningun enlace.
+ */
+export const DEFINICIONES_EN = null;
 
 /** Lo que toda peticion tiene que traer, se ejecute o no. */
 export const CAMPOS_PETICION = ["receta", "params"];
@@ -88,20 +120,29 @@ export function huellaDelCuerpo(cuerpo) {
  * @param {{peticion:object, clave:string|null, catalogo:string[], vistas?:Map, credencial?:string|null}} ctx
  */
 export function evaluarPeticion({ peticion, clave, catalogo, vistas = new Map(), credencial = null }) {
-  const no = (codigo, extra = {}) => ({ estado: "rechazado", codigo, http: RECHAZOS[codigo].http, motivo: RECHAZOS[codigo].dice, ...extra });
+  const no = (codigo, extra = {}) => ({
+    estado: "rechazado", codigo,
+    http: RECHAZOS[codigo].http,
+    motivo: RECHAZOS[codigo].dice,
+    // El detalle viaja SIEMPRE: un codigo cuyo unico significado vive en el chat donde se
+    // invento se publica roto por mas bueno que sea el nombre.
+    detalle: RECHAZOS[codigo].detalle,
+    ...(DEFINICIONES_EN ? { definicion: `${DEFINICIONES_EN}#${codigo}` } : {}),
+    ...extra,
+  });
 
   // 1) La clave va PRIMERO, y tambien en seco. Si solo se exigiera al ejecutar, el cliente
   //    aprende a llamar sin ella y el dia que ejecute de verdad no la tiene puesta.
-  if (vacio(clave)) return no("SIN_IDEMPOTENCIA");
+  if (vacio(clave)) return no("SIN_CLAVE_DE_IDEMPOTENCIA");
 
   // 2) Misma clave y cuerpo distinto es ambiguo, y lo ambiguo no se adivina.
   const huella = huellaDelCuerpo(peticion);
   const previa = vistas.get(clave);
-  if (previa !== undefined && previa !== huella) return no("IDEMPOTENCIA_REPLAY", { clave });
+  if (previa !== undefined && previa !== huella) return no("CLAVE_REUSADA_CON_OTRO_CUERPO", { clave });
 
   // 3) La forma.
   const faltan = CAMPOS_PETICION.filter((c) => vacio(peticion?.[c]));
-  if (faltan.length) return no("SPEC_INVALIDA", { faltan });
+  if (faltan.length) return no("PETICION_INVALIDA", { faltan });
 
   // 4) El catalogo se CONSULTA. Nunca una lista escrita aqui: una lista que vive en dos
   //    lugares ya divergio, y el catalogo real vive en D1.
@@ -149,11 +190,11 @@ if (_esPrincipal && process.argv.includes("--self-test")) {
   const casos = [
     // ── grita ──
     ["grita: sin Idempotency-Key, incluso en seco", () =>
-      evaluarPeticion({ peticion: OK, clave: null, catalogo: CATALOGO }).codigo === "SIN_IDEMPOTENCIA"],
+      evaluarPeticion({ peticion: OK, clave: null, catalogo: CATALOGO }).codigo === "SIN_CLAVE_DE_IDEMPOTENCIA"],
 
     ["grita: misma clave con cuerpo distinto", () => {
       const vistas = new Map([["k1", huellaDelCuerpo(OK)]]);
-      return evaluarPeticion({ peticion: { ...OK, params: { n: 99 } }, clave: "k1", catalogo: CATALOGO, vistas }).codigo === "IDEMPOTENCIA_REPLAY";
+      return evaluarPeticion({ peticion: { ...OK, params: { n: 99 } }, clave: "k1", catalogo: CATALOGO, vistas }).codigo === "CLAVE_REUSADA_CON_OTRO_CUERPO";
     }],
 
     ["grita: receta que no esta en el catalogo, y dice cuantas hay", () => {
@@ -163,7 +204,7 @@ if (_esPrincipal && process.argv.includes("--self-test")) {
 
     ["grita: falta un campo obligatorio y dice cual", () => {
       const r = evaluarPeticion({ peticion: { receta: "RQ-0033", dry_run: true }, clave: "k", catalogo: CATALOGO });
-      return r.codigo === "SPEC_INVALIDA" && r.faltan.includes("params");
+      return r.codigo === "PETICION_INVALIDA" && r.faltan.includes("params");
     }],
 
     // Los dos motivos de no poder ejecutar son DISTINTOS y se distinguen. Un 501 mudo haria
@@ -201,8 +242,22 @@ if (_esPrincipal && process.argv.includes("--self-test")) {
     }],
 
     // ── contrato publico ──
-    ["todo rechazo trae su codigo HTTP y su explicacion", () =>
-      Object.values(RECHAZOS).every((r) => typeof r.http === "number" && r.dice.length > 20)],
+    ["todo rechazo trae codigo HTTP, explicacion y QUE HACER", () =>
+      Object.values(RECHAZOS).every((r) => typeof r.http === "number" && r.dice.length > 20 && r.detalle.length > 40)],
+
+    // Un codigo cuyo unico significado vive en la conversacion donde se invento se publica roto.
+    ["el detalle viaja en la respuesta, no solo en la tabla", () =>
+      typeof evaluarPeticion({ peticion: OK, clave: null, catalogo: CATALOGO }).detalle === "string"],
+
+    // §1 bis: ya publicamos una API que apuntaba a una pagina 404. Mientras no exista, no hay
+    // enlace — y este caso lo obliga.
+    ["no se emite enlace a definiciones mientras la pagina no exista", () =>
+      DEFINICIONES_EN === null &&
+      evaluarPeticion({ peticion: OK, clave: null, catalogo: CATALOGO }).definicion === undefined],
+
+    // El codigo nombra el DEFECTO, no el mecanismo. Un tercero necesita saber que arreglar.
+    ["ningun codigo nombra el mecanismo que lo detecto", () =>
+      !Object.keys(RECHAZOS).some((k) => /RELOJ|PROVISTO|SPEC|REPLAY|GENERADOR/.test(k))],
 
     // ── mutacion ──
     // Si la clave solo se exigiera al ejecutar, el cliente aprende a no mandarla y el dia que
@@ -210,7 +265,7 @@ if (_esPrincipal && process.argv.includes("--self-test")) {
     ["MUTACION: si la clave solo se exigiera al ejecutar, el ensayo en seco pasaria sin ella", () => {
       const conRegla = evaluarPeticion({ peticion: OK, clave: null, catalogo: CATALOGO }).codigo;
       const siSoloAlEjecutar = OK.dry_run === true; // en seco no se miraria la clave
-      return conRegla === "SIN_IDEMPOTENCIA" && siSoloAlEjecutar === true;
+      return conRegla === "SIN_CLAVE_DE_IDEMPOTENCIA" && siSoloAlEjecutar === true;
     }],
 
     // Si la huella no ordenara las claves, el mismo trabajo escrito distinto daria 409.

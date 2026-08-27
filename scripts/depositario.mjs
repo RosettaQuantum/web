@@ -51,14 +51,64 @@ export const CONSUMIDOR = {
   hace: "corrige lo que el rechazo nombra y reenvia; el deposito es idempotente por clave",
 };
 
-/** Codigos de rechazo. Un cliente los lee en la respuesta, asi que son parte del contrato. */
+/**
+ * Codigos de rechazo. **Contrato publico**: los lee un tercero, asi que se agregan pero no se
+ * renombran una vez publicados. Nada de esto esta publicado todavia, por eso se renombra ahora.
+ *
+ * LA REGLA, y es de Main: **el codigo nombra el DEFECTO, no el mecanismo que lo produjo.** Quien
+ * recibe un rechazo necesita saber que arreglar, no como lo detectamos.
+ *
+ * LOS DOS QUE SE RENOMBRARON, y como se supo que hacia falta:
+ *
+ *   - `RELOJ_PROVISTO_POR_EL_GENERADOR` -> `FECHA_NO_INDEPENDIENTE`. El viejo describia de
+ *     donde venia la marca de tiempo; el nuevo dice que esta mal — la cosa medida fijo su
+ *     propia fecha.
+ *   - `SIN_CONSUMO` -> `SIN_CONSUMO_MEDIDO`, y esta es la interesante. Main leyo `SIN_CONSUMO`
+ *     como «no declara quien consume esta senal» y propuso `SIN_CONSUMIDOR_DECLARADO`. **Es
+ *     otra cosa**: aqui `consumo` son `cpu_s` y `costo_proveedor`, los recursos que gasto la
+ *     corrida. Su rename habria hecho que el codigo dijera algo que el codigo no comprueba.
+ *
+ *     **Y su lectura equivocada es la mejor prueba de su propio argumento.** Si alguien que
+ *     trabaja en esta base todos los dias lo entendio al reves, un tercero no tiene ninguna
+ *     posibilidad. El nombre viejo era ambiguo exactamente como el decia; lo que estaba mal era
+ *     el reemplazo, no el diagnostico.
+ *
+ * Cada rechazo trae `detalle`: que hacer para arreglarlo, en una linea, sin haber estado en esta
+ * conversacion. **Un codigo cuyo unico significado vive en el chat donde se invento se publica
+ * roto por mas bueno que sea el nombre.**
+ */
 export const RECHAZOS = {
-  SIN_CONSUMO: "no trae consumo medido: un cero ausente no es un cero medido",
-  CONSUMO_INCOMPLETO: "el consumo no declara todos los campos que se facturan",
-  SIN_HUELLA_DE_CODIGO: "sin la huella del codigo que corrio no se puede saber si esta corrida es comparable con otra",
-  RELOJ_PROVISTO_POR_EL_GENERADOR: "el artefacto ya trae hora de deposito: la pone quien recibe",
-  DURACION_IMPOSIBLE: "la duracion declarada no cabe entre inicio y fin",
+  SIN_CONSUMO_MEDIDO: {
+    dice: "no trae los recursos medidos de la corrida: un cero ausente no es un cero medido",
+    detalle: "manda `consumo` con `cpu_s` (segundos de CPU) y `costo_proveedor` (lo que cobro quien presto el computo). Si la corrida fue gratis, manda 0: es distinto de no haber mirado.",
+  },
+  CONSUMO_MEDIDO_INCOMPLETO: {
+    dice: "faltan campos de los recursos medidos que se facturan",
+    detalle: "vienen algunos y faltan otros. La respuesta lista cuales en `faltan`. No se completan con cero.",
+  },
+  SIN_HUELLA_DE_CODIGO: {
+    dice: "no se puede saber que codigo produjo esta corrida, asi que no es comparable con otra",
+    detalle: "el artefacto tiene que traer el sha256 del arnes que corrio, en `meta.sealed_by.harness_sha256`.",
+  },
+  FECHA_NO_INDEPENDIENTE: {
+    dice: "el artefacto trae su propia hora de deposito, y la fecha no puede ponerla lo que se esta midiendo",
+    detalle: "quita `deposito.recibido_at` del artefacto. La hora la estampa quien recibe, y por eso vale como respaldo de un cobro.",
+  },
+  DURACION_IMPOSIBLE: {
+    dice: "las duraciones por fase suman mas que el total declarado",
+    detalle: "la suma de `consumo.fases_ms` no puede pasar `consumo.cpu_s`. La respuesta trae las dos cifras.",
+  },
 };
+
+/**
+ * Donde se publica la definicion de cada codigo. **En `null` mientras la pagina no exista.**
+ *
+ * No es un pendiente olvidado: es §1 bis. Ya nos paso publicar una API que decia «recomputa el
+ * hash segun /api-docs» cuando esa pagina daba 404 — **una promesa verificable que se corta a
+ * medias pide confianza en vez de darla**. Un enlace a una pagina inexistente es peor que no
+ * poner enlace, asi que hasta que exista viaja el `detalle` y nada mas.
+ */
+export const DEFINICIONES_EN = null;
 
 /** Lo que se factura. Un campo ausente NO se completa con cero: se rechaza. */
 export const CAMPOS_CONSUMO = ["cpu_s", "costo_proveedor"];
@@ -145,18 +195,23 @@ export function tieneSubsegundo(iso) {
  * @returns {{estado:"depositado", deposito:object} | {estado:"rechazado", codigo:string, motivo:string}}
  */
 export function depositar({ artefacto, consumo, ahora = Date.now() }) {
-  const no = (codigo) => ({ estado: "rechazado", codigo, motivo: RECHAZOS[codigo] });
+  const no = (codigo) => ({
+    estado: "rechazado", codigo,
+    motivo: RECHAZOS[codigo].dice,
+    detalle: RECHAZOS[codigo].detalle,
+    ...(DEFINICIONES_EN ? { definicion: `${DEFINICIONES_EN}#${codigo}` } : {}),
+  });
 
   // 1) El generador NO pone la hora. Si ya viene, es exactamente el defecto que existimos
   //    para impedir — y no se sobreescribe en silencio: se rechaza y se dice.
-  if (!ausente(cavar(artefacto, "deposito", "recibido_at"))) return no("RELOJ_PROVISTO_POR_EL_GENERADOR");
+  if (!ausente(cavar(artefacto, "deposito", "recibido_at"))) return no("FECHA_NO_INDEPENDIENTE");
 
   // 2) Sin consumo no se deposita. Un cero medido y un cero ausente no son el mismo cero:
   //    el primero es una corrida gratis, el segundo es no haber mirado.
-  if (!consumo || typeof consumo !== "object" || Array.isArray(consumo)) return no("SIN_CONSUMO");
+  if (!consumo || typeof consumo !== "object" || Array.isArray(consumo)) return no("SIN_CONSUMO_MEDIDO");
   const faltan = CAMPOS_CONSUMO.filter((c) => ausente(consumo[c]));
-  if (faltan.length === CAMPOS_CONSUMO.length) return no("SIN_CONSUMO");
-  if (faltan.length) return { ...no("CONSUMO_INCOMPLETO"), faltan };
+  if (faltan.length === CAMPOS_CONSUMO.length) return no("SIN_CONSUMO_MEDIDO");
+  if (faltan.length) return { ...no("CONSUMO_MEDIDO_INCOMPLETO"), faltan };
 
   // 3) Sin la huella del codigo, dos corridas no son comparables y nadie se entera al restarlas.
   let huella_codigo, huella_bajo;
@@ -225,14 +280,14 @@ if (_esPrincipal && process.argv.includes("--self-test")) {
     // EL DEFECTO REAL: el generador poniendo la hora. Es por lo que existe este modulo.
     ["grita: el artefacto ya trae hora de deposito", () =>
       depositar({ artefacto: { ...ART, deposito: { recibido_at: "2026-08-21T20:00:00Z" } }, consumo: CON, ahora: AHORA })
-        .codigo === "RELOJ_PROVISTO_POR_EL_GENERADOR"],
+        .codigo === "FECHA_NO_INDEPENDIENTE"],
 
     ["grita: sin consumo no se deposita", () =>
-      depositar({ artefacto: ART, consumo: null, ahora: AHORA }).codigo === "SIN_CONSUMO"],
+      depositar({ artefacto: ART, consumo: null, ahora: AHORA }).codigo === "SIN_CONSUMO_MEDIDO"],
 
     ["grita: consumo a medias es distinto de consumo ausente", () => {
       const r = depositar({ artefacto: ART, consumo: { cpu_s: 45.9 }, ahora: AHORA });
-      return r.codigo === "CONSUMO_INCOMPLETO" && r.faltan[0] === "costo_proveedor";
+      return r.codigo === "CONSUMO_MEDIDO_INCOMPLETO" && r.faltan[0] === "costo_proveedor";
     }],
 
     ["grita: sin huella del codigo, dos corridas no son comparables", () =>
@@ -313,6 +368,7 @@ if (_esPrincipal && !process.argv.includes("--self-test")) {
   const r = depositar({ artefacto, consumo });
   if (r.estado === "rechazado") {
     console.error(`[depositario] RECHAZADO ${r.codigo}: ${r.motivo}`);
+    console.error(`    que hacer: ${r.detalle}`);
     if (r.faltan) console.error(`    faltan: ${r.faltan.join(", ")}`);
     process.exit(1);
   }
