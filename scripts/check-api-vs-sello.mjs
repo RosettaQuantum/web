@@ -29,6 +29,19 @@
  * Uso:
  *   node scripts/check-api-vs-sello.mjs              # contra la API viva
  *   node scripts/check-api-vs-sello.mjs --self-test
+ *
+ * QUIEN LO CONSUME Y QUE HACE AL RECIBIRLO
+ * ----------------------------------------
+ * CONSUMIDOR: la sesion de coordinacion del archivo (Rosetta Q Main). No el CTO: cuando esto
+ * grita, lo roto no es el despliegue sino la correspondencia entre un sello y lo que la API
+ * dice que es ese sello, y la autoridad sobre que ES el texto sellado la tiene el archivo.
+ *
+ * QUE HACE: abre el artefacto sellado, compara byte a byte contra lo que sirve el endpoint, y
+ * decide cual de los dos esta mal. Si el sello esta bien, se arregla la API. Si el sello esta
+ * mal, NO se re-sella: va una errata, porque publicado es publicado.
+ *
+ * SI ESTE GUARDIA NO CORRIO, no se publica un entregable que cite el endpoint como fuente
+ * verificable — es la promesa que sostiene, y sin correr no esta sostenida.
  */
 import { readFileSync } from "node:fs";
 

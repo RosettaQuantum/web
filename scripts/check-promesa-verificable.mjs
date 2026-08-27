@@ -37,6 +37,20 @@
  * Uso:
  *   node scripts/check-promesa-verificable.mjs              # contra la API viva
  *   node scripts/check-promesa-verificable.mjs --self-test
+ *
+ * QUIEN LO CONSUME Y QUE HACE AL RECIBIRLO
+ * ----------------------------------------
+ * CONSUMIDOR: la sesion de coordinacion del archivo (Rosetta Q Main). Cuando grita, lo roto es
+ * la instruccion que le damos a un tercero para verificarnos — y esa instruccion es el producto,
+ * no una pagina.
+ *
+ * QUE HACE: sigue la instruccion publicada como si fuera un tercero, sin atajos ni conocimiento
+ * interno. Si no reproduce, se corrige LA INSTRUCCION, no el chequeo. Una receta que solo
+ * funciona sabiendo algo que no publicamos es una receta que no existe.
+ *
+ * SI ESTE GUARDIA NO CORRIO, ninguna superficie publica puede decir "compruebelo usted mismo":
+ * esa frase es exactamente lo que este chequeo verifica, y sin correr es una afirmacion sin
+ * medir. Nacio de que Comercial siguiera la receta publicada y reprodujera 1 de 4.
  */
 import { createHash } from "node:crypto";
 import { esperarVersion, esperarRutas } from "./lib/esperar.mjs";
