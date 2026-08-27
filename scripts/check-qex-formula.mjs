@@ -60,12 +60,29 @@ const leerPy = () => {
     console.log('    (vive fuera del repo; desde CI no hay forma de saber si cambio)');
     return copia;
   }
-  if (readFileSync(fuera, 'utf8') !== copia) {
-    mal('scripts/lib/calcular_qex.py quedo desactualizada respecto de la original del proyecto');
+  // COMPARA LA FORMULA, NO LOS BYTES — corregido el 2026-08-26 despues de que el guardia
+  // llevara dias en rojo por una diferencia deliberada.
+  //
+  // La copia del repo NO es ni debe ser identica a la original: la original resuelve la ruta
+  // del corpus del estudio chileno contra su propio directorio, **que dentro del repo no
+  // existe** —y ese corpus esta gitignoreado justamente porque este repositorio es publico—.
+  // Exigir identidad byte a byte pedia algo imposible y gritaba a diario por algo inofensivo.
+  // **Un guardia que grita sin motivo ensena a ignorarlo**, y el nombre de este dice lo que
+  // le importa: «una sola ponderacion».
+  //
+  // Lo que si tiene que coincidir es la formula: pesos y techo. Es lo que se compara ahora,
+  // y es estrictamente lo que este guardia existe para proteger.
+  const original = readFileSync(fuera, 'utf8');
+  const formulaDe = (src) => JSON.stringify({
+    pesos: [...src.matchAll(/^\s*"(\w+)":\s*([0-9.]+),/gm)].map((m) => [m[1], m[2]]).sort(),
+    tope: (/^\s*TOPE\s*=\s*(\d+)/m.exec(src) ?? [])[1] ?? null,
+  });
+  if (formulaDe(original) !== formulaDe(copia)) {
+    mal('scripts/lib/calcular_qex.py difiere de la original EN LA FORMULA (pesos o techo)');
     return copia;
   }
   sincroniaVerificada = true;
-  bien('scripts/lib/calcular_qex.py coincide con la original del proyecto');
+  bien('scripts/lib/calcular_qex.py comparte pesos y techo con la original (el resto puede diferir a proposito)');
   return copia;
 };
 
