@@ -39,7 +39,26 @@ const BASE = args.includes("--base") ? args[args.indexOf("--base") + 1] : "https
 const SELF = args.includes("--self-test");
 const RAIZ = join(dirname(fileURLToPath(import.meta.url)), "..");
 
-let pasaron = 0, fallaron = 0;
+let pasaron = 0, fallaron = 0, saltados = 0;
+
+/**
+ * El bloque del documento no se puede contar de antemano, y decirlo es el arreglo.
+ *
+ * TRES INTENTOS, y los tres son la misma leccion. Primero escribi `= 26`, sacado del `grep` de
+ * subcadenas que este proyecto tiene documentado como «contar lineas con grep no es contar
+ * cosas». Despues lo hice contarse solo desde la fuente y dio **5**, porque cuenta LLAMADAS y la
+ * mayoria de las comprobaciones estan **dentro de un bucle por ruta**. El numero real de aquel
+ * dia era 31 —produccion ejercio 37 y con el documento roto quedaron 6—, **pero manana es otro**:
+ * depende de cuantas rutas declare la especificacion.
+ *
+ * O sea que **la cantidad no existe como constante**, y las dos veces que puse una estaba
+ * inventando precision dentro del arreglo de un guardia que existe para no ocultar ausencias.
+ *
+ * Asi que no se afirma un numero: se afirma que **un bloque entero no se ejerció**, que es lo
+ * verdadero y lo que hay que ver en el resumen. Un total sin denominador no es un resultado —y
+ * aqui el denominador es dato de ejecucion, no de codigo.
+ */
+const BLOQUES_NO_EJERCIDOS = 1;
 const fallos = [];
 const ok = n => { pasaron++; console.log(`  ok    ${n}`); };
 const mal = (n, d) => { fallaron++; fallos.push(`${n}: ${d}`); console.log(`  FALLA ${n}\n          ${d}`); };
@@ -162,7 +181,7 @@ if (SELF) {
     !diferencia(["/v1/a"], ["/v1/a", "/v1/b"]).calzan, "no detecto la ruta documentada que no existe");
   comprobar("diferencia calla cuando calzan",
     diferencia(["/v1/a", "/v1/b"], ["/v1/b", "/v1/a"]).calzan, "grito con listas iguales");
-  console.log(`\nself-test: ${pasaron} pasaron, ${fallaron} fallaron`);
+  console.log(`\nself-test: ${pasaron} pasaron, ${fallaron} fallaron, ${saltados} bloque(s) no ejercido(s)`);
   process.exit(fallaron ? 1 : 0);
 }
 
@@ -198,7 +217,29 @@ comprobar("el catalogo no declara rutas que el enrutador no atiende", !d1.soloB.
 const r = await fetch(BASE + "/v1/openapi.json", { redirect: "manual", headers: { "x-rq-check": "1" } });
 comprobar("GET /v1/openapi.json responde 200", r.status === 200, `respondio ${r.status}`);
 let doc = null;
-try { doc = await r.json(); } catch (e) {}
+let porQueNoSeLeyo = null;
+try { doc = await r.json(); } catch (e) { porQueNoSeLeyo = String(e).split("\n")[0]; }
+
+// EL DEFECTO QUE ESTO ARREGLA, reproducido el 2026-08-27 con un servidor que devuelve 200 y un
+// cuerpo que no parsea —el caso real de un CDN sirviendo su pagina de error con status 200—:
+//
+//     6 pasaron, 0 fallaron        EXIT=0
+//     comprobaciones del documento que corrieron: 0
+//
+// `doc` quedaba en `null`, el `if (doc)` se saltaba entero, y **las 26 comprobaciones de adentro
+// no se ejecutaban ni se contaban**. Verde con cobertura cero, sobre la especificacion que es
+// nuestro contrato publico. Y la unica que si corria —«responde 200»— PASABA, porque el problema
+// no era el status.
+//
+// Es la §5 quater 4: un chequeo que no se pudo ejercer entra al resumen. **Verde no es lo mismo
+// que cubierto.** Ahora no se puede saltar: si el documento no se lee, es un FALLO con su motivo.
+if (!doc) {
+  mal("la especificacion servida se puede leer como JSON",
+    `respondio ${r.status} pero el cuerpo no parsea${porQueNoSeLeyo ? ` (${porQueNoSeLeyo})` : ""}. ` +
+    `todas las comprobaciones del documento NO se ejecutaron —son un bloque entero, con un bucle ` +
+    `por ruta, asi que no tienen un numero fijo—. Esto no es un verde: es una ausencia.`);
+  saltados += BLOQUES_NO_EJERCIDOS;
+}
 
 if (doc) {
   comprobar("declara la version de OpenAPI", /^3\./.test(doc.openapi || ""), `openapi = ${doc.openapi}`);
@@ -250,5 +291,6 @@ for (const [ruta, que] of [["/llms.txt", "llms.txt"], ["/api-docs/", "/api-docs"
     `no aparece /v1/openapi.json en ${ruta} (status ${rr.status})`);
 }
 
-console.log(`\n${pasaron} pasaron, ${fallaron} fallaron`);
+console.log(`\n${pasaron} pasaron, ${fallaron} fallaron, ${saltados} bloque(s) NO EJERCIDO(S)`);
+if (saltados) console.log("Un chequeo que no se pudo ejercer no es un verde: es una ausencia (CLAUDE.md §5 quater 4).");
 if (fallaron) { console.log("\nFALLOS:\n - " + fallos.join("\n - ")); process.exit(1); }
