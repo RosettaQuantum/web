@@ -48,17 +48,22 @@ import { join } from "node:path";
  * Quien toque uno de estos, lo declara y lo saca de aqui.
  */
 export const HEREDADOS = [
-  "check-alcance", "check-api-bilingue", "check-api-vs-sello", "check-estado-completo",
+  "check-alcance", "check-api-bilingue", "check-estado-completo",
   "check-guardias-cableados", "check-informe-cifras", "check-informe-confidencial",
   "check-informe-geometria", "check-openapi", "check-posts-sobrescritura",
-  "check-promesa-verificable", "check-qex-formula", "check-quantum-catalog",
+  "check-qex-formula", "check-quantum-catalog",
   "check-ventaja-cero",
 ];
 
 /** ¿Este archivo declara un consumidor con las dos partes llenas? */
 export function declara(fuente) {
   const limpio = String(fuente ?? "").replace(/\/\*[\s\S]*?\*\//g, " ").replace(/(^|[^:])\/\/[^\n]*/g, "$1 ");
-  const m = /export\s+const\s+CONSUMIDOR\s*=\s*\{([\s\S]{0,400}?)\}/.exec(limpio);
+  // Se corta en el `};` a principio de linea, NO a los N caracteres. El tope de 400 que tenia
+  // antes rechazaba las declaraciones LARGAS — justo las buenas: la del archivo trae `quien`,
+  // `hace` y `bloquea` con las razones escritas, pasa los 600 caracteres, y el guardia la leia
+  // como ausente. **Pedi declaraciones mejores y mi detector castigaba a las mejores.**
+  const m = /export\s+const\s+CONSUMIDOR\s*=\s*\{([\s\S]*?)\n\};/.exec(limpio)
+         ?? /export\s+const\s+CONSUMIDOR\s*=\s*\{([^{}]*)\}/.exec(limpio);
   if (!m) return false;
   const cuerpo = m[1];
   const quien = /\bquien\s*:\s*["'`]([^"'`]+)["'`]/.exec(cuerpo);
@@ -109,6 +114,20 @@ if (process.argv.includes("--self-test")) {
     // ── el lector ──
     ["CALLA: declaracion completa", () => declara(CON) === true],
     ["grita: falta 'hace'", () => declara('export const CONSUMIDOR = { quien: "CTO" };') === false],
+
+    // EL DEFECTO REAL de este guardia, cazado el 2026-08-27: una declaracion LARGA —con las
+    // razones escritas y concatenacion de cadenas— superaba el tope de 400 caracteres y se leia
+    // como AUSENTE. Es del archivo, tal cual. Pedi declaraciones mejores y castigaba a las mejores.
+    ["CALLA: declaracion larga, multilinea y con concatenacion", () =>
+      declara(`
+export const CONSUMIDOR = {
+  quien: "Rosetta Q Main (coordinacion del archivo)",
+  hace: "abre el artefacto sellado, compara byte a byte contra lo que sirve el endpoint y "
+      + "decide cual de los dos esta mal. Si el sello esta bien se arregla la API; si el "
+      + "sello esta mal NO se re-sella: va errata.",
+  bloquea: "no se publica un entregable que cite el endpoint como fuente verificable si "
+         + "este chequeo no corrio — sin correr, la promesa no esta sostenida.",
+};`) === true],
     ["grita: 'quien' vacio", () => declara('export const CONSUMIDOR = { quien: "", hace: "x" };') === false],
 
     // EL PARADOJICO: la declaracion DESCRITA en un comentario y ausente del codigo.
