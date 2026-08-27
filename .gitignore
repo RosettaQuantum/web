@@ -40,3 +40,4 @@ src/data/informe-cliente/*.json
 # quien despliega, no fuente — si se commiteara, un recibo ajeno daria por buenos
 # chequeos que esta maquina nunca corrio. (2026-08-26)
 .recibo-produccion.json
+experimentos/

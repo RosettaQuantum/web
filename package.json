@@ -7,7 +7,7 @@
     "build": "astro build",
     "postbuild": "node scripts/sellar-version.mjs && node scripts/check-informe-confidencial.mjs",
     "preview": "astro preview",
-    "prebuild": "node scripts/check-guardias-cableados.mjs && node scripts/check-qex-formula.mjs && node scripts/check-informe-cifras.mjs && node scripts/check-informe-geometria.mjs && node scripts/check-informe-confidencial.mjs && node scripts/sync-ledger.mjs && node scripts/build-viz-cleveland.mjs --publicar && node scripts/check-reloj-etiqueta.mjs --self-test && node scripts/check-semilla-encoge.mjs --self-test && node scripts/check-esquema-deriva.mjs --self-test && node scripts/check-guardias-con-consumidor.mjs && node scripts/check-artefacto-consultable.mjs --self-test && node scripts/check-oro-semantico.mjs --self-test",
+    "prebuild": "node scripts/check-guardias-cableados.mjs && node scripts/check-qex-formula.mjs && node scripts/check-informe-cifras.mjs && node scripts/check-informe-geometria.mjs && node scripts/check-informe-confidencial.mjs && node scripts/sync-ledger.mjs && node scripts/build-viz-cleveland.mjs --publicar && node scripts/check-reloj-etiqueta.mjs --self-test && node scripts/check-semilla-encoge.mjs --self-test && node scripts/check-esquema-deriva.mjs --self-test && node scripts/check-guardias-con-consumidor.mjs && node scripts/check-artefacto-consultable.mjs --self-test && node scripts/check-oro-semantico.mjs --self-test && node scripts/experimento-nuevo.mjs --self-test",
     "sync:ledger": "node scripts/sync-ledger.mjs",
     "check:prod": "node scripts/check-alcance.mjs && node scripts/check-openapi.mjs && node scripts/check-quantum-catalog.mjs && node scripts/check-estado-completo.mjs && node scripts/check-deploy-solo-main.mjs --deriva && node scripts/check-ledger-deriva.mjs && node scripts/check-api-vs-sello.mjs && node scripts/check-promesa-verificable.mjs && node scripts/check-semilla-encoge.mjs db/quantum.seed.sql && node scripts/check-semilla-encoge.mjs db/motor.seed.sql && node scripts/check-esquema-deriva.mjs && node scripts/check-oro-semantico.mjs public/consola && node scripts/check-produccion-fresca.mjs --emitir",
     "predeploy": "node scripts/check-deploy-solo-main.mjs && node scripts/check-produccion-fresca.mjs",
@@ -26,7 +26,8 @@
     "check:fresca": "node scripts/check-produccion-fresca.mjs --self-test",
     "check:consumidor": "node scripts/check-guardias-con-consumidor.mjs --self-test",
     "check:consultable": "node scripts/check-artefacto-consultable.mjs --self-test",
-    "check:oro": "node scripts/check-oro-semantico.mjs --self-test && node scripts/check-oro-semantico.mjs public/consola"
+    "check:oro": "node scripts/check-oro-semantico.mjs --self-test && node scripts/check-oro-semantico.mjs public/consola",
+    "experimento": "node scripts/experimento-nuevo.mjs"
   },
   "dependencies": {
     "@astrojs/rss": "latest",
