@@ -55,13 +55,51 @@ export const CONSUMIDOR = {
 export const RECHAZOS = {
   SIN_CONSUMO: "no trae consumo medido: un cero ausente no es un cero medido",
   CONSUMO_INCOMPLETO: "el consumo no declara todos los campos que se facturan",
-  SIN_COMPILE_SHA: "sin compile_sha no se puede saber si esta corrida es comparable con otra",
+  SIN_HUELLA_DE_CODIGO: "sin la huella del codigo que corrio no se puede saber si esta corrida es comparable con otra",
   RELOJ_PROVISTO_POR_EL_GENERADOR: "el artefacto ya trae hora de deposito: la pone quien recibe",
   DURACION_IMPOSIBLE: "la duracion declarada no cabe entre inicio y fin",
 };
 
 /** Lo que se factura. Un campo ausente NO se completa con cero: se rechaza. */
 export const CAMPOS_CONSUMO = ["cpu_s", "costo_proveedor"];
+
+/**
+ * Donde vive la huella del codigo que corrio. **Rutas exactas y en orden de preferencia.**
+ *
+ * EL DEFECTO DE ESTE MODULO, encontrado el 2026-08-27 al ejercerlo por primera vez contra el
+ * archivo real: rechazaba **93 de 93 corridas** con `SIN_COMPILE_SHA`. El campo `compile_sha`
+ * **no existe en el archivo: cero apariciones.** Es un nombre que invente yo al escribir esto,
+ * y despues rechace todo lo que no lo usara.
+ *
+ * Lo que existe, y es exactamente la cosa que el campo pretendia capturar:
+ *
+ *     meta.sealed_by.harness_sha256    52 corridas
+ *     w6.como.harness.sha256           18
+ *     w6.como.harness_sha256            8
+ *
+ * POR QUE VIVIO SIN VERSE, que es lo que hay que aprender y no el nombre del campo: el modulo
+ * tenia **14 casos en verde** y los catorce corrian contra fijas que escribi yo, **usando el
+ * nombre que invente yo**. Un self-test no puede desmentir el vocabulario de quien lo escribe;
+ * solo puede hacerlo el archivo. CLAUDE.md §5 ter — modo informe contra datos reales antes de
+ * escribir nada — y aqui costo un modulo entero que rechazaba el 100%.
+ *
+ * Y es la misma forma que corregi hoy en `check-artefacto-consultable`, cometida por mi, el
+ * mismo dia, en otro modulo: **medi el nombre del campo y crei haber medido la cosa.**
+ *
+ * SIGUE RECHAZANDO SI FALTA, y el dato dice que se puede: la cobertura por mes es
+ * **agosto 42/42, julio 10/51**. Lo que se produce hoy trae la huella siempre, asi que fallar
+ * cerrado no retiene trabajo actual — retiene 41 corridas de julio que nadie va a re-depositar,
+ * porque publicado es publicado.
+ *
+ * Se buscan RUTAS EXACTAS y nunca por parecido: el archivo tiene 28 `w6.que.artefacto.sha256`,
+ * que es la huella de un objeto CITADO. Tomarla como propia le atribuiria a la corrida el
+ * codigo de otra cosa — ver el aviso de `cavar()`.
+ */
+export const RUTAS_HUELLA = [
+  ["meta", "sealed_by", "harness_sha256"],
+  ["w6", "como", "harness", "sha256"],
+  ["w6", "como", "harness_sha256"],
+];
 
 /** Lee un camino exacto. **Nunca por parecido** — un artefacto lleva adentro campos de otros
  * objetos que cita, y buscar «algo con forma de fecha» le atribuye la hora de un objeto ajeno. */
@@ -109,9 +147,13 @@ export function depositar({ artefacto, consumo, ahora = Date.now() }) {
   if (faltan.length === CAMPOS_CONSUMO.length) return no("SIN_CONSUMO");
   if (faltan.length) return { ...no("CONSUMO_INCOMPLETO"), faltan };
 
-  // 3) Sin compile_sha, dos corridas no son comparables y nadie se entera al restarlas.
-  const compile_sha = cavar(artefacto, "w6", "como", "compile_sha") ?? cavar(artefacto, "compile_sha");
-  if (ausente(compile_sha)) return no("SIN_COMPILE_SHA");
+  // 3) Sin la huella del codigo, dos corridas no son comparables y nadie se entera al restarlas.
+  let huella_codigo, huella_bajo;
+  for (const ruta of RUTAS_HUELLA) {
+    const v = cavar(artefacto, ...ruta);
+    if (!ausente(v)) { huella_codigo = v; huella_bajo = ruta.join("."); break; }
+  }
+  if (ausente(huella_codigo)) return no("SIN_HUELLA_DE_CODIGO");
 
   // 4) Las duraciones las declara el ejecutor —es el unico que ve sus fases— pero tienen que
   //    ser coherentes entre si. No comprueba que el trabajo ocurriera: comprueba que lo
@@ -131,7 +173,8 @@ export function depositar({ artefacto, consumo, ahora = Date.now() }) {
       recibido_at,                       // el unico campo que pone este modulo
       lo_pone: "el depositario, al recibir",
       alcance: "instante en que este proceso recibio el resultado; no es cuando corrio",
-      compile_sha,
+      huella_codigo,
+      huella_bajo,                       // en cual de las rutas venia, para no re-adivinarlo
       consumo: { ...consumo, alcance: consumo.alcance ?? "declarado por el ejecutor sobre su propio trabajo" },
       // Declarado y no implicito: sin esto un lector supone que el ancla respalda el cobro.
       que_NO_prueba: "que el trabajo ocurrio. Eso lo contrasta el registro del proveedor de computo, no este campo ni el ancla.",
@@ -144,7 +187,9 @@ const _esPrincipal = process.argv[1] && import.meta.url === new URL(`file://${pr
 
 if (_esPrincipal && process.argv.includes("--self-test")) {
   const AHORA = Date.parse("2026-08-27T00:12:34.567Z");
-  const ART = { w6: { como: { compile_sha: "a71f3e" } } };
+  // LA FIJA AHORA SALE DEL ARCHIVO, no de mi cabeza: es la ruta que usan las 52 corridas
+  // selladas. La fija anterior usaba `w6.como.compile_sha`, que no existe en ningun artefacto.
+  const ART = { meta: { sealed_by: { harness_sha256: "a71f3e" } } };
   const CON = { cpu_s: 45.943, costo_proveedor: 0.0005 };
 
   const casos = [
@@ -179,8 +224,8 @@ if (_esPrincipal && process.argv.includes("--self-test")) {
       return r.codigo === "CONSUMO_INCOMPLETO" && r.faltan[0] === "costo_proveedor";
     }],
 
-    ["grita: sin compile_sha, dos corridas no son comparables", () =>
-      depositar({ artefacto: {}, consumo: CON, ahora: AHORA }).codigo === "SIN_COMPILE_SHA"],
+    ["grita: sin huella del codigo, dos corridas no son comparables", () =>
+      depositar({ artefacto: {}, consumo: CON, ahora: AHORA }).codigo === "SIN_HUELLA_DE_CODIGO"],
 
     ["grita: las fases suman mas de lo que dice el total", () =>
       depositar({ artefacto: ART, consumo: { ...CON, cpu_s: 1, fases_ms: { a: 900, b: 900 } }, ahora: AHORA })
@@ -198,9 +243,35 @@ if (_esPrincipal && process.argv.includes("--self-test")) {
     // ── lee por ruta, no por parecido ──
     ["CALLA: un compile_sha de OTRO objeto citado adentro no se toma como propio", () =>
       depositar({ artefacto: { w6: { como: { procedencia: [{ compile_sha: "ajeno" }] } } }, consumo: CON, ahora: AHORA })
-        .codigo === "SIN_COMPILE_SHA"],
+        .codigo === "SIN_HUELLA_DE_CODIGO"],
 
     // ── mutacion ──
+    // ── las tres rutas reales del archivo ──
+    // Las tres salen de contar el archivo, no de suponer. Si el dia de manana el generador
+    // cambia de ruta otra vez, aqui se ve cual falta.
+    ["acepta la ruta de las 52 selladas: meta.sealed_by.harness_sha256", () =>
+      depositar({ artefacto: { meta: { sealed_by: { harness_sha256: "aa" } } }, consumo: CON, ahora: AHORA }).estado === "depositado"],
+
+    ["acepta la de 18: w6.como.harness.sha256", () =>
+      depositar({ artefacto: { w6: { como: { harness: { sha256: "bb" } } } }, consumo: CON, ahora: AHORA }).estado === "depositado"],
+
+    ["acepta la de 8: w6.como.harness_sha256", () =>
+      depositar({ artefacto: { w6: { como: { harness_sha256: "cc" } } } , consumo: CON, ahora: AHORA }).estado === "depositado"],
+
+    ["dice bajo que ruta la encontro, para no re-adivinarlo despues", () => {
+      const r = depositar({ artefacto: { w6: { como: { harness_sha256: "cc" } } }, consumo: CON, ahora: AHORA });
+      return r.deposito.huella_bajo === "w6.como.harness_sha256";
+    }],
+
+    // EL CASO QUE COSTO EL MODULO: el nombre que invente yo no esta en ningun artefacto.
+    ["grita: `compile_sha` NO es la huella — no existe en el archivo", () =>
+      depositar({ artefacto: { w6: { como: { compile_sha: "a71f3e" } } }, consumo: CON, ahora: AHORA }).codigo === "SIN_HUELLA_DE_CODIGO"],
+
+    // MUTACION: si se buscara «algo con forma de sha» en vez de rutas exactas, las 28 corridas
+    // que citan otro objeto por sha le atribuirian a la corrida el codigo de una cosa ajena.
+    ["MUTACION: la huella de un objeto CITADO no se toma como propia", () =>
+      depositar({ artefacto: { w6: { que: { artefacto: { sha256: "de-otro" } } } }, consumo: CON, ahora: AHORA }).codigo === "SIN_HUELLA_DE_CODIGO"],
+
     ["MUTACION: sin subsegundo, una hora redonda escrita a mano seria indistinguible", () =>
       tieneSubsegundo("2026-08-27T00:12:34.567Z") === true && tieneSubsegundo("2026-08-21T20:00:00Z") === false],
   ];
@@ -235,5 +306,5 @@ if (_esPrincipal && !process.argv.includes("--self-test")) {
     process.exit(1);
   }
   process.stdout.write(JSON.stringify(r.deposito, null, 2) + "\n");
-  console.error(`[depositario] depositado · ${r.deposito.recibido_at} · compile_sha ${String(r.deposito.compile_sha).slice(0, 12)}`);
+  console.error(`[depositario] depositado · ${r.deposito.recibido_at} · codigo ${String(r.deposito.huella_codigo).slice(0, 12)} (${r.deposito.huella_bajo})`);
 }
