@@ -35,6 +35,19 @@
  * Y no juzga el tono: «el mejor archivo del mundo» le da igual, porque eso no lo desmiente
  * nuestra API.
  *
+ * DOS CLASES DE PROMESA, y la segunda la trajo la coordinacion despues de escribir la primera:
+ *
+ *     «Answers no classical computer can reach»   promete una VICTORIA — la desmiente un contador
+ *     «One function call away»                     promete una CAPACIDAD — la desmiente una ruta
+ *
+ * **La segunda es la que se escapa de un guardia que solo mire afirmaciones de ventaja**, porque
+ * no habla de ganar: habla de poder. Y es igual de falsa — hoy `POST /v1/jobs` con `dry_run:false`
+ * devuelve 401 sin credencial y 501 con ella. **Ninguna llamada ejecuta nada.**
+ *
+ * Por eso cada afirmacion declara **que la falsaria**: un contador, o una sonda contra una ruta.
+ * Una promesa cuya prueba no se puede nombrar no entra en la lista — si no se sabe que la
+ * desmiente, no se sabe que la sostiene.
+ *
  * Uso:
  *   node scripts/check-promesa-sin-numero.mjs --self-test
  *   node scripts/check-promesa-sin-numero.mjs            # contra el texto publico del repo
@@ -59,6 +72,11 @@ const BASE = "https://rosettaquantum.com";
  * primeras estaban vivas en la portada; la tercera y la cuarta estaban en la rama `piezas-3d`.
  */
 export const AFIRMACIONES = [
+  // CAPACIDAD, no victoria. La trajo la coordinacion el 28-ago con la prueba medida:
+  // `POST /v1/jobs {"dry_run":false}` -> 401 sin credencial, 501 con ella. Nada ejecuta.
+  { id: "una-llamada-de-funcion", prueba: "ejecuta-de-verdad",
+    re: /\b(?:one (?:function|api) call away|a una llamada de (?:funci[oó]n|api))\b/i,
+    dice: "promete que una llamada ejecuta el trabajo, y hoy ninguna lo hace" },
   { id: "alcance-clasico-en", re: /\bno classical (?:computer|machine|hardware|solver)[^.!?]{0,40}\b(?:can|could|will)\b[^.!?]{0,20}\b(?:reach|match|solve|touch|do)\b/i,
     dice: "afirma que entregamos algo que ningun clasico alcanza" },
   { id: "alcance-clasico-es", re: /\bning[uú]n (?:computador|ordenador|computadora)(?:es)? cl[aá]sic[oa][^.!?]{0,40}\b(?:alcanza|iguala|resuelve|logra|puede)\b/i,
@@ -93,7 +111,25 @@ export function soloTextoVisible(html) {
 /**
  * @param {{texto:string, victorias:number|null}} ctx
  */
-export function evaluarTexto({ texto, victorias }) {
+/**
+ * Que sonda falsaria cada promesa de CAPACIDAD, y que respuesta significa «no la tenemos».
+ *
+ * Se declara aqui y no se deduce: **una promesa cuya prueba nadie puede nombrar es una promesa
+ * que nadie puede auditar**, ni a favor ni en contra.
+ */
+export const SONDAS = {
+  "ejecuta-de-verdad": {
+    describe: "POST /v1/jobs con dry_run:false tiene que ejecutar algo",
+    // Estos codigos significan «todavia no existe la capacidad», no «te falta algo a ti».
+    noLaTenemos: ["NOT_BUILT_YET", "MISSING_CREDENTIAL"],
+  },
+};
+
+/**
+ * @param {{texto:string, victorias:number|null, capacidades?:Object<string,boolean|null>}} ctx
+ *   `capacidades[prueba] === true` -> la tenemos; `false` -> no; `null`/ausente -> no se pudo medir.
+ */
+export function evaluarTexto({ texto, victorias, capacidades = {} }) {
   // Un contador que no se pudo leer NO es un cero: sin el no se puede juzgar nada, y aprobar
   // por no haber podido mirar es como se publican las cosas que nos importan.
   if (victorias === null || victorias === undefined) {
@@ -105,17 +141,33 @@ export function evaluarTexto({ texto, victorias }) {
 
   const visible = soloTextoVisible(texto);
   const hallazgos = [];
+  const sinMedir = [];
   for (const a of AFIRMACIONES) {
     const m = a.re.exec(visible);
     if (!m) continue;
+    // Una promesa de CAPACIDAD no la juzga el contador: la juzga su sonda.
+    if (a.prueba) {
+      const tiene = capacidades[a.prueba];
+      if (tiene === true) continue;                       // la capacidad existe: la frase es cierta
+      if (tiene !== false) {                              // no se pudo medir: no se aprueba ni se condena
+        sinMedir.push({ id: a.id, prueba: a.prueba });
+        continue;
+      }
+    }
     const desde = Math.max(0, m.index - 90), hasta = Math.min(visible.length, m.index + m[0].length + 90);
     const contexto = visible.slice(desde, hasta);
     if (EXIMENTES.some((e) => e.test(contexto))) continue;   // la menciona, no la hace
     hallazgos.push({ id: a.id, dice: a.dice, frase: m[0].replace(/\s+/g, " ").trim() });
   }
-  return hallazgos.length
-    ? { estado: "promete_de_mas", hallazgos, motivo: `${hallazgos.length} afirmacion(es) que /v1/state desmiente con un 0` }
-    : { estado: "ok", hallazgos: [], motivo: "ninguna forma conocida de promesa sin numero" };
+  if (hallazgos.length) {
+    return { estado: "promete_de_mas", hallazgos, sinMedir,
+             motivo: `${hallazgos.length} afirmacion(es) que nuestra propia API desmiente` };
+  }
+  if (sinMedir.length) {
+    return { estado: "sin_sonda", hallazgos: [], sinMedir,
+             motivo: `${sinMedir.length} promesa(s) de capacidad cuya sonda no se pudo ejercer: no se aprueba por no haber mirado` };
+  }
+  return { estado: "ok", hallazgos: [], sinMedir, motivo: "ninguna forma conocida de promesa sin respaldo" };
 }
 
 // ── self-test ────────────────────────────────────────────────────────────────────────────
@@ -127,6 +179,11 @@ if (_esPrincipal && process.argv.includes("--self-test")) {
   const H1_EN = "Answers no classical computer can reach. One function call away.";
   const H1_ES = "Respuestas que ningún computador clásico alcanza. A una llamada de función.";
   const TITULO_HONESTO = "Rosetta Quantum - We measure whether quantum wins, and publish the answer";
+
+  // Se busca por ID y nunca por indice: la primera version usaba AFIRMACIONES[0] y se rompio
+  // en cuanto se agrego una afirmacion al principio. Un caso atado a una POSICION mide el orden
+  // de la lista, no la regla.
+  const patron = (id) => AFIRMACIONES.find((a) => a.id === id).re;
 
   const casos = [
     // ── grita ──
@@ -175,19 +232,48 @@ if (_esPrincipal && process.argv.includes("--self-test")) {
     ["MUTACION: sin quitar comentarios, el texto que explica la regla saldria en rojo", () => {
       const t = "<!-- prohibido: 'Answers no classical computer can reach' -->";
       const conFiltro = evaluarTexto({ texto: t, victorias: 0 }).estado;
-      const sinFiltro = AFIRMACIONES[0].re.test(t);
+      const sinFiltro = patron("alcance-clasico-en").test(t);
       return conFiltro === "ok" && sinFiltro === true;
     }],
 
     ["MUTACION: sin mirar el contador, gritaria incluso con victorias medidas", () => {
       const conRegla = evaluarTexto({ texto: H1_EN, victorias: 3 }).estado;
-      const sinRegla = AFIRMACIONES[0].re.test(H1_EN);
+      const sinRegla = patron("alcance-clasico-en").test(H1_EN);
       return conRegla === "ok" && sinRegla === true;
     }],
 
     // El catalogo real: 74 algoritmos, 0 coincidencias. Medido antes de escribir la lista.
     ["la lista es cerrada y cada forma trae su explicacion", () =>
-      AFIRMACIONES.length >= 4 && AFIRMACIONES.every((a) => a.re instanceof RegExp && a.dice.length > 15)],
+      AFIRMACIONES.length >= 5 && AFIRMACIONES.every((a) => a.re instanceof RegExp && a.dice.length > 15)],
+
+    // ── la segunda clase: promesa de CAPACIDAD ──
+    // «One function call away» no habla de ganar: habla de PODER. Un guardia que solo mire
+    // afirmaciones de ventaja la deja pasar, y es igual de falsa.
+    ["grita: promete una llamada que ejecuta, y hoy ninguna lo hace", () =>
+      evaluarTexto({ texto: "One function call away.", victorias: 0,
+                     capacidades: { "ejecuta-de-verdad": false } }).estado === "promete_de_mas"],
+
+    ["grita: la misma en espanol", () =>
+      evaluarTexto({ texto: "A una llamada de función.", victorias: 0,
+                     capacidades: { "ejecuta-de-verdad": false } }).estado === "promete_de_mas"],
+
+    // Se retira sola, igual que la otra: el dia que la ruta ejecute, la frase es cierta.
+    ["CALLA: cuando la capacidad exista, la frase deja de ser promesa", () =>
+      evaluarTexto({ texto: "One function call away.", victorias: 0,
+                     capacidades: { "ejecuta-de-verdad": true } }).estado === "ok"],
+
+    // Y no se aprueba por no haber podido medir: es un tercer estado, no un verde.
+    ["grita distinto: sonda no ejercida es `sin_sonda`, ni ok ni condena", () => {
+      const r = evaluarTexto({ texto: "One function call away.", victorias: 0, capacidades: {} });
+      return r.estado === "sin_sonda" && r.sinMedir[0].prueba === "ejecuta-de-verdad";
+    }],
+
+    // Una promesa de victoria NO depende de la sonda: la juzga el contador. No se cruzan.
+    ["la promesa de victoria no necesita sonda para condenarse", () =>
+      evaluarTexto({ texto: H1_EN, victorias: 0, capacidades: {} }).estado === "promete_de_mas"],
+
+    ["toda promesa de capacidad declara QUE la falsaria", () =>
+      AFIRMACIONES.filter((a) => a.prueba).every((a) => SONDAS[a.prueba] && SONDAS[a.prueba].noLaTenemos.length)],
   ];
 
   let fallos = 0;
@@ -217,6 +303,28 @@ if (_esPrincipal && !process.argv.includes("--self-test")) {
   }
   console.log(`[promesa] victorias_cuanticas_medidas = ${victorias}`);
 
+  // LAS SONDAS SE EJERCEN, no se suponen. Si no se pueden correr, la promesa queda en
+  // `sin_sonda` y el guardia sale con 2: aprobar por no haber podido mirar es el defecto que
+  // esta casa persigue.
+  const capacidades = {};
+  try {
+    const r = await fetch(`${BASE}/v1/jobs`, {
+      method: "POST",
+      headers: { "content-type": "application/json", "idempotency-key": "promesa-sonda", "x-rq-check": "1" },
+      body: JSON.stringify({ receta: "RQ-0033", params: {}, dry_run: false }),
+    });
+    const j = await r.json().catch(() => ({}));
+    const s = SONDAS["ejecuta-de-verdad"];
+    // «No la tenemos» son SUS codigos declarados. Cualquier otra cosa —incluido un 200— se lee
+    // como que la capacidad existe, y entonces la frase deja de ser una promesa.
+    capacidades["ejecuta-de-verdad"] = !s.noLaTenemos.includes(j.code);
+    console.log(`[promesa] sonda ejecuta-de-verdad: POST /v1/jobs dry_run:false -> ${r.status} ${j.code ?? ""}` +
+      `  =>  capacidad ${capacidades["ejecuta-de-verdad"] ? "SI" : "NO"}`);
+  } catch (e) {
+    console.error(`[promesa] NO SE PUDO EJERCER la sonda ejecuta-de-verdad: ${String(e).split("\n")[0]}`);
+    process.exit(2);
+  }
+
   const superficies = [];
   if (vivo) {
     for (const ruta of ["/", "/es/", "/clases/", "/api-docs/"]) {
@@ -235,8 +343,12 @@ if (_esPrincipal && !process.argv.includes("--self-test")) {
 
   let malas = 0;
   for (const s of superficies) {
-    const r = evaluarTexto({ texto: s.texto, victorias });
+    const r = evaluarTexto({ texto: s.texto, victorias, capacidades });
     if (r.estado === "ok") { console.log(`   ok    ${s.nombre}`); continue; }
+    if (r.estado === "sin_sonda") {
+      console.error(`   NO SE PUDO ${s.nombre} — ${r.motivo}`);
+      malas++; continue;
+    }
     malas++;
     console.error(`   FALLA ${s.nombre} — ${r.motivo}`);
     for (const h of r.hallazgos) console.error(`         «${h.frase}» — ${h.dice}`);
