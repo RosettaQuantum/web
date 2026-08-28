@@ -1,0 +1,40 @@
+---
+// Hero de la portada · la caminata cuántica sobre KRAS G12C, en la paleta oficial.
+//
+// A propósito NO dibuja texto, cifras ni rótulos encima del lienzo: el requisito de
+// Diseño es que el dato viva como texto de la página (se traduce, lo lee un lector de
+// pantalla, lo indexa un modelo) y el tercio inferior quede libre para el titular. Este
+// componente es sólo el objeto moviéndose — el mismo motor que la pieza del artículo
+// (piezas/home/cleveland.js), en modo `hero: true`: cámara fija, sin arrastre, girando.
+//
+// Pendiente y dicho tal cual: NO hay todavía un póster estático real (una captura de
+// pantalla) que se muestre antes de que el WebGL monte. Lo que hay es el mismo fondo
+// basalto con que pinta el lienzo, así que no hay un salto de color al montar — pero
+// sigue siendo color liso, no una imagen del objeto. Si se quiere un póster de verdad,
+// hace falta capturar un PNG desde un navegador con cuadros de animación funcionando,
+// cosa que esta sesión no puede hacer: el panel de esta sesión suspende requestAnimationFrame.
+const { pdb = '4OBE', target = 'KRAS_G12C' } = Astro.props;
+---
+
+<div class="hero-cleveland" data-pieza="cleveland" data-pdb={pdb} data-target={target}
+     data-hero="1" aria-hidden="true"></div>
+
+<script type="module" is:inline>
+  // document.currentScript es SIEMPRE null en un <script type="module">: no sirve
+  // para encontrarse a sí mismo. Se busca por el atributo en vez de por posición.
+  const el = document.querySelector('.hero-cleveland[data-pieza="cleveland"]');
+  if (el && !matchMedia('(max-width: 520px)').matches) {
+    const { montar } = await import('/piezas/home/cleveland.js');
+    montar(el, { pdb: el.dataset.pdb, target: el.dataset.target, paleta: 'oficial', hero: true });
+  }
+</script>
+
+<style>
+  .hero-cleveland {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(180deg, #1f1c18, #100e0b);
+    overflow: hidden;
+  }
+</style>

@@ -11,15 +11,30 @@ import * as CW from '/piezas/cleveland/caminata.js';
 const BASE = 'https://rosettaquantum.com/v1';
 const RETRATO = { fov: 40, dpr: 1.75 };
 
-// CRISTAL — la dirección de arte elegida para este caso.
-const LOOK = {
-  fondoAlto: 0x1b1038, fondoBajo: 0x05030e, niebla: 0x0d0722,
-  rampa: [0x101a3a, 0x2f7ad6, 0x9df6ff], acento: 0xff4fd8, traza: 0xff4fd8,
+// OFICIAL — paleta de marca (28-ago), sobre el basalto del sitio. Reemplaza a CRISTAL,
+// que era un color de laboratorio elegido antes de que existiera el logo. La rampa de
+// probabilidad usa los mismos tres tonos que gradientQ en brand-kit/docs/colors.json:
+// navy en el suelo, cian y oro en el pico — no son colores nuevos, son los del kit.
+const PALETAS = {
+  cristal: {
+    fondoAlto: 0x1b1038, fondoBajo: 0x05030e, niebla: 0x0d0722,
+    rampa: [0x101a3a, 0x2f7ad6, 0x9df6ff], acento: 0xff4fd8, traza: 0xff4fd8,
+  },
+  oficial: {
+    fondoAlto: 0x1f1c18, fondoBajo: 0x100e0b, niebla: 0x141210,   // --basalt-2 / --basalt-3 / --basalt
+    rampa: [0x0b1220, 0x05e8ee, 0xf6c254],                        // navy · cyan · gold, de colors.json
+    acento: 0xf6c254, traza: 0x2370c9,                             // gold · blue
+  },
 };
+let LOOK = PALETAS.oficial;
 
 const v3 = (hex) => new THREE.Vector3(((hex>>16)&255)/255, ((hex>>8)&255)/255, (hex&255)/255);
 
-export function montar(contenedor, { pdb, target }) {
+export function montar(contenedor, { pdb, target, paleta = 'oficial', hero = false }) {
+  LOOK = PALETAS[paleta] || PALETAS.oficial;
+  // El hero es la portada: cámara fija en el mismo punto relativo, sin arrastre, y la
+  // composición sube un poco más para dejar el tercio inferior libre para el titular.
+  const desviacionVertical = hero ? 0.95 : 0.35;
   const quieto = matchMedia('(prefers-reduced-motion: reduce)').matches;
   const renderer = new THREE.WebGLRenderer({ antialias: false, powerPreference: 'low-power' });
   renderer.setPixelRatio(Math.min(devicePixelRatio, RETRATO.dpr));
@@ -38,6 +53,7 @@ export function montar(contenedor, { pdb, target }) {
   const controles = new OrbitControls(camara, renderer.domElement);
   controles.enableDamping = true; controles.dampingFactor = 0.07;
   controles.enablePan = false;
+  controles.enabled = !hero;   // el hero no se toca: se mira
 
   // ── pase de look ─────────────────────────────────────────────────────────
   const quadGeo = new THREE.PlaneGeometry(2, 2);
@@ -171,10 +187,10 @@ export function montar(contenedor, { pdb, target }) {
     if (!ajustar()) return;
     if (!quieto) {
       ang += 0.0026;
-      const R = radio*2.35;
+      const R = radio*(hero ? 2.7 : 2.35);
       camara.position.set(
         centro.x + Math.cos(ang)*R*1.12,
-        centro.y + Math.sin(ang*0.5)*R*0.30 + radio*0.35,
+        centro.y + Math.sin(ang*0.5)*R*0.30 + radio*desviacionVertical,
         centro.z + Math.sin(ang)*R*0.86);
     }
     controles.update();
@@ -238,8 +254,8 @@ export function montar(contenedor, { pdb, target }) {
       pintar();
       ajustar();          // sin esto el lienzo se queda en los 300x150 por omisión
                           // hasta el primer cuadro, y el primer cuadro puede no llegar.
-      const R0 = radio*2.35;
-      camara.position.set(centro.x + R0*1.12, centro.y + radio*0.35, centro.z + R0*0.10);
+      const R0 = radio*(hero ? 2.7 : 2.35);
+      camara.position.set(centro.x + R0*1.12, centro.y + radio*desviacionVertical, centro.z + R0*0.10);
       controles.update();
       escena.children.forEach(o => { if (o.userData.mira) o.quaternion.copy(camara.quaternion); });
       dibujar();

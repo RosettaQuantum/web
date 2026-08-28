@@ -1,0 +1,27 @@
+---
+// Página de revisión del hero solo, a pantalla completa — para mirar el encuadre y la
+// paleta oficial sin el resto de la portada alrededor.
+import HeroCleveland from '../components/piezas/HeroCleveland.astro';
+---
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Hero · Cleveland</title>
+  <meta name="robots" content="noindex" />
+  <style>
+    html, body { margin: 0; height: 100%; background: #100e0b; }
+    .marco { position: fixed; inset: 0; }
+    .tercio {
+      position: fixed; left: 0; right: 0; bottom: 0; height: 33vh;
+      background: linear-gradient(180deg, transparent, rgba(0,0,0,.35));
+      pointer-events: none; display: flex; align-items: flex-end; justify-content: center;
+      color: rgba(244,239,228,.35); font: 12px ui-monospace, monospace; padding-bottom: 12px;
+    }
+  </style>
+</head>
+<body>
+  <div class="marco"><HeroCleveland /></div>
+  <div class="tercio">tercio inferior — debe quedar libre para el titular</div>
+</body>
+</html>
