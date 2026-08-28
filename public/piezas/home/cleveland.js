@@ -260,6 +260,11 @@ export function montar(contenedor, { pdb, target, paleta = 'oficial', hero = fal
     ultimoT = ahora;
     // Tope de 100ms: si la pestaña vuelve de segundo plano tras minutos, no hay que
     // "ponerse al día" corriendo la caminata de golpe — se trata como un cuadro lento.
+    // Límite verificado por Main, no descubierto en producción: la invariancia entre
+    // tasas de refresco vale desde 120Hz hasta 10Hz. POR DEBAJO DE 10Hz el reloj de
+    // la pieza va más lento que el de pared, A PROPÓSITO — es el precio de no entrar
+    // en la espiral de la muerte cuando la pestaña vuelve de segundo plano, y es
+    // mejor precio que el contrario.
     const dt61 = Math.min(dtReal, 0.1) * 60;
 
     if (!quieto) {
