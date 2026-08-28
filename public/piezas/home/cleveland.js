@@ -176,6 +176,7 @@ export function montar(contenedor, { pdb, target, paleta = 'oficial', hero = fal
   };
   let malla = null, datos = null, red = null, walk = null, prob = null, lap = false;
   let acum = 0, ang = 0, centro = null, radio = 60, vivo = false, corriendo = false;
+  let ultimoT = null;   // segundos; null hasta el primer cuadro real
   // El destello: no es una animación aparte, es la DERIVADA de prob[] hecha visible.
   // Cuando la probabilidad de un residuo sube, se enciende un pulso breve que decae
   // solo — así se ve una ola saliendo de la fuente en vez de una nube que sólo titila.
@@ -221,7 +222,7 @@ export function montar(contenedor, { pdb, target, paleta = 'oficial', hero = fal
 
   const _m = new THREE.Matrix4(), _q = new THREE.Quaternion(), _e = new THREE.Vector3(), _v = new THREE.Vector3();
   const _blanco = new THREE.Color(0xffffff), _c = new THREE.Color();
-  function pintar() {
+  function pintar(dt61) {
     let max = 0;
     for (let i = 0; i < prob.length; i++) if (prob[i] > max) max = prob[i];
     if (max <= 0) return;
@@ -231,7 +232,7 @@ export function montar(contenedor, { pdb, target, paleta = 'oficial', hero = fal
       probAnterior[i] = prob[i];
       // Decae solo, y se recarga si sigue subiendo — así un residuo que crece varios
       // cuadros seguidos no destella una vez y se apaga a mitad de su propia subida.
-      destello[i] *= 0.90;
+      destello[i] *= Math.pow(0.90, dt61);   // el mismo 0,90 por cuadro, calibrado a 60Hz
       if (delta > 0) destello[i] = Math.min(1, destello[i] + (delta / max) * 7.0);
       const r = 0.45 + 1.25*t + destello[i]*0.9;
       _m.compose(_v.fromArray(datos.coords[i]), _q, _e.set(r, r, r));
@@ -246,8 +247,23 @@ export function montar(contenedor, { pdb, target, paleta = 'oficial', hero = fal
     if (!corriendo) return;
     requestAnimationFrame(cuadro);
     if (!ajustar()) return;
+
+    // Todo lo que se mueve estaba atado al CUADRO, no al tiempo: a 120Hz corría al
+    // doble que a 60Hz — la rotación, el decaimiento del destello, y los PASOS DE LA
+    // CAMINATA CUÁNTICA (walk.t avanzaba según cuántas veces se llamó cuadro(), no
+    // según cuánto tiempo real pasó). En una pieza cuyo argumento es "esto es física
+    // real, no una animación", eso no era cosmético. dt61 es "cuántos cuadros de 60Hz
+    // equivalen a lo que de verdad transcurrió": a exactamente 60Hz vale 1 y todo se
+    // comporta IDÉNTICO a como estaba calibrado; en cualquier otra tasa, se escala.
+    const ahora = performance.now() / 1000;
+    const dtReal = ultimoT === null ? 1/60 : ahora - ultimoT;
+    ultimoT = ahora;
+    // Tope de 100ms: si la pestaña vuelve de segundo plano tras minutos, no hay que
+    // "ponerse al día" corriendo la caminata de golpe — se trata como un cuadro lento.
+    const dt61 = Math.min(dtReal, 0.1) * 60;
+
     if (!quieto) {
-      ang += preset.velocidad;
+      ang += preset.velocidad * dt61;
       const R = preset.distancia(radio, contenedor.clientWidth / contenedor.clientHeight);
       camara.position.set(
         centro.x + Math.cos(ang)*R*1.12,
@@ -257,14 +273,14 @@ export function montar(contenedor, { pdb, target, paleta = 'oficial', hero = fal
     controles.update();
     escena.children.forEach(o => { if (o.userData.mira) o.quaternion.copy(camara.quaternion); });
     if (!quieto && red && walk) {
-      acum += 0.75;
+      acum += 0.75 * dt61;
       while (acum >= 1) { CW.paso(red, walk, 0.01, lap); acum -= 1; }
       if (walk.t > 8.0) {
         walk = CW.nuevoEstado(red, datos.src);
         probAnterior.fill(0); destello.fill(0);
       }
       CW.probabilidad(walk, prob);
-      pintar();
+      pintar(dt61);
     }
     dibujar();
   }
@@ -315,7 +331,7 @@ export function montar(contenedor, { pdb, target, paleta = 'oficial', hero = fal
                     aristas: red.vec.reduce((s, x) => s + x.length, 0)/2 } }));
       }
       for (let i = 0; i < d.n; i++) prob[i] = i === d.src[0] ? 1 : 0;
-      pintar();
+      pintar(1);
       ajustar();          // sin esto el lienzo se queda en los 300x150 por omisión
                           // hasta el primer cuadro, y el primer cuadro puede no llegar.
       const R0 = preset.distancia(radio, contenedor.clientWidth / contenedor.clientHeight);
