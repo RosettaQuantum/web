@@ -47,23 +47,31 @@ export function montar(contenedor, { pdb, target, paleta = 'oficial', hero = fal
   //               fijo — así sirve para la columna que use Diseño sin necesitar su medida.
   const modo = encuadre || (hero ? 'ancho' : 'articulo');
   const PRESETS = {
-    ancho:    { sesgo: 0.95, distancia: (radio) => radio * 2.7 },
-    articulo: { sesgo: 0.35, distancia: (radio) => radio * 2.35 },
+    // velocidad: radianes de acimut por cuadro a 60fps. 0.0026 (el original, compartido)
+    // se veía "como salvapantallas" en el hero — Nicholas lo vio girar y lo dijo. Se
+    // desacopla por preset para no tocar 'articulo', que nadie reportó como rápido.
+    ancho:    { sesgo: 0.95, velocidad: 0.0009, distancia: (radio) => radio * 2.7 },
+    articulo: { sesgo: 0.35, velocidad: 0.0026, distancia: (radio) => radio * 2.35 },
     columna:  {
-      sesgo: 0.22,
+      sesgo: 0.22, velocidad: 0.0009,
       distancia: (radio, aspecto) => {
         const fovV = THREE.MathUtils.degToRad(RETRATO.fov / 2);
         const distV = radio / Math.tan(fovV);               // que quepa en vertical
         const distH = radio / (Math.tan(fovV) * aspecto);    // que quepa en horizontal
-        return Math.max(distV, distH) * 1.22;                // el que apriete más, con aire
+        // 1.22 dejaba "mucho aire" (reporte de Nicholas, mirando la columna real).
+        // 1.06 es el mínimo margen para que el borde de la esfera no toque el marco.
+        return Math.max(distV, distH) * 1.06;
       },
     },
   };
   const preset = PRESETS[modo] || PRESETS.articulo;
   const desviacionVertical = preset.sesgo;
   const quieto = matchMedia('(prefers-reduced-motion: reduce)').matches;
-  const renderer = new THREE.WebGLRenderer({ antialias: false, powerPreference: 'low-power' });
+  const renderer = new THREE.WebGLRenderer({ antialias: false, powerPreference: 'low-power', alpha: true });
   renderer.setPixelRatio(Math.min(devicePixelRatio, RETRATO.dpr));
+  // El lienzo no pinta SU fondo: deja pasar el de la página. Así nunca se desincroniza
+  // si Diseño cambia el color detrás — no hay dos lugares que puedan discrepar.
+  renderer.setClearColor(0x000000, 0);
   contenedor.appendChild(renderer.domElement);
   renderer.domElement.style.display = 'block';
   renderer.domElement.style.width = '100%';
@@ -93,17 +101,19 @@ export function montar(contenedor, { pdb, target, paleta = 'oficial', hero = fal
   const uBorron = { tCol: { value: null }, dir: { value: new THREE.Vector2() } };
   const eBorron = pasada(`
     uniform sampler2D tCol; uniform vec2 dir; varying vec2 vUv;
-    void main(){ vec3 s = texture2D(tCol,vUv).rgb*0.227027;
-      s += (texture2D(tCol,vUv+dir*1.3846).rgb + texture2D(tCol,vUv-dir*1.3846).rgb)*0.3162162;
-      s += (texture2D(tCol,vUv+dir*3.2307).rgb + texture2D(tCol,vUv-dir*3.2307).rgb)*0.0702702;
-      gl_FragColor = vec4(s,1.); }`, uBorron);
+    void main(){
+      // vec4 completo, no sólo rgb: el alfa tiene que sobrevivir el desenfoque para que
+      // el resplandor pueda asomarse sobre fondo transparente sin volverse opaco.
+      vec4 s = texture2D(tCol,vUv)*0.227027;
+      s += (texture2D(tCol,vUv+dir*1.3846) + texture2D(tCol,vUv-dir*1.3846))*0.3162162;
+      s += (texture2D(tCol,vUv+dir*3.2307) + texture2D(tCol,vUv-dir*3.2307))*0.0702702;
+      gl_FragColor = s; }`, uBorron);
   const uFin = { tCol:{value:null}, tBorroso:{value:null}, tProf:{value:null},
     res:{value:new THREE.Vector2()}, cerca:{value:0.1}, lejos:{value:4000},
-    foco:{value:60}, rango:{value:90}, tiempo:{value:0},
-    fondoAlto:{value:v3(LOOK.fondoAlto)}, fondoBajo:{value:v3(LOOK.fondoBajo)} };
+    foco:{value:60}, rango:{value:90}, tiempo:{value:0} };
   const eFin = pasada(`
     uniform sampler2D tCol, tBorroso, tProf; uniform vec2 res;
-    uniform float cerca, lejos, foco, rango, tiempo; uniform vec3 fondoAlto, fondoBajo;
+    uniform float cerca, lejos, foco, rango, tiempo;
     varying vec2 vUv;
     float zLin(vec2 uv){ float d=texture2D(tProf,uv).x, z=d*2.-1.; return (2.*cerca*lejos)/(lejos+cerca-z*(lejos-cerca)); }
     float lum(vec3 c){ return dot(c, vec3(0.2126,0.7152,0.0722)); }
@@ -123,13 +133,17 @@ export function montar(contenedor, { pdb, target, paleta = 'oficial', hero = fal
       col = pow(clamp(col,0.,1.), vec3(0.86));
       col = mix(col, mix(vec3(0.040,0.024,0.078), vec3(0.94,0.91,1.00), col), 0.22);
       col = (col-0.44)*1.20 + 0.47;
-      float esFondo = step(lejos*0.85, z);
-      vec3 fondo = mix(fondoBajo, fondoAlto, smoothstep(0.,1.,vUv.y));
-      fondo += (fondoAlto-fondoBajo)*0.5 * (1.0 - clamp(length(q)*1.5,0.,1.));
-      col = mix(col, fondo, esFondo);
       col *= 1.0 - dot(q,q)*0.42;
       col += (ruido(vUv*res+tiempo)-0.5)*0.016;
-      gl_FragColor = vec4(max(col,vec3(0.)),1.0);
+
+      // El lienzo no pinta su propio fondo: es alfa 0 y deja ver la página de atrás.
+      // Cerca de algo brillante se permite un halo semitransparente (el resplandor
+      // asomándose fuera de la silueta); lejos de todo, alfa cae a cero de verdad.
+      float esFondo = step(lejos*0.85, z);
+      float alfaEscena = texture2D(tCol,vUv).a;
+      float halo = smoothstep(0.10, 0.42, lum(bor)) * 0.55;
+      float alfa = mix(alfaEscena, halo, esFondo);
+      gl_FragColor = vec4(max(col,vec3(0.)), clamp(alfa,0.,1.));
     }`, uFin);
 
   let ultW = 0, ultH = 0;
@@ -212,7 +226,7 @@ export function montar(contenedor, { pdb, target, paleta = 'oficial', hero = fal
     requestAnimationFrame(cuadro);
     if (!ajustar()) return;
     if (!quieto) {
-      ang += 0.0026;
+      ang += preset.velocidad;
       const R = preset.distancia(radio, contenedor.clientWidth / contenedor.clientHeight);
       camara.position.set(
         centro.x + Math.cos(ang)*R*1.12,
