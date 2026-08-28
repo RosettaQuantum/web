@@ -30,7 +30,8 @@
     "experimento": "node scripts/experimento-nuevo.mjs",
     "check:listado": "node scripts/check-listado-denominador.mjs --self-test",
     "check:empujar": "node scripts/check-empujar-es-desplegar.mjs --self-test && node scripts/check-empujar-es-desplegar.mjs",
-    "check:puerta": "node lib/puerta.mjs --self-test"
+    "check:puerta": "node lib/puerta.mjs --self-test",
+    "check:promesa-sin-numero": "node scripts/check-promesa-sin-numero.mjs --self-test"
   },
   "dependencies": {
     "@astrojs/rss": "latest",
