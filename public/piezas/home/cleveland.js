@@ -30,11 +30,37 @@ let LOOK = PALETAS.oficial;
 
 const v3 = (hex) => new THREE.Vector3(((hex>>16)&255)/255, ((hex>>8)&255)/255, (hex&255)/255);
 
-export function montar(contenedor, { pdb, target, paleta = 'oficial', hero = false }) {
+export function montar(contenedor, { pdb, target, paleta = 'oficial', hero = false, encuadre }) {
   LOOK = PALETAS[paleta] || PALETAS.oficial;
-  // El hero es la portada: cámara fija en el mismo punto relativo, sin arrastre, y la
-  // composición sube un poco más para dejar el tercio inferior libre para el titular.
-  const desviacionVertical = hero ? 0.95 : 0.35;
+  // Tres encuadres, cada uno resuelve un problema de composición distinto — no son el
+  // mismo ajuste con otro número:
+  //   'ancho'   — el hero de portada a lo ancho (16:7). El título va DEBAJO, superpuesto
+  //               al lienzo, así que sube fuerte para dejar el tercio inferior libre.
+  //   'articulo'— la pieza del artículo (4:3). Sin texto encima; composición original,
+  //               sin tocar — ya está revisada y no hay que regresarla.
+  //   'columna' — media pantalla, junto a un claim en la columna de al lado. NO hay texto
+  //               superpuesto (el veredicto vive en la columna de texto), así que no hace
+  //               falta el mismo margen inferior — el problema acá es otro: que la
+  //               molécula no quede recortada ni perdida en una caja mucho más angosta
+  //               que las otras dos. La distancia se calcula para que quepa en el lado
+  //               MÁS estrecho del encuadre (ancho o alto, el que apriete), no un número
+  //               fijo — así sirve para la columna que use Diseño sin necesitar su medida.
+  const modo = encuadre || (hero ? 'ancho' : 'articulo');
+  const PRESETS = {
+    ancho:    { sesgo: 0.95, distancia: (radio) => radio * 2.7 },
+    articulo: { sesgo: 0.35, distancia: (radio) => radio * 2.35 },
+    columna:  {
+      sesgo: 0.22,
+      distancia: (radio, aspecto) => {
+        const fovV = THREE.MathUtils.degToRad(RETRATO.fov / 2);
+        const distV = radio / Math.tan(fovV);               // que quepa en vertical
+        const distH = radio / (Math.tan(fovV) * aspecto);    // que quepa en horizontal
+        return Math.max(distV, distH) * 1.22;                // el que apriete más, con aire
+      },
+    },
+  };
+  const preset = PRESETS[modo] || PRESETS.articulo;
+  const desviacionVertical = preset.sesgo;
   const quieto = matchMedia('(prefers-reduced-motion: reduce)').matches;
   const renderer = new THREE.WebGLRenderer({ antialias: false, powerPreference: 'low-power' });
   renderer.setPixelRatio(Math.min(devicePixelRatio, RETRATO.dpr));
@@ -187,7 +213,7 @@ export function montar(contenedor, { pdb, target, paleta = 'oficial', hero = fal
     if (!ajustar()) return;
     if (!quieto) {
       ang += 0.0026;
-      const R = radio*(hero ? 2.7 : 2.35);
+      const R = preset.distancia(radio, contenedor.clientWidth / contenedor.clientHeight);
       camara.position.set(
         centro.x + Math.cos(ang)*R*1.12,
         centro.y + Math.sin(ang*0.5)*R*0.30 + radio*desviacionVertical,
@@ -254,7 +280,7 @@ export function montar(contenedor, { pdb, target, paleta = 'oficial', hero = fal
       pintar();
       ajustar();          // sin esto el lienzo se queda en los 300x150 por omisión
                           // hasta el primer cuadro, y el primer cuadro puede no llegar.
-      const R0 = radio*(hero ? 2.7 : 2.35);
+      const R0 = preset.distancia(radio, contenedor.clientWidth / contenedor.clientHeight);
       camara.position.set(centro.x + R0*1.12, centro.y + radio*desviacionVertical, centro.z + R0*0.10);
       controles.update();
       escena.children.forEach(o => { if (o.userData.mira) o.quaternion.copy(camara.quaternion); });

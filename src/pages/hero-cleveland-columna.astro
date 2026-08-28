@@ -1,0 +1,71 @@
+---
+// Revisión del encuadre de columna angosta: claim a la izquierda (texto de la página,
+// como pidió Diseño), la molécula a media pantalla a la derecha. El texto de acá es un
+// SUSTITUTO para poder juzgar el recorte en contexto — el tratamiento final (tipografía,
+// jerarquía, fondo) es de Diseño, esto sólo prueba la cámara.
+import HeroCleveland from '../components/piezas/HeroCleveland.astro';
+
+const API = 'https://rosettaquantum.com/v1/challenges/cleveland-2026-07';
+const r = await fetch(API);
+if (!r.ok) throw new Error(`hero-cleveland-columna: la API respondió ${r.status}`);
+const reto = await r.json();
+const p = reto.proteinas.KRAS_G12C;
+const n = p.estadistica.null;
+const filas = [
+  ['CTQW (el brazo cuántico)', n.ctqw.percentil_observado],
+  ['Difusión clásica', n.diffusion.percentil_observado],
+  ['GNM', n.gnm.percentil_observado],
+  ['Betweenness', n.betweenness.percentil_observado],
+  ['Closeness', n.closeness.percentil_observado],
+  ['ANM', n.anm.percentil_observado],
+].sort((a, b) => b[1] - a[1]);
+const puesto = filas.findIndex(([nombre]) => nombre.startsWith('CTQW')) + 1;
+---
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Hero · columna angosta</title>
+  <meta name="robots" content="noindex" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Marcellus&family=Instrument+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    :root{ --basalt:#141210; --basalt-2:#1F1C18; --stone-line:#3D372F; --papyrus:#F4EEDF; --papyrus-dim:#B5AC99; --faience:#4DC4B5; --gold:#F6C254; }
+    *{box-sizing:border-box; margin:0}
+    body{ background:var(--basalt); color:var(--papyrus); font-family:'Instrument Sans',sans-serif; }
+    .dos{ display:grid; grid-template-columns:1fr 1fr; min-height:100vh; align-items:center }
+    .claim{ padding:0 clamp(24px,5vw,64px) }
+    .eyebrow{ font-family:'IBM Plex Mono',monospace; font-size:11.5px; letter-spacing:.2em; text-transform:uppercase; color:var(--gold); margin-bottom:14px }
+    h1{ font-family:'Marcellus',serif; font-weight:400; font-size:clamp(26px,3.2vw,38px); line-height:1.2; margin-bottom:18px; text-wrap:balance }
+    .veredicto{ font-family:'IBM Plex Mono',monospace; font-size:13px; border:1px solid var(--stone-line); border-radius:2px; overflow:hidden; margin-top:20px }
+    .veredicto div{ display:flex; justify-content:space-between; padding:8px 14px; border-top:1px solid var(--stone-line) }
+    .veredicto div:first-child{ border-top:none }
+    .veredicto .ctqw{ color:var(--gold); background:rgba(246,194,84,.06) }
+    .nota{ color:var(--papyrus-dim); font-size:14px; margin-top:16px; max-width:52ch }
+    .lienzo{ position:relative; height:100vh; overflow:hidden }
+    @media (max-width:860px){ .dos{ grid-template-columns:1fr } .lienzo{ height:60vh } }
+  </style>
+</head>
+<body>
+  <div class="dos">
+    <div class="claim">
+      <div class="eyebrow">Sitios alostéricos · Cleveland Clinic</div>
+      <h1>Nuestro propio método cuántico terminó {puesto}° de 6</h1>
+      <p class="nota">CTQW —la caminata cuántica— predijo el sitio conocido en el percentil {n.ctqw.percentil_observado}.
+      Los cinco métodos clásicos lo hicieron mejor. Se publica igual: el trato es publicar
+      gane o pierda.</p>
+      <div class="veredicto">
+        {filas.map(([nombre, pct], i) => (
+          <div class={nombre.startsWith('CTQW') ? 'ctqw' : ''}>
+            <span>{i + 1}. {nombre}</span><span>{pct}</span>
+          </div>
+        ))}
+      </div>
+    </div>
+    <div class="lienzo">
+      <HeroCleveland encuadre="columna" />
+    </div>
+  </div>
+</body>
+</html>

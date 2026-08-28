@@ -1,3 +1,20 @@
+// ══════════════════════════════════════════════════════════════════════════
+// ESTO ES UNA HERRAMIENTA DE LABORATORIO, NO LA PIEZA DE PRODUCCIÓN.
+//
+// «Hoja de contactos»: compara CUATRO direcciones de arte (CRISTAL/TINTA/PLASMA/
+// INSTRUMENTO) lado a lado sobre la misma molécula. Por eso cuelga de document.body
+// a propósito — ocupa la pantalla entera para poder comparar — y NO se puede montar
+// dentro de un contenedor sin parchearlo desde afuera.
+//
+// La pieza que SÍ va a producción, que SÍ vive en un contenedor y usa la paleta
+// OFICIAL de marca, es otra: /piezas/home/cleveland.js, montada por
+// src/components/piezas/PiezaCleveland.astro (la pieza del artículo) y
+// src/components/piezas/HeroCleveland.astro (el hero de portada).
+//
+// 28-ago: Diseño tomó ESTE archivo por error al armar un hero — incidente real,
+// documentado en el hallazgo 1 del reporte de esa fecha. Si necesitas la pieza para
+// producción, es la de arriba, no ésta.
+// ══════════════════════════════════════════════════════════════════════════
 import * as THREE from 'three';
 import { OrbitControls } from '../vendor/OrbitControls.js';
 import * as CW from './caminata.js';
