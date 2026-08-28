@@ -176,6 +176,13 @@ export function montar(contenedor, { pdb, target, paleta = 'oficial', hero = fal
   };
   let malla = null, datos = null, red = null, walk = null, prob = null, lap = false;
   let acum = 0, ang = 0, centro = null, radio = 60, vivo = false, corriendo = false;
+  // El destello: no es una animación aparte, es la DERIVADA de prob[] hecha visible.
+  // Cuando la probabilidad de un residuo sube, se enciende un pulso breve que decae
+  // solo — así se ve una ola saliendo de la fuente en vez de una nube que sólo titila.
+  // Nada de esto empuja hacia un destino: cada residuo reacciona a SU propio delta,
+  // sin sesgo direccional — si la física reactiva varios lugares a la vez, se ven
+  // varios pulsos a la vez, porque así es la caminata.
+  let probAnterior = null, destello = null;
 
   function construir(d) {
     datos = d;
@@ -184,10 +191,14 @@ export function montar(contenedor, { pdb, target, paleta = 'oficial', hero = fal
     escena.add(malla);
     escena.add(new THREE.Line(
       new THREE.BufferGeometry().setFromPoints(d.coords.map(c => new THREE.Vector3().fromArray(c))),
-      new THREE.LineBasicMaterial({ color: LOOK.traza, transparent: true, opacity: 0.45 })));
+      new THREE.LineBasicMaterial({ color: LOOK.traza, transparent: true, opacity: 0.22 })));
+    // Aditivos y más chicos que antes (2.0→1.15): donde dos se superponen, brillan más
+    // en vez de fundirse en un disco sólido — así 25 residuos se leen como 25 puntos de
+    // luz de intensidad variable, no como un bloque de un solo color.
     d.src.forEach(i => {
-      const a = new THREE.Mesh(new THREE.TorusGeometry(2.0, 0.14, 8, 26),
-        new THREE.MeshBasicMaterial({ color: LOOK.acento }));
+      const a = new THREE.Mesh(new THREE.TorusGeometry(1.15, 0.10, 8, 22),
+        new THREE.MeshBasicMaterial({ color: LOOK.acento, transparent: true, opacity: 0.8,
+          blending: THREE.AdditiveBlending, depthWrite: false }));
       a.position.fromArray(d.coords[i]); a.userData.mira = true; escena.add(a);
     });
     d.sites.forEach(s => {
@@ -204,18 +215,28 @@ export function montar(contenedor, { pdb, target, paleta = 'oficial', hero = fal
     controles.target.copy(centro);
     escena.fog.density = 0.9/(radio*8);
     prob = new Float64Array(d.n);
+    probAnterior = new Float64Array(d.n);
+    destello = new Float64Array(d.n);
   }
 
   const _m = new THREE.Matrix4(), _q = new THREE.Quaternion(), _e = new THREE.Vector3(), _v = new THREE.Vector3();
+  const _blanco = new THREE.Color(0xffffff), _c = new THREE.Color();
   function pintar() {
     let max = 0;
     for (let i = 0; i < prob.length; i++) if (prob[i] > max) max = prob[i];
     if (max <= 0) return;
     for (let i = 0; i < prob.length; i++) {
-      const t = Math.sqrt(prob[i]/max), r = 0.45 + 1.25*t;
+      const t = Math.sqrt(prob[i]/max);
+      const delta = prob[i] - probAnterior[i];
+      probAnterior[i] = prob[i];
+      // Decae solo, y se recarga si sigue subiendo — así un residuo que crece varios
+      // cuadros seguidos no destella una vez y se apaga a mitad de su propia subida.
+      destello[i] *= 0.90;
+      if (delta > 0) destello[i] = Math.min(1, destello[i] + (delta / max) * 7.0);
+      const r = 0.45 + 1.25*t + destello[i]*0.9;
       _m.compose(_v.fromArray(datos.coords[i]), _q, _e.set(r, r, r));
       malla.setMatrixAt(i, _m);
-      malla.setColorAt(i, rampa(t));
+      malla.setColorAt(i, _c.copy(rampa(t)).lerp(_blanco, destello[i]*0.65));
     }
     malla.instanceMatrix.needsUpdate = true;
     malla.instanceColor.needsUpdate = true;
@@ -238,7 +259,10 @@ export function montar(contenedor, { pdb, target, paleta = 'oficial', hero = fal
     if (!quieto && red && walk) {
       acum += 0.75;
       while (acum >= 1) { CW.paso(red, walk, 0.01, lap); acum -= 1; }
-      if (walk.t > 8.0) walk = CW.nuevoEstado(red, datos.src);
+      if (walk.t > 8.0) {
+        walk = CW.nuevoEstado(red, datos.src);
+        probAnterior.fill(0); destello.fill(0);
+      }
       CW.probabilidad(walk, prob);
       pintar();
     }

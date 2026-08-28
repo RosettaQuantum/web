@@ -28,7 +28,7 @@ const T = {
     caso: 'Cleveland Clinic · sitios alostéricos',
     titulo: 'Dónde tocar una proteína para apagarla sin tocar su sitio activo',
     cuerpo: 'Un sitio alostérico es un punto distante desde el que se puede cambiar el comportamiento de una proteína. Encontrarlos abre fármacos donde hoy no los hay. Rosetta los busca con una caminata cuántica sobre la red de contactos de la molécula: la señal entra por los residuos que hacen el trabajo y se propaga.',
-    proteina: 'Proteína', residuos: 'Residuos', sitios: 'Sitios predichos',
+    proteina: 'Proteína', residuos: 'Residuos', sitios: 'Sitios predichos', fuente: 'Residuos fuente',
     percentil: 'Percentil del sitio conocido',
     avisoRotulo: null, avisoTexto: reto.aviso, original: null,
     receta: 'Receta', prereg: 'pre-registro', instantanea: 'instantánea', crudo: 'estos datos, en crudo',
@@ -38,7 +38,7 @@ const T = {
     caso: 'Cleveland Clinic · allosteric sites',
     titulo: 'Where to touch a protein to switch it off — without touching its active site',
     cuerpo: 'An allosteric site is a distant point from which a protein’s behaviour can be changed. Finding them opens drugs where today there are none. Rosetta searches for them with a quantum walk over the molecule’s contact network: the signal enters through the residues that do the work, and spreads.',
-    proteina: 'Protein', residuos: 'Residues', sitios: 'Predicted sites',
+    proteina: 'Protein', residuos: 'Residues', sitios: 'Predicted sites', fuente: 'Source residues',
     percentil: 'Percentile of the known site',
     avisoRotulo: 'Notice from the sealed archive — translation:',
     avisoTexto: 'Sites are PREDICTED by a quantum walk and are not experimentally validated. The known site, when it exists, is read from the co-crystallised drug and never enters the calculation.',
@@ -61,6 +61,7 @@ const T = {
       <div><dt>{T.proteina}</dt><dd>{p.label}</dd></div>
       <div><dt>{T.residuos}</dt><dd>{p.n_residuos}</dd></div>
       <div><dt>{T.sitios}</dt><dd>{p.sitios_predichos}</dd></div>
+      <div><dt>{T.fuente}</dt><dd>{p.datos.src.length}</dd></div>
       {ctqw && <div><dt>{T.percentil}</dt><dd>{ctqw.percentil_observado}</dd></div>}
     </dl>
 
