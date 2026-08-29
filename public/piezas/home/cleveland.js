@@ -232,8 +232,17 @@ export function montar(contenedor, { pdb, target, paleta = 'oficial', hero = fal
       probAnterior[i] = prob[i];
       // Decae solo, y se recarga si sigue subiendo — así un residuo que crece varios
       // cuadros seguidos no destella una vez y se apaga a mitad de su propia subida.
-      destello[i] *= Math.pow(0.90, dt61);   // el mismo 0,90 por cuadro, calibrado a 60Hz
-      if (delta > 0) destello[i] = Math.min(1, destello[i] + (delta / max) * 7.0);
+      // 28-ago, tras ver Nicholas la pieza en movimiento: "es como fuegos artificiales,
+      // quiero algo lento, que hipnotice". El decaimiento (0,90/cuadro → 10% del pico en
+      // ~450ms) y la ganancia (×7, satura de un cuadro) hacían un CHISPAZO, no un pulso.
+      // Mismo dato, misma derivada — sólo cambia CUÁNTO DURA verse: decaimiento más lento
+      // (10% del pico en ~1,15s en vez de ~450ms) y ganancia más baja (sube en un puñado
+      // de cuadros en vez de saturar de golpe). Simulado antes de tocarlo, no a ojo — esta
+      // sesión no puede ver el movimiento correr, así que el próximo que la mire tiene que
+      // confirmar que sigue leyéndose como propagación y no se volvió lenta al punto de
+      // no leerse como nada.
+      destello[i] *= Math.pow(0.965, dt61);
+      if (delta > 0) destello[i] = Math.min(1, destello[i] + (delta / max) * 3.2);
       const r = 0.45 + 1.25*t + destello[i]*0.9;
       _m.compose(_v.fromArray(datos.coords[i]), _q, _e.set(r, r, r));
       malla.setMatrixAt(i, _m);
