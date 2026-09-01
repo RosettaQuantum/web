@@ -110,7 +110,7 @@ jobs:
           echo "--- esperando el build $ESPERADO ---"
           VIVO=""
           for i in $(seq 1 20); do
-            VIVO=$(curl -s "$U/" | grep -oE 'name="build" content="[0-9a-f]+"' | head -1 | grep -oE '[0-9a-f]{12}' || true)
+            VIVO=$(curl -s "$U/" | grep -oE 'name="rq-build" content="[0-9a-f]+"' | head -1 | grep -oE '[0-9a-f]{12}' || true)
             echo "  intento $i: build servido = ${VIVO:-(sin respuesta)}"
             [ "$VIVO" = "$ESPERADO" ] && break
             sleep 6
