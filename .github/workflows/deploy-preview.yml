@@ -100,13 +100,25 @@ jobs:
           set -e
           U="${PREVIEW_URL:-${{ steps.desplegar.outputs.url }}}"
           echo "preview: $U"
-          echo "--- esperando propagacion de workers.dev ---"
+          # Esperar a que este vivo EL BUILD DE ESTE COMMIT, no "algo que responde 200".
+          # El repo ya estampa <meta name="build" content="<sha12>"> en toda pagina
+          # servida, y sellar-version.mjs dice por que existe: «verificamos la consola
+          # contra la URL viva con un 200 que no probaba cual version». Mi primera
+          # version de esta sonda cometio exactamente ese error: el 200 venia del
+          # despliegue ANTERIOR, la sonda siguio, y P0 midio codigo viejo.
+          ESPERADO=$(echo "${{ github.sha }}" | cut -c1-12)
+          echo "--- esperando el build $ESPERADO ---"
+          VIVO=""
           for i in $(seq 1 20); do
-            code=$(curl -s -o /dev/null -w '%{http_code}' "$U/")
-            echo "  intento $i: $code"
-            [ "$code" = "200" ] && break
+            VIVO=$(curl -s "$U/" | grep -oE 'name="build" content="[0-9a-f]+"' | head -1 | grep -oE '[0-9a-f]{12}' || true)
+            echo "  intento $i: build servido = ${VIVO:-(sin respuesta)}"
+            [ "$VIVO" = "$ESPERADO" ] && break
             sleep 6
           done
+          if [ "$VIVO" != "$ESPERADO" ]; then
+            echo "::error::el preview sirve el build $VIVO y se esperaba $ESPERADO"
+            exit 1
+          fi
           echo "--- / ---"
           code=$(curl -s -o /dev/null -w '%{http_code}' "$U/"); echo "  $code"; [ "$code" = "200" ]
           echo "--- /v1/state ---"
