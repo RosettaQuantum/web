@@ -24,6 +24,14 @@
  */
 import { esperarVersion } from "./lib/esperar.mjs";
 
+// Quien actua esta señal. Sin destinatario, un rojo es ruido que alguien aprende a
+// ignorar — y este rojo, ademas, es el unico que separa "el preview existe" de "el
+// preview sirve ESTE build".
+export const CONSUMIDOR = {
+  quien: "quien empuja a una rama rebuild: el workflow deploy-preview.yml corta ahi mismo",
+  hace: "no sigue a los commits siguientes hasta que las tres superficies respondan: si falla /v1/state o el post de D1, el preview no esta probando lo que dice probar",
+};
+
 const BASE = (process.env.PREVIEW_URL || "").replace(/\/+$/, "");
 const SHA = process.env.GITHUB_SHA || "";
 const ESPERA = Number(process.env.ESPERA_MAX || 180);
