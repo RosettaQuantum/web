@@ -95,45 +95,15 @@ jobs:
       # Prueba P0 del spec: el preview responde en las tres superficies que importan.
       # /blog/<slug> se elige de D1 EN VIVO, no de una lista escrita a mano: un slug
       # quemado deja de existir y la prueba pasa a verificar un 404 sin que nadie mire.
+      # P0 vive en scripts/check-preview.mjs y usa scripts/lib/esperar.mjs, el modulo
+      # que el repo ya tenia para esto. Ver la cabecera de ese archivo: el bash que
+      # habia aca fallo tres veces por el instrumento y ninguna por el sitio.
       - name: P0 — el preview responde
-        run: |
-          set -e
-          U="${PREVIEW_URL:-${{ steps.desplegar.outputs.url }}}"
-          echo "preview: $U"
-          # Esperar a que este vivo EL BUILD DE ESTE COMMIT, no "algo que responde 200".
-          # El repo ya estampa <meta name="build" content="<sha12>"> en toda pagina
-          # servida, y sellar-version.mjs dice por que existe: «verificamos la consola
-          # contra la URL viva con un 200 que no probaba cual version». Mi primera
-          # version de esta sonda cometio exactamente ese error: el 200 venia del
-          # despliegue ANTERIOR, la sonda siguio, y P0 midio codigo viejo.
-          ESPERADO=$(echo "${{ github.sha }}" | cut -c1-12)
-          echo "--- esperando el build $ESPERADO ---"
-          VIVO=""
-          for i in $(seq 1 20); do
-            VIVO=$(curl -s "$U/" | grep -oE 'name="rq-build" content="[0-9a-f]+"' | head -1 | grep -oE '[0-9a-f]{12}' || true)
-            echo "  intento $i: build servido = ${VIVO:-(sin respuesta)}"
-            [ "$VIVO" = "$ESPERADO" ] && break
-            sleep 6
-          done
-          if [ "$VIVO" != "$ESPERADO" ]; then
-            echo "::error::el preview sirve el build $VIVO y se esperaba $ESPERADO"
-            exit 1
-          fi
-          echo "--- / ---"
-          code=$(curl -s -o /dev/null -w '%{http_code}' "$U/"); echo "  $code"; [ "$code" = "200" ]
-          echo "--- /v1/state ---"
-          curl -s "$U/v1/state" | head -c 400; echo
-          code=$(curl -s -o /dev/null -w '%{http_code}' "$U/v1/state"); echo "  $code"; [ "$code" = "200" ]
-          echo "--- /blog/<slug solo en D1> ---"
-          SLUG=$(curl -s "$U/v1/posts?limit=1" 2>/dev/null | grep -oE '"slug":"[^"]+"' | head -1 | cut -d'"' -f4 || true)
-          if [ -z "$SLUG" ]; then
-            SLUG=$(curl -s "$U/blog" | grep -oE '/blog/[a-z0-9-]+-en/' | head -1 | sed 's|/blog/||;s|/||')
-          fi
-          echo "  slug elegido: $SLUG"
-          BODY=$(curl -s "$U/blog/$SLUG/")
-          echo "  bytes: $(printf '%s' "$BODY" | wc -c)"
-          printf '%s' "$BODY" | grep -q '<article' && echo "  <article: SI" || (echo "::error::sin <article>"; exit 1)
-          [ "$(printf '%s' "$BODY" | wc -c)" -gt 2000 ]
+        env:
+          PREVIEW_URL: ${{ steps.desplegar.outputs.url }}
+          GITHUB_SHA: ${{ github.sha }}
+          ESPERA_MAX: "180"
+        run: node scripts/check-preview.mjs
 
       - name: Resumen
         if: always()
