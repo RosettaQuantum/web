@@ -28,4 +28,36 @@
   "send_email": [
     { "name": "MAILER", "destination_address": "hello@rosettaquantum.com" }
   ]
+  ,
+  // ── Entorno de PREVIEW (commit 0 del spec de migracion v5.0) ────────────────
+  // Existe porque hoy la unica ruta a un entorno vivo es empujar a main, que ES
+  // produccion. El modo de fallo dominante de este repo es silencioso —la lista
+  // run_worker_first, los cascarones del blog, el orden del CSS— y las tres solo
+  // se ven sirviendo la pagina de verdad.
+  //
+  // MISMA D1 y MISMO MAILER que produccion, a proposito: un preview contra otra
+  // base no prueba lo que tiene que probar (los posts de D1, las cifras de
+  // /v1/state). La contrapartida es real y hay que tenerla presente: lo que este
+  // Worker ESCRIBA cae en la base de produccion. Hoy escribe leads, qready_leads
+  // y api_usage — nada del ledger.
+  //
+  // Un entorno con nombre NO hereda los bindings del nivel superior: hay que
+  // repetirlos. Solo main y compatibility_date se heredan.
+  "env": {
+    "preview": {
+      "name": "rosetta-quantum-preview",
+      "workers_dev": true,
+      "assets": {
+        "binding": "ASSETS",
+        "directory": "./dist",
+        "run_worker_first": ["/blog", "/blog/*", "/es/blog", "/es/blog/", "/clases", "/clases/", "/es/clases", "/es/clases/", "/llms.txt", "/rss.xml", "/sitemap-0.xml", "/v1", "/v1/*", "/mcp"]
+      },
+      "d1_databases": [
+        { "binding": "DB", "database_name": "rosettaq-ledger", "database_id": "f0919403-5bd0-4842-a1d3-0954fdd47633" }
+      ],
+      "send_email": [
+        { "name": "MAILER", "destination_address": "hello@rosettaquantum.com" }
+      ]
+    }
+  }
 }

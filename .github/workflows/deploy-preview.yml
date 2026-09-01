@@ -1,0 +1,124 @@
+# Despliegue al entorno de PREVIEW. NUNCA a produccion.
+#
+# Por que existe: hasta hoy la unica ruta a un entorno vivo era empujar a main, que ES
+# produccion. Los tres modos de fallo dominantes de este repo son SILENCIOSOS —la lista
+# blanca run_worker_first, los cascarones del blog que el Worker rellena, y el orden del
+# CSS inline— y los tres solo se ven sirviendo la pagina de verdad. Sin un sitio vivo que
+# no sea produccion, la unica forma de verlos era rompiendo produccion.
+#
+# Espejo del guardia de produccion: deploy.yml corre check-deploy-solo-main.mjs para que
+# NADA que no sea main publique. Aca corre el guardia inverso —que main NUNCA llegue a
+# este workflow— porque un `wrangler deploy` sin `--env preview` publicaria sobre el
+# Worker de produccion desde una rama. Los dos guardias juntos cierran la tenaza; uno solo
+# deja el otro lado abierto.
+
+name: Deploy preview
+
+on:
+  push:
+    branches: ['rebuild/**']
+  workflow_dispatch:
+
+# Una superficie, un escritor — igual que produccion, pero en su propio grupo para que un
+# deploy de preview NUNCA serialice ni cancele uno de produccion.
+concurrency:
+  group: deploy-preview
+  cancel-in-progress: false
+
+jobs:
+  preview:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # El guardia inverso. Falla cerrado: si la rama es main, no se despliega nada.
+      - name: main NUNCA publica por aqui
+        env:
+          REF: ${{ github.ref }}
+        run: |
+          if [ "$REF" = "refs/heads/main" ]; then
+            echo "::error::main no se despliega desde deploy-preview.yml. Produccion va por deploy.yml."
+            exit 1
+          fi
+          echo "rama: $REF — OK, no es main"
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Instalar
+        run: npm ci
+
+      # ── Verificaciones de SOLO LECTURA pedidas en el spec v5.0 §5.3 y §5.4 ──────
+      # Se hacen ANTES de desplegar y con las credenciales reales, que es el unico
+      # lugar donde la respuesta es cierta. El token no se imprime nunca: `whoami`
+      # muestra la cuenta y los permisos, no el secreto.
+      - name: Token vigente y con permisos (lectura)
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          echo "== wrangler whoami =="
+          ./node_modules/.bin/wrangler whoami 2>&1 | tee whoami.txt
+          echo
+          echo "== permisos que exige el deploy: Workers Scripts:Edit, D1:Edit, Zone.Cache Purge =="
+
+      - name: Existe ya un preview no declarado? (lectura)
+        continue-on-error: true
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          echo "== despliegues del Worker de PRODUCCION (solo lectura, no toca nada) =="
+          ./node_modules/.bin/wrangler deployments list 2>&1 | head -40 || true
+          echo
+          echo "== existe ya rosetta-quantum-preview? =="
+          ./node_modules/.bin/wrangler deployments list --env preview 2>&1 | head -20 || true
+
+      - name: Construir
+        run: npm run build
+
+      # `wrangler deploy --env preview` publica el Worker rosetta-quantum-preview en
+      # workers.dev. NO toca el Worker rosetta-quantum ni el dominio.
+      - name: Desplegar a preview
+        id: desplegar
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          ./node_modules/.bin/wrangler deploy --env preview 2>&1 | tee deploy.log
+          URL=$(grep -oE 'https://[a-z0-9.-]+\.workers\.dev' deploy.log | head -1)
+          echo "url=$URL" >> "$GITHUB_OUTPUT"
+          echo "PREVIEW_URL=$URL" >> "$GITHUB_ENV"
+
+      # Prueba P0 del spec: el preview responde en las tres superficies que importan.
+      # /blog/<slug> se elige de D1 EN VIVO, no de una lista escrita a mano: un slug
+      # quemado deja de existir y la prueba pasa a verificar un 404 sin que nadie mire.
+      - name: P0 — el preview responde
+        run: |
+          set -e
+          U="${PREVIEW_URL:-${{ steps.desplegar.outputs.url }}}"
+          echo "preview: $U"
+          echo "--- / ---"
+          code=$(curl -s -o /dev/null -w '%{http_code}' "$U/"); echo "  $code"; [ "$code" = "200" ]
+          echo "--- /v1/state ---"
+          curl -s "$U/v1/state" | head -c 400; echo
+          code=$(curl -s -o /dev/null -w '%{http_code}' "$U/v1/state"); echo "  $code"; [ "$code" = "200" ]
+          echo "--- /blog/<slug solo en D1> ---"
+          SLUG=$(curl -s "$U/v1/posts?limit=1" 2>/dev/null | grep -oE '"slug":"[^"]+"' | head -1 | cut -d'"' -f4 || true)
+          if [ -z "$SLUG" ]; then
+            SLUG=$(curl -s "$U/blog" | grep -oE '/blog/[a-z0-9-]+-en/' | head -1 | sed 's|/blog/||;s|/||')
+          fi
+          echo "  slug elegido: $SLUG"
+          BODY=$(curl -s "$U/blog/$SLUG/")
+          echo "  bytes: $(printf '%s' "$BODY" | wc -c)"
+          printf '%s' "$BODY" | grep -q '<article' && echo "  <article: SI" || (echo "::error::sin <article>"; exit 1)
+          [ "$(printf '%s' "$BODY" | wc -c)" -gt 2000 ]
+
+      - name: Resumen
+        if: always()
+        run: |
+          echo "### Preview" >> $GITHUB_STEP_SUMMARY
+          echo "- URL: ${PREVIEW_URL:-(sin URL)}" >> $GITHUB_STEP_SUMMARY
+          echo "- rama: ${{ github.ref_name }} · commit \`${{ github.sha }}\`" >> $GITHUB_STEP_SUMMARY
