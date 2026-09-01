@@ -100,6 +100,13 @@ jobs:
           set -e
           U="${PREVIEW_URL:-${{ steps.desplegar.outputs.url }}}"
           echo "preview: $U"
+          echo "--- esperando propagacion de workers.dev ---"
+          for i in $(seq 1 20); do
+            code=$(curl -s -o /dev/null -w '%{http_code}' "$U/")
+            echo "  intento $i: $code"
+            [ "$code" = "200" ] && break
+            sleep 6
+          done
           echo "--- / ---"
           code=$(curl -s -o /dev/null -w '%{http_code}' "$U/"); echo "  $code"; [ "$code" = "200" ]
           echo "--- /v1/state ---"

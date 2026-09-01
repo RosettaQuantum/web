@@ -8,7 +8,14 @@ export default {
   async fetch(request, env, ctx) {
     const url = new URL(request.url);
 
-    if (url.hostname !== "rosettaquantum.com" && url.hostname !== "localhost") {
+    // El preview vive en *.workers.dev. Sin esta excepcion, la canonicalizacion de
+    // host rebota a produccion TODA ruta que ejecute el Worker —o sea /v1/*, /blog*,
+    // /clases* y los feeds: exactamente las que el preview existe para probar— y deja
+    // pasar solo las estaticas, que no lo necesitan. El preview habria verificado la
+    // mitad que no falla y habria dado verde. Medido: / daba 200 y /v1/state daba 301.
+    // Produccion no cambia: cualquier otro host sigue canonicalizando a rosettaquantum.com.
+    const esPreview = url.hostname.endsWith(".workers.dev");
+    if (url.hostname !== "rosettaquantum.com" && url.hostname !== "localhost" && !esPreview) {
       url.hostname = "rosettaquantum.com"; url.protocol = "https:";
       return Response.redirect(url.toString(), 301);
     }
