@@ -32,7 +32,8 @@
     "check:empujar": "node scripts/check-empujar-es-desplegar.mjs --self-test && node scripts/check-empujar-es-desplegar.mjs",
     "check:puerta": "node lib/puerta.mjs --self-test",
     "check:promesa-sin-numero": "node scripts/check-promesa-sin-numero.mjs --self-test",
-    "check:tres-copias": "node scripts/check-tres-copias.mjs --self-test && node scripts/check-tres-copias.mjs"
+    "check:tres-copias": "node scripts/check-tres-copias.mjs --self-test && node scripts/check-tres-copias.mjs",
+    "check:preview": "node scripts/check-preview.mjs"
   },
   "dependencies": {
     "@astrojs/rss": "latest",

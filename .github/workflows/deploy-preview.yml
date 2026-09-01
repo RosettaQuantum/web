@@ -103,7 +103,7 @@ jobs:
           PREVIEW_URL: ${{ steps.desplegar.outputs.url }}
           GITHUB_SHA: ${{ github.sha }}
           ESPERA_MAX: "180"
-        run: node scripts/check-preview.mjs
+        run: npm run check:preview
 
       - name: Resumen
         if: always()
