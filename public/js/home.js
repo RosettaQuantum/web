@@ -237,12 +237,32 @@ const HS_INDEX=[
  {t:'Optimization / numerics / ML — 18 catalogued', st:'Library class', c:'#5A5D58'},
  {t:'Simulation — 11 catalogued', st:'Library class', c:'#5A5D58'}
 ];
+/* Buscador en español. SOLO se traduce el vocabulario de estado aprobado en
+   handoff/web/rosetta-home-es-textos-v20.md; los TITULOS de los claims quedan en
+   ingles porque son nombres, y las cadenas que no estan aprobadas quedan tal cual —
+   un fragmento en ingles se ve; una traduccion inventada se ve bien y no se audita. */
+const ES = document.documentElement.lang === 'es';
+const HS_ES = {
+  'surviving · 523 days':'en pie · 523 días',
+  'surviving · 630 days':'en pie · 630 días',
+  'eroded · challenged in 2 days':'erosionado · desafiado a los 2 días',
+  'eroded · challenged in 5 days':'erosionado · desafiado a los 5 días',
+  'contested':'en disputa',
+  'negative · self-published':'negativo · autopublicado',
+  'no advantage':'sin ventaja',
+  'sealed run':'corrida sellada',
+  'did not qualify · 0 of 8':'no calificó · 0 de 8'
+};
+const HS_SIN = ES
+  ? 'Sin coincidencia en el índice rápido — abre la búsqueda completa de la Biblioteca'
+  : 'No match in the quick index — open the full Library search';
+if (ES) HS_INDEX.forEach(e => { if (HS_ES[e.st]) e.st = HS_ES[e.st]; });
 const hsI=document.getElementById('hsInput'), hsR=document.getElementById('hsResults');
 function hsRender(q){
   const ql=q.trim().toLowerCase();
   const hits=ql? HS_INDEX.filter(e=>e.t.toLowerCase().includes(ql)||e.st.toLowerCase().includes(ql)) : [];
   hsR.innerHTML = hits.length ? hits.map(e=>`<div class="hs-r"><span>${e.t}</span><span class="st" style="color:${e.c}">${e.st}</span></div>`).join('')
-    : (ql?`<div class="hs-r"><span>No match in the quick index — open the full Library search</span><span class="st">/library →</span></div>`:'');
+    : (ql?`<div class="hs-r"><span>${HS_SIN}</span><span class="st">/library →</span></div>`:'');
   hsR.classList.toggle('on', !!ql);
 }
 hsI.addEventListener('input',e=>hsRender(e.target.value));

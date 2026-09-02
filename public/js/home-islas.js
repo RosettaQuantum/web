@@ -65,9 +65,15 @@
           if (b[0]) b[0].textContent = String(vividos);
         } else {
           if (b[0]) b[0].textContent = String(c.clock_days);
+          // ES y EN escriben la misma frase distinto ("of 313 days" / "de 313 días").
+          // Una expresion escrita solo para el ingles NO falla en la pagina en español:
+          // simplemente no reemplaza, y el numero se queda horneado del build. Es el
+          // mismo modo de fallo que este archivo existe para evitar, un idioma mas alla.
           var linea = fila.querySelector(".bar-days");
-          if (linea && /of\s+\d+\s+days/.test(linea.textContent)) {
-            linea.innerHTML = linea.innerHTML.replace(/of\s+\d+\s+days/, "of " + vividos + " days");
+          var RE_TOTAL = document.documentElement.lang === "es" ? /de\s+\d+\s+d[ií]as/ : /of\s+\d+\s+days/;
+          var TOTAL = document.documentElement.lang === "es" ? "de " + vividos + " días" : "of " + vividos + " days";
+          if (linea && RE_TOTAL.test(linea.textContent)) {
+            linea.innerHTML = linea.innerHTML.replace(RE_TOTAL, TOTAL);
           }
           var barra = fila.querySelector(".bar");
           if (barra && vividos > 0) barra.style.width = Math.min(100, Math.round((c.clock_days / vividos) * 100)) + "%";
