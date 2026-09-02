@@ -182,6 +182,71 @@ export function resumenArchivo(row) {
   };
 }
 
+// ── /v1/claims — el registro de claims publicos (commit 5) ────────────────────
+// Los 3 con verified=0 NO salen: son claims de TERCEROS (Microsoft, IonQ, JACS) que
+// nadie de la casa verifico todavia. Publicarlos sin la marca seria afirmar sobre otros
+// sin haberlo comprobado, que es exactamente lo que este archivo existe para no hacer.
+//
+// `clock_days` es dias del claim al PRIMER DESAFIO, no dias a hoy: son dos cosas
+// distintas y esta NULL en 6 de 16. Los dias a hoy los computa quien mira, con
+// `claim_date` — asi el reloj de la home no hornea una resta contra la fecha del build.
+async function claims(env, url) {
+  const limite = Math.min(parseInt(url.searchParams.get("limit") || "50", 10) || 50, 200);
+  const [{ results = [] }, totalRow, verifRow] = await Promise.all([
+    env.DB.prepare(
+      "SELECT id, claimant, title, claim_date, status, domain, clock_days, first_challenge, url " +
+      "FROM rq_claims WHERE verified=1 ORDER BY claim_date DESC LIMIT ?"
+    ).bind(limite).all(),
+    env.DB.prepare("SELECT count(*) n FROM rq_claims").first(),
+    env.DB.prepare("SELECT count(*) n FROM rq_claims WHERE verified=1").first(),
+  ]);
+  return json({
+    que_es: "Claims publicos de ventaja cuantica que este archivo rastrea. Solo los verificados.",
+    vocabulario_de_estado: ["surviving", "contested", "eroded", "open", "negative-selfpublished"],
+    nota_clock_days: "dias del claim al primer desafio registrado; NULL = sin desafio. NO son dias a hoy: eso se computa con claim_date al momento de mirar.",
+    total: results.length,
+    verificados: (verifRow || { n: 0 }).n,
+    en_la_tabla: (totalRow || { n: 0 }).n,
+    no_verificados_excluidos: (totalRow || { n: 0 }).n - (verifRow || { n: 0 }).n,
+    claims: results,
+  });
+}
+
+// ── /v1/posts — las entradas del blog, para la home (commit 5) ────────────────
+// MISMA consulta que injectIndex(), incluido published=1: sin ese filtro la home
+// publicaria borradores. Las columnas son las del esquema real (date, tldr, pillar,
+// body_html), no las que uno supondria — asumirlas costo una correccion antes de
+// desplegar. El extracto se calcula del cuerpo real; nunca se inventa.
+async function posts(env, url) {
+  const limite = Math.min(parseInt(url.searchParams.get("limit") || "10", 10) || 10, 50);
+  const lang = url.searchParams.get("lang") === "es" ? "es" : "en";
+  const [{ results = [] }, total] = await Promise.all([
+    env.DB.prepare(
+      "SELECT id, title, date, pillar, tldr, body_html FROM posts WHERE published=1 AND lang=? ORDER BY date DESC, id LIMIT ?"
+    ).bind(lang, limite).all(),
+    env.DB.prepare("SELECT count(*) n FROM posts WHERE published=1 AND lang=?").bind(lang).first(),
+  ]);
+  return json({
+    que_es: "Entradas publicadas, desde D1. Mismo filtro que el indice del blog (published=1).",
+    lang,
+    total: results.length,
+    de_un_total_de: (total || { n: 0 }).n,
+    posts: results.map((p) => {
+      const texto = (p.body_html || "").replace(/<[^>]+>/g, " ").replace(/&[a-z]+;/g, " ").replace(/\s+/g, " ").trim();
+      const palabras = texto.split(/\s+/).filter(Boolean).length;
+      return {
+        slug: p.id,
+        titulo: p.title,
+        fecha: p.date,
+        pilar: p.pillar,
+        tldr: p.tldr,
+        extracto: (p.tldr && p.tldr.length > 40 ? p.tldr : texto).slice(0, 220),
+        minutos: Math.max(1, Math.round(palabras / 220)),
+      };
+    }),
+  });
+}
+
 export async function estado(env) {
   const [tipos, recetas, ver, gana] = await env.DB.batch([
     env.DB.prepare("SELECT type, count(*) n FROM run_archives GROUP BY type"),
@@ -1471,6 +1536,8 @@ async function enrutar(request, env, url, info = {}) {
   if (p === "/v1/openapi.json") return json(openapiDoc());
   if (p === "/v1/usage" || p === "/v1/usage/") return await usoPublico(env);
   if (p === "/v1/state") return json(await estado(env));
+  if (p === "/v1/claims" || p === "/v1/claims/") return await claims(env, url);
+  if (p === "/v1/posts" || p === "/v1/posts/") return await posts(env, url);
   if (p === "/v1/runs") return await listar(env, "RUN", url);
   if (p === "/v1/verdicts") return await listar(env, "VERDICT", url);
   if (p === "/v1/prereg") return await listar(env, "PREREG", url);

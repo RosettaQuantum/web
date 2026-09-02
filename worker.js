@@ -47,6 +47,22 @@ export default {
     // correo. El defecto que esto reemplaza: el formulario solo hacia preventDefault y
     // mostraba "Solicitud enviada" sin mandar nada a ningun lado — una promesa falsa a
     // una persona real. Ver lib/qready-lead.mjs para el porque de cada decision.
+    // ── /api/monitor-lead (commit 5) — captura del Monitor ────────────────────
+    // Usa el binding MAILER, que ya existe y esta desplegado: cero terceros, cero
+    // secretos nuevos. Falla cerrado: sin correo valido no escribe nada.
+    if (url.pathname === "/api/monitor-lead" && request.method === "POST") {
+      let cuerpo = {};
+      try { cuerpo = await request.json(); } catch { /* queda vacio y falla abajo */ }
+      const email = String(cuerpo.email || "").trim().toLowerCase();
+      if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) {
+        return json({ ok: false, error: "valid email required" }, 400);
+      }
+      await env.DB.prepare(
+        "INSERT INTO monitor_leads (email, ts, ua, origen) VALUES (?, ?, ?, ?)"
+      ).bind(email, new Date().toISOString(), request.headers.get("user-agent") || "", String(cuerpo.origen || "monitor")).run();
+      return new Response(null, { status: 204 });
+    }
+
     if (url.pathname === "/api/qready-lead" && request.method === "POST") {
       let b;
       try { b = await request.json(); } catch (e) { return json({ ok: false, error: "bad json" }, 400); }

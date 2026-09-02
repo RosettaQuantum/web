@@ -76,6 +76,16 @@ jobs:
           echo "== existe ya rosetta-quantum-preview? =="
           ./node_modules/.bin/wrangler deployments list --env preview 2>&1 | head -20 || true
 
+      # Migracion D1 idempotente (commit 5). CREATE TABLE IF NOT EXISTS: correrla en cada
+      # deploy de preview no hace nada la segunda vez. Toca la MISMA base que produccion
+      # —el preview comparte D1 a proposito— pero solo AGREGA dos tablas nuevas; no lee,
+      # no modifica y no borra nada de lo existente.
+      - name: Migracion D1 (aditiva, idempotente)
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: ./node_modules/.bin/wrangler d1 execute rosettaq-ledger --remote --file=db/monitor-market.schema.sql
+
       - name: Construir
         run: npm run build
 
@@ -123,6 +133,11 @@ jobs:
 
       - name: T-nav — la barra tiene 6 enlaces, CTA y menu movil
         run: npm run check:nav
+
+      - name: T-api — endpoints nuevos y /v1/state aditivo
+        env:
+          PREVIEW_URL: ${{ steps.desplegar.outputs.url }}
+        run: npm run check:api2
 
       - name: Resumen
         if: always()
