@@ -33,7 +33,8 @@
     "check:puerta": "node lib/puerta.mjs --self-test",
     "check:promesa-sin-numero": "node scripts/check-promesa-sin-numero.mjs --self-test",
     "check:tres-copias": "node scripts/check-tres-copias.mjs --self-test && node scripts/check-tres-copias.mjs",
-    "check:preview": "node scripts/check-preview.mjs"
+    "check:preview": "node scripts/check-preview.mjs",
+    "check:contenido": "node scripts/check-contenido.mjs"
   },
   "dependencies": {
     "@astrojs/rss": "latest",

@@ -105,6 +105,17 @@ jobs:
           ESPERA_MAX: "180"
         run: npm run check:preview
 
+      # T-guardia — la mina nº1, desarmada. Va DESPUES de P0 y antes del resumen: si una
+      # ruta de run_worker_first deja de inyectar, el CI se pone rojo aqui. Probado por
+      # mutacion: grita con /clases fuera de la lista, calla con las 9 sanas.
+      - name: T-guardia — cada ruta de run_worker_first sirve contenido inyectado
+        env:
+          PREVIEW_URL: ${{ steps.desplegar.outputs.url }}
+          PROD_URL: "https://rosettaquantum.com"
+        run: |
+          git fetch origin main:main --force 2>/dev/null || git fetch origin main --force
+          npm run check:contenido
+
       - name: Resumen
         if: always()
         run: |
