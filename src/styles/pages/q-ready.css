@@ -1,9 +1,10 @@
-:root{
-  --basalt:#141210; --basalt-2:#1F1C18; --basalt-3:#100E0B; --stone-line:#3D372F;
-  --papyrus:#F4EEDF; --papyrus-dim:#B5AC99; --faint:#6E675C;
-  --faience:#4DC4B5; --gold:#D9B87A; --maxw:1080px;
-  --crit:#E0705C; --warn:#D9B87A; --ok:#4DC4B5;
-}
+/* --crit es propio de esta pagina, no de la marca: la purga del commit 3 quita las
+   redefiniciones de tokens de MARCA (que global.css ya define y que sombreadas se
+   vuelven invisibles), no las variables locales. Se quito por error en la primera
+   pasada y dejo 18 usos apuntando a nada — un color roto que ningun guardia de
+   tamaño habria visto. Se restituye aca, que es donde vive. */
+:root{ --crit:#E0705C; }
+
 *{margin:0;padding:0;box-sizing:border-box}
 html{scroll-behavior:smooth}
 body{background:var(--basalt);color:var(--papyrus);font-family:'Instrument Sans',sans-serif;font-size:17px;line-height:1.6;-webkit-font-smoothing:antialiased;overflow-x:hidden}

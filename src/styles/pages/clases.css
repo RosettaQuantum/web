@@ -1,9 +1,4 @@
 
-:root{
-  --basalt:#141210; --basalt-2:#1F1C18; --basalt-3:#100E0B; --stone-line:#3D372F;
-  --papyrus:#F4EEDF; --papyrus-dim:#B5AC99; --faint:#6E675C;
-  --faience:#4DC4B5; --gold:#D9B87A; --maxw:1080px;
-}
 *{margin:0;padding:0;box-sizing:border-box}
 html{scroll-behavior:smooth}
 body{background:var(--basalt);color:var(--papyrus);font-family:'Instrument Sans',sans-serif;font-size:17px;line-height:1.6;-webkit-font-smoothing:antialiased;overflow-x:hidden}

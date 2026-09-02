@@ -116,6 +116,11 @@ jobs:
           git fetch origin main:main --force 2>/dev/null || git fetch origin main --force
           npm run check:contenido
 
+      - name: T-css — los tokens de marca ganan la cascada
+        env:
+          PREVIEW_URL: ${{ steps.desplegar.outputs.url }}
+        run: npm run check:css
+
       - name: Resumen
         if: always()
         run: |

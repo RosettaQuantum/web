@@ -34,7 +34,8 @@
     "check:promesa-sin-numero": "node scripts/check-promesa-sin-numero.mjs --self-test",
     "check:tres-copias": "node scripts/check-tres-copias.mjs --self-test && node scripts/check-tres-copias.mjs",
     "check:preview": "node scripts/check-preview.mjs",
-    "check:contenido": "node scripts/check-contenido.mjs"
+    "check:contenido": "node scripts/check-contenido.mjs",
+    "check:css": "node scripts/check-css.mjs"
   },
   "dependencies": {
     "@astrojs/rss": "latest",

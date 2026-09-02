@@ -1,3 +1,23 @@
+/* ── Sistema de marca v1.1 (commit 3) ───────────────────────────────────────
+   Viven AQUI y en ningun otro lado. BaseLayout inyecta el CSS de pagina INLINE
+   despues de este archivo, asi que a igual especificidad gana la pagina: un token
+   redefinido abajo hace invisible al de aca. Por eso el commit 3 tambien PURGA las
+   redefiniciones de styles/pages/*. Las paginas usan tokens; no los definen.
+   Nombre canonico del dorado: --pending (asi lo declara la maqueta v20, que es el
+   codigo que se porta). El doc de marca lo llama --pend: hay que corregir el doc,
+   no el codigo, y queda dicho en vez de elegido en silencio. */
+:root{
+  color-scheme: light;
+  --paper:#F4F5F1; --paper-2:#ECEEE8; --panel:#FBFBF9;
+  --ink:#16181B; --ink-60:#5A5D58; --line:#D9DBD6;
+  --verdict:#0F8B7E; --teal-10:#E6F2F0;
+  --pending:#B8892E; --alert:#B4432F;
+  --serif:'Newsreader',Georgia,serif;
+  --sans:'IBM Plex Sans',system-ui,sans-serif;
+  --mono:'IBM Plex Mono',monospace;
+  --maxw-brand:1000px;
+}
+
 :root{
   --basalt:#141210; --basalt-2:#1F1C18; --basalt-3:#100E0B; --stone-line:#3D372F;
   --papyrus:#F4EEDF; --papyrus-dim:#B5AC99; --faint:#6E675C;
