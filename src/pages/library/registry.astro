@@ -1,0 +1,37 @@
+---
+/**
+ * /library/registry — el Survival Registry completo. Commit 7.
+ *
+ * El vocabulario de estado es el de D1 tal cual (surviving · contested · eroded · open ·
+ * negative-selfpublished): no se migra dato y no se traduce. Mapearlo a palabras nuestras
+ * en la presentacion seria decidir en la vista algo que decide la fuente.
+ *
+ * clock_days NULL = no hay desafio registrado. La fila va SIN barra: pintarla llena diria
+ * "sobrevivio el 100%", que es una afirmacion, no el dato.
+ *
+ * Los 3 claims verified=0 no salen, y el denominador lo dice en pantalla: una cifra sin
+ * su alcance declarado es correcta y mide otra cosa.
+ */
+import MarcaLayout from '../../layouts/MarcaLayout.astro';
+import css from '../../styles/pages/library.css?raw';
+---
+<MarcaLayout
+  title="Survival Registry — Rosetta Quantum"
+  description="Sixteen tracked quantum-advantage claims: when each was made, when it was first challenged, and how much of its life it survived unchallenged."
+  lang="en" altUrl="/es/biblioteca/registro" ruta="/library"
+  pageCss={css} scripts={["/js/library.js"]}
+>
+  <section class="lib-head" style="border-top:none">
+    <div class="wrap">
+      <div class="eyebrow">The Survival Registry</div>
+      <h1 class="lib-q">Every tracked claim, and how long it stood.</h1>
+      <p class="lib-sub">The bar is the share of each claim's life that passed without a registered challenge. Days are computed when you look at the page, not when it was built.</p>
+      <table class="reg">
+        <thead><tr><th>id</th><th>claim</th><th>date</th><th>status</th><th>survived unchallenged</th><th>src</th></tr></thead>
+        <tbody id="regBody"><tr><td colspan="6" class="res-vacio">Loading from /v1/claims…</td></tr></tbody>
+      </table>
+      <div class="reg-den" id="regDen"></div>
+      <p class="sealline mono" style="margin-top:12px">Source: <a href="/v1/claims">/v1/claims</a> · status vocabulary is D1's, unmapped · <a href="/library">back to the Library</a></p>
+    </div>
+  </section>
+</MarcaLayout>

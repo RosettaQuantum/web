@@ -1,0 +1,82 @@
+---
+/**
+ * /library — la Evidence Library. Commit 7.
+ *
+ * Absorbe el papel de /rosettaq (301 en el commit 10). Tres archivos en un buscador:
+ * los claims rastreados, el catalogo de 74 algoritmos y las corridas selladas.
+ *
+ * Las cifras del catalogo se hornean (src/data/library-cifras.json, generado del seed
+ * sellado): pedir /v1/algorithms entero para pintar cuatro numeros son 241 KB por visita
+ * y el catalogo es una instantanea con sha256, no un dato vivo. Lo que SI cambia —los
+ * claims y cuantos siguen en pie— entra por isla. T-lib compara lo horneado contra lo
+ * servido: si el seed y D1 se separan, el CI se pone rojo.
+ */
+import MarcaLayout from '../../layouts/MarcaLayout.astro';
+import css from '../../styles/pages/library.css?raw';
+import cifras from '../../data/library-cifras.json';
+---
+<MarcaLayout
+  title="Evidence Library — Rosetta Quantum"
+  description="A search engine for quantum computing evidence: every claim dated, sourced, statused and linked to its seal."
+  lang="en" altUrl="/es/biblioteca" ruta="/library"
+  pageCss={css} scripts={["/js/library.js"]}
+>
+  <section class="lib-head" style="border-top:none">
+    <div class="wrap">
+      <div class="eyebrow">A product of its own</div>
+      <h1 class="lib-q">Is there real evidence for this quantum claim?</h1>
+      <p class="lib-sub">Every claim dated, sourced, statused and linked to its seal — including the ones we published against ourselves. Search the tracked claims, the algorithm catalogue and the sealed runs at once.</p>
+
+      <div class="libhero" style="padding:18px">
+        <div class="lh-search">
+          <input id="libQ" type="search" placeholder="e.g. certified randomness, QAOA portfolio, Willow…" aria-label="Search the Evidence Library" />
+          <button id="libGo" type="button">SEARCH</button>
+        </div>
+        <div class="hs-chips">
+          <span class="hs-chip">certified randomness</span>
+          <span class="hs-chip">Willow error correction</span>
+          <span class="hs-chip">QAOA portfolio</span>
+          <span class="hs-chip">Sycamore supremacy</span>
+          <span class="hs-chip">fraud detection kernel</span>
+        </div>
+        <div class="res" id="libRes"></div>
+      </div>
+
+      <div class="libstats" style="margin-top:22px">
+        <div class="ls"><div class="v">{cifras.algoritmos}</div><div class="k">algorithms catalogued</div></div>
+        <div class="ls"><div class="v">{cifras.referencias}</div><div class="k">references indexed</div></div>
+        <div class="ls"><div class="v" data-rq="rq-claims-tracked">16</div><div class="k">advantage claims tracked</div></div>
+        <div class="ls"><div class="v" data-rq="rq-claims-surviving">3</div><div class="k">still surviving</div></div>
+      </div>
+      <div class="sealline mono" style="margin-top:10px">
+        Catalogue: Quantum Algorithm Zoo snapshot {cifras._procedencia.generado} · sha256 {cifras._procedencia.instantanea_sha256.slice(0,8)}… · every number links to its source · <a href="/v1/algorithms">/v1/algorithms</a> · <a href="/v1/claims">/v1/claims</a>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="wrap">
+      <div class="eyebrow">The catalogue</div>
+      <h2>Four classes, 74 algorithms.</h2>
+      <p class="lede">The classes are the Quantum Algorithm Zoo's own. Re-cutting them into commercial classes is a product decision we have not taken.</p>
+      <div class="clases">
+        {cifras.clases.map((c) => (
+          <a class="clase" href={`/v1/algorithms?categoria=${c.id}&limit=100`}>
+            <div class="n">{c.n}</div>
+            <div class="nm2">{c.nombre}</div>
+          </a>
+        ))}
+      </div>
+      <p class="sealline mono" style="margin-top:16px">Built for AI agents: our MCP server exposes this archive — 9 tools, no key. <a href="/mcp">/mcp</a> · <a href="/llms.txt">llms.txt</a></p>
+    </div>
+  </section>
+
+  <section>
+    <div class="wrap">
+      <div class="eyebrow">The Survival Registry</div>
+      <h2>What happens to quantum claims after the press release.</h2>
+      <p class="lede">Sixteen tracked advantage claims, each with the date it was made, the date it was first challenged, and how much of its life it survived unchallenged.</p>
+      <p><a class="btn btn-solid" href="/library/registry">Open the registry →</a></p>
+    </div>
+  </section>
+</MarcaLayout>

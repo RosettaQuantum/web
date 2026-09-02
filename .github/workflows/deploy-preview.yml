@@ -129,7 +129,7 @@ jobs:
       - name: T-css — los tokens de marca ganan la cascada y la geometria es la aprobada
         env:
           PREVIEW_URL: ${{ steps.desplegar.outputs.url }}
-          RUTAS_REBUILD: "/,/es/"
+          RUTAS_REBUILD: "/,/es/,/library,/library/registry,/es/biblioteca,/es/biblioteca/registro"
         run: npm run check:css
 
       # T-fuentes — el sustituto silencioso. La home se sirvio dos dias en Georgia y
@@ -139,7 +139,7 @@ jobs:
       - name: T-fuentes — la pagina pide las familias que su CSS usa
         env:
           PREVIEW_URL: ${{ steps.desplegar.outputs.url }}
-          RUTAS_FUENTES: "/,/es/,/ledger/"
+          RUTAS_FUENTES: "/,/es/,/library,/es/biblioteca,/ledger/"
         run: npm run check:fuentes
 
       # T-estructura — el chrome duplicado. La home sirvio dos <footer> (el de la marca
@@ -148,11 +148,18 @@ jobs:
       - name: T-estructura — una sola barra y un solo pie en las paginas del rebuild
         env:
           PREVIEW_URL: ${{ steps.desplegar.outputs.url }}
-          RUTAS_REBUILD: "/,/es/"
+          RUTAS_REBUILD: "/,/es/,/library,/library/registry,/es/biblioteca,/es/biblioteca/registro"
         run: npm run check:estructura
 
       - name: T-nav — la barra tiene 6 enlaces, CTA y menu movil
         run: npm run check:nav
+
+      # T-lib — commit 7. Compara lo horneado del catalogo contra lo servido, y vigila
+      # que ningun claim sin verificar salga a la Biblioteca.
+      - name: T-lib — la Biblioteca sirve el archivo, y ningun claim sin verificar
+        env:
+          PREVIEW_URL: ${{ steps.desplegar.outputs.url }}
+        run: npm run check:lib
 
       - name: T-api — endpoints nuevos y /v1/state aditivo
         env:

@@ -1,0 +1,35 @@
+---
+/**
+ * Layout de las paginas del rebuild (maqueta v20).
+ *
+ * Existe para que las trece paginas de los commits 7-9 no repitan trece veces la misma
+ * decision. Cada repeticion es una oportunidad de que una pagina se quede con el chrome
+ * viejo, con la tipografia equivocada o con el pie duplicado — que es exactamente lo que
+ * ya paso con la home cuando esas decisiones estaban sueltas en el archivo de la pagina.
+ *
+ * Lo que fija: barra v2, pie v2, tipografias de marca, hoja de la maqueta, y apagar el
+ * chrome viejo de BaseLayout. Lo vigilan T-estructura y T-fuentes en cada deploy.
+ */
+import BaseLayout from './BaseLayout.astro';
+import NavV2 from '../components/NavV2.astro';
+import PieV2 from '../components/PieV2.astro';
+import marca from '../styles/pages/home.css?raw';
+import navCss from '../styles/componentes/nav.css?raw';
+
+const { title, description, lang = 'en', altUrl = '/es/', ruta = '/', pageCss = '', scripts = [] } = Astro.props;
+---
+<BaseLayout
+  title={title}
+  description={description}
+  lang={lang}
+  altUrl={altUrl}
+  pageCss={navCss + "\n" + marca + "\n" + pageCss}
+  scripts={scripts}
+  nav={false}
+  pie={false}
+  fuentes="marca"
+>
+  <NavV2 lang={lang} ruta={ruta} />
+  <slot />
+  <PieV2 lang={lang} />
+</BaseLayout>

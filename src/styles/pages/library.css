@@ -1,0 +1,39 @@
+/* /library y /library/registry — encima de la hoja de la maqueta v20.
+   Solo lo que la maqueta no tenia: la lista de resultados larga y la tabla del registro.
+   Nada de tokens aqui: viven en global.css (commit 3). */
+.lib-head{padding:44px 0 8px}
+.lib-q{font-family:var(--serif);font-weight:500;font-size:clamp(26px,4vw,40px);line-height:1.15;margin:8px 0 14px;max-width:20ch}
+.lib-sub{color:var(--ink-60);max-width:64ch;margin-bottom:22px}
+
+.res{border-top:1px solid var(--line);margin-top:18px}
+.res-grp{font-family:var(--mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-60);padding:16px 0 6px}
+.res-row{display:flex;gap:14px;align-items:baseline;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--line)}
+.res-row:hover{background:var(--panel)}
+.res-t{flex:1;min-width:0}
+.res-t b{font-weight:500}
+.res-m{font-family:var(--mono);font-size:11.5px;color:var(--ink-60);white-space:nowrap}
+.res-vacio{padding:22px 0;color:var(--ink-60)}
+
+.clases{display:grid;grid-template-columns:1fr;gap:12px;margin-top:20px}
+@media(min-width:700px){.clases{grid-template-columns:repeat(2,1fr)}}
+.clase{border:1px solid var(--line);background:var(--panel);padding:14px 16px;border-radius:2px}
+.clase .n{font-family:var(--mono);font-size:22px;color:var(--ink)}
+.clase .nm2{font-size:14px;color:var(--ink-60);margin-top:2px}
+
+/* Registro: la tabla del reloj completa */
+.reg{width:100%;border-collapse:collapse;margin-top:16px;font-size:14px}
+.reg th{font-family:var(--mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-60);text-align:left;padding:8px 10px;border-bottom:1px solid var(--ink)}
+.reg td{padding:11px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+.reg .id{font-family:var(--mono);font-size:11px;color:var(--ink-60);white-space:nowrap}
+.reg .st{font-family:var(--mono);font-size:11px;white-space:nowrap}
+.reg .st.surviving{color:var(--verdict)}
+.reg .st.contested{color:var(--ink)}
+.reg .st.eroded,.reg .st.negative-selfpublished{color:var(--alert)}
+.reg .st.open{color:var(--pending)}
+.reg .track{height:5px;background:var(--line);border-radius:3px;overflow:hidden;min-width:90px;margin-top:6px}
+.reg .fill{height:100%;background:var(--verdict)}
+.reg .fill.eroded,.reg .fill.negative-selfpublished{background:var(--alert)}
+.reg .fill.contested{background:var(--ink)}
+.reg .sinbarra{font-family:var(--mono);font-size:11px;color:var(--ink-60)}
+.reg-den{font-family:var(--mono);font-size:11.5px;color:var(--ink-60);margin-top:14px;line-height:1.7}
+@media(max-width:640px){.reg thead{display:none}.reg td{display:block;border:none;padding:3px 0}.reg tr{display:block;border-bottom:1px solid var(--line);padding:12px 0}}

@@ -1,0 +1,32 @@
+{
+  "_procedencia": {
+    "fuente": "Quantum Algorithm Zoo",
+    "instantanea_sha256": "dee7e76b5f19096ed329c88714744b93babf7b7d0296eb97e357b2582d16b75e",
+    "generado": "2026-08-09",
+    "como": "scripts/build-library-cifras.mjs sobre db/quantum.seed.sql; T-lib lo compara contra /v1/algorithms"
+  },
+  "algoritmos": 74,
+  "referencias": 625,
+  "clases": [
+    {
+      "id": "oracular",
+      "nombre": "Oracular Algorithms",
+      "n": 31
+    },
+    {
+      "id": "ONML",
+      "nombre": "Optimization, Numerics, and Machine Learning",
+      "n": 18
+    },
+    {
+      "id": "algebraic",
+      "nombre": "Algebraic and Number Theoretic Algorithms",
+      "n": 14
+    },
+    {
+      "id": "BQP",
+      "nombre": "Approximation and Simulation Algorithms",
+      "n": 11
+    }
+  ]
+}

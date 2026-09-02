@@ -1,0 +1,80 @@
+---
+/**
+ * /es/biblioteca — espejo de /library. Commit 7.
+ *
+ * OJO: el texto de esta pagina NO esta aprobado. La aprobacion que existe cubre la home
+ * (handoff/web/rosetta-home-es-textos-v20.md); para las paginas nuevas de los commits
+ * 7-9 no hay copia aprobada y el spec exige el par EN/ES (T-pages). Se escribe aqui como
+ * BORRADOR para que Nicholas lo lea el jueves sobre el preview, que es "mostrarselo
+ * antes" — y el cutover a produccion es una decision suya, aparte. Todo el texto nuevo
+ * esta junto en handoff/web/ES-BORRADOR-paginas-nuevas.md para leerlo sin abrir paginas.
+ */
+import MarcaLayout from '../../../layouts/MarcaLayout.astro';
+import css from '../../../styles/pages/library.css?raw';
+import cifras from '../../../data/library-cifras.json';
+---
+<MarcaLayout
+  title="Evidence Library — Rosetta Quantum"
+  description="Un buscador de evidencia en computación cuántica: cada claim con fecha, fuente, estado y enlace a su sello."
+  lang="es" altUrl="/library" ruta="/es/biblioteca"
+  pageCss={css} scripts={["/js/library.js"]}
+>
+  <section class="lib-head" style="border-top:none">
+    <div class="wrap">
+      <div class="eyebrow">Un producto en sí mismo</div>
+      <h1 class="lib-q">¿Existe evidencia real para este claim cuántico?</h1>
+      <p class="lib-sub">Cada claim con fecha, fuente, estado y enlace a su sello — incluidos los que publicamos contra nosotros mismos. Busca a la vez en los claims rastreados, el catálogo de algoritmos y las corridas selladas.</p>
+
+      <div class="libhero" style="padding:18px">
+        <div class="lh-search">
+          <input id="libQ" type="search" placeholder="ej. certified randomness, QAOA portfolio, Willow…" aria-label="Busca en la Evidence Library" />
+          <button id="libGo" type="button">BUSCAR</button>
+        </div>
+        <div class="hs-chips">
+          <span class="hs-chip">certified randomness</span>
+          <span class="hs-chip">Willow error correction</span>
+          <span class="hs-chip">QAOA portfolio</span>
+          <span class="hs-chip">Sycamore supremacy</span>
+          <span class="hs-chip">fraud detection kernel</span>
+        </div>
+        <div class="res" id="libRes"></div>
+      </div>
+
+      <div class="libstats" style="margin-top:22px">
+        <div class="ls"><div class="v">{cifras.algoritmos}</div><div class="k">algoritmos catalogados</div></div>
+        <div class="ls"><div class="v">{cifras.referencias}</div><div class="k">referencias</div></div>
+        <div class="ls"><div class="v" data-rq="rq-claims-tracked">16</div><div class="k">claims rastreados</div></div>
+        <div class="ls"><div class="v" data-rq="rq-claims-surviving">3</div><div class="k">en pie</div></div>
+      </div>
+      <div class="sealline mono" style="margin-top:10px">
+        Catálogo: instantánea del Quantum Algorithm Zoo {cifras._procedencia.generado} · sha256 {cifras._procedencia.instantanea_sha256.slice(0,8)}… · cada número enlaza a su fuente · <a href="/v1/algorithms">/v1/algorithms</a> · <a href="/v1/claims">/v1/claims</a>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="wrap">
+      <div class="eyebrow">El catálogo</div>
+      <h2>Cuatro clases, 74 algoritmos.</h2>
+      <p class="lede">Las clases son las del propio Quantum Algorithm Zoo. Recortarlas en clases comerciales es una decisión de producto que no hemos tomado.</p>
+      <div class="clases">
+        {cifras.clases.map((c) => (
+          <a class="clase" href={`/v1/algorithms?categoria=${c.id}&limit=100`}>
+            <div class="n">{c.n}</div>
+            <div class="nm2">{c.nombre}</div>
+          </a>
+        ))}
+      </div>
+      <p class="sealline mono" style="margin-top:16px">Construida para agentes de IA: nuestro servidor MCP expone el archivo — 9 herramientas, sin llave. <a href="/mcp">/mcp</a> · <a href="/llms.txt">llms.txt</a></p>
+    </div>
+  </section>
+
+  <section>
+    <div class="wrap">
+      <div class="eyebrow">El Survival Registry</div>
+      <h2>Qué les pasa a los claims cuánticos después del comunicado de prensa.</h2>
+      <p class="lede">Dieciséis claims de ventaja rastreados, cada uno con la fecha en que se hizo, la fecha del primer desafío, y cuánto de su vida sobrevivió sin ser desafiado.</p>
+      <p><a class="btn btn-solid" href="/es/biblioteca/registro">Abre el registro →</a></p>
+    </div>
+  </section>
+</MarcaLayout>
