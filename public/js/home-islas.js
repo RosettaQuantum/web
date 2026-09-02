@@ -122,4 +122,35 @@
       })
       .catch(function () { marcarViejo(cajaNotes); });
   }
+
+  // ── 4 · Monitor: el boton escribia un mailto ────────────────────────────────
+  // El commit 5 construyo POST /api/monitor-lead y la tabla monitor_leads, y la home
+  // seguia con el <a href="mailto:...> de la maqueta: el campo de correo era decorado.
+  // Es el peor de los tres estados de un instrumento — escrito y ENCHUFADO, pero sin
+  // ejercer: parece vivo. Aqui se ejerce. Si el POST falla, queda el mailto, que es lo
+  // que habia: se degrada a lo anterior, nunca a nada.
+  var mail = document.getElementById("monMail"), boton = document.getElementById("monGo");
+  if (mail && boton) {
+    var es = document.documentElement.lang === "es";
+    boton.addEventListener("click", function (ev) {
+      var v = (mail.value || "").trim();
+      if (!v) return; // sin correo, deja pasar el mailto de siempre
+      ev.preventDefault();
+      var texto = boton.textContent;
+      fetch("/api/monitor-lead", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ email: v }),
+      })
+        .then(function (r) {
+          if (!r.ok) throw 0;
+          boton.textContent = es ? "Anotado ✓" : "You're on the list ✓";
+          mail.disabled = true;
+        })
+        .catch(function () {
+          boton.textContent = texto;
+          window.location.href = boton.getAttribute("href"); // el mailto de la maqueta
+        });
+    });
+  }
 })();

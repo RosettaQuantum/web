@@ -181,9 +181,8 @@ const T = [
   ["Latest from the desk.", "Lo último del escritorio.", 1],
   ["All notes →", "Todas las notas →", 1],
 
-  // ── Pie ────────────────────────────────────────────────────────────────────
-  ["Rosetta Quantum is an independent evaluation firm for quantum computing. Reports in English and Spanish.",
-   "Rosetta Quantum es una marca de Blue Tuna SpA. · Informes en inglés y español.", 1],
+  // El pie ya no vive en el cuerpo: es el componente PieV2, que trae su propio texto
+  // aprobado por idioma. Salio de aqui porque venia con los once enlaces en href="#".
 
   // ── Accesibilidad ──────────────────────────────────────────────────────────
   ["aria-label=\"Search the Evidence Library\"", "aria-label=\"Busca en la Evidence Library\"", 1],

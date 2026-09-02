@@ -52,7 +52,21 @@ for (const ruta of RUTAS) {
   const viejoNav = cuenta(html, /class="wm-text"/g);
   const viejoPie = cuenta(html, /class="wrap foot-inner"/g);
 
+  // Enlaces que no van a ninguna parte. La maqueta v20 trae sus CTAs en href="#" y asi
+  // salieron a la home: 24 enlaces —cada llamada a la accion del sitio— que no dan 404,
+  // no dan error de consola y no cambian el tamaño de la pagina. Hacen scroll a ninguna
+  // parte. La barra si se habia remapeado, porque era un componente; el cuerpo y el pie
+  // entraron como HTML crudo y se quedaron con los marcadores de la maqueta.
+  const muertos = cuenta(html, /href="#"/g);
+  // Y enlaces absolutos a produccion: desde el preview sacan al sitio de verdad, o sea
+  // que lo que estas revisando no es lo que estas mirando. Solo <a>: el canonical y los
+  // hreflang de la cabecera TIENEN que ser absolutos a produccion, y marcarlos seria un
+  // falso positivo sobre lo unico que ahi esta bien.
+  const aProduccion = cuenta(html, /<a[^>]+href="https:\/\/rosettaquantum\.com/g);
+
   const problemas = [];
+  if (muertos) problemas.push(`${muertos} enlaces href="#" — no dan 404 y no llevan a ninguna parte`);
+  if (aProduccion) problemas.push(`${aProduccion} enlaces absolutos a rosettaquantum.com — desde el preview sacan a produccion`);
   if (pies !== 1) problemas.push(`${pies} <footer> — deberia haber 1`);
   if (barras !== 1) problemas.push(`${barras} barras v2 (class="wordmark") — deberia haber 1`);
   if (viejoNav) problemas.push(`chrome viejo presente: ${viejoNav} wm-text — quedo Nav.astro o Footer.astro montado`);
@@ -61,7 +75,7 @@ for (const ruta of RUTAS) {
   if (problemas.length) {
     console.log(`  FALLA ${ruta}`); problemas.forEach((p) => console.log(`        ${p}`)); fallos.push(ruta);
   } else {
-    console.log(`  ok    ${ruta.padEnd(12)} 1 barra v2 · 1 pie · 0 restos del chrome viejo`);
+    console.log(`  ok    ${ruta.padEnd(12)} 1 barra v2 · 1 pie · 0 restos del chrome viejo · 0 enlaces muertos`);
   }
 }
 

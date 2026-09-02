@@ -1,0 +1,61 @@
+---
+/**
+ * Pie v2 — el de la maqueta v20, sacado del cuerpo de la home y hecho componente.
+ *
+ * POR QUE SE SACO DEL HTML: venia con los ONCE enlaces en href="#". Asi salio a la
+ * home del preview y nadie lo vio — un href="#" no da 404, no da error de consola y no
+ * cambia el tamaño de la pagina: hace scroll a ninguna parte. La barra si se remapeo a
+ * rutas reales (NavV2) porque era un componente; el pie entro como HTML crudo y se
+ * quedo con los marcadores de posicion de la maqueta.
+ *
+ * Los destinos son los del arbol del spec §8. Varios se crean en el commit 9: hasta
+ * entonces responden 404, y esta declarado a proposito — un 404 se ve y se caza; un
+ * href="#" no se ve nunca.
+ *
+ * El logo se sirve como archivo, igual que en la barra: 4,4 KB de path repetidos en
+ * cada pagina son peso, y un SVG copiado a mano se corrompe en silencio.
+ */
+const { lang = "en" } = Astro.props;
+const es = lang === "es";
+
+const COLS = es
+  ? [
+      ["Evaluación", [["/es/metodologia", "Metodología v1.0"], ["/es/metodologia/niveles-el", "Definiciones EL"],
+                      ["/es/metodologia/juez-v1", "Protocolo juez-v1"], ["/es/erratas", "Erratas"]]],
+      ["La firma",   [["/es/nosotros", "Nosotros"], ["/es/politicas", "Políticas y conducta"],
+                      ["/es/contacto", "Contacto"], ["/es/blog", "Notes"]]],
+      ["Legible por máquina", [["/v1/state", "/v1/state"], ["/llms.txt", "llms.txt"], ["/sitemap-0.xml", "Sitemap"]]],
+    ]
+  : [
+      ["Evaluation", [["/methodology", "Methodology v1.0"], ["/methodology/el-definitions", "EL Definitions"],
+                      ["/methodology/juez-v1", "Protocol juez-v1"], ["/errata", "Errata"]]],
+      ["Firm",       [["/about", "About"], ["/policies", "Policies & Conduct"],
+                      ["/contact", "Contact"], ["/blog", "Notes"]]],
+      ["Machine-readable", [["/v1/state", "/v1/state"], ["/llms.txt", "llms.txt"], ["/sitemap-0.xml", "Sitemap"]]],
+    ];
+
+// La primera linea legal es texto aprobado (ES en handoff/web/rosetta-home-es-textos-v20.md).
+// La segunda y el lema NO estan aprobados en ES: quedan en ingles a proposito y estan
+// listados en handoff/web/ES-FALTANTES-home-v20.md §9.
+const LEGAL1 = es
+  ? "Rosetta Quantum es una marca de Blue Tuna SpA. · Informes en inglés y español."
+  : "Rosetta Quantum is an independent evaluation firm for quantum computing. Reports in English and Spanish.";
+const LEGAL2 = "hello@rosettaquantum.com · Rosetta Quantum is a brand of Blue Tuna SpA (Chile) · Every verdict is signed and hash-anchored; authorship is stated on each report and on the About page.";
+const LEMA = "Every number on this page links to its source.";
+---
+<footer><div class="wrap">
+  <div style="display:flex;align-items:center;gap:10px">
+    <img src="/rosetta-mark.svg" width="26" height="26" alt="" aria-hidden="true" />
+    <span style="font-family:var(--serif);font-size:16px;color:var(--ink)">Rosetta Quantum</span>
+  </div>
+  <div class="foot-cols">
+    {COLS.map(([titulo, enlaces]) => (
+      <div class="fc">
+        <div class="fh">{titulo}</div>
+        {enlaces.map(([h, t]) => <a href={h}>{t}</a>)}
+      </div>
+    ))}
+  </div>
+  <div class="foot-legal">{LEGAL1}<br />{LEGAL2}</div>
+  <div class="foot-motto">{LEMA}</div>
+</div></footer>

@@ -18,6 +18,7 @@
  */
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import NavV2 from '../../components/NavV2.astro';
+import PieV2 from '../../components/PieV2.astro';
 import content from '../../content_html/home.es.html?raw';
 import css from '../../styles/pages/home.css?raw';
 import navCss from '../../styles/componentes/nav.css?raw';
@@ -35,4 +36,5 @@ import navCss from '../../styles/componentes/nav.css?raw';
 >
   <NavV2 lang="es" ruta="/" />
   <Fragment set:html={content} />
+  <PieV2 lang="es" />
 </BaseLayout>
