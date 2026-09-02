@@ -34,6 +34,19 @@ const MARCA = {
   "--alert": "#B4432F",
 };
 
+// GEOMETRIA APROBADA de la maqueta congelada v20. No es decoracion: cambia lo que el
+// lector ve. Al mover los tokens de la maqueta a global.css (commit 3), --maxw:1000px
+// se renombro a --maxw-brand y el CSS de pagina siguio pidiendo var(--maxw)... que SI
+// existe en global.css, con el valor del diseño VIEJO: 1080px. Resultado: la home se
+// sirvio 80px mas ancha que la maqueta aprobada, sin error, sin fallback, sin nada roto.
+// Un token que no existe se nota; uno que existe con OTRO valor, no.
+// Medido en el navegador antes del arreglo: getComputedStyle('.wrap').maxWidth = 1080px.
+const GEOMETRIA = { ".wrap": { prop: "max-width", valor: "1000px" } };
+// Solo las paginas YA portadas a la v20. /ledger/ y /blog/ siguen en el diseño viejo y
+// miden 1080px con razon: exigirles la geometria de la maqueta seria un falso positivo,
+// y un falso positivo retiene trabajo bueno — peor que dejar pasar un caso.
+const RUTAS_MARCA = new Set((process.env.RUTAS_REBUILD || "/,/es/").split(",").map((r) => r.trim()));
+
 async function texto(u) { const r = await fetch(u, { headers: { "x-rq-check": "1" } }); return { code: r.status, t: await r.text() }; }
 
 // La hoja global: se toma del <link> de la propia pagina, no de una ruta escrita a mano.
@@ -66,6 +79,25 @@ for (const ruta of paginas) {
     else if (enGlobal !== val.toUpperCase()) problemas.push(`${tok} = ${enGlobal}, se esperaba ${val}`);
     if (re.test(inline)) problemas.push(`${tok} REDEFINIDO en el <style> inline — sombrea a global`);
   }
+  // Geometria: se resuelve el token que usa la regla y se compara con la maqueta.
+  // El resolver es deliberadamente simple —ultima declaracion gana, que es como se
+  // comportan estos tokens, todos a nivel :root—. Punto ciego declarado: no evalua
+  // overrides dentro de media queries.
+  const cascada = global + "\n" + inline;
+  for (const [sel, { prop, valor }] of (RUTAS_MARCA.has(ruta) ? Object.entries(GEOMETRIA) : [])) {
+    const regla = new RegExp(sel.replace(".", "\\.") + "\\s*\\{[^}]*" + prop + "\\s*:\\s*([^;}]+)");
+    const m = cascada.match(regla);
+    if (!m) continue; // la pagina no usa ese selector
+    let v = m[1].trim();
+    const usaToken = v.match(/var\(\s*(--[\w-]+)\s*\)/);
+    if (usaToken) {
+      let ultimo = null;
+      for (const d of cascada.matchAll(new RegExp(usaToken[1] + "\\s*:\\s*([^;}]+)", "g"))) ultimo = d[1];
+      v = ultimo ? ultimo.trim() : "(sin declarar)";
+    }
+    if (v !== valor) problemas.push(`${sel} ${prop} = ${v}${usaToken ? ` (via ${usaToken[1]})` : ""}, la maqueta v20 dice ${valor}`);
+  }
+
   if (problemas.length) {
     console.log(`  FALLA ${ruta}`); problemas.forEach((p) => console.log(`        ${p}`)); fallos.push(ruta);
   } else {

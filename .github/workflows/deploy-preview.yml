@@ -126,9 +126,10 @@ jobs:
           git fetch origin main:main --force 2>/dev/null || git fetch origin main --force
           npm run check:contenido
 
-      - name: T-css — los tokens de marca ganan la cascada
+      - name: T-css — los tokens de marca ganan la cascada y la geometria es la aprobada
         env:
           PREVIEW_URL: ${{ steps.desplegar.outputs.url }}
+          RUTAS_REBUILD: "/,/es/"
         run: npm run check:css
 
       # T-fuentes — el sustituto silencioso. La home se sirvio dos dias en Georgia y
