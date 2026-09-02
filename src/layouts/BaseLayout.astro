@@ -4,7 +4,11 @@ import Nav from '../components/Nav.astro';
 import Footer from '../components/Footer.astro';
 import LeadModal from '../components/LeadModal.astro';
 import { abs } from '../lib/urls.js';
-const { title, description, lang='en', altUrl='/es/', pageCss='', scripts=[] } = Astro.props;
+// `nav` por omision TRUE: las 38 paginas que aun usan la barra vieja no cambian.
+// La home v20 pasa nav={false} y monta NavV2, que es la barra nueva con rutas reales.
+// Se agrega una opcion en vez de reemplazar Nav.astro de golpe: cambiarlo para todas
+// pondria la barra clara sobre las paginas viejas, que siguen en el diseño oscuro.
+const { title, description, lang='en', altUrl='/es/', pageCss='', scripts=[], nav=true } = Astro.props;
 const altLang = lang==='en' ? 'es' : 'en';
 // absolutas y con barra final: una hreflang relativa es válida pero frágil, y
 // sin canonical /ruta y /ruta/ son dos páginas distintas para Google.
@@ -34,7 +38,7 @@ const build = (process.env.GITHUB_SHA || process.env.RQ_BUILD || 'local').slice(
   {pageCss && <style is:global set:html={pageCss}></style>}
 </head>
 <body>
-  <Nav lang={lang} altUrl={altUrl} />
+  {nav && <Nav lang={lang} altUrl={altUrl} />}
   <slot />
   <Footer lang={lang} />
   {scripts.map((s) => <script is:inline src={s}></script>)}
