@@ -23,7 +23,10 @@ const faltanEn = en.filter((r) => !src.includes(`"${r}"`));
 const faltanEs = es.filter((r) => !src.includes(`"${r}"`));
 faltanEn.length ? mal(`faltan rutas EN: ${faltanEn}`) : ok(`6 enlaces EN`);
 faltanEs.length ? mal(`faltan rutas ES: ${faltanEs}`) : ok(`6 enlaces ES`);
-src.includes("Get a verdict") && src.includes("Pide un veredicto") ? ok("CTA en los dos idiomas") : mal("falta el CTA en algun idioma");
+// Los textos son los aprobados: EN de la maqueta v20, ES de
+// handoff/web/rosetta-home-es-textos-v20.md (2-sep). Si cambian, cambia el aprobado
+// primero — este guardia esta escrito contra el texto, no contra "hay un boton".
+src.includes("Get a verdict") && src.includes("Obtén un veredicto") ? ok("CTA en los dos idiomas, con el texto aprobado") : mal("falta el CTA en algun idioma, o no dice el texto aprobado");
 src.includes('id="burger"') && src.includes('id="mobileMenu"') && src.includes("aria-expanded") ? ok("hamburguesa con aria-expanded y menu movil") : mal("falta la hamburguesa o el menu movil");
 /--[a-z0-9-]+\s*:/.test(css) ? mal("nav.css declara tokens: los sombrearia (D3)") : ok("nav.css no declara tokens");
 [".burger",".mobile-menu",".nav-links",".nav-cta"].every((c) => css.includes(c)) ? ok("CSS de la barra portado") : mal("falta CSS de la barra");
