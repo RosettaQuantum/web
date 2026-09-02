@@ -1,0 +1,119 @@
+---
+/**
+ * El Ledger, veredicto-primero (commit 8). La URL /ledger NO cambia: la citan sellos
+ * propios y claims nuestros, y romperla romperia la evidencia que la pagina publica.
+ *
+ * QUE SE MUESTRA Y QUE NO
+ * -----------------------
+ * La caja de veredicto se pinta SOLO donde hay veredicto sellado. RQ-0007 y RQ-0012
+ * tienen datos suficientes para emitir uno, pero emitirlo es capa B —juicio, con firma
+ * humana— y no lo decide una plantilla. Donde no hay, la receta muestra sus corridas
+ * selladas y dice que no se ha llamado resultado. Callarlas seria sub-reportar lo que
+ * SI medimos; inventar el veredicto seria peor.
+ *
+ * Las anclas (#RQ-0007, #RQ-EON-QPU-001, …) las usa la home. Como la tabla de
+ * artefactos la pinta una isla, el navegador ya paso por el ancla cuando las filas
+ * existen: por eso el script vuelve a saltar al hash despues de pintar. Sin eso el
+ * enlace funciona (carga /ledger) pero no lleva donde dice — que es la clase de fallo
+ * silencioso que este sitio colecciona.
+ */
+import data from '../data/ledger.json';
+const { lang = 'en' } = Astro.props;
+const es = lang === 'es';
+const t = es ? {
+  eyebrow:'El Ledger', h1:'Un registro público que no se puede reescribir.',
+  lede:'Cada experimento, informe y corrección que producimos queda anclado por hash a Bitcoin vía OpenTimestamps y espejado en GitHub, Codeberg y D1 — incluidos los que perdemos.',
+  k:{sel:'corridas selladas',pre:'pre-registros',ver:'veredicto publicado',err:'erratas publicadas',win:'victorias cuánticas medidas'},
+  vh:'Veredicto', sinv:'Sin veredicto: los datos están medidos y sellados, pero todavía no llamamos un resultado.',
+  cor:'corridas selladas', alg:'Algoritmo', cl:'Clase', vert:'Vertical', est:'Estado',
+  arth:'Artefactos sellados', artl:'Cada fila es un archivo sellado, con su hash y sus tres copias. La tabla se lee de /v1/runs al mirar la página.',
+  cols:{id:'id',tipo:'tipo',fecha:'fecha',hash:'sha256',copias:'copias'},
+  mas:'Ver más', cargando:'leyendo /v1/runs…', errh:'Nos auditamos a nosotros mismos',
+  errl:'Un sello publicado nunca se reescribe. Cuando encontramos un error propio, publicamos la corrección como un archivo nuevo que cita al original por su hash — el original queda intacto y consultable.',
+  errcarg:'leyendo /v1/erratas…', verificar:'Verifica un sello →', fallo:'No se pudo leer el archivo. Vuelve a intentar.',
+} : {
+  eyebrow:'The Ledger', h1:'A public record that cannot be rewritten.',
+  lede:'Every experiment, report and correction we produce is hash-anchored to Bitcoin via OpenTimestamps and mirrored on GitHub, Codeberg and D1 — including the ones we lose.',
+  k:{sel:'sealed runs',pre:'pre-registrations',ver:'verdict published',err:'errata published',win:'quantum wins measured'},
+  vh:'Verdict', sinv:'No verdict: the data is measured and sealed, but we are not calling a result yet.',
+  cor:'sealed runs', alg:'Algorithm', cl:'Class', vert:'Vertical', est:'Status',
+  arth:'Sealed artifacts', artl:'Every row is a sealed file, with its hash and its three copies. The table is read from /v1/runs when you look at the page.',
+  cols:{id:'id',tipo:'type',fecha:'date',hash:'sha256',copias:'copies'},
+  mas:'Show more', cargando:'reading /v1/runs…', errh:'We audit ourselves',
+  errl:'A published seal is never rewritten. When we find our own error, we publish the correction as a new file that cites the original by its hash — the original stays intact and checkable.',
+  errcarg:'reading /v1/erratas…', verificar:'Verify a seal →', fallo:'The archive could not be read. Try again.',
+};
+const nombre = (r) => es ? r.name_es : r.name_en;
+const clase  = (r) => es ? r.class_es : r.class_en;
+const resumen = (v) => es ? v.summary_es : v.summary_en;
+const cross  = (v) => es ? v.crossover_es : v.crossover_en;
+const recetas = data.recipes.filter((r) => r.verdict || (r.experiments && r.experiments.length));
+---
+<section class="led-head" style="border-top:none">
+  <div class="wrap">
+    <div class="eyebrow">{t.eyebrow}</div>
+    <h1 class="led-h1">{t.h1}</h1>
+    <p class="led-sub">{t.lede}</p>
+    <div class="numbers" style="margin-top:20px">
+      <div class="nm"><div class="v" data-rq="rq-sealed">{data.counter.sealed}</div><div class="k">{t.k.sel}</div></div>
+      <div class="nm"><div class="v" data-rq="rq-prereg">—</div><div class="k">{t.k.pre}</div></div>
+      <div class="nm"><div class="v" data-rq="rq-verdicts">{data.counter.published}</div><div class="k">{t.k.ver}</div></div>
+      <div class="nm"><div class="v" data-rq="rq-errata">—</div><div class="k">{t.k.err}</div></div>
+      <div class="nm"><div class="v zero" data-rq="rq-wins">0</div><div class="k">{t.k.win}</div></div>
+    </div>
+    <p class="sealline mono" style="margin-top:10px">
+      <a href="/v1/state">/v1/state</a> · <a href="/v1/runs">/v1/runs</a> · <a href="/v1/erratas">/v1/erratas</a> · <a href={es ? '/es/verificar' : '/verify'}>{t.verificar}</a>
+    </p>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    {recetas.map((r) => (
+      <div class="vbox" id={r.id}>
+        <div class="vhead">{r.id} · {clase(r)} · {r.vertical}</div>
+        <h3>{nombre(r)}</h3>
+        {r.verdict
+          ? <>
+              <div class={"vline" + (r.verdict.outcome === 'not yet' ? ' pend' : '')}>{t.vh}: {r.verdict.outcome}</div>
+              <p>{resumen(r.verdict)}</p>
+              {cross(r.verdict) && <p class="mono" style="font-size:12.5px;color:var(--ink-60);margin-top:8px">{cross(r.verdict)}</p>}
+            </>
+          : <div class="vline pend">{t.sinv}</div>}
+        <dl>
+          <dt>{t.alg}</dt><dd>{r.algorithm}</dd>
+          <dt>{t.est}</dt><dd>{r.status}{r.qubits ? ` · ${r.qubits} qubits` : ''}</dd>
+          <dt>{t.cor}</dt><dd>{(r.experiments || []).length}</dd>
+        </dl>
+        {(r.experiments || []).length > 0 && (
+          <div class="vlinks">
+            {(r.experiments || []).slice(0, 4).map((e, i) => <a href={e.url}>{`run ${i + 1} ↗`}</a>)}
+            {(r.experiments || []).length > 4 && <span class="mono" style="color:var(--ink-60)">+{(r.experiments || []).length - 4}</span>}
+          </div>
+        )}
+      </div>
+    ))}
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="eyebrow">{t.arth}</div>
+    <h2>{t.arth}</h2>
+    <p class="lede">{t.artl}</p>
+    <table class="art">
+      <thead><tr><th>{t.cols.id}</th><th>{t.cols.tipo}</th><th>{t.cols.fecha}</th><th>{t.cols.hash}</th><th>{t.cols.copias}</th></tr></thead>
+      <tbody id="artBody"><tr><td colspan="5" class="res-vacio">{t.cargando}</td></tr></tbody>
+    </table>
+    <p class="led-mas"><button type="button" class="btn btn-ghost" id="artMas">{t.mas}</button> <span class="mono" id="artDen" style="font-size:11.5px;color:var(--ink-60)"></span></p>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="eyebrow">{t.errh}</div>
+    <h2>{t.errh}</h2>
+    <p class="lede">{t.errl}</p>
+    <div id="errBody"><p class="mono" style="color:var(--ink-60)">{t.errcarg}</p></div>
+  </div>
+</section>

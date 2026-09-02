@@ -1,8 +1,17 @@
 ---
-import BaseLayout from '../../layouts/BaseLayout.astro';
-import Ledger from '../../components/Ledger.astro';
-import css from '../../styles/pages/ledger.css?raw';
+/**
+ * /es/ledger — commit 8. Texto BORRADOR en lo que no venia ya traducido en el
+ * componente viejo; ver handoff/web/ES-BORRADOR-paginas-nuevas.md.
+ */
+import MarcaLayout from '../../layouts/MarcaLayout.astro';
+import LedgerV2 from '../../components/LedgerV2.astro';
+import css from '../../styles/pages/ledger-v2.css?raw';
 ---
-<BaseLayout title="El Evidence Ledger — Rosetta Q" description="El registro público de los veredictos de Rosetta, con evidencia reproducible." lang="es" altUrl="/ledger" pageCss={css}>
-  <Ledger lang="es" />
-</BaseLayout>
+<MarcaLayout
+  title="El Ledger — Rosetta Quantum"
+  description="Cada experimento, informe y corrección que producimos, anclado por hash a Bitcoin y espejado en GitHub, Codeberg y D1 — incluidos los que perdemos."
+  lang="es" altUrl="/ledger" ruta="/es/ledger"
+  pageCss={css} scripts={["/js/ledger.js"]}
+>
+  <LedgerV2 lang="es" />
+</MarcaLayout>
