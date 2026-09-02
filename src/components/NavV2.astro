@@ -1,0 +1,61 @@
+---
+/**
+ * Barra de navegación v2 — portada de la maqueta v20 (congelada).
+ *
+ * Los seis enlaces y el CTA son los de la maqueta; lo unico que cambia son los
+ * destinos: la maqueta usa anclas (#pilots) porque es una sola pagina, y aqui van
+ * a las rutas reales del spec §1. Las rutas se crean en los commits 7-9: hasta
+ * entonces el preview responde 404 en algunas, y esta declarado a proposito — un
+ * nav que apunte a anclas muertas seria peor, porque no falla.
+ *
+ * El logo se sirve como archivo (public/rosetta-mark.svg), no inline: 4 KB de path
+ * repetidos en cada pagina es peso, y un SVG copiado a mano se corrompe en silencio.
+ */
+const { lang = "en", ruta = "/" } = Astro.props;
+const es = lang === "es";
+
+const ENLACES = es
+  ? [["/es/pilotos", "Pilotos"], ["/es/servicios", "Servicios"], ["/es/biblioteca", "Biblioteca"],
+     ["/es/ledger", "Ledger"], ["/es/monitor", "Monitor"], ["/es/metodologia", "Metodología"]]
+  : [["/pilots", "Pilots"], ["/services", "Services"], ["/library", "Library"],
+     ["/ledger", "Ledger"], ["/monitor", "Monitor"], ["/methodology", "Methodology"]];
+
+const CTA = es ? ["/es/pilotos", "Pide un veredicto"] : ["/pilots", "Get a verdict"];
+const OTRO = es ? ruta.replace(/^\/es/, "") || "/" : "/es" + (ruta === "/" ? "/" : ruta);
+---
+<nav>
+  <div class="wrap nav-inner">
+    <a class="wordmark" href={es ? "/es/" : "/"}>
+      <img src="/rosetta-mark.svg" width="34" height="34" alt="" aria-hidden="true" />
+      <span class="wm">Rosetta Quantum</span>
+    </a>
+    <div class="nav-links">
+      {ENLACES.map(([h, t]) => <a href={h}>{t}</a>)}
+    </div>
+    <div class="nav-right">
+      <span class="lang">{es ? <a href={OTRO}>EN</a> : <b>EN</b>} / {es ? <b>ES</b> : <a href={OTRO}>ES</a>}</span>
+      <a class="nav-cta" href={CTA[0]}>{CTA[1]}</a>
+      <button type="button" class="burger" id="burger" aria-label={es ? "Menú" : "Menu"} aria-expanded="false">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </div>
+  <div class="mobile-menu" id="mobileMenu">
+    {ENLACES.map(([h, t]) => <a href={h}>{t}</a>)}
+    <div class="mm-foot">
+      <span>{es ? <a href={OTRO}>EN</a> : <b>EN</b>} / {es ? <b>ES</b> : <a href={OTRO}>ES</a>}</span>
+      <a class="nav-cta" href={CTA[0]}>{CTA[1]}</a>
+    </div>
+  </div>
+</nav>
+<script is:inline>
+  (function () {
+    var b = document.getElementById("burger"), m = document.getElementById("mobileMenu");
+    if (!b || !m) return;
+    b.addEventListener("click", function () {
+      var abierto = b.getAttribute("aria-expanded") === "true";
+      b.setAttribute("aria-expanded", String(!abierto));
+      m.classList.toggle("open", !abierto);
+    });
+  })();
+</script>

@@ -35,7 +35,8 @@
     "check:tres-copias": "node scripts/check-tres-copias.mjs --self-test && node scripts/check-tres-copias.mjs",
     "check:preview": "node scripts/check-preview.mjs",
     "check:contenido": "node scripts/check-contenido.mjs",
-    "check:css": "node scripts/check-css.mjs"
+    "check:css": "node scripts/check-css.mjs",
+    "check:nav": "node scripts/check-nav.mjs"
   },
   "dependencies": {
     "@astrojs/rss": "latest",

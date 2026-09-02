@@ -121,6 +121,9 @@ jobs:
           PREVIEW_URL: ${{ steps.desplegar.outputs.url }}
         run: npm run check:css
 
+      - name: T-nav — la barra tiene 6 enlaces, CTA y menu movil
+        run: npm run check:nav
+
       - name: Resumen
         if: always()
         run: |
