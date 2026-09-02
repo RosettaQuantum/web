@@ -227,11 +227,20 @@ async function posts(env, url) {
     env.DB.prepare("SELECT count(*) n FROM posts WHERE published=1 AND lang=?").bind(lang).first(),
   ]);
   return json({
-    que_es: "Entradas publicadas, desde D1. Mismo filtro que el indice del blog (published=1).",
+    que_es: "Entradas publicadas, desde D1. Mismo filtro que el indice del blog (published=1). `excerpt` = primer parrafo del cuerpo, no el tldr.",
     lang,
     total: results.length,
     de_un_total_de: (total || { n: 0 }).n,
     posts: results.map((p) => {
+      // El extracto sale del PRIMER PARRAFO DEL CUERPO, no del tldr.
+      // La primera version usaba el tldr y daba exactamente tldr.slice(0,220): la home
+      // habria mostrado el mismo texto dos veces, uno debajo del otro. Lo cazo la
+      // verificacion externa buscando el campo por su nombre del spec ("excerpt") y no
+      // encontrandolo — el sintoma reportado fue "viene vacio" y el defecto real era
+      // otro y peor. Se corrigen los dos: el nombre y el origen.
+      const parrafos = [...(p.body_html || "").matchAll(/<p[^>]*>([\s\S]*?)<\/p>/gi)]
+        .map((m) => m[1].replace(/<[^>]+>/g, " ").replace(/&nbsp;/g, " ").replace(/&[a-z]+;/g, " ").replace(/\s+/g, " ").trim())
+        .filter((t) => t.length > 40);
       const texto = (p.body_html || "").replace(/<[^>]+>/g, " ").replace(/&[a-z]+;/g, " ").replace(/\s+/g, " ").trim();
       const palabras = texto.split(/\s+/).filter(Boolean).length;
       return {
@@ -240,7 +249,10 @@ async function posts(env, url) {
         fecha: p.date,
         pilar: p.pillar,
         tldr: p.tldr,
-        extracto: (p.tldr && p.tldr.length > 40 ? p.tldr : texto).slice(0, 220),
+        // Nombre del spec. Si no hay ningun parrafo utilizable, se declara vacio en vez
+        // de rellenar con el tldr: un campo que se cae de vuelta a otro campo esconde
+        // que el cuerpo no tenia parrafos.
+        excerpt: (parrafos[0] || "").slice(0, 220),
         minutos: Math.max(1, Math.round(palabras / 220)),
       };
     }),

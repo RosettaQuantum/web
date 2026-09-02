@@ -30,9 +30,20 @@ try {
 try {
   const p = await j("/v1/posts?limit=2");
   p.total === 2 ? ok("/v1/posts?limit=2 devuelve 2") : mal(`/v1/posts devuelve ${p.total}`);
-  const vacios = (p.posts || []).filter((x) => !x.extracto || x.extracto.length < 20);
-  vacios.length ? mal(`${vacios.length} post(s) con extracto vacio`) : ok("los 2 traen extracto no vacio");
   (p.posts || []).every((x) => x.slug && x.fecha) ? ok("slug y fecha presentes") : mal("falta slug o fecha");
+} catch (e) { mal(`/v1/posts: ${e}`); }
+
+// 2 bis · excerpt no vacio en EN y ES, y DISTINTO del tldr
+// La primera version devolvia tldr.slice(0,220): no estaba vacio y estaba mal. Por eso
+// la asercion compara contra el tldr en vez de solo medir el largo.
+try {
+  for (const lang of ["en", "es"]) {
+    const p = await j(`/v1/posts?limit=2&lang=${lang}`);
+    const vacios = (p.posts || []).filter((x) => !x.excerpt || x.excerpt.length < 40);
+    const clonados = (p.posts || []).filter((x) => x.excerpt && x.tldr && x.tldr.startsWith(x.excerpt.slice(0, 60)));
+    vacios.length ? mal(`${lang}: ${vacios.length} post(s) con excerpt vacio`) : ok(`${lang}: los 2 traen excerpt (${(p.posts||[]).map((x)=>x.excerpt.length).join("/")} chars)`);
+    clonados.length ? mal(`${lang}: ${clonados.length} excerpt es el tldr recortado — la home mostraria el mismo texto dos veces`) : ok(`${lang}: excerpt sale del cuerpo, no del tldr`);
+  }
 } catch (e) { mal(`/v1/posts: ${e}`); }
 
 // 3 · /v1/state — aditivo, ninguna clave perdida
