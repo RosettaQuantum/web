@@ -131,6 +131,25 @@ jobs:
           PREVIEW_URL: ${{ steps.desplegar.outputs.url }}
         run: npm run check:css
 
+      # T-fuentes — el sustituto silencioso. La home se sirvio dos dias en Georgia y
+      # system-ui porque el CSS pedia Newsreader/IBM Plex Sans y el <link> pedia otras
+      # tres familias. Ni P0, ni T-css, ni T-nav, ni T-api, ni una QA de navegador
+      # completa lo vieron: la pagina se ve BIEN en el sustituto.
+      - name: T-fuentes — la pagina pide las familias que su CSS usa
+        env:
+          PREVIEW_URL: ${{ steps.desplegar.outputs.url }}
+          RUTAS_FUENTES: "/,/es/,/ledger/"
+        run: npm run check:fuentes
+
+      # T-estructura — el chrome duplicado. La home sirvio dos <footer> (el de la marca
+      # y el oscuro de Footer.astro) y lo unico que lo vio fue contarlos en el HTML
+      # servido. RUTAS_REBUILD crece con cada commit que porta una pagina a la v20.
+      - name: T-estructura — una sola barra y un solo pie en las paginas del rebuild
+        env:
+          PREVIEW_URL: ${{ steps.desplegar.outputs.url }}
+          RUTAS_REBUILD: "/,/es/"
+        run: npm run check:estructura
+
       - name: T-nav — la barra tiene 6 enlaces, CTA y menu movil
         run: npm run check:nav
 

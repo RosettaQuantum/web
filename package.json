@@ -37,7 +37,9 @@
     "check:contenido": "node scripts/check-contenido.mjs",
     "check:css": "node scripts/check-css.mjs",
     "check:nav": "node scripts/check-nav.mjs",
-    "check:api2": "node scripts/check-api.mjs"
+    "check:api2": "node scripts/check-api.mjs",
+    "check:fuentes": "node scripts/check-fuentes.mjs",
+    "check:estructura": "node scripts/check-estructura.mjs"
   },
   "dependencies": {
     "@astrojs/rss": "latest",

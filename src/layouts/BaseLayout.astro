@@ -8,7 +8,26 @@ import { abs } from '../lib/urls.js';
 // La home v20 pasa nav={false} y monta NavV2, que es la barra nueva con rutas reales.
 // Se agrega una opcion en vez de reemplazar Nav.astro de golpe: cambiarlo para todas
 // pondria la barra clara sobre las paginas viejas, que siguen en el diseño oscuro.
-const { title, description, lang='en', altUrl='/es/', pageCss='', scripts=[], nav=true } = Astro.props;
+// `fuentes`: que familias PIDE el documento. Por omision, las tres del diseño viejo,
+// para que las 38 paginas que siguen en el no cambien. Las paginas del rebuild pasan
+// fuentes="marca" y piden las del brand system.
+//
+// POR QUE ES UN PROP Y NO UN CAMBIO GLOBAL: la home v20 declara --serif:'Newsreader' y
+// --sans:'IBM Plex Sans' en global.css, pero este layout solo pedia Marcellus e
+// Instrument Sans. El navegador no avisa: cae al sustituto (Georgia, system-ui) y la
+// pagina se ve BIEN, solo que en otra tipografia. Medido en el preview el 2-sep:
+// document.fonts traia [IBM Plex Mono, Instrument Sans, Marcellus] y el ancho de un
+// texto en 'Newsreader' era identico al del serif generico. Lo vigila T-fuentes.
+const FUENTES = {
+  vieja: 'https://fonts.googleapis.com/css2?family=Marcellus&family=Instrument+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap',
+  marca: 'https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,400;6..72,500;6..72,600&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap',
+};
+// `pie`: mismo caso que `nav`. La maqueta v20 trae su propio <footer> dentro del
+// cuerpo, asi que la home servia DOS: el de la marca y el oscuro de Footer.astro.
+// Se vio contando <footer en el HTML servido, no mirando la pagina — el segundo pie
+// queda al final del scroll, donde nadie llega revisando.
+const { title, description, lang='en', altUrl='/es/', pageCss='', scripts=[], nav=true, pie=true, fuentes='vieja' } = Astro.props;
+const hrefFuentes = FUENTES[fuentes] || FUENTES.vieja;
 const altLang = lang==='en' ? 'es' : 'en';
 // absolutas y con barra final: una hreflang relativa es válida pero frágil, y
 // sin canonical /ruta y /ruta/ son dos páginas distintas para Google.
@@ -34,13 +53,13 @@ const build = (process.env.GITHUB_SHA || process.env.RQ_BUILD || 'local').slice(
   <link rel="alternate" hreflang={altLang} href={altHref} />
   <link rel="alternate" hreflang="x-default" href={xDefault} />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link href="https://fonts.googleapis.com/css2?family=Marcellus&family=Instrument+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link href={hrefFuentes} rel="stylesheet" />
   {pageCss && <style is:global set:html={pageCss}></style>}
 </head>
 <body>
   {nav && <Nav lang={lang} altUrl={altUrl} />}
   <slot />
-  <Footer lang={lang} />
+  {pie && <Footer lang={lang} />}
   {scripts.map((s) => <script is:inline src={s}></script>)}
   <LeadModal lang={lang} />
 </body>
