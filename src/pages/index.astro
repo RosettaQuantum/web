@@ -1,37 +1,25 @@
 ---
 /**
- * Home v20 — commit 6.
+ * Home v20 — commits 6 y 6-fixes.
  *
- * El contenido, el CSS y el JS de la maqueta se importan como ARCHIVO (?raw), no se
- * reescriben: copiar a ojo una maqueta congelada es como se pierde una maqueta
- * aprobada, y §10 de la casa lo dice para documentos por la misma razon.
+ * El contenido se importa como ARCHIVO (?raw), no se reescribe: copiar a ojo una maqueta
+ * congelada es como se pierde una maqueta aprobada (§6 de la casa).
  *
- * La barra viene del componente (rutas reales); las anclas del cuerpo (#pilots,
- * #library...) se conservan tal cual, porque apuntan a secciones de esta misma pagina.
+ * Todo el chrome (barra, pie, tipografias, hoja de la maqueta y las reglas que tienen que
+ * ganarle a global.css) lo pone MarcaLayout. Estaba suelto aqui y por eso esta pagina
+ * salio con dos pies, con la tipografia del diseño viejo y 80 px mas ancha.
  *
  * Lo vivo entra por islas contra /v1/* (decision D1): la home sigue siendo un archivo
  * estatico y NO entra a run_worker_first.
  */
-import BaseLayout from '../layouts/BaseLayout.astro';
-import NavV2 from '../components/NavV2.astro';
-import PieV2 from '../components/PieV2.astro';
+import MarcaLayout from '../layouts/MarcaLayout.astro';
 import content from '../content_html/home.en.html?raw';
-import css from '../styles/pages/home.css?raw';
-import navCss from '../styles/componentes/nav.css?raw';
-
 ---
-<BaseLayout
+<MarcaLayout
   title="Rosetta Quantum — Quantum, independently measured"
   description="Pre-registered, sealed, published win or lose — so you can build or invest on evidence."
-  lang="en"
-  altUrl="/es/"
-  pageCss={navCss + "\n" + css}
+  lang="en" altUrl="/es/" ruta="/"
   scripts={["/js/home.js", "/js/home-islas.js"]}
-  nav={false}
-  pie={false}
-  fuentes="marca"
 >
-  <NavV2 lang="en" ruta="/" />
   <Fragment set:html={content} />
-  <PieV2 lang="en" />
-</BaseLayout>
+</MarcaLayout>

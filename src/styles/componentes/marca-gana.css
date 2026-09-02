@@ -1,0 +1,19 @@
+/* GENERADO por scripts/build-marca-gana.mjs — no editar a mano.
+   Reglas de la maqueta v20 que global.css pisaba en el HTML servido, reescritas con
+   'html ' delante para que ganen por especificidad y no por orden.
+   Selectores en conflicto detectados: * · html · body · footer · a · .wrap · .eyebrow · .nav-inner · .wordmark · .nav-links · .nav-links a:hover · .nav-cta */
+:root{scroll-behavior:smooth;color-scheme:light only;background:var(--paper)}
+html body{background:var(--paper) !important;color:var(--ink) !important;font-family:var(--sans);font-size:16.5px;line-height:1.62;-webkit-font-smoothing:antialiased}
+html footer{background:var(--paper);border-top:1px solid var(--ink);padding:34px 0 44px;font-size:13px;color:var(--ink-60)}
+html a{color:inherit;text-decoration:none}
+html .wrap{max-width:var(--maxw-brand);margin:0 auto;padding:0 22px}
+html .eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--verdict)}
+html .nav-inner{display:flex;align-items:center;justify-content:space-between;height:60px;gap:12px}
+html .wordmark{display:flex;align-items:center;gap:10px;min-width:0}
+html .nav-links{display:none;gap:20px;font-size:13.5px;color:var(--ink-60)}
+html .nav-links a:hover{color:var(--verdict)}
+html .nav-cta{background:var(--verdict);color:var(--paper);padding:9px 15px;font-size:13px;font-weight:500;border-radius:2px;white-space:nowrap}
+@media (prefers-color-scheme: dark){:root{background:var(--paper) !important;color:var(--ink) !important}}
+@media (prefers-color-scheme: dark){html body{background:var(--paper) !important;color:var(--ink) !important}}
+@media (prefers-color-scheme: dark){html footer{background:var(--paper) !important}}
+@media(min-width:840px){html .nav-links{display:flex}}

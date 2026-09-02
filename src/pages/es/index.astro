@@ -2,39 +2,20 @@
 /**
  * Home /es/ — commit 6-ES.
  *
- * El cuerpo NO se traduce a mano: lo genera `scripts/build-home-es.mjs` a partir de
- * home.en.html sustituyendo cadenas exactas por las de
- * `handoff/web/rosetta-home-es-textos-v20.md` (aprobadas por Cowork el 2-sep). El
- * generador aborta si una cadena esperada no aparece el numero de veces declarado, para
- * que un cambio en la maqueta EN no deje la ES a medio traducir sin que nadie lo vea.
- *
- * LO QUE SIGUE EN INGLES ESTA EN INGLES A PROPOSITO. La regla que viaja con el archivo
- * aprobado dice "lo que no este aqui, se pregunta", y el archivo cubre las secciones
- * pero no los controles de los paneles, los cuerpos de las tarjetas de servicio, los
- * tres hallazgos del Monitor ni las columnas del pie. La lista exacta esta en
- * `handoff/web/ES-FALTANTES-home-v20.md`. Inventar esa copia rompe §5 de la casa, y
- * ademas es el peor de los dos errores: un fragmento en ingles se VE; una frase
+ * El cuerpo lo genera `scripts/build-home-es.mjs` desde home.en.html con los textos
+ * aprobados en handoff/web/rosetta-home-es-textos-v20.md. Lo que sigue en ingles esta
+ * en ingles A PROPOSITO: no esta aprobado, y la lista exacta esta en
+ * handoff/web/ES-FALTANTES-home-v20.md. Un fragmento en ingles se VE; una frase
  * inventada en español se ve bien y nadie la revisa.
  */
-import BaseLayout from '../../layouts/BaseLayout.astro';
-import NavV2 from '../../components/NavV2.astro';
-import PieV2 from '../../components/PieV2.astro';
+import MarcaLayout from '../../layouts/MarcaLayout.astro';
 import content from '../../content_html/home.es.html?raw';
-import css from '../../styles/pages/home.css?raw';
-import navCss from '../../styles/componentes/nav.css?raw';
 ---
-<BaseLayout
+<MarcaLayout
   title="Rosetta Quantum — Cuántica, medida de forma independiente"
   description="Pre-registrado, sellado, publicado se gane o se pierda — para que puedas construir o invertir sobre evidencia."
-  lang="es"
-  altUrl="/"
-  pageCss={navCss + "\n" + css}
+  lang="es" altUrl="/" ruta="/"
   scripts={["/js/home.js", "/js/home-islas.js"]}
-  nav={false}
-  pie={false}
-  fuentes="marca"
 >
-  <NavV2 lang="es" ruta="/" />
   <Fragment set:html={content} />
-  <PieV2 lang="es" />
-</BaseLayout>
+</MarcaLayout>
