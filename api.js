@@ -239,7 +239,7 @@ async function posts(env, url) {
       // encontrandolo — el sintoma reportado fue "viene vacio" y el defecto real era
       // otro y peor. Se corrigen los dos: el nombre y el origen.
       const parrafos = [...(p.body_html || "").matchAll(/<p[^>]*>([\s\S]*?)<\/p>/gi)]
-        .map((m) => m[1].replace(/<[^>]+>/g, " ").replace(/&nbsp;/g, " ").replace(/&[a-z]+;/g, " ").replace(/\s+/g, " ").trim())
+        .map((m) => m[1].replace(/<[^>]+>/g, " ").replace(/&nbsp;/g, " ").replace(/&#3[49];|&#821[6-9];|&quot;|&apos;/g, "'").replace(/&amp;/g, "&").replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&[a-z]+;|&#\d+;/g, " ").replace(/\s+/g, " ").trim())
         .filter((t) => t.length > 40);
       // Los posts nuevos abren con un MEMBRETE dentro de un <p> —el wordmark, el pilar,
       // el estado, el titulo repetido y las cifras de portada— asi que "el primer parrafo
