@@ -306,6 +306,20 @@ const T = [
   ["In plain terms: most public quantum-advantage claims are challenged within weeks; the few that stand for years are about error correction and hardware — the foundations the useful applications will be built on.",
    "En simple: la mayoría de los claims públicos de ventaja cuántica recibe su desafío en semanas; los pocos que aguantan años son de corrección de errores y hardware — los cimientos sobre los que se van a construir las aplicaciones útiles.", 1],
 
+  // Cadenas CORTAS que dos auditorias dejaron pasar. La primera filtraba por largo
+  // (>18 caracteres) y la segunda por largo tambien: "days" tiene 4 y "per pilot" 9. En
+  // la pagina se leian "desafiado a los 2 days" y "US$15.000-35.000 per pilot", a la
+  // vista de cualquiera. Un filtro de largo es un punto ciego con forma de criterio.
+  ["</b> days</span>", "</b> días</span>", 2],
+  [">2 days<", ">2 días<", 1],
+  ["$15,000–35,000 per pilot", "US$15.000–35.000 por piloto", 1],
+  ["· per pilot", "· por piloto", 1],
+  [">verdict<", ">veredicto<", 1],
+  [">simulated run<", ">corrida simulada<", 1],
+  [">QPU run<", ">corrida QPU<", 1],
+  [">scores<", ">puntajes<", 1],
+  ["· advantage measured: none · sealed 2026-07-24 ·", "· ventaja medida: ninguna · sellado 2026-07-24 ·", 1],
+
   // ── Accesibilidad ──────────────────────────────────────────────────────────
   ["aria-label=\"Search the Evidence Library\"", "aria-label=\"Busca en la Evidence Library\"", 1],
   ["aria-label=\"Email for Monitor 001\"", "aria-label=\"Correo para el Monitor 001\"", 1],

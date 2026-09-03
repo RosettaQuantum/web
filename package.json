@@ -44,7 +44,8 @@
     "check:pages": "node scripts/check-paginas.mjs",
     "check:301": "node scripts/check-301.mjs",
     "check:verify": "node scripts/check-verify.mjs",
-    "check:precios": "node scripts/check-precios.mjs"
+    "check:precios": "node scripts/check-precios.mjs",
+    "check:es": "node scripts/check-es.mjs"
   },
   "dependencies": {
     "@astrojs/rss": "latest",

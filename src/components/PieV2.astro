@@ -46,7 +46,10 @@ const LEGAL1 = es
 const LEGAL2 = es
   ? null
   : "hello@rosettaquantum.com · Rosetta Quantum is a brand of Blue Tuna SpA (Chile) · Every verdict is signed and hash-anchored; authorship is stated on each report and on the About page.";
-const LEMA = "Every number on this page links to its source.";
+// El lema tambien es prosa que lee el usuario. Quedaba en ingles en /es/ y no lo vio
+// ninguna de las dos revisiones a mano: lo caza T-es. La forma española es la que ya usa
+// la linea del ledger ("cada número enlaza a su fuente"), para no inventar una segunda.
+const LEMA = es ? "Cada número de esta página enlaza a su fuente." : "Every number on this page links to its source.";
 ---
 <footer><div class="wrap">
   <div style="display:flex;align-items:center;gap:10px">

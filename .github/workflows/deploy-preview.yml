@@ -194,6 +194,14 @@ jobs:
           PREVIEW_URL: ${{ steps.desplegar.outputs.url }}
         run: npm run check:precios
 
+      # T-es — commit 10-bis. La home ES se audito DOS veces a mano y las dos filtraron
+      # por largo, asi que las dos dejaron pasar "days" (4 letras) y "per pilot" (9), que
+      # estaban a la vista. Este mira sin minimo de largo y contra la pagina servida.
+      - name: T-es — la home en español no deja fragmentos en inglés
+        env:
+          PREVIEW_URL: ${{ steps.desplegar.outputs.url }}
+        run: npm run check:es
+
       - name: T-api — endpoints nuevos y /v1/state aditivo
         env:
           PREVIEW_URL: ${{ steps.desplegar.outputs.url }}
