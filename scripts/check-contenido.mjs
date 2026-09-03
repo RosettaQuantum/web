@@ -112,7 +112,11 @@ async function rutasDeWrangler() {
     faltanEnLista.push(...faltan);
   }
 
-  const lista = deMain;
+  // La referencia es main MENOS lo retirado a proposito y ya comprobado arriba con su
+  // 301. Sin esta resta, el bucle sigue midiendo /clases/, sigue el salto hasta la
+  // Biblioteca y reporta "1 de 62 categorias" — un rojo sobre una ruta que funciona
+  // exactamente como se decidio. Un falso positivo retiene trabajo bueno.
+  const lista = deMain.filter((r) => !(r in RETIRADAS));
   // Las entradas con comodin (/v1/*) no son URLs: se prueban por su representante.
   const vistas = new Set();
   const rutas = [];
