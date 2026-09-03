@@ -55,7 +55,11 @@ export default defineConfig({
     sitemap({
       // los cascarones rq-shell-* son plantillas internas que el Worker rellena
       // con posts de D1; no son páginas y no deben declararse (Opción C, 28 jul)
-      filter: (page) => !page.includes('/rq-shell-'),
+      // q-ready sale del sitemap (commit 10): los archivos NO se tocan y las rutas
+      // siguen respondiendo —qready_leads y su workflow quedan intactos— pero deja de
+      // anunciarse como parte de este sitio. Estaba fuera del nav desde el commit 4 y
+      // seguía en el sitemap: media salida es la que no se nota.
+      filter: (page) => !page.includes('/rq-shell-') && !page.includes('/q-ready'),
       i18n: { defaultLocale: 'en', locales: { en: 'en', es: 'es' } },
       serialize(item) {
         const links = BY_URL.get(item.url);

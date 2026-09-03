@@ -169,6 +169,14 @@ jobs:
           PREVIEW_URL: ${{ steps.desplegar.outputs.url }}
         run: npm run check:pages
 
+      # T-301 — commit 10. Sigue el salto y exige 200 al otro lado: un 301 a un 404 es
+      # peor que no redirigir, y se ve perfecto en cualquier chequeo que mire solo el
+      # codigo de estado.
+      - name: T-301 — las 14 redirecciones saltan y el destino responde
+        env:
+          PREVIEW_URL: ${{ steps.desplegar.outputs.url }}
+        run: npm run check:301
+
       - name: T-api — endpoints nuevos y /v1/state aditivo
         env:
           PREVIEW_URL: ${{ steps.desplegar.outputs.url }}

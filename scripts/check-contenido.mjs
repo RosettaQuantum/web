@@ -70,7 +70,7 @@ function listaDe(texto, ruta) {
     : (cfg?.assets?.run_worker_first ?? []);
 }
 
-function rutasDeWrangler() {
+async function rutasDeWrangler() {
   // La REFERENCIA es main: lo que produccion inyecta hoy. El archivo local puede estar
   // justamente roto, y un guardia que lee su lista del archivo bajo prueba es ciego.
   // main puede no existir como rama local (en CI el checkout trae solo la rama actual;
@@ -88,7 +88,24 @@ function rutasDeWrangler() {
   const deMain = listaDe(refTexto, "produccion");
   const dePreview = listaDe(readFileSync("wrangler.jsonc", "utf8"), "preview");
 
-  const faltan = deMain.filter((r) => !dePreview.includes(r));
+  // Rutas RETIRADAS a proposito por un 301 (commit 10). Salir de run_worker_first es
+  // legitimo SOLO si la ruta ya no sirve pagina sino redireccion: por eso no basta con
+  // declararlas, hay que comprobar que el 301 existe de verdad. Una ruta que
+  // "se retiro" y en realidad devuelve la pagina vieja seria la mina nº1 con permiso.
+  const RETIRADAS = { "/clases": "/library", "/clases/": "/library", "/es/clases": "/es/biblioteca", "/es/clases/": "/es/biblioteca" };
+  for (const [r, destino] of Object.entries(RETIRADAS)) {
+    if (dePreview.includes(r)) continue; // sigue en la lista: se comprueba como las demas
+    const res = await fetch(PREVIEW + r, { redirect: "manual", headers: { "x-rq-check": "1" } });
+    const loc = res.headers.get("location") || "";
+    if (res.status !== 301 || !loc.endsWith(destino)) {
+      console.log(`  FALLA ${r.padEnd(16)} retirada de run_worker_first pero devuelve ${res.status} ${loc || "(sin Location)"} — se esperaba 301 a ${destino}`);
+      faltanEnLista.push(r);
+    } else {
+      console.log(`  ok    ${r.padEnd(16)} retirada con 301 -> ${destino}`);
+    }
+  }
+
+  const faltan = deMain.filter((r) => !dePreview.includes(r) && !(r in RETIRADAS));
   if (faltan.length) {
     console.log(`  FALLA run_worker_first del preview NO cubre a main`);
     faltan.forEach((r) => console.log(`        falta: ${r}  — produccion la inyecta y el preview no`));
@@ -117,7 +134,7 @@ async function medir(base, ruta) {
   } catch (e) { return { code: 0, bytes: 0, cuerpo: "", error: String(e).slice(0, 60) }; }
 }
 
-const rutas = rutasDeWrangler();
+const rutas = await rutasDeWrangler();
 console.log(`preview:    ${PREVIEW}`);
 console.log(`referencia: ${PROD}`);
 console.log(`rutas de run_worker_first (leidas de wrangler.jsonc): ${rutas.length}\n`);

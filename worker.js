@@ -4,6 +4,32 @@ import { manejarQreadyLead } from "./lib/qready-lead.mjs";
 // Serves the static Astro build (dist/), redirects to the canonical host,
 // accepts lead submissions at POST /api/lead -> D1 `leads`, and serves
 // D1-backed Library posts (table `posts`) that were published WITHOUT a rebuild.
+/**
+ * Las catorce redirecciones permanentes del commit 10. Origen sin barra final: la
+ * busqueda normaliza antes de mirar, para que /clases y /clases/ den lo mismo.
+ *
+ * 10 de /rosettaq* (el archivador se absorbe en la Biblioteca) · 2 de /pricing (los
+ * precios viven con los servicios) · 2 de /clases (el catalogo se sirve desde /library).
+ * Todas apuntan a una ruta que responde 200 hoy; T-301 lo comprueba en cada deploy,
+ * porque un 301 a un 404 es peor que no redirigir: el original ya no existe.
+ */
+const REDIRECTS_301 = {
+  "/rosettaq": "/library",
+  "/rosettaq/calculator": "/library",
+  "/rosettaq/catalog": "/library",
+  "/rosettaq/router": "/library",
+  "/rosettaq/unit": "/library",
+  "/es/rosettaq": "/es/biblioteca",
+  "/es/rosettaq/calculator": "/es/biblioteca",
+  "/es/rosettaq/catalog": "/es/biblioteca",
+  "/es/rosettaq/router": "/es/biblioteca",
+  "/es/rosettaq/unit": "/es/biblioteca",
+  "/pricing": "/services",
+  "/es/precios": "/es/servicios",
+  "/clases": "/library",
+  "/es/clases": "/es/biblioteca",
+};
+
 export default {
   async fetch(request, env, ctx) {
     const url = new URL(request.url);
@@ -18,6 +44,21 @@ export default {
     if (url.hostname !== "rosettaquantum.com" && url.hostname !== "localhost" && !esPreview) {
       url.hostname = "rosettaquantum.com"; url.protocol = "https:";
       return Response.redirect(url.toString(), 301);
+    }
+
+    // ── Redirecciones 301 permanentes (commit 10) ────────────────────────────
+    // UN SOLO LUGAR, y va aqui: despues de canonicalizar el host y ANTES de todo lo
+    // demas. Si fuera despues de ASSETS no llegaria a ejecutarse nunca para una ruta
+    // que todavia tiene archivo — que es justo el caso de las catorce.
+    //
+    // POR QUE LAS PAGINAS DE ORIGEN SE BORRAN: `run_worker_first` es una lista blanca.
+    // Si una ruta NO esta en ella y existe el archivo estatico, Cloudflare sirve el
+    // archivo y este codigo no corre: la redireccion no ocurriria y nadie lo notaria.
+    // Dejar la pagina y "confiar" en el 301 es armar la mina nº1 al reves. Por eso el
+    // commit 10 borra las paginas de origen: sin archivo, el Worker manda.
+    const destino = REDIRECTS_301[url.pathname.replace(/\/+$/, "") || "/"];
+    if (destino) {
+      return Response.redirect(new URL(destino, url.origin).toString(), 301);
     }
 
     // API de lectura del ledger + servidor MCP. Va primero porque son rutas propias

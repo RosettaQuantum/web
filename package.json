@@ -41,7 +41,8 @@
     "check:fuentes": "node scripts/check-fuentes.mjs",
     "check:estructura": "node scripts/check-estructura.mjs",
     "check:lib": "node scripts/check-lib.mjs",
-    "check:pages": "node scripts/check-paginas.mjs"
+    "check:pages": "node scripts/check-paginas.mjs",
+    "check:301": "node scripts/check-301.mjs"
   },
   "dependencies": {
     "@astrojs/rss": "latest",
