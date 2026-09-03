@@ -39,16 +39,14 @@ const T = {
   },
   verify: es ? {
     eyebrow:'Verifica un sello', h1:'Comprueba nuestro sello sin confiar en nosotros.',
-    lede:'Baja cualquier artefacto del ledger, suéltalo aquí y el navegador recomputa su sha256. El archivo no se sube a ninguna parte: el cálculo ocurre en tu máquina. Un verificador que corriera en nuestro servidor no verificaría nada.',
-    l1:'1 · Elige el archivo sellado', l2:'2 · Pega el hash que dice el ledger', l3:'Comparar',
-    igual:'Coinciden. El archivo es exactamente el que se selló.', distinto:'NO coinciden. Este archivo no es el sellado.',
-    calc:'sha256 calculado aquí:', falta:'Elige un archivo y pega un hash.',
+    lede:'Elige un artefacto del ledger y tu navegador recomputa su sello y lo compara con el declarado. El cálculo ocurre en tu máquina: un verificador que corriera en nuestro servidor no verificaría nada.',
+    l1:'Artefacto del ledger', l2:'…o pega un id', l3:'Recomputar el sello',
+    receta:'content_hash NO es el sha256 del archivo: es el sha256 de su forma canónica — el documento sin meta.content_hash, sin meta.schema y sin storage, serializado con JCS (RFC 8785). Esta página implementa la convención v3, la vigente. El archivo tiene tres convenciones anteriores; para ésas, verificar.py las prueba las cuatro y dice con cuál calzó.',
   } : {
     eyebrow:'Verify a seal', h1:'Check our seal without trusting us.',
-    lede:'Download any artifact from the ledger, drop it here and your browser recomputes its sha256. The file is not uploaded anywhere: the computation happens on your machine. A verifier running on our server would verify nothing.',
-    l1:'1 · Choose the sealed file', l2:'2 · Paste the hash the ledger states', l3:'Compare',
-    igual:'They match. This file is exactly the one that was sealed.', distinto:'They do NOT match. This file is not the sealed one.',
-    calc:'sha256 computed here:', falta:'Choose a file and paste a hash.',
+    lede:'Pick an artifact from the ledger and your browser recomputes its seal and compares it with the declared one. The computation happens on your machine: a verifier running on our server would verify nothing.',
+    l1:'Ledger artifact', l2:'…or paste an id', l3:'Recompute the seal',
+    receta:'content_hash is NOT the sha256 of the file: it is the sha256 of its canonical form — the document without meta.content_hash, without meta.schema and without storage, serialized with JCS (RFC 8785). This page implements convention v3, the current one. The archive has three earlier ones; for those, verificar.py tries all four and says which one matched.',
   },
 }[tipo];
 ---
@@ -83,12 +81,13 @@ const T = {
   {tipo === 'verify' && (
     <div class="ver-caja" style="margin-top:20px">
       <p class="mono" style="font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-60)">{T.l1}</p>
-      <p><input type="file" id="vFile" /></p>
-      <p class="mono" style="font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-60);margin-top:12px">{T.l2}</p>
-      <div class="forma" style="max-width:100%"><input id="vHash" type="text" placeholder="sha256:…" aria-label={T.l2} /></div>
-      <p><button class="btn btn-solid" type="button" id="vGo"
-          data-igual={T.igual} data-distinto={T.distinto} data-calc={T.calc} data-falta={T.falta}>{T.l3}</button></p>
+      <p><select id="vId" style="font-family:var(--mono);font-size:13px;padding:8px;border:1px solid var(--line);background:#FFFFFE;max-width:100%"><option value="">—</option></select></p>
+      <p class="mono" style="font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-60);margin-top:10px">{T.l2}</p>
+      <div class="forma" style="max-width:100%"><input id="vIdLibre" type="text" placeholder="RQ-…" aria-label={T.l2} /></div>
+      <p><button class="btn btn-solid" type="button" id="vGo">{T.l3}</button></p>
       <div class="r" id="vOut"></div>
+      <p class="sealline mono" style="margin-top:14px;color:var(--ink-60)">{T.receta}</p>
     </div>
   )}
+  {tipo === 'verify' && <script type="module" src="/js/verificar.js" is:inline></script>}
 </div></section>

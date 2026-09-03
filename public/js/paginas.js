@@ -56,20 +56,5 @@
     });
   }
 
-  // ── verificar un sello ───────────────────────────────────────────────────────
-  var vGo = document.getElementById("vGo");
-  if (vGo) {
-    vGo.addEventListener("click", function () {
-      var f = document.getElementById("vFile").files[0];
-      var esperado = (document.getElementById("vHash").value || "").trim().replace(/^sha256:/i, "").toLowerCase();
-      var out = document.getElementById("vOut");
-      if (!f || !esperado) { out.innerHTML = '<span class="ver-mal">' + esc(vGo.dataset.falta) + "</span>"; return; }
-      f.arrayBuffer().then(function (buf) { return crypto.subtle.digest("SHA-256", buf); }).then(function (h) {
-        var hex = [...new Uint8Array(h)].map(function (b) { return b.toString(16).padStart(2, "0"); }).join("");
-        var igual = hex === esperado;
-        out.innerHTML = esc(vGo.dataset.calc) + " " + esc(hex) + "<br><b class=\"" + (igual ? "ver-ok" : "ver-mal") + "\">" +
-          esc(igual ? vGo.dataset.igual : vGo.dataset.distinto) + "</b>";
-      });
-    });
-  }
+  // /verify vive en public/js/verificar.js: necesita ser modulo para importar JCS.
 })();

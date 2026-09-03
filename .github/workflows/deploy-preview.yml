@@ -177,6 +177,14 @@ jobs:
           PREVIEW_URL: ${{ steps.desplegar.outputs.url }}
         run: npm run check:301
 
+      # T-verify — la promesa de /verify se EJERCE. Recomputa el sello de artefactos
+      # reales tomados del ledger en vivo con la misma receta que corre en el navegador.
+      # La primera version de la pagina habria dicho que nuestros propios sellos no calzan.
+      - name: T-verify — la receta v3 reproduce sellos reales
+        env:
+          PREVIEW_URL: ${{ steps.desplegar.outputs.url }}
+        run: npm run check:verify
+
       - name: T-api — endpoints nuevos y /v1/state aditivo
         env:
           PREVIEW_URL: ${{ steps.desplegar.outputs.url }}
