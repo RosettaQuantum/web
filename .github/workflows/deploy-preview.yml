@@ -185,6 +185,15 @@ jobs:
           PREVIEW_URL: ${{ steps.desplegar.outputs.url }}
         run: npm run check:verify
 
+      # T-precios — commit 10-bis. La home publicaba dos cifras que Nicholas no decidio
+      # ($10,000/yr del plan Firm y $8,000 de Sealed Predictions), heredadas de la
+      # maqueta. No las cazo ninguna de las nueve pruebas: un precio de mas no rompe
+      # nada y se ve igual de firme que uno decidido.
+      - name: T-precios — solo se publican los precios decididos
+        env:
+          PREVIEW_URL: ${{ steps.desplegar.outputs.url }}
+        run: npm run check:precios
+
       - name: T-api — endpoints nuevos y /v1/state aditivo
         env:
           PREVIEW_URL: ${{ steps.desplegar.outputs.url }}

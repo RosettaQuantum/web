@@ -184,6 +184,128 @@ const T = [
   // El pie ya no vive en el cuerpo: es el componente PieV2, que trae su propio texto
   // aprobado por idioma. Salio de aqui porque venia con los once enlaces en href="#".
 
+  // ── Cierre ES del 3-sep (handoff/web/rosetta-es-cierre-completo.md) ────────
+  // REGLA NUEVA que zanja la mayoria de las 45 pendientes: lo dibujado DENTRO del canvas
+  // (ejes, leyendas de grafico, rotulos de datos) queda en INGLES en los dos idiomas —
+  // es capa medida, la misma en todo el mundo, como los ids y los hashes. Se traducen:
+  // titulos de panel, pestañas y toggles (son UI), bajadas y prosa.
+
+  // Cabeceras de los cinco paneles. Los IDS SE CONSERVAN: el texto aprobado de Finanzas
+  // y Energia los omitia, y una cabecera sin su id cita menos que su version en ingles
+  // en la pagina cuyo lema es "cada numero enlaza a su fuente".
+  ["KRAS G12C · PDB 4OBE · 169 residues · 927 contacts (Cα–Cα ≤ 8.5 Å) · sealed challenge cleveland-2026-07",
+   "KRAS G12C · PDB 4OBE · 169 residuos · 927 contactos (Cα–Cα ≤ 8,5 Å) · desafío sellado cleveland-2026-07", 1],
+  // OJO: el texto aprobado escribia el id en mayusculas (CLEVELAND-2026-07). Se deja como
+  // esta en el dato sellado: cambiarle la caja a un identificador en una pagina que se
+  // vende por verificable es cambiar el dato.
+  ["V-0012 · Constrained portfolio compression · pick k of n assets · QAOA p=2 vs OR-Tools CP-SAT · 20 sealed runs",
+   "V-0012 · Compresión de portafolio con restricciones · elige k de n activos · QAOA p=2 vs OR-Tools CP-SAT · 20 corridas selladas", 1],
+  // El texto aprobado decia "QAOA vs fuerza bruta". El campeon clasico de esta corrida es
+  // CP-SAT; la fuerza bruta se uso APARTE para confirmar los optimos. Publicarlo asi
+  // describiria otro experimento que el que esta sellado.
+  ["RQ-0033 · Grid expansion · IEEE case118 · 118 buses · 173 lines · choose 5 of 14 candidate lines · seed 42",
+   "RQ-0033 · Expansión de red · IEEE case118 · 118 barras · 173 líneas · elige 5 de 14 candidatas · semilla 42", 1],
+  ["RQ-EXP-HSBC-Q-001 · Fraud detection · 56,962 real card transactions, 75 frauds · quantum fidelity kernel vs classical",
+   "RQ-EXP-HSBC-Q-001 · Detección de fraude · 56.962 transacciones reales de tarjetas, 75 fraudes · kernel de fidelidad cuántico vs XGBoost sellado", 1],
+  ["Airbus challenge · 2-D incompressible flow · Taylor–Green vortex · classical sweep Re 10 → 102,400 vs quantum Carleman arm",
+   "Desafío Airbus · flujo incompresible 2-D · vórtice de Taylor–Green · barrido clásico Re 10 → 102.400 vs brazo cuántico de Carleman", 1],
+
+  ["iψ̇ = Hψ integrated by RK4 in your browser · t =", "iψ̇ = Hψ integrado por RK4 en tu navegador · t =", 1],
+  ["· not a video", "· no es un video", 1],
+
+  // Pestañas y toggles de vista. La lista aprobada no calzaba con los botones reales en
+  // Finanzas (traia un "Tiempo de resolucion · el muro" que no existe) ni en Energia
+  // (daba dos y hay tres): esos van traducidos del boton que si esta en la pagina.
+  [">Live quantum walk · physics running<", ">Caminata cuántica en vivo · física corriendo<", 1],
+  [">Sealed result · CTQW<", ">Resultado sellado · CTQW<", 1],
+  [">Sealed result · classical diffusion<", ">Resultado sellado · difusión clásica<", 1],
+  [">Correlation network · one run<", ">Red de correlaciones · una corrida<", 1],
+  [">All 20 runs · choices<", ">Las 20 corridas · elecciones<", 1],
+  [">CP-SAT · exact optimum · 0.20 s<", ">CP-SAT · óptimo exacto · 0,20 s<", 1],
+  [">QAOA p=2 simulated · +1.02% · 51.8 s<", ">QAOA p=2 simulado · +1,02% · 51,8 s<", 1],
+  [">Same QAOA on real hardware · 8,192 shots<", ">El mismo QAOA en hardware real · 8.192 disparos<", 1],
+  [">Score cloud · who ranks the fraud higher?<", ">La nube de puntajes · ¿quién rankea más alto el fraude?<", 1],
+  [">Precision–recall curves<", ">Precisión-recall · 0,80 vs 0,26<", 1],
+  [">The sweep · error vs Reynolds<", ">El barrido · error vs Reynolds<", 1],
+  [">The vanishing term · 18 variants<", ">El término que se anula · 18 variantes<", 1],
+
+  // Leyendas de los dibujos (fuera del canvas: son HTML, se traducen)
+  ["◉ 25 source residues ·", "● 25 residuos fuente ·", 1],
+  ["20 true allosteric residues (ground truth, hidden from the method)",
+   "20 residuos alostéricos verdaderos (verdad oculta al método)", 1],
+  ["┈ 14 candidate lines · ━ the 5 built", "┈ 14 líneas candidatas · ━ las 5 construidas", 1],
+  ["the 75 frauds ·", "los 75 fraudes ·", 1],
+  ["3,000 of 56,887 legitimate", "3.000 de 56.887 legítimas", 1],
+  ["(intervals do not overlap)", "(los intervalos no se solapan)", 1],
+  [">not yet — classical wins<", ">todavía no — gana el clásico<", 1],
+
+  // Notas de metodo al pie de los paneles
+  ["The live walk runs the same code as our 3D piece (H = gaussian-weighted Cα contacts, cutoff 8.5 Å, σ 6.0, dt 0.01). Checked against the sealed result: Spearman ρ = 0.746 on the ranking; normalization differs (declared, not adjusted). The sealed run is the record; the live walk is the method, shown.",
+   "La caminata en vivo corre el mismo código que nuestra pieza 3D (H = contactos Cα con peso gaussiano, corte 8,5 Å, σ 6,0, dt 0,01). Comprobada contra el resultado sellado: Spearman ρ = 0,746 en el ranking; la normalización difiere (declarada, no ajustada). La corrida sellada es el registro; la caminata en vivo es el método, mostrado.", 1],
+  ["Measured side note: CP-SAT's time to", "Nota medida al margen: el tiempo que le toma a CP-SAT", 1],
+  [">prove<", ">probar<", 1],
+  ["optimality grew ~25× per +4 assets (0.05 s → 1.3 s → 29 s). That curve — not today's gap — is why the question stays open.",
+   "la optimalidad creció ~25× por cada +4 activos (0,05 s → 1,3 s → 29 s). Esa curva — no la brecha de hoy — es la razón de que la pregunta siga abierta.", 1],
+  ["Both score files are the sealed ones: quantum kernel sha256 091914f1… · classical XGBoost baseline sha256 62c29285… (RQ-EXP-HSBC-BASE-001). AUPRC recomputed from the files: 0.257453 and 0.800822 — identical to the seals. Temporal 80/20 split, no exact duplicates across halves.",
+   "Los dos archivos de puntajes son los sellados: kernel cuántico sha256 091914f1… · baseline clásico XGBoost sha256 62c29285… (RQ-EXP-HSBC-BASE-001). AUPRC recomputado desde los archivos: 0,257453 y 0,800822 — idénticos a los sellos. Partición temporal 80/20, sin duplicados exactos entre mitades.", 1],
+
+  // Library: la linea de planes. El precio del plan Firm cambio en INGLES tambien: la
+  // maqueta publicaba "$10,000/yr" y la decision de Nicholas del 2-sep manda todo lo que
+  // no sea Pilot/Screening/Diligence/Analyst a "a pedido".
+  [">Free<", ">Gratis<", 1],
+  ["to browse · Analyst", "para consultar · Analyst", 1],
+  [">$149 per seat / month<", ">US$149 por asiento / mes<", 1],
+  ["everything else", "todo lo demás", 1],
+  [">on request<", ">a pedido<", 2],  // Library Firm y Sealed Predictions: los dos van a pedido
+  ["— evidence levels identical in every tier", "— los niveles de evidencia son idénticos en todos los planes", 1],
+
+  // Pilot Referee: la linea de cuatro verbos
+  [">Pre-register<", ">Pre-registrar<", 1],
+  ["the success criterion before anything runs ·", "el criterio de éxito antes de que corra nada ·", 1],
+  [">race<", ">correr<", 1],
+  ["the champion classical solver at", "al solver clásico campeón con", 1],
+  [">budget parity<", ">paridad de presupuesto<", 1],
+  [">seal<", ">sellar<", 1],
+  ["the result so nobody can rewrite it — including us ·", "el resultado para que nadie lo pueda reescribir — nosotros incluidos ·", 1],
+  [">deliver<", ">entregar<", 1],
+  ["the verdict in your units.", "el veredicto en tus unidades.", 1],
+  ["never &gt;15% of pilot cost", "nunca >15% del costo del piloto", 2],
+  [">your pilot's calendar<", ">el calendario de tu piloto<", 1],
+
+  // Tarjetas de precio
+  ["3–4 weeks · $4,500 screening in 5 days", "3–4 semanas · screening de US$4.500 en 5 días", 1],
+  ["A sealed evaluation of one quantum claim or portfolio position — verdict, margin, robustness, flip triggers, economics. For funds and corporate VCs.",
+   "Una evaluación sellada de un claim cuántico o de una posición del portafolio — veredicto, magnitud, robustez, disparadores que lo dan vuelta, economía. Para fondos y CVC.", 1],
+  [">Request a report →<", ">Pide un informe →<", 1],
+  [">Most requested<", ">El más pedido<", 1],
+  ["runs on your pilot's calendar · nunca >15% del costo del piloto",
+   "corre en el calendario de tu piloto · nunca >15% del costo del piloto", 1],
+  ["Pre-registered success criterion, champion classical baseline in parallel, sealed verdict. For corporates running a quantum pilot with any vendor.",
+   "Criterio de éxito pre-registrado, campeón clásico en paralelo, veredicto sellado. Para corporativos con un piloto cuántico con cualquier vendor.", 1],
+  [">Request a referee →<", ">Pide un referee →<", 1],
+  ["· pack of 5", "· pack de 5", 1],
+  [">on your experiment's calendar<", ">en el calendario de tu experimento<", 1],
+  ["Predictions sealed before the wet-lab experiment, opened publicly after. Verifiable precedence for biology and chemistry teams.",
+   "Predicciones selladas antes del experimento de laboratorio, abiertas en público después. Precedencia verificable para equipos de biología y química.", 1],
+  [">Seal a prediction →<", ">Sella una predicción →<", 1],
+
+  // Monitor. Los TRES hallazgos son la traduccion de los que estan en la pagina en
+  // ingles, que son los que sobreviven a /v1/claims. Los del archivo aprobado NO se
+  // montan: ver el reporte — decian 12 claims desde 2019 con uno en pie (son 16 desde
+  // 2009 con 3 en pie) y una mediana de 14 dias (la mediana medida es 270).
+  [">Still standing.<", ">Siguen en pie.<", 1],
+  ["Of 16 tracked advantage claims since 2009, three survive unchallenged; six have eroded under later work.",
+   "De 16 claims de ventaja rastreados desde 2009, tres sobreviven sin desafío; seis se erosionaron con trabajo posterior.", 1],
+  [">Fastest challenge.<", ">El desafío más rápido.<", 1],
+  ["Google's 2019 supremacy claim drew its first serious challenge within 2 days; IBM's 2023 utility claim, within 5.",
+   "El claim de supremacía de Google de 2019 recibió su primer desafío serio a los 2 días; el de utilidad de IBM de 2023, a los 5.", 1],
+  ["The only claim open with zero challenges is our own",
+   "El único claim abierto sin ningún desafío es el nuestro", 1],
+  ["— N=90 allosteric significance. We are waiting to be checked like everyone else.",
+   "— N=90, significancia alostérica. Esperamos que nos revisen como a todos.", 1],
+  ["In plain terms: most public quantum-advantage claims are challenged within weeks; the few that stand for years are about error correction and hardware — the foundations the useful applications will be built on.",
+   "En simple: la mayoría de los claims públicos de ventaja cuántica recibe su desafío en semanas; los pocos que aguantan años son de corrección de errores y hardware — los cimientos sobre los que se van a construir las aplicaciones útiles.", 1],
+
   // ── Accesibilidad ──────────────────────────────────────────────────────────
   ["aria-label=\"Search the Evidence Library\"", "aria-label=\"Busca en la Evidence Library\"", 1],
   ["aria-label=\"Email for Monitor 001\"", "aria-label=\"Correo para el Monitor 001\"", 1],

@@ -43,7 +43,8 @@
     "check:lib": "node scripts/check-lib.mjs",
     "check:pages": "node scripts/check-paginas.mjs",
     "check:301": "node scripts/check-301.mjs",
-    "check:verify": "node scripts/check-verify.mjs"
+    "check:verify": "node scripts/check-verify.mjs",
+    "check:precios": "node scripts/check-precios.mjs"
   },
   "dependencies": {
     "@astrojs/rss": "latest",

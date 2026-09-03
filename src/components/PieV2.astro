@@ -24,14 +24,14 @@ const COLS = es
                       ["/es/metodologia#juez-v1", "Protocolo juez-v1"], ["/es/erratas", "Erratas"]]],
       ["La firma",   [["/es/nosotros", "Nosotros"], ["/es/politicas", "Políticas y conducta"],
                       ["/es/contacto", "Contacto"], ["/es/blog", "Notes"]]],
-      ["Legible por máquina", [["/v1/state", "/v1/state"], ["/llms.txt", "llms.txt"], ["/sitemap-0.xml", "Sitemap"]]],
+      ["Legible por máquina", [["/v1/state", "/v1/state"], ["/llms.txt", "llms.txt"], ["/sitemap-0.xml", "Sitemap"], ["/mcp", "MCP"]]],
     ]
   : [
       ["Evaluation", [["/methodology", "Methodology v1.0"], ["/methodology#el-definitions", "EL Definitions"],
                       ["/methodology#juez-v1", "Protocol juez-v1"], ["/errata", "Errata"]]],
       ["Firm",       [["/about", "About"], ["/policies", "Policies & Conduct"],
                       ["/contact", "Contact"], ["/blog", "Notes"]]],
-      ["Machine-readable", [["/v1/state", "/v1/state"], ["/llms.txt", "llms.txt"], ["/sitemap-0.xml", "Sitemap"]]],
+      ["Machine-readable", [["/v1/state", "/v1/state"], ["/llms.txt", "llms.txt"], ["/sitemap-0.xml", "Sitemap"], ["/mcp", "MCP"]]],
     ];
 
 // La primera linea legal es texto aprobado (ES en handoff/web/rosetta-home-es-textos-v20.md).
@@ -40,7 +40,12 @@ const COLS = es
 const LEGAL1 = es
   ? "Rosetta Quantum es una marca de Blue Tuna SpA. · Informes en inglés y español."
   : "Rosetta Quantum is an independent evaluation firm for quantum computing. Reports in English and Spanish.";
-const LEGAL2 = "hello@rosettaquantum.com · Rosetta Quantum is a brand of Blue Tuna SpA (Chile) · Every verdict is signed and hash-anchored; authorship is stated on each report and on the About page.";
+// UNA linea legal por idioma. La version anterior ponia la ES y ademas la EN, asi que
+// en /es/* salia la firma dos veces — en ingles la segunda. Lo cazo la QA de Cowork
+// leyendo el pie del preview, no el borrador.
+const LEGAL2 = es
+  ? null
+  : "hello@rosettaquantum.com · Rosetta Quantum is a brand of Blue Tuna SpA (Chile) · Every verdict is signed and hash-anchored; authorship is stated on each report and on the About page.";
 const LEMA = "Every number on this page links to its source.";
 ---
 <footer><div class="wrap">
@@ -56,6 +61,6 @@ const LEMA = "Every number on this page links to its source.";
       </div>
     ))}
   </div>
-  <div class="foot-legal">{LEGAL1}<br />{LEGAL2}</div>
+  <div class="foot-legal">{LEGAL1}{LEGAL2 && <><br />{LEGAL2}</>}</div>
   <div class="foot-motto">{LEMA}</div>
 </div></footer>

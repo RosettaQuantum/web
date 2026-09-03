@@ -100,7 +100,7 @@ const t = es ? {
     <tbody>
       {PROD.map((p) => (
         <tr>
-          <td><b>{p.n}</b><br /><span class="capa">{t.capaN} {p.capa}</span></td>
+          <td><b>{p.n}</b></td>
           <td>{p.compra}</td>
           <td>{p.inc}</td>
           <td class={"precio" + (p.precio === PEDIDO ? " pedido" : "")}>{p.precio}</td>
