@@ -34,6 +34,9 @@ const DECIDIDOS = new Set([
   "4,500", "4.500",                          // Claim Screening
   "28,000", "28.000",                        // Diligence Report (desde)
   "149",                                     // Library Analyst, por asiento / mes
+  // Precio PLANEADO de la corrida sellada por API (commit 9-ter). Va con su etiqueta
+  // "in construction / planned" al lado en la pagina: es futuro declarado, no oferta.
+  "50", "200",
 ]);
 
 const PAGINAS = ["/", "/es/", "/services", "/es/servicios", "/pilots", "/es/pilotos",

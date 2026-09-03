@@ -224,3 +224,36 @@ footer{border-top:1px solid var(--ink);padding:34px 0 44px;font-size:13px;color:
 .vwrap{display:none}
 .vwrap.on{display:inline}
 .vtog{color:var(--verdict);border-bottom:1px dashed var(--verdict);cursor:pointer;white-space:nowrap}
+
+/* ── commit 9-ter: Agents y pricing v20.1 ───────────────────────────────────
+   Portado del mock rosetta-delta-v20.1-propuesta.html. Los nombres van con
+   prefijo propio (.ag*, .pcard, .prun) porque el mock reusa .card, .cards,
+   .note y .close, que en esta hoja ya significan otra cosa: montarlo con los
+   nombres del mock habria repintado las tarjetas de los casos y el banner. */
+.agcards{display:grid;grid-template-columns:1fr;gap:14px;margin-top:18px}
+@media(min-width:820px){.agcards{grid-template-columns:repeat(3,1fr)}}
+.agcard{border:1px solid var(--line);background:var(--panel);border-radius:2px;padding:18px}
+.agcard .k{font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--verdict);margin-bottom:8px;word-break:break-word}
+.agcard p{font-size:13.5px;color:var(--ink-60)}
+.agcard a{display:inline-block;margin-top:10px;font-family:var(--mono);font-size:11.5px;color:var(--verdict);border-bottom:1px solid var(--line)}
+.snippet{margin-top:18px;border:1.5px solid var(--ink);background:#101215;color:#E8EAE6;font-family:var(--mono);font-size:13px;padding:14px 16px;border-radius:2px;display:flex;justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap;overflow-x:auto}
+.snippet .out{color:#7BC9BF}
+.snippet .out b{color:#7BC9BF;font-weight:500}
+.agclose{font-family:var(--serif);font-size:19px;margin-top:18px}
+
+.pgrid{display:grid;grid-template-columns:1fr;gap:14px;margin-bottom:14px}
+@media(min-width:820px){.pgrid{grid-template-columns:repeat(3,1fr)}}
+.pcard{border:1px solid var(--line);background:var(--panel);border-radius:2px;padding:20px;display:flex;flex-direction:column;gap:8px}
+.pcard.hero{border:1.5px solid var(--verdict)}
+.pcard .pb{font-family:var(--mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--verdict)}
+.pcard .pt{font-family:var(--serif);font-size:21px}
+.pcard .pp{font-family:var(--serif);font-size:30px;line-height:1.05}
+.pcard .pp small{font-family:var(--mono);font-size:11px;color:var(--ink-60)}
+.pcard .pl{font-family:var(--mono);font-size:11px;color:var(--ink-60)}
+.pcard .pi{font-size:13px;color:var(--ink-60);border-top:1px solid var(--line);padding-top:10px}
+.pcard .pi b{color:var(--ink);font-weight:600}
+.pcard .btn{align-self:flex-start;margin-top:2px}
+.prun{border:1px dashed var(--pending);background:#FBF7EE;border-radius:2px;padding:14px 18px;display:flex;gap:14px;align-items:baseline;flex-wrap:wrap}
+.prun .tag{font-family:var(--mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--pending);border:1px solid var(--pending);padding:2px 8px;border-radius:2px}
+.prun .tx{font-size:14px}
+.prun .pr{font-family:var(--mono);font-size:12px;color:var(--ink-60)}

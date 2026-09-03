@@ -184,32 +184,37 @@
 <section id="pricing"><div class="wrap">
   <div class="eyebrow">What you can buy today</div>
   <h2>Judgment, priced up front.</h2>
-  <div class="cards3">
-    <div class="card">
-      <div class="ptitle">Diligence Report</div>
-      <div class="pbuyer" style="font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--verdict);margin:2px 0 6px">For funds with a quantum deck on the table</div>
-      <div class="price"><b>$28,000</b></div>
-      <div class="plazo">3–4 weeks · $4,500 screening in 5 days</div>
-      <p>A sealed evaluation of one quantum claim or portfolio position — verdict, margin, robustness, flip triggers, economics. For funds and corporate VCs.</p>
-      <div class="req"><a href="/services">Request a report →</a></div>
+  <p class="lede">No "contact us" to find out what it costs. What has a price has it here; what depends on scope is quoted — and we say which is which.</p>
+  <div class="pgrid">
+    <div class="pcard hero">
+      <div class="pb">For corporates running a quantum pilot</div>
+      <div class="pt">Pilot Referee</div>
+      <div class="pp">$15,000–35,000</div>
+      <div class="pl">your pilot's calendar · never &gt;15% of its cost</div>
+      <div class="pi"><b>Criterion sealed before the run</b> · champion classical baseline in parallel · decision page + 5-layer report</div>
+      <a class="btn btn-solid" href="/pilots">Request a referee →</a>
     </div>
-    <div class="card featured">
-      <div class="flag">Most requested</div>
-      <div class="ptitle">Pilot Referee</div>
-      <div class="pbuyer" style="font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--verdict);margin:2px 0 6px">For corporates running a quantum pilot</div>
-      <div class="price"><b>$15,000–35,000</b> · per pilot</div>
-      <div class="plazo">runs on your pilot's calendar · never &gt;15% of pilot cost</div>
-      <p>Pre-registered success criterion, champion classical baseline in parallel, sealed verdict. For corporates running a quantum pilot with any vendor.</p>
-      <div class="req"><a href="/pilots">Request a referee →</a></div>
+    <div class="pcard">
+      <div class="pb">For funds with a quantum deck on the table</div>
+      <div class="pt">Claim Screening</div>
+      <div class="pp">$4,500</div>
+      <div class="pl">5 business days</div>
+      <div class="pi"><b>Layers 0–1</b> + Registry position + class priors; no new runs</div>
+      <a class="btn" href="/services">Start a screening →</a>
     </div>
-    <div class="card">
-      <div class="ptitle">Sealed Predictions</div>
-      <div class="pbuyer" style="font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--verdict);margin:2px 0 6px">For biology &amp; chemistry research teams</div>
-      <div class="price"><b>on request</b> · pack of 5</div>
-      <div class="plazo">on your experiment's calendar</div>
-      <p>Predictions sealed before the wet-lab experiment, opened publicly after. Verifiable precedence for biology and chemistry teams.</p>
-      <div class="req"><a href="/services">Seal a prediction →</a></div>
+    <div class="pcard">
+      <div class="pb">For analysts, every week of the year</div>
+      <div class="pt">Evidence Library</div>
+      <div class="pp">$149 <small>/ seat / month</small></div>
+      <div class="pl">free tier: the full index</div>
+      <div class="pi"><b>Registry with EL levels</b> · survival clock · citable exports</div>
+      <a class="btn" href="/library">Open the Library →</a>
     </div>
+  </div>
+  <div class="prun">
+    <span class="tag">In construction · opens with the Lab Window</span>
+    <span class="tx"><b>Sealed run (API)</b> — the verdict as an operation your systems call.</span>
+    <span class="pr">$50–200 / run (planned) · Diligence Report: from $28,000 · everything else: on request</span>
   </div>
   <div class="numbers-foot" style="margin-top:12px">Full pricing and conditions: <a href="/services" style="border-bottom:1px solid var(--line)">Services →</a> · <a href="/services/sample-report" style="border-bottom:1px solid var(--verdict);color:var(--verdict)" target="_blank" rel="noopener">See a sample decision page — built on our real verdict V-0012 →</a></div>
 </div></section>
@@ -235,6 +240,19 @@
   <div class="hero-cta" style="margin-top:14px"><a class="btn btn-ghost" href="/ledger">Open the full ledger →</a><a class="btn btn-ghost" href="/verify">Verify a seal</a></div>
 </div></section>
 
+<section id="agents"><div class="wrap">
+  <div class="eyebrow">Built for the new engine</div>
+  <h2>Humans read this page. Agents call the archive.</h2>
+  <p class="lede">Every verdict, claim, seal and algorithm in this site is available as structured data — an API and an MCP server, same origin, no key required for reads. If you are building a copilot, a diligence pipeline or a research agent, you don't need to scrape us: ask us.</p>
+  <div class="agcards">
+    <div class="agcard"><div class="k">MCP · rosettaquantum.com/mcp</div><p>9 tools: search evidence, read seals, check claim status. Plug it into your agent.</p><a href="/mcp">/mcp →</a></div>
+    <div class="agcard"><div class="k">API · /v1</div><p>18 endpoints, OpenAPI published. The same numbers the site shows — from the source.</p><a href="/api-docs">/api-docs →</a></div>
+    <div class="agcard"><div class="k">llms.txt</div><p>The map of this site written for machines.</p><a href="/llms.txt">/llms.txt →</a></div>
+  </div>
+  <div class="snippet"><span>$ curl -s https://rosettaquantum.com/v1/state</span><span class="out">→ <b data-rq="rq-sealed">93</b> sealed runs · <b data-rq="rq-wins">0</b> quantum wins</span></div>
+  <div class="agclose">The registry you can cite is the registry your agent can query.</div>
+</div></section>
+
 <section class="twolayer" id="methodology"><div class="wrap">
   <div class="eyebrow">Who pays, and who never does</div>
   <h2>The Two-Layer Rule</h2>
@@ -249,6 +267,7 @@
     <div class="find-row"><span class="el">3 / 16</span><span class="fd"><b>Still standing.</b> Of 16 tracked advantage claims since 2009, three survive unchallenged; six have eroded under later work.</span></div>
     <div class="find-row"><span class="el empty">2 days</span><span class="fd"><b>Fastest challenge.</b> Google's 2019 supremacy claim drew its first serious challenge within 2 days; IBM's 2023 utility claim, within 5.</span></div>
     <div class="find-row"><span class="el full">ours</span><span class="fd"><b>The only claim open with zero challenges is our own</b> — N=90 allosteric significance. We are waiting to be checked like everyone else.</span></div>
+  <div class="find-row"><span class="el empty">EL3</span><span class="fd"><b>EL3 — independently reproduced — is empty.</b> Across the whole field, no third party has ever confirmed another's headline result from its published artifacts. That gap is the product.</span></div>
   </div>
   <div class="numbers-foot" style="margin-top:10px">In plain terms: most public quantum-advantage claims are challenged within weeks; the few that stand for years are about error correction and hardware — the foundations the useful applications will be built on.</div>
   <div style="display:flex;gap:0;max-width:440px;border:1.5px solid var(--ink);border-radius:2px;background:#FFFFFE">

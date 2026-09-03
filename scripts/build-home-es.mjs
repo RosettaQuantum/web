@@ -62,7 +62,7 @@ const T = [
   ["references indexed", "referencias", 1],
   ["advantage claims tracked", "claims rastreados", 1],
   ["still surviving · 19%", "en pie · 19%", 1],
-  ["Open the Library →", "Abre la Biblioteca →", 1],
+  ["Open the Library →", "Abre la Biblioteca →", 2],
 
   // ── Casos ──────────────────────────────────────────────────────────────────
   ["What a measurement looks like", "Cómo se ve una medición", 1],
@@ -126,9 +126,7 @@ const T = [
   ["What you can buy today", "Juicio, con precio a la vista", 1],
   ["Judgment, priced up front.", "Juicio, con precio por delante.", 1],
   ["For funds with a quantum deck on the table", "Para fondos con un deck cuántico sobre la mesa", 1],
-  [">For corporates running a quantum pilot</div>", ">Para corporativos con un piloto cuántico</div>", 1],
-  ["For biology &amp; chemistry research teams", "Para equipos de investigación en biología y química", 1],
-  ["Full pricing and conditions:", "Precios y condiciones completos:", 1],
+      ["Full pricing and conditions:", "Precios y condiciones completos:", 1],
   [">Services →<", ">Servicios →<", 1],
   ["See a sample decision page — built on our real verdict V-0012 →",
    "Mira una decision page de muestra — construida sobre nuestro veredicto real V-0012 →", 1],
@@ -252,12 +250,6 @@ const T = [
   // Library: la linea de planes. El precio del plan Firm cambio en INGLES tambien: la
   // maqueta publicaba "$10,000/yr" y la decision de Nicholas del 2-sep manda todo lo que
   // no sea Pilot/Screening/Diligence/Analyst a "a pedido".
-  [">Free<", ">Gratis<", 1],
-  ["to browse · Analyst", "para consultar · Analyst", 1],
-  [">$149 per seat / month<", ">US$149 por asiento / mes<", 1],
-  ["everything else", "todo lo demás", 1],
-  [">on request<", ">a pedido<", 2],  // Library Firm y Sealed Predictions: los dos van a pedido
-  ["— evidence levels identical in every tier", "— los niveles de evidencia son idénticos en todos los planes", 1],
 
   // Pilot Referee: la linea de cuatro verbos
   [">Pre-register<", ">Pre-registrar<", 1],
@@ -269,26 +261,12 @@ const T = [
   ["the result so nobody can rewrite it — including us ·", "el resultado para que nadie lo pueda reescribir — nosotros incluidos ·", 1],
   [">deliver<", ">entregar<", 1],
   ["the verdict in your units.", "el veredicto en tus unidades.", 1],
-  ["never &gt;15% of pilot cost", "nunca >15% del costo del piloto", 2],
+  ["never &gt;15% of pilot cost", "nunca >15% del costo del piloto", 1],
   [">your pilot's calendar<", ">el calendario de tu piloto<", 1],
 
   // Tarjetas de precio
-  ["3–4 weeks · $4,500 screening in 5 days", "3–4 semanas · screening de US$4.500 en 5 días", 1],
-  ["A sealed evaluation of one quantum claim or portfolio position — verdict, margin, robustness, flip triggers, economics. For funds and corporate VCs.",
-   "Una evaluación sellada de un claim cuántico o de una posición del portafolio — veredicto, magnitud, robustez, disparadores que lo dan vuelta, economía. Para fondos y CVC.", 1],
-  [">Request a report →<", ">Pide un informe →<", 1],
-  [">Most requested<", ">El más pedido<", 1],
-  ["runs on your pilot's calendar · nunca >15% del costo del piloto",
-   "corre en el calendario de tu piloto · nunca >15% del costo del piloto", 1],
-  ["Pre-registered success criterion, champion classical baseline in parallel, sealed verdict. For corporates running a quantum pilot with any vendor.",
-   "Criterio de éxito pre-registrado, campeón clásico en paralelo, veredicto sellado. Para corporativos con un piloto cuántico con cualquier vendor.", 1],
-  [">Request a referee →<", ">Pide un referee →<", 1],
-  ["· pack of 5", "· pack de 5", 1],
-  [">on your experiment's calendar<", ">en el calendario de tu experimento<", 1],
-  ["Predictions sealed before the wet-lab experiment, opened publicly after. Verifiable precedence for biology and chemistry teams.",
-   "Predicciones selladas antes del experimento de laboratorio, abiertas en público después. Precedencia verificable para equipos de biología y química.", 1],
-  [">Seal a prediction →<", ">Sella una predicción →<", 1],
-
+        [">Request a referee →<", ">Pide un referee →<", 1],
+      
   // Monitor. Los TRES hallazgos son la traduccion de los que estan en la pagina en
   // ingles, que son los que sobreviven a /v1/claims. Los del archivo aprobado NO se
   // montan: ver el reporte — decian 12 claims desde 2019 con uno en pie (son 16 desde
@@ -313,8 +291,7 @@ const T = [
   ["</b> days</span>", "</b> días</span>", 2],
   [">2 days<", ">2 días<", 1],
   ["$15,000–35,000 per pilot", "US$15.000–35.000 por piloto", 1],
-  ["· per pilot", "· por piloto", 1],
-  [">verdict<", ">veredicto<", 1],
+    [">verdict<", ">veredicto<", 1],
   [">simulated run<", ">corrida simulada<", 1],
   [">QPU run<", ">corrida QPU<", 1],
   [">scores<", ">puntajes<", 1],
@@ -324,8 +301,54 @@ const T = [
   // medida NO se reformatea —ids, hashes y resultados quedan idénticos al EN—; un precio
   // sí es texto que lee un comprador, y mezclar "US$4.500" con "$28,000" en la misma
   // pantalla se lee como descuido.
-  [">$28,000<", ">US$28.000<", 1],
+    
+  // ── commit 9-ter: Agents y pricing v20.1 ──────────────────────────────────
+  [">Built for the new engine<", ">Construido para el motor nuevo<", 1],
+  ["Humans read this page. Agents call the archive.", "Los humanos leen esta página. Los agentes llaman al archivo.", 1],
+  ["Every verdict, claim, seal and algorithm in this site is available as structured data — an API and an MCP server, same origin, no key required for reads. If you are building a copilot, a diligence pipeline or a research agent, you don't need to scrape us: ask us.",
+   "Cada veredicto, claim, sello y algoritmo de este sitio está disponible como datos estructurados — una API y un servidor MCP, mismo origen, sin llave para lecturas. Si estás construyendo un copiloto, un pipeline de diligencia o un agente de investigación, no necesitas scrapearnos: pregúntanos.", 1],
+  ["9 tools: search evidence, read seals, check claim status. Plug it into your agent.",
+   "9 herramientas: buscar evidencia, leer sellos, consultar el estado de un claim. Conéctalo a tu agente.", 1],
+  ["18 endpoints, OpenAPI published. The same numbers the site shows — from the source.",
+   "18 endpoints, OpenAPI publicado. Los mismos números que muestra el sitio — desde la fuente.", 1],
+  ["The map of this site written for machines.", "El mapa de este sitio escrito para máquinas.", 1],
+  ["</b> sealed runs · <b", "</b> corridas selladas · <b", 1],
+  ["</b> quantum wins", "</b> victorias cuánticas", 1],
+  ["The registry you can cite is the registry your agent can query.",
+   "El registro que puedes citar es el registro que tu agente puede consultar.", 1],
+
+  ['No "contact us" to find out what it costs. What has a price has it here; what depends on scope is quoted — and we say which is which.',
+   "Sin «contact us» para saber cuánto cuesta. Lo que tiene precio, lo tiene aquí; lo que depende del alcance, se cotiza — y se dice cuál es cuál.", 1],
+  [">For corporates running a quantum pilot<", ">Para corporativos con un piloto cuántico<", 1],
   [">$15,000–35,000<", ">US$15.000–35.000<", 1],
+  ["your pilot's calendar · never &gt;15% of its cost", "el calendario de tu piloto · nunca >15% de su costo", 1],
+  ["<b>Criterion sealed before the run</b> · champion classical baseline in parallel · decision page + 5-layer report",
+   "<b>Criterio sellado antes de correr</b> · campeón clásico en paralelo · decision page + informe de 5 capas", 1],
+  [">$4,500<", ">US$4.500<", 1],
+  [">5 business days<", ">5 días hábiles<", 1],
+  ["<b>Layers 0–1</b> + Registry position + class priors; no new runs",
+   "<b>Capas 0–1</b> + posición en el Registry + priors de clase; sin corridas nuevas", 1],
+  [">Start a screening →<", ">Empieza un screening →<", 1],
+  [">For analysts, every week of the year<", ">Para analistas, todas las semanas del año<", 1],
+  ["$149 <small>/ seat / month</small>", "US$149 <small>/ asiento / mes</small>", 1],
+  [">free tier: the full index<", ">plan gratis: el índice completo<", 1],
+  ["<b>Registry with EL levels</b> · survival clock · citable exports",
+   "<b>Registro con niveles EL</b> · reloj de supervivencia · exportes citables", 1],
+  [">In construction · opens with the Lab Window<", ">En construcción · abre con la Ventanilla del Laboratorio<", 1],
+  ["<b>Sealed run (API)</b> — the verdict as an operation your systems call.",
+   "<b>Corrida sellada (API)</b> — el veredicto como una operación que tus sistemas llaman.", 1],
+
+  // Cuarto hallazgo del Monitor. Texto ES aprobado por Cowork el 3-sep.
+  ["<b>EL3 — independently reproduced — is empty.</b> Across the whole field, no third party has ever confirmed another's headline result from its published artifacts. That gap is the product.",
+   "<b>EL3 —reproducido independientemente— está vacío.</b> En todo el campo, nadie ha confirmado jamás el resultado de otro desde sus artefactos publicados. Ese vacío es el producto.", 1],
+
+  // Las dos lineas con "everything else"/"on request" se mapean COMPLETAS, no por
+  // trozos: la version por trozos se pisaba a si misma —"everything else" ya traducido
+  // hacia que la linea larga dejara de calzar— y el generador lo freno.
+  ["<b>Free</b> to browse · Analyst <b>$149 per seat / month</b> · everything else <b>on request</b> — evidence levels identical in every tier",
+   "<b>Gratis</b> para consultar · Analyst <b>US$149 por asiento / mes</b> · todo lo demás <b>a pedido</b> — los niveles de evidencia son idénticos en todos los planes", 1],
+  ["$50–200 / run (planned) · Diligence Report: from $28,000 · everything else: on request",
+   "US$50–200 por corrida (planeado) · Diligence Report: desde US$28.000 · todo lo demás: a pedido", 1],
 
   // ── Accesibilidad ──────────────────────────────────────────────────────────
   ["aria-label=\"Search the Evidence Library\"", "aria-label=\"Busca en la Evidence Library\"", 1],
