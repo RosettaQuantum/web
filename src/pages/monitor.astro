@@ -1,0 +1,16 @@
+---
+/**
+ * /monitor — commit 9.
+ */
+import MarcaLayout from '../layouts/MarcaLayout.astro';
+import Simples from '../components/paginas/Simples.astro';
+import css from '../styles/pages/paginas.css?raw';
+---
+<MarcaLayout
+  title="RQ Advantage Monitor — Rosetta Quantum"
+  description="One edition when it seals. What the ledger can already say about public quantum-advantage claims."
+  lang="en" altUrl="/es/monitor" ruta="/monitor"
+  pageCss={css} scripts={["/js/paginas.js"]}
+>
+  <Simples lang="en" tipo="monitor" />
+</MarcaLayout>

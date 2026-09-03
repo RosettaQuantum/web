@@ -1,0 +1,33 @@
+/* Paginas del commit 9 — encima de la hoja de la maqueta v20. */
+.pg{padding:44px 0 8px}
+.pg h1{font-family:var(--serif);font-weight:500;font-size:clamp(26px,4vw,40px);line-height:1.15;margin:8px 0 14px;max-width:24ch}
+.pg .lede{color:var(--ink-60);max-width:66ch;font-size:17px}
+.pg h3{font-family:var(--serif);font-weight:500;font-size:19px;margin:24px 0 8px}
+.pg p,.pg li{max-width:70ch}
+.pg ol,.pg ul{margin:10px 0 10px 20px}
+.pg li{margin:6px 0}
+
+.tabla{width:100%;border-collapse:collapse;margin:18px 0;font-size:14px}
+.tabla th{font-family:var(--mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-60);text-align:left;padding:8px 10px;border-bottom:1px solid var(--ink)}
+.tabla td{padding:11px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+.tabla .precio{font-family:var(--mono);white-space:nowrap;color:var(--ink)}
+.tabla .precio.pedido{color:var(--ink-60)}
+.tabla .capa{font-family:var(--mono);font-size:10px;color:var(--ink-60)}
+@media(max-width:700px){.tabla thead{display:none}.tabla td{display:block;border:none;padding:2px 0}.tabla tr{display:block;border-bottom:1px solid var(--line);padding:12px 0}}
+
+.paso{border-left:2px solid var(--verdict);padding:2px 0 2px 14px;margin:14px 0}
+.paso b{display:block;font-family:var(--mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--verdict)}
+
+.forma{display:flex;gap:0;max-width:460px;border:1.5px solid var(--ink);border-radius:2px;background:#FFFFFE;margin:16px 0}
+.forma input{flex:1;border:none;background:transparent;font-family:var(--sans);font-size:14px;padding:12px 14px;color:var(--ink);outline:none}
+.forma button{border:none}
+
+.el{width:100%;border-collapse:collapse;margin:16px 0;font-size:14px}
+.el th{font-family:var(--mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-60);text-align:left;padding:8px 10px;border-bottom:1px solid var(--ink)}
+.el td{padding:10px;border-bottom:1px solid var(--line);vertical-align:top}
+.el .lvl{font-family:var(--mono);white-space:nowrap;color:var(--verdict)}
+.el .vacio .lvl{color:var(--pending)}
+
+.ver-caja{border:1px solid var(--line);background:var(--panel);padding:16px 18px;border-radius:2px;margin:16px 0}
+.ver-caja .r{font-family:var(--mono);font-size:12.5px;word-break:break-all;margin-top:10px}
+.ver-ok{color:var(--verdict)} .ver-mal{color:var(--alert)}

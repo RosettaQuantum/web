@@ -40,7 +40,8 @@
     "check:api2": "node scripts/check-api.mjs",
     "check:fuentes": "node scripts/check-fuentes.mjs",
     "check:estructura": "node scripts/check-estructura.mjs",
-    "check:lib": "node scripts/check-lib.mjs"
+    "check:lib": "node scripts/check-lib.mjs",
+    "check:pages": "node scripts/check-paginas.mjs"
   },
   "dependencies": {
     "@astrojs/rss": "latest",

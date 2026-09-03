@@ -1,0 +1,94 @@
+---
+/**
+ * /errata · /contact · /monitor · /verify — commit 9. Cuatro paginas cortas, un
+ * componente con un `tipo`, para que compartan chrome y reglas en vez de repetirlas.
+ *
+ * /verify recomputa el sha256 EN EL NAVEGADOR con SubtleCrypto: el archivo no sube a
+ * ningun lado y el lector no tiene que confiar en nuestro servidor para comprobar
+ * nuestro sello. Un verificador que corre en nuestro servidor no verifica nada.
+ */
+const { lang = 'en', tipo } = Astro.props;
+const es = lang === 'es';
+const T = {
+  errata: es ? {
+    eyebrow:'Erratas', h1:'Cuando nos equivocamos, queda escrito.',
+    lede:'Un sello publicado nunca se reescribe. Cuando encontramos un error propio, publicamos la corrección como un archivo nuevo que cita al original por su hash: el original queda intacto y consultable. Cuatro erratas hoy; una se retracta de tres afirmaciones nuestras.',
+  } : {
+    eyebrow:'Errata', h1:'When we are wrong, it stays on the record.',
+    lede:'A published seal is never rewritten. When we find our own error, we publish the correction as a new file that cites the original by its hash: the original stays intact and checkable. Four errata today; one retracts three of our own claims.',
+  },
+  contact: es ? {
+    eyebrow:'Contacto', h1:'Escríbenos.',
+    lede:'Un piloto que necesita árbitro, un claim que necesita screening, o una pregunta sobre la metodología. Respondemos desde la misma casilla institucional que firma los informes.',
+    campos:['Tu correo','Cuéntanos en una línea'], boton:'Enviar', ok:'Recibido ✓', mal:'No se pudo enviar. Escríbenos directo a hello@rosettaquantum.com.',
+  } : {
+    eyebrow:'Contact', h1:'Get in touch.',
+    lede:'A pilot that needs a referee, a claim that needs screening, or a question about the methodology. We answer from the same institutional address that signs the reports.',
+    campos:['Your email','One line about what you need'], boton:'Send', ok:'Received ✓', mal:'Could not send. Write to hello@rosettaquantum.com directly.',
+  },
+  monitor: es ? {
+    eyebrow:'RQ Advantage Monitor · Edición 001 · en preparación', h1:'Lo que el ledger ya puede decir.',
+    lede:'Una edición cuando selle. Sin lista, sin goteo. Los hallazgos salen del archivo: qué claims siguen en pie, cuáles se erosionaron y en cuántos días llegó el primer desafío.',
+    ph:'tu@firma.com', boton:'Recibe la Edición 001 cuando selle', pie:'un solo correo cuando la edición selle · sin lista, sin goteo',
+    ok:'Anotado ✓', mal:'No se pudo anotar. Escríbenos a hello@rosettaquantum.com.',
+  } : {
+    eyebrow:'RQ Advantage Monitor · Edition 001 · in preparation', h1:'What the ledger can already say.',
+    lede:'One edition when it seals. No list, no drip. The findings come out of the archive: which claims are still standing, which eroded, and how many days it took the first challenge to arrive.',
+    ph:'you@firm.com', boton:'Get Edition 001 when it seals', pie:'one email when the edition seals · no list, no drip',
+    ok:"You're on the list ✓", mal:'Could not sign you up. Write to hello@rosettaquantum.com.',
+  },
+  verify: es ? {
+    eyebrow:'Verifica un sello', h1:'Comprueba nuestro sello sin confiar en nosotros.',
+    lede:'Baja cualquier artefacto del ledger, suéltalo aquí y el navegador recomputa su sha256. El archivo no se sube a ninguna parte: el cálculo ocurre en tu máquina. Un verificador que corriera en nuestro servidor no verificaría nada.',
+    l1:'1 · Elige el archivo sellado', l2:'2 · Pega el hash que dice el ledger', l3:'Comparar',
+    igual:'Coinciden. El archivo es exactamente el que se selló.', distinto:'NO coinciden. Este archivo no es el sellado.',
+    calc:'sha256 calculado aquí:', falta:'Elige un archivo y pega un hash.',
+  } : {
+    eyebrow:'Verify a seal', h1:'Check our seal without trusting us.',
+    lede:'Download any artifact from the ledger, drop it here and your browser recomputes its sha256. The file is not uploaded anywhere: the computation happens on your machine. A verifier running on our server would verify nothing.',
+    l1:'1 · Choose the sealed file', l2:'2 · Paste the hash the ledger states', l3:'Compare',
+    igual:'They match. This file is exactly the one that was sealed.', distinto:'They do NOT match. This file is not the sealed one.',
+    calc:'sha256 computed here:', falta:'Choose a file and paste a hash.',
+  },
+}[tipo];
+---
+<section class="pg" style="border-top:none"><div class="wrap">
+  <div class="eyebrow">{T.eyebrow}</div>
+  <h1>{T.h1}</h1>
+  <p class="lede">{T.lede}</p>
+
+  {tipo === 'errata' && (
+    <div id="errBody" style="margin-top:22px"><p class="mono" style="color:var(--ink-60)">/v1/erratas…</p></div>
+  )}
+
+  {tipo === 'contact' && (
+    <div style="margin-top:20px;max-width:520px">
+      <div class="forma"><input id="cMail" type="email" placeholder={T.campos[0]} aria-label={T.campos[0]} /></div>
+      <div class="forma"><input id="cMsg" type="text" placeholder={T.campos[1]} aria-label={T.campos[1]} /></div>
+      <p><button class="btn btn-solid" type="button" id="cGo" data-ok={T.ok} data-mal={T.mal}>{T.boton}</button></p>
+      <p class="sealline mono"><a href="mailto:hello@rosettaquantum.com">hello@rosettaquantum.com</a></p>
+    </div>
+  )}
+
+  {tipo === 'monitor' && (
+    <div style="margin-top:20px">
+      <div class="forma">
+        <input id="monMail" type="email" placeholder={T.ph} aria-label={T.ph} />
+        <a id="monGo" class="btn btn-solid" style="border-radius:0" href="mailto:hello@rosettaquantum.com?subject=Monitor%20Edition%20001" data-ok={T.ok}>{T.boton}</a>
+      </div>
+      <p class="sealline mono">{T.pie}</p>
+    </div>
+  )}
+
+  {tipo === 'verify' && (
+    <div class="ver-caja" style="margin-top:20px">
+      <p class="mono" style="font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-60)">{T.l1}</p>
+      <p><input type="file" id="vFile" /></p>
+      <p class="mono" style="font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-60);margin-top:12px">{T.l2}</p>
+      <div class="forma" style="max-width:100%"><input id="vHash" type="text" placeholder="sha256:…" aria-label={T.l2} /></div>
+      <p><button class="btn btn-solid" type="button" id="vGo"
+          data-igual={T.igual} data-distinto={T.distinto} data-calc={T.calc} data-falta={T.falta}>{T.l3}</button></p>
+      <div class="r" id="vOut"></div>
+    </div>
+  )}
+</div></section>

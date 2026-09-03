@@ -1,0 +1,16 @@
+---
+/**
+ * /pilots — commit 9.
+ */
+import MarcaLayout from '../layouts/MarcaLayout.astro';
+import Pilotos from '../components/paginas/Pilotos.astro';
+import css from '../styles/pages/paginas.css?raw';
+---
+<MarcaLayout
+  title="Pilot Referee — Rosetta Quantum"
+  description="We make your quantum pilot produce a defensible number: criterion pre-registered, classical champion at parity, result sealed."
+  lang="en" altUrl="/es/pilotos" ruta="/pilots"
+  pageCss={css} scripts={[]}
+>
+  <Pilotos lang="en" />
+</MarcaLayout>

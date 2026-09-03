@@ -1,0 +1,16 @@
+---
+/**
+ * /services — commit 9.
+ */
+import MarcaLayout from '../layouts/MarcaLayout.astro';
+import Servicios from '../components/paginas/Servicios.astro';
+import css from '../styles/pages/paginas.css?raw';
+---
+<MarcaLayout
+  title="Services & pricing — Rosetta Quantum"
+  description="Public prices for independent evaluation of quantum claims: pilot referee, claim screening, diligence reports and the Evidence Library."
+  lang="en" altUrl="/es/servicios" ruta="/services"
+  pageCss={css} scripts={[]}
+>
+  <Servicios lang="en" />
+</MarcaLayout>

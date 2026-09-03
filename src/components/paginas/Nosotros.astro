@@ -1,0 +1,73 @@
+---
+/**
+ * /about y /es/nosotros — commit 9.
+ *
+ * TEXTO APROBADO, VERBATIM, de handoff/web/rosetta-about-texto-final.md (1-sep). Los dos
+ * idiomas vienen aprobados en ese archivo: aqui NO se redacta nada. Si algo hay que
+ * cambiar, se cambia el archivo aprobado primero.
+ */
+const { lang = 'en' } = Astro.props;
+const es = lang === 'es';
+const t = es ? {
+  eyebrow:'Quién firma', h1:'Quién firma.',
+  nombre:'Nicholas Iakl Freundlich', rol:'fundador de Rosetta Quantum',
+  p1:'Cada veredicto que publica esta casa lleva un autor con nombre, porque un árbitro que no puedes nombrar no es un árbitro. Hoy ese nombre es el mío: diseño los protocolos, corro o comisiono los experimentos y firmo las decision pages. Donde contribuyen especialistas, quedan nombrados en el informe que tocaron.',
+  p2:'No soy físico cuántico. Ese es justamente el punto: todo aquí está diseñado para que no tengas que confiar en mí — criterios registrados antes de correr, datos sellados y anclados por hash, resultados que puedes recomputar tú mismo. La autoridad del árbitro vive en el protocolo, no en el árbitro.',
+  porqueH:'Por qué existe esto.',
+  porque1:'Soy fundador en serie, no físico — construí Sumeria, una empresa de IA aplicada, y Sigo, una plataforma de evidencia biomédica. En Sigo nació esta casa: trabajar con evidencia médica te enseña que el costo de un falso positivo no es un mal trimestre: son pacientes. La medicina resolvió este problema hace décadas: pre-registro, protocolos sellados, revisión independiente y una disciplina llamada GRADE para calificar cuánta credibilidad merece una evidencia. La computación cuántica — una industria que le vende su futuro a la farma, la banca y las redes eléctricas — no tiene nada de esa infraestructura. Rosetta Quantum es esa infraestructura: criterios pre-registrados, corridas selladas, resultados publicados se gane o se pierda, y una escala de evidencia (EL0–EL5) adaptada de GRADE.',
+  porque2:'Hemos corrido cinco evaluaciones selladas en cinco industrias — descubrimiento de fármacos, optimización de portafolios, planificación de redes, detección de fraude, dinámica de fluidos — siempre con el mejor baseline clásico en la misma cancha. El lado cuántico aún no gana. Cuando gane, esa victoria valdrá la pena creerla. Ese es el punto.',
+  reglasH:'Las reglas que nos atan.',
+  reglas:[
+    ['La Two-Layer Rule.','El juicio lo pagan quienes dependen de él — empresas, fondos, equipos de investigación. Jamás los vendors evaluados. Cualquiera puede usar la infraestructura de sellado, que notariza integridad, no verdad.'],
+    ['Publicado se gane o se pierda.','Nuestros propios experimentos corren bajo el mismo protocolo y publican bajo las mismas reglas. Nuestro propio brazo cuántico hoy puntúa EL1 — su resultado negativo está en el ledger.'],
+    ['Erratas en público.','Cuando nos equivocamos, lo decimos en una errata sellada y anclada por hash. El registro no se puede reescribir — tampoco por nosotros. Hoy hay cuatro erratas en el ledger; una se retracta de tres afirmaciones nuestras.'],
+    ['Conflictos.','Si en un encargo aparece un conflicto de interés — una relación previa, un interés financiero, cualquier cosa que pueda torcer un veredicto — se declara en el propio informe, y donde declarar no alcanza, nos inhabilitamos o declinamos. Un veredicto con un conflicto no declarado no vale nada, y nosotros vendemos veredictos.'],
+  ],
+  firmaH:'La firma.',
+  firma:'Rosetta Quantum es una marca de Blue Tuna SpA (Chile). Informes en inglés y español. Cada artefacto queda anclado por hash vía OpenTimestamps y espejado en GitHub, Codeberg y nuestra base pública.',
+} : {
+  eyebrow:'Who signs', h1:'Who signs.',
+  nombre:'Nicholas Iakl Freundlich', rol:'founder of Rosetta Quantum',
+  p1:'Every verdict this firm publishes carries a named author, because a referee you can’t name isn’t a referee. Today that name is mine: I design the protocols, run or commission the experiments, and sign the decision pages. Where specialists contribute, they are named on the report they touched.',
+  p2:'I am not a quantum physicist. That is the point: everything here is designed so you don’t have to trust me — criteria pre-registered before the run, data sealed and hash-anchored, results you can recompute yourself. The referee’s authority lives in the protocol, not in the referee.',
+  porqueH:'Why this exists.',
+  porque1:'I am a serial founder, not a physicist — I built Sumeria, an applied-AI company, and Sigo, an evidence platform for biomedicine. Sigo is where this firm was born: working with medical evidence teaches you that the cost of a false positive is not a bad quarter — it’s patients. Medicine solved this problem decades ago: pre-registration, sealed protocols, independent review, and a discipline called GRADE for grading how much a piece of evidence deserves to be believed. Quantum computing — a field selling its future to pharma, banks and grids — has none of that infrastructure. Rosetta Quantum is that infrastructure: pre-registered criteria, sealed runs, published outcomes win or lose, and an evidence scale (EL0–EL5) adapted from GRADE.',
+  porque2:'We have run five sealed evaluations across five industries — drug discovery, portfolio optimization, grid planning, fraud detection, fluid dynamics — always with the strongest classical baseline on the same field. The quantum side hasn’t won yet. When it does, the win will be worth believing, and that is the point.',
+  reglasH:'The rules we bind ourselves to.',
+  reglas:[
+    ['The Two-Layer Rule.','Judgment is paid for by those who rely on it — corporates, funds, research teams. Never by the vendors being evaluated. Anyone may use the sealing infrastructure, which notarizes integrity, not truth.'],
+    ['Published win or lose.','Our own experiments run under the same protocol and publish under the same rules. Our own quantum arm currently scores EL1 — you can read its negative result in the ledger.'],
+    ['Errata in public.','When we are wrong, we say so in a sealed, hash-anchored erratum. The record cannot be rewritten — including by us. There are four errata in the ledger today; one retracts three of our own claims.'],
+    ['Conflicts.','If a conflict of interest arises on an engagement — a prior relationship, a financial stake, anything that could bend a verdict — it is disclosed on the report itself, and where disclosure isn’t enough, we recuse or decline. A verdict with an undisclosed conflict is worthless, and we sell verdicts.'],
+  ],
+  firmaH:'The firm.',
+  firma:'Rosetta Quantum is a brand of Blue Tuna SpA (Chile). Reports in English and Spanish. Every artifact is hash-anchored via OpenTimestamps and mirrored on GitHub, Codeberg and our public database.',
+};
+---
+<section class="pg" style="border-top:none"><div class="wrap">
+  <div class="eyebrow">{t.eyebrow}</div>
+  <h1>{t.h1}</h1>
+  <p class="lede"><b>{t.nombre}</b> — {t.rol}.</p>
+  <p style="margin-top:14px">{t.p1}</p>
+  <p style="margin-top:12px">{t.p2}</p>
+</div></section>
+
+<section><div class="wrap">
+  <div class="eyebrow">{t.porqueH}</div>
+  <h2>{t.porqueH}</h2>
+  <p>{t.porque1}</p>
+  <p style="margin-top:12px">{t.porque2}</p>
+</div></section>
+
+<section id="two-layer-rule"><div class="wrap">
+  <div class="eyebrow">{t.reglasH}</div>
+  <h2>{t.reglasH}</h2>
+  <ol>{t.reglas.map(([b, p]) => <li><b>{b}</b> {p}</li>)}</ol>
+</div></section>
+
+<section id="governance"><div class="wrap">
+  <div class="eyebrow">{t.firmaH}</div>
+  <h2>{t.firmaH}</h2>
+  <p>{t.firma}</p>
+  <p class="sealline mono" style="margin-top:12px"><a href="mailto:hello@rosettaquantum.com">hello@rosettaquantum.com</a> · <a href={es ? '/es/erratas' : '/errata'}>{es ? 'Las erratas →' : 'The errata →'}</a> · <a href={es ? '/es/ledger' : '/ledger'}>{es ? 'El ledger →' : 'The ledger →'}</a></p>
+</div></section>

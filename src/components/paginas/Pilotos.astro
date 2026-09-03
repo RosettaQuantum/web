@@ -1,0 +1,72 @@
+---
+/**
+ * /pilots — sublanding del producto ancla corporativo. Commit 9.
+ * La pieza three.js repintada entra aqui en el commit 13, con carga diferida.
+ */
+const { lang = 'en' } = Astro.props;
+const es = lang === 'es';
+const t = es ? {
+  eyebrow:'¿Corriendo un piloto cuántico?', h1:'Hacemos que tu piloto produzca un número defendible.',
+  lede:'Tu piloto va a terminar en un deck del vendor evaluándose a sí mismo. Nosotros escribimos el criterio de éxito antes de que corra, corremos al campeón clásico en la misma cancha, y sellamos el resultado — un número que nadie puede reescribir, ni nosotros.',
+  comoH:'Cómo trabaja un referee',
+  pasos:[
+    ['Pre-registro','Escribimos el criterio de éxito ANTES de que corra nada, y lo sellamos. Después no se puede ajustar mirando el resultado — tampoco nosotros.'],
+    ['Paridad','El mejor solver clásico corre la misma instancia con el mismo presupuesto de cómputo y de tiempo. Sin eso, la comparación no mide lo que dice medir.'],
+    ['Sello','El resultado queda anclado por hash a Bitcoin vía OpenTimestamps y espejado en tres lugares. El registro no se puede reescribir.'],
+    ['Entrega','Una decision page de una cara, más el informe de cinco capas: veredicto, magnitud, robustez, qué lo daría vuelta, y qué significa en tus unidades.'],
+  ],
+  precioH:'Precio', precio:'US$15.000–35.000 por piloto, y nunca más del 15% de lo que cuesta el piloto. Si nuestra factura pesa en la decisión, el árbitro dejó de ser árbitro.',
+  quienH:'Quién NO nos paga',
+  quien:'El vendor evaluado no paga el veredicto, ni directa ni indirectamente. Puede presentar, puede co-vender, puede estar en la sala — pero contrata y paga el corporativo. Es la Two-Layer Rule, y es la única razón por la que el número sirve.',
+  casosH:'Cinco industrias, cinco experimentos sellados',
+  casos:'Farma, finanzas, energía, banca y aeroespacial. En los cinco corrió el campeón clásico en la misma cancha. En los cinco publicamos el resultado, y en ninguno ganó el lado cuántico — todavía.',
+  cta:'Escríbenos →', ver:'Mira una decision page de muestra →', led:'Mira los cinco en el ledger →',
+} : {
+  eyebrow:'Running a quantum pilot?', h1:'We make your pilot produce a defensible number.',
+  lede:'Your pilot will end up in a vendor deck evaluating itself. We write the success criterion before it runs, race the champion classical solver on the same field, and seal the result — a number nobody can rewrite, including us.',
+  comoH:'How a referee works',
+  pasos:[
+    ['Pre-register','We write the success criterion BEFORE anything runs, and seal it. After that it cannot be adjusted by looking at the result — not by us either.'],
+    ['Parity','The strongest classical solver runs the same instance on the same compute and time budget. Without that, the comparison does not measure what it claims to.'],
+    ['Seal','The result is hash-anchored to Bitcoin via OpenTimestamps and mirrored in three places. The record cannot be rewritten.'],
+    ['Deliver','A one-page decision page plus the five-layer report: verdict, margin, robustness, what would flip it, and what it means in your units.'],
+  ],
+  precioH:'Price', precio:'$15,000–35,000 per pilot, and never more than 15% of what the pilot costs. If our invoice weighs on the decision, the referee stopped being a referee.',
+  quienH:'Who does NOT pay us',
+  quien:'The vendor under evaluation does not pay for the verdict, directly or indirectly. They can present, they can co-sell, they can be in the room — but the corporate contracts and pays. That is the Two-Layer Rule, and it is the only reason the number is worth anything.',
+  casosH:'Five industries, five sealed experiments',
+  casos:'Pharma, finance, energy, banking and aerospace. In all five the classical champion ran on the same field. In all five we published the result, and in none of them did the quantum side win — yet.',
+  cta:'Get in touch →', ver:'See a sample decision page →', led:'See all five in the ledger →',
+};
+---
+<section class="pg" style="border-top:none"><div class="wrap">
+  <div class="eyebrow">{t.eyebrow}</div>
+  <h1>{t.h1}</h1>
+  <p class="lede">{t.lede}</p>
+  <p style="margin-top:18px">
+    <a class="btn btn-solid" href={es ? '/es/contacto' : '/contact'}>{t.cta}</a>
+    <a class="btn btn-ghost" href="/services/sample-report">{t.ver}</a>
+  </p>
+</div></section>
+
+<section><div class="wrap">
+  <div class="eyebrow">{t.comoH}</div>
+  <h2>{t.comoH}</h2>
+  {t.pasos.map(([b, p]) => (<div class="paso"><b>{b}</b><p>{p}</p></div>))}
+</div></section>
+
+<section><div class="wrap">
+  <div class="eyebrow">{t.precioH}</div>
+  <h2>{t.precioH}</h2>
+  <p class="lede">{t.precio}</p>
+  <h3>{t.quienH}</h3>
+  <p>{t.quien}</p>
+  <p class="sealline mono" style="margin-top:12px"><a href={es ? '/es/servicios' : '/services'}>{es ? 'Todos los precios →' : 'All pricing →'}</a> · <a href={es ? '/es/metodologia' : '/methodology'}>{es ? 'La Two-Layer Rule →' : 'The Two-Layer Rule →'}</a></p>
+</div></section>
+
+<section><div class="wrap">
+  <div class="eyebrow">{t.casosH}</div>
+  <h2>{t.casosH}</h2>
+  <p class="lede">{t.casos}</p>
+  <p class="sealline mono" style="margin-top:12px"><a href={es ? '/es/ledger' : '/ledger'}>{t.led}</a></p>
+</div></section>

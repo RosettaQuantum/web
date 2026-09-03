@@ -1,0 +1,19 @@
+---
+/**
+ * /es/verificar — commit 9.
+ *
+ * TEXTO EN ESPAÑOL: BORRADOR, sin aprobar. La aprobacion que existe cubre la home y
+ * el texto de /about. Ver handoff/web/ES-BORRADOR-paginas-nuevas.md.
+ */
+import MarcaLayout from '../../layouts/MarcaLayout.astro';
+import Simples from '../../components/paginas/Simples.astro';
+import css from '../../styles/pages/paginas.css?raw';
+---
+<MarcaLayout
+  title="Verifica un sello — Rosetta Quantum"
+  description="Recomputa el sha256 de cualquier artefacto sellado en tu propio navegador. El archivo no sale de tu máquina."
+  lang="es" altUrl="/verify" ruta="/es/verificar"
+  pageCss={css} scripts={["/js/paginas.js"]}
+>
+  <Simples lang="es" tipo="verify" />
+</MarcaLayout>

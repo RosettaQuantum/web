@@ -1,0 +1,126 @@
+---
+/**
+ * /services — commit 9. Precios PUBLICOS, sin "contact us".
+ *
+ * Los precios son la decision de Nicholas del 2-sep, citada tal cual:
+ *   Pilot Referee $15.000–35.000 · Screening $4.500 · Diligence "from $28,000"
+ *   Evidence Library free / $149 por asiento al mes · todo lo demas: "on request".
+ * Esa decision es POSTERIOR a la tabla del spec §3.1 y la reemplaza. Los productos que
+ * el spec cifraba ($40k, $45k, $8k, $10-25k) van "a pedido" — publicar la cifra del spec
+ * seria publicar un precio que nadie aprobo.
+ */
+const { lang = 'en' } = Astro.props;
+const es = lang === 'es';
+const PEDIDO = es ? 'a pedido' : 'on request';
+const PROD = [
+  { n:'Pilot Referee', capa:'B', precio: es ? 'US$15.000–35.000' : '$15,000–35,000',
+    compra: es ? 'Corporativo con un piloto cuántico' : 'Corporate running a quantum pilot',
+    inc: es ? 'Pre-registro sellado del criterio de éxito · campeón clásico en paralelo bajo juez-v1 · decision page + informe de 5 capas · entrada opcional al ledger'
+            : 'Sealed pre-registration of the success criterion · champion classical baseline in parallel under juez-v1 · decision page + 5-layer report · optional ledger entry',
+    plazo: es ? 'el calendario de tu piloto · nunca >15% de su costo' : "your pilot's calendar · never >15% of pilot cost" },
+  { n:'Claim Screening', capa:'B', precio: es ? 'US$4.500' : '$4,500',
+    compra: es ? 'Fondo con un deal · corporativo con un pitch recibido' : 'Fund with a deal · corporate with a pitch on the table',
+    inc: es ? 'Capas 0–1 + posición en el Registry + priors de clase; sin corridas nuevas' : 'Layers 0–1 + Registry position + class priors; no new runs',
+    plazo: es ? '5 días hábiles' : '5 business days' },
+  { n:'Diligence Report', capa:'B', precio: es ? 'desde US$28.000' : 'from $28,000',
+    compra: es ? 'Fondo o CVC · pharma evaluando un partnership' : 'Fund or CVC · pharma evaluating a partnership',
+    inc: es ? 'Capas 0–5, reproducción en simulador contra el campeón, pre-registro, informe + JSON' : 'Layers 0–5, simulator reproduction against the champion, pre-registration, report + JSON',
+    plazo: es ? '3–4 semanas' : '3–4 weeks' },
+  { n: es ? 'Evidence Library — Analyst' : 'Evidence Library — Analyst', capa:'B',
+    precio: es ? 'gratis para consultar · US$149 por asiento al mes' : 'free to browse · $149 per seat / month',
+    compra: es ? 'Analista, consultora, medio' : 'Analyst, consultancy, newsroom',
+    inc: es ? 'Fichas completas, filtros, export y alertas. Los niveles de evidencia son idénticos en todos los planes: lo pagado es profundidad, no una verdad distinta.'
+            : 'Full records, filters, export and alerts. Evidence levels are identical in every tier: what you pay for is depth, not a different truth.',
+    plazo: es ? 'inmediato' : 'immediate' },
+  { n:'Diligence + QPU', capa:'B', precio: PEDIDO,
+    compra: es ? 'Claims donde el hardware ES la disputa' : 'Claims where the hardware IS the dispute',
+    inc: es ? 'Lo anterior + hardware real con paridad; el costo de máquina se pasa a costo, con tope' : 'The above + real hardware at parity; machine cost passed through at cost, capped',
+    plazo: es ? '5–8 semanas (la excepción, no el default)' : '5–8 weeks (the exception, not the default)' },
+  { n:'Portfolio Scan', capa:'B', precio: PEDIDO,
+    compra: es ? 'Fondo o CVC con 3 o más posiciones' : 'Fund or CVC with 3+ positions',
+    inc: es ? '5 screenings + 1 diligence + ranking de evidencia del portafolio' : '5 screenings + 1 diligence + portfolio evidence ranking',
+    plazo: es ? '6 semanas' : '6 weeks' },
+  { n:'Sealed Prediction Pack', capa:'A+B', precio: PEDIDO,
+    compra: es ? 'Equipos de biología y química' : 'Biology and chemistry teams',
+    inc: es ? 'Predicciones selladas antes del experimento, abiertas en público después' : 'Predictions sealed before the experiment, opened publicly afterwards',
+    plazo: es ? 'el calendario de tu experimento' : "your experiment's calendar" },
+  { n: es ? 'Library — Firm' : 'Library — Firm', capa:'B', precio: PEDIDO,
+    compra: es ? 'Fondos, consultoras, medios' : 'Funds, consultancies, media',
+    inc: es ? 'Asientos por equipo + briefing trimestral' : 'Team seats + quarterly briefing', plazo: es ? 'inmediato' : 'immediate' },
+];
+const t = es ? {
+  eyebrow:'Juicio, con precio a la vista', h1:'Juicio, con precio por delante.',
+  lede:'Sin "contact us" para saber cuánto cuesta. Lo que tiene precio, lo tiene aquí; lo que depende del alcance, se cotiza — y se dice cuál es cuál.',
+  th:{p:'producto',c:'comprador',i:'incluye',pr:'precio',pl:'plazo hoy'},
+  porqueH:'Por qué contratarnos', cond:'Condiciones', muestra:'Mira una decision page de muestra — construida sobre nuestro veredicto real V-0012 →',
+  capaN:'capa',
+  porque:[
+    ['Priors que no se replican','El catálogo de 74 algoritmos sobre 625 referencias, más los claims rastreados, dan la tasa base de supervivencia por clase de problema. Nadie más la tiene.'],
+    ['Harness calibrado','Baselines campeones afinados (CP-SAT / OR-Tools), paridad de presupuesto versionada, semillas fijas. Replicarlo honestamente son semanas de equipo — y es justo donde la mayoría de las comparaciones se sesga.'],
+    ['Citabilidad','Un memo interno no se le muestra a un comité ni a un LP. Una opinión externa sellada y anclada, sí. Vendemos opinión transferible con cadena de custodia, no cómputo.'],
+    ['Historial simétrico','Cuatro erratas públicas y nuestro propio brazo cuántico publicado perdiendo. El "sí" vale porque los "no" son públicos.'],
+    ['Velocidad con fecha','De 5 días a 8 semanas según el producto, contra 6–18 meses de un ciclo académico.'],
+  ],
+  condiciones:[
+    '50% a la firma, 50% a la entrega. USD.',
+    'Urgencia en menos de dos semanas: ×1,5.',
+    'Un informe privado cuesta lo mismo que uno público: la privacidad no compra el resultado.',
+    'Los niveles de evidencia son idénticos en el plan gratis y en el pagado.',
+    'La Two-Layer Rule: el juicio lo paga quien depende de él, nunca el vendor evaluado.',
+  ],
+} : {
+  eyebrow:'Judgment, priced up front', h1:'Judgment, priced up front.',
+  lede:'No "contact us" to find out what it costs. What has a price has it here; what depends on scope is quoted — and we say which is which.',
+  th:{p:'product',c:'buyer',i:'includes',pr:'price',pl:'lead time today'},
+  porqueH:'Why hire us', cond:'Conditions', muestra:'See a sample decision page — built on our real verdict V-0012 →',
+  capaN:'layer',
+  porque:[
+    ['Priors nobody can replicate','A catalogue of 74 algorithms over 625 references, plus the tracked claims, give the base survival rate per problem class. Nobody else has it.'],
+    ['A calibrated harness','Tuned champion baselines (CP-SAT / OR-Tools), versioned budget parity, fixed seeds. Replicating it honestly takes weeks of a team — and it is exactly where most comparisons get biased.'],
+    ['Citability','An internal memo does not go to a committee or an LP. An external, sealed, anchored opinion does. We sell transferable opinion with chain of custody, not compute.'],
+    ['A symmetric track record','Four public errata and our own quantum arm published losing. The "yes" is worth something because the "no"s are public.'],
+    ['Speed with a date','5 days to 8 weeks depending on the product, against a 6–18 month academic cycle.'],
+  ],
+  condiciones:[
+    '50% on signature, 50% on delivery. USD.',
+    'Rush under two weeks: ×1.5.',
+    'A private report costs the same as a public one: privacy does not buy the result.',
+    'Evidence levels are identical in the free and the paid tier.',
+    'The Two-Layer Rule: judgment is paid for by those who rely on it, never by the vendor being evaluated.',
+  ],
+};
+---
+<section class="pg" style="border-top:none"><div class="wrap">
+  <div class="eyebrow">{t.eyebrow}</div>
+  <h1>{t.h1}</h1>
+  <p class="lede">{t.lede}</p>
+
+  <table class="tabla">
+    <thead><tr><th>{t.th.p}</th><th>{t.th.c}</th><th>{t.th.i}</th><th>{t.th.pr}</th><th>{t.th.pl}</th></tr></thead>
+    <tbody>
+      {PROD.map((p) => (
+        <tr>
+          <td><b>{p.n}</b><br /><span class="capa">{t.capaN} {p.capa}</span></td>
+          <td>{p.compra}</td>
+          <td>{p.inc}</td>
+          <td class={"precio" + (p.precio === PEDIDO ? " pedido" : "")}>{p.precio}</td>
+          <td class="capa">{p.plazo}</td>
+        </tr>
+      ))}
+    </tbody>
+  </table>
+  <p class="sealline mono"><a href={es ? '/services/sample-report' : '/services/sample-report'}>{t.muestra}</a></p>
+</div></section>
+
+<section><div class="wrap">
+  <div class="eyebrow">{t.porqueH}</div>
+  <h2>{t.porqueH}</h2>
+  {t.porque.map(([h, p]) => (<><h3>{h}</h3><p>{p}</p></>))}
+</div></section>
+
+<section><div class="wrap">
+  <div class="eyebrow">{t.cond}</div>
+  <h2>{t.cond}</h2>
+  <ul>{t.condiciones.map((c) => <li>{c}</li>)}</ul>
+  <p class="sealline mono" style="margin-top:14px"><a href={es ? '/es/nosotros' : '/about'}>{es ? 'Quién firma →' : 'Who signs →'}</a> · <a href={es ? '/es/metodologia' : '/methodology'}>{es ? 'La metodología →' : 'The methodology →'}</a> · <a href={es ? '/es/contacto' : '/contact'}>{es ? 'Contacto →' : 'Contact →'}</a></p>
+</div></section>

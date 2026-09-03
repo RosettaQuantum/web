@@ -1,0 +1,19 @@
+---
+/**
+ * /es/metodologia — commit 9.
+ *
+ * TEXTO EN ESPAÑOL: BORRADOR, sin aprobar. La aprobacion que existe cubre la home y
+ * el texto de /about. Ver handoff/web/ES-BORRADOR-paginas-nuevas.md.
+ */
+import MarcaLayout from '../../layouts/MarcaLayout.astro';
+import Metodologia from '../../components/paginas/Metodologia.astro';
+import css from '../../styles/pages/paginas.css?raw';
+---
+<MarcaLayout
+  title="Metodología v1.0 — Rosetta Quantum"
+  description="Cómo se emite un veredicto: cinco capas, la escala de evidencia EL0–EL5, paridad de presupuesto bajo juez-v1 y la Two-Layer Rule."
+  lang="es" altUrl="/methodology" ruta="/es/metodologia"
+  pageCss={css} scripts={[]}
+>
+  <Metodologia lang="es" />
+</MarcaLayout>

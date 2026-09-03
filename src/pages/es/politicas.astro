@@ -1,0 +1,21 @@
+---
+/**
+ * /es/politicas — commit 9. Portada de politicas: las tres paginas legales YA existen
+ * (/privacy /terms /refunds y sus pares ES) y no se tocan; esta solo las reune, porque
+ * el pie enlaza "Policies & Conduct" y sin esta ruta ese enlace daba 404.
+ *
+ * TEXTO EN ESPAÑOL: BORRADOR, sin aprobar.
+ */
+import MarcaLayout from '../../layouts/MarcaLayout.astro';
+import css from '../../styles/pages/paginas.css?raw';
+const enlaces = [["/es/privacidad","Privacidad"],["/es/terminos","Términos"],["/es/reembolsos","Reembolsos"],["/es/nosotros#two-layer-rule","La Two-Layer Rule — quién paga, y quién nunca"],["/es/erratas","Erratas — qué hacemos cuando nos equivocamos"]];
+---
+<MarcaLayout title="Políticas y conducta — Rosetta Quantum" description="Privacidad, términos y reembolsos, más las reglas de conducta a las que esta casa se ata." lang="es" altUrl="/policies" ruta="/es/politicas" pageCss={css} scripts={[]}>
+  <section class="pg" style="border-top:none"><div class="wrap">
+    <div class="eyebrow">Políticas y conducta</div>
+    <h1>Políticas y conducta.</h1>
+    <p class="lede">Las páginas legales, más las reglas que deciden quién puede pagarnos y qué pasa cuando nos equivocamos.</p>
+    <ul style="margin-top:18px">{enlaces.map(([h, t]) => <li><a href={h} style="border-bottom:1px solid var(--line)">{t}</a></li>)}</ul>
+    <p class="sealline mono" style="margin-top:18px"><a href="/es/servicios">Las condiciones comerciales van con los precios →</a></p>
+  </div></section>
+</MarcaLayout>

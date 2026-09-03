@@ -1,0 +1,19 @@
+---
+/**
+ * /es/monitor — commit 9.
+ *
+ * TEXTO EN ESPAÑOL: BORRADOR, sin aprobar. La aprobacion que existe cubre la home y
+ * el texto de /about. Ver handoff/web/ES-BORRADOR-paginas-nuevas.md.
+ */
+import MarcaLayout from '../../layouts/MarcaLayout.astro';
+import Simples from '../../components/paginas/Simples.astro';
+import css from '../../styles/pages/paginas.css?raw';
+---
+<MarcaLayout
+  title="RQ Advantage Monitor — Rosetta Quantum"
+  description="Una edición cuando selle. Lo que el ledger ya puede decir sobre los claims públicos de ventaja cuántica."
+  lang="es" altUrl="/monitor" ruta="/es/monitor"
+  pageCss={css} scripts={["/js/paginas.js"]}
+>
+  <Simples lang="es" tipo="monitor" />
+</MarcaLayout>

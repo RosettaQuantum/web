@@ -161,6 +161,14 @@ jobs:
           PREVIEW_URL: ${{ steps.desplegar.outputs.url }}
         run: npm run check:lib
 
+      # T-pages — commit 9. Las once rutas nuevas, en los dos idiomas, con su par
+      # hreflang, un solo chrome y cero enlaces muertos. Las tres cosas que vigila ya
+      # fallaron en silencio en este repo.
+      - name: T-pages — los pares EN/ES responden completos
+        env:
+          PREVIEW_URL: ${{ steps.desplegar.outputs.url }}
+        run: npm run check:pages
+
       - name: T-api — endpoints nuevos y /v1/state aditivo
         env:
           PREVIEW_URL: ${{ steps.desplegar.outputs.url }}
