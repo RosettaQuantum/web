@@ -46,12 +46,28 @@ const R = {
   "/es/clases": "/es/biblioteca",
 };
 
+
+// Reintento corto. NO es para tapar un fallo: es porque el manifiesto de ASSETS y el
+// Worker no llegan al borde en el mismo instante. Medido en el CI del commit 10: en la
+// MISMA corrida, /clases devolvio 307 (el asset viejo, que ya no existe en el build) y
+// /clases/ devolvio 301 (el Worker nuevo). Segundos despues, las dos daban 301.
+// Un guardia que falla a ratos es peor que no tenerlo: la gente aprende a re-lanzarlo.
+async function esperar(url, ok, intentos = 10, ms = 3000) {
+  let ultimo = null;
+  for (let i = 0; i < intentos; i++) {
+    ultimo = await fetch(url, { redirect: "manual", headers: { "x-rq-check": "1" } });
+    if (ok(ultimo)) return ultimo;
+    if (i < intentos - 1) await new Promise((r) => setTimeout(r, ms));
+  }
+  return ultimo;
+}
+
 const fallos = [];
 console.log(`preview: ${PREVIEW}\nredirecciones declaradas: ${Object.keys(R).length}\n`);
 
 for (const [origen, destino] of Object.entries(R)) {
   for (const forma of [origen, origen + "/"]) {
-    const r = await fetch(PREVIEW + forma, { redirect: "manual", headers: { "x-rq-check": "1" } });
+    const r = await esperar(PREVIEW + forma, (x) => x.status === 301);
     const loc = r.headers.get("location") || "";
     if (r.status !== 301) { console.log(`  FALLA ${forma.padEnd(26)} ${r.status} — se esperaba 301`); fallos.push(forma); continue; }
     if (!loc.endsWith(destino)) { console.log(`  FALLA ${forma.padEnd(26)} 301 -> ${loc} — se esperaba ${destino}`); fallos.push(forma); continue; }

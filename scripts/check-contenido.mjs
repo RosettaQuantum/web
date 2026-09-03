@@ -95,7 +95,7 @@ async function rutasDeWrangler() {
   const RETIRADAS = { "/clases": "/library", "/clases/": "/library", "/es/clases": "/es/biblioteca", "/es/clases/": "/es/biblioteca" };
   for (const [r, destino] of Object.entries(RETIRADAS)) {
     if (dePreview.includes(r)) continue; // sigue en la lista: se comprueba como las demas
-    const res = await fetch(PREVIEW + r, { redirect: "manual", headers: { "x-rq-check": "1" } });
+    const res = await esperar(PREVIEW + r, (x) => x.status === 301);
     const loc = res.headers.get("location") || "";
     if (res.status !== 301 || !loc.endsWith(destino)) {
       console.log(`  FALLA ${r.padEnd(16)} retirada de run_worker_first pero devuelve ${res.status} ${loc || "(sin Location)"} — se esperaba 301 a ${destino}`);
@@ -124,6 +124,22 @@ async function rutasDeWrangler() {
     if (!vistas.has(u)) { vistas.add(u); rutas.push(u); }
   }
   return rutas;
+}
+
+
+// Reintento corto. NO es para tapar un fallo: es porque el manifiesto de ASSETS y el
+// Worker no llegan al borde en el mismo instante. Medido en el CI del commit 10: en la
+// MISMA corrida, /clases devolvio 307 (el asset viejo, que ya no existe en el build) y
+// /clases/ devolvio 301 (el Worker nuevo). Segundos despues, las dos daban 301.
+// Un guardia que falla a ratos es peor que no tenerlo: la gente aprende a re-lanzarlo.
+async function esperar(url, ok, intentos = 10, ms = 3000) {
+  let ultimo = null;
+  for (let i = 0; i < intentos; i++) {
+    ultimo = await fetch(url, { redirect: "manual", headers: { "x-rq-check": "1" } });
+    if (ok(ultimo)) return ultimo;
+    if (i < intentos - 1) await new Promise((r) => setTimeout(r, ms));
+  }
+  return ultimo;
 }
 
 async function medir(base, ruta) {
