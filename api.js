@@ -227,7 +227,7 @@ async function posts(env, url) {
     env.DB.prepare("SELECT count(*) n FROM posts WHERE published=1 AND lang=?").bind(lang).first(),
   ]);
   return json({
-    que_es: "Entradas publicadas, desde D1. Mismo filtro que el indice del blog (published=1). `excerpt` = primer parrafo del cuerpo, no el tldr.",
+    que_es: "Entradas publicadas, desde D1. Mismo filtro que el indice del blog (published=1). `excerpt` = primer parrafo de PROSA del cuerpo (se descarta el membrete), no el tldr.",
     lang,
     total: results.length,
     de_un_total_de: (total || { n: 0 }).n,
@@ -241,6 +241,21 @@ async function posts(env, url) {
       const parrafos = [...(p.body_html || "").matchAll(/<p[^>]*>([\s\S]*?)<\/p>/gi)]
         .map((m) => m[1].replace(/<[^>]+>/g, " ").replace(/&nbsp;/g, " ").replace(/&[a-z]+;/g, " ").replace(/\s+/g, " ").trim())
         .filter((t) => t.length > 40);
+      // Los posts nuevos abren con un MEMBRETE dentro de un <p> —el wordmark, el pilar,
+      // el estado, el titulo repetido y las cifras de portada— asi que "el primer parrafo
+      // de mas de 40 caracteres" devolvia eso. En la home se leia:
+      //   "ROSETTA Q QUANTUM VERIFICATION LEDGER PILAR C · CLAIM EXPLAINER ESTADO A: …"
+      // en los DOS idiomas. Los posts viejos no lo traian, asi que la verificacion
+      // externa del commit 5 vio extractos correctos: el defecto entro con el formato
+      // nuevo, no con el codigo.
+      // Dos señales que son del membrete y NO de la prosa: repite el titulo del propio
+      // post, y va casi todo en mayusculas. Se descartan por eso, no por su posicion.
+      const mayus = (t) => {
+        const w = t.split(/\s+/).filter((x) => x.length > 1);
+        return w.length ? w.filter((x) => x === x.toUpperCase() && /[A-ZÁÉÍÓÚÑ]/.test(x)).length / w.length : 0;
+      };
+      const titulo = (p.title || "").trim();
+      const prosa = parrafos.filter((t) => !(titulo && t.includes(titulo)) && mayus(t) < 0.3);
       const texto = (p.body_html || "").replace(/<[^>]+>/g, " ").replace(/&[a-z]+;/g, " ").replace(/\s+/g, " ").trim();
       const palabras = texto.split(/\s+/).filter(Boolean).length;
       return {
@@ -252,7 +267,7 @@ async function posts(env, url) {
         // Nombre del spec. Si no hay ningun parrafo utilizable, se declara vacio en vez
         // de rellenar con el tldr: un campo que se cae de vuelta a otro campo esconde
         // que el cuerpo no tenia parrafos.
-        excerpt: (parrafos[0] || "").slice(0, 220),
+        excerpt: (prosa[0] || "").slice(0, 220),
         minutos: Math.max(1, Math.round(palabras / 220)),
       };
     }),

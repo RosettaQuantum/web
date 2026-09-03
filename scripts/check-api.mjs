@@ -43,6 +43,16 @@ try {
     const clonados = (p.posts || []).filter((x) => x.excerpt && x.tldr && x.tldr.startsWith(x.excerpt.slice(0, 60)));
     vacios.length ? mal(`${lang}: ${vacios.length} post(s) con excerpt vacio`) : ok(`${lang}: los 2 traen excerpt (${(p.posts||[]).map((x)=>x.excerpt.length).join("/")} chars)`);
     clonados.length ? mal(`${lang}: ${clonados.length} excerpt es el tldr recortado — la home mostraria el mismo texto dos veces`) : ok(`${lang}: excerpt sale del cuerpo, no del tldr`);
+    // Y que sea PROSA, no el membrete del post. Los posts con formato nuevo abren con un
+    // bloque de portada dentro de un <p>: el extracto salia "ROSETTA Q QUANTUM
+    // VERIFICATION LEDGER PILAR C · CLAIM EXPLAINER ESTADO A: …" en los dos idiomas, y
+    // pasaba las dos comprobaciones de arriba —no estaba vacio y no era el tldr—.
+    // Dos señales del membrete: repite el titulo del post, y va casi todo en mayusculas.
+    const mayus = (t) => { const w = t.split(/\s+/).filter((x) => x.length > 1); return w.length ? w.filter((x) => x === x.toUpperCase() && /[A-ZÁÉÍÓÚÑ]/.test(x)).length / w.length : 0; };
+    const membrete = (p.posts || []).filter((x) => x.excerpt && ((x.titulo && x.excerpt.includes(x.titulo)) || mayus(x.excerpt) >= 0.3));
+    membrete.length
+      ? mal(`${lang}: ${membrete.length} excerpt es el membrete del post, no su primer parrafo`)
+      : ok(`${lang}: excerpt es prosa (ni el titulo repetido ni un bloque en mayusculas)`);
   }
 } catch (e) { mal(`/v1/posts: ${e}`); }
 

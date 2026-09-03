@@ -320,6 +320,13 @@ const T = [
   [">scores<", ">puntajes<", 1],
   ["· advantage measured: none · sealed 2026-07-24 ·", "· ventaja medida: ninguna · sellado 2026-07-24 ·", 1],
 
+  // Formato de cifra en español para los precios de las tarjetas. El resto de la capa
+  // medida NO se reformatea —ids, hashes y resultados quedan idénticos al EN—; un precio
+  // sí es texto que lee un comprador, y mezclar "US$4.500" con "$28,000" en la misma
+  // pantalla se lee como descuido.
+  [">$28,000<", ">US$28.000<", 1],
+  [">$15,000–35,000<", ">US$15.000–35.000<", 1],
+
   // ── Accesibilidad ──────────────────────────────────────────────────────────
   ["aria-label=\"Search the Evidence Library\"", "aria-label=\"Busca en la Evidence Library\"", 1],
   ["aria-label=\"Email for Monitor 001\"", "aria-label=\"Correo para el Monitor 001\"", 1],
