@@ -1,0 +1,45 @@
+/* Blog — commit 11. Encima de la hoja de la maqueta v20.
+   El cuerpo del post viene de D1 y NO se toca: el Worker lo inserta tal cual en el
+   punto de inserción del cascarón. Aquí sólo se le da tipografía de lectura al
+   <article> que ya trae.
+   NO SE ESCRIBE NINGÚN MARCADOR EN ESTE ARCHIVO, ni en un comentario: esta hoja viaja
+   DENTRO de la página, así que un marcador citado aquí es un marcador de verdad — el
+   cascarón pasó a tener dos y el Worker habría partido por el comentario. */
+.blog-head{padding:44px 0 6px}
+.blog-head h1{font-family:var(--serif);font-weight:500;font-size:clamp(26px,4vw,40px);line-height:1.15;margin:8px 0 12px;max-width:24ch}
+.blog-head .lede{color:var(--ink-60);max-width:64ch}
+
+article{max-width:none}
+article .wrap,article>div{max-width:var(--maxw-brand);margin:0 auto;padding:0 22px}
+article h1{font-family:var(--serif);font-weight:500;font-size:clamp(26px,4vw,38px);line-height:1.16;margin:6px 0 14px}
+article h2{font-family:var(--serif);font-weight:500;font-size:24px;margin:30px 0 10px}
+article h3{font-family:var(--serif);font-weight:500;font-size:19px;margin:22px 0 8px}
+article p,article li{font-size:16.5px;line-height:1.72;max-width:70ch}
+article p{margin:0 0 14px}
+article ul,article ol{margin:0 0 16px 20px}
+article a{color:var(--verdict);border-bottom:1px solid var(--line)}
+article a:hover{border-bottom-color:var(--verdict)}
+article code,article kbd{font-family:var(--mono);font-size:13.5px;background:var(--paper-2);padding:1px 5px;border-radius:2px}
+article pre{font-family:var(--mono);font-size:13px;background:var(--panel);border:1px solid var(--line);border-radius:2px;padding:14px 16px;overflow-x:auto;margin:0 0 16px}
+article pre code{background:none;padding:0}
+article table{width:100%;border-collapse:collapse;font-size:14px;margin:0 0 18px;display:block;overflow-x:auto}
+article th{font-family:var(--mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-60);text-align:left;padding:8px 10px;border-bottom:1px solid var(--ink)}
+article td{padding:10px;border-bottom:1px solid var(--line);vertical-align:top}
+article blockquote{border-left:2px solid var(--verdict);padding-left:14px;margin:0 0 16px;color:var(--ink-60)}
+article hr{border:none;border-top:1px solid var(--line);margin:26px 0}
+article img{max-width:100%;height:auto}
+
+/* Índice de entradas */
+.post-list{display:grid;grid-template-columns:1fr;gap:0;margin-top:18px}
+.post-item{display:block;padding:16px 0;border-bottom:1px solid var(--line)}
+.post-item:hover{background:var(--panel)}
+.post-item .k{font-family:var(--mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-60);margin-bottom:5px}
+.post-item h3{font-family:var(--serif);font-weight:500;font-size:19px;margin:0 0 5px}
+.post-item p{font-size:14px;color:var(--ink-60);max-width:74ch;margin:0}
+.lib-stats{display:flex;flex-wrap:wrap;gap:6px 18px;font-family:var(--mono);font-size:11.5px;color:var(--ink-60);margin:16px 0}
+.lib-stats b{color:var(--ink);font-weight:500}
+.lib-controls{margin:14px 0 0}
+.lib-controls input{width:100%;max-width:440px;border:1.5px solid var(--ink);border-radius:2px;background:#FFFFFE;font-family:var(--sans);font-size:14px;padding:11px 13px;color:var(--ink);outline:none}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.chip{border:1px solid var(--line);background:var(--panel);border-radius:2px;font-family:var(--mono);font-size:10.5px;letter-spacing:.06em;padding:6px 10px;color:var(--ink-60);cursor:pointer}
+.chip.on{border-color:var(--verdict);color:var(--verdict);background:var(--teal-10)}

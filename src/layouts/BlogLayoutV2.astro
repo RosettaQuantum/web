@@ -1,0 +1,63 @@
+---
+/**
+ * Cascarón del blog, en la maqueta v20 (commit 11).
+ *
+ * ESTE ARCHIVO ESTA BAJO CONTRATO. Los posts de D1 NO existen como archivo: el Worker
+ * toma el cascarón compilado y lo parte por cadenas literales para insertarlos
+ * (handoff/web/CONTRATO-CASCARON.md). Lo que no se puede tocar, y por qué:
+ *
+ *  · `<link rel="canonical">` SE CONSERVA y no se añade otro: el Worker reemplaza EL
+ *    PRIMERO por regex. Dos canonical y el post declara la URL equivocada.
+ *  · `</head>` tiene que existir y ser el primero: es un punto de inserción.
+ *  · El cuerpo NO se envuelve en <article>: el post que llega de D1 ya trae el suyo, y
+ *    T-blog exige exactamente uno. Envolverlo aquí daría dos.
+ *  · Los cuatro marcadores `__RQ_*__` viven en rq-shell-en/es.astro, no aquí, y siguen
+ *    intactos.
+ *
+ * Si el build pasa y el post sale vacío, el sospechoso es este archivo: el cascarón se
+ * compila bien igual, y eso es la mina nº2 del catastro.
+ */
+import '../styles/global.css';
+import NavV2 from '../components/NavV2.astro';
+import PieV2 from '../components/PieV2.astro';
+import Boletin from '../components/Boletin.astro';
+import marca from '../styles/pages/home.css?raw';
+import navCss from '../styles/componentes/nav.css?raw';
+import gana from '../styles/componentes/marca-gana.css?raw';
+import blogCss from '../styles/pages/blog.css?raw';
+import paginasCss from '../styles/pages/paginas.css?raw';
+import { abs } from '../lib/urls.js';
+
+const { title, description, lang = 'en', altUrl = '/es/', altHreflang = null, jsonld } = Astro.props;
+const altLang = lang === 'en' ? 'es' : 'en';
+const canonical = abs(Astro.url.pathname);
+const altHref = altHreflang ? abs(altHreflang) : null;
+const xDefault = lang === 'en' ? canonical : altHref;
+const FUENTES = 'https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,400;6..72,500;6..72,600&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap';
+const css = navCss + "\n" + marca + "\n" + paginasCss + "\n" + blogCss + "\n" + gana;
+---
+<!doctype html>
+<html lang={lang}>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{title}</title>
+  <meta name="description" content={description} />
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+  <link rel="canonical" href={canonical} />
+  {altHref && <link rel="alternate" hreflang={lang} href={canonical} />}
+  {altHref && <link rel="alternate" hreflang={altLang} href={altHref} />}
+  {xDefault && <link rel="alternate" hreflang="x-default" href={xDefault} />}
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href={FUENTES} rel="stylesheet" />
+  {jsonld && <script type="application/ld+json" set:html={JSON.stringify(jsonld)} />}
+  <style is:global set:html={css}></style>
+</head>
+<body>
+  <NavV2 lang={lang} ruta={lang === 'es' ? '/es/blog' : '/blog'} alt={altUrl} />
+  <slot />
+  <Boletin lang={lang} />
+  <PieV2 lang={lang} />
+  <script is:inline src="/js/paginas.js"></script>
+</body>
+</html>

@@ -1,0 +1,34 @@
+---
+/**
+ * Bloque de boletín (commit 11). Va al pie de cada post y del índice.
+ *
+ * EL TEXTO NO SE INVENTA. Es el del Monitor, aprobado — en EN por la maqueta v20 y en ES
+ * por handoff/web/rosetta-home-es-textos-v20.md. La edición del Monitor ES el boletín:
+ * escribir copia nueva para esto habría sido texto sin aprobar delante de un lector, que
+ * es justo lo que §5 de la casa prohíbe.
+ *
+ * Y escribe donde ya hay tabla: POST /api/monitor-lead, la misma que la home. Un segundo
+ * buzón para lo mismo es una lista que vive en dos lugares, y esas ya divergieron.
+ */
+const { lang = 'en' } = Astro.props;
+const es = lang === 'es';
+const t = es
+  ? { eyebrow: 'RQ Advantage Monitor · Edición 001 · en preparación',
+      h: 'Lo que el ledger ya puede decir.',
+      ph: 'tu@firma.com', btn: 'Recibe la Edición 001 cuando selle',
+      pie: 'un solo correo cuando la edición selle · sin lista, sin goteo', ok: 'Anotado ✓' }
+  : { eyebrow: 'RQ Advantage Monitor · Edition 001 · in preparation',
+      h: 'What the ledger can already say.',
+      ph: 'you@firm.com', btn: 'Get Edition 001 when it seals',
+      pie: 'one email when the edition seals · no list, no drip', ok: "You're on the list ✓" };
+---
+<section class="boletin"><div class="wrap">
+  <div class="eyebrow">{t.eyebrow}</div>
+  <h2 style="font-size:24px">{t.h}</h2>
+  <div class="forma" style="margin-top:14px">
+    <input id="monMail" type="email" placeholder={t.ph} aria-label={t.ph} />
+    <a id="monGo" class="btn btn-solid" style="border-radius:0" data-ok={t.ok}
+       href="mailto:hello@rosettaquantum.com?subject=Monitor%20Edition%20001">{t.btn}</a>
+  </div>
+  <p class="sealline mono">{t.pie}</p>
+</div></section>

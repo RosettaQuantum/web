@@ -11,7 +11,11 @@
  * El logo se sirve como archivo (public/rosetta-mark.svg), no inline: 4 KB de path
  * repetidos en cada pagina es peso, y un SVG copiado a mano se corrompe en silencio.
  */
-const { lang = "en", ruta = "/" } = Astro.props;
+// `alt`: destino explicito del cambio de idioma. Existe por el cascaron del blog: el
+// Worker inserta ahi la ruta del post traducido, y el marcador __RQ_ALT_ + _ tiene que
+// sobrevivir a la compilacion. Sin este prop, NavV2 calculaba el alterno desde `ruta` y
+// el marcador desaparecia del HTML compilado — el post se habria servido roto.
+const { lang = "en", ruta = "/", alt = null } = Astro.props;
 const es = lang === "es";
 
 const ENLACES = es
@@ -21,7 +25,7 @@ const ENLACES = es
      ["/ledger", "Ledger"], ["/monitor", "Monitor"], ["/methodology", "Methodology"]];
 
 const CTA = es ? ["/es/pilotos", "Obtén un veredicto"] : ["/pilots", "Get a verdict"];
-const OTRO = es ? ruta.replace(/^\/es/, "") || "/" : "/es" + (ruta === "/" ? "/" : ruta);
+const OTRO = alt || (es ? ruta.replace(/^\/es/, "") || "/" : "/es" + (ruta === "/" ? "/" : ruta));
 ---
 <nav>
   <div class="wrap nav-inner">
