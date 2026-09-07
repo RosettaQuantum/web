@@ -46,7 +46,13 @@ const MARCADORES = [
 
 for (const f of SHELLS) {
   if (!existsSync(f)) { console.log(`  FALLA ${f} no existe — el cascaron no se compilo`); fallos.push(f); continue; }
-  const h = readFileSync(f, "utf8");
+  const bruto = readFileSync(f, "utf8");
+  // SE CUENTAN ELEMENTOS, NO PROSA. La primera version conto sobre el archivo entero y
+  // dio por bueno un `<article` que estaba dentro de un COMENTARIO DE CSS —texto mio,
+  // explicando el contrato—. El guardia paso por la razon equivocada, que es peor que
+  // fallar: los comentarios de las hojas viajan dentro de la pagina, asi que ahi la
+  // prosa y el marcado son lo mismo. Se quitan comentarios CSS y HTML antes de contar.
+  const h = bruto.replace(/\/\*[\s\S]*?\*\//g, "").replace(/<!--[\s\S]*?-->/g, "");
   const problemas = [];
 
   for (const [m, regla, porque] of MARCADORES) {
@@ -54,26 +60,41 @@ for (const f of SHELLS) {
     if (n === 0) problemas.push(`${m} ausente — el Worker no encuentra donde insertar (${porque})`);
     else if (regla === "exacto1" && n !== 1) problemas.push(`${m} aparece ${n} veces — ${porque}`);
   }
-  // El post que llega de D1 ya trae su <article>: el cascarón no puede aportar otro.
+  // El cascaron no aporta contenedor: el post de D1 trae el suyo. Produccion sirve su
+  // cascaron con CERO, y esa es la forma correcta — con uno aqui, el post servido queda
+  // con dos anidados.
   const arts = h.split("<article").length - 1;
-  if (arts !== 1) problemas.push(`${arts} <article> en el cascaron — el post de D1 trae el suyo y T-blog exige uno`);
+  if (arts !== 0) problemas.push(`${arts} <article> en el cascaron — el post de D1 trae el suyo, aqui van cero (produccion sirve cero)`);
   // El Worker reemplaza EL PRIMER canonical por regex: dos y el post declara la URL equivocada.
   const can = h.split('rel="canonical"').length - 1;
   if (can !== 1) problemas.push(`${can} <link rel=canonical> — el Worker reemplaza el primero`);
   if (!h.includes("</head>")) problemas.push("sin </head> — es un punto de insercion");
 
   if (problemas.length) { console.log(`  FALLA ${f}`); problemas.forEach((p) => console.log(`        ${p}`)); fallos.push(f); }
-  else console.log(`  ok    ${f.padEnd(32)} 4 marcadores · 1 <article> · 1 canonical · </head>`);
+  else console.log(`  ok    ${f.padEnd(32)} 4 marcadores · 0 contenedores propios · 1 canonical · </head>`);
 }
 
 // Caso de silencio: un cascarón sano no puede hacerlo gritar, y uno con el marcador
 // escrito en un comentario SI. Se prueba por mutacion sobre una copia en memoria.
 if (!fallos.length) {
   const sano = readFileSync(SHELLS[0], "utf8");
-  const mutado = sano.replace("</head>", "<!-- __RQ_ARTICLE__ --></head>");
-  const n = mutado.split("__RQ_ARTICLE__").length - 1;
-  if (n !== 2) { console.log("  FALLA la prueba de mutacion no inyecto el defecto"); fallos.push("mutacion"); }
-  else console.log("  ok    prueba de mutacion       un marcador de mas dentro de un comentario se detecta");
+  const mutado = sano.replace("</head>", "<style>/* __RQ_ARTICLE__ y <article> citados */</style></head>");
+  // El caso paradojico: el defecto va dentro de un COMENTARIO. Como ahora se limpian
+  // los comentarios, el guardia tiene que CALLARSE — que es lo correcto: un marcador
+  // citado en un comentario de CSS no llega a la pagina... salvo que la hoja se sirva
+  // inline, que es nuestro caso. Por eso la regla de blog.css es no citarlos nunca, y
+  // aqui se comprueba que el limpiador funciona.
+  const limpio = mutado.replace(/\/\*[\s\S]*?\*\//g, "");
+  const n = limpio.split("__RQ_ARTICLE__").length - 1;
+  if (n !== 1) { console.log(`  FALLA el limpiador de comentarios no funciona: ${n} marcadores tras limpiar`); fallos.push("mutacion"); }
+  else console.log("  ok    silencio                 un marcador citado en un comentario no se cuenta como marcado");
+
+  // Y el GRITO, que es la otra mitad: un duplicado DE VERDAD, fuera de comentario, tiene
+  // que detectarse. Sin este caso, el guardia solo demuestra que sabe callarse.
+  const roto = sano.replace("</body>", "__RQ_ARTICLE__</body>").replace(/\/\*[\s\S]*?\*\//g, "");
+  const m2 = roto.split("__RQ_ARTICLE__").length - 1;
+  if (m2 !== 2) { console.log(`  FALLA la prueba de grito no inyecto el defecto (${m2})`); fallos.push("grito"); }
+  else console.log("  ok    grito                   un marcador duplicado de verdad se cuenta como dos");
 }
 
 if (fallos.length) {

@@ -1,10 +1,12 @@
 /* Blog — commit 11. Encima de la hoja de la maqueta v20.
    El cuerpo del post viene de D1 y NO se toca: el Worker lo inserta tal cual en el
    punto de inserción del cascarón. Aquí sólo se le da tipografía de lectura al
-   <article> que ya trae.
-   NO SE ESCRIBE NINGÚN MARCADOR EN ESTE ARCHIVO, ni en un comentario: esta hoja viaja
-   DENTRO de la página, así que un marcador citado aquí es un marcador de verdad — el
-   cascarón pasó a tener dos y el Worker habría partido por el comentario. */
+   contenedor del post, que el propio post ya trae.
+   REGLA DE ESTE ARCHIVO: no se escribe ningún marcador NI NINGUNA ETIQUETA entre signos
+   de menor y mayor, ni siquiera en un comentario. Esta hoja viaja DENTRO de la página,
+   así que lo que aquí parece prosa se cuenta como marcado. Pasó dos veces el mismo día:
+   un marcador citado dejó el cascarón con dos puntos de inserción, y una etiqueta citada
+   hizo que el guardia contara un contenedor que no existe. */
 .blog-head{padding:44px 0 6px}
 .blog-head h1{font-family:var(--serif);font-weight:500;font-size:clamp(26px,4vw,40px);line-height:1.15;margin:8px 0 12px;max-width:24ch}
 .blog-head .lede{color:var(--ink-60);max-width:64ch}
