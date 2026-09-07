@@ -24,7 +24,7 @@ const T = {
   costoNota:'La profundidad se midió, no se citó: es el número de pasos de Trotter con el que el <i>ranking</i> converge (Spearman &ge; 0.99), no el estado.',
   sitiosTit:n=>`Top-${n} ${n===1?'sitio predicho':'sitios predichos'} (caminata cuántica)`,
   thResiduos:'residuos',
-  // ETIQUETAS DE HONESTIDAD — aprobadas por Nicholas el 9-ago-2026
+  // ETIQUETAS DE HONESTIDAD — aprobadas por direccion el 9-ago-2026
   predichoAviso:'<b>Predicho por caminata cuántica — no validado experimentalmente.</b> Es una hipótesis notarizada, no un hallazgo confirmado en laboratorio.',
   topNAviso:n=>`Se muestran los ${n} que superan el umbral, no un top-5 fijo.`,
   sinVerdad:'sin sitio alostérico conocido',

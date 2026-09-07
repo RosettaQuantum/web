@@ -1,6 +1,6 @@
 (function(){
   /* La animacion de las barras del recuadro "Ilustrativo · la forma de la
-     victoria" se fue con el recuadro (decision de Nicholas): vendia una victoria
+     victoria" se fue con el recuadro (decidido y registrado): vendia una victoria
      cuantica que nuestro propio /v1/state desmiente con un 0. */
   var cb = document.getElementById('copyBtn');
   cb.addEventListener('click', function(){
@@ -15,7 +15,7 @@
     // NO hay factor de victoria: se cobra POR MEDICION, gane o pierda. `advRate` existia para
     // expresar "solo cobramos las que ganan" y suponia 50-60% de victorias facturables mientras
     // /v1/state publica victorias_cuanticas_medidas: 0. Se retiro del modelo el 2026-08-24 con OK
-    // de Nicholas, junto con el cobro condicional del texto. NO reintroducir con otro nombre: un
+    // de direccion, junto con el cobro condicional del texto. NO reintroducir con otro nombre: un
     // 0,60 renombrado a "tasa de filtrado" seria la misma cifra no medida respondiendo otra
     // pregunta. Si algun dia hace falta un factor, se mide primero.
     {id:"RQ-0012", name:"Portfolio optimization", q:"\u201cOptimal risk across N assets?\u201d",

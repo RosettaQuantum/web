@@ -1,9 +1,9 @@
 /**
  * La Biblioteca: buscador y registro, contra /v1/* desde el cliente.
  *
- * Igual que las islas de la home (decision D1 del spec): la pagina se sirve como ARCHIVO
+ * Igual que las islas de la home (decision de arquitectura D1 del spec): la pagina se sirve como ARCHIVO
  * y lo vivo entra por fetch. Cero rutas nuevas en run_worker_first, cero exposicion a la
- * mina nº1.
+ * el fallo silencioso de la lista blanca.
  *
  * TRES REGLAS QUE VIENEN DE ERRORES YA PAGADOS
  * -------------------------------------------

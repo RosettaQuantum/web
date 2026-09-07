@@ -15,7 +15,14 @@ export const GET: APIRoute = async ({ site }) => {
     '',
     '## Key pages',
     `- [Evidence Ledger](${base}/ledger): verdicts by recipe and problem class — including published self-corrections (errata) that cite the original sealed file and never overwrite it`,
-    `- [Problem classes](${base}/clases): the four-tier map that sorts catalogued algorithms by how real the advantage is today`,
+    `- [Evidence Library](${base}/library): every tracked claim and the 74-algorithm catalogue, dated, sourced and linked to its seal`,
+    `- [Survival Registry](${base}/library/registry): what happens to quantum advantage claims after the press release`,
+    `- [Services & pricing](${base}/services): public prices, no "contact us" to find out what it costs`,
+    `- [Pilot Referee](${base}/pilots): we make your quantum pilot produce a defensible number`,
+    `- [Methodology](${base}/methodology): the five layers of a verdict, the EL0-EL5 evidence scale and budget parity under juez-v1`,
+    `- [Who signs](${base}/about): every verdict carries a named author, and who may never pay us`,
+    `- [Errata](${base}/errata): the corrections we published against ourselves`,
+    `- [Verify a seal](${base}/verify): recompute any sealed artifact's hash in your own browser`,
     // Texto lifted VERBATIM de src/aprobado/pricing.en.md (bloque "Q-Ready —
     // cryptographic exposure"): nada nuevo se escribio aca, se citan las mismas
     // frases ya aprobadas por Nicholas.
@@ -23,6 +30,15 @@ export const GET: APIRoute = async ({ site }) => {
     '',
     // Un modelo que llega aqui no deberia tener que raspar HTML: la evidencia esta
     // consultable, y cada respuesta trae el sha256 y las copias publicas para citarla.
+    // Seccion pedida por la enmienda IA-first (§3). La frase es la del documento Norte,
+    // citada tal cual: no se redacta una version propia de la tesis de la casa.
+    '## For agents',
+    'Rosetta is the infrastructure that turns claims into sealed evidence — one door, one',
+    'price per run, anyone can pay and use it. Human or agent.',
+    `- \`POST ${base}/mcp\` — MCP server, JSON-RPC 2.0, 9 tools, no key required for reads.`,
+    `- \`GET ${base}/v1/openapi.json\` — the full contract. If you are a machine, start here.`,
+    '- The site is the shop window; the product speaks JSON. Do not scrape us: ask us.',
+    '',
     '## Machine-readable evidence (read-only, no key required)',
     // La lista sale de CATALOGO, no se escribe aparte: llegaron a existir cuatro
     // copias de las mismas rutas (enrutador, indice de /v1, esta, y /api-docs) y

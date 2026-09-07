@@ -1,10 +1,10 @@
 /**
  * Las islas de la home — lo vivo entra por /v1/*, desde el cliente.
  *
- * POR QUE ASI (decision D1 del spec de migracion)
+ * POR QUE ASI (decision de arquitectura D1)
  * ----------------------------------------------
  * Meter "/" en run_worker_first convertiria la home en runtime en cada visita y la
- * expondria a la mina nº1. En vez de eso la home se sirve como ARCHIVO y estos scripts
+ * expondria a la el fallo silencioso de la lista blanca. En vez de eso la home se sirve como ARCHIVO y estos scripts
  * piden JSON al mismo origen. Cero rutas nuevas en la lista blanca, cero latencia
  * añadida, y frescura real.
  *
@@ -78,7 +78,7 @@
           var barra = fila.querySelector(".bar");
           // NO se redondea a entero. Google Sycamore fue desafiado a los 2 dias sobre
           // ~2.500 vividos: 0,08%, que redondeado da 0% — y una barra en 0% desaparece,
-          // que es exactamente el defecto que Cowork vio en el telefono. El minimo de
+          // que es exactamente el defecto que la revision externa vio en el telefono. El minimo de
           // 6 px del CSS no podia salvarlo porque el valor YA era cero antes de llegar
           // al CSS. Con dos decimales el ancho es distinto de cero y el minimo actua.
           // El cero de verdad —desafiado el mismo dia— sigue siendo cero: decir

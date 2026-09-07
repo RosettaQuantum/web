@@ -18,6 +18,7 @@
  * compila bien igual, y eso es la mina nº2 del catastro.
  */
 import '../styles/global.css';
+import { sinComentarios } from '../lib/css-sin-comentarios.js';
 import NavV2 from '../components/NavV2.astro';
 import PieV2 from '../components/PieV2.astro';
 import Boletin from '../components/Boletin.astro';
@@ -51,7 +52,7 @@ const css = navCss + "\n" + marca + "\n" + paginasCss + "\n" + blogCss + "\n" + 
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href={FUENTES} rel="stylesheet" />
   {jsonld && <script type="application/ld+json" set:html={JSON.stringify(jsonld)} />}
-  <style is:global set:html={css}></style>
+  <style is:global set:html={sinComentarios(css)}></style>
 </head>
 <body>
   <NavV2 lang={lang} ruta={lang === 'es' ? '/es/blog' : '/blog'} alt={altUrl} />

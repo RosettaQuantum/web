@@ -1090,6 +1090,49 @@ export const CATALOGO = [
   { ruta: "/v1/openapi.json", resumen: "Esta especificacion, en OpenAPI 3.1", grupo: "meta" },
   { ruta: "/v1/usage", resumen: "Cuántas veces se llamó a esta API · público, y declara lo que NO se guarda",
     grupo: "meta", esquema: { $ref: "#/components/schemas/Uso" } },
+  // Los dos endpoints del commit 5 vivian SIN entrar aqui, y por eso no salian en
+  // openapi.json, ni en /api-docs, ni en el indice de /v1, ni en llms.txt: funcionaban y
+  // ningun documento decia que existian. El catalogo es la fuente unica de las cuatro
+  // superficies —llegaron a existir cuatro copias divergentes de esta lista— asi que
+  // declararlos aqui los publica en todas de una vez.
+  { ruta: "/v1/claims", resumen: "Claims publicos de ventaja cuantica rastreados · solo los verificados", grupo: "ledger",
+    parametros: [{ nombre: "limit", en: "query", tipo: "integer", descripcion: "maximo de claims (por omision 50)" }],
+    esquema: {
+      type: "object",
+      properties: {
+        que_es: { type: "string" },
+        vocabulario_de_estado: { type: "array", items: { type: "string" } },
+        nota_clock_days: { type: "string" },
+        total: { type: "integer", description: "cuantos devuelve esta respuesta, NO el universo" },
+        verificados: { type: "integer", description: "el denominador: claims con verified=1" },
+        en_la_tabla: { type: "integer" },
+        no_verificados_excluidos: { type: "integer" },
+        claims: { type: "array", items: { type: "object", properties: {
+          id: { type: "string" }, claimant: { type: "string" }, title: { type: "string" },
+          claim_date: { type: "string", format: "date" }, status: { type: "string" },
+          domain: { type: "string" },
+          clock_days: { type: ["integer", "null"], description: "dias del claim al primer desafio; NULL = sin desafio registrado" },
+          first_challenge: { type: ["string", "null"] }, url: { type: "string" },
+        } } },
+      },
+    } },
+  { ruta: "/v1/posts", resumen: "Ultimas entradas publicadas, con su extracto calculado en servidor", grupo: "meta",
+    parametros: [
+      { nombre: "limit", en: "query", tipo: "integer", descripcion: "maximo de entradas (por omision 10)" },
+      { nombre: "lang", en: "query", tipo: "string", descripcion: "en | es" },
+    ],
+    esquema: {
+      type: "object",
+      properties: {
+        total: { type: "integer" }, lang: { type: "string" },
+        posts: { type: "array", items: { type: "object", properties: {
+          slug: { type: "string" }, titulo: { type: "string" }, fecha: { type: "string", format: "date" },
+          pilar: { type: "string" }, minutos: { type: "integer" },
+          tldr: { type: "string" },
+          excerpt: { type: "string", description: "primer parrafo del cuerpo, <=220 caracteres; NUNCA el tldr recortado" },
+        } } },
+      },
+    } },
   { ruta: "/v1/state", resumen: "Estado medido del Evidence Ledger", grupo: "ledger",
     esquema: {
       type: "object",
