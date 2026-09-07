@@ -48,6 +48,10 @@ const build = (process.env.GITHUB_SHA || process.env.RQ_BUILD || 'local').slice(
   <title>{title}</title>
   <meta name="description" content={description} />
   <meta name="rq-build" content={build} />
+  {/* El sitio NO tenia favicon: /favicon.ico y /favicon.svg daban 404 en produccion y en
+      el preview, y este layout no declaraba ninguno. Un icono ausente no rompe nada y se
+      nota en cada pestaña del navegador. */}
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
   <link rel="canonical" href={canonical} />
   <link rel="alternate" hreflang={lang} href={canonical} />
   <link rel="alternate" hreflang={altLang} href={altHref} />

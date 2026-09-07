@@ -46,7 +46,8 @@
     "check:verify": "node scripts/check-verify.mjs",
     "check:precios": "node scripts/check-precios.mjs",
     "check:es": "node scripts/check-es.mjs",
-    "check:masa": "node scripts/check-masa.mjs"
+    "check:masa": "node scripts/check-masa.mjs",
+    "check:movil": "node scripts/check-movil.mjs"
   },
   "dependencies": {
     "@astrojs/rss": "latest",

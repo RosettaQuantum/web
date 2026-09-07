@@ -210,6 +210,13 @@ jobs:
           PREVIEW_URL: ${{ steps.desplegar.outputs.url }}
         run: npm run check:masa
 
+      # T-movil — commit 10-ter. Las reglas de telefono existian y perdian la cascada:
+      # .casetabs computaba flex-wrap:wrap a 375 px con el nowrap escrito en la hoja.
+      - name: T-movil — las reglas de telefono ganan, y la marca es la decidida
+        env:
+          PREVIEW_URL: ${{ steps.desplegar.outputs.url }}
+        run: npm run check:movil
+
       - name: T-api — endpoints nuevos y /v1/state aditivo
         env:
           PREVIEW_URL: ${{ steps.desplegar.outputs.url }}
