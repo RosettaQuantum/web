@@ -76,7 +76,17 @@
             linea.innerHTML = linea.innerHTML.replace(RE_TOTAL, TOTAL);
           }
           var barra = fila.querySelector(".bar");
-          if (barra && vividos > 0) barra.style.width = Math.min(100, Math.round((c.clock_days / vividos) * 100)) + "%";
+          // NO se redondea a entero. Google Sycamore fue desafiado a los 2 dias sobre
+          // ~2.500 vividos: 0,08%, que redondeado da 0% — y una barra en 0% desaparece,
+          // que es exactamente el defecto que Cowork vio en el telefono. El minimo de
+          // 6 px del CSS no podia salvarlo porque el valor YA era cero antes de llegar
+          // al CSS. Con dos decimales el ancho es distinto de cero y el minimo actua.
+          // El cero de verdad —desafiado el mismo dia— sigue siendo cero: decir
+          // "sobrevivio algo" cuando el dato dice cero seria inventar.
+          if (barra && vividos > 0) {
+            var pct = Math.min(100, (c.clock_days / vividos) * 100);
+            barra.style.width = (pct === 0 ? 0 : Math.max(pct, 0.01)).toFixed(2) + "%";
+          }
         }
       });
     })

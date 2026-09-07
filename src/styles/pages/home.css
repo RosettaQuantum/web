@@ -275,7 +275,7 @@ footer{border-top:1px solid var(--ink);padding:34px 0 44px;font-size:13px;color:
    cero SIEMPRE se vea. Un cero de verdad sigue sin pintarse: decir "sobrevivió algo"
    cuando el dato dice cero sería inventar. */
 .bar{min-width:6px}
-.bar[data-w="0%"],.bar[style*="width: 0%"]{min-width:0}
+.bar[data-w="0%"],.bar[style*="width: 0%"],.bar[style*="width: 0.00%"]{min-width:0}
 
 @media(max-width:839px){
   /* DEF-04 · Las pestañas de casos se apilaban. La regla de scroll horizontal existía
