@@ -79,4 +79,25 @@ import cifras from '../../data/library-cifras.json';
       <p><a class="btn btn-solid" href="/library/registry">Open the registry →</a></p>
     </div>
   </section>
+
+  <section id="catalogo">
+    <div class="wrap">
+      <div class="eyebrow">The catalogue, in full</div>
+      <h2>All 74, with their class and their source.</h2>
+      <p class="lede">Every algorithm in the catalogue, written on this page — not behind a call. Each description is the sealed Quantum Algorithm Zoo snapshot; what Rosetta measured, and where, lives in the ledger.</p>
+      {cifras.clases.map((c) => (
+        <div class="cat-grupo" id={`clase-${c.id}`}>
+          <div class="cat-h">{c.nombre} · {c.n}</div>
+          {cifras.catalogo.filter((a) => a.categoria_id === c.id).map((a) => (
+            <div class="cat-fila">
+              <div class="cat-n"><a href={a.fuente_url} rel="noopener">{a.nombre}</a></div>
+              <div class="cat-p">{a.problema_en}</div>
+              <div class="cat-m">{a.speedup} · {a.n_refs} refs</div>
+            </div>
+          ))}
+        </div>
+      ))}
+      <p class="sealline mono" style="margin-top:18px">Snapshot {cifras._procedencia.generado} · sha256 {cifras._procedencia.instantanea_sha256.slice(0, 8)}… · <a href="/v1/algorithms?limit=200">/v1/algorithms</a></p>
+    </div>
+  </section>
 </MarcaLayout>

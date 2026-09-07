@@ -48,6 +48,10 @@ const clase  = (r) => es ? r.class_es : r.class_en;
 const resumen = (v) => es ? v.summary_es : v.summary_en;
 const cross  = (v) => es ? v.crossover_es : v.crossover_en;
 const recetas = data.recipes.filter((r) => r.verdict || (r.experiments && r.experiments.length));
+// Los 45 artefactos mas recientes van en el HTML. La isla sigue paginando desde ahi
+// contra /v1/runs — no los repinta, los CONTINUA: repintarlos borraria del HTML lo
+// unico que un rastreador sin JavaScript alcanza a ver.
+const ART = (data.artefactos && data.artefactos.items) || [];
 ---
 <section class="led-head" style="border-top:none">
   <div class="wrap">
@@ -103,7 +107,20 @@ const recetas = data.recipes.filter((r) => r.verdict || (r.experiments && r.expe
     <p class="lede">{t.artl}</p>
     <table class="art">
       <thead><tr><th>{t.cols.id}</th><th>{t.cols.tipo}</th><th>{t.cols.fecha}</th><th>{t.cols.hash}</th><th>{t.cols.copias}</th></tr></thead>
-      <tbody id="artBody"><tr><td colspan="5" class="res-vacio">{t.cargando}</td></tr></tbody>
+      <tbody id="artBody" data-horneados={ART.length}>
+        {ART.map((a) => (
+          <tr id={a.id}>
+            <td class="id">{a.id}</td>
+            <td class="tipo">{a.tipo}</td>
+            <td class="id">{a.fecha}</td>
+            <td class="hash">{(a.hash || "").replace("sha256:", "").slice(0, 16)}…</td>
+            <td class="id">
+              {a.github && <a href={a.github}>GitHub ↗</a>}
+              {a.codeberg && <> · <a href={a.codeberg}>Codeberg ↗</a></>}
+            </td>
+          </tr>
+        ))}
+      </tbody>
     </table>
     <p class="led-mas"><button type="button" class="btn btn-ghost" id="artMas">{t.mas}</button> <span class="mono" id="artDen" style="font-size:11.5px;color:var(--ink-60)"></span></p>
   </div>

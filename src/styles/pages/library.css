@@ -37,3 +37,17 @@
 .reg .sinbarra{font-family:var(--mono);font-size:11px;color:var(--ink-60)}
 .reg-den{font-family:var(--mono);font-size:11.5px;color:var(--ink-60);margin-top:14px;line-height:1.7}
 @media(max-width:640px){.reg thead{display:none}.reg td{display:block;border:none;padding:3px 0}.reg tr{display:block;border-bottom:1px solid var(--line);padding:12px 0}}
+
+/* El catálogo completo en HTML (7-sep). /clases servía 74 algoritmos escritos en la
+   página; al absorberla en /library quedaron sólo detrás del buscador. Vuelven al HTML:
+   la masa indexable es el canal, y un fetch no la reemplaza. */
+.cat-grupo{margin-top:26px}
+.cat-h{font-family:var(--mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--verdict);padding-bottom:6px;border-bottom:1px solid var(--ink)}
+.cat-fila{display:grid;grid-template-columns:1fr;gap:2px;padding:12px 0;border-bottom:1px solid var(--line)}
+@media(min-width:760px){.cat-fila{grid-template-columns:20ch 1fr 12ch;gap:16px;align-items:baseline}}
+.cat-fila:hover{background:var(--panel)}
+.cat-n{font-weight:500}
+.cat-n a{border-bottom:1px solid var(--line)}
+.cat-n a:hover{color:var(--verdict)}
+.cat-p{font-size:13.5px;color:var(--ink-60)}
+.cat-m{font-family:var(--mono);font-size:11px;color:var(--ink-60);white-space:nowrap}

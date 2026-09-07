@@ -15,6 +15,10 @@
   "use strict";
   var ES = document.documentElement.lang === "es";
   var LIM = 25, off = 0, total = null;
+  // El HTML ya trae las primeras filas (commit 10-bis). La isla arranca DESPUES de
+  // ellas: si empezara en 0 y reseteara, borraria del DOM justo lo que existe para que
+  // un rastreador sin JavaScript lo lea, y lo reemplazaria por lo mismo.
+  var HORNEADAS = 0;
   function esc(s){ return String(s==null?"":s).replace(/[&<>"]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c];}); }
   function json(u){ return fetch(u,{headers:{accept:"application/json"}}).then(function(r){ if(!r.ok) throw 0; return r.json(); }); }
 
@@ -53,6 +57,18 @@
     if (x.ots_url) l.push('<a href="'+esc(x.ots_url)+'">OTS ↗</a>');
     return l.join(" · ") || "—";
   }
+  // Con filas horneadas, el total del archivo aun no se conoce: se pregunta solo por el
+  // denominador, sin traerse 25 filas que ya estan en la pagina.
+  function pintarDenominador() {
+    json("/v1/runs?limit=1").then(function (d) {
+      total = d.total_archivo;
+      if (den) den.textContent = (ES ? off + " de " + total + " artefactos del archivo" : off + " of " + total + " artifacts in the archive");
+      if (mas) mas.style.display = off >= total ? "none" : "";
+    }).catch(function () {
+      if (den) den.textContent = (ES ? off + " artefactos (horneados en el build)" : off + " artifacts (baked at build)");
+    });
+  }
+
   function pinta(reset) {
     json("/v1/runs?limit=" + LIM + "&offset=" + off).then(function (d) {
       total = d.total_archivo;
@@ -73,7 +89,12 @@
       if (reset) cuerpo.innerHTML = '<tr><td colspan="5" class="res-vacio">' + (ES ? "No se pudo leer /v1/runs." : "/v1/runs could not be read.") + "</td></tr>";
     });
   }
-  if (cuerpo) { pinta(true); if (mas) mas.addEventListener("click", function () { pinta(false); }); }
+  if (cuerpo) {
+    HORNEADAS = parseInt(cuerpo.dataset.horneados || "0", 10) || 0;
+    off = HORNEADAS;
+    if (HORNEADAS) { pintarDenominador(); alHash(); } else { pinta(true); }
+    if (mas) mas.addEventListener("click", function () { pinta(false); });
+  }
 
   // ── erratas ──────────────────────────────────────────────────────────────────
   var caja = document.getElementById("errBody");

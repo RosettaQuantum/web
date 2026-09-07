@@ -202,6 +202,14 @@ jobs:
           PREVIEW_URL: ${{ steps.desplegar.outputs.url }}
         run: npm run check:es
 
+      # T-masa — el contenido tiene que seguir EN EL HTML. El catastro del 7-sep midio
+      # que al absorber /clases en /library los 74 algoritmos dejaron de estar escritos
+      # en la pagina, y que el ledger paso de 52 ids a 15. Se ve igual y trae menos.
+      - name: T-masa — los 74 algoritmos y los artefactos siguen en el HTML
+        env:
+          PREVIEW_URL: ${{ steps.desplegar.outputs.url }}
+        run: npm run check:masa
+
       - name: T-api — endpoints nuevos y /v1/state aditivo
         env:
           PREVIEW_URL: ${{ steps.desplegar.outputs.url }}

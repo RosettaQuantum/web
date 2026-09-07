@@ -77,4 +77,25 @@ import cifras from '../../../data/library-cifras.json';
       <p><a class="btn btn-solid" href="/es/biblioteca/registro">Abre el registro →</a></p>
     </div>
   </section>
+
+  <section id="catalogo">
+    <div class="wrap">
+      <div class="eyebrow">El catálogo, entero</div>
+      <h2>Los 74, con su clase y su fuente.</h2>
+      <p class="lede">Cada algoritmo del catálogo, escrito en esta página — no detrás de una llamada. El texto de cada uno es el de la instantánea sellada del Quantum Algorithm Zoo; lo que Rosetta midió, y dónde, vive en el ledger.</p>
+      {cifras.clases.map((c) => (
+        <div class="cat-grupo" id={`clase-${c.id}`}>
+          <div class="cat-h">{c.nombre} · {c.n}</div>
+          {cifras.catalogo.filter((a) => a.categoria_id === c.id).map((a) => (
+            <div class="cat-fila">
+              <div class="cat-n"><a href={a.fuente_url} rel="noopener">{a.nombre}</a></div>
+              <div class="cat-p">{a.problema_es}</div>
+              <div class="cat-m">{a.speedup} · {a.n_refs} refs</div>
+            </div>
+          ))}
+        </div>
+      ))}
+      <p class="sealline mono" style="margin-top:18px">Instantánea {cifras._procedencia.generado} · sha256 {cifras._procedencia.instantanea_sha256.slice(0, 8)}… · <a href="/v1/algorithms?limit=200">/v1/algorithms</a></p>
+    </div>
+  </section>
 </MarcaLayout>
