@@ -38,3 +38,12 @@
 .prun .tag{font-family:var(--mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--pending);border:1px solid var(--pending);padding:2px 8px;border-radius:2px}
 .prun .tx{font-size:14px;flex:1;min-width:16ch}
 .prun .pr{font-family:var(--mono);font-size:12px;color:var(--ink-60)}
+
+/* Pieza 3D de /pilots (commit 13). El lienzo tiene alto fijo para que la página no salte
+   cuando el motor llega: reservar el espacio antes es más barato que reflowear después. */
+.p3d{border:1px solid var(--line);background:var(--panel);border-radius:2px;overflow:hidden;margin-top:18px}
+.p3d-lienzo{width:100%;height:420px;background:var(--paper)}
+@media(max-width:839px){.p3d-lienzo{height:280px}}
+.p3d-estado{font-family:var(--mono);font-size:11px;color:var(--ink-60);padding:10px 14px;border-top:1px solid var(--line)}
+.p3d-leyenda{display:flex;flex-wrap:wrap;gap:6px 16px;font-family:var(--mono);font-size:10.5px;color:var(--ink-60);padding:0 14px 12px}
+.p3d-leyenda i{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:5px;vertical-align:baseline}

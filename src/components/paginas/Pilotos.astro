@@ -64,6 +64,24 @@ const t = es ? {
   <p class="sealline mono" style="margin-top:12px"><a href={es ? '/es/servicios' : '/services'}>{es ? 'Todos los precios →' : 'All pricing →'}</a> · <a href={es ? '/es/metodologia' : '/methodology'}>{es ? 'La Two-Layer Rule →' : 'The Two-Layer Rule →'}</a></p>
 </div></section>
 
+<section id="pieza"><div class="wrap">
+  <div class="eyebrow">{es ? 'El método, mostrado' : 'The method, shown'}</div>
+  <h2>{es ? 'La misma física que corrió en el experimento sellado.' : 'The same physics that ran in the sealed experiment.'}</h2>
+  <p class="lede">{es
+    ? 'KRAS G12C, estructura 4OBE, con la red de contactos leída de la topología sellada. La caminata corre en tu navegador con el mismo código del experimento; el resultado con el que se juzga es el sello, no esto. Los residuos fuente van en teal y los sitios predichos en rojo — colores distintos a propósito, porque el experimento midió que no coinciden.'
+    : 'KRAS G12C, structure 4OBE, with the contact network read from the sealed topology. The walk runs in your browser on the same code as the experiment; what the verdict rests on is the seal, not this. Source residues are teal and predicted sites red — different colours on purpose, because the experiment measured that they do not coincide.'}</p>
+  <div class="p3d" id="pieza3d">
+    <div class="p3d-lienzo"></div>
+    <div class="p3d-leyenda">
+      <span><i style="background:var(--verdict)"></i>{es ? 'residuos fuente (medidos)' : 'source residues (measured)'}</span>
+      <span><i style="background:var(--alert)"></i>{es ? 'sitios predichos (afirmado)' : 'predicted sites (claimed)'}</span>
+      <span>{es ? 'arrastra para girar' : 'drag to rotate'}</span>
+    </div>
+    <div class="p3d-estado">{es ? 'la pieza se carga al llegar aquí' : 'the piece loads when you get here'}</div>
+  </div>
+  <p class="sealline mono" style="margin-top:10px"><a href={es ? '/es/ledger#RQ-0007' : '/ledger#RQ-0007'}>{es ? 'La corrida sellada →' : 'The sealed run →'}</a> · <a href="/v1/challenges/cleveland-2026-07">/v1/challenges</a></p>
+</div></section>
+
 <section><div class="wrap">
   <div class="eyebrow">{t.casosH}</div>
   <h2>{t.casosH}</h2>
