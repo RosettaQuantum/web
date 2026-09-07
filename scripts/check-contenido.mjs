@@ -166,14 +166,26 @@ for (const ruta of rutas) {
   const cP = m ? (p.cuerpo.match(m.patron) || []).length : null;
   const cQ = m ? (q.cuerpo.match(m.patron) || []).length : null;
   const razon = q.bytes > 0 ? p.bytes / q.bytes : 0;
-  const dentro = razon >= 1 - TOL && razon <= 1 + TOL;
+  // RUTAS REDISEÑADAS: la banda de ±25% contra produccion medía "esta pagina sigue
+  // siendo la de siempre". En una ruta que el rebuild rediseña eso es falso a proposito
+  // —/blog/ pesa 153% de produccion porque lleva la hoja de la marca dentro— y el
+  // guardia se pondria rojo por hacer bien el trabajo. Pero apagar la comprobacion
+  // dejaria pasar justo lo que existe para cazar: el ensayo del commit 1 midio /clases
+  // cayendo al 14% de su tamaño con el CI en verde. Asi que en esas rutas la banda se
+  // reemplaza por un PISO: crecer esta permitido, DESPLOMARSE no.
+  const REDISEÑADAS = new Set(["/blog/", "/es/blog/"]);
+  const PISO = Number(process.env.PISO_REDISENO || 0.6);
+  const dentro = REDISEÑADAS.has(ruta) ? razon >= PISO : (razon >= 1 - TOL && razon <= 1 + TOL);
 
   const problemas = [];
   if (p.code !== 200) problemas.push(`preview ${p.code}`);
   if (q.code !== 200) problemas.push(`produccion ${q.code} (referencia inservible)`);
   if (m && cP === 0) problemas.push(`SIN MARCADOR: 0 ${m.que} — la inyeccion no corrio`);
   if (m && cQ > 0 && cP > 0 && cP < cQ * (1 - TOL)) problemas.push(`marcador escaso: ${cP} vs ${cQ} en produccion`);
-  if (!dentro) problemas.push(`tamaño ${p.bytes} vs ${q.bytes} (${(razon * 100).toFixed(0)}%, fuera de ±${TOL * 100}%)`);
+  if (!dentro) problemas.push(
+    REDISEÑADAS.has(ruta)
+      ? `tamaño ${p.bytes} vs ${q.bytes} (${(razon * 100).toFixed(0)}%) — bajo el piso del ${PISO * 100}% para una ruta rediseñada`
+      : `tamaño ${p.bytes} vs ${q.bytes} (${(razon * 100).toFixed(0)}%, fuera de ±${TOL * 100}%)`);
 
   const etiqueta = m ? `${cP}/${cQ} ${m.que}` : "sin marcador declarado — solo tamaño";
   if (problemas.length) {

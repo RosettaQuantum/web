@@ -1,6 +1,6 @@
 ---
 import { getCollection } from 'astro:content';
-import BlogLayout from '../../../layouts/BlogLayout.astro';
+import BlogLayout from '../../../layouts/BlogLayoutV2.astro';
 const posts = (await getCollection('blog', ({ data }) => !data.draft && data.lang === 'es'))
   .sort((a, b) => b.data.date.localeCompare(a.data.date));
 const pillars = { A:'Estado por clase de problema', B:'Diccionario canónico', C:'Explicadores de claims', D:'Metodología y runs', E:'Mapas y datos', F:'Decisor' };
