@@ -76,7 +76,11 @@ else ok(".casetabs      flex-wrap:nowrap gana la cascada");
 // La primera version de este guardia leyo esa regla y dijo "ok min-width:86px" sobre una
 // pagina donde la barra no tenia minimo ninguno — un verde midiendo otra cosa. Se exige
 // que el nombre de clase TERMINE ahi.
-const min = ultimo("\\.bar(?![\\w-])", "min-width");
+// Y la segunda trampa del mismo selector: la regla de excepcion
+// `.bar[style*="width: 0%"]{min-width:0}` tambien empieza por `.bar`, asi que el guardia
+// leyo SU PROPIA excepcion como el valor final y se puso rojo sobre una pagina correcta.
+// Se exige el selector pelado: sin atributo, sin sufijo.
+const min = ultimo("\\.bar(?![\\w\\-\\[.])", "min-width");
 if (!min || parseFloat(min) < 4) mal(`.bar min-width = ${min || "(ninguno)"} — un 2% sobre 165 px son 3 px y se lee como barra vacia`);
 else ok(`.bar           min-width:${min} — un valor distinto de cero siempre se ve`);
 

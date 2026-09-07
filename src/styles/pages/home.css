@@ -263,6 +263,12 @@ footer{border-top:1px solid var(--ink);padding:34px 0 44px;font-size:13px;color:
    declaración, y las reglas base de la maqueta vienen después de sus propios
    bloques @media — por eso el nowrap de las pestañas no llegaba a aplicarse. */
 
+/* DEF-02 · La regla `.burger span{height}` vive en DOS hojas —nav.css y esta— y esta se
+   inyecta despues, asi que arreglar solo nav.css no cambiaba nada: el CI lo cazo con el
+   1,6 px todavia servido. Se fija donde gana. Una lista que vive en dos lugares ya
+   divergio; aqui la que manda es la ultima. */
+.burger span{height:2px}
+
 /* DEF-03 · El relleno de las barras del reloj desaparecía. Medido a 375 px: los dos
    claims erosionados llevan data-w="2%" sobre una pista de 165 px = 3 px de relleno,
    que en un teléfono se lee como barra vacía. El mínimo hace que un valor distinto de
