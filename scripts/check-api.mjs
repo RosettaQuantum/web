@@ -40,7 +40,18 @@ try {
   for (const lang of ["en", "es"]) {
     const p = await j(`/v1/posts?limit=2&lang=${lang}`);
     const vacios = (p.posts || []).filter((x) => !x.excerpt || x.excerpt.length < 40);
-    const clonados = (p.posts || []).filter((x) => x.excerpt && x.tldr && x.tldr.startsWith(x.excerpt.slice(0, 60)));
+    // FALSO POSITIVO CAZADO EL 7-SEP: comparar los primeros 60 caracteres marca tambien
+    // al post que abre su cuerpo con la misma frase de su tldr y DESPUES diverge —
+    // "…se propaga como" contra "…el caminante se mueve por los nodos". Ese post esta
+    // bien: el extracto sale del cuerpo, y coincidir en la primera frase es normal
+    // cuando el cuerpo retoma el resumen. Un falso positivo retiene trabajo bueno.
+    // La regla precisa es la del defecto real: el extracto ERA `tldr.slice(0,220)`, o
+    // sea un PREFIJO EXACTO del tldr en todo su largo. Eso es lo que se busca.
+    const clonados = (p.posts || []).filter((x) => {
+      if (!x.excerpt || !x.tldr) return false;
+      const e = x.excerpt.trim(), t = x.tldr.trim();
+      return e.length >= 40 && t.startsWith(e.slice(0, e.length - 1));
+    });
     vacios.length ? mal(`${lang}: ${vacios.length} post(s) con excerpt vacio`) : ok(`${lang}: los 2 traen excerpt (${(p.posts||[]).map((x)=>x.excerpt.length).join("/")} chars)`);
     clonados.length ? mal(`${lang}: ${clonados.length} excerpt es el tldr recortado — la home mostraria el mismo texto dos veces`) : ok(`${lang}: excerpt sale del cuerpo, no del tldr`);
     // Y que sea PROSA, no el membrete del post. Los posts con formato nuevo abren con un
