@@ -33,7 +33,12 @@ const { title, description, lang = 'en', altUrl = '/es/', ruta = '/', pageCss = 
   pie={false}
   fuentes="marca"
 >
-  <NavV2 lang={lang} ruta={ruta} />
+  {/* `alt` NO es opcional: sin el, NavV2 cae a poner o quitar el prefijo /es, y los
+      slugs del sitio estan TRADUCIDOS. Asi, el conmutador de idioma de /pilots apuntaba
+      a /es/pilots —que no existe— en 19 de las 27 paginas. El destino correcto estaba
+      en este mismo archivo, en `altUrl`, alimentando el hreflang del <head>: la pagina
+      declaraba /es/pilotos a los buscadores y le ofrecia /es/pilots a la persona. */}
+  <NavV2 lang={lang} ruta={ruta} alt={altUrl} />
   <slot />
   <PieV2 lang={lang} />
 </BaseLayout>

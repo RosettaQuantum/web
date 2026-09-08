@@ -267,6 +267,10 @@ function hsRender(q){
 }
 hsI.addEventListener('input',e=>hsRender(e.target.value));
 document.getElementById('hsBtn').addEventListener('click',()=>hsRender(hsI.value));
+/* Enter buscaba... nada. Teclear buscaba y el boton buscaba, pero el gesto que hace
+   cualquiera en una caja de busqueda no estaba cableado: se escribia, se apretaba Enter
+   y la pagina se quedaba quieta. Lo encontro Nicholas el dia del estreno. */
+hsI.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault(); hsRender(hsI.value);}});
 document.querySelectorAll('.hs-chip').forEach(ch=>ch.addEventListener('click',()=>{hsI.value=ch.textContent; hsRender(ch.textContent); hsI.focus();}));
 document.addEventListener('click',e=>{if(!e.target.closest('.lh-search') && !e.target.closest('.hs-chip')) hsR.classList.remove('on');});
 document.querySelectorAll('.vtog').forEach(v=>v.addEventListener('click',()=>{const w=v.nextElementSibling; const on=w.classList.toggle('on'); v.textContent = on ? 'hide ↙' : 'verify ↗';}));
