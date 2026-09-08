@@ -45,3 +45,10 @@ article img{max-width:100%;height:auto}
 .chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
 .chip{border:1px solid var(--line);background:var(--panel);border-radius:2px;font-family:var(--mono);font-size:10.5px;letter-spacing:.06em;padding:6px 10px;color:var(--ink-60);cursor:pointer}
 .chip.on{border-color:var(--verdict);color:var(--verdict);background:var(--teal-10)}
+
+/* Bloque de boletin. La clase existia y no tenia una sola regla: el bloque se servia
+   sin separacion del contenido del post, apoyado en el relleno generico de section.
+   La promesa es lo unico que la persona lee antes de dejar su correo, asi que se le da
+   ancho de lectura propio en vez de heredar el del cuerpo. */
+.boletin{border-top:1px solid var(--line);background:var(--panel)}
+.boletin .promesa{max-width:56ch;margin-top:10px;color:var(--ink-60);font-size:15px;line-height:1.55}

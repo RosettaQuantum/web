@@ -147,10 +147,12 @@
       if (!v) return; // sin correo, deja pasar el mailto de siempre
       ev.preventDefault();
       var texto = boton.textContent;
-      fetch("/api/monitor-lead", {
+      fetch("/api/subscribe", {
         method: "POST",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify({ email: v }),
+        // La home es la caja del MONITOR: una edicion cuando selle. La otra caja
+        // —la del blog— promete otra cosa y va a otra lista.
+        body: JSON.stringify({ email: v, lista: "monitor", origen: location.pathname }),
       })
         .then(function (r) {
           if (!r.ok) throw 0;

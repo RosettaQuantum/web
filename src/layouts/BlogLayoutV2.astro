@@ -58,7 +58,7 @@ const css = navCss + "\n" + marca + "\n" + paginasCss + "\n" + blogCss + "\n" + 
 <body>
   <NavV2 lang={lang} ruta={lang === 'es' ? '/es/blog' : '/blog'} alt={altUrl} />
   <slot />
-  <Boletin lang={lang} />
+  <Boletin lang={lang} variante="weekly" />
   <PieV2 lang={lang} />
   <script is:inline src="/js/paginas.js"></script>
 </body>

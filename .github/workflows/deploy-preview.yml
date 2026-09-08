@@ -86,6 +86,15 @@ jobs:
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
         run: ./node_modules/.bin/wrangler d1 execute rosettaq-ledger --remote --file=db/monitor-market.schema.sql
 
+      # La columna 'lista' llego despues de que la tabla existiera, y CREATE TABLE IF NOT
+      # EXISTS no altera una tabla ya creada. Este script pregunta PRAGMA table_info y
+      # solo altera si falta: un ALTER a secas funcionaria una vez y reventaria siempre.
+      - name: Migracion D1 — monitor_leads.lista (idempotente)
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: node scripts/migrar-lista.mjs
+
       - name: Construir
         run: npm run build
 
@@ -228,9 +237,11 @@ jobs:
       # T-boletin — el bloque no vive en la pagina del post sino en el cascaron que el
       # Worker rellena: si se cae, se cae de 106 paginas a la vez y el build sale verde.
       # Ademas EJERCE el endpoint con un correo invalido: 400, sin escribir nada.
-      - name: T-boletin — el bloque de captura esta en el blog y el endpoint responde
+      - name: T-boletin — la promesa servida es la de su lista, y la fila llega a esa lista
         env:
           PREVIEW_URL: ${{ steps.desplegar.outputs.url }}
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
         run: npm run check:boletin
       - name: T-api — endpoints nuevos y /v1/state aditivo
         env:

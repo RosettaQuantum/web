@@ -88,19 +88,38 @@ export default {
     // correo. El defecto que esto reemplaza: el formulario solo hacia preventDefault y
     // mostraba "Solicitud enviada" sin mandar nada a ningun lado — una promesa falsa a
     // una persona real. Ver lib/qready-lead.mjs para el porque de cada decision.
-    // ── /api/monitor-lead (commit 5) — captura del Monitor ────────────────────
-    // Usa el binding MAILER, que ya existe y esta desplegado: cero terceros, cero
-    // secretos nuevos. Falla cerrado: sin correo valido no escribe nada.
-    if (url.pathname === "/api/monitor-lead" && request.method === "POST") {
+    // ── Suscripciones: /api/subscribe y su alias /api/monitor-lead ────────────
+    //
+    // UNA PUERTA, DOS LISTAS. El sitio pide dos consentimientos DISTINTOS y hay que
+    // poder distinguirlos despues:
+    //   'monitor' — la caja de la home: UNA edicion cuando selle.
+    //   'weekly'  — la caja del blog: UN correo por semana.
+    // Quien deja su correo en el blog no acepto la edicion del Monitor, y al reves
+    // tampoco. Por eso la lista viaja EXPLICITA y se guarda en su propia columna, en
+    // vez de deducirse del origen: el alcance de un consentimiento no se adivina.
+    //
+    // Una lista desconocida se RECHAZA (400) en vez de caer a un valor por defecto.
+    // Caer a 'monitor' apuntaria gente a una lista que no eligio, en silencio.
+    //
+    // /api/monitor-lead sigue existiendo porque la home ya lo llama y porque es la ruta
+    // que quedo publicada; es exactamente /api/subscribe con lista 'monitor'.
+    const esSubscribe = url.pathname === "/api/subscribe" || url.pathname === "/api/monitor-lead";
+    if (esSubscribe && request.method === "POST") {
       let cuerpo = {};
       try { cuerpo = await request.json(); } catch { /* queda vacio y falla abajo */ }
       const email = String(cuerpo.email || "").trim().toLowerCase();
       if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) {
         return json({ ok: false, error: "valid email required" }, 400);
       }
+      const LISTAS = ["monitor", "weekly"];
+      const lista = String(cuerpo.lista || cuerpo.list || (url.pathname === "/api/monitor-lead" ? "monitor" : "")).trim();
+      if (!LISTAS.includes(lista)) {
+        return json({ ok: false, error: `unknown list; expected one of ${LISTAS.join(", ")}` }, 400);
+      }
       await env.DB.prepare(
-        "INSERT INTO monitor_leads (email, ts, ua, origen) VALUES (?, ?, ?, ?)"
-      ).bind(email, new Date().toISOString(), request.headers.get("user-agent") || "", String(cuerpo.origen || "monitor")).run();
+        "INSERT INTO monitor_leads (email, ts, ua, origen, lista) VALUES (?, ?, ?, ?, ?)"
+      ).bind(email, new Date().toISOString(), request.headers.get("user-agent") || "",
+             String(cuerpo.origen || lista), lista).run();
       return new Response(null, { status: 204 });
     }
 

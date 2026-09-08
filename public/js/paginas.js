@@ -50,7 +50,11 @@
       var v = (mMail.value || "").trim();
       if (!v) return; // sin correo, que siga el mailto
       ev.preventDefault();
-      fetch("/api/monitor-lead", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ email: v }) })
+      // La lista viaja EXPLICITA, leida del boton. Deducirla del origen apuntaria a
+      // alguien a una lista que no eligio: la caja del blog promete un correo por
+      // semana, no la edicion del Monitor.
+      var lista = mGo.dataset.lista || "weekly";
+      fetch("/api/subscribe", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ email: v, lista: lista, origen: location.pathname }) })
         .then(function (r) { if (!r.ok) throw 0; mGo.textContent = mGo.dataset.ok; mMail.disabled = true; })
         .catch(function () { window.location.href = mGo.getAttribute("href"); });
     });
