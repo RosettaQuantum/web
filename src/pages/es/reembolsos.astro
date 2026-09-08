@@ -6,14 +6,15 @@
 // mueve el sha en el armador y se regenera, en el mismo commit.
 //
 // texto fuente sha256: 47eefc17e7d158e237465e3a2affbdcaf207a3dee30416d3f3f0ad4abaeef1b3
-import BaseLayout from '../../layouts/BaseLayout.astro';
+import MarcaLayout from '../../layouts/MarcaLayout.astro';
 import css from '../../styles/pages/legal.css?raw';
 ---
-<BaseLayout
+<MarcaLayout
   title="Política de reembolsos — Rosetta Q"
   description="Cuándo devolvemos el total, y por qué el resultado de una medición nunca da lugar a reembolso."
   lang="es"
   altUrl="/refunds/"
+  ruta="/es/reembolsos/"
   pageCss={css}>
   <article class="article wrap legal">
       <h1>Política de reembolsos</h1>
@@ -41,4 +42,4 @@ import css from '../../styles/pages/legal.css?raw';
       <p class="sello-fuente">Texto publicado desde su documento aprobado ·
         <code>sha256:47eefc17e7d158e2…</code></p>
   </article>
-</BaseLayout>
+</MarcaLayout>

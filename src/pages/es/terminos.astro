@@ -6,14 +6,15 @@
 // mueve el sha en el armador y se regenera, en el mismo commit.
 //
 // texto fuente sha256: fa320e43e80f12633c0d25e3e154b306eac2a5ec32b8f1d34814b3abacaf3d90
-import BaseLayout from '../../layouts/BaseLayout.astro';
+import MarcaLayout from '../../layouts/MarcaLayout.astro';
 import css from '../../styles/pages/legal.css?raw';
 ---
-<BaseLayout
+<MarcaLayout
   title="Términos de servicio — Rosetta Q"
   description="Términos de servicio de rosettaquantum.com, su API pública y sus servicios de medición."
   lang="es"
   altUrl="/terms/"
+  ruta="/es/terminos/"
   pageCss={css}>
   <article class="article wrap legal">
       <h1>Términos del servicio</h1>
@@ -51,4 +52,4 @@ import css from '../../styles/pages/legal.css?raw';
       <p class="sello-fuente">Texto publicado desde su documento aprobado ·
         <code>sha256:fa320e43e80f1263…</code></p>
   </article>
-</BaseLayout>
+</MarcaLayout>

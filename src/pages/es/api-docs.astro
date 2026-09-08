@@ -1,6 +1,7 @@
 ---
 import { CATALOGO, HERRAMIENTAS } from '../../../api.js';
-import BaseLayout from '../../layouts/BaseLayout.astro';
+import MarcaLayout from '../../layouts/MarcaLayout.astro';
+import css from '../../styles/pages/api-docs.css?raw';
 // La cara española de /api-docs. Nicholas aprobó el inglés tal como está y pidió la
 // traducción (2026-08-10, «3 sí»).
 //
@@ -28,11 +29,13 @@ const ARRANQUE_AGENTES = [
   ARRANQUE_AGENTES_CMD[1],
 ].join('\n');
 ---
-<BaseLayout
+<MarcaLayout
   title="API y MCP — Rosetta Q"
   description="API de sólo lectura y servidor MCP sobre el Evidence Ledger. Sin clave. Cada respuesta lleva el hash sellado y dos copias públicas independientes."
   lang="es"
-  altUrl="/api-docs">
+  altUrl="/api-docs/"
+  ruta="/es/api-docs/"
+  pageCss={css}>
   <article class="article wrap">
     <div class="kicker">Para máquinas · sin clave</div>
     <h1>Consulta la evidencia, no le creas al resumen</h1>
@@ -192,4 +195,4 @@ const ARRANQUE_AGENTES = [
       </p>
     </div>
   </article>
-</BaseLayout>
+</MarcaLayout>

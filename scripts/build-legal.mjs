@@ -131,14 +131,15 @@ for (const P of PAGINAS) {
 // mueve el sha en el armador y se regenera, en el mismo commit.
 //
 // texto fuente sha256: ${sha}
-import BaseLayout from '${relativo}layouts/BaseLayout.astro';
+import MarcaLayout from '${relativo}layouts/MarcaLayout.astro';
 import css from '${relativo}styles/pages/legal.css?raw';
 ---
-<BaseLayout
+<MarcaLayout
   title="${P.titulo}"
   description="${P.desc}"
   lang="${P.lang}"
   altUrl="${P.alt}"
+  ruta="${P.ruta}"
   pageCss={css}>
   <article class="article wrap legal">
       ${aHtml(md)}
@@ -148,7 +149,7 @@ import css from '${relativo}styles/pages/legal.css?raw';
         : "Published from its approved source document"} ·
         <code>sha256:${sha.slice(0, 16)}…</code></p>
   </article>
-</BaseLayout>
+</MarcaLayout>
 `;
 
   const destino = join(RAIZ, P.salida);

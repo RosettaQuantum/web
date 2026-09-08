@@ -6,14 +6,15 @@
 // mueve el sha en el armador y se regenera, en el mismo commit.
 //
 // texto fuente sha256: d4bf8c50968a82cfff76b6a009e912524d597a6d92751d9ca20d61ea4054b94d
-import BaseLayout from '../../layouts/BaseLayout.astro';
+import MarcaLayout from '../../layouts/MarcaLayout.astro';
 import css from '../../styles/pages/legal.css?raw';
 ---
-<BaseLayout
+<MarcaLayout
   title="Política de privacidad — Rosetta Q"
   description="Qué datos personales recoge Rosetta Quantum, para qué, y qué derechos tienes sobre ellos."
   lang="es"
   altUrl="/privacy/"
+  ruta="/es/privacidad/"
   pageCss={css}>
   <article class="article wrap legal">
       <h1>Política de privacidad</h1>
@@ -49,4 +50,4 @@ import css from '../../styles/pages/legal.css?raw';
       <p class="sello-fuente">Texto publicado desde su documento aprobado ·
         <code>sha256:d4bf8c50968a82cf…</code></p>
   </article>
-</BaseLayout>
+</MarcaLayout>
