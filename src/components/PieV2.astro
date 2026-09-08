@@ -22,15 +22,22 @@ const COLS = es
   ? [
       ["Evaluación", [["/es/metodologia", "Metodología v1.0"], ["/es/metodologia#el-definitions", "Definiciones EL"],
                       ["/es/metodologia#juez-v1", "Protocolo juez-v1"], ["/es/erratas", "Erratas"]]],
-      ["La firma",   [["/es/nosotros", "Nosotros"], ["/es/politicas", "Políticas y conducta"],
-                      ["/es/contacto", "Contacto"], ["/es/blog", "Notes"]]],
+      ["La firma",   [["/es/nosotros", "Nosotros"], ["/es/contacto", "Contacto"], ["/es/blog", "Notes"]]],
+      // Las tres politicas, POR SU NOMBRE y a un clic. Paddle pide que sean "clearly
+      // accessible via navigation": el centro de politicas las tenia, pero el pie decia
+      // "Políticas y conducta" y un revisor que busca "Reembolsos" no lo encuentra. El
+      // centro se conserva: lleva la regla de las dos capas y la conducta, que es mas
+      // que los tres documentos legales.
+      ["Legal", [["/es/terminos", "Términos"], ["/es/reembolsos", "Reembolsos"],
+                 ["/es/privacidad", "Privacidad"], ["/es/politicas", "Políticas y conducta"]]],
       ["Legible por máquina", [["/v1/state", "/v1/state"], ["/llms.txt", "llms.txt"], ["/sitemap-0.xml", "Sitemap"], ["/mcp", "MCP"]]],
     ]
   : [
       ["Evaluation", [["/methodology", "Methodology v1.0"], ["/methodology#el-definitions", "EL Definitions"],
                       ["/methodology#juez-v1", "Protocol juez-v1"], ["/errata", "Errata"]]],
-      ["Firm",       [["/about", "About"], ["/policies", "Policies & Conduct"],
-                      ["/contact", "Contact"], ["/blog", "Notes"]]],
+      ["Firm",       [["/about", "About"], ["/contact", "Contact"], ["/blog", "Notes"]]],
+      ["Legal", [["/terms", "Terms"], ["/refunds", "Refunds"],
+                 ["/privacy", "Privacy"], ["/policies", "Policies & Conduct"]]],
       ["Machine-readable", [["/v1/state", "/v1/state"], ["/llms.txt", "llms.txt"], ["/sitemap-0.xml", "Sitemap"], ["/mcp", "MCP"]]],
     ];
 
