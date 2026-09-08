@@ -27,8 +27,33 @@ export function buscarChrome() {
   throw new Error(`no encontre Chrome. Busque en:\n   - ${candidatos.join("\n   - ")}`);
 }
 
-/** Abre Chrome y devuelve `{ evaluar, cerrar }`. `ancho`/`alto` fijan la ventana. */
-export async function abrirChrome({ ancho = 1280, alto = 900 } = {}) {
+/**
+ * Abre Chrome y devuelve `{ evaluar, cerrar }`. `ancho`/`alto` fijan la ventana.
+ *
+ * REINTENTA, y por que: el 8-sep dos despliegues de produccion salieron rojos con
+ * "Chrome no anuncio su puerto en 20 s" — dos de siete corridas. No era el sitio ni el
+ * chequeo: era el arranque de Chrome en un runner compartido, que a veces tarda mas.
+ * Un lanzador que falla una de cada tres veces convierte cada deploy en cara o cruz, y
+ * lo que ensena no es a arreglar nada: ensena a mirar el rojo y volver a correr. Eso es
+ * peor que no tener el chequeo, porque el dia que el rojo sea de verdad tambien se
+ * reintentara.
+ *
+ * El presupuesto sube a 45 s y se intenta dos veces. Si las dos fallan, falla — el
+ * reintento acota el ruido, no lo esconde: el mensaje dice cuantos intentos hubo.
+ */
+export async function abrirChrome(opciones = {}) {
+  let ultimo = null;
+  for (let intento = 1; intento <= 2; intento++) {
+    try { return await abrirChromeUnaVez(opciones); }
+    catch (e) {
+      ultimo = e;
+      if (intento < 2) console.log(`  ...  Chrome no arranco (intento ${intento}/2): ${e.message.slice(0, 60)} — reintento`);
+    }
+  }
+  throw new Error(`${ultimo.message} (2 intentos)`);
+}
+
+async function abrirChromeUnaVez({ ancho = 1280, alto = 900 } = {}) {
   const perfil = mkdtempSync(join(tmpdir(), "rq-chrome-"));
   const proc = spawn(buscarChrome(), [
     "--headless=new", "--disable-gpu", "--no-first-run", "--no-default-browser-check",
@@ -41,7 +66,7 @@ export async function abrirChrome({ ancho = 1280, alto = 900 } = {}) {
   // un puerto ocupado daria un fallo raro y tardio en vez de uno claro.
   const ws = await new Promise((res, rej) => {
     let buf = "";
-    const t = setTimeout(() => rej(new Error("Chrome no anuncio su puerto en 20 s")), 20000);
+    const t = setTimeout(() => rej(new Error("Chrome no anuncio su puerto en 45 s")), 45000);
     proc.stderr.on("data", d => {
       buf += d;
       const m = buf.match(/ws:\/\/[^\s]+/);
