@@ -89,7 +89,29 @@ const alto = ultimo("\\.burger span", "height");
 if (!alto || parseFloat(alto) < 2) mal(`.burger span height = ${alto || "(ninguno)"} — por debajo de 2 px la linea se desvanece en un telefono`);
 else ok(`.burger span   height:${alto}`);
 
+// El ancho tiene que estar DECLARADO. Se reporto "ancho cero" y no se pudo reproducir
+// —a 375 px los tramos miden 18x2—, porque el ancho salia del estirado del flex, no de
+// una regla. Un `align-items` distinto en cualquier hoja futura lo vuelve cero sin tocar
+// nada de aqui, y el boton queda como una caja vacia: exactamente lo que se reporto.
+const ancho = ultimo("\\.burger span", "width");
+if (!ancho || parseFloat(ancho) < 12) mal(`.burger span width = ${ancho || "(ninguno, sale del estirado del flex)"} — sin ancho declarado el boton puede servirse vacio`);
+else ok(`.burger span   width:${ancho} — declarado, no derivado`);
+
 // 4 · la marca y el favicon
+// El .ico se pide A CIEGAS: un rastreador viejo hace GET /favicon.ico sin leer el HTML,
+// asi que declararlo no basta y servir solo SVG deja ese GET en 404. Se comprueba que
+// exista, que sea un ICO de verdad (cabecera 0,1,n) y que traiga el tamaño de 16 px.
+const ico = await fetch(PREVIEW + "/favicon.ico", { headers: { "x-rq-check": "1" } });
+if (ico.status !== 200) mal(`/favicon.ico responde ${ico.status} — un rastreador viejo lo pide sin mirar el HTML`);
+else {
+  const b = new Uint8Array(await ico.arrayBuffer());
+  const tipo = b[2] | (b[3] << 8), n = b[4] | (b[5] << 8);
+  const tams = Array.from({ length: n }, (_, i) => b[6 + 16 * i] || 256);
+  if (tipo !== 1 || n < 1) mal(`/favicon.ico no es un ICO (tipo ${tipo}, ${n} iconos)`);
+  else if (!tams.includes(16)) mal(`/favicon.ico sin el tamaño de 16 px (trae ${tams.join(", ")})`);
+  else ok(`/favicon.ico        ICO real · ${tams.join("x, ")}px · ${b.length} bytes`);
+}
+
 for (const [ruta, que] of [["/rosetta-mark.svg", "la marca"], ["/favicon.svg", "el favicon"]]) {
   const r = await fetch(PREVIEW + ruta, { headers: { "x-rq-check": "1" } });
   if (r.status !== 200) { mal(`${ruta} responde ${r.status} — ${que} no se sirve`); continue; }

@@ -37,7 +37,7 @@ nav{position:sticky;top:0;z-index:50;background:rgba(244,245,241,.94);backdrop-f
 .nav-cta{background:var(--verdict);color:var(--paper);padding:9px 15px;font-size:13px;font-weight:500;border-radius:2px;white-space:nowrap}
 @media(min-width:840px){.nav-links{display:flex}}
 .burger{display:inline-flex;flex-direction:column;justify-content:center;gap:4px;width:38px;height:38px;border:1px solid var(--line);border-radius:2px;background:var(--panel);cursor:pointer;padding:0 9px}
-.burger span{display:block;height:1.6px;background:var(--ink);transition:transform .2s,opacity .2s}
+.burger span{display:block;width:18px;height:1.6px;background:var(--ink);transition:transform .2s,opacity .2s}
 .burger.on span:nth-child(1){transform:translateY(5.6px) rotate(45deg)}
 .burger.on span:nth-child(2){opacity:0}
 .burger.on span:nth-child(3){transform:translateY(-5.6px) rotate(-45deg)}
@@ -266,8 +266,14 @@ footer{border-top:1px solid var(--ink);padding:34px 0 44px;font-size:13px;color:
 /* DEF-02 · La regla `.burger span{height}` vive en DOS hojas —nav.css y esta— y esta se
    inyecta despues, asi que arreglar solo nav.css no cambiaba nada: el CI lo cazo con el
    1,6 px todavia servido. Se fija donde gana. Una lista que vive en dos lugares ya
-   divergio; aqui la que manda es la ultima. */
-.burger span{height:2px}
+   divergio; aqui la que manda es la ultima.
+
+   La anchura se declara aunque NO se haya podido reproducir el ancho cero reportado: en
+   el preview servido, a 375 px, los tres tramos miden 18x2 con fondo tinta. Salian de
+   `align-items` en su valor inicial, que en una columna flex estira al ancho del
+   contenido — un ancho DERIVADO, que un solo `align-items:center` heredado en cualquier
+   hoja futura vuelve cero sin tocar esta regla. Declarado, deja de depender de eso. */
+.burger span{width:18px;height:2px}
 
 /* DEF-03 · El relleno de las barras del reloj desaparecía. Medido a 375 px: los dos
    claims erosionados llevan data-w="2%" sobre una pista de 165 px = 3 px de relleno,

@@ -48,6 +48,8 @@
     "check:es": "node scripts/check-es.mjs",
     "check:masa": "node scripts/check-masa.mjs",
     "check:movil": "node scripts/check-movil.mjs",
+    "check:llms": "node scripts/check-llms.mjs",
+    "check:boletin": "node scripts/check-boletin.mjs",
     "check:cascaron": "node scripts/check-cascaron.mjs",
     "check:grep": "node scripts/check-grep.mjs",
     "check:3d": "node scripts/check-3d.mjs"

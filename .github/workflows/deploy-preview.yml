@@ -217,6 +217,21 @@ jobs:
           PREVIEW_URL: ${{ steps.desplegar.outputs.url }}
         run: npm run check:movil
 
+      # T-llms — commit 13-bis. El archivo que leen los modelos anunciaba 8 de las 10
+      # paginas publicas y seguia ofreciendo un producto retirado con su precio. Responde
+      # 200 y se ve bien formado siempre: solo se ve comparandolo con las rutas que existen.
+      - name: T-llms — el canal de indexacion esta completo y no ofrece nada retirado
+        env:
+          PREVIEW_URL: ${{ steps.desplegar.outputs.url }}
+        run: npm run check:llms
+
+      # T-boletin — el bloque no vive en la pagina del post sino en el cascaron que el
+      # Worker rellena: si se cae, se cae de 106 paginas a la vez y el build sale verde.
+      # Ademas EJERCE el endpoint con un correo invalido: 400, sin escribir nada.
+      - name: T-boletin — el bloque de captura esta en el blog y el endpoint responde
+        env:
+          PREVIEW_URL: ${{ steps.desplegar.outputs.url }}
+        run: npm run check:boletin
       - name: T-api — endpoints nuevos y /v1/state aditivo
         env:
           PREVIEW_URL: ${{ steps.desplegar.outputs.url }}

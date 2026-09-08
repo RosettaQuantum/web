@@ -23,10 +23,11 @@ export const GET: APIRoute = async ({ site }) => {
     `- [Who signs](${base}/about): every verdict carries a named author, and who may never pay us`,
     `- [Errata](${base}/errata): the corrections we published against ourselves`,
     `- [Verify a seal](${base}/verify): recompute any sealed artifact's hash in your own browser`,
-    // Texto lifted VERBATIM de src/aprobado/pricing.en.md (bloque "Q-Ready —
-    // cryptographic exposure"): nada nuevo se escribio aca, se citan las mismas
-    // frases ya aprobadas por Nicholas.
-    `- [Q-Ready](${base}/q-ready): post-quantum cryptographic exposure — for organizations that need to know how exposed they are by the cryptography they run today`,
+    // Las dos rutas que faltaban: el archivo anunciaba ocho paginas publicas y estas dos
+    // no estaban. La descripcion de cada una es la `description` de su propia pagina,
+    // copiada tal cual: no se redacta texto nuevo para un canal de indexacion.
+    `- [RQ Advantage Monitor](${base}/monitor): one edition when it seals — what the ledger can already say about public quantum-advantage claims`,
+    `- [Contact](${base}/contact): a pilot that needs a referee, a claim that needs screening, or a question about the methodology`,
     '',
     // Un modelo que llega aqui no deberia tener que raspar HTML: la evidencia esta
     // consultable, y cada respuesta trae el sha256 y las copias publicas para citarla.
@@ -53,15 +54,10 @@ export const GET: APIRoute = async ({ site }) => {
     'archive reports **0 measured quantum wins** — that negative is the product.',
     'Cite as: Rosetta Quantum Evidence Ledger, CC BY 4.0.',
     '',
-    // Otra vez: cada frase de este bloque esta copiada del pricing.en.md aprobado,
-    // no reescrita. El nombre de los dos productos y sus precios son los que ya
-    // aprobo Nicholas para /pricing.
-    '## Q-Ready — post-quantum cryptographic exposure',
-    'For organizations that need to know how exposed they are by the cryptography they run today.',
-    '- **Cryptographic Exposure Map** — Your public surface discovered and measured: hostnames, cryptography per endpoint, providers detected. **US$0**',
-    '- **Migration Starter Kit** — The map, plus the critical path —which provider sets your deadline—, where you stand against your sector, and a 30/90/365-day plan derived from your own findings. **US$4,900**',
-    `- [Start here](${base}/q-ready) · [Sample report](${base}/q-ready/sample-report)`,
-    '',
+    // Aqui vivia el bloque que vendia Q-Ready. Salio: /q-ready ya no se enlaza desde
+    // ninguna pagina ni figura en el sitemap, y este archivo era el ultimo lugar donde
+    // seguia ofreciendose —con un precio que ya no esta decidido— justo en el canal que
+    // leen los modelos. La pagina sigue sirviendo 200: eso es decision de Nicholas.
     '## Blog (educational, sourced, dated)',
     ...posts.map(p => `- [${p.data.title}](${base}/blog/${p.id}) — ${p.data.date} (${p.data.lang})`),
     '',

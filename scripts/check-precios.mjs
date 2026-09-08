@@ -28,16 +28,9 @@ export const CONSUMIDOR = {
 const PREVIEW = (process.env.PREVIEW_URL || "").replace(/\/+$/, "");
 if (!PREVIEW) { console.error("ABORTA: falta PREVIEW_URL"); process.exit(1); }
 
-// La decision del 2-sep, escrita como cantidades. Formato EN y ES de cada una.
-const DECIDIDOS = new Set([
-  "15,000", "35,000", "15.000", "35.000",   // Pilot Referee
-  "4,500", "4.500",                          // Claim Screening
-  "28,000", "28.000",                        // Diligence Report (desde)
-  "149",                                     // Library Analyst, por asiento / mes
-  // Precio PLANEADO de la corrida sellada por API (commit 9-ter). Va con su etiqueta
-  // "in construction / planned" al lado en la pagina: es futuro declarado, no oferta.
-  "50", "200",
-]);
+// La lista vive en scripts/lib/precios-decididos.mjs: T-llms usa la misma, y dos copias
+// de lo mismo ya divergieron antes en este repo.
+import { DECIDIDOS } from "./lib/precios-decididos.mjs";
 
 const PAGINAS = ["/", "/es/", "/services", "/es/servicios", "/pilots", "/es/pilotos",
                  "/library", "/es/biblioteca", "/methodology", "/es/metodologia"];
