@@ -201,9 +201,9 @@ async function claims(env, url) {
     env.DB.prepare("SELECT count(*) n FROM rq_claims WHERE verified=1").first(),
   ]);
   return json({
-    que_es: "Claims publicos de ventaja cuantica que este archivo rastrea. Solo los verificados.",
+    que_es: "Claims públicos de ventaja cuántica que este archivo rastrea. Solo los verificados.",
     vocabulario_de_estado: ["surviving", "contested", "eroded", "open", "negative-selfpublished"],
-    nota_clock_days: "dias del claim al primer desafio registrado; NULL = sin desafio. NO son dias a hoy: eso se computa con claim_date al momento de mirar.",
+    nota_clock_days: "días del claim al primer desafío registrado; NULL = sin desafío. NO son días a hoy: eso se computa con claim_date al momento de mirar.",
     total: results.length,
     verificados: (verifRow || { n: 0 }).n,
     en_la_tabla: (totalRow || { n: 0 }).n,
@@ -1095,7 +1095,7 @@ export const CATALOGO = [
   // ningun documento decia que existian. El catalogo es la fuente unica de las cuatro
   // superficies —llegaron a existir cuatro copias divergentes de esta lista— asi que
   // declararlos aqui los publica en todas de una vez.
-  { ruta: "/v1/claims", resumen: "Claims publicos de ventaja cuantica rastreados · solo los verificados", grupo: "ledger",
+  { ruta: "/v1/claims", resumen: "Claims públicos de ventaja cuántica rastreados · solo los verificados", grupo: "ledger",
     parametros: [{ nombre: "limit", en: "query", tipo: "integer", descripcion: "maximo de claims (por omision 50)" }],
     esquema: {
       type: "object",
@@ -1111,7 +1111,7 @@ export const CATALOGO = [
           id: { type: "string" }, claimant: { type: "string" }, title: { type: "string" },
           claim_date: { type: "string", format: "date" }, status: { type: "string" },
           domain: { type: "string" },
-          clock_days: { type: ["integer", "null"], description: "dias del claim al primer desafio; NULL = sin desafio registrado" },
+          clock_days: { type: ["integer", "null"], description: "días del claim al primer desafío; NULL = sin desafío registrado" },
           first_challenge: { type: ["string", "null"] }, url: { type: "string" },
         } } },
       },
