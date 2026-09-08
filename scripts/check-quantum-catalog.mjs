@@ -739,8 +739,9 @@ console.log("\n  -- la promesa central: recomputar un sello --");
     comprobar(`${ruta} nombra las ${nombresMcp.length} herramientas`,
       sinNombrar.length === 0, `no aparecen: ${sinNombrar.join(", ")}`);
     const otra = ruta === "/api-docs/" ? "/es/api-docs" : "/api-docs";
-    comprobar(`${ruta} enlaza su cara alterna`, docs.txt.includes(`"${otra}"`),
-      `no encontre el enlace a ${otra}`);
+    comprobar(`${ruta} enlaza su cara alterna`,
+      docs.txt.includes(`"${otra}"`) || docs.txt.includes(`"${otra}/"`),
+      `no encontre el enlace a ${otra} (ni con barra final)`);
   }
 }
 
