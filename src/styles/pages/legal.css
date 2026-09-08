@@ -2,7 +2,8 @@
    retirada —fondo oscuro, "THE ALGORITHM FOUNDRY"— y son la superficie que revisa
    Paddle. El TEXTO no cambia: sale del .md aprobado con su sha, y el armador lo prueba.
    Lo unico que cambia es la casa donde se lee. */
-.legal{padding:44px 0 72px}
+html .legal{padding-top:44px;padding-bottom:72px;max-width:none}
+html .legal > *{max-width:76ch}
 .legal h1{font-family:var(--serif);font-weight:500}
 .legal h2{font-family:var(--serif);font-weight:500}
 /* Paginas legales. Misma linea del sitio; densidad de lectura, no de marketing.
