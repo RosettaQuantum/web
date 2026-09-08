@@ -128,6 +128,19 @@ jobs:
 
       # Los validadores del archivador tienen que gritar contra defectos inyectados.
       # Si este paso pasa "solo", el chequeo de abajo ya no prueba nada.
+      # P0 VA AQUI, ANTES DE TODA MEDICION SOBRE PRODUCCION. Espera a que el edge sirva
+      # ESTE build (el <meta rq-build> trae este sha). Estaba mas abajo y el 8-sep, en el
+      # cutover, check-alcance midio /library/registry en el HTML ANTERIOR y reporto un
+      # desborde ya arreglado. Una medicion contra un edge sin purgar no mide el sitio:
+      # mide el que habia. Y es ademas la comprobacion REAL de la purga de cache — si la
+      # purga fallo, esto se pone rojo. Mide el resultado, no el mecanismo.
+      - name: P0 — produccion sirve ESTE build
+        env:
+          PREVIEW_URL: "https://rosettaquantum.com"
+          GITHUB_SHA: ${{ github.sha }}
+          ESPERA_MAX: "240"
+        run: npm run check:preview
+
       - name: Self-test de los validadores del archivador
         run: node scripts/check-quantum-catalog.mjs --self-test
 
@@ -337,17 +350,6 @@ jobs:
       # produccion y contra la lista de rutas de main. Despues del cutover los dos lados
       # de esa comparacion son el mismo sitio, asi que pasaria siempre — un guardia que
       # se da la razon solo es peor que ninguno. Su trabajo se acaba en el cutover.
-
-      # P0 primero: espera a que el edge sirva ESTE build (el <meta rq-build> tiene que
-      # traer este sha). Es tambien la comprobacion REAL de la purga de cache: si la
-      # purga fallo y el edge sigue sirviendo lo viejo, esto se pone rojo. Mide el
-      # resultado, no el mecanismo.
-      - name: P0 — produccion sirve ESTE build
-        env:
-          PREVIEW_URL: "https://rosettaquantum.com"
-          GITHUB_SHA: ${{ github.sha }}
-          ESPERA_MAX: "240"
-        run: npm run check:preview
 
       - name: T-301 — las 14 redirecciones saltan y el destino responde
         env:

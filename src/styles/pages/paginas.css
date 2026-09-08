@@ -14,6 +14,15 @@
 .tabla .precio.pedido{color:var(--ink-60)}
 .tabla .capa{font-family:var(--mono);font-size:10px;color:var(--ink-60)}
 @media(max-width:700px){.tabla thead{display:none}.tabla td{display:block;border:none;padding:2px 0}.tabla tr{display:block;border-bottom:1px solid var(--line);padding:12px 0}}
+/* DEFECTO DEL 8-SEP en /es/servicios, encontrado en produccion el dia del cutover: el
+   body medía 433 px en una ventana de 375. El culpable, aislado probando una mitad a la
+   vez sobre la pagina servida, es la regla .precio{white-space:nowrap}: "US$15.000–35.000" no
+   puede partirse, la tabla toma esa anchura como minimo y empuja la pagina entera. En
+   ingles no pasaba —"$15,000–35,000" es mas corto—, que es justo como un defecto de
+   este tipo se esconde de una revision en un solo idioma.
+   El nowrap sigue valiendo en escritorio, donde es lo correcto: un precio partido en dos
+   lineas se lee mal. Solo cede cuando el ancho lo obliga. */
+@media(max-width:700px){.tabla .precio{white-space:normal}}
 
 .paso{border-left:2px solid var(--verdict);padding:2px 0 2px 14px;margin:14px 0}
 .paso b{display:block;font-family:var(--mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--verdict)}

@@ -1,7 +1,6 @@
 {
   "_procedencia": {
-    "fuente": "snapshot",
-    "fecha": "2026-09-08T18:43:29.864Z"
+    "fuente": "d1"
   },
   "counter": {
     "pipeline": 4,
