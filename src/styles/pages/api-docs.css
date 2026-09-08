@@ -29,7 +29,8 @@ html .article p code,html .article li code,html .article td code{background:var(
 /* Una tabla ancha rueda dentro de si misma y nunca empuja la pagina: la regla de la casa,
    aprendida el dia del cutover con /library/registry. */
 html .article .tabla-scroll{overflow-x:auto;margin:14px 0;max-width:100%}
-html .article table{border-collapse:collapse;font-size:14px;min-width:520px}
+html .article table{border-collapse:collapse;font-size:14px;width:100%}
+html .article table td,html .article table th{overflow-wrap:anywhere}
 html .article th{font-family:var(--mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-60);text-align:left;padding:8px 10px;border-bottom:1px solid var(--ink)}
 html .article td{padding:10px;border-bottom:1px solid var(--line);vertical-align:top;color:var(--ink-60)}
 html .article td.nb{white-space:nowrap;color:var(--ink)}
