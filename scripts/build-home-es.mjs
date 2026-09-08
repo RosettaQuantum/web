@@ -290,7 +290,7 @@ const T = [
   // vista de cualquiera. Un filtro de largo es un punto ciego con forma de criterio.
   ["</b> days</span>", "</b> días</span>", 2],
   [">2 days<", ">2 días<", 1],
-  ["$15,000–35,000 per pilot", "US$15.000–35.000 por piloto", 1],
+  ["US$15,000–35,000 per pilot", "US$15.000–35.000 por piloto", 1],
     [">verdict<", ">veredicto<", 1],
   [">simulated run<", ">corrida simulada<", 1],
   [">QPU run<", ">corrida QPU<", 1],
@@ -320,17 +320,17 @@ const T = [
   ['No "contact us" to find out what it costs. What has a price has it here; what depends on scope is quoted — and we say which is which.',
    "Sin «contact us» para saber cuánto cuesta. Lo que tiene precio, lo tiene aquí; lo que depende del alcance, se cotiza — y se dice cuál es cuál.", 1],
   [">For corporates running a quantum pilot<", ">Para corporativos con un piloto cuántico<", 1],
-  [">$15,000–35,000<", ">US$15.000–35.000<", 1],
+  [">US$15,000–35,000<", ">US$15.000–35.000<", 1],
   ["your pilot's calendar · never &gt;15% of its cost", "el calendario de tu piloto · nunca >15% de su costo", 1],
   ["<b>Criterion sealed before the run</b> · champion classical baseline in parallel · decision page + 5-layer report",
    "<b>Criterio sellado antes de correr</b> · campeón clásico en paralelo · decision page + informe de 5 capas", 1],
-  [">$4,500<", ">US$4.500<", 1],
+  [">US$4,500<", ">US$4.500<", 1],
   [">5 business days<", ">5 días hábiles<", 1],
   ["<b>Layers 0–1</b> + Registry position + class priors; no new runs",
    "<b>Capas 0–1</b> + posición en el Registry + priors de clase; sin corridas nuevas", 1],
   [">Start a screening →<", ">Empieza un screening →<", 1],
   [">For analysts, every week of the year<", ">Para analistas, todas las semanas del año<", 1],
-  ["$149 <small>/ seat / month</small>", "US$149 <small>/ asiento / mes</small>", 1],
+  ["US$149 <small>/ seat / month</small>", "US$149 <small>/ asiento / mes</small>", 1],
   [">free tier: the full index<", ">plan gratis: el índice completo<", 1],
   ["<b>Registry with EL levels</b> · survival clock · citable exports",
    "<b>Registro con niveles EL</b> · reloj de supervivencia · exportes citables", 1],
@@ -345,9 +345,9 @@ const T = [
   // Las dos lineas con "everything else"/"on request" se mapean COMPLETAS, no por
   // trozos: la version por trozos se pisaba a si misma —"everything else" ya traducido
   // hacia que la linea larga dejara de calzar— y el generador lo freno.
-  ["<b>Free</b> to browse · Analyst <b>$149 per seat / month</b> · everything else <b>on request</b> — evidence levels identical in every tier",
+  ["<b>Free</b> to browse · Analyst <b>US$149 per seat / month</b> · everything else <b>on request</b> — evidence levels identical in every tier",
    "<b>Gratis</b> para consultar · Analyst <b>US$149 por asiento / mes</b> · todo lo demás <b>a pedido</b> — los niveles de evidencia son idénticos en todos los planes", 1],
-  ["$50–200 / run (planned) · Diligence Report: from $28,000 · everything else: on request",
+  ["US$50–200 / run (planned) · Diligence Report: from US$28,000 · everything else: on request",
    "US$50–200 por corrida (planeado) · Diligence Report: desde US$28.000 · todo lo demás: a pedido", 1],
 
   // ── Accesibilidad ──────────────────────────────────────────────────────────
