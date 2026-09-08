@@ -43,11 +43,19 @@
    la masa indexable es el canal, y un fetch no la reemplaza. */
 .cat-grupo{margin-top:26px}
 .cat-h{font-family:var(--mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--verdict);padding-bottom:6px;border-bottom:1px solid var(--ink)}
+/* DEFECTO DEL 8-SEP, encontrado en produccion el dia del cutover: /library y
+   /library/registry desbordaban horizontalmente. Medido a 375 px: el body llegaba a
+   517 px, 142 de mas; y tambien a 1280. La causa era `.cat-m{white-space:nowrap}` sobre
+   un campo que NO es una etiqueta corta —lleva frases como "A plausible example of
+   superpolynomial speedup"—, asi que la columna no podia encogerse y empujaba la fila.
+   Un hijo de grid tiene min-width:auto por omision y se niega a bajar de su contenido:
+   por eso el min-width:0, que es la mitad que falta del arreglo. */
 .cat-fila{display:grid;grid-template-columns:1fr;gap:2px;padding:12px 0;border-bottom:1px solid var(--line)}
+.cat-fila>*{min-width:0;overflow-wrap:anywhere}
 @media(min-width:760px){.cat-fila{grid-template-columns:20ch 1fr 12ch;gap:16px;align-items:baseline}}
 .cat-fila:hover{background:var(--panel)}
 .cat-n{font-weight:500}
 .cat-n a{border-bottom:1px solid var(--line)}
 .cat-n a:hover{color:var(--verdict)}
 .cat-p{font-size:13.5px;color:var(--ink-60)}
-.cat-m{font-family:var(--mono);font-size:11px;color:var(--ink-60);white-space:nowrap}
+.cat-m{font-family:var(--mono);font-size:11px;color:var(--ink-60)}

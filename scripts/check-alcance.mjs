@@ -39,8 +39,23 @@ import { join } from "node:path";
    estaba en produccion y ya estaba arreglado en el codigo. (2026-08-21) */
 const BASE = process.argv.includes("--base") ? process.argv[process.argv.indexOf("--base") + 1]
                                              : "https://rosettaquantum.com";
-/** Las paginas donde alguien tiene que poder HACER algo. */
-const PAGINAS = ["/consola/", "/cleveland/", "/es/cleveland/", "/es/precios/", "/pricing/", "/api-docs/", "/es/api-docs/",
+/** Las paginas donde alguien tiene que poder HACER algo.
+ *
+ * SE AUDITAN RUTAS QUE EXISTEN, NO REDIRECCIONES. La lista traia `/es/precios/` y
+ * `/pricing/`, que desde el commit 10 son 301 de dos saltos a /es/servicios y /services.
+ * Dos consecuencias, las dos malas: la linea del informe decia `/es/precios/` mientras
+ * medía otra pagina, y la cadena de redirecciones perdia el tamaño de ventana que el
+ * guardia acababa de fijar — el 8-sep, en el cutover, eso puso rojo el deploy con
+ * «pedi 375 px y la pagina midio 434», sin un solo elemento inalcanzable. Reproducido en
+ * CI y en local, siempre en la primera ruta que redirige. Que las 14 redirecciones
+ * salten bien y aterricen en 200 lo comprueba T-301; aqui se mide la pagina.
+ *
+ * Y se agregan las tres paginas del rebuild con controles que nadie habia auditado a
+ * 375: la home (formulario del Monitor y menu movil), la Biblioteca y el Registro
+ * (buscador y filtros). */
+const PAGINAS = ["/", "/es/", "/consola/", "/cleveland/", "/es/cleveland/",
+  "/services/", "/es/servicios/", "/library/", "/library/registry/",
+  "/api-docs/", "/es/api-docs/",
   // Q-Ready y los informes, agregados 2026-08-20. Son las paginas que un cliente
   // lee para decidir una compra y las que nadie habia mirado renderizadas.
   "/informe-pqc/", "/q-ready/", "/es/q-ready/", "/q-ready/sample-report/", "/es/q-ready/sample-report/"];
