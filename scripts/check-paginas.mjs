@@ -52,6 +52,21 @@ for (const [en, es] of PARES) {
 
     const problemas = [];
     if (!t.includes(`href="https://rosettaquantum.com${otra}`)) problemas.push(`sin hreflang a ${otra}`);
+
+    // EL CONMUTADOR DE IDIOMA, EJERCIDO. Esta linea existe porque la de arriba —el
+    // hreflang— pasaba en verde mientras el boton que usa una persona daba 404 en 19 de
+    // las 27 paginas: /pilots declaraba /es/pilotos a los buscadores y le ofrecia
+    // /es/pilots al lector. El metadato y el control salian del mismo layout y no del
+    // mismo dato. Comprobar el <head> no es comprobar la pagina.
+    const conmut = (t.match(/<span class="lang">[\s\S]*?<\/span>/) || [""])[0];
+    const destino = (conmut.match(/href="([^"]+)"/) || [])[1];
+    if (!destino) problemas.push("la barra no ofrece el otro idioma");
+    else if (destino.replace(/\/$/, "") !== otra.replace(/\/$/, "")) {
+      problemas.push(`el conmutador apunta a ${destino} y el par es ${otra}`);
+    } else {
+      const rc = await fetch(PREVIEW + destino, { headers: { "x-rq-check": "1" } });
+      if (rc.status !== 200) problemas.push(`el conmutador lleva a ${destino} -> ${rc.status}`);
+    }
     if (cuenta(t, /<footer[\s>]/g) !== 1) problemas.push(`${cuenta(t, /<footer[\s>]/g)} pies`);
     if (cuenta(t, /class="wordmark"/g) !== 1) problemas.push(`${cuenta(t, /class="wordmark"/g)} barras`);
     const muertos = cuenta(t, /href="#"/g);
@@ -60,7 +75,7 @@ for (const [en, es] of PARES) {
     if (t.length < 8000) problemas.push(`solo ${t.length} bytes — la pagina llego vacia`);
 
     if (problemas.length) { console.log(`  FALLA ${ruta.padEnd(24)} ${problemas.join(" · ")}`); fallos.push(ruta); }
-    else console.log(`  ok    ${ruta.padEnd(24)} 200 · 1 barra · 1 pie · 0 muertos · hreflang -> ${otra}`);
+    else console.log(`  ok    ${ruta.padEnd(24)} 200 · 1 barra · 1 pie · 0 muertos · hreflang y conmutador -> ${otra}`);
   }
 }
 
