@@ -63,6 +63,13 @@ export const PAGINAS = [
 const esc = s => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 const enlinea = s => esc(s)
   .replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>")
+  // `_asi_` — el documento de privacidad lo usa para la linea de "ultima actualizacion"
+  // y el conversor no lo conocia, asi que las dos caras publicaban los guiones bajos a
+  // la vista: "_Last updated: 2026-08-11_". No se toca el .md aprobado —el texto dice
+  // enfasis y eso es lo que hay que publicar—; se ensena al conversor a leerlo.
+  // El guion bajo tiene que estar SUELTO: sin esto, un content_hash o un run_id en
+  // cualquier documento futuro se convertiria en cursiva y perderia el guion.
+  .replace(/(?<![\w])_([^_\n]+)_(?![\w])/g, "<em>$1</em>")
   .replace(/`([^`]+)`/g, "<code>$1</code>")
   .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2">$1</a>')
   .replace(/\b([a-z0-9._%+-]+@rosettaquantum\.com)\b/g, '<a href="mailto:$1">$1</a>');
