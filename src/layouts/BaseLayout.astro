@@ -27,7 +27,11 @@ const FUENTES = {
 // cuerpo, asi que la home servia DOS: el de la marca y el oscuro de Footer.astro.
 // Se vio contando <footer en el HTML servido, no mirando la pagina — el segundo pie
 // queda al final del scroll, donde nadie llega revisando.
-const { title, description, lang='en', altUrl='/es/', pageCss='', scripts=[], nav=true, pie=true, fuentes='vieja' } = Astro.props;
+// `noindex`: la pagina se sirve igual, pero se le pide a los buscadores que no la
+// indexen. Decision de Nicholas del 8-sep para /q-ready: la pagina QUEDA VIVA —hay un
+// flujo de leads que no se toca— y sale del indice. Fuera del sitemap ya estaba; sin
+// esta etiqueta un enlace desde afuera la mete al indice igual.
+const { title, description, lang='en', altUrl='/es/', pageCss='', scripts=[], nav=true, pie=true, fuentes='vieja', noindex=false } = Astro.props;
 const hrefFuentes = FUENTES[fuentes] || FUENTES.vieja;
 const altLang = lang==='en' ? 'es' : 'en';
 // absolutas y con barra final: una hreflang relativa es válida pero frágil, y
@@ -49,6 +53,7 @@ const build = (process.env.GITHUB_SHA || process.env.RQ_BUILD || 'local').slice(
   <title>{title}</title>
   <meta name="description" content={description} />
   <meta name="rq-build" content={build} />
+  {noindex && <meta name="robots" content="noindex" />}
   {/* El sitio NO tenia favicon: /favicon.ico y /favicon.svg daban 404 en produccion y en
       el preview, y este layout no declaraba ninguno. Un icono ausente no rompe nada y se
       nota en cada pestaña del navegador. */}

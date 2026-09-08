@@ -102,6 +102,29 @@ const sinAprobar = montos.filter((m) => !DECIDIDOS.has(m));
 if (sinAprobar.length) mal(`precios sin decidir: ${sinAprobar.map((x) => "$" + x).join(" · ")}`);
 else ok(`${montos.length} monto(s) en el archivo, todos decididos`);
 
+// 6 · lo que se decidio sacar del indice, esta fuera de los TRES canales.
+// Decision de Nicholas del 8-sep: /q-ready y /q-ready/sample-report quedan VIVAS y salen
+// del indice. Fuera del sitemap ya estaban; sin la etiqueta, un enlace desde afuera las
+// mete igual — de hecho asi entraron muchas paginas que nadie enlazo desde su casa.
+const NOINDEX = ["/q-ready/", "/q-ready/sample-report/", "/es/q-ready/", "/es/q-ready/sample-report/"];
+const mapa = await (await fetch(PREVIEW + "/sitemap-0.xml", { headers: { "x-rq-check": "1" } })).text();
+for (const p of NOINDEX) {
+  const h = await (await fetch(PREVIEW + p, { headers: { "x-rq-check": "1" } })).text();
+  const problemas = [];
+  if (!/<meta\s+name="robots"\s+content="noindex"/.test(h)) problemas.push("sin <meta robots noindex>");
+  if (mapa.includes(p)) problemas.push("figura en el sitemap");
+  if (txt.includes(p.replace(/\/$/, ""))) problemas.push("figura en llms.txt");
+  if (problemas.length) mal(`${p} ${problemas.join(" · ")}`);
+  else ok(`${p.padEnd(28)} noindex · fuera del sitemap · fuera de llms.txt · sirve 200`);
+}
+// Y el reverso: la etiqueta NO puede aparecer en una pagina que si queremos indexada.
+// Un noindex de mas en la home no rompe nada visible y borra el sitio del buscador.
+for (const p of ["/", "/es/", "/library", "/ledger/", "/services"]) {
+  const h = await (await fetch(PREVIEW + p, { headers: { "x-rq-check": "1" } })).text();
+  if (/content="noindex"/.test(h)) mal(`${p} lleva noindex y es una pagina que queremos indexada`);
+}
+ok("ninguna pagina publica lleva noindex por accidente");
+
 // Grito, por mutacion sobre una copia en memoria. Sin esto el guardia solo demuestra que
 // sabe callarse el dia que todo esta bien — y esta prueba ya cazo un error mio.
 {
