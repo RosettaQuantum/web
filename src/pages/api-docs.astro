@@ -1,6 +1,7 @@
 ---
 import { CATALOGO, HERRAMIENTAS } from '../../api.js';
-import BaseLayout from '../layouts/BaseLayout.astro';
+import MarcaLayout from '../layouts/MarcaLayout.astro';
+import css from '../styles/pages/api-docs.css?raw';
 // Esta pagina existe porque la API la promete: cada respuesta dice "recomputa el sha256
 // segun /api-docs". Una API que apunta a una pagina que no existe pide confianza en vez
 // de darla — justo lo contrario de lo que este archivo vende.
@@ -25,11 +26,13 @@ const ARRANQUE_AGENTES = [
   ARRANQUE_AGENTES_CMD[1],
 ].join('\n');
 ---
-<BaseLayout
+<MarcaLayout
   title="API & MCP — Rosetta Q"
   description="Read-only API and MCP server over the Evidence Ledger. No key required. Every response carries the sealed hash and two independent public copies."
   lang="en"
-  altUrl="/es/api-docs">
+  altUrl="/es/api-docs/"
+  ruta="/api-docs/"
+  pageCss={css}>
   <article class="article wrap">
     <div class="kicker">For machines · no key required</div>
     <h1>Query the evidence, don't trust the summary</h1>
@@ -186,4 +189,4 @@ const ARRANQUE_AGENTES = [
       </p>
     </div>
   </article>
-</BaseLayout>
+</MarcaLayout>

@@ -17,12 +17,16 @@ const fallos = [];
 const ok = (m) => console.log(`  ok    ${m}`);
 const mal = (m) => { console.log(`  FALLA ${m}`); fallos.push(m); };
 
-const en = ["/pilots","/services","/library","/ledger","/monitor","/methodology"];
-const es = ["/es/pilotos","/es/servicios","/es/biblioteca","/es/ledger","/es/monitor","/es/metodologia"];
+// /blog entra el 8-sep. Estaba SOLO en el pie, y 106 posts sin puerta en la barra es
+// exactamente el hueco que este guardia existe para no dejar pasar: contaba seis y los
+// seis estaban, asi que callaba sobre el que faltaba. Una lista de lo que TIENE que
+// haber no ve lo que nunca se puso.
+const en = ["/pilots","/services","/library","/ledger","/monitor","/methodology","/blog"];
+const es = ["/es/pilotos","/es/servicios","/es/biblioteca","/es/ledger","/es/monitor","/es/metodologia","/es/blog"];
 const faltanEn = en.filter((r) => !src.includes(`"${r}"`));
 const faltanEs = es.filter((r) => !src.includes(`"${r}"`));
-faltanEn.length ? mal(`faltan rutas EN: ${faltanEn}`) : ok(`6 enlaces EN`);
-faltanEs.length ? mal(`faltan rutas ES: ${faltanEs}`) : ok(`6 enlaces ES`);
+faltanEn.length ? mal(`faltan rutas EN: ${faltanEn}`) : ok(`${en.length} enlaces EN`);
+faltanEs.length ? mal(`faltan rutas ES: ${faltanEs}`) : ok(`${es.length} enlaces ES`);
 // Los textos son los aprobados: EN de la maqueta v20, ES de
 // handoff/web/rosetta-home-es-textos-v20.md (2-sep). Si cambian, cambia el aprobado
 // primero — este guardia esta escrito contra el texto, no contra "hay un boton".
