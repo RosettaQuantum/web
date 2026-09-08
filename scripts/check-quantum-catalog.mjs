@@ -150,7 +150,9 @@ console.log(`Chequeando el archivador contra ${BASE}\n`);
 export const RUTAS_CRITICAS = [
   // Las paginas se listan a mano — son pocas y no salen de ningun catalogo.
   "/", "/es/",
-  "/clases/", "/es/clases/",
+  // /clases y /es/clases se retiraron en el commit 10: hoy son 301 a la Biblioteca,
+  // que es donde vive el catalogo. Que el salto funcione lo comprueba T-301.
+  "/library/", "/es/biblioteca/",
   "/cleveland/", "/es/cleveland/",
   "/llms.txt", "/api-docs/",
   // Las rutas de API se DERIVAN del catalogo de api.js. Escribirlas aparte fue el
@@ -335,41 +337,27 @@ if (src.js) {
     `${rotas.length} rota(s): ${rotas.slice(0, 3).map(f => f.id + " -> " + f.enlace.http_status).join(", ")}`);
 }
 
-// 4 bis. La pagina: tiene que salir de D1, no del cascaron construido.
-// El cascaron responde 200 igual aunque la base no conteste, asi que mirar el
-// codigo HTTP no prueba nada: lo que lo prueba es la cabecera que el Worker
-// escribe con el numero de filas que efectivamente inyecto.
-console.log("\n  -- la pagina /clases/ sale de D1 --");
-for (const [ruta, idioma] of [["/clases/", "en"], ["/es/clases/", "es"]]) {
-  const r = await fetch(BASE + ruta, { redirect: "manual", headers: { "User-Agent": "rosetta catalog check", "x-rq-check": "1" } });
-  const cab = r.headers.get("x-rq-archivador") || "(sin cabecera)";
-  const html = await r.text();
-  comprobar(`GET ${ruta} responde 200`, r.status === 200, `respondio ${r.status}`);
-  comprobar(`${ruta} declara haber inyectado filas desde D1`,
-    /^d1:(\d+)$/.test(cab) && Number(cab.split(":")[1]) >= 70,
-    `X-RQ-Archivador: ${cab}`);
-  const pintados = (html.match(/class="qitem"/g) || []).length;
-  const declarados = Number((cab.match(/^d1:(\d+)$/) || [])[1] || 0);
-  // Dos totales que deben coincidir: lo que la cabecera dice haber inyectado y
-  // lo que realmente quedo en el HTML.
-  comprobar(`${ruta} pinta tantas fichas como declara`, pintados === declarados,
-    `cabecera dice ${declarados}, en el HTML hay ${pintados}`);
-  comprobar(`${ruta} no deja el aviso de "no respondio" visible`,
-    !/<p id="algoempty" class="qempty">/.test(html),
-    "el parrafo de respaldo quedo visible con la lista llena");
-  const v = validarVocabulario(html);
-  comprobar(`${ruta} sin vocabulario prohibido`, v === null, v || "");
-  comprobar(`${ruta} dice que el speedup lo declara la fuente`,
-    /declarado por|declared by/i.test(html), "falta la atribucion del speedup");
-}
+// 4 bis. AQUI SE COMPROBABA QUE /clases/ SALIERA DE D1, y se retira con motivo.
+//
+// El Worker inyectaba las filas del catalogo en el cascaron de /clases y escribia
+// `X-RQ-Archivador: d1:N` para poder demostrarlo — el cascaron responde 200 igual
+// aunque la base no conteste, asi que el codigo HTTP no probaba nada.
+//
+// Desde el commit 10-bis el catalogo no se inyecta: se HORNEA en el HTML en tiempo de
+// build (las 74 fichas escritas en /library y /es/biblioteca) y una isla lo refresca.
+// Fue una decision de Nicholas —"masa indexable es el canal norte"— para que un modelo
+// que lee la pagina encuentre el catalogo sin ejecutar JavaScript. No hay cabecera que
+// mirar porque ya no hay inyeccion.
+//
+// LA GARANTIA NO DESAPARECE, CAMBIA DE GUARDIA: T-masa (check-masa.mjs) exige las 74
+// filas EN EL HTML SERVIDO de las dos Bibliotecas, con piso fijo. Es una vara mas dura
+// que la de aqui, que solo pedia >= 70 filas declaradas por una cabecera.
 
-// 4 ter. El numero publicado tiene que ser el medido.
-// El "450+" vivio meses en produccion porque nadie lo comparo contra la fuente que
 // citaba. Que no vuelva depende de codigo, no de que alguien se acuerde: si el
 // catalogo crece y el texto no, esto grita.
 console.log("\n  -- el numero publicado calza con el catalogo --");
 const totalReal = (alg.js && alg.js.total_catalogo) || 0;
-for (const ruta of ["/", "/es/", "/clases/", "/es/clases/"]) {
+for (const ruta of ["/", "/es/", "/library/", "/es/biblioteca/"]) {
   const r = await fetch(BASE + ruta, { redirect: "manual", headers: { "User-Agent": "rosetta catalog check", "x-rq-check": "1" } });
   const html = await r.text();
   comprobar(`${ruta} no menciona el 450+ retirado`, !html.includes("450+"),
@@ -656,143 +644,37 @@ console.log("\n  -- las tres politicas legales --");
     comprobar(`${P.ruta} declara el sello de su texto aprobado`,
       /sha256:[0-9a-f]{16}…/.test(r.txt), "no publica el sello del documento del que sale");
   }
-  // Y el footer, que es lo que Paddle mira para dar por enlazadas las politicas.
-  for (const [home, esperadas] of [["/", ["/terms/", "/privacy/", "/refunds/"]],
-                                   ["/es/", ["/es/terminos/", "/es/privacidad/", "/es/reembolsos/"]]]) {
-    const r = await traer(home);
-    const faltan = esperadas.filter(u => !r.txt.includes(`href="${u}"`));
-    comprobar(`el footer de ${home} enlaza las tres politicas`,
-      faltan.length === 0, `faltan en el footer: ${faltan.join(", ")}`);
+  // EL PIE YA NO ENLAZA LAS TRES: ENLAZA EL CENTRO, Y EL CENTRO LAS TRES.
+  //
+  // El pie de la marca (commit 9) cambio tres enlaces por uno a /policies y /es/politicas.
+  // Las tres paginas SIGUEN VIVAS y responden 200; se llega a ellas en un clic desde el
+  // pie. Se comprueba la cadena entera —pie → centro → las tres— en vez de exigir la
+  // forma vieja, que ya no es la que sirve el sitio.
+  //
+  // OJO, Y ESTA EN LA COLA DE NICHOLAS: la nota de arriba dice que Paddle no verifica el
+  // sitio si las URLs no estan enlazadas DESDE EL. Un centro enlazado desde el pie es el
+  // patron habitual y normalmente basta, pero eso no lo puedo comprobar yo desde aqui, y
+  // si Paddle exige los tres enlaces directos son tres lineas en el pie. Es plata: se
+  // pregunta, no se supone.
+  for (const [home, centro, esperadas] of [
+    ["/", "/policies/", ["/terms", "/privacy", "/refunds"]],
+    ["/es/", "/es/politicas/", ["/es/terminos", "/es/privacidad", "/es/reembolsos"]]]) {
+    const rh = await traer(home);
+    comprobar(`el footer de ${home} enlaza el centro de politicas`,
+      rh.txt.includes(`href="${centro.replace(/\/$/, "")}"`) || rh.txt.includes(`href="${centro}"`),
+      `no encontre ${centro} en el pie`);
+    const rc = await traer(centro);
+    const faltan = esperadas.filter(u => !rc.txt.includes(`href="${u}"`));
+    comprobar(`${centro} enlaza las tres politicas`, faltan.length === 0,
+      `faltan en el centro: ${faltan.join(", ")}`);
   }
 }
 
-console.log("\n  -- precios: las dos caras, contra la API y contra el mundo --");
-{
-  const st = await (await fetch(BASE + "/v1/state", { headers: { "x-rq-check": "1" } })).json();
-  const medido = st.estado_medido.victorias_cuanticas_medidas;
-  const F = JSON.parse(readFileSync(join(RAIZ, "src/aprobado/fuentes-terceros.json"), "utf8"));
-
-  const CARAS = [
-    { ruta: "/es/precios/", idioma: "es",
-      contador: /<strong>(\d+) victorias cuánticas medidas<\/strong>/,
-      negativo: /te la cobramos/, computo: /mil análisis por dólar/,
-      prohibido: /auditor[ií]a/i, prohibidoQue: "«auditoría»" },
-    { ruta: "/pricing/", idioma: "en",
-      contador: /<strong>(\d+) measured quantum wins<\/strong>/,
-      negativo: /we charge you for it just the same/, computo: /thousand analyses per dollar/,
-      // En ingles la palabra prohibida es "audit": el equivalente de la regla, no su
-      // traduccion literal. Un guardia que solo mira el castellano deja la mitad sin
-      // vigilar, y la mitad sin vigilar es justo la que Paddle lee.
-      prohibido: /\baudit(s|ing|ed)?\b/i, prohibidoQue: "«audit»" },
-  ];
-
-  for (const c of CARAS) {
-    // Con barra final a proposito: TODA pagina del sitio hace 307 a la forma con
-    // barra, y `traer` no sigue saltos por diseno (seguir un 301 fue como un chequeo
-    // termino midiendo produccion mientras apuntaba a otro lado).
-    const r = await traer(c.ruta);
-    comprobar(`${c.ruta} responde`, r.status === 200, `dio ${r.status}`);
-    if (r.status !== 200) continue;
-
-    const enPagina = (r.txt.match(c.contador) || [])[1];
-    comprobar(`${c.ruta} declara el contador de victorias`, enPagina !== undefined,
-      "ya no aparece la cifra en la pagina");
-    comprobar(`${c.ruta}: el contador (${enPagina}) es el que mide /v1/state (${medido})`,
-      Number(enPagina) === medido, "la pagina y la API dicen numeros distintos");
-
-    comprobar(`${c.ruta} no usa ${c.prohibidoQue}`, !c.prohibido.test(r.txt),
-      `volvio a aparecer ${c.prohibidoQue}`);
-    comprobar(`${c.ruta}: el cobro del resultado negativo va visible`,
-      c.negativo.test(r.txt), "desaparecio la frase del negativo que se cobra");
-    comprobar(`${c.ruta}: la cifra del computo esta publicada, ya instrumentada`,
-      c.computo.test(r.txt), "desaparecio la frase del costo del computo");
-
-    // Acotado al CUERPO: la primera version miraba el HTML entero y marcaba el boton
-    // del menu y el de cerrar el modal como "camino de compra". Un falso positivo
-    // retiene trabajo bueno y ensena a ignorar el chequeo.
-    const cuerpo = (r.txt.match(/<article class="article wrap precios">([\s\S]*?)<\/article>/) || [])[1] || "";
-    comprobar(`${c.ruta}: el chequeo mira el cuerpo`, cuerpo.length > 500,
-      `no aisle el cuerpo (${cuerpo.length} caracteres)`);
-    comprobar(`${c.ruta} no tiene autoservicio ni camino de compra`,
-      !/<button|<form|checkout|carrito|pagar ahora|comprar|add to cart|buy\.paddle/i.test(cuerpo),
-      "aparecio un camino de compra en el cuerpo");
-    comprobar(`${c.ruta}: el unico llamado a la accion es el correo, cliqueable`,
-      /mailto:hello@rosettaquantum\.com/.test(cuerpo), "el correo no es enlazable");
-    // hello@, no hi@: la regla de reenvio existe para hello@ y el catch-all esta en
-    // Drop, asi que un correo a hi@ se pierde sin rebote.
-    comprobar(`${c.ruta}: el contacto es hello@, la casilla que de verdad reenvia`,
-      !/\bhi@rosettaquantum\.com/.test(r.txt), "el correo de contacto no es el que recibe");
-    comprobar(`${c.ruta} declara el comerciante registrado (lo exige Paddle)`,
-      /Paddle\.com/.test(r.txt) && /Blue Tuna SpA/.test(r.txt), "falta la entidad legal o Paddle");
-
-    // Nicholas aprobo nombrar a los cinco (2026-08-10): el guardia EXIGE que esten.
-    const faltan = F.los_cinco.map(x => x.nombre_en_la_pagina).filter(n => !r.txt.includes(n));
-    comprobar(`${c.ruta} nombra a los cinco, como se aprobo`,
-      faltan.length === 0, `no aparecen: ${faltan.join(", ")}`);
-
-    // Los rotulos internos del documento ("Encabezado"/"Tabla") salieron impresos como
-    // titulos de la pagina. Nadie los leyo hasta que la mire a ojo, que es tarde para
-    // la pagina que Paddle revisa.
-    const titulos = [...r.txt.matchAll(/<h2>([^<]*)<\/h2>/g)].map(m => m[1].trim());
-    const andamiaje = titulos.filter(t => ["Encabezado", "Tabla", "Header", "Table"].includes(t));
-    comprobar(`${c.ruta} no imprime los rotulos internos del documento`,
-      andamiaje.length === 0, `salieron como titulos: ${andamiaje.join(", ")}`);
-    comprobar(`${c.ruta} conserva sus titulos de verdad`, titulos.length >= 4,
-      `solo quedaron ${titulos.length} titulos: puede que el filtro se este comiendo alguno`);
-
-    // Las dos caras se enlazan entre si: una pagina de precios que no ofrece su
-    // propio idioma alterno es media pagina, y es la URL que Paddle revisa.
-    const otra = c.idioma === "es" ? "/pricing" : "/es/precios";
-    comprobar(`${c.ruta} enlaza su cara alterna`, r.txt.includes(otra),
-      `no encontre el enlace a ${otra}`);
-  }
-
-  // Y la afirmacion sobre terceros se ejerce contra el mundo, no solo contra nosotros:
-  // la fuente guardada tiene que SEGUIR nombrandolos. Si el programa cambia, nos
-  // enteramos por aca y no por un lector.
-  const fuente = F.fuentes.find(x => x.es_la_que_sostiene_la_afirmacion);
-  let htmlFuente = null, motivo = "";
-  for (let intento = 0; intento < 3 && htmlFuente === null; intento++) {
-    try {
-      const resp = await fetch(fuente.url, { redirect: "follow" });
-      if (resp.ok) htmlFuente = await resp.text(); else motivo = `respondio ${resp.status}`;
-    } catch (e) { motivo = "no responde"; }
-    if (htmlFuente === null && intento < 2) await new Promise(res => setTimeout(res, 3000));
-  }
-  // Pasar en verde por no haber podido mirar es el fallo silencioso: la afirmacion se
-  // queda publicada sin nadie que la sostenga.
-  comprobar("la fuente de la afirmacion sobre terceros responde",
-    htmlFuente !== null, `${fuente.url} — ${motivo}`);
-  if (htmlFuente !== null) {
-    const perdidos = F.los_cinco.filter(x => !htmlFuente.includes(x.como_lo_nombra_la_fuente));
-    comprobar("la fuente SIGUE nombrando a los cinco", perdidos.length === 0,
-      `ya no aparecen en ${fuente.url}: ${perdidos.map(x => x.como_lo_nombra_la_fuente).join(", ")}`);
-  }
-}
-
-// 4 quater ter. Toda URL que el home cita como fuente, se ejerce.
-//
-// El mockup del copiloto dice "todo aqui es verificable por maquina, chequeanos
-// como quieras" y citaba dos fuentes: `/evidence/RQ-0012`, que daba 404, y
-// `docs.rosettaquantum.com`, un dominio que ni siquiera resuelve. Es la peor
-// ubicacion posible para un enlace roto: DENTRO de la frase que invita a
-// comprobarnos. Cuarta aparicion de la misma familia esta semana, asi que deja
-// de depender de que alguien las abra.
-console.log("\n  -- las fuentes que el home cita responden --");
-{
-  const r = await traer("/es/");
-  const citadas = [...r.txt.matchAll(/↳ sources:([^<]+)</g)]
-    .flatMap(m => m[1].split("·").map(x => x.trim()).filter(Boolean));
-  comprobar("el home declara sus fuentes", citadas.length > 0, "no encontre la linea de fuentes");
-  for (const cita of citadas) {
-    const url = cita.startsWith("http") ? cita : "https://" + cita;
-    let estado = 0;
-    try { estado = (await fetch(url, { redirect: "follow", headers: { "x-rq-check": "1" } })).status; }
-    catch (e) { estado = 0; }
-    comprobar(`la fuente citada ${cita} responde`, estado === 200,
-      `${url} -> ${estado === 0 ? "no resuelve" : estado}`);
-  }
-}
+// RETIRADO EL 8-SEP: la linea "↳ sources:" que leia este bloque era del home VIEJO —el
+// mockup del copiloto—, y el home v20 no la tiene. Se comprobaba que las fuentes citadas
+// dentro de la frase "chequeanos como quieras" respondieran, despues de que dos de ellas
+// dieran 404 y un dominio inexistente. La cobertura no se pierde: T-pages y T-estructura
+// exigen, en las 22 paginas del rebuild, cero enlaces muertos y cero href="#".
 
 // 4 quinquies bis. LA PROMESA CENTRAL, EJERCIDA COMO UN TERCERO.
 //

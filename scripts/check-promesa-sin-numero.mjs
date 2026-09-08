@@ -327,7 +327,7 @@ if (_esPrincipal && !process.argv.includes("--self-test")) {
 
   const superficies = [];
   if (vivo) {
-    for (const ruta of ["/", "/es/", "/clases/", "/api-docs/"]) {
+    for (const ruta of ["/", "/es/", "/library/", "/api-docs/"]) {
       try {
         const r = await fetch(BASE + ruta, { headers: { "x-rq-check": "1" } });
         superficies.push({ nombre: BASE + ruta, texto: await r.text() });
