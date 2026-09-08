@@ -1,0 +1,18 @@
+---
+/**
+ * /about — commit 9.
+ *
+ * Texto APROBADO verbatim en los dos idiomas (handoff/web/rosetta-about-texto-final.md).
+ */
+import MarcaLayout from '../layouts/MarcaLayout.astro';
+import Nosotros from '../components/paginas/Nosotros.astro';
+import css from '../styles/pages/paginas.css?raw';
+---
+<MarcaLayout
+  title="Who signs — Rosetta Quantum"
+  description="Every verdict carries a named author. The founder, the entity, the rules we bind ourselves to, and the conflict-of-interest policy."
+  lang="en" altUrl="/es/nosotros" ruta="/about"
+  pageCss={css} scripts={[]}
+>
+  <Nosotros lang="en" />
+</MarcaLayout>

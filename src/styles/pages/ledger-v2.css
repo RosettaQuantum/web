@@ -1,0 +1,29 @@
+/* /ledger — commit 8. Encima de la hoja de la maqueta v20. */
+.led-head{padding:44px 0 8px}
+.led-h1{font-family:var(--serif);font-weight:500;font-size:clamp(26px,4vw,40px);line-height:1.15;margin:8px 0 14px;max-width:22ch}
+.led-sub{color:var(--ink-60);max-width:66ch}
+
+.vbox{border:1px solid var(--line);background:var(--panel);border-radius:2px;padding:18px 20px;margin:16px 0}
+.vbox .vhead{font-family:var(--mono);font-size:11px;letter-spacing:.1em;color:var(--ink-60);margin-bottom:8px}
+.vbox h3{font-family:var(--serif);font-weight:500;font-size:20px;margin:0 0 10px}
+.vbox .vline{font-family:var(--mono);font-size:13px;color:var(--verdict);border-left:2px solid var(--verdict);padding-left:10px;margin:10px 0}
+.vbox .vline.pend{color:var(--pending);border-left-color:var(--pending)}
+.vbox dl{display:grid;grid-template-columns:1fr;gap:2px 16px;margin:12px 0 0;font-size:14px}
+@media(min-width:640px){.vbox dl{grid-template-columns:auto 1fr}}
+.vbox dt{font-family:var(--mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-60);padding-top:5px}
+.vbox dd{margin:0 0 8px}
+.vbox .vlinks{margin-top:12px;font-family:var(--mono);font-size:11.5px}
+.vbox .vlinks a{color:var(--verdict);border-bottom:1px solid var(--line);margin-right:14px}
+
+.art{width:100%;border-collapse:collapse;margin-top:14px;font-size:13.5px}
+.art th{font-family:var(--mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-60);text-align:left;padding:8px 10px;border-bottom:1px solid var(--ink)}
+.art td{padding:10px;border-bottom:1px solid var(--line);vertical-align:top}
+.art tr:target{background:var(--teal-10)}
+.art .id{font-family:var(--mono);font-size:11px;white-space:nowrap}
+.art .hash{font-family:var(--mono);font-size:10.5px;color:var(--ink-60);word-break:break-all}
+.art .tipo{font-family:var(--mono);font-size:10px;letter-spacing:.1em;color:var(--ink-60)}
+.led-mas{margin-top:14px}
+@media(max-width:640px){.art thead{display:none}.art td{display:block;border:none;padding:2px 0}.art tr{display:block;border-bottom:1px solid var(--line);padding:12px 0}}
+
+.err{border-left:2px solid var(--alert);padding:10px 0 10px 14px;margin:14px 0}
+.err .eid{font-family:var(--mono);font-size:11px;color:var(--alert)}

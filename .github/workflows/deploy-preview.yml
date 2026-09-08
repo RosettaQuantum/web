@@ -1,0 +1,256 @@
+# Despliegue al entorno de PREVIEW. NUNCA a produccion.
+#
+# Por que existe: hasta hoy la unica ruta a un entorno vivo era empujar a main, que ES
+# produccion. Los tres modos de fallo dominantes de este repo son SILENCIOSOS —la lista
+# blanca run_worker_first, los cascarones del blog que el Worker rellena, y el orden del
+# CSS inline— y los tres solo se ven sirviendo la pagina de verdad. Sin un sitio vivo que
+# no sea produccion, la unica forma de verlos era rompiendo produccion.
+#
+# Espejo del guardia de produccion: deploy.yml corre check-deploy-solo-main.mjs para que
+# NADA que no sea main publique. Aca corre el guardia inverso —que main NUNCA llegue a
+# este workflow— porque un `wrangler deploy` sin `--env preview` publicaria sobre el
+# Worker de produccion desde una rama. Los dos guardias juntos cierran la tenaza; uno solo
+# deja el otro lado abierto.
+
+name: Deploy preview
+
+on:
+  push:
+    branches: ['rebuild/**']
+  workflow_dispatch:
+
+# Una superficie, un escritor — igual que produccion, pero en su propio grupo para que un
+# deploy de preview NUNCA serialice ni cancele uno de produccion.
+concurrency:
+  group: deploy-preview
+  cancel-in-progress: false
+
+jobs:
+  preview:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # El guardia inverso. Falla cerrado: si la rama es main, no se despliega nada.
+      - name: main NUNCA publica por aqui
+        env:
+          REF: ${{ github.ref }}
+        run: |
+          if [ "$REF" = "refs/heads/main" ]; then
+            echo "::error::main no se despliega desde deploy-preview.yml. Produccion va por deploy.yml."
+            exit 1
+          fi
+          echo "rama: $REF — OK, no es main"
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Instalar
+        run: npm ci
+
+      # ── Verificaciones de SOLO LECTURA pedidas en el spec v5.0 §5.3 y §5.4 ──────
+      # Se hacen ANTES de desplegar y con las credenciales reales, que es el unico
+      # lugar donde la respuesta es cierta. El token no se imprime nunca: `whoami`
+      # muestra la cuenta y los permisos, no el secreto.
+      - name: Token vigente y con permisos (lectura)
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          echo "== wrangler whoami =="
+          ./node_modules/.bin/wrangler whoami 2>&1 | tee whoami.txt
+          echo
+          echo "== permisos que exige el deploy: Workers Scripts:Edit, D1:Edit, Zone.Cache Purge =="
+
+      - name: Existe ya un preview no declarado? (lectura)
+        continue-on-error: true
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          echo "== despliegues del Worker de PRODUCCION (solo lectura, no toca nada) =="
+          ./node_modules/.bin/wrangler deployments list 2>&1 | head -40 || true
+          echo
+          echo "== existe ya rosetta-quantum-preview? =="
+          ./node_modules/.bin/wrangler deployments list --env preview 2>&1 | head -20 || true
+
+      # Migracion D1 idempotente (commit 5). CREATE TABLE IF NOT EXISTS: correrla en cada
+      # deploy de preview no hace nada la segunda vez. Toca la MISMA base que produccion
+      # —el preview comparte D1 a proposito— pero solo AGREGA dos tablas nuevas; no lee,
+      # no modifica y no borra nada de lo existente.
+      - name: Migracion D1 (aditiva, idempotente)
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: ./node_modules/.bin/wrangler d1 execute rosettaq-ledger --remote --file=db/monitor-market.schema.sql
+
+      # La columna 'lista' llego despues de que la tabla existiera, y CREATE TABLE IF NOT
+      # EXISTS no altera una tabla ya creada. Este script pregunta PRAGMA table_info y
+      # solo altera si falta: un ALTER a secas funcionaria una vez y reventaria siempre.
+      - name: Migracion D1 — monitor_leads.lista (idempotente)
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: node scripts/migrar-lista.mjs
+
+      - name: Construir
+        run: npm run build
+
+      # `wrangler deploy --env preview` publica el Worker rosetta-quantum-preview en
+      # workers.dev. NO toca el Worker rosetta-quantum ni el dominio.
+      - name: Desplegar a preview
+        id: desplegar
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          ./node_modules/.bin/wrangler deploy --env preview 2>&1 | tee deploy.log
+          URL=$(grep -oE 'https://[a-z0-9.-]+\.workers\.dev' deploy.log | head -1)
+          echo "url=$URL" >> "$GITHUB_OUTPUT"
+          echo "PREVIEW_URL=$URL" >> "$GITHUB_ENV"
+
+      # Prueba P0 del spec: el preview responde en las tres superficies que importan.
+      # /blog/<slug> se elige de D1 EN VIVO, no de una lista escrita a mano: un slug
+      # quemado deja de existir y la prueba pasa a verificar un 404 sin que nadie mire.
+      # P0 vive en scripts/check-preview.mjs y usa scripts/lib/esperar.mjs, el modulo
+      # que el repo ya tenia para esto. Ver la cabecera de ese archivo: el bash que
+      # habia aca fallo tres veces por el instrumento y ninguna por el sitio.
+      - name: P0 — el preview responde
+        env:
+          PREVIEW_URL: ${{ steps.desplegar.outputs.url }}
+          GITHUB_SHA: ${{ github.sha }}
+          ESPERA_MAX: "180"
+        run: npm run check:preview
+
+      # T-guardia — la mina nº1, desarmada. Va DESPUES de P0 y antes del resumen: si una
+      # ruta de run_worker_first deja de inyectar, el CI se pone rojo aqui. Probado por
+      # mutacion: grita con /clases fuera de la lista, calla con las 9 sanas.
+      - name: T-guardia — cada ruta de run_worker_first sirve contenido inyectado
+        env:
+          PREVIEW_URL: ${{ steps.desplegar.outputs.url }}
+          PROD_URL: "https://rosettaquantum.com"
+        run: |
+          git fetch origin main:main --force 2>/dev/null || git fetch origin main --force
+          npm run check:contenido
+
+      - name: T-css — los tokens de marca ganan la cascada y la geometria es la aprobada
+        env:
+          PREVIEW_URL: ${{ steps.desplegar.outputs.url }}
+          RUTAS_REBUILD: "/,/es/,/library,/library/registry,/es/biblioteca,/es/biblioteca/registro"
+        run: npm run check:css
+
+      # T-fuentes — el sustituto silencioso. La home se sirvio dos dias en Georgia y
+      # system-ui porque el CSS pedia Newsreader/IBM Plex Sans y el <link> pedia otras
+      # tres familias. Ni P0, ni T-css, ni T-nav, ni T-api, ni una QA de navegador
+      # completa lo vieron: la pagina se ve BIEN en el sustituto.
+      - name: T-fuentes — la pagina pide las familias que su CSS usa
+        env:
+          PREVIEW_URL: ${{ steps.desplegar.outputs.url }}
+          RUTAS_FUENTES: "/,/es/,/library,/es/biblioteca,/ledger/"
+        run: npm run check:fuentes
+
+      # T-estructura — el chrome duplicado. La home sirvio dos <footer> (el de la marca
+      # y el oscuro de Footer.astro) y lo unico que lo vio fue contarlos en el HTML
+      # servido. RUTAS_REBUILD crece con cada commit que porta una pagina a la v20.
+      - name: T-estructura — una sola barra y un solo pie en las paginas del rebuild
+        env:
+          PREVIEW_URL: ${{ steps.desplegar.outputs.url }}
+          RUTAS_REBUILD: "/,/es/,/library,/library/registry,/es/biblioteca,/es/biblioteca/registro"
+        run: npm run check:estructura
+
+      - name: T-nav — la barra tiene 6 enlaces, CTA y menu movil
+        run: npm run check:nav
+
+      # T-lib — commit 7. Compara lo horneado del catalogo contra lo servido, y vigila
+      # que ningun claim sin verificar salga a la Biblioteca.
+      - name: T-lib — la Biblioteca sirve el archivo, y ningun claim sin verificar
+        env:
+          PREVIEW_URL: ${{ steps.desplegar.outputs.url }}
+        run: npm run check:lib
+
+      # T-pages — commit 9. Las once rutas nuevas, en los dos idiomas, con su par
+      # hreflang, un solo chrome y cero enlaces muertos. Las tres cosas que vigila ya
+      # fallaron en silencio en este repo.
+      - name: T-pages — los pares EN/ES responden completos
+        env:
+          PREVIEW_URL: ${{ steps.desplegar.outputs.url }}
+        run: npm run check:pages
+
+      # T-301 — commit 10. Sigue el salto y exige 200 al otro lado: un 301 a un 404 es
+      # peor que no redirigir, y se ve perfecto en cualquier chequeo que mire solo el
+      # codigo de estado.
+      - name: T-301 — las 14 redirecciones saltan y el destino responde
+        env:
+          PREVIEW_URL: ${{ steps.desplegar.outputs.url }}
+        run: npm run check:301
+
+      # T-verify — la promesa de /verify se EJERCE. Recomputa el sello de artefactos
+      # reales tomados del ledger en vivo con la misma receta que corre en el navegador.
+      # La primera version de la pagina habria dicho que nuestros propios sellos no calzan.
+      - name: T-verify — la receta v3 reproduce sellos reales
+        env:
+          PREVIEW_URL: ${{ steps.desplegar.outputs.url }}
+        run: npm run check:verify
+
+      # T-precios — commit 10-bis. La home publicaba dos cifras que Nicholas no decidio
+      # ($10,000/yr del plan Firm y $8,000 de Sealed Predictions), heredadas de la
+      # maqueta. No las cazo ninguna de las nueve pruebas: un precio de mas no rompe
+      # nada y se ve igual de firme que uno decidido.
+      - name: T-precios — solo se publican los precios decididos
+        env:
+          PREVIEW_URL: ${{ steps.desplegar.outputs.url }}
+        run: npm run check:precios
+
+      # T-es — commit 10-bis. La home ES se audito DOS veces a mano y las dos filtraron
+      # por largo, asi que las dos dejaron pasar "days" (4 letras) y "per pilot" (9), que
+      # estaban a la vista. Este mira sin minimo de largo y contra la pagina servida.
+      - name: T-es — la home en español no deja fragmentos en inglés
+        env:
+          PREVIEW_URL: ${{ steps.desplegar.outputs.url }}
+        run: npm run check:es
+
+      # T-masa — el contenido tiene que seguir EN EL HTML. El catastro del 7-sep midio
+      # que al absorber /clases en /library los 74 algoritmos dejaron de estar escritos
+      # en la pagina, y que el ledger paso de 52 ids a 15. Se ve igual y trae menos.
+      - name: T-masa — los 74 algoritmos y los artefactos siguen en el HTML
+        env:
+          PREVIEW_URL: ${{ steps.desplegar.outputs.url }}
+        run: npm run check:masa
+
+      # T-movil — commit 10-ter. Las reglas de telefono existian y perdian la cascada:
+      # .casetabs computaba flex-wrap:wrap a 375 px con el nowrap escrito en la hoja.
+      - name: T-movil — las reglas de telefono ganan, y la marca es la decidida
+        env:
+          PREVIEW_URL: ${{ steps.desplegar.outputs.url }}
+        run: npm run check:movil
+
+      # T-llms — commit 13-bis. El archivo que leen los modelos anunciaba 8 de las 10
+      # paginas publicas y seguia ofreciendo un producto retirado con su precio. Responde
+      # 200 y se ve bien formado siempre: solo se ve comparandolo con las rutas que existen.
+      - name: T-llms — el canal de indexacion esta completo y no ofrece nada retirado
+        env:
+          PREVIEW_URL: ${{ steps.desplegar.outputs.url }}
+        run: npm run check:llms
+
+      # T-boletin — el bloque no vive en la pagina del post sino en el cascaron que el
+      # Worker rellena: si se cae, se cae de 106 paginas a la vez y el build sale verde.
+      # Ademas EJERCE el endpoint con un correo invalido: 400, sin escribir nada.
+      - name: T-boletin — la promesa servida es la de su lista, y la fila llega a esa lista
+        env:
+          PREVIEW_URL: ${{ steps.desplegar.outputs.url }}
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: npm run check:boletin
+      - name: T-api — endpoints nuevos y /v1/state aditivo
+        env:
+          PREVIEW_URL: ${{ steps.desplegar.outputs.url }}
+        run: npm run check:api2
+
+      - name: Resumen
+        if: always()
+        run: |
+          echo "### Preview" >> $GITHUB_STEP_SUMMARY
+          echo "- URL: ${PREVIEW_URL:-(sin URL)}" >> $GITHUB_STEP_SUMMARY
+          echo "- rama: ${{ github.ref_name }} · commit \`${{ github.sha }}\`" >> $GITHUB_STEP_SUMMARY

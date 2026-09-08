@@ -182,6 +182,98 @@ export function resumenArchivo(row) {
   };
 }
 
+// ── /v1/claims — el registro de claims publicos (commit 5) ────────────────────
+// Los 3 con verified=0 NO salen: son claims de TERCEROS (Microsoft, IonQ, JACS) que
+// nadie de la casa verifico todavia. Publicarlos sin la marca seria afirmar sobre otros
+// sin haberlo comprobado, que es exactamente lo que este archivo existe para no hacer.
+//
+// `clock_days` es dias del claim al PRIMER DESAFIO, no dias a hoy: son dos cosas
+// distintas y esta NULL en 6 de 16. Los dias a hoy los computa quien mira, con
+// `claim_date` — asi el reloj de la home no hornea una resta contra la fecha del build.
+async function claims(env, url) {
+  const limite = Math.min(parseInt(url.searchParams.get("limit") || "50", 10) || 50, 200);
+  const [{ results = [] }, totalRow, verifRow] = await Promise.all([
+    env.DB.prepare(
+      "SELECT id, claimant, title, claim_date, status, domain, clock_days, first_challenge, url " +
+      "FROM rq_claims WHERE verified=1 ORDER BY claim_date DESC LIMIT ?"
+    ).bind(limite).all(),
+    env.DB.prepare("SELECT count(*) n FROM rq_claims").first(),
+    env.DB.prepare("SELECT count(*) n FROM rq_claims WHERE verified=1").first(),
+  ]);
+  return json({
+    que_es: "Claims públicos de ventaja cuántica que este archivo rastrea. Solo los verificados.",
+    vocabulario_de_estado: ["surviving", "contested", "eroded", "open", "negative-selfpublished"],
+    nota_clock_days: "días del claim al primer desafío registrado; NULL = sin desafío. NO son días a hoy: eso se computa con claim_date al momento de mirar.",
+    total: results.length,
+    verificados: (verifRow || { n: 0 }).n,
+    en_la_tabla: (totalRow || { n: 0 }).n,
+    no_verificados_excluidos: (totalRow || { n: 0 }).n - (verifRow || { n: 0 }).n,
+    claims: results,
+  });
+}
+
+// ── /v1/posts — las entradas del blog, para la home (commit 5) ────────────────
+// MISMA consulta que injectIndex(), incluido published=1: sin ese filtro la home
+// publicaria borradores. Las columnas son las del esquema real (date, tldr, pillar,
+// body_html), no las que uno supondria — asumirlas costo una correccion antes de
+// desplegar. El extracto se calcula del cuerpo real; nunca se inventa.
+async function posts(env, url) {
+  const limite = Math.min(parseInt(url.searchParams.get("limit") || "10", 10) || 10, 50);
+  const lang = url.searchParams.get("lang") === "es" ? "es" : "en";
+  const [{ results = [] }, total] = await Promise.all([
+    env.DB.prepare(
+      "SELECT id, title, date, pillar, tldr, body_html FROM posts WHERE published=1 AND lang=? ORDER BY date DESC, id LIMIT ?"
+    ).bind(lang, limite).all(),
+    env.DB.prepare("SELECT count(*) n FROM posts WHERE published=1 AND lang=?").bind(lang).first(),
+  ]);
+  return json({
+    que_es: "Entradas publicadas, desde D1. Mismo filtro que el indice del blog (published=1). `excerpt` = primer parrafo de PROSA del cuerpo (se descarta el membrete), no el tldr.",
+    lang,
+    total: results.length,
+    de_un_total_de: (total || { n: 0 }).n,
+    posts: results.map((p) => {
+      // El extracto sale del PRIMER PARRAFO DEL CUERPO, no del tldr.
+      // La primera version usaba el tldr y daba exactamente tldr.slice(0,220): la home
+      // habria mostrado el mismo texto dos veces, uno debajo del otro. Lo cazo la
+      // verificacion externa buscando el campo por su nombre del spec ("excerpt") y no
+      // encontrandolo — el sintoma reportado fue "viene vacio" y el defecto real era
+      // otro y peor. Se corrigen los dos: el nombre y el origen.
+      const parrafos = [...(p.body_html || "").matchAll(/<p[^>]*>([\s\S]*?)<\/p>/gi)]
+        .map((m) => m[1].replace(/<[^>]+>/g, " ").replace(/&nbsp;/g, " ").replace(/&#3[49];|&#821[6-9];|&quot;|&apos;/g, "'").replace(/&amp;/g, "&").replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&[a-z]+;|&#\d+;/g, " ").replace(/\s+/g, " ").trim())
+        .filter((t) => t.length > 40);
+      // Los posts nuevos abren con un MEMBRETE dentro de un <p> —el wordmark, el pilar,
+      // el estado, el titulo repetido y las cifras de portada— asi que "el primer parrafo
+      // de mas de 40 caracteres" devolvia eso. En la home se leia:
+      //   "ROSETTA Q QUANTUM VERIFICATION LEDGER PILAR C · CLAIM EXPLAINER ESTADO A: …"
+      // en los DOS idiomas. Los posts viejos no lo traian, asi que la verificacion
+      // externa del commit 5 vio extractos correctos: el defecto entro con el formato
+      // nuevo, no con el codigo.
+      // Dos señales que son del membrete y NO de la prosa: repite el titulo del propio
+      // post, y va casi todo en mayusculas. Se descartan por eso, no por su posicion.
+      const mayus = (t) => {
+        const w = t.split(/\s+/).filter((x) => x.length > 1);
+        return w.length ? w.filter((x) => x === x.toUpperCase() && /[A-ZÁÉÍÓÚÑ]/.test(x)).length / w.length : 0;
+      };
+      const titulo = (p.title || "").trim();
+      const prosa = parrafos.filter((t) => !(titulo && t.includes(titulo)) && mayus(t) < 0.3);
+      const texto = (p.body_html || "").replace(/<[^>]+>/g, " ").replace(/&[a-z]+;/g, " ").replace(/\s+/g, " ").trim();
+      const palabras = texto.split(/\s+/).filter(Boolean).length;
+      return {
+        slug: p.id,
+        titulo: p.title,
+        fecha: p.date,
+        pilar: p.pillar,
+        tldr: p.tldr,
+        // Nombre del spec. Si no hay ningun parrafo utilizable, se declara vacio en vez
+        // de rellenar con el tldr: un campo que se cae de vuelta a otro campo esconde
+        // que el cuerpo no tenia parrafos.
+        excerpt: (prosa[0] || "").slice(0, 220),
+        minutos: Math.max(1, Math.round(palabras / 220)),
+      };
+    }),
+  });
+}
+
 export async function estado(env) {
   const [tipos, recetas, ver, gana] = await env.DB.batch([
     env.DB.prepare("SELECT type, count(*) n FROM run_archives GROUP BY type"),
@@ -998,6 +1090,49 @@ export const CATALOGO = [
   { ruta: "/v1/openapi.json", resumen: "Esta especificacion, en OpenAPI 3.1", grupo: "meta" },
   { ruta: "/v1/usage", resumen: "Cuántas veces se llamó a esta API · público, y declara lo que NO se guarda",
     grupo: "meta", esquema: { $ref: "#/components/schemas/Uso" } },
+  // Los dos endpoints del commit 5 vivian SIN entrar aqui, y por eso no salian en
+  // openapi.json, ni en /api-docs, ni en el indice de /v1, ni en llms.txt: funcionaban y
+  // ningun documento decia que existian. El catalogo es la fuente unica de las cuatro
+  // superficies —llegaron a existir cuatro copias divergentes de esta lista— asi que
+  // declararlos aqui los publica en todas de una vez.
+  { ruta: "/v1/claims", resumen: "Claims públicos de ventaja cuántica rastreados · solo los verificados", grupo: "ledger",
+    parametros: [{ nombre: "limit", en: "query", tipo: "integer", descripcion: "maximo de claims (por omision 50)" }],
+    esquema: {
+      type: "object",
+      properties: {
+        que_es: { type: "string" },
+        vocabulario_de_estado: { type: "array", items: { type: "string" } },
+        nota_clock_days: { type: "string" },
+        total: { type: "integer", description: "cuantos devuelve esta respuesta, NO el universo" },
+        verificados: { type: "integer", description: "el denominador: claims con verified=1" },
+        en_la_tabla: { type: "integer" },
+        no_verificados_excluidos: { type: "integer" },
+        claims: { type: "array", items: { type: "object", properties: {
+          id: { type: "string" }, claimant: { type: "string" }, title: { type: "string" },
+          claim_date: { type: "string", format: "date" }, status: { type: "string" },
+          domain: { type: "string" },
+          clock_days: { type: ["integer", "null"], description: "días del claim al primer desafío; NULL = sin desafío registrado" },
+          first_challenge: { type: ["string", "null"] }, url: { type: "string" },
+        } } },
+      },
+    } },
+  { ruta: "/v1/posts", resumen: "Ultimas entradas publicadas, con su extracto calculado en servidor", grupo: "meta",
+    parametros: [
+      { nombre: "limit", en: "query", tipo: "integer", descripcion: "maximo de entradas (por omision 10)" },
+      { nombre: "lang", en: "query", tipo: "string", descripcion: "en | es" },
+    ],
+    esquema: {
+      type: "object",
+      properties: {
+        total: { type: "integer" }, lang: { type: "string" },
+        posts: { type: "array", items: { type: "object", properties: {
+          slug: { type: "string" }, titulo: { type: "string" }, fecha: { type: "string", format: "date" },
+          pilar: { type: "string" }, minutos: { type: "integer" },
+          tldr: { type: "string" },
+          excerpt: { type: "string", description: "primer parrafo del cuerpo, <=220 caracteres; NUNCA el tldr recortado" },
+        } } },
+      },
+    } },
   { ruta: "/v1/state", resumen: "Estado medido del Evidence Ledger", grupo: "ledger",
     esquema: {
       type: "object",
@@ -1471,6 +1606,8 @@ async function enrutar(request, env, url, info = {}) {
   if (p === "/v1/openapi.json") return json(openapiDoc());
   if (p === "/v1/usage" || p === "/v1/usage/") return await usoPublico(env);
   if (p === "/v1/state") return json(await estado(env));
+  if (p === "/v1/claims" || p === "/v1/claims/") return await claims(env, url);
+  if (p === "/v1/posts" || p === "/v1/posts/") return await posts(env, url);
   if (p === "/v1/runs") return await listar(env, "RUN", url);
   if (p === "/v1/verdicts") return await listar(env, "VERDICT", url);
   if (p === "/v1/prereg") return await listar(env, "PREREG", url);

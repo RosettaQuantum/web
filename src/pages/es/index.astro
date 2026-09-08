@@ -1,9 +1,21 @@
 ---
-import BaseLayout from '../../layouts/BaseLayout.astro';
-import content from '../../content_html/index.es.html?raw';
-import css from '../../styles/pages/index.css?raw';
-import refs from '../../content_html/index.refs.json';
+/**
+ * Home /es/ — commit 6-ES.
+ *
+ * El cuerpo lo genera `scripts/build-home-es.mjs` desde home.en.html con los textos
+ * aprobados en handoff/web/rosetta-home-es-textos-v20.md. Lo que sigue en ingles esta
+ * en ingles A PROPOSITO: no esta aprobado, y la lista exacta esta en
+ * handoff/web/ES-FALTANTES-home-v20.md. Un fragmento en ingles se VE; una frase
+ * inventada en español se ve bien y nadie la revisa.
+ */
+import MarcaLayout from '../../layouts/MarcaLayout.astro';
+import content from '../../content_html/home.es.html?raw';
 ---
-<BaseLayout title={'Rosetta Quantum — Medimos si lo cuántico gana, y publicamos la respuesta'} description={'El archivo público de mediciones selladas, incluidas las que perdemos.'} lang="es" altUrl="/" pageCss={css} scripts={refs}>
+<MarcaLayout
+  title="Rosetta Quantum — Cuántica, medida de forma independiente"
+  description="Pre-registrado, sellado, publicado se gane o se pierda — para que puedas construir o invertir sobre evidencia."
+  lang="es" altUrl="/" ruta="/"
+  scripts={["/js/home.js", "/js/home-islas.js"]}
+>
   <Fragment set:html={content} />
-</BaseLayout>
+</MarcaLayout>

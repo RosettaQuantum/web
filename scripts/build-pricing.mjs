@@ -30,17 +30,39 @@
  * palabra. El .md ingles es una reorganizacion de esa columna, no una redaccion
  * nueva, y el verificador es lo que lo prueba.
  *
+ * RETIRADO EL 8-SEP — LEER ANTES DE VOLVER A CABLEARLO
+ * ----------------------------------------------------
+ * Las dos paginas que generaba, /pricing y /es/precios, se borraron en el commit 10 y
+ * hoy son 301 a /services y /es/servicios. Y el documento de origen quedo SUPERADO: sus
+ * cifras —US$24.900, US$4.900, US$490, US$290— son las del catalogo viejo, y la decision
+ * del 2-sep las reemplazo por otras. Medido: 0 de 34 fragmentos del documento aparecen
+ * en /services, y ninguno de sus montos. No es una pagina que se movio de sitio: es una
+ * oferta que se retiro.
+ *
+ * Se saco de deploy.yml, donde llevaba dos semanas fallando con ENOENT sin que nadie lo
+ * viera. `--verificar` ahora falla A PROPOSITO y con el motivo: un guardia que pasa
+ * mientras no vigila nada es peor que uno que no existe. Lo que cuida hoy que ningun
+ * precio sin decidir salga a la calle es scripts/check-precios.mjs, contra produccion.
+ *
  * Uso:
- *   node scripts/build-pricing.mjs             # genera las dos caras
- *   node scripts/build-pricing.mjs --verificar  # no escribe: compara con lo que hay
+ *   node scripts/build-pricing.mjs             # genera las dos caras (paginas retiradas)
+ *   node scripts/build-pricing.mjs --verificar  # falla: ver arriba
  */
-import { readFileSync, writeFileSync } from "node:fs";
+import { readFileSync, writeFileSync, existsSync } from "node:fs";
 import { createHash } from "node:crypto";
 import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
 
 const RAIZ = join(dirname(fileURLToPath(import.meta.url)), "..");
 const VERIFICAR = process.argv.includes("--verificar");
+
+if (VERIFICAR && !existsSync(join(RAIZ, "src/pages/pricing.astro"))) {
+  console.error("RETIRADO: /pricing y /es/precios se borraron en el commit 10 y el texto de");
+  console.error("src/aprobado/pricing.*.md quedo superado por la decision de precios del 2-sep.");
+  console.error("Lo que hoy vigila los precios publicados es scripts/check-precios.mjs.");
+  console.error("Ver la cabecera de este archivo antes de volver a cablearlo.");
+  process.exit(1);
+}
 
 /**
  * Frases del texto aprobado que NO salen, con su motivo. Hoy: ninguna.

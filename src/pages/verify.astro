@@ -1,0 +1,16 @@
+---
+/**
+ * /verify — commit 9.
+ */
+import MarcaLayout from '../layouts/MarcaLayout.astro';
+import Simples from '../components/paginas/Simples.astro';
+import css from '../styles/pages/paginas.css?raw';
+---
+<MarcaLayout
+  title="Verify a seal — Rosetta Quantum"
+  description="Recompute the sha256 of any sealed artifact in your own browser. The file never leaves your machine."
+  lang="en" altUrl="/es/verificar" ruta="/verify"
+  pageCss={css} scripts={["/js/paginas.js"]}
+>
+  <Simples lang="en" tipo="verify" />
+</MarcaLayout>

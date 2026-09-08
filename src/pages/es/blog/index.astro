@@ -1,6 +1,6 @@
 ---
 import { getCollection } from 'astro:content';
-import BlogLayout from '../../../layouts/BlogLayout.astro';
+import BlogLayout from '../../../layouts/BlogLayoutV2.astro';
 const posts = (await getCollection('blog', ({ data }) => !data.draft && data.lang === 'es'))
   .sort((a, b) => b.data.date.localeCompare(a.data.date));
 const pillars = { A:'Estado por clase de problema', B:'Diccionario canónico', C:'Explicadores de claims', D:'Metodología y runs', E:'Mapas y datos', F:'Decisor' };
@@ -12,7 +12,7 @@ const PROBLEM_CLASSES = 3;      // portafolio · expansión de red · alostería
 const lastDate = posts[0]?.data.date ?? '';
 ---
 <BlogLayout title="Biblioteca de Evidencia — Rosetta Q" description="Preguntas respondidas con evidencia sellada y reproducible. Fechado, con fuentes, citable — negativos incluidos." lang="es" altUrl="/blog" altHreflang="/blog">
-  <header class="blog-hero">
+  <header class="blog-head">
     <div class="wrap">
       <div class="eyebrow">Biblioteca de Evidencia · fechada · con fuentes · citable</div>
       <h1>Preguntas respondidas con evidencia sellada.</h1>

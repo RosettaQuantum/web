@@ -12,7 +12,7 @@
  * cargar ultimo, manda. */
 /* Tema terminal de la consola: negro con verde matrix.
 :root body.consola *
- * Decision de marca de Nicholas (2026-08-17): DOS identidades deliberadas. La consola
+ * Decision de marca (2026-08-17): DOS identidades deliberadas. La consola
  * es herramienta y va en negro terminal; los documentos,
 :root body.consola las entregas y el sitio
  * publico siguen en crema/dorado/teal. El ORO cruza las dos y es lo que las hace la

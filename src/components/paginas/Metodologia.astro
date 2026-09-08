@@ -1,0 +1,114 @@
+---
+/**
+ * /methodology — commit 9. Incluye #el-definitions y #juez-v1 como anclas.
+ *
+ * DESVIACION DECLARADA: el arbol del spec §8 pide /methodology/el-definitions y
+ * /methodology/juez-v1 como paginas propias; la lista del commit 9 solo pide
+ * /methodology. Se hacen anclas dentro de esta pagina: enlaces que FUNCIONAN hoy en vez
+ * de dos rutas que responderian 404. Separarlas despues es mover una seccion, no
+ * rehacer nada.
+ *
+ * LA ESCALA EL SE MUESTRA, PERO NO SE PUNTUA NADA. La rubrica v1.0 esta lista para
+ * sellar y NO esta sellada: hasta que lo este, la columna EL del registry y la linea
+ * LEVEL de la decision page siguen diciendo "en preparacion". Publicar niveles antes del
+ * sello seria puntuar con una vara que todavia se puede cambiar.
+ */
+const { lang = 'en' } = Astro.props;
+const es = lang === 'es';
+const CAPAS = es ? [
+  ['Capa 0 — Integridad','¿Los artefactos del claim corren? runnable / partially / not runnable. Muchos claims mueren aquí.'],
+  ['Capa 1 — Veredicto','Bajo un criterio pre-registrado y sellado ANTES de correr. Nunca se ajusta mirando el resultado.'],
+  ['Capa 2 — Magnitud','Brecha porcentual contra el baseline campeón, razón de tiempo a solución, número de semillas e intervalo — o su ausencia declarada. Si la varianza no se midió, se dice que no se midió.'],
+  ['Capa 3 — Robustez','Sensibilidad a tamaño, semillas e hiperparámetros, y fuerza del baseline: ¿gana sólo contra rivales débiles?'],
+  ['Capa 4 — Crossover y disparadores','Dos o tres eventos observables que darían vuelta el veredicto. Es lo que hace que el informe envejezca bien.'],
+  ['Capa 5 — Traducción económica','El resultado en las unidades del cliente. Los números del cliente los pone el cliente o se marcan como supuesto; nosotros ponemos la aritmética y las fuentes.'],
+] : [
+  ['Layer 0 — Integrity','Do the claim’s artifacts run? runnable / partially / not runnable. Many claims die here.'],
+  ['Layer 1 — Verdict','Under a criterion pre-registered and sealed BEFORE anything runs. Never adjusted by looking at the result.'],
+  ['Layer 2 — Margin','Percentage gap to the champion baseline, time-to-solution ratio, number of seeds and interval — or their declared absence. If variance was not measured, we say it was not measured.'],
+  ['Layer 3 — Robustness','Sensitivity to size, seeds and hyperparameters, and the strength of the baseline: does it only win against weak ones?'],
+  ['Layer 4 — Crossover and triggers','Two or three observable events that would flip the verdict. It is what makes the report age well.'],
+  ['Layer 5 — Economic translation','The result in the client’s units. The client’s numbers come from the client or are marked as assumptions; we supply the arithmetic and the sources.'],
+];
+const EL = [
+  ['EL0', es?'Sólo claim':'Claim only', es?'Afirmación pública con fecha y fuente. Sin datos crudos ni código descargables por hash.':'A dated, sourced public claim. No raw data or code downloadable by hash.', false],
+  ['EL1', es?'Artefactos de primera parte':'First-party artifacts', es?'Datos crudos y código publicados y verificables por hash: cualquiera puede recomputar lo que el autor hizo.':'Raw data and code published and hash-verifiable: anyone can recompute what the author did.', false],
+  ['EL2', es?'Pre-registrado y sellado':'Pre-registered & sealed', es?'Criterio registrado ANTES de correr, corrida sellada, el resultado cumple su propio criterio, y baseline clásico declarado en la misma cancha. Todavía primera parte.':'Criterion registered BEFORE the run, run sealed, the result meets its own criterion, and a classical baseline declared on the same field. Still first-party.', false],
+  ['EL3', es?'Reproducido independientemente':'Independently reproduced', es?'Un tercero sin participación ni pago del autor reprodujo el resultado principal desde los artefactos publicados. Hoy: vacío. Nadie en el registro lo tiene.':'A third party with no involvement or payment from the author reproduced the main result from the published artifacts. Today: empty. Nobody in the registry has it.', true],
+  ['EL4', es?'Probado adversarialmente':'Adversarially tested', es?'EL3 más haber sobrevivido un intento serio y publicado de refutación, o haber sido reproducido contra el baseline clásico más fuerte conocido, a paridad.':'EL3 plus surviving a serious published refutation attempt, or being reproduced against the strongest known classical baseline, at parity.', false],
+  ['EL5', es?'Verificado en producción':'Verified in production', es?'Verificación independiente en un despliegue real con consecuencia económica y árbitro externo nombrado. Hoy, uno: certified randomness.':'Independent verification in a real deployment with economic consequence and a named external referee. Today, one: certified randomness.', false],
+];
+const t = es ? {
+  eyebrow:'Metodología v1.0', h1:'Cómo se emite un veredicto, y qué lo puede dar vuelta.',
+  lede:'Todo lo que hay aquí está diseñado para que no tengas que confiar en nosotros: criterios registrados antes de correr, datos sellados y anclados por hash, resultados que puedes recomputar tú mismo.',
+  capasH:'El veredicto no es binario: son cinco capas',
+  capasL:'El binario —¿ganó o no?— lo regala la literatura gratis. Se cobra por las capas 2 a 5.',
+  elH:'La escala de evidencia (EL0–EL5)',
+  elL:'Adaptada de GRADE, el estándar de revisión de evidencia en medicina: un nivel base dado por el diseño de la evidencia, más factores declarados que suben o bajan la confianza — nunca aritmética oculta, siempre el motivo por escrito.',
+  elNota:'La escala mide la fuerza de la evidencia de que la ventaja es real. NO mide la supervivencia en el tiempo: eso es el estado (surviving / contested / eroded / open / negative-selfpublished), que es ortogonal y se muestra al lado. Un claim puede ser EL2 y estar eroded; otro EL0 y en pie.',
+  elPend:'La rúbrica v1.0 está lista para sellar y todavía NO está sellada. Hasta que lo esté, no publicamos el nivel de ningún claim: puntuar con una vara que aún se puede cambiar es exactamente lo que esta casa existe para no hacer.',
+  elCol:'nivel', elNom:'nombre', elReq:'qué exige',
+  juezH:'juez-v1: paridad de presupuesto',
+  juez:'El protocolo que hace comparable una comparación. El lado clásico y el cuántico reciben la misma instancia, el mismo presupuesto de cómputo y el mismo tiempo, con semillas fijas y versiones declaradas. El baseline es el campeón de la clase, afinado — no el primero que compila. Sin paridad declarada, un resultado no es evidencia: es una demo.',
+  twoH:'La Two-Layer Rule',
+  two:'Capa A — la infraestructura de sellado: mecánica, sin opinión. La puede pagar cualquiera, incluidos los vendors. Notariza integridad y fecha, no verdad. Capa B — el juicio: veredictos, niveles de evidencia, informes, Monitor, Registry, Library. La paga sólo el lado de la demanda; el evaluado jamás, ni directa ni indirectamente.',
+  ver:'Verifica un sello tú mismo →', reg:'El registro completo →', cambios:'Versión 1.0 · 1 sep 2026. Los cambios de metodología se publican fechados; los veredictos citan la versión bajo la que se emitieron.',
+} : {
+  eyebrow:'Methodology v1.0', h1:'How a verdict is issued, and what could flip it.',
+  lede:'Everything here is designed so you do not have to trust us: criteria registered before the run, data sealed and hash-anchored, results you can recompute yourself.',
+  capasH:'A verdict is not binary: it has five layers',
+  capasL:'The binary — did it win or not — is given away free by the literature. What is charged for is layers 2 to 5.',
+  elH:'The evidence scale (EL0–EL5)',
+  elL:'Adapted from GRADE, the evidence-review standard in medicine: a base level set by the design of the evidence, plus declared factors that raise or lower confidence — never hidden arithmetic, always the reason in writing.',
+  elNota:'The scale measures the strength of the evidence that the advantage is real. It does NOT measure survival over time: that is the status (surviving / contested / eroded / open / negative-selfpublished), which is orthogonal and shown alongside. A claim can be EL2 and eroded; another EL0 and surviving.',
+  elPend:'The v1.0 rubric is ready to seal and is NOT sealed yet. Until it is, we publish no claim’s level: scoring with a yardstick that can still be changed is exactly what this firm exists not to do.',
+  elCol:'level', elNom:'name', elReq:'what it requires',
+  juezH:'juez-v1: budget parity',
+  juez:'The protocol that makes a comparison comparable. The classical and the quantum side get the same instance, the same compute budget and the same wall-clock, with fixed seeds and declared versions. The baseline is the champion of the class, tuned — not the first thing that compiles. Without declared parity a result is not evidence: it is a demo.',
+  twoH:'The Two-Layer Rule',
+  two:'Layer A — the sealing infrastructure: mechanical, opinion-free. Anyone may pay for it, vendors included. It notarizes integrity and date, not truth. Layer B — judgment: verdicts, evidence levels, reports, Monitor, Registry, Library. Paid for only by the demand side; never by the party being evaluated, directly or indirectly.',
+  ver:'Verify a seal yourself →', reg:'The full registry →', cambios:'Version 1.0 · 1 Sep 2026. Methodology changes are published with dates; verdicts cite the version they were issued under.',
+};
+---
+<section class="pg" style="border-top:none"><div class="wrap">
+  <div class="eyebrow">{t.eyebrow}</div>
+  <h1>{t.h1}</h1>
+  <p class="lede">{t.lede}</p>
+</div></section>
+
+<section><div class="wrap">
+  <div class="eyebrow">{t.capasH}</div>
+  <h2>{t.capasH}</h2>
+  <p class="lede">{t.capasL}</p>
+  {CAPAS.map(([h, p]) => (<div class="paso"><b>{h}</b><p>{p}</p></div>))}
+</div></section>
+
+<section id="el-definitions"><div class="wrap">
+  <div class="eyebrow">{t.elH}</div>
+  <h2>{t.elH}</h2>
+  <p class="lede">{t.elL}</p>
+  <table class="el">
+    <thead><tr><th>{t.elCol}</th><th>{t.elNom}</th><th>{t.elReq}</th></tr></thead>
+    <tbody>{EL.map(([n, nom, req, vacio]) => (
+      <tr class={vacio ? 'vacio' : ''}><td class="lvl">{n}</td><td>{nom}</td><td>{req}</td></tr>
+    ))}</tbody>
+  </table>
+  <p>{t.elNota}</p>
+  <p class="sealline mono" style="color:var(--pending);margin-top:10px">{t.elPend}</p>
+</div></section>
+
+<section id="juez-v1"><div class="wrap">
+  <div class="eyebrow">{t.juezH}</div>
+  <h2>{t.juezH}</h2>
+  <p class="lede">{t.juez}</p>
+</div></section>
+
+<section id="two-layer-rule"><div class="wrap">
+  <div class="eyebrow">{t.twoH}</div>
+  <h2>{t.twoH}</h2>
+  <p class="lede">{t.two}</p>
+  <p class="sealline mono" style="margin-top:14px">
+    <a href={es ? '/es/verificar' : '/verify'}>{t.ver}</a> · <a href={es ? '/es/biblioteca/registro' : '/library/registry'}>{t.reg}</a>
+  </p>
+  <p class="sealline mono" style="margin-top:10px;color:var(--ink-60)">{t.cambios}</p>
+</div></section>

@@ -148,11 +148,24 @@ jobs:
       - name: Verificar la viz de Cleveland
         run: node scripts/build-viz-cleveland.mjs --verificar
 
-      # La pagina de precios se GENERA desde el documento que Nicholas aprobo. Si
-      # alguien la edita a mano, o cambia el .md sin regenerar, esto grita: lo
-      # publicado tiene que ser demostrablemente el texto aprobado.
-      - name: La pagina de precios sigue siendo el texto aprobado
-        run: node scripts/build-pricing.mjs --verificar
+      # AQUI CORRIA `build-pricing.mjs --verificar`, y se retiro con motivo escrito.
+      #
+      # Verificaba que /pricing y /es/precios fueran byte a byte el texto de
+      # src/aprobado/pricing.*.md. Las dos paginas se borraron en el commit 10 (301 a
+      # /services y /es/servicios) y el documento quedo SUPERADO: sus cifras —US$24.900,
+      # US$4.900, US$490, US$290— son las del catalogo viejo, y la decision del 2-sep las
+      # reemplazo. Medido el 8-sep: 0 de 34 fragmentos del documento aprobado aparecen en
+      # /services, y ninguno de sus montos. No es una pagina que se movio: es una oferta
+      # que se retiro.
+      #
+      # Desde el commit 10 el paso venia fallando con ENOENT y nadie lo vio, porque solo
+      # corre en este workflow y este workflow no corrio en dos semanas.
+      #
+      # LA GARANTIA QUE QUEDA VIVA, y por eso el reemplazo no es un hueco: T-precios
+      # (mas abajo, contra produccion) exige que TODA cantidad con signo de moneda en las
+      # paginas publicas este en la lista que Nicholas decidio. Lo que se pierde es la
+      # prueba mecanica de que la PROSA es la de un documento firmado; el texto de
+      # /services se aprobo por la otra via, la QA de las paginas del 3-sep.
 
       # Las tres politicas se GENERAN desde los .md que Nicholas aprobo, anclados por
       # sha. Si alguien edita un .astro a mano o cambia un .md sin regenerar, grita.
@@ -306,6 +319,113 @@ jobs:
       # ancestro). Va DESPUES del smoke test: primero que este arriba el build nuevo.
       - name: Lo desplegado viene de main (deteccion de deriva)
         run: node scripts/check-deploy-solo-main.mjs --deriva
+
+      # ── LOS GUARDIAS DEL REBUILD, CONTRA PRODUCCION ────────────────────────────
+      #
+      # POR QUE ESTAN AQUI: se escribieron entre el 1 y el 8-sep y vivian SOLO en
+      # deploy-preview.yml. El dia del cutover produccion pasa a ser este sitio, y sin
+      # esto se quedaba sin una sola de las comprobaciones que lo construyeron: las
+      # fuentes, la cascada, los 74 algoritmos en el HTML, las 14 redirecciones, el
+      # sello de /verify, los precios decididos, el noindex. Un sitio nuevo con los
+      # guardias del sitio viejo.
+      #
+      # PREVIEW_URL nombra AL OBJETIVO, no al entorno: aqui el objetivo es produccion.
+      # (Se deja el nombre de la variable en vez de tocar catorce scripts el dia del
+      # cutover; el cambio de nombre es trabajo de despues, sin prisa.)
+      #
+      # NO ESTA T-guardia (check-contenido) A PROPOSITO: compara el sitio nuevo contra
+      # produccion y contra la lista de rutas de main. Despues del cutover los dos lados
+      # de esa comparacion son el mismo sitio, asi que pasaria siempre — un guardia que
+      # se da la razon solo es peor que ninguno. Su trabajo se acaba en el cutover.
+
+      # P0 primero: espera a que el edge sirva ESTE build (el <meta rq-build> tiene que
+      # traer este sha). Es tambien la comprobacion REAL de la purga de cache: si la
+      # purga fallo y el edge sigue sirviendo lo viejo, esto se pone rojo. Mide el
+      # resultado, no el mecanismo.
+      - name: P0 — produccion sirve ESTE build
+        env:
+          PREVIEW_URL: "https://rosettaquantum.com"
+          GITHUB_SHA: ${{ github.sha }}
+          ESPERA_MAX: "240"
+        run: npm run check:preview
+
+      - name: T-301 — las 14 redirecciones saltan y el destino responde
+        env:
+          PREVIEW_URL: "https://rosettaquantum.com"
+        run: npm run check:301
+
+      - name: T-pages — los pares EN/ES responden completos
+        env:
+          PREVIEW_URL: "https://rosettaquantum.com"
+        run: npm run check:pages
+
+      - name: T-masa — los 74 algoritmos y los artefactos siguen en el HTML
+        env:
+          PREVIEW_URL: "https://rosettaquantum.com"
+        run: npm run check:masa
+
+      - name: T-lib — la Biblioteca sirve el archivo, y ningun claim sin verificar
+        env:
+          PREVIEW_URL: "https://rosettaquantum.com"
+        run: npm run check:lib
+
+      - name: T-verify — la receta v3 reproduce sellos reales
+        env:
+          PREVIEW_URL: "https://rosettaquantum.com"
+        run: npm run check:verify
+
+      - name: T-precios — solo se publican los precios decididos
+        env:
+          PREVIEW_URL: "https://rosettaquantum.com"
+        run: npm run check:precios
+
+      - name: T-css — los tokens de marca ganan la cascada y la geometria es la aprobada
+        env:
+          PREVIEW_URL: "https://rosettaquantum.com"
+          RUTAS_REBUILD: "/,/es/,/library,/library/registry,/es/biblioteca,/es/biblioteca/registro"
+        run: npm run check:css
+
+      - name: T-fuentes — la pagina pide las familias que su CSS usa
+        env:
+          PREVIEW_URL: "https://rosettaquantum.com"
+          RUTAS_FUENTES: "/,/es/,/library,/es/biblioteca,/ledger/"
+        run: npm run check:fuentes
+
+      - name: T-estructura — una sola barra y un solo pie
+        env:
+          PREVIEW_URL: "https://rosettaquantum.com"
+          RUTAS_REBUILD: "/,/es/,/library,/library/registry,/es/biblioteca,/es/biblioteca/registro"
+        run: npm run check:estructura
+
+      - name: T-es — la home en español no deja fragmentos en inglés
+        env:
+          PREVIEW_URL: "https://rosettaquantum.com"
+        run: npm run check:es
+
+      - name: T-movil — las reglas de telefono ganan, y la marca es la decidida
+        env:
+          PREVIEW_URL: "https://rosettaquantum.com"
+        run: npm run check:movil
+
+      - name: T-llms — el canal de indexacion, y el noindex de Q-Ready
+        env:
+          PREVIEW_URL: "https://rosettaquantum.com"
+        run: npm run check:llms
+
+      - name: T-boletin — la promesa servida es la de su lista, y la fila llega a esa lista
+        env:
+          PREVIEW_URL: "https://rosettaquantum.com"
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: npm run check:boletin
+
+      - name: T-api — endpoints nuevos y /v1/state aditivo
+        env:
+          PREVIEW_URL: "https://rosettaquantum.com"
+        run: npm run check:api2
+
+      - name: T-nav — la barra tiene 6 enlaces, CTA y menu movil
+        run: npm run check:nav
 
       # Vigila lo desplegado, no el repo: que ninguna fila afirme sin cita, que el
       # catalogo no encoja, que nadie declare evidencia que no tiene, y que los

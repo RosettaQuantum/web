@@ -4,13 +4,61 @@ import { manejarQreadyLead } from "./lib/qready-lead.mjs";
 // Serves the static Astro build (dist/), redirects to the canonical host,
 // accepts lead submissions at POST /api/lead -> D1 `leads`, and serves
 // D1-backed Library posts (table `posts`) that were published WITHOUT a rebuild.
+/**
+ * Las catorce redirecciones permanentes del commit 10. Origen sin barra final: la
+ * busqueda normaliza antes de mirar, para que /clases y /clases/ den lo mismo.
+ *
+ * 10 de /rosettaq* (el archivador se absorbe en la Biblioteca) · 2 de /pricing (los
+ * precios viven con los servicios) · 2 de /clases (el catalogo se sirve desde /library).
+ * Todas apuntan a una ruta que responde 200 hoy; T-301 lo comprueba en cada deploy,
+ * porque un 301 a un 404 es peor que no redirigir: el original ya no existe.
+ */
+const REDIRECTS_301 = {
+  "/rosettaq": "/library",
+  "/rosettaq/calculator": "/library",
+  "/rosettaq/catalog": "/library",
+  "/rosettaq/router": "/library",
+  "/rosettaq/unit": "/library",
+  "/es/rosettaq": "/es/biblioteca",
+  "/es/rosettaq/calculator": "/es/biblioteca",
+  "/es/rosettaq/catalog": "/es/biblioteca",
+  "/es/rosettaq/router": "/es/biblioteca",
+  "/es/rosettaq/unit": "/es/biblioteca",
+  "/pricing": "/services",
+  "/es/precios": "/es/servicios",
+  "/clases": "/library",
+  "/es/clases": "/es/biblioteca",
+};
+
 export default {
   async fetch(request, env, ctx) {
     const url = new URL(request.url);
 
-    if (url.hostname !== "rosettaquantum.com" && url.hostname !== "localhost") {
+    // El preview vive en *.workers.dev. Sin esta excepcion, la canonicalizacion de
+    // host rebota a produccion TODA ruta que ejecute el Worker —o sea /v1/*, /blog*,
+    // /clases* y los feeds: exactamente las que el preview existe para probar— y deja
+    // pasar solo las estaticas, que no lo necesitan. El preview habria verificado la
+    // mitad que no falla y habria dado verde. Medido: / daba 200 y /v1/state daba 301.
+    // Produccion no cambia: cualquier otro host sigue canonicalizando a rosettaquantum.com.
+    const esPreview = url.hostname.endsWith(".workers.dev");
+    if (url.hostname !== "rosettaquantum.com" && url.hostname !== "localhost" && !esPreview) {
       url.hostname = "rosettaquantum.com"; url.protocol = "https:";
       return Response.redirect(url.toString(), 301);
+    }
+
+    // ── Redirecciones 301 permanentes (commit 10) ────────────────────────────
+    // UN SOLO LUGAR, y va aqui: despues de canonicalizar el host y ANTES de todo lo
+    // demas. Si fuera despues de ASSETS no llegaria a ejecutarse nunca para una ruta
+    // que todavia tiene archivo — que es justo el caso de las catorce.
+    //
+    // POR QUE LAS PAGINAS DE ORIGEN SE BORRAN: `run_worker_first` es una lista blanca.
+    // Si una ruta NO esta en ella y existe el archivo estatico, Cloudflare sirve el
+    // archivo y este codigo no corre: la redireccion no ocurriria y nadie lo notaria.
+    // Dejar la pagina y "confiar" en el 301 es armar la mina nº1 al reves. Por eso el
+    // commit 10 borra las paginas de origen: sin archivo, el Worker manda.
+    const destino = REDIRECTS_301[url.pathname.replace(/\/+$/, "") || "/"];
+    if (destino) {
+      return Response.redirect(new URL(destino, url.origin).toString(), 301);
     }
 
     // API de lectura del ledger + servidor MCP. Va primero porque son rutas propias
@@ -40,6 +88,41 @@ export default {
     // correo. El defecto que esto reemplaza: el formulario solo hacia preventDefault y
     // mostraba "Solicitud enviada" sin mandar nada a ningun lado — una promesa falsa a
     // una persona real. Ver lib/qready-lead.mjs para el porque de cada decision.
+    // ── Suscripciones: /api/subscribe y su alias /api/monitor-lead ────────────
+    //
+    // UNA PUERTA, DOS LISTAS. El sitio pide dos consentimientos DISTINTOS y hay que
+    // poder distinguirlos despues:
+    //   'monitor' — la caja de la home: UNA edicion cuando selle.
+    //   'weekly'  — la caja del blog: UN correo por semana.
+    // Quien deja su correo en el blog no acepto la edicion del Monitor, y al reves
+    // tampoco. Por eso la lista viaja EXPLICITA y se guarda en su propia columna, en
+    // vez de deducirse del origen: el alcance de un consentimiento no se adivina.
+    //
+    // Una lista desconocida se RECHAZA (400) en vez de caer a un valor por defecto.
+    // Caer a 'monitor' apuntaria gente a una lista que no eligio, en silencio.
+    //
+    // /api/monitor-lead sigue existiendo porque la home ya lo llama y porque es la ruta
+    // que quedo publicada; es exactamente /api/subscribe con lista 'monitor'.
+    const esSubscribe = url.pathname === "/api/subscribe" || url.pathname === "/api/monitor-lead";
+    if (esSubscribe && request.method === "POST") {
+      let cuerpo = {};
+      try { cuerpo = await request.json(); } catch { /* queda vacio y falla abajo */ }
+      const email = String(cuerpo.email || "").trim().toLowerCase();
+      if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) {
+        return json({ ok: false, error: "valid email required" }, 400);
+      }
+      const LISTAS = ["monitor", "weekly"];
+      const lista = String(cuerpo.lista || cuerpo.list || (url.pathname === "/api/monitor-lead" ? "monitor" : "")).trim();
+      if (!LISTAS.includes(lista)) {
+        return json({ ok: false, error: `unknown list; expected one of ${LISTAS.join(", ")}` }, 400);
+      }
+      await env.DB.prepare(
+        "INSERT INTO monitor_leads (email, ts, ua, origen, lista) VALUES (?, ?, ?, ?, ?)"
+      ).bind(email, new Date().toISOString(), request.headers.get("user-agent") || "",
+             String(cuerpo.origen || lista), lista).run();
+      return new Response(null, { status: 204 });
+    }
+
     if (url.pathname === "/api/qready-lead" && request.method === "POST") {
       let b;
       try { b = await request.json(); } catch (e) { return json({ ok: false, error: "bad json" }, 400); }

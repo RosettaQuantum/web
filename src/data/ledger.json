@@ -7,6 +7,416 @@
     "published": 1,
     "sealed": 48
   },
+  "artefactos": {
+    "horneados": 45,
+    "items": [
+      {
+        "id": "RQ-REPORT-VW-004",
+        "tipo": "REPORT",
+        "receta": "RQ-REPORT-VW-004",
+        "fecha": "2026-08-27",
+        "hash": "sha256:47d10c6045000b9d13ee26e466bef0759ac0968de7f57f86fc5e5a4d3c82de56",
+        "github": "https://raw.githubusercontent.com/RosettaQuantum/evidence/main/reports/2026/08/RosettaQ__REPORT__RQ-REPORT-VW-004__20260827T2104Z__lo-que-el-espectro-de-llava-dice-sobre-la-compresion-tensorial.json",
+        "codeberg": "https://codeberg.org/RosettaQuantum/evidence/raw/branch/main/reports/2026/08/RosettaQ__REPORT__RQ-REPORT-VW-004__20260827T2104Z__lo-que-el-espectro-de-llava-dice-sobre-la-compresion-tensorial.json"
+      },
+      {
+        "id": "RQ-REPORT-VW-003",
+        "tipo": "REPORT",
+        "receta": "RQ-REPORT-VW-003",
+        "fecha": "2026-08-27",
+        "hash": "sha256:c96143e3d7b49fa53bb383f195727dea4ad5bd5463b88a9233f51870ed4bea01",
+        "github": "https://raw.githubusercontent.com/RosettaQuantum/evidence/main/reports/2026/08/RosettaQ__REPORT__RQ-REPORT-VW-003__20260827T2045Z__lo-que-el-espectro-de-llava-dice-sobre-la-compresion-tensorial.json",
+        "codeberg": "https://codeberg.org/RosettaQuantum/evidence/raw/branch/main/reports/2026/08/RosettaQ__REPORT__RQ-REPORT-VW-003__20260827T2045Z__lo-que-el-espectro-de-llava-dice-sobre-la-compresion-tensorial.json"
+      },
+      {
+        "id": "RQ-REPORT-VW-002",
+        "tipo": "REPORT",
+        "receta": "RQ-REPORT-VW-002",
+        "fecha": "2026-08-27",
+        "hash": "sha256:17c50b906e349bc696e5926367041b937d75a4108601024acfe9b84aadafd0ab",
+        "github": "https://raw.githubusercontent.com/RosettaQuantum/evidence/main/reports/2026/08/RosettaQ__REPORT__RQ-REPORT-VW-002__20260827T1952Z__lo-que-el-espectro-de-llava-dice-sobre-la-compresion-tensorial.json",
+        "codeberg": "https://codeberg.org/RosettaQuantum/evidence/raw/branch/main/reports/2026/08/RosettaQ__REPORT__RQ-REPORT-VW-002__20260827T1952Z__lo-que-el-espectro-de-llava-dice-sobre-la-compresion-tensorial.json"
+      },
+      {
+        "id": "RQ-REPORT-VW-001",
+        "tipo": "REPORT",
+        "receta": "RQ-REPORT-VW-001",
+        "fecha": "2026-08-27",
+        "hash": "sha256:f2368329f8ee3ae3bff6adb0722daf49c56c7545af10d362e8e0f3ead29efe2e",
+        "github": "https://raw.githubusercontent.com/RosettaQuantum/evidence/main/reports/2026/08/RosettaQ__REPORT__RQ-REPORT-VW-001__20260827T1638Z__lo-que-el-espectro-de-llava-dice-sobre-la-compresion-tensorial.json",
+        "codeberg": "https://codeberg.org/RosettaQuantum/evidence/raw/branch/main/reports/2026/08/RosettaQ__REPORT__RQ-REPORT-VW-001__20260827T1638Z__lo-que-el-espectro-de-llava-dice-sobre-la-compresion-tensorial.json"
+      },
+      {
+        "id": "RQ-PREREG-VW-001",
+        "tipo": "PREREG",
+        "receta": "RQ-PREREG-VW-001",
+        "fecha": "2026-08-27",
+        "hash": "sha256:3aeb37a8ab9465c49a88858f8219f9549fe5e9ce0f1d18dc58705901edb0b8f0",
+        "github": "https://raw.githubusercontent.com/RosettaQuantum/evidence/main/prereg/2026/08/RosettaQ__PREREG__RQ-PREREG-VW-001__20260827T1456Z__calibracion-del-instrumento-y-alcance-declarado.json",
+        "codeberg": "https://codeberg.org/RosettaQuantum/evidence/raw/branch/main/prereg/2026/08/RosettaQ__PREREG__RQ-PREREG-VW-001__20260827T1456Z__calibracion-del-instrumento-y-alcance-declarado.json"
+      },
+      {
+        "id": "RQ-ERRATA-VW-001",
+        "tipo": "ERRATA",
+        "receta": "RQ-ERRATA-VW-001",
+        "fecha": "2026-08-27",
+        "hash": "sha256:1d8bab971e9442d4dd196ea4592ed2bdb893aa2a3e18974f2bc00c4ed4ce3dc6",
+        "github": "https://raw.githubusercontent.com/RosettaQuantum/evidence/main/prereg/2026/08/RosettaQ__ERRATA__RQ-ERRATA-VW-001__20260827T1517Z__dos-criterios-vacios-un-ancla-sin-leer-y-un-n-de-uno.json",
+        "codeberg": "https://codeberg.org/RosettaQuantum/evidence/raw/branch/main/prereg/2026/08/RosettaQ__ERRATA__RQ-ERRATA-VW-001__20260827T1517Z__dos-criterios-vacios-un-ancla-sin-leer-y-un-n-de-uno.json"
+      },
+      {
+        "id": "RQ-REPORT-HSBC-004",
+        "tipo": "REPORT",
+        "receta": "RQ-REPORT-HSBC-004",
+        "fecha": "2026-08-26",
+        "hash": "sha256:dccd922244f322f5613680ae3dbd7b6339698461d15b8a8350f4b67ff7a5668c",
+        "github": "https://raw.githubusercontent.com/RosettaQuantum/evidence/main/reports/2026/08/RosettaQ__REPORT__RQ-REPORT-HSBC-004__20260826T1839Z__entregable-track-hsbc-es-y-en.json",
+        "codeberg": "https://codeberg.org/RosettaQuantum/evidence/raw/branch/main/reports/2026/08/RosettaQ__REPORT__RQ-REPORT-HSBC-004__20260826T1839Z__entregable-track-hsbc-es-y-en.json"
+      },
+      {
+        "id": "RQ-REPORT-HSBC-003",
+        "tipo": "REPORT",
+        "receta": "RQ-REPORT-HSBC-003",
+        "fecha": "2026-08-26",
+        "hash": "sha256:67538c679712841906d98ff28a927c6ccf68d06289fd0b4fad455f8100071902",
+        "github": "https://raw.githubusercontent.com/RosettaQuantum/evidence/main/reports/2026/08/RosettaQ__REPORT__RQ-REPORT-HSBC-003__20260826T1837Z__entregable-track-hsbc-es-y-en.json",
+        "codeberg": "https://codeberg.org/RosettaQuantum/evidence/raw/branch/main/reports/2026/08/RosettaQ__REPORT__RQ-REPORT-HSBC-003__20260826T1837Z__entregable-track-hsbc-es-y-en.json"
+      },
+      {
+        "id": "RQ-REPORT-HSBC-002",
+        "tipo": "REPORT",
+        "receta": "RQ-REPORT-HSBC-002",
+        "fecha": "2026-08-26",
+        "hash": "sha256:066b2c4fbd009b80e513bfe536e91f1c71dbfd6ee1aa9e273f10c61e88e67ece",
+        "github": "https://raw.githubusercontent.com/RosettaQuantum/evidence/main/reports/2026/08/RosettaQ__REPORT__RQ-REPORT-HSBC-002__20260826T0202Z__entregable-track-hsbc-es-y-en.json",
+        "codeberg": "https://codeberg.org/RosettaQuantum/evidence/raw/branch/main/reports/2026/08/RosettaQ__REPORT__RQ-REPORT-HSBC-002__20260826T0202Z__entregable-track-hsbc-es-y-en.json"
+      },
+      {
+        "id": "RQ-REPORT-HSBC-001",
+        "tipo": "REPORT",
+        "receta": "RQ-REPORT-HSBC-001",
+        "fecha": "2026-08-26",
+        "hash": "sha256:ef6f1eba786b757b7283e6a6b20fc85ad17bc7066891f67dbd23bdb0b3112a3e",
+        "github": "https://raw.githubusercontent.com/RosettaQuantum/evidence/main/reports/2026/08/RosettaQ__REPORT__RQ-REPORT-HSBC-001__20260826T0148Z__entregable-track-hsbc-es-y-en.json",
+        "codeberg": "https://codeberg.org/RosettaQuantum/evidence/raw/branch/main/reports/2026/08/RosettaQ__REPORT__RQ-REPORT-HSBC-001__20260826T0148Z__entregable-track-hsbc-es-y-en.json"
+      },
+      {
+        "id": "RQ-REPORT-AIRBUS-005",
+        "tipo": "REPORT",
+        "receta": "RQ-REPORT-AIRBUS-005",
+        "fecha": "2026-08-26",
+        "hash": "sha256:f7a9294c304e5d5b6c11088d0f53157e8d469961eb45372fddc2090401191e14",
+        "github": "https://raw.githubusercontent.com/RosettaQuantum/evidence/main/reports/2026/08/RosettaQ__REPORT__RQ-REPORT-AIRBUS-005__20260826T1748Z__airbus-fase-1-informe-final-v5.json",
+        "codeberg": "https://codeberg.org/RosettaQuantum/evidence/raw/branch/main/reports/2026/08/RosettaQ__REPORT__RQ-REPORT-AIRBUS-005__20260826T1748Z__airbus-fase-1-informe-final-v5.json"
+      },
+      {
+        "id": "RQ-EXP-HSBC-Q-002",
+        "tipo": "RUN",
+        "receta": "RQ-EXP-HSBC-Q-002",
+        "fecha": "2026-08-26",
+        "hash": "sha256:2c52b228bb8b03e5e434d671e7de4439e84adc1daf8d810e66feb54c3a67906f",
+        "github": "https://raw.githubusercontent.com/RosettaQuantum/evidence/main/runs/2026/08/RosettaQ__RUN__RQ-EXP-HSBC-Q-002__20260826T0142Z__salidas-5-2-probabilidad-calibrada-binaria-y-atribucion-local.json",
+        "codeberg": "https://codeberg.org/RosettaQuantum/evidence/raw/branch/main/runs/2026/08/RosettaQ__RUN__RQ-EXP-HSBC-Q-002__20260826T0142Z__salidas-5-2-probabilidad-calibrada-binaria-y-atribucion-local.json"
+      },
+      {
+        "id": "RQ-EXP-HSBC-Q-001",
+        "tipo": "RUN",
+        "receta": "RQ-EXP-HSBC-Q-001",
+        "fecha": "2026-08-26",
+        "hash": "sha256:436334b41baf7403d474ae820b6492a211873f02f9ff03214ea679307332075f",
+        "github": "https://raw.githubusercontent.com/RosettaQuantum/evidence/main/runs/2026/08/RosettaQ__RUN__RQ-EXP-HSBC-Q-001__20260826T0009Z__brazo-cuantico-kernel-fidelidad-simulacion-exacta--sin-ventaja.json",
+        "codeberg": "https://codeberg.org/RosettaQuantum/evidence/raw/branch/main/runs/2026/08/RosettaQ__RUN__RQ-EXP-HSBC-Q-001__20260826T0009Z__brazo-cuantico-kernel-fidelidad-simulacion-exacta--sin-ventaja.json"
+      },
+      {
+        "id": "RQ-ERRATA-EXP-HSBC-Q-001",
+        "tipo": "ERRATA",
+        "receta": "RQ-ERRATA-EXP-HSBC-Q-001",
+        "fecha": "2026-08-26",
+        "hash": "sha256:db1e783fa69d4e73225bde1dc42b1938284bd0e9d650cd47b9c424c4decb18de",
+        "github": "https://raw.githubusercontent.com/RosettaQuantum/evidence/main/reports/2026/08/RosettaQ__ERRATA__RQ-ERRATA-EXP-HSBC-Q-001__20260826T0133Z__el-umbral-0-5-se-aplico-a-margenes-no-a-probabilidades.json",
+        "codeberg": "https://codeberg.org/RosettaQuantum/evidence/raw/branch/main/reports/2026/08/RosettaQ__ERRATA__RQ-ERRATA-EXP-HSBC-Q-001__20260826T0133Z__el-umbral-0-5-se-aplico-a-margenes-no-a-probabilidades.json"
+      },
+      {
+        "id": "RQ-REPORT-AIRBUS-004",
+        "tipo": "REPORT",
+        "receta": "RQ-REPORT-AIRBUS-004",
+        "fecha": "2026-08-25",
+        "hash": "sha256:58a7cdd39245597314bbc0ac7011b55498d2e72cebb6acf3179829f7847a7095",
+        "github": "https://raw.githubusercontent.com/RosettaQuantum/evidence/main/reports/2026/08/RosettaQ__REPORT__RQ-REPORT-AIRBUS-004__20260825T1605Z__airbus-fase-1-informe-final-v4.json",
+        "codeberg": "https://codeberg.org/RosettaQuantum/evidence/raw/branch/main/reports/2026/08/RosettaQ__REPORT__RQ-REPORT-AIRBUS-004__20260825T1605Z__airbus-fase-1-informe-final-v4.json"
+      },
+      {
+        "id": "RQ-REPORT-AIRBUS-003",
+        "tipo": "REPORT",
+        "receta": "RQ-REPORT-AIRBUS-003",
+        "fecha": "2026-08-25",
+        "hash": "sha256:2faa011b8cdb409d0b49ea02f5ed6df5ac6f9f9991353b6cd22da183f7f65a59",
+        "github": "https://raw.githubusercontent.com/RosettaQuantum/evidence/main/reports/2026/08/RosettaQ__REPORT__RQ-REPORT-AIRBUS-003__20260825T1445Z__airbus-fase-1-informe-final-v3.json",
+        "codeberg": "https://codeberg.org/RosettaQuantum/evidence/raw/branch/main/reports/2026/08/RosettaQ__REPORT__RQ-REPORT-AIRBUS-003__20260825T1445Z__airbus-fase-1-informe-final-v3.json"
+      },
+      {
+        "id": "RQ-REPORT-AIRBUS-002",
+        "tipo": "REPORT",
+        "receta": "RQ-REPORT-AIRBUS-002",
+        "fecha": "2026-08-25",
+        "hash": "sha256:54a1d65a89d1767091c916c30a1ffd60b23199d7959869fb226b71db10ca4538",
+        "github": "https://raw.githubusercontent.com/RosettaQuantum/evidence/main/reports/2026/08/RosettaQ__REPORT__RQ-REPORT-AIRBUS-002__20260825T1336Z__airbus-fase-1-informe-final-v2.json",
+        "codeberg": "https://codeberg.org/RosettaQuantum/evidence/raw/branch/main/reports/2026/08/RosettaQ__REPORT__RQ-REPORT-AIRBUS-002__20260825T1336Z__airbus-fase-1-informe-final-v2.json"
+      },
+      {
+        "id": "RQ-EXP-HSBC-IEEE-001",
+        "tipo": "RUN",
+        "receta": "RQ-EXP-HSBC-IEEE-001",
+        "fecha": "2026-08-25",
+        "hash": "sha256:e6e208d7c4433c0296e82c717a8faaa0646f4e863cefbd5ce889dd37cc07b70d",
+        "github": "https://raw.githubusercontent.com/RosettaQuantum/evidence/main/runs/2026/08/RosettaQ__RUN__RQ-EXP-HSBC-IEEE-001__20260825T1420Z__baseline-clasico-ieee-cis-particion-temporal.json",
+        "codeberg": "https://codeberg.org/RosettaQuantum/evidence/raw/branch/main/runs/2026/08/RosettaQ__RUN__RQ-EXP-HSBC-IEEE-001__20260825T1420Z__baseline-clasico-ieee-cis-particion-temporal.json"
+      },
+      {
+        "id": "RQ-EXP-AIRBUS-RANGO-001",
+        "tipo": "RUN",
+        "receta": "RQ-EXP-AIRBUS-RANGO-001",
+        "fecha": "2026-08-25",
+        "hash": "sha256:96f40af89b0f62edc067e62883ab37b132edafa95239b0a06206eb00e8ebb252",
+        "github": "https://raw.githubusercontent.com/RosettaQuantum/evidence/main/runs/2026/08/RosettaQ__RUN__RQ-EXP-AIRBUS-RANGO-001__20260825T1437Z__el-eje-de-memoria-es-ciego-al-de-no-linealidad.json",
+        "codeberg": "https://codeberg.org/RosettaQuantum/evidence/raw/branch/main/runs/2026/08/RosettaQ__RUN__RQ-EXP-AIRBUS-RANGO-001__20260825T1437Z__el-eje-de-memoria-es-ciego-al-de-no-linealidad.json"
+      },
+      {
+        "id": "RQ-EXP-AIRBUS-DETECCION-001",
+        "tipo": "RUN",
+        "receta": "RQ-EXP-AIRBUS-DETECCION-001",
+        "fecha": "2026-08-25",
+        "hash": "sha256:6c7f335d8a3ce7df26c8daf88755133cfe47479f4a6c24bf10d004d04a814980",
+        "github": "https://raw.githubusercontent.com/RosettaQuantum/evidence/main/runs/2026/08/RosettaQ__RUN__RQ-EXP-AIRBUS-DETECCION-001__20260825T1437Z__que-puede-detectar-el-benchmark-del-enunciado.json",
+        "codeberg": "https://codeberg.org/RosettaQuantum/evidence/raw/branch/main/runs/2026/08/RosettaQ__RUN__RQ-EXP-AIRBUS-DETECCION-001__20260825T1437Z__que-puede-detectar-el-benchmark-del-enunciado.json"
+      },
+      {
+        "id": "RQ-REPORT-AIRBUS-001",
+        "tipo": "REPORT",
+        "receta": "RQ-REPORT-AIRBUS-001",
+        "fecha": "2026-08-24",
+        "hash": "sha256:78150faefc7efb72765f9901b7e06d6f9fda9f9a451f6e4d0e27119ed6927a91",
+        "github": "https://raw.githubusercontent.com/RosettaQuantum/evidence/main/reports/2026/08/RosettaQ__REPORT__RQ-REPORT-AIRBUS-001__20260824T2039Z__airbus-fase-1-informe-final.json",
+        "codeberg": "https://codeberg.org/RosettaQuantum/evidence/raw/branch/main/reports/2026/08/RosettaQ__REPORT__RQ-REPORT-AIRBUS-001__20260824T2039Z__airbus-fase-1-informe-final.json"
+      },
+      {
+        "id": "RQ-EXP-AIRBUS-NOLIN-001",
+        "tipo": "RUN",
+        "receta": "RQ-EXP-AIRBUS-NOLIN-001",
+        "fecha": "2026-08-24",
+        "hash": "sha256:89b1d737f28f731050130b311921fc2d773e94371f51baeac40f681fd0b16926",
+        "github": "https://raw.githubusercontent.com/RosettaQuantum/evidence/main/runs/2026/08/RosettaQ__RUN__RQ-EXP-AIRBUS-NOLIN-001__20260824T2039Z__la-no-linealidad-se-anula-en-el-vortice-del-enunciado.json",
+        "codeberg": "https://codeberg.org/RosettaQuantum/evidence/raw/branch/main/runs/2026/08/RosettaQ__RUN__RQ-EXP-AIRBUS-NOLIN-001__20260824T2039Z__la-no-linealidad-se-anula-en-el-vortice-del-enunciado.json"
+      },
+      {
+        "id": "RQ-EXP-AIRBUS-EJE-001",
+        "tipo": "RUN",
+        "receta": "RQ-EXP-AIRBUS-EJE-001",
+        "fecha": "2026-08-24",
+        "hash": "sha256:e595fa2b873ee4c36d179b290945c15930790e87eb09592e523b023a4714716a",
+        "github": "https://raw.githubusercontent.com/RosettaQuantum/evidence/main/runs/2026/08/RosettaQ__RUN__RQ-EXP-AIRBUS-EJE-001__20260824T2039Z__tiempo-y-error-vs-reynolds-con-malla-acoplada.json",
+        "codeberg": "https://codeberg.org/RosettaQuantum/evidence/raw/branch/main/runs/2026/08/RosettaQ__RUN__RQ-EXP-AIRBUS-EJE-001__20260824T2039Z__tiempo-y-error-vs-reynolds-con-malla-acoplada.json"
+      },
+      {
+        "id": "RQ-ERRATA-PREREG-HSBC-003",
+        "tipo": "ERRATA",
+        "receta": "RQ-ERRATA-PREREG-HSBC-003",
+        "fecha": "2026-08-24",
+        "hash": "sha256:3b46354aaf213c160dce99bbb128e8e73597c42c4ab29319bc6ed3a22c53764f",
+        "github": "https://raw.githubusercontent.com/RosettaQuantum/evidence/main/reports/2026/08/RosettaQ__ERRATA__RQ-ERRATA-PREREG-HSBC-003__20260824T2005Z__el-costo-si-se-mueve-al-cambiar-de-proveedor.json",
+        "codeberg": "https://codeberg.org/RosettaQuantum/evidence/raw/branch/main/reports/2026/08/RosettaQ__ERRATA__RQ-ERRATA-PREREG-HSBC-003__20260824T2005Z__el-costo-si-se-mueve-al-cambiar-de-proveedor.json"
+      },
+      {
+        "id": "RQ-DATA-HSBC-IEEE-001",
+        "tipo": "MANIFEST",
+        "receta": "RQ-DATA-HSBC-IEEE-001",
+        "fecha": "2026-08-24",
+        "hash": "sha256:4215a33349f7e99266529f887c7dcc19cb7e5a7f7604d2b278f719451e817ea6",
+        "github": "https://raw.githubusercontent.com/RosettaQuantum/evidence/main/manifests/RosettaQ__MANIFEST__RQ-DATA-HSBC-IEEE-001__20260824T1815Z__ieee-cis-manifiesto-antes-de-entrenar.json",
+        "codeberg": "https://codeberg.org/RosettaQuantum/evidence/raw/branch/main/manifests/RosettaQ__MANIFEST__RQ-DATA-HSBC-IEEE-001__20260824T1815Z__ieee-cis-manifiesto-antes-de-entrenar.json"
+      },
+      {
+        "id": "RQ-PREREG-HSBC-003-CUANTICO",
+        "tipo": "PREREG",
+        "receta": "RQ-PREREG-HSBC-003-CUANTICO",
+        "fecha": "2026-08-21",
+        "hash": "sha256:e15b1808c03c29a8623eb687c3790c0a00e29cb5ae3ff6848f83d94269c5abb8",
+        "github": "https://raw.githubusercontent.com/RosettaQuantum/evidence/main/prereg/2026/08/RosettaQ__PREREG__RQ-PREREG-HSBC-003-CUANTICO__20260821T1701Z__brazo-cuantico-kernel-de-fidelidad-simulacion-pura.json",
+        "codeberg": "https://codeberg.org/RosettaQuantum/evidence/raw/branch/main/prereg/2026/08/RosettaQ__PREREG__RQ-PREREG-HSBC-003-CUANTICO__20260821T1701Z__brazo-cuantico-kernel-de-fidelidad-simulacion-pura.json"
+      },
+      {
+        "id": "RQ-PREREG-HSBC-002-ATAQUE",
+        "tipo": "PREREG",
+        "receta": "RQ-PREREG-HSBC-002-ATAQUE",
+        "fecha": "2026-08-21",
+        "hash": "sha256:87c187b48627d52958728365c1e31b08c71a656bfbad14b8f632f89b9fdcf8c4",
+        "github": "https://raw.githubusercontent.com/RosettaQuantum/evidence/main/prereg/2026/08/RosettaQ__PREREG__RQ-PREREG-HSBC-002-ATAQUE__20260821T1200Z__replicacion-adversarial-tres-salidas-declaradas.json",
+        "codeberg": "https://codeberg.org/RosettaQuantum/evidence/raw/branch/main/prereg/2026/08/RosettaQ__PREREG__RQ-PREREG-HSBC-002-ATAQUE__20260821T1200Z__replicacion-adversarial-tres-salidas-declaradas.json"
+      },
+      {
+        "id": "RQ-EXP-HSBC-BASE-001",
+        "tipo": "RUN",
+        "receta": "RQ-EXP-HSBC-BASE-001",
+        "fecha": "2026-08-21",
+        "hash": "sha256:2cc73ac7c845a57e575669d8426667ea9cc887de3ccf700a1343db1a6a492e9c",
+        "github": "https://raw.githubusercontent.com/RosettaQuantum/evidence/main/runs/2026/08/RosettaQ__RUN__RQ-EXP-HSBC-BASE-001__20260821T1325Z__baseline-clasico-ulb-particion-temporal.json",
+        "codeberg": "https://codeberg.org/RosettaQuantum/evidence/raw/branch/main/runs/2026/08/RosettaQ__RUN__RQ-EXP-HSBC-BASE-001__20260821T1325Z__baseline-clasico-ulb-particion-temporal.json"
+      },
+      {
+        "id": "RQ-EXP-HSBC-ATAQUE-001",
+        "tipo": "RUN",
+        "receta": "RQ-EXP-HSBC-ATAQUE-001",
+        "fecha": "2026-08-21",
+        "hash": "sha256:12f18492764f1f7108f14d451f8e9620da7918564c158c13302d77ef4d7b3115",
+        "github": "https://raw.githubusercontent.com/RosettaQuantum/evidence/main/runs/2026/08/RosettaQ__RUN__RQ-EXP-HSBC-ATAQUE-001__20260821T2000Z__replicacion-adversarial--salida-1-implementacion-validada.json",
+        "codeberg": "https://codeberg.org/RosettaQuantum/evidence/raw/branch/main/runs/2026/08/RosettaQ__RUN__RQ-EXP-HSBC-ATAQUE-001__20260821T2000Z__replicacion-adversarial--salida-1-implementacion-validada.json"
+      },
+      {
+        "id": "RQ-ERRATA-POC-QPU-001",
+        "tipo": "ERRATA",
+        "receta": "RQ-ERRATA-POC-QPU-001",
+        "fecha": "2026-08-21",
+        "hash": "sha256:2275b61b42cab8ccc6db5aefc3cb1ba2b7aa3e402ffceb48f64556969146de3e",
+        "github": "https://raw.githubusercontent.com/RosettaQuantum/evidence/main/reports/2026/08/RosettaQ__ERRATA__RQ-ERRATA-POC-QPU-001__20260821T1834Z__masa-en-bolsillo-bajo-el-azar-y-etiquetas-espejadas.json",
+        "codeberg": "https://codeberg.org/RosettaQuantum/evidence/raw/branch/main/reports/2026/08/RosettaQ__ERRATA__RQ-ERRATA-POC-QPU-001__20260821T1834Z__masa-en-bolsillo-bajo-el-azar-y-etiquetas-espejadas.json"
+      },
+      {
+        "id": "RQ-PREREG-HSBC-001",
+        "tipo": "PREREG",
+        "receta": "RQ-PREREG-HSBC-001",
+        "fecha": "2026-08-20",
+        "hash": "sha256:b04f214fae845b1c50431d225e6590b0956d8920c24b7c7fa26ed94c58f3f2db",
+        "github": "https://raw.githubusercontent.com/RosettaQuantum/evidence/main/prereg/2026/08/RosettaQ__PREREG__RQ-PREREG-HSBC-001__20260820T1500Z__fraude-tarjetas-diseno-y-protocolo.json",
+        "codeberg": "https://codeberg.org/RosettaQuantum/evidence/raw/branch/main/prereg/2026/08/RosettaQ__PREREG__RQ-PREREG-HSBC-001__20260820T1500Z__fraude-tarjetas-diseno-y-protocolo.json"
+      },
+      {
+        "id": "RQ-PREREG-AIRBUS-001",
+        "tipo": "PREREG",
+        "receta": "RQ-PREREG-AIRBUS-001",
+        "fecha": "2026-08-20",
+        "hash": "sha256:39a16cf63a36095217fdf5fbdbf104f015c01617eb5e0944e90627d8d0d4af02",
+        "github": "https://raw.githubusercontent.com/RosettaQuantum/evidence/main/prereg/2026/08/RosettaQ__PREREG__RQ-PREREG-AIRBUS-001__20260820T1900Z__cruce-tiempo-error-vs-reynolds-arbitro-analitico.json",
+        "codeberg": "https://codeberg.org/RosettaQuantum/evidence/raw/branch/main/prereg/2026/08/RosettaQ__PREREG__RQ-PREREG-AIRBUS-001__20260820T1900Z__cruce-tiempo-error-vs-reynolds-arbitro-analitico.json"
+      },
+      {
+        "id": "RQ-DATA-HSBC-ULB-001",
+        "tipo": "MANIFEST",
+        "receta": "RQ-DATA-HSBC-ULB-001",
+        "fecha": "2026-08-20",
+        "hash": "sha256:71010a1afbf85a0d831bfdc4dcca75754a439125af7fb680132ba3cf71e4503f",
+        "github": "https://raw.githubusercontent.com/RosettaQuantum/evidence/main/manifests/RosettaQ__MANIFEST__RQ-DATA-HSBC-ULB-001__20260820T1700Z__ulb-creditcard-manifiesto-antes-de-entrenar.json",
+        "codeberg": "https://codeberg.org/RosettaQuantum/evidence/raw/branch/main/manifests/RosettaQ__MANIFEST__RQ-DATA-HSBC-ULB-001__20260820T1700Z__ulb-creditcard-manifiesto-antes-de-entrenar.json"
+      },
+      {
+        "id": "RQ-PREREG-EON-DICKE-001",
+        "tipo": "PREREG",
+        "receta": "RQ-PREREG-EON-DICKE-001",
+        "fecha": "2026-08-19",
+        "hash": "sha256:4923551787bf882e108a8370acf8382e85c616386676002d2665a9344ccddfc1",
+        "github": "https://raw.githubusercontent.com/RosettaQuantum/evidence/main/prereg/2026/08/RosettaQ__PREREG__RQ-PREREG-EON-DICKE-001__20260819T1400Z__disparos-factibles-por-construccion.json",
+        "codeberg": "https://codeberg.org/RosettaQuantum/evidence/raw/branch/main/prereg/2026/08/RosettaQ__PREREG__RQ-PREREG-EON-DICKE-001__20260819T1400Z__disparos-factibles-por-construccion.json"
+      },
+      {
+        "id": "RQ-EXP-EON-E-REGRESION-X-005",
+        "tipo": "RUN",
+        "receta": "RQ-EXP-EON-E-REGRESION-X-005",
+        "fecha": "2026-08-19",
+        "hash": "sha256:e777c9894eadd3e93b58c56fc55b8ed3f6ff8e8186df791262c02f7be5ac2e5e",
+        "github": "https://raw.githubusercontent.com/RosettaQuantum/evidence/main/runs/2026/08/RosettaQ__RUN__RQ-EXP-EON-E-REGRESION-X-005__20260819T2000Z__regresion-camino-x--reproduce-lote-D-bit-a-bit.json",
+        "codeberg": "https://codeberg.org/RosettaQuantum/evidence/raw/branch/main/runs/2026/08/RosettaQ__RUN__RQ-EXP-EON-E-REGRESION-X-005__20260819T2000Z__regresion-camino-x--reproduce-lote-D-bit-a-bit.json"
+      },
+      {
+        "id": "RQ-EXP-EON-E-K16-005",
+        "tipo": "RUN",
+        "receta": "RQ-EXP-EON-E-K16-005",
+        "fecha": "2026-08-19",
+        "hash": "sha256:e92552e0e93faa1253497dbeb15eb774efc8c6e594e7e6d922ebccc83312cb48",
+        "github": "https://raw.githubusercontent.com/RosettaQuantum/evidence/main/runs/2026/08/RosettaQ__RUN__RQ-EXP-EON-E-K16-005__20260819T2000Z__dicke-xy-K16--el-punto-que-informa.json",
+        "codeberg": "https://codeberg.org/RosettaQuantum/evidence/raw/branch/main/runs/2026/08/RosettaQ__RUN__RQ-EXP-EON-E-K16-005__20260819T2000Z__dicke-xy-K16--el-punto-que-informa.json"
+      },
+      {
+        "id": "RQ-EXP-EON-E-K12-005",
+        "tipo": "RUN",
+        "receta": "RQ-EXP-EON-E-K12-005",
+        "fecha": "2026-08-19",
+        "hash": "sha256:803a028d6bfab2ed954968072e71a6827775cca89f4745f788ee7da8b49fa002",
+        "github": "https://raw.githubusercontent.com/RosettaQuantum/evidence/main/runs/2026/08/RosettaQ__RUN__RQ-EXP-EON-E-K12-005__20260819T2000Z__dicke-xy-K12--optimo-encontrado.json",
+        "codeberg": "https://codeberg.org/RosettaQuantum/evidence/raw/branch/main/runs/2026/08/RosettaQ__RUN__RQ-EXP-EON-E-K12-005__20260819T2000Z__dicke-xy-K12--optimo-encontrado.json"
+      },
+      {
+        "id": "RQ-EXP-EON-E-K08-005",
+        "tipo": "RUN",
+        "receta": "RQ-EXP-EON-E-K08-005",
+        "fecha": "2026-08-19",
+        "hash": "sha256:4aad91244a9551313affc0d36e55f3dfdf0c8d5bb942e6b4a489fe70ab26b6bc",
+        "github": "https://raw.githubusercontent.com/RosettaQuantum/evidence/main/runs/2026/08/RosettaQ__RUN__RQ-EXP-EON-E-K08-005__20260819T2000Z__dicke-xy-K8--empate-esperado.json",
+        "codeberg": "https://codeberg.org/RosettaQuantum/evidence/raw/branch/main/runs/2026/08/RosettaQ__RUN__RQ-EXP-EON-E-K08-005__20260819T2000Z__dicke-xy-K8--empate-esperado.json"
+      },
+      {
+        "id": "RQ-EXP-EON-D-K20-TRUNCADO-004",
+        "tipo": "RUN",
+        "receta": "RQ-EXP-EON-D-K20-TRUNCADO-004",
+        "fecha": "2026-08-19",
+        "hash": "sha256:27df73ab30b7e8370f4b01295fcf6744105f503d0162b1523b76fff27a9ef103",
+        "github": "https://raw.githubusercontent.com/RosettaQuantum/evidence/main/runs/2026/08/RosettaQ__RUN__RQ-EXP-EON-D-K20-TRUNCADO-004__20260819T2200Z__post-arreglo-ising-K20--TRUNCADO-52-de-400-pasos.json",
+        "codeberg": "https://codeberg.org/RosettaQuantum/evidence/raw/branch/main/runs/2026/08/RosettaQ__RUN__RQ-EXP-EON-D-K20-TRUNCADO-004__20260819T2200Z__post-arreglo-ising-K20--TRUNCADO-52-de-400-pasos.json"
+      },
+      {
+        "id": "RQ-EXP-EON-D-K16-004",
+        "tipo": "RUN",
+        "receta": "RQ-EXP-EON-D-K16-004",
+        "fecha": "2026-08-18",
+        "hash": "sha256:b36e92c6017a8b771b4232dc6ffbc1d42460523796a8934e1318c883c9f58aeb",
+        "github": "https://raw.githubusercontent.com/RosettaQuantum/evidence/main/runs/2026/08/RosettaQ__RUN__RQ-EXP-EON-D-K16-004__20260818T2100Z__post-arreglo-ising-K16--clasico-gana.json",
+        "codeberg": "https://codeberg.org/RosettaQuantum/evidence/raw/branch/main/runs/2026/08/RosettaQ__RUN__RQ-EXP-EON-D-K16-004__20260818T2100Z__post-arreglo-ising-K16--clasico-gana.json"
+      },
+      {
+        "id": "RQ-EXP-EON-D-K12-004",
+        "tipo": "RUN",
+        "receta": "RQ-EXP-EON-D-K12-004",
+        "fecha": "2026-08-18",
+        "hash": "sha256:b9e99347a364bbdec3a97ceb8b429ece2a39ad8cefa307882e50b08449151ff6",
+        "github": "https://raw.githubusercontent.com/RosettaQuantum/evidence/main/runs/2026/08/RosettaQ__RUN__RQ-EXP-EON-D-K12-004__20260818T2100Z__post-arreglo-ising-K12--clasico-gana.json",
+        "codeberg": "https://codeberg.org/RosettaQuantum/evidence/raw/branch/main/runs/2026/08/RosettaQ__RUN__RQ-EXP-EON-D-K12-004__20260818T2100Z__post-arreglo-ising-K12--clasico-gana.json"
+      },
+      {
+        "id": "RQ-EXP-EON-D-K08-004",
+        "tipo": "RUN",
+        "receta": "RQ-EXP-EON-D-K08-004",
+        "fecha": "2026-08-18",
+        "hash": "sha256:3f07dfffe9473fe3a13b57c27a5ff08444e9bdd9a8c2cd4bfa8fe7ca0063831f",
+        "github": "https://raw.githubusercontent.com/RosettaQuantum/evidence/main/runs/2026/08/RosettaQ__RUN__RQ-EXP-EON-D-K08-004__20260818T2100Z__post-arreglo-ising-K8--empate.json",
+        "codeberg": "https://codeberg.org/RosettaQuantum/evidence/raw/branch/main/runs/2026/08/RosettaQ__RUN__RQ-EXP-EON-D-K08-004__20260818T2100Z__post-arreglo-ising-K8--empate.json"
+      },
+      {
+        "id": "RQ-EON-QPU-003",
+        "tipo": "RUN",
+        "receta": "RQ-EON-QPU-003",
+        "fecha": "2026-08-18",
+        "hash": "sha256:0dacd5b84c30b3c305c6a11506e1ec7949ae62eb6f12ae2e66e07308719219b2",
+        "github": "https://raw.githubusercontent.com/RosettaQuantum/evidence/main/runs/2026/08/RosettaQ__RUN__RQ-EON-QPU-003__20260817T2200Z__qaoa-p1-variables-permutadas--la-antipreferencia-no-es-del-metodo.json",
+        "codeberg": "https://codeberg.org/RosettaQuantum/evidence/raw/branch/main/runs/2026/08/RosettaQ__RUN__RQ-EON-QPU-003__20260817T2200Z__qaoa-p1-variables-permutadas--la-antipreferencia-no-es-del-metodo.json"
+      },
+      {
+        "id": "RQ-EON-QPU-002",
+        "tipo": "RUN",
+        "receta": "RQ-EON-QPU-002",
+        "fecha": "2026-08-18",
+        "hash": "sha256:1365b2de2097d266ca63c1e524590832029183b03352dd6226fc9ccec4aad35b",
+        "github": "https://raw.githubusercontent.com/RosettaQuantum/evidence/main/runs/2026/08/RosettaQ__RUN__RQ-EON-QPU-002__20260817T2000Z__qaoa-p1-case118-K10--elegida-a-posteriori.json",
+        "codeberg": "https://codeberg.org/RosettaQuantum/evidence/raw/branch/main/runs/2026/08/RosettaQ__RUN__RQ-EON-QPU-002__20260817T2000Z__qaoa-p1-case118-K10--elegida-a-posteriori.json"
+      },
+      {
+        "id": "RQ-EON-QPU-001",
+        "tipo": "RUN",
+        "receta": "RQ-EON-QPU-001",
+        "fecha": "2026-08-18",
+        "hash": "sha256:6781f2d07272d1c3cec2dc5e398799c7705efcef7986559ff59d671e6130e12c",
+        "github": "https://raw.githubusercontent.com/RosettaQuantum/evidence/main/runs/2026/08/RosettaQ__RUN__RQ-EON-QPU-001__20260817T1800Z__qaoa-p2-case118-K10-en-ibm-marrakesh.json",
+        "codeberg": "https://codeberg.org/RosettaQuantum/evidence/raw/branch/main/runs/2026/08/RosettaQ__RUN__RQ-EON-QPU-001__20260817T1800Z__qaoa-p2-case118-K10-en-ibm-marrakesh.json"
+      }
+    ]
+  },
   "recipes": [
     {
       "id": "RQ-0007",

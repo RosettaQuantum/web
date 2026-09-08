@@ -13,7 +13,7 @@ import { DECLARADAS } from "./zonas.js";
  * LAS DOS REGLAS QUE ESTE ARCHIVO IMPONE
  * --------------------------------------
  * 1. NADA INVENTADO. Si un campo viene vacio, se muestra vacio o "sin medir". Nunca un
- *    valor de relleno: esta es la pantalla con la que Nicholas vende, y un dato
+ *    valor de relleno: esta es la pantalla con la que se vende, y un dato
  *    plausible que nadie midio es el peor defecto en el peor lugar.
  * 2. SI LA API FALLA, SE DICE. Con la ruta que fallo, a la vista. Una pantalla que
  *    parece cargada mientras el dato no llego es exactamente el fallo silencioso.
@@ -513,7 +513,7 @@ async function arrancar() {
  * SIN error, que es la peor de las tres. Lo vi en vivo recargando la consola.
  *
  * Una pantalla vacia sin explicacion es indistinguible de "no hay datos", y esta es la
- * pantalla con la que Nicholas vende.
+ * pantalla con la que se vende.
  */
 if (document.readyState === "loading") {
   document.addEventListener("DOMContentLoaded", arrancar);

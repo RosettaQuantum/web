@@ -1,0 +1,19 @@
+---
+/**
+ * /es/servicios — commit 9.
+ *
+ * TEXTO EN ESPAÑOL: BORRADOR, sin aprobar. La aprobacion que existe cubre la home y
+ * el texto de /about. Ver handoff/web/ES-BORRADOR-paginas-nuevas.md.
+ */
+import MarcaLayout from '../../layouts/MarcaLayout.astro';
+import Servicios from '../../components/paginas/Servicios.astro';
+import css from '../../styles/pages/paginas.css?raw';
+---
+<MarcaLayout
+  title="Servicios y precios — Rosetta Quantum"
+  description="Precios públicos para la evaluación independiente de claims cuánticos: pilot referee, screening, informes de diligencia y la Evidence Library."
+  lang="es" altUrl="/services" ruta="/es/servicios"
+  pageCss={css} scripts={[]}
+>
+  <Servicios lang="es" />
+</MarcaLayout>

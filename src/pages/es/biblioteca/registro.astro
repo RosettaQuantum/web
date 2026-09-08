@@ -1,0 +1,31 @@
+---
+/**
+ * /es/biblioteca/registro — espejo de /library/registry. Commit 7.
+ * Texto BORRADOR, sin aprobar: ver la nota de /es/biblioteca/index.astro.
+ *
+ * El vocabulario de estado NO se traduce: es el de D1 (spec §1.4). Traducirlo en la
+ * vista seria decidir en la presentacion algo que decide la fuente.
+ */
+import MarcaLayout from '../../../layouts/MarcaLayout.astro';
+import css from '../../../styles/pages/library.css?raw';
+---
+<MarcaLayout
+  title="Survival Registry — Rosetta Quantum"
+  description="Dieciséis claims de ventaja cuántica rastreados: cuándo se hizo cada uno, cuándo fue desafiado y cuánto de su vida sobrevivió sin desafío."
+  lang="es" altUrl="/library/registry" ruta="/es/biblioteca"
+  pageCss={css} scripts={["/js/library.js"]}
+>
+  <section class="lib-head" style="border-top:none">
+    <div class="wrap">
+      <div class="eyebrow">El Survival Registry</div>
+      <h1 class="lib-q">Cada claim rastreado, y cuánto se mantuvo en pie.</h1>
+      <p class="lib-sub">La barra es la fracción de la vida de cada claim que pasó sin un desafío registrado. Los días se computan cuando miras la página, no cuando se construyó.</p>
+      <table class="reg">
+        <thead><tr><th>id</th><th>claim</th><th>fecha</th><th>estado</th><th>sobrevivió sin desafío</th><th>fuente</th></tr></thead>
+        <tbody id="regBody"><tr><td colspan="6" class="res-vacio">Cargando desde /v1/claims…</td></tr></tbody>
+      </table>
+      <div class="reg-den" id="regDen"></div>
+      <p class="sealline mono" style="margin-top:12px">Fuente: <a href="/v1/claims">/v1/claims</a> · el vocabulario de estado es el de D1, sin mapear · <a href="/es/biblioteca">volver a la Biblioteca</a></p>
+    </div>
+  </section>
+</MarcaLayout>

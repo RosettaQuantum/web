@@ -1,8 +1,16 @@
 ---
-import BaseLayout from '../layouts/BaseLayout.astro';
-import Ledger from '../components/Ledger.astro';
-import css from '../styles/pages/ledger.css?raw';
+/**
+ * /ledger — commit 8. La URL no cambia: la citan sellos y claims propios.
+ */
+import MarcaLayout from '../layouts/MarcaLayout.astro';
+import LedgerV2 from '../components/LedgerV2.astro';
+import css from '../styles/pages/ledger-v2.css?raw';
 ---
-<BaseLayout title="The Evidence Ledger — Rosetta Q" description="The public record of Rosetta's verdicts, with reproducible evidence." lang="en" altUrl="/es/ledger" pageCss={css}>
-  <Ledger lang="en" />
-</BaseLayout>
+<MarcaLayout
+  title="The Ledger — Rosetta Quantum"
+  description="Every experiment, report and correction we produce, hash-anchored to Bitcoin and mirrored on GitHub, Codeberg and D1 — including the ones we lose."
+  lang="en" altUrl="/es/ledger" ruta="/ledger"
+  pageCss={css} scripts={["/js/ledger.js"]}
+>
+  <LedgerV2 lang="en" />
+</MarcaLayout>

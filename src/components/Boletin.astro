@@ -1,0 +1,74 @@
+---
+/**
+ * Bloque de captura de correo. DOS variantes, porque son DOS consentimientos.
+ *
+ * QUE SE MIDIO, Y POR QUE HAY DOS
+ * -------------------------------
+ * Hasta el 13-bis el blog servia la caja del MONITOR: prometia "one email when the
+ * edition seals · no list, no drip" a alguien que estaba leyendo un post. Quien deja su
+ * correo ahi no pidio la edicion del Monitor — y la promesa que leyo es la unica que
+ * autorizo. Servir una promesa y usar el correo para otra cosa es el defecto, no un
+ * detalle de copia.
+ *
+ *   variante="monitor" → SOLO la home. Una edicion cuando selle. lista='monitor'.
+ *   variante="weekly"  → blog e indices. Un correo por semana.  lista='weekly'.
+ *
+ * EL TEXTO NO SE INVENTA
+ * ----------------------
+ * · 'monitor': el aprobado de la maqueta v20 (EN) y de rosetta-home-es-textos-v20.md (ES).
+ * · 'weekly' EN: titulo y promesa TEXTUALES de la instruccion de Cowork del 8-sep.
+ * · 'weekly' ES: el titulo es textual ("Recibe la próxima."). La promesa la propuse yo
+ *   —el documento que la traia, handoff/web/rosetta-newsletter-bloque-spec.md, no existe
+ *   en el arbol y la instruccion no la incluia— y Nicholas la APROBO el 8-sep, vista.
+ *   Desde ahora no se cambia sin volver a mostrarla (CLAUDE.md §5).
+ * · Los textos funcionales (marcador de posicion y confirmacion) se REUSAN de la caja
+ *   del Monitor, que ya estan aprobados. Lo unico nuevo es la etiqueta del boton.
+ *
+ * Escribe donde ya hay tabla: POST /api/subscribe con `lista`. Un segundo buzon para lo
+ * mismo es una lista que vive en dos lugares, y esas ya divergieron.
+ */
+const { lang = 'en', variante = 'monitor' } = Astro.props;
+const es = lang === 'es';
+
+const MONITOR = es
+  ? { eyebrow: 'RQ Advantage Monitor · Edición 001 · en preparación',
+      h: 'Lo que el ledger ya puede decir.',
+      btn: 'Recibe la Edición 001 cuando selle',
+      pie: 'un solo correo cuando la edición selle · sin lista, sin goteo',
+      asunto: 'Monitor%20Edici%C3%B3n%20001' }
+  : { eyebrow: 'RQ Advantage Monitor · Edition 001 · in preparation',
+      h: 'What the ledger can already say.',
+      btn: 'Get Edition 001 when it seals',
+      pie: 'one email when the edition seals · no list, no drip',
+      asunto: 'Monitor%20Edition%20001' };
+
+const WEEKLY = es
+  ? { eyebrow: null,
+      h: 'Recibe la próxima.',
+      // Aprobada por Nicholas el 8-sep. No se cambia sin mostrarla antes.
+      pie: 'Un correo por semana: lo que publicó el motor de evidencia y lo que se movió en el registro. Sin ofertas.',
+      btn: 'Suscríbete',
+      asunto: 'Suscripci%C3%B3n%20semanal' }
+  : { eyebrow: null,
+      h: 'Get the next one.',
+      pie: 'One email a week: what the evidence engine published and what moved in the registry. No pitches.',
+      btn: 'Subscribe',
+      asunto: 'Weekly%20subscription' };
+
+const t = variante === 'weekly' ? WEEKLY : MONITOR;
+const lista = variante === 'weekly' ? 'weekly' : 'monitor';
+// Aprobados los dos, se reusan tal cual en las dos cajas.
+const ph = es ? 'tu@firma.com' : 'you@firm.com';
+const ok = es ? 'Anotado ✓' : "You're on the list ✓";
+---
+<section class="boletin" data-lista={lista}><div class="wrap">
+  {t.eyebrow && <div class="eyebrow">{t.eyebrow}</div>}
+  <h2 style="font-size:24px">{t.h}</h2>
+  {variante === 'weekly' && <p class="promesa">{t.pie}</p>}
+  <div class="forma" style="margin-top:14px">
+    <input id="monMail" type="email" placeholder={ph} aria-label={ph} />
+    <a id="monGo" class="btn btn-solid" style="border-radius:0" data-ok={ok} data-lista={lista}
+       href={`mailto:hello@rosettaquantum.com?subject=${t.asunto}`}>{t.btn}</a>
+  </div>
+  {variante !== 'weekly' && <p class="sealline mono">{t.pie}</p>}
+</div></section>

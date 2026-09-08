@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en" style="color-scheme:light only">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="color-scheme" content="light only">
+<title>Rosetta Quantum — Decision page · V-0012 (sample)</title>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,400;6..72,500&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{--paper:#F4F5F1;--ink:#16181B;--ink-60:#5A5D58;--line:#D9DBD6;--teal:#0F8B7E;--gold:#B8892E;--red:#B4432F;--panel:#FBFBF9}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--paper) !important;color:var(--ink) !important;font-family:'IBM Plex Sans',system-ui,sans-serif;font-size:14.5px;line-height:1.55;-webkit-font-smoothing:antialiased}
+.page{max-width:820px;margin:0 auto;padding:36px 26px 60px;background:#FFFFFE;min-height:100vh}
+@media print{body{background:#fff}.page{max-width:none;padding:18mm 16mm}.noprint{display:none}}
+.mono{font-family:'IBM Plex Mono',monospace}
+.top{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;border-bottom:1.5px solid var(--ink);padding-bottom:14px}
+.brand{display:flex;align-items:center;gap:10px}
+.brand b{font-family:'Newsreader',serif;font-weight:500;font-size:19px}
+.kind{font-family:'IBM Plex Mono',monospace;font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--teal)}
+.meta{text-align:right;font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--ink-60);line-height:1.6}
+h1{font-family:'Newsreader',serif;font-weight:500;font-size:28px;line-height:1.15;margin:22px 0 4px}
+.sub{font-family:'IBM Plex Mono',monospace;font-size:11.5px;color:var(--ink-60);margin-bottom:18px}
+.dp{border:1.5px solid var(--ink);border-radius:2px;background:var(--panel);font-family:'IBM Plex Mono',monospace;font-size:12.5px;line-height:1.85;padding:16px 18px}
+.dp .r{display:grid;grid-template-columns:118px 1fr;gap:10px;border-bottom:1px solid var(--line);padding:4px 0}
+.dp .r:last-child{border-bottom:none}
+.dp .k{color:var(--ink-60);letter-spacing:.06em}
+.vd{color:var(--gold);font-weight:500}
+.neg{color:var(--red);font-weight:500}
+.pos{color:var(--teal);font-weight:500}
+.plain{margin:18px 0;padding:14px 18px;border-left:3px solid var(--teal);background:var(--panel);font-size:15px;line-height:1.6}
+.plain b{display:block;font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--teal);margin-bottom:4px}
+h2{font-family:'Newsreader',serif;font-weight:500;font-size:19px;margin:26px 0 8px}
+.layers{display:grid;gap:0;border:1px solid var(--line);border-radius:2px}
+.lay{display:grid;grid-template-columns:120px 1fr;gap:12px;padding:11px 14px;border-bottom:1px solid var(--line)}
+.lay:last-child{border-bottom:none}
+.lay .n{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--teal);letter-spacing:.06em}
+.lay p{font-size:13.5px}
+.quote{border-left:3px solid var(--ink);padding:10px 16px;margin:12px 0;font-family:'IBM Plex Mono',monospace;font-size:12px;line-height:1.7;color:var(--ink);background:var(--panel)}
+.quote small{display:block;color:var(--ink-60);margin-top:6px;font-size:10.5px}
+svg.chart{width:100%;height:auto;display:block;border:1px solid var(--line);border-radius:2px;background:#fff;margin:12px 0}
+.foot{margin-top:30px;border-top:1px solid var(--ink);padding-top:14px;font-size:11.5px;color:var(--ink-60);line-height:1.65}
+.foot .mono{font-size:10.5px}
+.tag{display:inline-block;font-family:'IBM Plex Mono',monospace;font-size:9.5px;letter-spacing:.14em;text-transform:uppercase;border:1px solid var(--gold);color:var(--gold);padding:2px 7px;border-radius:2px;vertical-align:middle;margin-left:8px}
+</style>
+</head>
+<body><div class="page">
+
+<div class="top">
+  <div>
+    <div class="brand"><svg width="30" height="30" viewBox="-1 -1 47.75 47.75" aria-hidden="true"><path fill="#0F8B7E" d="M 14.878906 0.214844 C 15.207031 0.21875 15.5625 0.265625 15.871094 0.371094 C 19.308594 1.578125 18.585938 8.738281 20.019531 11.660156 C 20.625 9.429688 21.117188 6.972656 23.152344 5.570312 C 23.753906 5.152344 24.429688 4.949219 25.15625 5.125 C 28.984375 6.023438 26.675781 11.707031 26.429688 14.300781 C 26.261719 16.042969 26.347656 17.617188 27.257812 19.152344 C 27.375 17.628906 27.695312 16.074219 28.265625 14.65625 C 28.71875 13.523438 29.480469 12.160156 30.671875 11.699219 C 31.199219 11.5 31.738281 11.558594 32.242188 11.789062 C 36.609375 13.765625 31.457031 21.050781 32.742188 24.589844 C 32.757812 24.632812 32.773438 24.671875 32.789062 24.714844 C 33.058594 24.105469 33.363281 23.53125 33.746094 22.984375 C 34.507812 21.902344 35.746094 20.355469 37.117188 20.160156 C 37.65625 20.085938 38.214844 20.210938 38.636719 20.558594 C 40.675781 22.238281 37.75 28.363281 37.242188 30.585938 C 36.863281 32.238281 36.710938 34.132812 36.949219 35.820312 C 37.015625 36.308594 37.136719 36.796875 37.417969 37.203125 C 38.578125 38.867188 43.640625 42.386719 45.453125 43.769531 C 45.136719 44.203125 44.765625 44.585938 44.402344 44.980469 C 41.859375 42.351562 38.558594 40.335938 36.285156 37.46875 C 33.222656 38.183594 30.203125 38.929688 27.078125 39.355469 C 24.839844 39.65625 20.863281 40.558594 19.011719 39.066406 C 18.515625 38.667969 18.152344 38.078125 18.113281 37.4375 C 18.074219 36.769531 18.375 36.167969 18.828125 35.695312 C 21.375 33.054688 27.90625 34.238281 31.296875 34.148438 C 30.527344 33.726562 29.039062 33.683594 28.152344 33.636719 C 25.371094 33.484375 22.578125 33.492188 19.8125 33.855469 C 17.960938 34.097656 16.113281 34.53125 14.25 34.644531 C 12.941406 34.726562 11.203125 34.742188 10.191406 33.78125 C 9.710938 33.332031 9.460938 32.675781 9.464844 32.023438 C 9.46875 31.34375 9.804688 30.78125 10.289062 30.328125 C 13.507812 27.304688 21.488281 28.410156 25.554688 28.496094 C 23.996094 28.019531 22.226562 28.066406 20.609375 27.929688 C 18.261719 27.734375 15.917969 27.363281 13.5625 27.273438 C 11.992188 27.210938 10.472656 27.363281 8.90625 27.417969 C 7.222656 27.476562 5.582031 27.125 4.339844 25.902344 C 3.765625 25.335938 3.253906 24.523438 3.265625 23.691406 C 3.269531 23.132812 3.535156 22.652344 3.941406 22.285156 C 5.800781 20.601562 10.21875 20.796875 12.574219 20.964844 C 14.898438 21.273438 17.226562 21.71875 19.554688 21.972656 C 23.527344 25.621094 27.261719 29.589844 31.382812 33.0625 C 32.578125 34.066406 33.871094 34.976562 35.136719 35.886719 C 34.660156 35.375 34.222656 34.851562 33.796875 34.296875 C 33.714844 33.246094 33.53125 32.21875 33.5 31.15625 C 33.457031 29.546875 33.675781 27.886719 33.796875 26.277344 C 33.054688 28.75 32.84375 31.402344 33.402344 33.925781 C 32.320312 32.992188 31.09375 32.035156 30.199219 30.917969 C 28.78125 29.148438 27.667969 25.371094 27.289062 23.15625 C 27.089844 21.972656 27.054688 20.457031 26.535156 19.390625 C 26.664062 22.839844 27.410156 27.109375 29.230469 30.078125 C 29.199219 30.054688 29.164062 30.027344 29.132812 30.003906 C 28.0625 29.152344 27.078125 28.140625 26.074219 27.210938 C 24.535156 25.789062 22.96875 24.386719 21.488281 22.902344 C 19.960938 21.375 18.109375 19.734375 16.933594 17.910156 C 15.632812 15.910156 14.738281 11.335938 14.511719 8.933594 C 14.394531 7.675781 14.480469 6.40625 14.332031 5.152344 L 14.3125 5.011719 C 13.667969 9.195312 14.734375 13.054688 15.851562 17.046875 C 15.003906 16.316406 14.304688 15.410156 13.550781 14.585938 C 11.675781 12.515625 7.492188 7.769531 5.242188 6.453125 C 5.242188 6.597656 5.476562 6.757812 5.589844 6.863281 C 7.769531 8.992188 9.695312 11.335938 11.726562 13.609375 C 14.21875 16.386719 16.773438 19.105469 19.386719 21.769531 C 14.722656 20.675781 4.511719 19.710938 1.339844 16.382812 C 0.882812 15.902344 0.53125 15.300781 0.5625 14.621094 C 0.6875 11.796875 4.046875 12.941406 5.390625 11.796875 C 5.472656 11.535156 5.492188 11.488281 5.339844 11.230469 C 5.101562 10.835938 4.601562 10.46875 4.261719 10.164062 C 2.703125 8.773438 0.667969 7.238281 0.179688 5.097656 C 0 4.292969 0.0546875 3.402344 0.511719 2.699219 C 1.179688 1.675781 2.234375 0.722656 3.464844 0.496094 C 6.046875 0.0195312 7.765625 2.355469 9.640625 3.613281 C 11.640625 4.964844 11.800781 0.824219 14.878906 0.214844 Z M 14.878906 0.214844 "/></svg><b>Rosetta Quantum</b></div>
+    <div class="kind" style="margin-top:6px">Decision page · sample <span class="tag">real data · sample layout</span></div>
+  </div>
+  <div class="meta">Verdict V-0012 · Recipe RQ-0012<br>Sealed 2026-07-24 13:08 UTC · 20 supporting runs<br>Protocol juez-v1 · Pre-registered</div>
+</div>
+
+<h1>Constrained portfolio compression: does QAOA beat the classical champion?</h1>
+<div class="sub">Class: portfolio optimization · Quantum side: QAOA p=2 (PennyLane, exact simulator) · Classical side: OR-Tools CP-SAT · Same instance, same budget, exact optimum as referee</div>
+
+<div class="dp">
+  <div class="r"><span class="k">CLAIM</span><span>"QAOA can match or beat classical solvers on constrained portfolio selection at small n." — internal hypothesis, pre-registered before any run (PR-ITER2-001)</span></div>
+  <div class="r"><span class="k">VERDICT</span><span><span class="vd">not yet</span> · advantage measured: none · classical wins on 20 / 20 runs</span></div>
+  <div class="r"><span class="k">MARGIN</span><span>QAOA gap to the proven optimum: <span class="neg">48.2% (σ 22.5)</span> at n=12 · <span class="neg">25.1% (σ 11.1)</span> at n=16 · <span class="neg">41.1% (σ 14.1)</span> at n=20 · CP-SAT gap: 0.0% on all 20</span></div>
+  <div class="r"><span class="k">CONFIDENCE</span><span>8 / 8 / 4 seeds · seed ranges overlap across n · no defensible size trend</span></div>
+  <div class="r"><span class="k">LEVEL</span><span>EL2 — own sealed runs · would reach EL3 with an independent reproduction of the harness</span></div>
+  <div class="r"><span class="k">WOULD FLIP</span><span>a crossover trend at n ≥ 24 under the same budget · deeper QAOA (p ≥ 4) at parity · noise-aware hardware runs beating simulator quality</span></div>
+  <div class="r"><span class="k">ECONOMICS</span><span>[client units — set together: e.g. gap × rebalancing book × frequency]</span></div>
+  <div class="r"><span class="k">SEALS</span><span class="mono">sha256:f510eff654a6ebf94e368b00cd556a2977335c9df1a751fef0ba1ac114ea6636 · OTS anchored · GitHub · Codeberg · D1</span></div>
+</div>
+
+<div class="plain"><b>In plain terms</b>We put a quantum algorithm and a classical one on the same investment problem, same time, same machine. The classical one found the perfect answer in all twenty tests; the quantum one always fell short — between 10% and 87% depending on the seed — and the gap does not shrink consistently as the problem grows. The question stays open for one measured reason: the classical solver's time to <i>prove</i> it found the best answer grew about 25× for every four assets added.</div>
+
+<h2>The five layers</h2>
+<div class="layers">
+  <div class="lay"><span class="n">0 · INTEGRITY</span><p>Harness harness_v0.py published with the record; instances regenerated from declared seeds; both sides run on the same machine under a 120 s budget.</p></div>
+  <div class="lay"><span class="n">1 · VERDICT</span><p>Criterion sealed before any run: advantage = QAOA reaching the exact optimum at least as often as CP-SAT within budget. Result: never.</p></div>
+  <div class="lay"><span class="n">2 · MAGNITUDE</span><p>Mean gaps 48.2 / 25.1 / 41.1 % with seed dispersion 10–23 points; every one of the 20 individual gaps is drawn below and recomputed from the sealed runs.</p></div>
+  <div class="lay"><span class="n">3 · ROBUSTNESS</span><p>Seed ranges overlap across n=12/16/20; the verdict does not depend on any single seed or size. QAOA never wins against a strong baseline; whether it wins against weak ones was not the question.</p></div>
+  <div class="lay"><span class="n">4 · TRIGGERS</span><p>Measured side note: CP-SAT's optimality-proof time grew ~25× per +4 assets (0.05 s → 1.3 s → 29 s). If that curve continues, the budget-parity fight at n ≥ 28 is a different fight.</p></div>
+  <div class="lay"><span class="n">5 · YOUR UNITS</span><p>Set with the client: the gap translated into the rebalancing book, frequency and cost of suboptimality — supplied by the client or marked as assumption.</p></div>
+</div>
+
+<svg class="chart" viewBox="0 0 640 230" role="img" aria-label="20 sealed runs: QAOA gap to exact optimum">
+  <g font-family="IBM Plex Mono, monospace" font-size="11" fill="#5A5D58">
+    <text x="40" y="24">bar = mean QAOA gap · ○ = each sealed run · teal line = exact optimum (CP-SAT, 20/20)</text>
+    <line x1="60" y1="190" x2="600" y2="190" stroke="#D9DBD6"/>
+    <text x="200" y="210" text-anchor="middle">0%</text><text x="393" y="210" text-anchor="middle">50%</text><text x="586" y="210" text-anchor="end">100%</text>
+    <text x="60" y="66" fill="#16181B">n = 12 · 8 seeds</text><text x="60" y="116" fill="#16181B">n = 16 · 8 seeds</text><text x="60" y="166" fill="#16181B">n = 20 · 4 seeds</text>
+  </g>
+  <g>
+    <rect x="200" y="50" width="186" height="20" fill="#B4432F"/><text x="592" y="64" font-family="IBM Plex Mono" font-size="12" fill="#16181B" text-anchor="end">48.2% (σ 22.5)</text>
+    <rect x="200" y="100" width="97" height="20" fill="#B4432F"/><text x="592" y="114" font-family="IBM Plex Mono" font-size="12" fill="#16181B" text-anchor="end">25.1% (σ 11.1)</text>
+    <rect x="200" y="150" width="159" height="20" fill="#B4432F"/><text x="592" y="164" font-family="IBM Plex Mono" font-size="12" fill="#16181B" text-anchor="end">41.1% (σ 14.1)</text>
+    <g fill="#FBFBF9" stroke="#16181B" stroke-width="1.2">
+      <circle cx="365.2" cy="60" r="3"/><circle cx="407.3" cy="60" r="3"/><circle cx="368.8" cy="60" r="3"/><circle cx="290.3" cy="60" r="3"/><circle cx="353.8" cy="60" r="3"/><circle cx="285" cy="60" r="3"/><circle cx="483.4" cy="60" r="3"/><circle cx="534.1" cy="60" r="3"/>
+      <circle cx="280" cy="110" r="3"/><circle cx="363.4" cy="110" r="3"/><circle cx="282.2" cy="110" r="3"/><circle cx="319.7" cy="110" r="3"/><circle cx="320.4" cy="110" r="3"/><circle cx="326.3" cy="110" r="3"/><circle cx="247.4" cy="110" r="3"/><circle cx="237" cy="110" r="3"/>
+      <circle cx="293.6" cy="160" r="3"/><circle cx="425.8" cy="160" r="3"/><circle cx="365.7" cy="160" r="3"/><circle cx="349.8" cy="160" r="3"/>
+    </g>
+    <line x1="200" y1="40" x2="200" y2="182" stroke="#0F8B7E" stroke-width="2"/>
+  </g>
+</svg>
+
+<div class="quote">"CP-SAT alcanzo el optimo exacto probado en los 20 runs sellados (n=12: 8 seeds, n=16: 8, n=20: 4). Brechas medias de QAOA p=2 al optimo: 48.2% (sigma 22.5), 25.1% (sigma 11.1), 41.1% (sigma 14.1). Sin tendencia de tamano defendible: los rangos entre semillas se solapan."<small>— verbatim from the sealed verdict file, unedited (ASCII, no accents in the original)</small></div>
+
+<div class="foot">
+  <div><b>What this page is.</b> Page 1 of every Rosetta Quantum deliverable. If it does not stand on its own, the report is wrong. A full Diligence Report adds 25–40 pages behind it: instances, harness, every run, and the economics in the client's units.</div>
+  <div style="margin-top:8px"><b>Who paid.</b> Nobody: this is our own experiment, published under the same rules we apply to everyone. Judgment is paid for by those who rely on it — never by the vendors being evaluated.</div>
+  <div style="margin-top:8px">"Not yet" and "no advantage measured" are measurements under the pre-registered criterion, not allegations. Each source states its own caveats.</div>
+  <div class="mono" style="margin-top:10px">Rosetta Quantum is a brand of Blue Tuna SpA · hello@rosettaquantum.com · Verify: download the sealed file and recompute sha256 · Methodology v1.0 · juez-v1</div>
+</div>
+
+</div></body></html>

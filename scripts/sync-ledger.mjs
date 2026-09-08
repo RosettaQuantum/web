@@ -33,6 +33,16 @@ try {
   const recipes  = q('SELECT id,name,problem_class,vertical,algorithm,qubits_required,status FROM recipes ORDER BY id');
   const verdicts = q('SELECT recipe_id,outcome,crossover,summary,is_demo FROM verdicts');
   const exps     = q('SELECT recipe_id,instance,quantum_json,classical_json,seed,raw_data_url FROM experiments');
+  // Los artefactos sellados, para que el ledger los lleve EN EL HTML y no solo detras de
+  // una isla. Medido el 7-sep: produccion servia 52 ids de corrida y 48 enlaces a la
+  // evidencia en la pagina; el rediseño los bajo a 15 y 12, porque la tabla pasa a
+  // pintarse desde /v1/runs. Para una persona es igual; para un rastreador que no
+  // ejecuta JavaScript, el ledger encogio dos tercios. Se hornean 45 —los mas recientes—
+  // y la isla sigue paginando el resto contra el endpoint.
+  const artefactos = q(
+    'SELECT file_id,type,recipe_id,archived_at,content_hash,github_url,codeberg_url ' +
+    'FROM run_archives ORDER BY archived_at DESC, file_id DESC LIMIT 45'
+  );
   const published = verdicts.filter(v => !v.is_demo).length;
 
   const out = {
@@ -54,6 +64,12 @@ try {
     // `sealed` is derived from the experiments table, never hardcoded: the counter
     // must not be able to lead the evidence.
     counter: { pipeline: recipes.length, published, sealed: exps.length },
+    // `artefactos` es una VENTANA (los 45 mas recientes), no el archivo entero: por eso
+    // viaja con su tamaño declarado. Una lista sin su denominador se lee como el total.
+    artefactos: { horneados: artefactos.length, items: artefactos.map(a => ({
+      id: a.file_id, tipo: a.type, receta: a.recipe_id, fecha: a.archived_at,
+      hash: a.content_hash, github: a.github_url, codeberg: a.codeberg_url,
+    })) },
     recipes: recipes.map(r => {
       const v = verdicts.find(x => x.recipe_id === r.id);
       const e = exps.filter(x => x.recipe_id === r.id).map(x => ({
@@ -86,7 +102,7 @@ try {
     console.error(`[sync-ledger] --stdout: ${recipes.length} recipes, ${verdicts.length} verdicts (${published} published) desde D1`);
   } else {
     writeFileSync('src/data/ledger.json', JSON.stringify(out, null, 2));
-    console.log(`[sync-ledger] pulled ${recipes.length} recipes, ${verdicts.length} verdicts (${published} published) from D1`);
+    console.log(`[sync-ledger] pulled ${recipes.length} recipes, ${verdicts.length} verdicts (${published} published), ${artefactos.length} artefactos horneados desde D1`);
   }
 } catch (err) {
   // TRAMPA, y por eso este `if` va primero: en modo --stdout el fallback NO puede
