@@ -226,11 +226,29 @@ export function evaluarRepoPorWorkflow({ porWorkflow, ahora }) {
  *
  * @param {{ultimoExito: string|null, ahora: string, maxHoras?: number}} ctx
  */
-export function evaluarLatido({ ultimoExito, ahora, maxHoras = LATIDO_MAX_HORAS }) {
-  if (!ultimoExito) {
-    return { estado: "nunca", motivo: "el monitor no tiene ninguna corrida exitosa: o nunca corrio, o esta deshabilitado" };
+/**
+ * EL LATIDO ES HABER CORRIDO, NO HABER SALIDO VERDE. Corregido el 8-sep, en el cutover.
+ *
+ * Preguntaba por la ultima corrida con `--status=success`. Pero este monitor sale con
+ * codigo 1 CADA VEZ QUE ENCUENTRA ALGO QUE ESCALAR — asi es como avisa. O sea: en cuanto
+ * un workflow de cualquiera de los tres repos se pone rojo, el monitor no vuelve a tener
+ * una corrida verde, el latido se da por perdido, y el deploy de produccion queda
+ * bloqueado para siempre. Un monitor cuyo trabajo es encontrar cosas rojas no puede
+ * latir en verde.
+ *
+ * Se descubrio bloqueando el cutover: 284h sin latir, con el monitor corriendo TODOS LOS
+ * DIAS y haciendo su trabajo. La medicion decia "muerto" de algo que estaba vivo.
+ *
+ * Una corrida que FALLA prueba que el monitor esta vivo — de hecho prueba que funciona.
+ * El caso para el que se escribio el latido —el workflow deshabilitado, o el que GitHub
+ * apaga tras 60 dias de quietud en un repo publico— no produce NINGUNA corrida, y ese
+ * sigue cazado igual.
+ */
+export function evaluarLatido({ ultimaCorrida, ahora, maxHoras = LATIDO_MAX_HORAS }) {
+  if (!ultimaCorrida) {
+    return { estado: "nunca", motivo: "el monitor no tiene NINGUNA corrida (ni verde ni roja): o nunca corrio, o esta deshabilitado" };
   }
-  const h = horas(ahora, ultimoExito);
+  const h = horas(ahora, ultimaCorrida);
   if (h > maxHoras) {
     return { estado: "muerto", horas: Math.round(h),
              motivo: `el monitor no late hace ${Math.round(h)}h (max ${maxHoras}h). Si el repo estuvo 60 dias quieto, GitHub deshabilita los workflows programados de los repos PUBLICOS.` };
@@ -329,12 +347,18 @@ if (process.argv.includes("--self-test")) {
 
     // ── el latido ──
     ["CALLA: el monitor latio hace 6h", () =>
-      evaluarLatido({ ultimoExito: "2026-08-25T12:00:00Z", ahora: "2026-08-25T18:00:00Z" }).estado === "vivo"],
+      evaluarLatido({ ultimaCorrida: "2026-08-25T12:00:00Z", ahora: "2026-08-25T18:00:00Z" }).estado === "vivo"],
+    // El nombre viejo del campo era `ultimoExito` y pedia una corrida VERDE, lo que
+    // bloqueaba el deploy en cuanto el monitor encontrara algo. Si alguien lo recablea
+    // con el nombre viejo, la funcion recibe undefined: tiene que decir "nunca", no
+    // fingir que esta vivo. Esta es la unica salida que impide que el error vuelva callado.
+    ["el campo viejo (ultimoExito) ya no alimenta el latido: da 'nunca', no un falso vivo", () =>
+      evaluarLatido({ ultimoExito: "2026-08-25T12:00:00Z", ahora: "2026-08-25T18:00:00Z" }).estado === "nunca"],
     ["grita: el monitor no late hace 3 dias", () =>
-      evaluarLatido({ ultimoExito: "2026-08-22T18:00:00Z", ahora: "2026-08-25T18:00:00Z" }).estado === "muerto"],
+      evaluarLatido({ ultimaCorrida: "2026-08-22T18:00:00Z", ahora: "2026-08-25T18:00:00Z" }).estado === "muerto"],
     // El caso que fabrica confianza: sin corridas, el silencio se ve igual que "todo bien".
     ["grita distinto: monitor que NUNCA corrio no es 'vivo'", () =>
-      evaluarLatido({ ultimoExito: null, ahora: "2026-08-25T18:00:00Z" }).estado === "nunca"],
+      evaluarLatido({ ultimaCorrida: null, ahora: "2026-08-25T18:00:00Z" }).estado === "nunca"],
 
     // ── el veredicto es el PEOR workflow, no el agregado ──
     // EL CASO REAL, y es el que prueba que la primera version estaba mal: el 21-ago a las
@@ -443,14 +467,22 @@ const ahora = new Date().toISOString();
 const gh = (args) => JSON.parse(execSync(`gh ${args}`, { encoding: "utf8", stdio: ["ignore", "pipe", "pipe"] }));
 
 if (process.argv.includes("--latido")) {
-  let ultimoExito = null;
+  // Sin filtro de conclusion: cualquier corrida COMPLETADA es un latido. Ver la
+  // cabecera de evaluarLatido — pedir 'success' bloqueaba el deploy para siempre en
+  // cuanto el monitor encontrara algo, que es precisamente cuando sirve.
+  let ultimaCorrida = null, conclusionUltima = null;
   try {
-    const c = gh('run list --repo RosettaQuantum/web --workflow=monitor-ci.yml --status=success --limit 1 --json createdAt');
-    ultimoExito = c[0]?.createdAt ?? null;
-  } catch (e) { ultimoExito = null; }
+    const c = gh('run list --repo RosettaQuantum/web --workflow=monitor-ci.yml --status=completed --limit 1 --json createdAt,conclusion');
+    ultimaCorrida = c[0]?.createdAt ?? null;
+    conclusionUltima = c[0]?.conclusion ?? null;
+  } catch (e) { ultimaCorrida = null; }
 
-  const r = evaluarLatido({ ultimoExito, ahora });
-  if (r.estado === "vivo") { console.log(`[ci-salud] el monitor latio hace ${r.horas}h — vivo.`); process.exit(0); }
+  const r = evaluarLatido({ ultimaCorrida, ahora });
+  if (r.estado === "vivo") {
+    console.log(`[ci-salud] el monitor latio hace ${r.horas}h (${conclusionUltima}) — vivo.`);
+    if (conclusionUltima === "failure") console.log("[ci-salud] su ultima corrida fallo: eso es el monitor AVISANDO, y lo actua la sesion CTO. No bloquea el deploy.");
+    process.exit(0);
+  }
   console.error(`[ci-salud] LATIDO PERDIDO: ${r.motivo}`);
   console.error("[ci-salud] Un monitor muerto se ve identico a 'todo verde'. Por eso esto detiene el deploy:");
   console.error("[ci-salud] el que sufre el bloqueo es el que puede arreglarlo.");
