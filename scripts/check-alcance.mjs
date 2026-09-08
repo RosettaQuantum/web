@@ -55,6 +55,9 @@ const BASE = process.argv.includes("--base") ? process.argv[process.argv.indexOf
  * (buscador y filtros). */
 const PAGINAS = ["/", "/es/", "/consola/", "/cleveland/", "/es/cleveland/",
   "/services/", "/es/servicios/", "/library/", "/library/registry/",
+  // El ledger entra el 8-sep: es la otra pagina con tablas anchas, y las tres primeras
+  // que se agregaron a esta lista tenian desborde. Vale la pena preguntarle tambien.
+  "/ledger/", "/es/ledger/",
   "/api-docs/", "/es/api-docs/",
   // Q-Ready y los informes, agregados 2026-08-20. Son las paginas que un cliente
   // lee para decidir una compra y las que nadie habia mirado renderizadas.

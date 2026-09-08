@@ -33,6 +33,15 @@
 .reg .track{height:5px;background:var(--line);border-radius:3px;overflow:hidden;min-width:90px;margin-top:6px}
 .reg .fill{height:100%;background:var(--verdict)}
 .reg .fill.eroded,.reg .fill.negative-selfpublished{background:var(--alert)}
+/* DEFECTO DEL 8-SEP en /library/registry, tercero de la misma familia y el unico que no
+   se veia hasta que llegaba el dato: el body medía 519 px en una ventana de 375, pero
+   SOLO despues de que la isla rellenara la tabla desde /v1/claims. Antes del fetch: 375.
+   Una medicion que no espera al dato mide una pagina que nadie ve.
+   Se probaron las dos mitades sobre la pagina servida: dejar que el id envuelva NO
+   alcanza —siguen 144 px de desborde—, porque cinco columnas de contenido real no caben
+   en 375 por mucho que envuelvan. Lo que corresponde, y es la regla de la casa, es que
+   una tabla ancha ruede DENTRO DE SI MISMA y nunca empuje la pagina. Medido: 0. */
+@media(max-width:760px){.reg{display:block;overflow-x:auto}.reg .id{white-space:normal;overflow-wrap:anywhere}}
 .reg .fill.contested{background:var(--ink)}
 .reg .sinbarra{font-family:var(--mono);font-size:11px;color:var(--ink-60)}
 .reg-den{font-family:var(--mono);font-size:11.5px;color:var(--ink-60);margin-top:14px;line-height:1.7}
