@@ -52,6 +52,10 @@ nav{position:sticky;top:0;z-index:50;background:rgba(244,245,241,.94);backdrop-f
 .mobile-menu a:active{background:var(--teal-10)}
 .mobile-menu .mm-foot{display:flex;justify-content:space-between;align-items:center;padding:14px 22px;font-family:var(--mono);font-size:12px;color:var(--ink-60)}
 .mobile-menu .mm-foot .nav-cta{display:inline-block}
+/* El CTA dentro del menu movil heredaba la serif de `.mobile-menu a`: el mismo boton se
+   servia en IBM Plex Sans en la barra y en Newsreader en el menu. Un boton fija su
+   tipografia; no la pide prestada al contenedor. */
+.mobile-menu .nav-cta{font-family:var(--sans);font-size:13px}
 @media(max-width:839px){
   .nav-right .nav-cta{display:none}
   .casetabs{flex-wrap:nowrap;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;padding-bottom:4px;margin-left:-22px;margin-right:-22px;padding-left:22px;padding-right:22px}
