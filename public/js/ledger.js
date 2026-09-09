@@ -8,6 +8,13 @@
  * /ledger— pero te deja arriba, en otra parte de la que dice. Es un enlace roto que no
  * da 404 y no da error. Por eso, despues de pintar, se salta al hash a mano.
  *
+ * LA VENTANA HORNEADA Y LA ISLA TIENEN QUE LEER LA MISMA COLECCION
+ * -----------------------------------------------------------
+ * Las 45 filas horneadas salen de `run_archives` SIN filtrar por tipo. Por eso la
+ * isla pagina /v1/archives y no /v1/runs: con /v1/runs el offset 45 caia sobre otra
+ * coleccion (solo RUN) y se saltaba 25 corridas que no aparecian en ninguna pagina,
+ * mientras el pie declaraba "93 de 93" con el total de RUN. El archivo tiene 136.
+ *
  * Y las cifras: se toman de /v1/state, no del build. Las de la plantilla son el
  * respaldo, y si el fetch falla se rotulan en vez de vaciarse.
  */
@@ -60,7 +67,7 @@
   // Con filas horneadas, el total del archivo aun no se conoce: se pregunta solo por el
   // denominador, sin traerse 25 filas que ya estan en la pagina.
   function pintarDenominador() {
-    json("/v1/runs?limit=1").then(function (d) {
+    json("/v1/archives?limit=1").then(function (d) {
       total = d.total_archivo;
       if (den) den.textContent = (ES ? off + " de " + total + " artefactos del archivo" : off + " of " + total + " artifacts in the archive");
       if (mas) mas.style.display = off >= total ? "none" : "";
@@ -70,7 +77,7 @@
   }
 
   function pinta(reset) {
-    json("/v1/runs?limit=" + LIM + "&offset=" + off).then(function (d) {
+    json("/v1/archives?limit=" + LIM + "&offset=" + off).then(function (d) {
       total = d.total_archivo;
       var filas = (d.items || []).map(function (x) {
         return '<tr id="' + esc(x.id) + '">' +
@@ -86,7 +93,7 @@
       if (mas) mas.style.display = off >= total ? "none" : "";
       alHash(); // el ancla existe recien ahora
     }).catch(function () {
-      if (reset) cuerpo.innerHTML = '<tr><td colspan="5" class="res-vacio">' + (ES ? "No se pudo leer /v1/runs." : "/v1/runs could not be read.") + "</td></tr>";
+      if (reset) cuerpo.innerHTML = '<tr><td colspan="5" class="res-vacio">' + (ES ? "No se pudo leer /v1/archives." : "/v1/archives could not be read.") + "</td></tr>";
     });
   }
   if (cuerpo) {

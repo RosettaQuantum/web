@@ -2,7 +2,7 @@
   "_procedencia": {
     "fuente": "Quantum Algorithm Zoo",
     "instantanea_sha256": "dee7e76b5f19096ed329c88714744b93babf7b7d0296eb97e357b2582d16b75e",
-    "generado": "2026-08-09",
+    "generado": "2026-09-09",
     "como": "scripts/build-library-cifras.mjs sobre db/quantum.seed.sql; T-lib lo compara contra /v1/algorithms"
   },
   "algoritmos": 74,
@@ -38,7 +38,7 @@
       "speedup": "Superpolynomial",
       "fuente_url": "https://quantumalgorithmzoo.org/#algebraic",
       "problema_en": "Compute the class group of a number field, a central invariant of algebraic number theory.",
-      "problema_es": "Calcular el grupo de clases de un cuerpo de numeros, un invariante central de la teoria algebraica de numeros.",
+      "problema_es": "Calcular el grupo de clases de un cuerpo de números, un invariante central de la teoría algebraica de números.",
       "n_refs": 2
     },
     {
@@ -49,7 +49,7 @@
       "speedup": "Varies",
       "fuente_url": "https://quantumalgorithmzoo.org/#algebraic",
       "problema_en": "Decode a linear error-correcting code, the hard problem that code-based cryptography rests on.",
-      "problema_es": "Decodificar un codigo corrector de errores lineal, problema duro que sostiene la criptografia basada en codigos.",
+      "problema_es": "Decodificar un código corrector de errores lineal, problema duro que sostiene la criptografía basada en códigos.",
       "n_refs": 2
     },
     {
@@ -82,7 +82,7 @@
       "speedup": "Superpolynomial",
       "fuente_url": "https://quantumalgorithmzoo.org/#algebraic",
       "problema_en": "Estimate Gauss sums over finite fields, a basic object of number theory.",
-      "problema_es": "Estimar sumas de Gauss sobre cuerpos finitos, objeto basico de la teoria de numeros.",
+      "problema_es": "Estimar sumas de Gauss sobre cuerpos finitos, objeto básico de la teoría de números.",
       "n_refs": 2
     },
     {
@@ -104,7 +104,7 @@
       "speedup": "Superpolynomial",
       "fuente_url": "https://quantumalgorithmzoo.org/#algebraic",
       "problema_en": "Solve Pell's equation x^2 - d*y^2 = 1 over the integers. Breaking it breaks the Buchmann-Williams cryptosystem.",
-      "problema_es": "Resolver la ecuacion de Pell x^2 - d*y^2 = 1 sobre los enteros. Romperla quiebra el criptosistema de Buchmann-Williams.",
+      "problema_es": "Resolver la ecuación de Pell x^2 - d*y^2 = 1 sobre los enteros. Romperla quiebra el criptosistema de Buchmann-Williams.",
       "n_refs": 1
     },
     {
@@ -115,7 +115,7 @@
       "speedup": "Polynomial",
       "fuente_url": "https://quantumalgorithmzoo.org/#algebraic",
       "problema_en": "Certify that a number is prime, not merely probably prime.",
-      "problema_es": "Certificar que un numero es primo, no solo probablemente primo.",
+      "problema_es": "Certificar que un número es primo, no solo probablemente primo.",
       "n_refs": 7
     },
     {
@@ -126,7 +126,7 @@
       "speedup": "Superpolynomial",
       "fuente_url": "https://quantumalgorithmzoo.org/#algebraic",
       "problema_en": "Decide whether an ideal of a number field is principal and, if so, find its generator. At least as hard as factoring.",
-      "problema_es": "Decidir si un ideal de un cuerpo de numeros es principal, y en ese caso hallar su generador. Es al menos tan dificil como factorizar.",
+      "problema_es": "Decidir si un ideal de un cuerpo de números es principal, y en ese caso hallar su generador. Es al menos tan difícil como factorizar.",
       "n_refs": 3
     },
     {
@@ -137,7 +137,7 @@
       "speedup": "Various",
       "fuente_url": "https://quantumalgorithmzoo.org/#algebraic",
       "problema_en": "Attack specific cryptographic primitives with quantum resources, beyond Shor and Grover.",
-      "problema_es": "Atacar primitivas criptograficas concretas con recursos cuanticos, mas alla de Shor y Grover.",
+      "problema_es": "Atacar primitivas criptográficas concretas con recursos cuánticos, más allá de Shor y Grover.",
       "n_refs": 23
     },
     {
@@ -148,7 +148,7 @@
       "speedup": "Polynomial",
       "fuente_url": "https://quantumalgorithmzoo.org/#algebraic",
       "problema_en": "Solve congruences whose unknowns sit in the exponent.",
-      "problema_es": "Resolver congruencias con incognitas en el exponente.",
+      "problema_es": "Resolver congruencias con incógnitas en el exponente.",
       "n_refs": 1
     },
     {
@@ -159,7 +159,7 @@
       "speedup": "Polynomial",
       "fuente_url": "https://quantumalgorithmzoo.org/#algebraic",
       "problema_en": "Given a set of numbers, find a subset that adds up to a target value.",
-      "problema_es": "Dado un conjunto de numeros, hallar un subconjunto que sume un valor objetivo.",
+      "problema_es": "Dado un conjunto de números, hallar un subconjunto que sume un valor objetivo.",
       "n_refs": 3
     },
     {
@@ -170,7 +170,7 @@
       "speedup": "Superpolynomial",
       "fuente_url": "https://quantumalgorithmzoo.org/#algebraic",
       "problema_en": "Compute the unit group of the ring of integers of a number field.",
-      "problema_es": "Calcular el grupo de unidades del anillo de enteros de un cuerpo de numeros.",
+      "problema_es": "Calcular el grupo de unidades del anillo de enteros de un cuerpo de números.",
       "n_refs": 4
     },
     {
@@ -181,7 +181,7 @@
       "speedup": "Polynomial",
       "fuente_url": "https://quantumalgorithmzoo.org/#algebraic",
       "problema_en": "Check whether the product of two matrices equals a third, faster than multiplying them.",
-      "problema_es": "Comprobar si el producto de dos matrices es una tercera, mas rapido que multiplicarlas.",
+      "problema_es": "Comprobar si el producto de dos matrices es una tercera, más rápido que multiplicarlas.",
       "n_refs": 3
     },
     {
@@ -214,7 +214,7 @@
       "speedup": "Superpolynomial",
       "fuente_url": "https://quantumalgorithmzoo.org/#part_func",
       "problema_en": "Estimate the partition function of a classical system, from which essentially every thermodynamic quantity follows.",
-      "problema_es": "Estimar la funcion de particion de un sistema clasico, de la que se derivan practicamente todas sus magnitudes termodinamicas.",
+      "problema_es": "Estimar la función de partición de un sistema clásico, de la que se derivan prácticamente todas sus magnitudes termodinámicas.",
       "n_refs": 10
     },
     {
@@ -225,7 +225,7 @@
       "speedup": "Superpolynomial",
       "fuente_url": "https://quantumalgorithmzoo.org/#BQP",
       "problema_en": "Prepare the ground state or a thermal state of a Hamiltonian, the starting point of almost all materials and chemistry simulation.",
-      "problema_es": "Preparar el estado fundamental o un estado termico de un hamiltoniano, punto de partida de casi toda simulacion de materiales y quimica.",
+      "problema_es": "Preparar el estado fundamental o un estado térmico de un hamiltoniano, punto de partida de casi toda simulación de materiales y química.",
       "n_refs": 31
     },
     {
@@ -236,7 +236,7 @@
       "speedup": "Superpolynomial",
       "fuente_url": "https://quantumalgorithmzoo.org/#BQP",
       "problema_en": "Sample from distributions a classical computer cannot sample efficiently.",
-      "problema_es": "Muestrear de distribuciones que un computador clasico no sabe muestrear eficientemente.",
+      "problema_es": "Muestrear de distribuciones que un computador clásico no sabe muestrear eficientemente.",
       "n_refs": 3
     },
     {
@@ -258,7 +258,7 @@
       "speedup": "Superpolynomial",
       "fuente_url": "https://quantumalgorithmzoo.org/#BQP",
       "problema_en": "Simulate how a quantum system evolves in time given its Hamiltonian. Feynman's original application and the strongest candidate for real utility.",
-      "problema_es": "Simular como evoluciona en el tiempo un sistema cuantico dado su hamiltoniano. Es la aplicacion original de Feynman y la mejor candidata a utilidad real.",
+      "problema_es": "Simular como evoluciona en el tiempo un sistema cuántico dado su hamiltoniano. Es la aplicación original de Feynman y la mejor candidata a utilidad real.",
       "n_refs": 61
     },
     {
@@ -280,7 +280,7 @@
       "speedup": "Superpolynomial",
       "fuente_url": "https://quantumalgorithmzoo.org/#BQP",
       "problema_en": "Approximate topological invariants of three-dimensional manifolds.",
-      "problema_es": "Aproximar invariantes topologicos de variedades de tres dimensiones.",
+      "problema_es": "Aproximar invariantes topológicos de variedades de tres dimensiones.",
       "n_refs": 3
     },
     {
@@ -291,7 +291,7 @@
       "speedup": "Superpolynomial",
       "fuente_url": "https://quantumalgorithmzoo.org/#BQP",
       "problema_en": "Compute weight enumerators of codes, which describe the distance distribution of an error-correcting code.",
-      "problema_es": "Calcular enumeradores de peso de codigos, que describen la distribucion de distancias de un codigo corrector.",
+      "problema_es": "Calcular enumeradores de peso de códigos, que describen la distribución de distancias de un código corrector.",
       "n_refs": 4
     },
     {
@@ -302,7 +302,7 @@
       "speedup": "Superpolynomial",
       "fuente_url": "https://quantumalgorithmzoo.org/#BQP",
       "problema_en": "Compute zeta functions of curves over finite fields, with direct use in elliptic-curve cryptography.",
-      "problema_es": "Calcular funciones zeta de curvas sobre cuerpos finitos, con uso directo en criptografia de curvas elipticas.",
+      "problema_es": "Calcular funciones zeta de curvas sobre cuerpos finitos, con uso directo en criptografía de curvas elípticas.",
       "n_refs": 2
     },
     {
@@ -313,7 +313,7 @@
       "speedup": "A plausible example of superpolynomial speedup appears in [ 530 ]",
       "fuente_url": "https://quantumalgorithmzoo.org/#adiabatic",
       "problema_en": "Solve a problem by starting from an easy Hamiltonian and deforming it slowly into one whose ground state encodes the answer. The model behind quantum annealing.",
-      "problema_es": "Resolver un problema partiendo de un hamiltoniano facil y deformandolo despacio hasta uno cuyo estado fundamental codifica la solucion. Es el modelo detras del recocido cuantico.",
+      "problema_es": "Resolver un problema partiendo de un hamiltoniano fácil y deformándolo despacio hasta uno cuyo estado fundamental codifica la solución. Es el modelo detrás del recocido cuántico.",
       "n_refs": 34
     },
     {
@@ -335,7 +335,7 @@
       "speedup": "Polynomial",
       "fuente_url": "https://quantumalgorithmzoo.org/#ONML",
       "problema_en": "Compute the principal eigenvector of a matrix, the core of PageRank-style methods.",
-      "problema_es": "Calcular el vector propio principal de una matriz, el nucleo de metodos tipo PageRank.",
+      "problema_es": "Calcular el vector propio principal de una matriz, el núcleo de métodos tipo PageRank.",
       "n_refs": 1
     },
     {
@@ -346,7 +346,7 @@
       "speedup": "Polynomial",
       "fuente_url": "https://quantumalgorithmzoo.org/#convex_optimization",
       "problema_en": "Optimise over convex bodies and estimate their volumes, with membership-oracle access to the body.",
-      "problema_es": "Optimizar sobre cuerpos convexos y estimar sus volumenes, con acceso al cuerpo por oraculo de pertenencia.",
+      "problema_es": "Optimizar sobre cuerpos convexos y estimar sus volúmenes, con acceso al cuerpo por oráculo de pertenencia.",
       "n_refs": 11
     },
     {
@@ -379,7 +379,7 @@
       "speedup": "Polynomial",
       "fuente_url": "https://quantumalgorithmzoo.org/#gradients",
       "problema_en": "Estimate the gradient of a smooth function at a point, or learn a polynomial's coefficients, by querying an oracle.",
-      "problema_es": "Estimar el gradiente de una funcion suave en un punto, o aprender los coeficientes de un polinomio, consultando un oraculo.",
+      "problema_es": "Estimar el gradiente de una función suave en un punto, o aprender los coeficientes de un polinomio, consultando un oráculo.",
       "n_refs": 8
     },
     {
@@ -390,7 +390,7 @@
       "speedup": "Exponential",
       "fuente_url": "https://quantumalgorithmzoo.org/#ONML",
       "problema_en": "Attack lattice problems, which are the basis of the post-quantum cryptography standardised by NIST.",
-      "problema_es": "Atacar problemas de reticulos, que son la base de la criptografia post-cuantica estandarizada por NIST.",
+      "problema_es": "Atacar problemas de retículos, que son la base de la criptografía post-cuántica estandarizada por NIST.",
       "n_refs": 3
     },
     {
@@ -401,7 +401,7 @@
       "speedup": "Superpolynomial",
       "fuente_url": "https://quantumalgorithmzoo.org/#ONML",
       "problema_en": "Solve Ax = b. This is HHL, and the asterisk matters: it returns a quantum state encoding the solution, not the answer vector.",
-      "problema_es": "Resolver Ax = b. Es HHL, y el asterisco importa: entrega un estado cuantico que codifica la solucion, no el vector de respuesta.",
+      "problema_es": "Resolver Ax = b. Es HHL, y el asterisco importa: entrega un estado cuántico que codifica la solución, no el vector de respuesta.",
       "n_refs": 24
     },
     {
@@ -412,7 +412,7 @@
       "speedup": "Varies",
       "fuente_url": "https://quantumalgorithmzoo.org/#ML",
       "problema_en": "Umbrella entry gathering the quantum techniques proposed for machine learning. Also the area where the most claims fell to dequantization — classical algorithms that later matched the supposed advantage.",
-      "problema_es": "Entrada paraguas: agrupa las tecnicas cuanticas propuestas para aprendizaje automatico. Es tambien el area donde mas claims cayeron por dequantizacion, es decir, por algoritmos clasicos que despues igualaron la supuesta ventaja.",
+      "problema_es": "Entrada paraguas: agrupa las técnicas cuánticas propuestas para aprendizaje automático. Es también el área donde más claims cayeron por dequantización, es decir, por algoritmos clásicos que después igualaron la supuesta ventaja.",
       "n_refs": 56
     },
     {
@@ -423,7 +423,7 @@
       "speedup": "Superpolynomial",
       "fuente_url": "https://quantumalgorithmzoo.org/#ONML",
       "problema_en": "Reduce certain optimisation problems to a decoding problem, and solve that instead.",
-      "problema_es": "Reducir ciertos problemas de optimizacion a un problema de decodificacion, y resolver ese.",
+      "problema_es": "Reducir ciertos problemas de optimización a un problema de decodificación, y resolver ese.",
       "n_refs": 13
     },
     {
@@ -434,7 +434,7 @@
       "speedup": "Polynomial",
       "fuente_url": "https://quantumalgorithmzoo.org/#ONML",
       "problema_en": "Solve constraint satisfaction problems (SAT and family) with a polynomial improvement over the best classical backtracking.",
-      "problema_es": "Resolver problemas de satisfaccion de restricciones (SAT y familia) con una mejora polinomica sobre el mejor backtracking clasico.",
+      "problema_es": "Resolver problemas de satisfacción de restricciones (SAT y familia) con una mejora polinómica sobre el mejor backtracking clásico.",
       "n_refs": 8
     },
     {
@@ -445,7 +445,7 @@
       "speedup": "Superpolynomial",
       "fuente_url": "https://quantumalgorithmzoo.org/#ONML",
       "problema_en": "Search for good approximate solutions to combinatorial problems with a short parameterised circuit. This is QAOA, and it is the family carrying almost the entire commercial promise of quantum optimisation.",
-      "problema_es": "Buscar buenas soluciones aproximadas a problemas combinatorios con un circuito parametrizado corto. Es QAOA, y es la familia sobre la que descansa casi toda la promesa comercial de optimizacion cuantica.",
+      "problema_es": "Buscar buenas soluciones aproximadas a problemas combinatorios con un circuito parametrizado corto. Es QAOA, y es la familia sobre la que descansa casi toda la promesa comercial de optimización cuántica.",
       "n_refs": 12
     },
     {
@@ -456,7 +456,7 @@
       "speedup": "Polynomial",
       "fuente_url": "https://quantumalgorithmzoo.org/#ONML",
       "problema_en": "Solve path-in-the-hypercube problems by dynamic programming, a family that includes the travelling salesman.",
-      "problema_es": "Resolver por programacion dinamica problemas del tipo camino en el hipercubo, familia que incluye al viajante.",
+      "problema_es": "Resolver por programación dinámica problemas del tipo camino en el hipercubo, familia que incluye al viajante.",
       "n_refs": 1
     },
     {
@@ -467,7 +467,7 @@
       "speedup": "Polynomial (with some exceptions)",
       "fuente_url": "https://quantumalgorithmzoo.org/#semidefinite",
       "problema_en": "Optimise a linear objective over positive semidefinite matrices under linear constraints. The workhorse of convex relaxation.",
-      "problema_es": "Optimizar una funcion lineal sobre matrices semidefinidas positivas sujetas a restricciones lineales. Es el caballo de batalla de la relajacion convexa.",
+      "problema_es": "Optimizar una función lineal sobre matrices semidefinidas positivas sujetas a restricciones lineales. Es el caballo de batalla de la relajación convexa.",
       "n_refs": 6
     },
     {
@@ -489,7 +489,7 @@
       "speedup": "Superpolynomial",
       "fuente_url": "https://quantumalgorithmzoo.org/#ONML",
       "problema_en": "Solve nonlinear differential equations, under strong assumptions about how nonlinear they may be.",
-      "problema_es": "Resolver ecuaciones diferenciales no lineales, con supuestos fuertes sobre cuan no lineales pueden ser.",
+      "problema_es": "Resolver ecuaciones diferenciales no lineales, con supuestos fuertes sobre cuán no lineales pueden ser.",
       "n_refs": 13
     },
     {
@@ -500,7 +500,7 @@
       "speedup": "Polynomial (quartic)",
       "fuente_url": "https://quantumalgorithmzoo.org/#ONML",
       "problema_en": "Recover a signal hidden inside a high-dimensional tensor of Gaussian noise.",
-      "problema_es": "Recuperar una senal escondida en un tensor de ruido gaussiano de muchas dimensiones.",
+      "problema_es": "Recuperar una señal escondida en un tensor de ruido gaussiano de muchas dimensiones.",
       "n_refs": 1
     },
     {
@@ -511,7 +511,7 @@
       "speedup": "Superpolynomial",
       "fuente_url": "https://quantumalgorithmzoo.org/#abelian_HSP",
       "problema_en": "Find a hidden subgroup of a commutative group by querying a function that is constant on each coset. This is the shared pattern behind Shor: factoring, discrete log and Pell all reduce to it.",
-      "problema_es": "Hallar un subgrupo oculto de un grupo conmutativo consultando una funcion que es constante en cada coclase. Es el patron comun detras de Shor: factorizar, logaritmo discreto y Pell se reducen todos a esto.",
+      "problema_es": "Hallar un subgrupo oculto de un grupo conmutativo consultando una función que es constante en cada coclase. Es el patrón común detrás de Shor: factorizar, logaritmo discreto y Pell se reducen todos a esto.",
       "n_refs": 6
     },
     {
@@ -522,7 +522,7 @@
       "speedup": "Polynomial Directly, Superpolynomial Recursively",
       "fuente_url": "https://quantumalgorithmzoo.org/#oracular",
       "problema_en": "Recover a secret string hidden inside a linear function with as few queries as possible.",
-      "problema_es": "Recuperar una cadena secreta oculta en una funcion lineal, consultandola lo menos posible.",
+      "problema_es": "Recuperar una cadena secreta oculta en una función lineal, consultándola lo menos posible.",
       "n_refs": 5
     },
     {
@@ -533,7 +533,7 @@
       "speedup": "Polynomial",
       "fuente_url": "https://quantumalgorithmzoo.org/#oracular",
       "problema_en": "Locate the centre of a radially symmetric function by querying it pointwise.",
-      "problema_es": "Localizar el centro de una funcion con simetria radial consultandola por puntos.",
+      "problema_es": "Localizar el centro de una función con simetría radial consultándola por puntos.",
       "n_refs": 1
     },
     {
@@ -555,7 +555,7 @@
       "speedup": "Polynomial",
       "fuente_url": "https://quantumalgorithmzoo.org/#oracular",
       "problema_en": "Identify fake coins in as few weighings as possible: the classic puzzle, in query form.",
-      "problema_es": "Identificar monedas falsas con la menor cantidad de pesajes: el problema clasico de acertijo, en version de consultas.",
+      "problema_es": "Identificar monedas falsas con la menor cantidad de pesajes: el problema clásico de acertijo, en versión de consultas.",
       "n_refs": 2
     },
     {
@@ -566,7 +566,7 @@
       "speedup": "Exponential over P, none over BPP",
       "fuente_url": "https://quantumalgorithmzoo.org/#oracular",
       "problema_en": "Decide whether a boolean function is constant or balanced in a single query. The first historical separation between quantum and classical.",
-      "problema_es": "Decidir si una funcion booleana es constante o balanceada con una sola consulta. Es el primer separador historico entre cuantico y clasico.",
+      "problema_es": "Decidir si una función booleana es constante o balanceada con una sola consulta. Es el primer separador histórico entre cuántico y clásico.",
       "n_refs": 3
     },
     {
@@ -577,7 +577,7 @@
       "speedup": "Exponential",
       "fuente_url": "https://quantumalgorithmzoo.org/#oracular",
       "problema_en": "Compute the effective resistance between two nodes of a graph whose edge weights are read as resistances.",
-      "problema_es": "Calcular la resistencia efectiva entre dos nodos de un grafo con pesos leidos como resistencias.",
+      "problema_es": "Calcular la resistencia efectiva entre dos nodos de un grafo con pesos leídos como resistencias.",
       "n_refs": 3
     },
     {
@@ -599,7 +599,7 @@
       "speedup": "Polynomial",
       "fuente_url": "https://quantumalgorithmzoo.org/#oracular",
       "problema_en": "Evaluate the value of a boolean formula (AND/OR/NOT) with oracle access to its inputs.",
-      "problema_es": "Evaluar el valor de una formula booleana (AND/OR/NOT) accediendo a sus entradas por oraculo.",
+      "problema_es": "Evaluar el valor de una fórmula booleana (AND/OR/NOT) accediendo a sus entradas por oráculo.",
       "n_refs": 13
     },
     {
@@ -610,7 +610,7 @@
       "speedup": "Polynomial",
       "fuente_url": "https://quantumalgorithmzoo.org/#graph_collision",
       "problema_en": "Decide whether some pair of adjacent vertices is labelled 1, given oracle access to the labelling.",
-      "problema_es": "Decidir si existe un par de vertices vecinos marcados con 1, consultando el etiquetado por oraculo.",
+      "problema_es": "Decidir si existe un par de vértices vecinos marcados con 1, consultando el etiquetado por oráculo.",
       "n_refs": 5
     },
     {
@@ -654,7 +654,7 @@
       "speedup": "Superpolynomial",
       "fuente_url": "https://quantumalgorithmzoo.org/#group_isomorphism",
       "problema_en": "Decide whether two finite groups given by oracle and generators are the same group under different names.",
-      "problema_es": "Decidir si dos grupos finitos dados por oraculo y generadores son el mismo grupo con otros nombres.",
+      "problema_es": "Decidir si dos grupos finitos dados por oráculo y generadores son el mismo grupo con otros nombres.",
       "n_refs": 3
     },
     {
@@ -665,7 +665,7 @@
       "speedup": "Superpolynomial",
       "fuente_url": "https://quantumalgorithmzoo.org/#oracular",
       "problema_en": "Compute the order of a group and decide whether an element belongs to it.",
-      "problema_es": "Calcular el orden de un grupo y decidir si un elemento pertenece a el.",
+      "problema_es": "Calcular el orden de un grupo y decidir si un elemento pertenece a él.",
       "n_refs": 3
     },
     {
@@ -698,7 +698,7 @@
       "speedup": "Polynomial",
       "fuente_url": "https://quantumalgorithmzoo.org/#oracular",
       "problema_en": "Decide whether a function depends on at most k of its n input bits. Closely related to group testing.",
-      "problema_es": "Decidir si una funcion depende a lo mas de k de sus n bits de entrada. Emparentado con el problema de testeo por grupos.",
+      "problema_es": "Decidir si una función depende a lo más de k de sus n bits de entrada. Emparentado con el problema de testeo por grupos.",
       "n_refs": 4
     },
     {
@@ -709,7 +709,7 @@
       "speedup": "Polynomial",
       "fuente_url": "https://quantumalgorithmzoo.org/#oracular",
       "problema_en": "Decide whether a set of matrices commutes.",
-      "problema_es": "Decidir si un conjunto de matrices conmuta entre si.",
+      "problema_es": "Decidir si un conjunto de matrices conmuta entre sí.",
       "n_refs": 1
     },
     {
@@ -720,7 +720,7 @@
       "speedup": "Polynomial",
       "fuente_url": "https://quantumalgorithmzoo.org/#oracular",
       "problema_en": "Multiply matrices over semirings (min-plus, for instance), the core of several shortest-path problems.",
-      "problema_es": "Multiplicar matrices sobre semianillos (por ejemplo min-plus), que es el nucleo de varios problemas de caminos minimos.",
+      "problema_es": "Multiplicar matrices sobre semianillos (por ejemplo min-plus), que es el núcleo de varios problemas de caminos mínimos.",
       "n_refs": 5
     },
     {
@@ -731,7 +731,7 @@
       "speedup": "Polynomial",
       "fuente_url": "https://quantumalgorithmzoo.org/#oracular",
       "problema_en": "Compute the rank of a matrix with oracle access to its entries.",
-      "problema_es": "Calcular el rango de una matriz accediendo a sus entradas por oraculo.",
+      "problema_es": "Calcular el rango de una matriz accediendo a sus entradas por oráculo.",
       "n_refs": 3
     },
     {
@@ -742,7 +742,7 @@
       "speedup": "Polynomial",
       "fuente_url": "https://quantumalgorithmzoo.org/#oracular",
       "problema_en": "Compute maximum flow, or minimum-cost flow, on a network with capacities on its edges.",
-      "problema_es": "Calcular el flujo maximo o el flujo de costo minimo en una red con capacidades por arista.",
+      "problema_es": "Calcular el flujo máximo o el flujo de costo mínimo en una red con capacidades por arista.",
       "n_refs": 1
     },
     {
@@ -753,7 +753,7 @@
       "speedup": "Superpolynomial",
       "fuente_url": "https://quantumalgorithmzoo.org/#nonabelian_HSP",
       "problema_en": "The same problem over non-commutative groups. Solving it in general would attack graph isomorphism and lattices, and it remains open.",
-      "problema_es": "El mismo problema sobre grupos no conmutativos. Resolverlo en general daria ataque a isomorfismo de grafos y a reticulos, y sigue abierto.",
+      "problema_es": "El mismo problema sobre grupos no conmutativos. Resolverlo en general daría ataque a isomorfismo de grafos y a retículos, y sigue abierto.",
       "n_refs": 24
     },
     {
@@ -764,7 +764,7 @@
       "speedup": "Constant factor",
       "fuente_url": "https://quantumalgorithmzoo.org/#oracular",
       "problema_en": "Search a sorted list. The quantum margin here is only a constant factor, not a change of order.",
-      "problema_es": "Buscar en una lista ordenada. El margen cuantico aqui es solo un factor constante, no un cambio de orden.",
+      "problema_es": "Buscar en una lista ordenada. El margen cuántico aquí es solo un factor constante, no un cambio de orden.",
       "n_refs": 5
     },
     {
@@ -775,7 +775,7 @@
       "speedup": "Superpolynomial",
       "fuente_url": "https://quantumalgorithmzoo.org/#oracular",
       "problema_en": "Locate a pattern inside a long text.",
-      "problema_es": "Localizar un patron dentro de un texto largo.",
+      "problema_es": "Localizar un patrón dentro de un texto largo.",
       "n_refs": 5
     },
     {
@@ -786,7 +786,7 @@
       "speedup": "Varies",
       "fuente_url": "https://quantumalgorithmzoo.org/#oracular",
       "problema_en": "Reconstruct a polynomial's coefficients by querying it at points.",
-      "problema_es": "Reconstruir los coeficientes de un polinomio consultandolo en puntos.",
+      "problema_es": "Reconstruir los coeficientes de un polinomio consultándolo en puntos.",
       "n_refs": 7
     },
     {
@@ -808,7 +808,7 @@
       "speedup": "Polynomial",
       "fuente_url": "https://quantumalgorithmzoo.org/#oracular",
       "problema_en": "Find the needle in an unstructured haystack: locate a marked item among N with only a yes/no oracle. This is Grover.",
-      "problema_es": "Encontrar la aguja en un pajar sin estructura: buscar un elemento marcado entre N con solo un oraculo que responde si/no. Es Grover.",
+      "problema_es": "Encontrar la aguja en un pajar sin estructura: buscar un elemento marcado entre N con solo un oráculo que responde sí/no. Es Grover.",
       "n_refs": 32
     },
     {
@@ -819,7 +819,7 @@
       "speedup": "Polynomial",
       "fuente_url": "https://quantumalgorithmzoo.org/#oracular",
       "problema_en": "Estimate how far apart two probability distributions are, with sampling access only.",
-      "problema_es": "Estimar cuanto se diferencian dos distribuciones de probabilidad a las que solo se accede por muestreo.",
+      "problema_es": "Estimar cuánto se diferencian dos distribuciones de probabilidad a las que solo se accede por muestreo.",
       "n_refs": 3
     },
     {
@@ -841,7 +841,7 @@
       "speedup": "Superpolynomial",
       "fuente_url": "https://quantumalgorithmzoo.org/#oracular",
       "problema_en": "Traverse two binary trees welded at the leaves. The clean example of exponential separation by quantum walk.",
-      "problema_es": "Atravesar dos arboles binarios unidos por las hojas. Es el ejemplo limpio de separacion exponencial por caminata cuantica.",
+      "problema_es": "Atravesar dos árboles binarios unidos por las hojas. Es el ejemplo limpio de separación exponencial por caminata cuántica.",
       "n_refs": 1
     }
   ]
