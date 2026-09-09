@@ -43,23 +43,30 @@ const t = es ? {
   </div>
 </div>
 <style is:global>
-.lead-ov{position:fixed;inset:0;z-index:200;background:rgba(10,9,7,.72);backdrop-filter:blur(4px);display:none;align-items:center;justify-content:center;padding:20px}
+/* Portado a la marca el 9-sep. Este modal se abre desde el CTA de TODAS las paginas y
+   servia el diseño retirado —fondo negro, eyebrow en dorado, boton en el turquesa viejo
+   y en Arial—: el visitante navegaba un sitio crema y teal, apretaba el boton que mas
+   importa y se le abria otra empresa. Es el peor sitio posible para una identidad vieja,
+   porque es el punto donde se captura un lead.
+   Tokens de la marca, y el boton usa el primario del sistema, no uno propio. */
+.lead-ov{position:fixed;inset:0;z-index:200;background:rgba(22,24,27,.62);backdrop-filter:blur(4px);display:none;align-items:center;justify-content:center;padding:20px}
 .lead-ov.open{display:flex}
-.lead-box{background:var(--basalt-2);border:1px solid var(--stone-line);border-radius:8px;max-width:520px;width:100%;padding:30px 30px 26px;position:relative;max-height:92vh;overflow:auto}
-.lead-x{position:absolute;top:14px;right:16px;background:none;border:none;color:var(--papyrus-dim);font-size:18px;cursor:pointer}
-.lead-x:hover{color:var(--faience)}
-.lead-ey{font-family:'IBM Plex Mono',monospace;font-size:10.5px;letter-spacing:.34em;color:var(--gold)}
-.lead-box h3{font-family:'Marcellus',serif;font-weight:400;font-size:26px;margin-top:8px;color:var(--papyrus)}
-.lead-sub{color:var(--papyrus-dim);font-size:15px;margin:8px 0 18px}
-#leadForm label{display:block;font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--papyrus-dim);margin-bottom:12px}
+.lead-box{background:var(--paper);border:1px solid var(--line);border-radius:2px;max-width:520px;width:100%;padding:30px 30px 26px;position:relative;max-height:92vh;overflow:auto}
+.lead-x{position:absolute;top:12px;right:14px;background:none;border:none;color:var(--ink-60);font-size:18px;line-height:1;padding:6px;cursor:pointer}
+.lead-x:hover{color:var(--ink)}
+.lead-ey{font-family:var(--mono);font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--verdict)}
+.lead-box h3{font-family:var(--serif);font-weight:500;font-size:25px;line-height:1.18;margin-top:8px;color:var(--ink)}
+.lead-sub{color:var(--ink-60);font-size:15px;margin:8px 0 18px}
+#leadForm label{display:block;font-family:var(--mono);font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-60);margin-bottom:12px}
 .lg-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
 @media(max-width:480px){.lg-row{grid-template-columns:1fr}}
-#leadForm input,#leadForm select,#leadForm textarea{width:100%;margin-top:6px;background:var(--basalt-3);border:1px solid var(--stone-line);border-radius:4px;color:var(--papyrus);padding:10px 12px;font-family:'Instrument Sans',sans-serif;font-size:15px;text-transform:none;letter-spacing:normal}
-#leadForm input:focus,#leadForm select:focus,#leadForm textarea:focus{outline:none;border-color:var(--faience)}
-.lg-submit{width:100%;background:var(--faience);color:var(--basalt);border:none;border-radius:4px;padding:13px;font-weight:600;font-size:15px;cursor:pointer;margin-top:6px}
+#leadForm input,#leadForm select,#leadForm textarea{width:100%;margin-top:6px;background:#FFFFFE;border:1px solid var(--line);border-radius:2px;color:var(--ink);padding:10px 12px;font-family:var(--sans);font-size:15px;text-transform:none;letter-spacing:normal}
+#leadForm input:focus,#leadForm select:focus,#leadForm textarea:focus{outline:none;border-color:var(--verdict)}
+.lg-submit{width:100%;background:var(--ink);color:var(--paper);border:1px solid var(--ink);border-radius:2px;padding:13px 22px;font-family:var(--sans);font-weight:500;font-size:14.5px;cursor:pointer;margin-top:6px}
+.lg-submit:hover{background:var(--verdict);border-color:var(--verdict)}
 .lg-submit:disabled{opacity:.6;cursor:default}
 .lg-msg{font-size:14px;margin-bottom:10px;min-height:0}
-.lg-msg.ok{color:var(--faience)} .lg-msg.err{color:#E0895E}
+.lg-msg.ok{color:var(--verdict)} .lg-msg.err{color:var(--alert)}
 </style>
 <script is:inline>
 (function(){

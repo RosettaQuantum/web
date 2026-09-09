@@ -12,7 +12,7 @@ html .nav-inner{display:flex;align-items:center;justify-content:space-between;he
 html .wordmark{display:flex;align-items:center;gap:10px;min-width:0}
 html .nav-links{display:none;gap:20px;font-size:13.5px;color:var(--ink-60)}
 html .nav-links a:hover{color:var(--verdict)}
-html .nav-cta{background:var(--verdict);color:var(--paper);padding:9px 15px;font-size:13px;font-weight:500;border-radius:2px;white-space:nowrap}
+html .nav-cta{background:var(--ink);color:var(--paper);border:1px solid var(--ink);padding:9px 15px;font-size:13px;font-weight:500;border-radius:2px;white-space:nowrap}
 @media (prefers-color-scheme: dark){:root{background:var(--paper) !important;color:var(--ink) !important}}
 @media (prefers-color-scheme: dark){html body{background:var(--paper) !important;color:var(--ink) !important}}
 @media (prefers-color-scheme: dark){html footer{background:var(--paper) !important}}
