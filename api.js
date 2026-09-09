@@ -238,7 +238,21 @@ async function posts(env, url) {
       // verificacion externa buscando el campo por su nombre del spec ("excerpt") y no
       // encontrandolo — el sintoma reportado fue "viene vacio" y el defecto real era
       // otro y peor. Se corrigen los dos: el nombre y el origen.
-      const parrafos = [...(p.body_html || "").matchAll(/<p[^>]*>([\s\S]*?)<\/p>/gi)]
+      // LA ILUSTRACION NO ES PROSA, NUNCA. Los posts nuevos abren con una portada
+      // dibujada en <svg> inline, y quitar etiquetas convierte los rotulos del dibujo en
+      // texto: el extracto del post de PsiQuantum salio "Rosetta Quantum QUANTUM
+      // VERIFICATION LEDGER PILLAR E · HARDWARE MAP STATUS AS OF: 2026-09-08 …", que son
+      // las etiquetas del grafico. Eso es lo que se leia en /blog y en la home.
+      //
+      // El filtro de mayusculas que ya habia NO lo cazo, y la razon importa: la API medi­a
+      // el porcentaje sobre el parrafo ENTERO y el guardia sobre los 220 caracteres que
+      // se PUBLICAN. Misma formula, denominador distinto, veredicto distinto. Afinar el
+      // umbral habria tapado el sintoma; el contenido de un <svg> no debe llegar a ser
+      // candidato a extracto, se mida como se mida.
+      const cuerpoSinDibujos = (p.body_html || "")
+        .replace(/<svg[\s\S]*?<\/svg>/gi, " ")
+        .replace(/<figure[\s\S]*?<\/figure>/gi, " ");
+      const parrafos = [...cuerpoSinDibujos.matchAll(/<p[^>]*>([\s\S]*?)<\/p>/gi)]
         .map((m) => m[1].replace(/<[^>]+>/g, " ").replace(/&nbsp;/g, " ").replace(/&#3[49];|&#821[6-9];|&quot;|&apos;/g, "'").replace(/&amp;/g, "&").replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&[a-z]+;|&#\d+;/g, " ").replace(/\s+/g, " ").trim())
         .filter((t) => t.length > 40);
       // Los posts nuevos abren con un MEMBRETE dentro de un <p> —el wordmark, el pilar,
