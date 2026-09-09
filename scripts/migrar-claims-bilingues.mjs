@@ -21,7 +21,7 @@
  *       node scripts/migrar-claims-bilingues.mjs            # solo dice que haria
  */
 import { execSync } from "node:child_process";
-import { readFileSync } from "node:fs";
+import { readFileSync, writeFileSync } from "node:fs";
 
 const DB = "rosettaq-ledger";
 const d1 = (sql) => JSON.parse(execSync(
@@ -45,27 +45,33 @@ console.log(`cobertura: ${filas.length} de ${filas.length} filas tienen las dos 
 
 const aplicar = process.argv.includes("--aplicar");
 if (!aplicar) {
-  console.log("modo seco. Con --aplicar: 4 ALTER (si faltan) y " + filas.length + " UPDATE.");
+  console.log("modo seco. Con --aplicar: los ALTER que falten y " + filas.length + " UPDATE, en un solo archivo.");
   process.exit(0);
 }
 
 const cols = d1("PRAGMA table_info(rq_claims)")[0].results.map((c) => c.name);
+
+// UN solo archivo, UNA sola llamada. Diecinueve UPDATE sueltos son diecinueve
+// llamadas a la API de Cloudflare y la primera corrida se cayo a mitad de camino
+// —sin escribir nada, porque el chequeo de cobertura va antes—. Ademas asi se puede
+// leer exactamente lo que se va a aplicar antes de aplicarlo.
+const esc = (s) => String(s).replace(/'/g, "''");
+const sql = [];
 for (const c of ["title_es", "title_en", "domain_es", "domain_en"]) {
   if (cols.includes(c)) { console.log(`  ya existe: ${c}`); continue; }
-  d1(`ALTER TABLE rq_claims ADD COLUMN ${c} TEXT`);
-  console.log(`  columna agregada: ${c}`);
+  sql.push(`ALTER TABLE rq_claims ADD COLUMN ${c} TEXT;`);
 }
-
-const esc = (s) => String(s).replace(/'/g, "''");
-let n = 0;
 for (const f of filas) {
   const t = prop.titulos[f.id], dom = prop.dominios[f.domain];
-  d1(`UPDATE rq_claims SET title_es='${esc(t.es)}', title_en='${esc(t.en)}', ` +
-     `domain_es='${esc(dom.es)}', domain_en='${esc(dom.en)}', title='${esc(t.es)}', domain='${esc(dom.es)}' ` +
-     `WHERE id='${esc(f.id)}'`);
-  n++;
+  sql.push(
+    `UPDATE rq_claims SET title_es='${esc(t.es)}', title_en='${esc(t.en)}', ` +
+    `domain_es='${esc(dom.es)}', domain_en='${esc(dom.en)}', ` +
+    `title='${esc(t.es)}', domain='${esc(dom.es)}' WHERE id='${esc(f.id)}';`);
 }
-console.log(`${n} filas con titulo y dominio en las dos caras.`);
+const ruta = "/tmp/rq-claims-bilingues.sql";
+writeFileSync(ruta, sql.join("\n") + "\n");
+console.log(`${sql.length} sentencias escritas en ${ruta}`);
+execSync(`npx wrangler d1 execute ${DB} --remote --file ${ruta}`, { stdio: "inherit", maxBuffer: 1e8 });
 
 // Verifica contra el terreno, no contra el reporte: relee y cuenta.
 const v = d1("SELECT count(*) n, sum(CASE WHEN title_en IS NULL OR title_es IS NULL OR domain_en IS NULL OR domain_es IS NULL THEN 1 ELSE 0 END) huecos FROM rq_claims")[0].results[0];

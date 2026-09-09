@@ -194,7 +194,8 @@ async function claims(env, url) {
   const limite = Math.min(parseInt(url.searchParams.get("limit") || "50", 10) || 50, 200);
   const [{ results = [] }, totalRow, verifRow] = await Promise.all([
     env.DB.prepare(
-      "SELECT id, claimant, title, claim_date, status, domain, clock_days, first_challenge, url " +
+      "SELECT id, claimant, title, title_es, title_en, claim_date, status, domain, domain_es, domain_en, " +
+      "clock_days, first_challenge, url " +
       "FROM rq_claims WHERE verified=1 ORDER BY claim_date DESC LIMIT ?"
     ).bind(limite).all(),
     env.DB.prepare("SELECT count(*) n FROM rq_claims").first(),
@@ -203,6 +204,12 @@ async function claims(env, url) {
   return json({
     que_es: "Claims públicos de ventaja cuántica que este archivo rastrea. Solo los verificados.",
     vocabulario_de_estado: ["surviving", "contested", "eroded", "open", "negative-selfpublished"],
+    // `title` y `domain` se conservan con su significado de siempre —el español— para
+    // no romper a ningun parser. Lo que se agrega son las dos caras explicitas: hasta
+    // el 2026-09-09 habia UNA sola cadena y /library/registry, que es una pagina
+    // inglesa, la pintaba tal cual. El ingles NO es traduccion nuestra: es el titular
+    // del resultado tal como lo publico su autor.
+    nota_idioma: "title/domain = español (compatibilidad). Las dos caras van en title_es/title_en y domain_es/domain_en.",
     nota_clock_days: "días del claim al primer desafío registrado; NULL = sin desafío. NO son días a hoy: eso se computa con claim_date al momento de mirar.",
     total: results.length,
     verificados: (verifRow || { n: 0 }).n,

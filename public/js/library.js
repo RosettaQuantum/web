@@ -26,6 +26,11 @@
         error:"The archive could not be reached. Try again.",
         sinDesafio:"no challenge on record", dias:"days", de:"of", pista:"Type to search all three archives." };
 
+  // Las dos caras del claim. Cae al campo de siempre si la fila todavia no esta
+  // migrada: una pagina a medio idioma es preferible a una pagina vacia.
+  function titulo(c){ return (ES ? c.title_es : c.title_en) || c.title || ""; }
+  function dominio(c){ return (ES ? c.domain_es : c.domain_en) || c.domain || ""; }
+
   function dias(desde){ var d=Date.parse(desde+"T00:00:00Z"); return isNaN(d)?null:Math.max(0,Math.floor((Date.now()-d)/86400000)); }
   function esc(s){ return String(s==null?"":s).replace(/[&<>"]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c];}); }
   function json(u){ return fetch(u,{headers:{accept:"application/json"}}).then(function(r){ if(!r.ok) throw 0; return r.json(); }); }
@@ -45,7 +50,11 @@
       // ejemplos del propio placeholder— no encontraban nada.
       var palabras = q.toLowerCase().split(/\s+/).filter(function(w){ return w.length > 1; });
       var deClaims = (CLAIMS || []).filter(function(c){
-        var heno = (c.title+" "+c.claimant+" "+c.id+" "+(c.domain||"")+" "+c.status).toLowerCase();
+        // Se busca en LAS DOS caras a proposito: un lector ingles escribe "certified
+        // randomness" y un lector español "aleatoriedad certificada", y los dos tienen
+        // que dar con la misma fila.
+        var heno = [c.title, c.title_es, c.title_en, c.claimant, c.id,
+                    c.domain, c.domain_es, c.domain_en, c.status].filter(Boolean).join(" ").toLowerCase();
         return palabras.every(function(w){ return heno.indexOf(w) >= 0; });
       });
       Promise.all([
@@ -60,7 +69,7 @@
           h += deClaims.map(function(c){
             var v = dias(c.claim_date);
             return '<a class="res-row" href="' + (ES?"/es/biblioteca/registro":"/library/registry") + '#' + esc(c.id) + '">' +
-              '<span class="res-t"><b>' + esc(c.title) + "</b> · " + esc(c.claimant) + "</span>" +
+              '<span class="res-t"><b>' + esc(titulo(c)) + "</b> · " + esc(c.claimant) + "</span>" +
               '<span class="res-m">' + esc(c.status) + (v!==null ? " · " + v + " " + t.dias : "") + "</span></a>";
           }).join("");
         }
@@ -109,7 +118,7 @@
         }
         return '<tr id="' + esc(c.id) + '">' +
           '<td class="id">' + esc(c.id) + "</td>" +
-          "<td><b>" + esc(c.title) + "</b><br><span class=\"res-m\">" + esc(c.claimant) + " · " + esc(c.domain || "—") + "</span></td>" +
+          "<td><b>" + esc(titulo(c)) + "</b><br><span class=\"res-m\">" + esc(c.claimant) + " · " + esc(dominio(c) || "—") + "</span></td>" +
           '<td class="id">' + esc(c.claim_date) + "</td>" +
           '<td class="st ' + esc(c.status) + '">' + esc(c.status) + "</td>" +
           "<td>" + barra + "</td>" +

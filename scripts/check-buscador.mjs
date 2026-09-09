@@ -113,8 +113,11 @@ async function contraSitio(base) {
       j("/v1/claims?limit=50"),
     ]);
     const palabras = q.toLowerCase().split(/\s+/).filter((w) => w.length > 1);
+    // TODO el texto de la fila, no una lista de campos elegida a mano: el 2026-09-09
+    // los claims ganaron `title_en`/`domain_en` y una guardia con la lista vieja
+    // habria seguido diciendo "no encuentra nada" con el arreglo ya desplegado.
     const enClaims = ((cl && cl.claims) || []).filter((c) => {
-      const heno = `${c.title} ${c.claimant} ${c.id} ${c.domain || ""} ${c.status}`.toLowerCase();
+      const heno = Object.values(c).filter((v) => typeof v === "string").join(" ").toLowerCase();
       return palabras.every((w) => heno.includes(w));
     }).length;
     return ((alg && alg.items) || []).length + ((run && run.items) || []).length + enClaims;
