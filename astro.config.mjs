@@ -5,6 +5,22 @@ import path from 'node:path';
 
 const SITE = 'https://rosettaquantum.com';
 
+// ¿La ultima edicion del informe PQC es un borrador? Se lee del DATO, con la misma
+// regla que la pagina: ausente o distinto de false = borrador. Una edicion en borrador
+// lleva `noindex`, y dejarla en el sitemap seria pedir que la indexen y pedir que no,
+// a la vez. El dia que se publique entra sola, sin tocar este archivo.
+function informeEnBorrador() {
+  const dir = path.resolve('./src/data/informe-pqc');
+  let files = [];
+  try { files = fs.readdirSync(dir).filter((f) => f.endsWith('.json')).sort(); } catch { return true; }
+  if (!files.length) return true;
+  try {
+    const d = JSON.parse(fs.readFileSync(path.join(dir, files[files.length - 1]), 'utf8'));
+    return d.borrador !== false;
+  } catch { return true; }
+}
+const INFORME_BORRADOR = informeEnBorrador();
+
 // Emparejado de idiomas en el sitemap (Cowork, 27 jul).
 // La opción i18n de @astrojs/sitemap empareja por prefijo de ruta (/es/…), así que
 // sólo cubre las 8 páginas cascarón. Los 24 posts viven en /blog/<base>-<lang>/ y
@@ -59,7 +75,8 @@ export default defineConfig({
       // siguen respondiendo —qready_leads y su workflow quedan intactos— pero deja de
       // anunciarse como parte de este sitio. Estaba fuera del nav desde el commit 4 y
       // seguía en el sitemap: media salida es la que no se nota.
-      filter: (page) => !page.includes('/rq-shell-') && !page.includes('/q-ready'),
+      filter: (page) => !page.includes('/rq-shell-') && !page.includes('/q-ready')
+        && !(INFORME_BORRADOR && page.includes('/informe-pqc')),
       i18n: { defaultLocale: 'en', locales: { en: 'en', es: 'es' } },
       serialize(item) {
         const links = BY_URL.get(item.url);

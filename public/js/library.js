@@ -36,56 +36,43 @@
   function json(u){ return fetch(u,{headers:{accept:"application/json"}}).then(function(r){ if(!r.ok) throw 0; return r.json(); }); }
 
   // ── Buscador ────────────────────────────────────────────────────────────────
+  // Las tres puertas y la regla de coincidencia viven en /js/lib/archivos.js, que es
+  // el MISMO modulo que usa la caja de la home. Aca queda solo la forma de pintar:
+  // secciones agrupadas con su cuenta, que es lo que si es propio de esta pagina.
   var caja = document.getElementById("libQ"), out = document.getElementById("libRes"), btn = document.getElementById("libGo");
-  var CLAIMS = null;
   if (caja && out) {
-    json("/v1/claims?limit=50").then(function(d){ CLAIMS = d.claims || []; }).catch(function(){ CLAIMS = []; });
-
-    var timer;
+    var timer, token = 0;
     function buscar(q) {
       q = (q || "").trim();
       if (!q) { out.innerHTML = '<div class="res-vacio">' + t.pista + "</div>"; return; }
-      // Las palabras se combinan con Y, igual que /v1/search y /v1/algorithms. Con la
-      // frase entera, "certified randomness" y "QAOA portfolio" —dos de los tres
-      // ejemplos del propio placeholder— no encontraban nada.
-      var palabras = q.toLowerCase().split(/\s+/).filter(function(w){ return w.length > 1; });
-      var deClaims = (CLAIMS || []).filter(function(c){
-        // Se busca en LAS DOS caras a proposito: un lector ingles escribe "certified
-        // randomness" y un lector español "aleatoriedad certificada", y los dos tienen
-        // que dar con la misma fila.
-        var heno = [c.title, c.title_es, c.title_en, c.claimant, c.id,
-                    c.domain, c.domain_es, c.domain_en, c.status].filter(Boolean).join(" ").toLowerCase();
-        return palabras.every(function(w){ return heno.indexOf(w) >= 0; });
-      });
-      Promise.all([
-        json("/v1/algorithms?limit=20&q=" + encodeURIComponent(q)).catch(function(){ return null; }),
-        json("/v1/search?limit=10&q=" + encodeURIComponent(q)).catch(function(){ return null; }),
-      ]).then(function(r){
-        var algos = r[0] && r[0].items || [], runs = r[1] && r[1].items || [];
-        if (!r[0] && !r[1] && !deClaims.length) { out.innerHTML = '<div class="res-vacio">' + t.error + "</div>"; return; }
+      var mio = ++token;
+      RQArchivos.buscar(q).then(function (r) {
+        // La respuesta que llega tarde no pisa a la que el lector esta viendo.
+        if (mio !== token) return;
+        if (r.error) { out.innerHTML = '<div class="res-vacio">' + t.error + "</div>"; return; }
         var h = "";
-        if (deClaims.length) {
-          h += '<div class="res-grp">' + t.claims + " · " + deClaims.length + "</div>";
-          h += deClaims.map(function(c){
-            var v = dias(c.claim_date);
-            return '<a class="res-row" href="' + (ES?"/es/biblioteca/registro":"/library/registry") + '#' + esc(c.id) + '">' +
-              '<span class="res-t"><b>' + esc(titulo(c)) + "</b> · " + esc(c.claimant) + "</span>" +
-              '<span class="res-m">' + esc(c.status) + (v!==null ? " · " + v + " " + t.dias : "") + "</span></a>";
+        if (r.claims.length) {
+          h += '<div class="res-grp">' + t.claims + " · " + r.claims.length + "</div>";
+          h += r.claims.map(function (c) {
+            var v = RQArchivos.dias(c.claim_date);
+            return '<a class="res-row" href="' + (ES ? "/es/biblioteca/registro" : "/library/registry") + '#' + esc(c.id) + '">' +
+              '<span class="res-t"><b>' + esc(RQArchivos.titulo(c, ES)) + "</b> · " + esc(c.claimant) + "</span>" +
+              '<span class="res-m">' + esc(c.status) + (v !== null ? " · " + v + " " + t.dias : "") + "</span></a>";
           }).join("");
         }
-        if (algos.length) {
-          h += '<div class="res-grp">' + t.algos + " · " + algos.length + "</div>";
-          h += algos.map(function(a){
+        if (r.algoritmos.length) {
+          h += '<div class="res-grp">' + t.algos + " · " + r.algoritmos.length + "</div>";
+          h += r.algoritmos.map(function (a) {
             return '<div class="res-row"><span class="res-t"><b>' + esc(a.nombre) + "</b> · " + esc(a.categoria) + "</span>" +
               '<span class="res-m">' + esc(a.speedup_declarado || "—") + "</span></div>";
           }).join("");
         }
-        if (runs.length) {
-          h += '<div class="res-grp">' + t.runs + " · " + runs.length + "</div>";
-          h += runs.map(function(x){
-            return '<a class="res-row" href="' + (ES?"/es/ledger":"/ledger") + '#' + esc(x.recipe_id||x.id) + '">' +
-              '<span class="res-t"><b>' + esc(x.id) + "</b> · " + esc(x.tipo||"") + "</span>" +
-              '<span class="res-m">' + esc(x.fecha||"") + "</span></a>";
+        if (r.corridas.length) {
+          h += '<div class="res-grp">' + t.runs + " · " + r.corridas.length + "</div>";
+          h += r.corridas.map(function (x) {
+            return '<a class="res-row" href="' + (ES ? "/es/ledger" : "/ledger") + '#' + esc(x.recipe_id || x.id) + '">' +
+              '<span class="res-t"><b>' + esc(x.id) + "</b> · " + esc(x.tipo || "") + "</span>" +
+              '<span class="res-m">' + esc(x.fecha || "") + "</span></a>";
           }).join("");
         }
         out.innerHTML = h || '<div class="res-vacio">' + t.vacio + "</div>";
@@ -93,6 +80,7 @@
     }
     caja.addEventListener("input", function(e){ clearTimeout(timer); var v=e.target.value; timer=setTimeout(function(){ buscar(v); },180); });
     if (btn) btn.addEventListener("click", function(){ buscar(caja.value); });
+    caja.addEventListener("keydown", function(e){ if (e.key === "Enter") { e.preventDefault(); buscar(caja.value); } });
     document.querySelectorAll(".hs-chip").forEach(function(ch){
       ch.addEventListener("click", function(){ caja.value = ch.textContent; buscar(ch.textContent); caja.focus(); });
     });

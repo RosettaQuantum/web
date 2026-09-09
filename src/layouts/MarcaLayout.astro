@@ -20,7 +20,7 @@ import navCss from '../styles/componentes/nav.css?raw';
 // este <style>, asi que el orden no alcanza. Ver scripts/build-marca-gana.mjs.
 import gana from '../styles/componentes/marca-gana.css?raw';
 
-const { title, description, lang = 'en', altUrl = '/es/', ruta = '/', pageCss = '', scripts = [] } = Astro.props;
+const { title, description, lang = 'en', altUrl = '/es/', ruta = '/', pageCss = '', scripts = [], noindex = false } = Astro.props;
 ---
 <BaseLayout
   title={title}
@@ -29,6 +29,7 @@ const { title, description, lang = 'en', altUrl = '/es/', ruta = '/', pageCss = 
   altUrl={altUrl}
   pageCss={navCss + "\n" + marca + "\n" + pageCss + "\n" + gana}
   scripts={scripts}
+  noindex={noindex}
   nav={false}
   pie={false}
   fuentes="marca"

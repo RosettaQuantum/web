@@ -1,5 +1,7 @@
 {
  "edicion": "2026-08",
+ "_borrador": "Un solo interruptor para dos cosas: enciende el cartel de la pagina Y el noindex. Hasta el 9-sep-2026 vivian separados y la pagina decia \"pendiente de revision legal\" mientras se ofrecia a los buscadores. Texto = lo que falta; false = publicada; ausente = borrador (falla cerrado).",
+ "borrador": "revisión legal de los seis puntos marcados en la sección 11, y aviso previo a las organizaciones con hallazgos",
  "numero": 1,
  "titulo": "Criptografía post-cuántica en la gran empresa chilena",
  "subtitulo": "Medición técnica sobre la infraestructura pública de 220 organizaciones",

@@ -35,6 +35,26 @@ for (let i = 0; i < ediciones.length - 1; i++) {
 const { d } = ediciones[0];
 const prev = ediciones[1]?.d ?? null;
 
+/**
+ * ¿Esta edicion es un borrador?
+ *
+ * FALLA CERRADO: si el JSON no dice nada, es borrador. Una edicion nueva que alguien
+ * suelta en src/data/ sin declarar su estado NO se indexa sola.
+ *
+ * Y ES UN SOLO INTERRUPTOR PARA LAS DOS COSAS —el cartel de "borrador de trabajo" y el
+ * `noindex`— porque hasta hoy vivian separados: el cartel estaba escrito a mano en el
+ * HTML y el noindex no existia, asi que la pagina decia "pendiente de revision legal"
+ * y a la vez se ofrecia a los buscadores. Dos verdades sobre el mismo hecho es una
+ * mentira esperando.
+ *
+ * `borrador` acepta true (borrador sin detalle), false (publicada) o un texto con lo
+ * que falta, que es lo que se muestra.
+ */
+const PENDIENTE_POR_DEFECTO =
+  "revisión legal de los seis puntos marcados en la sección 11, y aviso previo a las organizaciones con hallazgos";
+const esBorrador = d.borrador !== false;
+const pendiente = typeof d.borrador === "string" ? d.borrador : PENDIENTE_POR_DEFECTO;
+
 const MESES = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
 const [yy, mm] = d.edicion.split('-').map(Number);
 const mesLargo = `${MESES[mm-1]} de ${yy}`;
@@ -86,7 +106,7 @@ const SECCIONES = [
 <MarcaLayout
   title={`${d.titulo} — Informe ${mesLargo} · Rosetta Quantum`}
   description={`${d.subtitulo}. Edición ${d.numero}, ${mesLargo}. Medición técnica sobre endpoints reales, no encuesta.`}
-  lang="es" altUrl="/" ruta="/informe-pqc" pageCss={css}>
+  lang="es" altUrl="/" ruta="/informe-pqc" pageCss={css} noindex={esBorrador}>
 
 <div class="informe-doc">
 <div class="informe">
@@ -109,9 +129,11 @@ const SECCIONES = [
       <strong>⚠ EDICIÓN CON DATOS SIMULADOS — NO PUBLICAR.</strong> {d.SIMULADO} Existe solo para verificar que la comparación mes a mes funciona.
     </div>
   )}
-  <div class="draft">
-    <strong>Borrador de trabajo.</strong> Pendiente antes de publicar: revisión legal de los seis puntos marcados en la sección 11, y aviso previo a las organizaciones con hallazgos.
-  </div>
+  {esBorrador && (
+    <div class="draft">
+      <strong>Borrador de trabajo.</strong> Pendiente antes de publicar: {pendiente}. Esta edición no se ofrece a los buscadores mientras diga esto.
+    </div>
+  )}
 
   <div class="measure" style="margin:32px 0 8px">
     <p class="lede">
