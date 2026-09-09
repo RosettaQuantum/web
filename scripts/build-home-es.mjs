@@ -355,6 +355,43 @@ const T = [
   ["aria-label=\"Email for Monitor 001\"", "aria-label=\"Correo para el Monitor 001\"", 1],
 ];
 
+/**
+ * LOS ENLACES, QUE ES LO QUE FALTABA.
+ *
+ * Este generador traducia 190 cadenas de TEXTO y ni un solo `href`. La home española
+ * servia 29 enlaces a rutas en ingles: "Abre la Biblioteca →" iba a /library, "Pide un
+ * referee →" a /pilots, "Verifica un sello" a /verify. El lector apretaba un boton en
+ * español y aterrizaba en ingles. Lo encontro Nicholas navegando, no ningun guardia:
+ * T-es buscaba PALABRAS en ingles en el texto y los destinos no son texto.
+ *
+ * Se mapea la ruta, no el enlace: asi una maqueta nueva que reuse /pilots queda cubierta
+ * sin agregar nada. Y al final se EXIGE que no quede ningun href en ingles sin mapear —
+ * un mapa que se queda corto en silencio es como llegamos aqui.
+ */
+const RUTAS = [
+  ["/library/registry", "/es/biblioteca/registro"],
+  ["/library", "/es/biblioteca"],
+  ["/ledger", "/es/ledger"],
+  ["/pilots", "/es/pilotos"],
+  ["/services", "/es/servicios"],
+  ["/methodology", "/es/metodologia"],
+  ["/monitor", "/es/monitor"],
+  ["/verify", "/es/verificar"],
+  ["/errata", "/es/erratas"],
+  ["/contact", "/es/contacto"],
+  ["/policies", "/es/politicas"],
+  ["/about", "/es/nosotros"],
+  ["/blog", "/es/blog"],
+];
+// La decision page de muestra NO tiene cara española: los entregables a jurados se
+// editan en ingles y no se portan (decision del 26-ago). Queda declarada, no olvidada.
+const EN_INGLES_A_PROPOSITO = ["/services/sample-report"];
+// Y los dos posts que la home lista: la version -es existe y es la que corresponde aqui.
+const POSTS = [
+  ["/blog/neutral-atoms-is-the-third-architecture-for-real-en/", "/blog/neutral-atoms-is-the-third-architecture-for-real-es/"],
+  ["/blog/what-is-qram-and-why-is-it-the-silent-bottleneck-en/", "/blog/what-is-qram-and-why-is-it-the-silent-bottleneck-es/"],
+];
+
 let html = readFileSync("src/content_html/home.en.html", "utf8");
 const malas = [];
 for (const [en, es, n] of T) {
@@ -367,5 +404,34 @@ if (malas.length) {
   malas.forEach((m) => console.error("  " + m));
   process.exit(1);
 }
+// ── los enlaces ────────────────────────────────────────────────────────────────
+// El orden importa: /library/registry antes que /library, o el prefijo se come al largo.
+//
+// Y LA EXCEPCION SE PROTEGE ANTES, no despues: la primera version comprobaba al final
+// que /services/sample-report siguiera en ingles, pero para entonces el mapa ya lo habia
+// convertido en /es/servicios/sample-report — una ruta que no existe. Una excepcion que
+// se verifica despues del cambio no es una excepcion, es un informe de daños.
+let enlaces = 0;
+const ESCUDO = "\u0000EXC";
+EN_INGLES_A_PROPOSITO.forEach((h, k) => { html = html.split(`href="${h}"`).join(`href="${ESCUDO}${k}"`); });
+for (const [en, es] of POSTS) { const n = html.split(en).length - 1; html = html.split(en).join(es); enlaces += n; }
+for (const [en, es] of RUTAS) {
+  for (const [de, a] of [[`href="${en}"`, `href="${es}"`], [`href="${en}#`, `href="${es}#`], [`href="${en}/`, `href="${es}/`]]) {
+    const n = html.split(de).length - 1;
+    if (n) { html = html.split(de).join(a); enlaces += n; }
+  }
+}
+// LA COMPROBACION QUE HACE QUE ESTO NO SE REPITA: ningun href en ingles puede quedar.
+const quedan = [...html.matchAll(/href="(\/[^"#]*)/g)].map((m) => m[1])
+  .filter((h) => !h.startsWith("/es/") && h !== "/" && !/^\/(v1|mcp|api|_astro|js|piezas|consola|cleveland|favicon|rosetta|sitemap|llms)/.test(h) && !/\.[a-z]{2,4}$/.test(h))
+  .filter((h) => !EN_INGLES_A_PROPOSITO.includes(h) && !h.startsWith("/blog/"));
+EN_INGLES_A_PROPOSITO.forEach((h, k) => { html = html.split(`href="${ESCUDO}${k}"`).join(`href="${h}"`); });
+if (quedan.length) {
+  console.error("ABORTA: quedan enlaces a rutas en ingles en la home española:");
+  [...new Set(quedan)].forEach((h) => console.error("  " + h));
+  console.error("Agregalos a RUTAS, o a EN_INGLES_A_PROPOSITO con su motivo.");
+  process.exit(1);
+}
+
 writeFileSync("src/content_html/home.es.html", html);
-console.log(`home.es.html generado · ${T.length} cadenas sustituidas · ${html.length} bytes`);
+console.log(`home.es.html generado · ${T.length} cadenas · ${enlaces} enlaces reapuntados · ${html.length} bytes`);

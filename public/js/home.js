@@ -262,7 +262,7 @@ function hsRender(q){
   const ql=q.trim().toLowerCase();
   const hits=ql? HS_INDEX.filter(e=>e.t.toLowerCase().includes(ql)||e.st.toLowerCase().includes(ql)) : [];
   hsR.innerHTML = hits.length ? hits.map(e=>`<div class="hs-r"><span>${e.t}</span><span class="st" style="color:${e.c}">${e.st}</span></div>`).join('')
-    : (ql?`<div class="hs-r"><span>${HS_SIN}</span><span class="st">/library →</span></div>`:'');
+    : (ql?`<div class="hs-r"><span>${HS_SIN}</span><span class="st">${ES?'/es/biblioteca':'/library'} →</span></div>`:'');
   hsR.classList.toggle('on', !!ql);
 }
 hsI.addEventListener('input',e=>hsRender(e.target.value));

@@ -78,6 +78,33 @@ for (const m of html.matchAll(/>([^<>]{1,160})</g)) {
 }
 
 console.log(`preview: ${PREVIEW}/es/\nfragmentos de texto revisados: ${vistos.size}\n`);
+
+// ── LOS DESTINOS, QUE NO SON TEXTO ─────────────────────────────────────────────
+// Este guardia buscaba PALABRAS en ingles y la home española servia 29 ENLACES a rutas
+// en ingles: "Abre la Biblioteca →" iba a /library, "Pide un referee →" a /pilots,
+// "Verifica un sello" a /verify. Todo el texto estaba en español y el lector aterrizaba
+// en ingles igual. Un destino no es una palabra, y por eso no lo veia nadie.
+// Lo encontro Nicholas apretando un boton.
+const PAGINAS_ES = ["/es/", "/es/pilotos/", "/es/servicios/", "/es/biblioteca/",
+  "/es/biblioteca/registro/", "/es/metodologia/", "/es/nosotros/", "/es/contacto/",
+  "/es/monitor/", "/es/verificar/", "/es/erratas/", "/es/politicas/", "/es/ledger/"];
+// En ingles A PROPOSITO, con su motivo. La decision page de muestra es un entregable a
+// jurados, y esos se editan en ingles y no se portan (decision del 26-ago).
+const DESTINO_EN_INGLES_OK = ["/services/sample-report"];
+const noEs = (h) => h.startsWith("/") && !h.startsWith("/es/") && h !== "/" &&
+  !/^\/(v1|mcp|api|_astro|js|piezas|consola|cleveland|blog\/)/.test(h) &&
+  !/\.[a-z]{2,4}$/.test(h) && !DESTINO_EN_INGLES_OK.includes(h);
+let saltos = 0;
+for (const p of PAGINAS_ES) {
+  const t = await (await fetch(PREVIEW + p, { headers: { "x-rq-check": "1" } })).text();
+  // fuera la barra y el pie: la barra ofrece EN a proposito, y el pie es el mismo en todo
+  const cuerpo = t.replace(/<nav[\s\S]*?<\/nav>/g, "").replace(/<footer[\s\S]*?<\/footer>/g, "").replace(/<script[\s\S]*?<\/script>/g, "");
+  const malos = [...new Set([...cuerpo.matchAll(/href="(\/[^"#]*)/g)].map((m) => m[1]).filter(noEs))];
+  if (malos.length) { sueltos.push(`${p} lleva a rutas en ingles: ${malos.join(", ")}`); saltos += malos.length; }
+}
+console.log(saltos ? `  FALLA ${saltos} enlace(s) a rutas en ingles desde paginas en español`
+                   : `  ok    las ${PAGINAS_ES.length} paginas ES no mandan a ninguna ruta en ingles (salvo ${DESTINO_EN_INGLES_OK.join(", ")}, declarado)`);
+
 if (sueltos.length) {
   sueltos.forEach((t) => console.log(`  FALLA sin traducir: ${JSON.stringify(t.slice(0, 100))}`));
   console.log(`\nT-es: ${sueltos.length} fragmento(s) en ingles sin declarar.`);
