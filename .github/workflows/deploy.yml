@@ -283,6 +283,12 @@ jobs:
       - name: Self-test del buscador contra su propio placeholder
         run: node scripts/check-buscador.mjs --self-test
 
+      # /informe-pqc y las dos caras de /cleveland se quedaron semanas en la identidad
+      # retirada y ninguna guardia las vio: check-css mira 3 paginas y check-fuentes 2.
+      # Esta saca la lista de dist/ y le pregunta al navegador, no al archivo.
+      - name: Self-test de la identidad renderizada
+        run: node scripts/check-identidad.mjs --self-test
+
       # El sello de version va en TODA pagina servida, no solo en las de Astro: la consola
       # y las dos caras de Cleveland son HTML plano y nunca pasan por el layout, asi que
       # esperar su 200 no distinguia lo viejo de lo nuevo. El postbuild lo estampa y falla
@@ -477,3 +483,6 @@ jobs:
 
       - name: El buscador encuentra lo que promete, contra produccion
         run: node scripts/check-buscador.mjs
+
+      - name: Ninguna pagina se renderiza en la identidad retirada
+        run: node scripts/check-identidad.mjs --base https://rosettaquantum.com

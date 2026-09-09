@@ -1,6 +1,6 @@
 ---
 import { banda } from '../../lib/qex.js';
-import BaseLayout from '../../layouts/BaseLayout.astro';
+import MarcaLayout from '../../layouts/MarcaLayout.astro';
 import css from '../../styles/pages/informe-pqc.css?raw';
 
 // Ediciones: un JSON por mes. La más reciente manda; la anterior alimenta las variaciones.
@@ -77,25 +77,21 @@ const SECCIONES = [
   ['legal','Metodología, límites y aviso legal'],
 ];
 ---
-<BaseLayout
+{/* Portado a la marca el 2026-09-09 por instruccion de Nicholas. Antes usaba
+    BaseLayout, que le daba el chrome retirado —barra oscura en basalto, pie en
+    papiro— sobre un documento que ya estaba en la identidad vieja. Ahora entra por
+    MarcaLayout: misma barra, mismo pie y misma tipografia que el resto del sitio.
+    `altUrl` apunta al home ingles porque este informe NO tiene cara en ingles: el
+    conmutador tiene que llevar a una pagina que exista, no a un 404 inventado. */}
+<MarcaLayout
   title={`${d.titulo} — Informe ${mesLargo} · Rosetta Quantum`}
   description={`${d.subtitulo}. Edición ${d.numero}, ${mesLargo}. Medición técnica sobre endpoints reales, no encuesta.`}
-  lang="es" pageCss={css}>
+  lang="es" altUrl="/" ruta="/informe-pqc" pageCss={css}>
 
 <div class="informe-doc">
 <div class="informe">
 
   <header class="mast">
-    <div class="brandrow">
-      <svg class="slabmark" viewBox="0 0 40 40" aria-hidden="true">
-        <rect x="12.5" y="3.5" width="15" height="27" rx="7.5" fill="none" stroke="#9A7228" stroke-width="1.8"/>
-        <line x1="13.5" y1="35" x2="26.5" y2="35" stroke="#9A7228" stroke-width="1.8" stroke-linecap="round"/>
-        <circle cx="20" cy="12.5" r="3" fill="none" stroke="#3D372F" stroke-width="1.5"/>
-        <circle cx="20" cy="21.5" r="3" fill="#1E7A6E"/>
-      </svg>
-      <span class="brandname">Rosetta Quantum</span>
-    </div>
-
     <div class="edicion">
       <span class="num">Edición {String(d.numero).padStart(2,'0')}</span>
       <span>{mesLargo}</span>
@@ -109,7 +105,7 @@ const SECCIONES = [
   </header>
 
   {d.SIMULADO && (
-    <div class="draft" style="border-width:2px;background:#F8E6E1">
+    <div class="draft" style="border-width:2px;background:var(--alert-10)">
       <strong>⚠ EDICIÓN CON DATOS SIMULADOS — NO PUBLICAR.</strong> {d.SIMULADO} Existe solo para verificar que la comparación mes a mes funciona.
     </div>
   )}
@@ -353,7 +349,7 @@ const SECCIONES = [
                 <td><strong>{x.k}</strong></td>
                 <td class="num">{x.peso}%</td>
                 <td><span class={`chip ${x.tipo === 'medido' ? 'ok' : 'warn'}`}>{x.tipo}</span></td>
-                <td>{x.que}<br /><span style="color:var(--muted)">{x.porque}</span></td>
+                <td>{x.que}<br /><span style="color:var(--ink-60)">{x.porque}</span></td>
                 <td class="num">{x.mediana}</td>
               </tr>
             ))}
@@ -1167,7 +1163,7 @@ const SECCIONES = [
     <div class="note"><strong>Derecho de exclusión y de acceso.</strong> Cualquier organización puede pedir su exclusión de futuras ediciones, o el detalle completo de lo observado en su superficie, sin costo y sin condiciones. Ambas dentro de 72 horas hábiles y sin justificación.</div>
 
     <div class="measure" style="margin-top:34px">
-      <p style="font-family:var(--f-serif);font-size:1.2rem;line-height:1.4;color:var(--ink)">La transición post-cuántica no se resuelve el día que exista la máquina. Se resuelve en los años previos, con inventario, con preguntas incómodas a los proveedores y con alguien a cargo. Nada de eso requiere creer en una fecha — solo requiere empezar antes de que la fecha la fije otro.</p>
+      <p style="font-family:var(--serif);font-size:1.2rem;line-height:1.4;color:var(--ink)">La transición post-cuántica no se resuelve el día que exista la máquina. Se resuelve en los años previos, con inventario, con preguntas incómodas a los proveedores y con alguien a cargo. Nada de eso requiere creer en una fecha — solo requiere empezar antes de que la fecha la fije otro.</p>
     </div>
 
     <p class="src">Rosetta Quantum · Edición {String(d.numero).padStart(2,'0')} · {mesLargo} · Blue Tuna SpA · Metodología y conjunto de datos agregado disponibles a solicitud.</p>
@@ -1175,4 +1171,4 @@ const SECCIONES = [
 
 </div>
 </div>
-</BaseLayout>
+</MarcaLayout>

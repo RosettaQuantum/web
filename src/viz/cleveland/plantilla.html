@@ -1,6 +1,12 @@
 <!DOCTYPE html>
 <meta charset="utf-8">
 <title>__RQ_TITULO__</title>
+<!-- Las familias de la marca. La pagina es HTML suelto en public/ y no pasa por
+     BaseLayout, asi que las pide ella misma; la lista es la MISMA que sirve
+     `fuentes: 'marca'` del layout, para que no haya dos verdades. -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,400;6..72,500;6..72,600&amp;family=IBM+Plex+Sans:wght@400;500;600&amp;family=IBM+Plex+Mono:wght@400;500&amp;display=swap">
 __RQ_ESTILO__
 <header>
  <h1><a href="__RQ_HOME__" style="color:inherit">Rosetta Quantum</a> <span>__RQ_H1__</span></h1>
@@ -22,7 +28,7 @@ __RQ_ESTILO__
    <div class="ramp"></div>
    <div style="display:flex;justify-content:space-between;width:180px"><span>__RQ_BAJO__</span><span>__RQ_ALTO__</span></div>
    <div class="k">
-     <span><i class="d" style="background:#e5484d"></i>__RQ_LEG_V__</span>
+     <span><i class="d" style="background:#E5484D"></i>__RQ_LEG_V__</span>
      <span><i class="d" style="background:#8b98a5"></i>__RQ_LEG_F__</span>
    </div>
   </div>
