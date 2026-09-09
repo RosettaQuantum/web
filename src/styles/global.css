@@ -10,13 +10,20 @@
   color-scheme: light;
   --paper:#F4F5F1; --paper-2:#ECEEE8; --panel:#FBFBF9;
   --ink:#16181B; --ink-60:#5A5D58; --line:#D9DBD6;
-  --verdict:#0F8B7E; --teal-10:#E6F2F0;
-  --pending:#B8892E; --alert:#B4432F;
+  --verdict:#0F8B7E; --teal-10:#E6F2F0; --teal-20:#C4DFDA;
+  --pending:#B8892E; --pending-10:#F6EFDF; --pending-20:#E7D6AE;
+  --alert:#B4432F; --alert-10:#F8E9E5; --alert-20:#EDC9C0;
   --serif:'Newsreader',Georgia,serif;
   --sans:'IBM Plex Sans',system-ui,sans-serif;
   --mono:'IBM Plex Mono',monospace;
   --maxw-brand:1000px;
 }
+/* Los tres pares -10/-20 son el fondo y el borde de una senal semantica sobre papel
+   (un delta que empeora, un chip pendiente, un aviso). Existian como literales sueltos
+   dentro de styles/pages/informe-pqc.css —#e8c6bd, #e3d3ae, #bfdcd7— que es justo lo
+   que este bloque prohibe: los tokens viven aqui y en ningun otro lado. --teal-10 ya
+   estaba; los otros cinco se agregan para poder portar el informe sin inventar color
+   en la pagina. */
 
 :root{
   --basalt:#141210; --basalt-2:#1F1C18; --basalt-3:#100E0B; --stone-line:#3D372F;
