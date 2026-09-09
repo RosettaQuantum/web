@@ -67,7 +67,7 @@ const ok = es ? 'Anotado ✓' : "You're on the list ✓";
   {variante === 'weekly' && <p class="promesa">{t.pie}</p>}
   <div class="forma" style="margin-top:14px">
     <input id="monMail" type="email" placeholder={ph} aria-label={ph} />
-    <a id="monGo" class="btn btn-solid" style="border-radius:0" data-ok={ok} data-lista={lista}
+    <a id="monGo" class="btn btn-solid" data-ok={ok} data-lista={lista}
        href={`mailto:hello@rosettaquantum.com?subject=${t.asunto}`}>{t.btn}</a>
   </div>
   {variante !== 'weekly' && <p class="sealline mono">{t.pie}</p>}

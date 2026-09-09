@@ -24,6 +24,11 @@
   --faience:#4DC4B5; --gold:#D9B87A; --maxw:1080px;
 }
 *{margin:0;padding:0;box-sizing:border-box}
+/* Los controles de formulario NO heredan la tipografia: el navegador les pone la suya.
+   Por eso el boton que captura leads, el ✕ del modal y la hamburguesa se servian en
+   Arial —tres de las trece variantes de boton medidas el 9-sep, y la primera de ellas
+   es el punto de conversion del sitio. Es el reset que faltaba, no un estilo nuevo. */
+button,input,select,textarea{font-family:inherit;font-size:inherit;line-height:inherit;color:inherit}
 html{scroll-behavior:smooth}
 body{background:var(--basalt);color:var(--papyrus);font-family:'Instrument Sans',sans-serif;font-size:17px;line-height:1.6;-webkit-font-smoothing:antialiased;overflow-x:hidden}
 ::selection{background:var(--faience);color:var(--basalt)}
