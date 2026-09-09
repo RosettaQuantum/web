@@ -319,6 +319,12 @@ export async function estado(env) {
       predicciones: cuenta.PREDICTION || 0,
       reportes: cuenta.REPORT || 0,
       erratas: cuenta.ERRATA || 0,
+      // El archivo ENTERO, que es la suma de los ocho tipos. Existe para que el
+      // denominador que publica /ledger tenga con que contrastarse: hasta el
+      // 2026-09-09 la pagina declaraba "93 de 93 artefactos" usando el total de RUN
+      // como si fuera el del archivo, y ninguna otra superficie nuestra podia
+      // desmentirlo porque ninguna contaba el archivo completo.
+      artefactos_en_el_archivo: Object.values(cuenta).reduce((s, n) => s + n, 0),
       victorias_cuanticas_medidas: victorias,
       // La lectura acompana al numero y tiene que seguirlo: un texto que dice
       // "Cero" junto a un contador que ya no dice cero es peor que no tener texto.
@@ -396,17 +402,26 @@ async function listar(env, tipo, url) {
     return json({ error: "offset invalido", detalle: "offset tiene que ser un entero >= 0" }, 400);
   }
 
-  const filtro = recipe ? " AND recipe_id=?" : "";
-  const argsFiltro = recipe ? [tipo, recipe] : [tipo];
+  // `tipo === null` significa EL ARCHIVO ENTERO, sin filtrar por tipo: es lo que
+  // sirve /v1/archives. Nacio de un defecto medido en produccion el 2026-09-09: la
+  // pagina /ledger horneaba 45 filas de `run_archives` (todos los tipos) y despues
+  // paginaba con offset=45 contra /v1/runs, que solo tiene RUN. Dos colecciones
+  // distintas, un solo offset: 25 corridas selladas —el lote E.ON entero— no
+  // aparecian en NINGUNA pagina, y el pie declaraba "93 of 93 artifacts" usando el
+  // total de RUN como si fuera el del archivo. El archivo tiene 136.
+  const cond = [], argsFiltro = [];
+  if (tipo) { cond.push("type=?"); argsFiltro.push(tipo); }
+  if (recipe) { cond.push("recipe_id=?"); argsFiltro.push(recipe); }
+  const donde = cond.length ? " WHERE " + cond.join(" AND ") : "";
 
   // El denominador se consulta, no se deduce del largo de la pagina.
   const totalRow = await env.DB
-    .prepare("SELECT count(*) n FROM run_archives WHERE type=?" + filtro)
+    .prepare("SELECT count(*) n FROM run_archives" + donde)
     .bind(...argsFiltro).first();
   const totalArchivo = totalRow ? totalRow.n : null;
 
   const sql = "SELECT file_id,type,recipe_id,is_demo,archived_at,content_hash,github_url,codeberg_url,payload"
-    + " FROM run_archives WHERE type=?" + filtro
+    + " FROM run_archives" + donde
     + " ORDER BY archived_at DESC, file_id DESC LIMIT ? OFFSET ?";
   const { results = [] } = await env.DB.prepare(sql).bind(...argsFiltro, limite, offset).all();
 
@@ -474,13 +489,36 @@ async function porId(env, id, completo) {
   return json({ ...base, archivo_sellado: payload });
 }
 
+/**
+ * Las palabras de una consulta, en minuscula y sin las vacias.
+ *
+ * EL DEFECTO QUE ARREGLA (medido el 2026-09-09): la busqueda hacia UN solo LIKE con la
+ * frase entera. `qaoa` daba 20 resultados, `portfolio` daba 20, y **`qaoa portfolio`
+ * daba cero** — igual que `certified randomness` y que cualquier consulta de dos
+ * palabras. El propio placeholder del buscador proponia tres ejemplos y dos de ellos
+ * no encontraban nada. Un buscador que falla justo con lo que el mismo sugiere es peor
+ * que no tener buscador: enseña que el archivo esta vacio.
+ *
+ * Las palabras se combinan con Y: todas tienen que aparecer, en cualquier orden.
+ */
+export function palabrasDe(q) {
+  return String(q || "").toLowerCase().split(/\s+/).filter((w) => w.length > 1).slice(0, 8);
+}
+
 async function buscar(env, q, limite = 20) {
-  const like = `%${(q || "").toLowerCase()}%`;
+  const palabras = palabrasDe(q);
+  if (!palabras.length) return { items: [], total_archivo: 0 };
+  const cond = palabras.map(() => "lower(payload) LIKE ?").join(" AND ");
+  const args = palabras.map((w) => `%${w}%`);
+  const totalRow = await env.DB
+    .prepare("SELECT count(*) n FROM run_archives WHERE " + cond).bind(...args).first();
   const { results = [] } = await env.DB.prepare(
     "SELECT file_id,type,recipe_id,is_demo,archived_at,content_hash,github_url,codeberg_url,payload " +
-    "FROM run_archives WHERE lower(payload) LIKE ? ORDER BY archived_at DESC LIMIT ?"
-  ).bind(like, limite).all();
-  return results.map(resumenArchivo);
+    "FROM run_archives WHERE " + cond + " ORDER BY archived_at DESC LIMIT ?"
+  ).bind(...args, limite).all();
+  // El denominador viaja con el numero: "20 resultados" sin decir de cuantos se lee
+  // como el total, y aqui el limite por defecto es justo 20.
+  return { items: results.map(resumenArchivo), total_archivo: totalRow ? totalRow.n : null };
 }
 
 // ------------------------------------------------- archivador de algoritmos y fuentes
@@ -577,7 +615,12 @@ async function algoritmos(env, url) {
   let sql = "SELECT * FROM quantum_algorithms";
   const cond = [], args = [];
   if (categoria) { cond.push("categoria_id=?"); args.push(categoria); }
-  if (q) { cond.push("(lower(nombre) LIKE ? OR lower(problema_es) LIKE ?)"); args.push(`%${q}%`, `%${q}%`); }
+  // Misma regla que /v1/search: las palabras se combinan con Y, y cada una puede caer
+  // en el nombre o en la descripcion. Con la frase entera, "grover search" daba cero.
+  for (const w of palabrasDe(q)) {
+    cond.push("(lower(nombre) LIKE ? OR lower(problema_es) LIKE ? OR lower(problema_en) LIKE ?)");
+    args.push(`%${w}%`, `%${w}%`, `%${w}%`);
+  }
   if (cond.length) sql += " WHERE " + cond.join(" AND ");
   sql += " ORDER BY orden LIMIT ?";
   args.push(limite);
@@ -888,8 +931,9 @@ export const HERRAMIENTAS = [
 async function ejecutarHerramienta(env, nombre, args) {
   if (nombre === "estado_del_archivo") return await estado(env);
   if (nombre === "buscar_evidencia") {
-    const items = await buscar(env, args.consulta);
-    return { consulta: args.consulta, encontrados: items.length, items };
+    const r = await buscar(env, args.consulta);
+    return { consulta: args.consulta, palabras: palabrasDe(args.consulta),
+             encontrados: r.items.length, total_archivo: r.total_archivo, items: r.items };
   }
   if (nombre === "ver_archivo") {
     const r = await porId(env, args.id, true);
@@ -1162,6 +1206,8 @@ export const CATALOGO = [
           reportes: { type: "integer" },
           erratas: { type: "integer",
             description: "Correcciones publicadas sobre sellos propios ya anclados. El original nunca se reescribe: la errata es un archivo nuevo que lo cita por content_hash." },
+          artefactos_en_el_archivo: { type: "integer",
+            description: "Todos los artefactos sellados, sumando los ocho tipos. Es el denominador que publica /ledger; no confundir con corridas_selladas, que cuenta solo las de tipo RUN." },
           victorias_cuanticas_medidas: { type: "integer",
             description: "Cuántos veredictos publicados de este archivo declaran que un método cuántico le ganó al campeón clásico. Hoy: 0. CUENTA VEREDICTOS, NO CORRIDAS: hay corridas selladas donde el lado cuántico puntuó más alto en una instancia, y eso no basta para llamar un veredicto. Es el titular del archivo, no una falla." },
           lectura: { type: "string" },
@@ -1170,6 +1216,8 @@ export const CATALOGO = [
         integridad: { type: "object" },
       },
     } },
+  { ruta: "/v1/archives", resumen: "El archivo entero: todos los artefactos sellados, sin filtrar por tipo", grupo: "ledger",
+    params: [["limit", "maximo 200"], ["offset", "entero >= 0"], ["recipe", "filtra por receta"]] },
   { ruta: "/v1/runs", resumen: "Corridas selladas", grupo: "ledger",
     params: [["recipe", "filtra por receta, p.ej. RQ-0012"], ["limit", "maximo 200, por defecto 50"]] },
   { ruta: "/v1/verdicts", resumen: "Veredictos publicados", grupo: "ledger", params: [["limit", "maximo 200"]] },
@@ -1188,7 +1236,8 @@ export const CATALOGO = [
     resumen: "El archivo sellado TAL CUAL se selló, sin re-serializar: es el que sirve para recomputar el hash",
     ejemplo: { id: "PR-CLEV-001" } },
   { ruta: "/v1/search", resumen: "Búsqueda en texto de las corridas", grupo: "ledger",
-    params: [["q", "obligatorio"]], ejemploQuery: "q=portfolio" },
+    params: [["q", "obligatorio · varias palabras se combinan con Y"], ["limit", "maximo 200"]],
+    ejemploQuery: "q=portfolio" },
   { ruta: "/v1/algorithms", resumen: "Archivador de algoritmos cuánticos", grupo: "archivador",
     params: [["categoria", "algebraic | oracular | BQP | ONML"], ["q", "busca en nombre y problema"], ["limit", "maximo 200"]],
     esquema: {
@@ -1622,6 +1671,9 @@ async function enrutar(request, env, url, info = {}) {
   if (p === "/v1/state") return json(await estado(env));
   if (p === "/v1/claims" || p === "/v1/claims/") return await claims(env, url);
   if (p === "/v1/posts" || p === "/v1/posts/") return await posts(env, url);
+  // El archivo entero, sin filtrar por tipo. Es la coleccion que hornea /ledger,
+  // y la unica sobre la que su offset significa algo.
+  if (p === "/v1/archives") return await listar(env, null, url);
   if (p === "/v1/runs") return await listar(env, "RUN", url);
   if (p === "/v1/verdicts") return await listar(env, "VERDICT", url);
   if (p === "/v1/prereg") return await listar(env, "PREREG", url);
@@ -1635,8 +1687,20 @@ async function enrutar(request, env, url, info = {}) {
   if (p === "/v1/search") {
     const q = url.searchParams.get("q");
     if (!q) return json({ error: "falta el parametro q" }, 400);
-    const items = await buscar(env, q);
-    return json({ consulta: q, encontrados: items.length, items });
+    const limite = Math.min(parseInt(url.searchParams.get("limit") || "20", 10) || 20, 200);
+    const r = await buscar(env, q, limite);
+    return json({
+      consulta: q,
+      // Las palabras con las que se busco de verdad: si la consulta trae una palabra
+      // de una letra o vacia, el que pregunta tiene que poder verlo.
+      palabras: palabrasDe(q),
+      encontrados: r.items.length,
+      limit: limite,
+      // El denominador: cuantas corridas del archivo contienen TODAS las palabras.
+      total_archivo: r.total_archivo,
+      hay_mas: r.total_archivo === null ? null : r.items.length < r.total_archivo,
+      items: r.items,
+    });
   }
   // Archivador de algoritmos y fuentes. Va con la misma regla que el resto: el
   // listado antes que la ficha, para que nada quede publicado e invisible.

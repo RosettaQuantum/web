@@ -1,0 +1,43 @@
+{
+  "_que_es": "Titulos y dominios de rq_claims en las dos caras. PENDIENTE DE APROBACION de Nicholas (CLAUDE.md §5). El ES es el texto que ya estaba, con las tildes puestas; el EN es el titular del resultado publicado por su autor, no una afirmacion nuestra.",
+  "_estado": "propuesto 2026-09-09",
+  "titulos": {
+    "RQC-2026-ROSETTA-QMARGIN": { "es": "Contribución marginal de la caminata cuántica a la predicción alostérica", "en": "Marginal contribution of the quantum walk to allosteric prediction" },
+    "RQC-2026-ROSETTA-N90": { "es": "Significancia de novo del predictor alostérico sobre nulo espacial (N=90)", "en": "De novo significance of the allosteric predictor over a spatial null (N=90)" },
+    "RQC-2026-JACS-CTQW-PROTEIN": { "es": "Centralidad por caminata cuántica de tiempo continuo en redes de residuos", "en": "Continuous-time quantum walk centrality in residue networks" },
+    "RQC-2025-GOOGLE-ECHOES-OTOC": { "es": "Quantum Echoes: primera ventaja cuántica verificable (OTOC)", "en": "Quantum Echoes: first verifiable quantum advantage (OTOC)" },
+    "RQC-2025-QUANTINUUM-RANDOMNESS": { "es": "Aleatoriedad certificada en un dispositivo cuántico de iones atrapados", "en": "Certified randomness on a trapped-ion quantum device" },
+    "RQC-2025-IONQ-ANSYS-MEDDEV": { "es": "Ventaja de 12% en velocidad simulando un dispositivo médico", "en": "12% speed advantage simulating a medical device" },
+    "RQC-2025-MSFT-MAJORANA1": { "es": "Majorana 1: qubit topológico basado en modos de Majorana", "en": "Majorana 1: a topological qubit based on Majorana modes" },
+    "RQC-2024-GOOGLE-WILLOW-QEC": { "es": "Corrección de errores por debajo del umbral con código de superficie", "en": "Below-threshold error correction with the surface code" },
+    "RQC-2024-DWAVE-SPINGLASS": { "es": "Supremacía computacional en simulación cuántica de vidrios de espín", "en": "Computational supremacy in quantum simulation of spin glasses" },
+    "RQC-2023-IBM-EAGLE-UTILITY": { "es": "Evidencia de utilidad de la computación cuántica antes de la tolerancia a fallos", "en": "Evidence for the utility of quantum computing before fault tolerance" },
+    "RQC-2022-XANADU-BOREALIS": { "es": "Ventaja cuántica con GBS programable (Borealis)", "en": "Quantum advantage with programmable GBS (Borealis)" },
+    "RQC-2020-USTC-JIUZHANG": { "es": "Ventaja cuántica con boson sampling gaussiano (Jiuzhang)", "en": "Quantum advantage with Gaussian boson sampling (Jiuzhang)" },
+    "RQC-2020-GOOGLE-HARTREEFOCK": { "es": "Simulación Hartree-Fock de cadenas de hidrógeno y diazeno en hardware", "en": "Hartree-Fock simulation of hydrogen chains and diazene on hardware" },
+    "RQC-2019-GOOGLE-RCS": { "es": "Supremacía cuántica con random circuit sampling en Sycamore", "en": "Quantum supremacy with random circuit sampling on Sycamore" },
+    "RQC-2018-TANG-DEQUANT": { "es": "Dequantización del algoritmo cuántico de sistemas de recomendación", "en": "Dequantization of the quantum recommendation-systems algorithm" },
+    "RQC-2015-GOOGLE-DWAVE-1E8": { "es": "1e8x sobre simulated annealing en tunneling finito", "en": "1e8x over simulated annealing in finite-range tunneling" },
+    "RQC-2019-QAOA-LOWDEPTH": { "es": "Ventaja de QAOA en optimización combinatoria a profundidad baja", "en": "QAOA advantage in combinatorial optimization at low depth" },
+    "RQC-2013-DWAVE-3600X": { "es": "D-Wave Two 3.600x más rápido que solvers clásicos", "en": "D-Wave Two 3,600x faster than classical solvers" },
+    "RQC-2009-HHL-LINEAR": { "es": "Algoritmo cuántico para sistemas lineales de ecuaciones", "en": "Quantum algorithm for linear systems of equations" }
+  },
+  "dominios": {
+    "Simulacion molecular / alosteria": { "es": "Simulación molecular / alostería", "en": "Molecular simulation / allostery" },
+    "Prediccion de sitios alostericos": { "es": "Predicción de sitios alostéricos", "en": "Allosteric site prediction" },
+    "Out-of-time-order correlator": { "es": "Correlador fuera de orden temporal (OTOC)", "en": "Out-of-time-order correlator" },
+    "Aleatoriedad certificada": { "es": "Aleatoriedad certificada", "en": "Certified randomness" },
+    "Simulacion CFD/dispositivo medico": { "es": "Simulación CFD / dispositivo médico", "en": "CFD / medical device simulation" },
+    "Hardware topologico": { "es": "Hardware topológico", "en": "Topological hardware" },
+    "Correccion cuantica de errores": { "es": "Corrección cuántica de errores", "en": "Quantum error correction" },
+    "Simulacion de vidrios de espin": { "es": "Simulación de vidrios de espín", "en": "Spin-glass simulation" },
+    "Dinamica de Ising 2D": { "es": "Dinámica de Ising 2D", "en": "2D Ising dynamics" },
+    "Gaussian boson sampling": { "es": "Muestreo de bosones gaussiano", "en": "Gaussian boson sampling" },
+    "Quimica cuantica (VQE)": { "es": "Química cuántica (VQE)", "en": "Quantum chemistry (VQE)" },
+    "Random circuit sampling": { "es": "Muestreo de circuitos aleatorios", "en": "Random circuit sampling" },
+    "Machine learning cuantico": { "es": "Machine learning cuántico", "en": "Quantum machine learning" },
+    "Optimizacion (QUBO)": { "es": "Optimización (QUBO)", "en": "Optimization (QUBO)" },
+    "Optimizacion combinatoria": { "es": "Optimización combinatoria", "en": "Combinatorial optimization" },
+    "Algebra lineal": { "es": "Álgebra lineal", "en": "Linear algebra" }
+  }
+}

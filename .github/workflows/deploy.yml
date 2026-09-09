@@ -265,6 +265,24 @@ jobs:
       - name: Self-test de /v1/state completo y de las erratas
         run: node scripts/check-estado-completo.mjs --self-test
 
+      # La pagina hornea 45 filas del archivo y la isla paginaba /v1/runs desde offset
+      # 45 — otra coleccion. 25 corridas selladas no salian en ninguna pagina y el pie
+      # decia "93 de 93". Ninguna guardia lo vio porque todas comparaban API con API.
+      - name: Self-test de la ventana del ledger
+        run: node scripts/check-ledger-ventana.mjs --self-test
+
+      # De las 74 descripciones en español del archivador, 0 tenian una sola tilde, y
+      # de las 40 fuentes tampoco. check-es preguntaba por fragmentos en INGLES, y un
+      # español sin acentos pasa esa pregunta entero.
+      - name: El español publicado lleva tildes
+        run: node scripts/check-tildes.mjs --self-test && node scripts/check-tildes.mjs
+
+      # El placeholder de la caja de busqueda es una PROMESA escrita por nosotros: dos
+      # de sus tres ejemplos devolvian "No matches". Un visitante que prueba el primer
+      # ejemplo que le ofrecemos y no obtiene nada concluye que el archivo esta vacio.
+      - name: Self-test del buscador contra su propio placeholder
+        run: node scripts/check-buscador.mjs --self-test
+
       # El sello de version va en TODA pagina servida, no solo en las de Astro: la consola
       # y las dos caras de Cleveland son HTML plano y nunca pasan por el layout, asi que
       # esperar su 200 no distinguia lo viejo de lo nuevo. El postbuild lo estampa y falla
@@ -449,3 +467,13 @@ jobs:
       # sello original que corrige siga respondiendo 200, no solo que la errata exista.
       - name: /v1/state completo y las erratas contra produccion
         run: node scripts/check-estado-completo.mjs --esperar
+
+      # Que la PAGINA enumere el archivo entero, no solo que la API lo pagine bien.
+      - name: El ledger no pierde artefactos, contra produccion
+        run: node scripts/check-ledger-ventana.mjs
+
+      - name: Las tildes tambien en lo que sirve la API
+        run: node scripts/check-tildes.mjs --api https://rosettaquantum.com
+
+      - name: El buscador encuentra lo que promete, contra produccion
+        run: node scripts/check-buscador.mjs

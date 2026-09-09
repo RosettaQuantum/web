@@ -40,9 +40,13 @@
     function buscar(q) {
       q = (q || "").trim();
       if (!q) { out.innerHTML = '<div class="res-vacio">' + t.pista + "</div>"; return; }
-      var ql = q.toLowerCase();
+      // Las palabras se combinan con Y, igual que /v1/search y /v1/algorithms. Con la
+      // frase entera, "certified randomness" y "QAOA portfolio" —dos de los tres
+      // ejemplos del propio placeholder— no encontraban nada.
+      var palabras = q.toLowerCase().split(/\s+/).filter(function(w){ return w.length > 1; });
       var deClaims = (CLAIMS || []).filter(function(c){
-        return (c.title+" "+c.claimant+" "+c.id+" "+(c.domain||"")+" "+c.status).toLowerCase().indexOf(ql) >= 0;
+        var heno = (c.title+" "+c.claimant+" "+c.id+" "+(c.domain||"")+" "+c.status).toLowerCase();
+        return palabras.every(function(w){ return heno.indexOf(w) >= 0; });
       });
       Promise.all([
         json("/v1/algorithms?limit=20&q=" + encodeURIComponent(q)).catch(function(){ return null; }),

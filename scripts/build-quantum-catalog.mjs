@@ -46,9 +46,9 @@ const MIN_REFS = 400;
 // Se declara a mano y a proposito — es una afirmacion sobre nuestra evidencia, no
 // un dato de la fuente. Deliberadamente corta: son 4 recetas contra 74 algoritmos.
 const LEDGER = [
-  ["quantum-approximate-optimization", "RQ-0012", "Compresion de portafolio con restricciones (Finanzas)"],
-  ["quantum-approximate-optimization", "RQ-0019", "Ruteo de flota bajo incertidumbre (Mineria)"],
-  ["quantum-approximate-optimization", "RQ-0033", "Expansion de red electrica bajo estres (Energia)"],
+  ["quantum-approximate-optimization", "RQ-0012", "Compresión de portafolio con restricciones (Finanzas)"],
+  ["quantum-approximate-optimization", "RQ-0019", "Ruteo de flota bajo incertidumbre (Minería)"],
+  ["quantum-approximate-optimization", "RQ-0033", "Expansión de red eléctrica bajo estrés (Energía)"],
 ];
 // Recetas nuestras que NO tienen entrada propia en el catalogo canonico. Se declara
 // en vez de forzar un mapeo comodo: RQ-0007 usa caminata cuantica de tiempo continuo,
