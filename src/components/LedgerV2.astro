@@ -126,7 +126,9 @@ const ART = (data.artefactos && data.artefactos.items) || [];
   </div>
 </section>
 
-<section>
+{/* El id existe porque /errata y /es/erratas redirigen aqui: sin ancla, un 301
+    "correcto" te deja arriba de otra pagina. Ver REDIRECTS_301 en worker.js. */}
+<section id="erratas">
   <div class="wrap">
     <div class="eyebrow">{t.errh}</div>
     <h2>{t.errh}</h2>

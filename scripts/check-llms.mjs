@@ -18,6 +18,7 @@
  * PUNTO CIEGO DECLARADO: esto comprueba QUE se anuncia y que lo anunciado existe. NO
  * juzga si la descripcion de cada pagina es buena — eso lo lee una persona.
  */
+import { readdirSync, readFileSync } from "node:fs";
 import { DECIDIDOS } from "./lib/precios-decididos.mjs";
 
 export const CONSUMIDOR = {
@@ -29,7 +30,9 @@ const PREVIEW = (process.env.PREVIEW_URL || "").replace(/\/+$/, "");
 if (!PREVIEW) { console.error("ABORTA: falta PREVIEW_URL"); process.exit(1); }
 
 // Las paginas publicas del rebuild. Misma lista que T-pages, con su excepcion declarada.
-const PUBLICAS = ["/services", "/pilots", "/methodology", "/about", "/errata",
+// /errata salio de aqui el 9-sep: ya no es una pagina, es un 301 a /ledger#erratas.
+// Las erratas siguen anunciadas — dentro de la linea del ledger, que es donde viven.
+const PUBLICAS = ["/services", "/pilots", "/methodology", "/about", "/ledger",
                   "/contact", "/monitor", "/verify", "/library", "/library/registry"];
 // /policies es texto legal: no aporta nada a un modelo que busca evidencia, y obligarlo
 // aqui seria cobertura sin precision. Declarado, no olvidado.
@@ -124,6 +127,41 @@ for (const p of ["/", "/es/", "/library", "/ledger/", "/services"]) {
   if (/content="noindex"/.test(h)) mal(`${p} lleva noindex y es una pagina que queremos indexada`);
 }
 ok("ninguna pagina publica lleva noindex por accidente");
+
+// 6 bis · EL INFORME PQC: lo que la pagina DICE de si misma y como se ofrece al indice
+// tienen que ser la misma cosa. Hasta el 9-sep-2026 no lo eran: el documento mostraba
+// "Borrador de trabajo · pendiente revision legal" Y estaba en el sitemap, sin noindex.
+// Dos verdades sobre el mismo hecho es una mentira esperando.
+//
+// El estado sale del DATO —el campo `borrador` de la ultima edicion, con la misma regla
+// que usa la pagina: ausente o distinto de false = borrador—, no de una constante aqui:
+// el dia que se publique, este chequeo cambia de lado solo.
+{
+  const dir = new URL("../src/data/informe-pqc/", import.meta.url);
+  const archivos = readdirSync(dir).filter((f) => f.endsWith(".json")).sort();
+  if (!archivos.length) mal("informe-pqc: no hay ninguna edicion en src/data/informe-pqc/");
+  else {
+    const d = JSON.parse(readFileSync(new URL(archivos[archivos.length - 1], dir), "utf8"));
+    const borrador = d.borrador !== false;
+    const h = await (await fetch(PREVIEW + "/informe-pqc/", { headers: { "x-rq-check": "1" } })).text();
+    const tieneNoindex = /<meta\s+name="robots"\s+content="noindex"/.test(h);
+    const enSitemap = mapa.includes("/informe-pqc");
+    const tieneCartel = /Borrador de trabajo/.test(h);
+    const problemas = [];
+    if (borrador) {
+      if (!tieneNoindex) problemas.push("es borrador y NO lleva noindex");
+      if (enSitemap) problemas.push("es borrador y figura en el sitemap");
+      if (!tieneCartel) problemas.push("es borrador y no lo dice en la pagina");
+    } else {
+      if (tieneNoindex) problemas.push("esta publicada y lleva noindex: no la va a ver nadie");
+      if (!enSitemap) problemas.push("esta publicada y NO figura en el sitemap");
+      if (tieneCartel) problemas.push("esta publicada y sigue mostrando el cartel de borrador");
+    }
+    if (problemas.length) mal(`informe-pqc (${d.edicion}) ${problemas.join(" · ")}`);
+    else ok(`informe-pqc ${d.edicion}          ${borrador ? "borrador: lo dice, lleva noindex y esta fuera del sitemap"
+                                                          : "publicada: sin cartel, indexable y en el sitemap"}`);
+  }
+}
 
 // Grito, por mutacion sobre una copia en memoria. Sin esto el guardia solo demuestra que
 // sabe callarse el dia que todo esta bien — y esta prueba ya cazo un error mio.

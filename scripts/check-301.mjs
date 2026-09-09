@@ -1,5 +1,5 @@
 /**
- * T-301 — las catorce redirecciones existen, apuntan donde dicen, y el destino responde.
+ * T-301 — las redirecciones existen, apuntan donde dicen, y el destino responde.
  *
  * POR QUE NO BASTA CON "DEVUELVE 301"
  * -----------------------------------
@@ -23,6 +23,8 @@ export const CONSUMIDOR = {
   hace: "no fusiona: una ruta indexada quedaria sirviendo la pagina vieja, o redirigiendo a un 404",
 };
 
+import { readFileSync } from "node:fs";
+
 const PREVIEW = (process.env.PREVIEW_URL || "").replace(/\/+$/, "");
 if (!PREVIEW) { console.error("ABORTA: falta PREVIEW_URL"); process.exit(1); }
 
@@ -44,7 +46,26 @@ const R = {
   "/es/precios": "/es/servicios",
   "/clases": "/library",
   "/es/clases": "/es/biblioteca",
+  // 9-sep: las erratas se concentran en el ledger, en su propia ancla.
+  "/errata": "/ledger#erratas",
+  "/es/erratas": "/es/ledger#erratas",
 };
+
+// ...PERO la lista escrita a mano tiene su propio agujero, y se vio el mismo dia que
+// se escribio este bloque: agregue dos redirecciones al Worker y este guardia siguio
+// diciendo "las 14 redirecciones saltan bien". No mintio — vigilo 14 de 16 y llamo 14
+// al total. Una lista de lo esperado no ve lo que falta del mundo.
+//
+// Se conservan las DOS: `R` sigue siendo la expectativa independiente (borrar una
+// entrada del Worker tiene que gritar), y ademas se comparan los conjuntos de claves
+// contra el Worker de verdad. Asi, agregar sin vigilar tambien grita.
+function tablaDelWorker() {
+  const txt = readFileSync(new URL("../worker.js", import.meta.url), "utf8");
+  const m = txt.match(/const REDIRECTS_301 = \{([\s\S]*?)\n\};/);
+  if (!m) return null;
+  const pares = [...m[1].matchAll(/"([^"]+)"\s*:\s*"([^"]+)"/g)];
+  return Object.fromEntries(pares.map((x) => [x[1], x[2]]));
+}
 
 
 // Reintento corto. NO es para tapar un fallo: es porque el manifiesto de ASSETS y el
@@ -64,6 +85,21 @@ async function esperar(url, ok, intentos = 10, ms = 3000) {
 
 const fallos = [];
 console.log(`preview: ${PREVIEW}\nredirecciones declaradas: ${Object.keys(R).length}\n`);
+
+const delWorker = tablaDelWorker();
+if (!delWorker) {
+  console.log("  FALLA no se pudo leer REDIRECTS_301 de worker.js — el cotejo no corrio");
+  fallos.push("cotejo");
+} else {
+  const soloWorker = Object.keys(delWorker).filter((k) => !(k in R));
+  const soloGuardia = Object.keys(R).filter((k) => !(k in delWorker));
+  const distinto = Object.keys(R).filter((k) => k in delWorker && delWorker[k] !== R[k]);
+  if (soloWorker.length) { console.log(`  FALLA el Worker redirige ${soloWorker.length} ruta(s) que este guardia no vigila: ${soloWorker.join(", ")}`); fallos.push("cotejo"); }
+  if (soloGuardia.length) { console.log(`  FALLA este guardia espera ${soloGuardia.length} redireccion(es) que el Worker ya no tiene: ${soloGuardia.join(", ")}`); fallos.push("cotejo"); }
+  if (distinto.length) { console.log(`  FALLA ${distinto.length} destino(s) distintos entre el guardia y el Worker: ${distinto.join(", ")}`); fallos.push("cotejo"); }
+  if (!soloWorker.length && !soloGuardia.length && !distinto.length)
+    console.log(`  ok    la tabla del guardia y la del Worker son la misma (${Object.keys(R).length} entradas)`);
+}
 
 for (const [origen, destino] of Object.entries(R)) {
   for (const forma of [origen, origen + "/"]) {

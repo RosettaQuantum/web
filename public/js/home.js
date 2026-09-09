@@ -220,50 +220,76 @@ const AER = {"serie":[{"Re":10.0,"N":32,"sp":6.270327512335011e-09,"fd":0.002010
 const burger=document.getElementById('burger'), mm=document.getElementById('mobileMenu');
 burger.addEventListener('click',()=>{const on=mm.classList.toggle('on');burger.classList.toggle('on',on);burger.setAttribute('aria-expanded',on);});
 mm.querySelectorAll('a').forEach(a=>a.addEventListener('click',()=>{mm.classList.remove('on');burger.classList.remove('on');burger.setAttribute('aria-expanded','false');}));
-/* Library search — guided quick index (full search lives at /library) */
-const HS_INDEX=[
- {t:'Certified randomness — Quantinuum + JPMorgan, 2025', st:'surviving · 523 days', c:'#0F8B7E'},
- {t:'Below-threshold error correction — Google Willow, 2024', st:'surviving · 630 days', c:'#0F8B7E'},
- {t:'Quantum supremacy (RCS) — Google Sycamore, 2019', st:'eroded · challenged in 2 days', c:'#B4432F'},
- {t:'Quantum utility — IBM Eagle, 2023', st:'eroded · challenged in 5 days', c:'#B4432F'},
- {t:'Quantum Echoes (OTOC) — Google, 2025', st:'contested', c:'#16181B'},
- {t:'Marginal contribution of the quantum walk — Rosetta, 2026', st:'negative · self-published', c:'#B4432F'},
- {t:'QAOA on constrained portfolio — verdict V-0012', st:'not yet · advantage: none', c:'#B8892E'},
- {t:'Quantum fidelity kernel, fraud detection — RQ-EXP-HSBC-Q-001', st:'no advantage', c:'#B4432F'},
- {t:'Grid expansion case118 on real hardware — RQ-EON-QPU-001', st:'sealed run', c:'#16181B'},
- {t:'Carleman linearization on Taylor–Green flow — Airbus challenge', st:'did not qualify · 0 of 8', c:'#B4432F'},
- {t:'Errata VW-001 — we retract three of our own claims', st:'errata · self-published', c:'#B4432F'},
- {t:'Oracular algorithms — 31 catalogued', st:'Library class', c:'#5A5D58'},
- {t:'Optimization / numerics / ML — 18 catalogued', st:'Library class', c:'#5A5D58'},
- {t:'Simulation — 11 catalogued', st:'Library class', c:'#5A5D58'}
-];
-/* Buscador en español. SOLO se traduce el vocabulario de estado aprobado en
-   handoff/web/rosetta-home-es-textos-v20.md; los TITULOS de los claims quedan en
-   ingles porque son nombres, y las cadenas que no estan aprobadas quedan tal cual —
-   un fragmento en ingles se ve; una traduccion inventada se ve bien y no se audita. */
+/* La caja de la home pregunta a los MISMOS tres archivos que la Biblioteca.
+   ANTES eran CATORCE titulos escritos a mano, en ingles, que se mostraban igual en
+   /es/ — y ademas envejecian solos: nombraban erratas y corridas que ya no son las
+   ultimas. La forma de pintar sigue siendo de la home (una linea compacta); lo que
+   se comparte es la definicion de "buscar", en /js/lib/archivos.js. */
 const ES = document.documentElement.lang === 'es';
-const HS_ES = {
-  'surviving · 523 days':'en pie · 523 días',
-  'surviving · 630 days':'en pie · 630 días',
-  'eroded · challenged in 2 days':'erosionado · desafiado a los 2 días',
-  'eroded · challenged in 5 days':'erosionado · desafiado a los 5 días',
-  'contested':'en disputa',
-  'negative · self-published':'negativo · autopublicado',
-  'no advantage':'sin ventaja',
-  'sealed run':'corrida sellada',
-  'did not qualify · 0 of 8':'no calificó · 0 de 8'
-};
 const HS_SIN = ES
   ? 'Sin coincidencia en el índice rápido — abre la búsqueda completa de la Biblioteca'
   : 'No match in the quick index — open the full Library search';
-if (ES) HS_INDEX.forEach(e => { if (HS_ES[e.st]) e.st = HS_ES[e.st]; });
+const HS_ERR = ES ? 'No se pudo consultar el archivo. Vuelve a intentar.'
+                  : 'The archive could not be reached. Try again.';
+/* El vocabulario de estado es el de D1, sin traducir — lo dice el registro publico en
+   las dos caras. Lo que SI se traduce es la unidad de tiempo, que es nuestra. */
+const HS_DIAS = ES ? 'días' : 'days';
+/* Un color por estado. Son los tokens de marca, no una paleta aparte. */
+const HS_COLOR = {surviving:'#0F8B7E', eroded:'#B4432F', contested:'#16181B',
+                  open:'#B8892E', 'negative-selfpublished':'#B4432F'};
+const HS_NEUTRO = '#5A5D58';
 const hsI=document.getElementById('hsInput'), hsR=document.getElementById('hsResults');
+const esc = s => String(s==null?'':s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+/* Cuantas filas caben sin que la caja de la home se vuelva una pagina. La Biblioteca
+   las muestra todas; aca se corta y se dice a donde ir por el resto. */
+const HS_TOPE = 6;
+
+function hsFilas(r){
+  const filas = [];
+  r.claims.forEach(c => {
+    const v = RQArchivos.dias(c.claim_date);
+    filas.push({ t: RQArchivos.titulo(c, ES) + ' — ' + c.claimant,
+                 st: c.status + (v!==null ? ' · ' + v + ' ' + HS_DIAS : ''),
+                 c: HS_COLOR[c.status] || HS_NEUTRO });
+  });
+  r.algoritmos.forEach(a => {
+    filas.push({ t: a.nombre + ' — ' + a.categoria, st: a.speedup_declarado || '—', c: HS_NEUTRO });
+  });
+  /* Una fila por RECETA, no por corrida. "qaoa portfolio" devolvia seis lineas casi
+     identicas —EXP-0012-009 a 013, la misma receta— y en una caja de seis filas eso
+     es toda la respuesta. La Biblioteca las muestra todas agrupadas; aca se deja la
+     primera de cada receta y el resto queda detras del enlace. */
+  const vistas = new Set();
+  r.corridas.forEach(x => {
+    const clave = x.recipe_id || x.id;
+    if (vistas.has(clave)) return;
+    vistas.add(clave);
+    filas.push({ t: x.id + (x.clase_de_problema ? ' — ' + x.clase_de_problema : ''),
+                 st: x.tipo || '', c: HS_NEUTRO });
+  });
+  return filas;
+}
+
+let hsToken = 0;
 function hsRender(q){
-  const ql=q.trim().toLowerCase();
-  const hits=ql? HS_INDEX.filter(e=>e.t.toLowerCase().includes(ql)||e.st.toLowerCase().includes(ql)) : [];
-  hsR.innerHTML = hits.length ? hits.map(e=>`<div class="hs-r"><span>${e.t}</span><span class="st" style="color:${e.c}">${e.st}</span></div>`).join('')
-    : (ql?`<div class="hs-r"><span>${HS_SIN}</span><span class="st">${ES?'/es/biblioteca':'/library'} →</span></div>`:'');
-  hsR.classList.toggle('on', !!ql);
+  const ql = (q||'').trim();
+  if (!ql) { hsR.innerHTML=''; hsR.classList.remove('on'); return; }
+  const mio = ++hsToken;
+  RQArchivos.buscar(ql).then(r => {
+    /* La respuesta que llega tarde no pisa a la que el lector esta viendo: se teclea
+       mas rapido de lo que contesta la red, y sin esto el resultado de "qa" podia
+       aparecer despues del de "qaoa". */
+    if (mio !== hsToken) return;
+    const filas = hsFilas(r);
+    hsR.innerHTML = filas.length
+      ? filas.slice(0, HS_TOPE).map(e =>
+          `<div class="hs-r"><span>${esc(e.t)}</span><span class="st" style="color:${e.c}">${esc(e.st)}</span></div>`).join('')
+        + (filas.length > HS_TOPE
+            ? `<div class="hs-r"><span>${ES?'y '+(filas.length-HS_TOPE)+' más':'and '+(filas.length-HS_TOPE)+' more'}</span><span class="st">${ES?'/es/biblioteca':'/library'} →</span></div>`
+            : '')
+      : `<div class="hs-r"><span>${r.error?HS_ERR:HS_SIN}</span><span class="st">${ES?'/es/biblioteca':'/library'} →</span></div>`;
+    hsR.classList.add('on');
+  });
 }
 hsI.addEventListener('input',e=>hsRender(e.target.value));
 document.getElementById('hsBtn').addEventListener('click',()=>hsRender(hsI.value));

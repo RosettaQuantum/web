@@ -21,7 +21,7 @@ export const GET: APIRoute = async ({ site }) => {
     `- [Pilot Referee](${base}/pilots): we make your quantum pilot produce a defensible number`,
     `- [Methodology](${base}/methodology): the five layers of a verdict, the EL0-EL5 evidence scale and budget parity under juez-v1`,
     `- [Who signs](${base}/about): every verdict carries a named author, and who may never pay us`,
-    `- [Errata](${base}/errata): the corrections we published against ourselves`,
+    `- [Errata](${base}/ledger#erratas): the corrections we published against ourselves, inside the ledger`,
     `- [Verify a seal](${base}/verify): recompute any sealed artifact's hash in your own browser`,
     // Las dos rutas que faltaban: el archivo anunciaba ocho paginas publicas y estas dos
     // no estaban. La descripcion de cada una es la `description` de su propia pagina,

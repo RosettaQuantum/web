@@ -28,7 +28,9 @@ const PARES = [
   ["/pilots", "/es/pilotos"],
   ["/methodology", "/es/metodologia"],
   ["/about", "/es/nosotros"],
-  ["/errata", "/es/erratas"],
+  // /errata y /es/erratas dejaron de ser paginas el 9-sep: son 301 a /ledger#erratas.
+  // Su salto lo vigila T-301; el par de idiomas que queda es el del propio ledger.
+  ["/ledger", "/es/ledger"],
   ["/contact", "/es/contacto"],
   ["/monitor", "/es/monitor"],
   ["/verify", "/es/verificar"],

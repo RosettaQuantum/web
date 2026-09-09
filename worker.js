@@ -5,11 +5,12 @@ import { manejarQreadyLead } from "./lib/qready-lead.mjs";
 // accepts lead submissions at POST /api/lead -> D1 `leads`, and serves
 // D1-backed Library posts (table `posts`) that were published WITHOUT a rebuild.
 /**
- * Las catorce redirecciones permanentes del commit 10. Origen sin barra final: la
+ * Las dieciseis redirecciones permanentes. Origen sin barra final: la
  * busqueda normaliza antes de mirar, para que /clases y /clases/ den lo mismo.
  *
  * 10 de /rosettaq* (el archivador se absorbe en la Biblioteca) · 2 de /pricing (los
  * precios viven con los servicios) · 2 de /clases (el catalogo se sirve desde /library).
+ * 2 de /errata (las erratas viven en el ledger, no en una pagina propia).
  * Todas apuntan a una ruta que responde 200 hoy; T-301 lo comprueba en cada deploy,
  * porque un 301 a un 404 es peor que no redirigir: el original ya no existe.
  */
@@ -28,6 +29,13 @@ const REDIRECTS_301 = {
   "/es/precios": "/es/servicios",
   "/clases": "/library",
   "/es/clases": "/es/biblioteca",
+  // 9-sep: /errata mostraba EXACTAMENTE las mismas cuatro erratas que la seccion
+  // "Nos auditamos a nosotros mismos" de /ledger — misma fuente, dos paginas. Se
+  // concentra el ledger en una sola pestaña, como pidio Nicholas. El destino lleva
+  // ancla: un 301 a /ledger sin ella deja al lector arriba, en otra parte de la que
+  // dice. Y las paginas de origen SE BORRAN (ver abajo por que).
+  "/errata": "/ledger#erratas",
+  "/es/erratas": "/es/ledger#erratas",
 };
 
 export default {
