@@ -96,6 +96,18 @@
     </div>
     <canvas class="walk" id="cvQ" role="img" aria-labelledby="veredicto-1"></canvas>
     <div class="plain"><b>In plain terms</b>We tested whether a "quantum walk" finds the spots where a drug can grab a cancer protein better than classical methods. It didn't just lose to all five classical methods — it lost to picking at random. We published it anyway, because it's our own experiment.</div>
+    <details class="comotabla">
+      <summary>Read this as a table</summary>
+      <table>
+        <thead><tr><th>Method</th><th>Mean percentile of the true allosteric residues</th></tr></thead>
+        <tbody>
+          <tr><td>Continuous-time quantum walk (CTQW)</td><td>35.63</td></tr>
+          <tr><td>Classical diffusion</td><td>53.65</td></tr>
+          <tr><td>Random</td><td>49.38</td></tr>
+        </tbody>
+      </table>
+      <p>Higher is better: the true residues should rank near the top. Sealed as EXP-0007-013.</p>
+    </details>
     <div class="fight-verdict" id="veredicto-1">
       EXP-0007-013 · outcome: <span style="color:var(--alert);font-weight:500">quantum worse than random</span> · mean percentile CTQW 35.63 · diffusion 53.65 · random 49.38 · <span class="pend">verdict: pending</span>
       <div style="margin-top:6px;color:var(--ink-60)">The live walk runs the same code as our 3D piece (H = gaussian-weighted Cα contacts, cutoff 8.5 Å, σ 6.0, dt 0.01). Checked against the sealed result: Spearman ρ = 0.746 on the ranking; normalization differs (declared, not adjusted). The sealed run is the record; the live walk is the method, shown.</div>
@@ -184,6 +196,10 @@
     <a id="monGo" class="btn btn-solid" href="mailto:hello@rosettaquantum.com?subject=Send%20me%20Monitor%20Edition%20001">Get Edition 001 when it seals</a>
   </div>
   <div style="font-family:var(--mono);font-size:var(--t-data);color:var(--ink-60);margin-top:8px">one email when the edition seals · no list, no drip</div>
+</div></section>
+
+<section><div class="wrap">
+  <p class="cierre-pelea">If a vendor shows you the animation, ask for the last two numbers.</p>
 </div></section>
 
 <section><div class="wrap">

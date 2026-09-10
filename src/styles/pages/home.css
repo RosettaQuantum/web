@@ -369,3 +369,21 @@ textarea:focus-visible,[tabindex]:focus-visible{
      de tabla clave/valor —que es la solución de fondo— es del bloque 5. */
   .fight-title{overflow-wrap:anywhere}
 }
+
+/* B5 9.4 · la misma medicion, legible sin ver la animacion. Un dato que solo existe
+   como pixel no es evidencia — y ademas deja fuera a quien no puede ver el canvas. */
+.comotabla{border-top:1px solid var(--line);padding:0 16px}
+.comotabla > summary{cursor:pointer;font-family:var(--sans);font-size:var(--t-label);
+  font-weight:500;color:var(--ink);min-height:44px;display:flex;align-items:center}
+.comotabla table{width:100%;border-collapse:collapse;font-size:var(--t-small);
+  font-variant-numeric:tabular-nums;margin-bottom:10px}
+.comotabla th{text-align:left;font-family:var(--sans);font-weight:500;color:var(--ink-60);
+  padding:6px 8px 6px 0;border-bottom:1px solid var(--line)}
+.comotabla td{padding:8px 8px 8px 0;border-bottom:1px solid var(--line)}
+.comotabla td + td, .comotabla th + th{text-align:right}
+.comotabla p{font-size:var(--t-label);color:var(--ink-60);padding-bottom:12px}
+
+/* B5 9.1 · la linea de cierre de la pelea. Es la frase que convierte un resultado
+   negativo propio en un argumento comercial, y no estaba escrita. */
+.cierre-pelea{font-family:var(--serif);font-size:var(--t-sub);line-height:var(--lh-sub);
+  color:var(--ink);max-width:44ch;border-top:1px solid var(--line);padding-top:var(--s2)}

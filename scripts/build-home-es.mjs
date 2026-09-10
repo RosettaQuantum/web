@@ -128,6 +128,14 @@ const T = [
   /* Al quitarle la flecha (6.5) borre la entrada entera en vez de solo la flecha, y
      "All notes" quedo sin traducir en la home española. Lo caza T-es. */
   ["All notes", "Todas las notas", 1],
+  /* B5 · tabla equivalente del panel KRAS y linea de cierre. Anexo A. */
+  ["Read this as a table", "Léelo como tabla", 1],
+  ["Method", "Método", 1],
+  ["Mean percentile of the true allosteric residues", "Percentil medio de los residuos alostéricos verdaderos", 1],
+  ["Continuous-time quantum walk (CTQW)", "Caminata cuántica de tiempo continuo (CTQW)", 1],
+  ["Classical diffusion", "Difusión clásica", 1],
+  ["Higher is better: the true residues should rank near the top. Sealed as EXP-0007-013.", "Más alto es mejor: los residuos verdaderos deberían quedar arriba del ranking. Sellado como EXP-0007-013.", 1],
+  ["If a vendor shows you the animation, ask for the last two numbers.", "Si un vendor te muestra la animación, pídele los dos últimos números.", 1],
   ["See a real decision page", "Mira una decision page real", 1],
   /* B4 · bloque «Con y sin». Copy del anexo A del spec, aprobado por Nicholas. */
   ["With a referee, and without one.", "Con árbitro, y sin árbitro.", 1],
