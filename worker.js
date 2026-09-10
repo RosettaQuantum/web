@@ -193,9 +193,14 @@ const PILLARS = {
 // PURE: build a full post page from the built shell HTML + a D1 row.
 // Mirrors src/pages/blog/[...slug].astro exactly (kicker/h1/tldr/hreflang/valid/body/sources).
 export function renderPostHTML(shellHtml, row, nav = {}) {
+  // `pillar` ENTRA AL MAPA DE IDIOMA. Estaba escrito en ingles a mano en el HTML del
+  // rotulo, asi que en las notas en español salia «Pillar C · Estado a 2026-09-10»:
+  // mitad en un idioma y mitad en el otro, en la misma linea. Y la traduccion ya
+  // existia treinta lineas mas abajo, en la tarjeta del listado — o sea que el listado
+  // decia «Pilar C» y la nota abierta decia «Pillar C». (10-sep-2026)
   const s = row.lang === "es"
-    ? { state: "Estado a", sources: "Fuentes", other: "Read in English" }
-    : { state: "State as of", sources: "Sources", other: "Leer en español" };
+    ? { state: "Estado a", sources: "Fuentes", other: "Read in English", pillar: "Pilar" }
+    : { state: "State as of", sources: "Sources", other: "Leer en español", pillar: "Pillar" };
   const otherLang = row.lang === "es" ? "en" : "es";
   // el enlace visible del cuerpo apunta a la contraparte aunque no exista fila:
   // si no esta publicada cae al estatico, que si existe.
@@ -210,7 +215,7 @@ export function renderPostHTML(shellHtml, row, nav = {}) {
   const article =
     (nav.top || "") +
     `<article class="article wrap">` +
-    `<div class="kicker">Pillar ${esc(row.pillar)} · ${s.state} ${esc(row.date)}</div>` +
+    `<div class="kicker">${s.pillar} ${esc(row.pillar)} · ${s.state} ${esc(row.date)}</div>` +
     `<h1>${esc(row.title)}</h1>` +
     `<div class="tldr">${esc(row.tldr)}</div>` +
     `<a class="hreflang" href="${esc(altUrl)}">→ ${s.other}</a>` +
