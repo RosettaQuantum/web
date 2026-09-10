@@ -89,6 +89,25 @@ export function auditarTodo() {
       if (!r.width && !r.height) continue;              // oculto: no es defecto de alcance
       if (getComputedStyle(el).visibility === "hidden") continue;
       if (el.closest("[hidden]")) continue;             // zona no activa
+      /* EXCEPCION DECLARADA Y UNICA: el enlace «saltar al contenido». Vive fuera de
+         pantalla A PROPOSITO y vuelve al enfocarlo — es el patron accesible estandar, y
+         esconderlo con `display:none` (que si pasaria este chequeo) lo sacaria del orden
+         de tabulacion y lo mataria para quien lo necesita. Cazarlo aqui seria castigar
+         justo la solucion correcta.
+         Se comprueba lo que SI importa de el: que al enfocarlo entre a la pantalla.
+         La excepcion es por CLASE, no por posicion: cualquier otro elemento en x=-9999
+         sigue siendo un defecto. */
+      if (el.classList.contains("saltar")) {
+        el.focus();
+        const rf = el.getBoundingClientRect();
+        if (rf.left < -1 || rf.right > innerWidth + 1)
+          malos.push({ etiqueta: "a.saltar", texto: "«saltar al contenido» no vuelve a pantalla al enfocarlo",
+                       x: Math.round(rf.left), derecha: Math.round(rf.right), ventana: innerWidth,
+                       ancestro: "—", eje: "x" });
+        el.blur();
+        vistos++;
+        continue;
+      }
       vistos++;
       let p = el.parentElement, causa = null;
       while (p && p !== document.documentElement) {
