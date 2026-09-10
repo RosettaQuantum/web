@@ -10,7 +10,9 @@
 .vbox .vline.pend{color:var(--pending);border-left-color:var(--pending)}
 .vbox dl{display:grid;grid-template-columns:1fr;gap:2px 16px;margin:12px 0 0;font-size:var(--t-small)}
 @media(min-width:640px){.vbox dl{grid-template-columns:auto 1fr}}
-.vbox dt{font-family:var(--mono);font-size:var(--t-data);letter-spacing:.12em;text-transform:uppercase;color:var(--ink-60);padding-top:5px}
+/* B9.2 · las etiquetas clave/valor salen de versalitas monoespaciadas a caja de
+   oracion: eran tres palabras gritadas al lado de su propio valor. */
+.vbox dt{font-family:var(--sans);font-size:var(--t-label);font-weight:500;color:var(--ink-60);padding-top:5px}
 .vbox dd{margin:0 0 8px}
 .vbox .vlinks{margin-top:12px;font-family:var(--mono);font-size:var(--t-data)}
 .vbox .vlinks a{color:var(--verdict);border-bottom:1px solid var(--line);margin-right:14px}
@@ -27,3 +29,15 @@
 
 .err{border-left:2px solid var(--alert);padding:10px 0 10px 14px;margin:14px 0}
 .err .eid{font-family:var(--mono);font-size:var(--t-data);color:var(--alert)}
+
+/* B9.2 · el control de corridas selladas. Sin caja: solo el triangulo nativo y el
+   numero, que es el dato. Area tactil de 44px. */
+.vruns{margin-top:10px}
+.vruns > summary{cursor:pointer;font-family:var(--mono);font-size:var(--t-data);
+  color:var(--ink);padding:10px 0;min-height:44px;display:flex;align-items:center;gap:8px;
+  list-style:revert}
+.vruns > summary:hover{color:var(--verdict)}
+.vruns[open] > summary{border-bottom:1px solid var(--line)}
+.vruns .vlinks{display:flex;flex-wrap:wrap;gap:10px 16px;padding:12px 0 4px}
+.vruns .vlinks a{font-family:var(--mono);font-size:var(--t-data);color:var(--ink-60)}
+.vruns .vlinks a:hover{color:var(--ink)}
