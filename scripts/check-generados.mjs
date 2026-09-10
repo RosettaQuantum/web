@@ -34,8 +34,9 @@ export const CONSUMIDOR = {
 };
 
 const PARES = [
-  ["scripts/build-marca-gana.mjs", "src/styles/componentes/marca-gana.css",
-   "promueve los selectores en conflicto con `html` delante; si queda viejo, gana la regla anterior"],
+  /* `build-marca-gana.mjs` -> `marca-gana.css` se retiro el 10-sep (bloque 2, paso 0):
+     la hoja existia para tapar la identidad retirada que global.css llevaba a todas las
+     paginas. Ahora esa hoja la piden solo las que la conservan, y no hay nada que tapar. */
   ["scripts/build-home-es.mjs", "src/content_html/home.es.html",
    "produce la home en español entera; si queda vieja, se sirve la traduccion anterior"],
   ["scripts/build-library-cifras.mjs", "src/data/library-cifras.json",

@@ -1,5 +1,10 @@
 ---
+/* PRIMERO los tokens: todo lo demás los consume. */
+import '../styles/tokens.css';
 import '../styles/global.css';
+/* La identidad retirada NO viaja en todas las paginas: la piden solo las que la
+   conservan por decision (`fuentes="vieja"`). Ver el encabezado de legado.css. */
+import legado from '../styles/legado.css?raw';
 import { sinComentarios } from '../lib/css-sin-comentarios.js';
 import Nav from '../components/Nav.astro';
 import Footer from '../components/Footer.astro';
@@ -44,6 +49,22 @@ const xDefault = lang === 'en' ? canonical : altHref;
 // no distingue lo viejo de lo nuevo — la pagina responde 200 en los dos casos, y
 // el CI cayo por eso mas de una vez.
 const build = (process.env.GITHUB_SHA || process.env.RQ_BUILD || 'local').slice(0, 12);
+
+/* B1.4 · METADATOS SOCIALES. Medido el 10-sep en produccion: CERO coincidencias de
+   `og:` y `twitter:` en el HTML servido. Compartir cualquier pagina del sitio en
+   Slack, LinkedIn o X mostraba una URL pelada — para un sitio cuyo canal es que otros
+   lo citen, es el peor lugar donde ahorrar catorce lineas.
+
+   `ogImagen` se elige por la primera coincidencia de ruta; el resto cae al general.
+   Las imagenes las genera scripts/build-og.mjs a 1200x630 desde el mismo build. */
+const OG = [
+  [/^\/(es\/)?(biblioteca|library)/, 'library'],
+  [/^\/(es\/)?ledger/,                'ledger'],
+  [/^\/(es\/)?(servicios|services)/,  'services'],
+  [/^\/(es\/)?(pilotos|pilots)/,      'cases'],
+];
+const rutaOg = Astro.url.pathname;
+const ogImagen = abs('/og/' + ((OG.find(([re]) => re.test(rutaOg)) || [null, 'default'])[1]) + '.png');
 ---
 <!doctype html>
 <html lang={lang}>
@@ -60,11 +81,30 @@ const build = (process.env.GITHUB_SHA || process.env.RQ_BUILD || 'local').slice(
   <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
   <link rel="alternate icon" href="/favicon.ico" sizes="16x16 32x32" />
   <link rel="canonical" href={canonical} />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="Rosetta Quantum" />
+  <meta property="og:title" content={title} />
+  <meta property="og:description" content={description} />
+  <meta property="og:url" content={canonical} />
+  <meta property="og:image" content={ogImagen} />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta property="og:locale" content={lang === 'es' ? 'es_ES' : 'en_US'} />
+  <meta property="og:locale:alternate" content={lang === 'es' ? 'en_US' : 'es_ES'} />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content={title} />
+  <meta name="twitter:description" content={description} />
+  <meta name="twitter:image" content={ogImagen} />
   <link rel="alternate" hreflang={lang} href={canonical} />
   <link rel="alternate" hreflang={altLang} href={altHref} />
   <link rel="alternate" hreflang="x-default" href={xDefault} />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
+  {/* B1.6 · faltaba este, y es el que importa: googleapis sirve la hoja (2 KB),
+      gstatic sirve los 132 KB de las fuentes. Sin el preconnect, con display=swap
+      el H1 se pinta en sans y salta a serif a la vista del lector. */}
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href={hrefFuentes} rel="stylesheet" />
+  {fuentes === 'vieja' && <style is:global set:html={sinComentarios(legado)}></style>}
   {pageCss && <style is:global set:html={sinComentarios(pageCss)}></style>}
 </head>
 <body>

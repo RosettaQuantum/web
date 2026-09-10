@@ -76,5 +76,17 @@
     });
   }
 
+  /* B9.1 · «/» enfoca el buscador, como en cualquier indice que se use de verdad.
+     No se roba la tecla mientras se escribe en un campo: eso convierte un atajo util
+     en un campo que no acepta barras. */
+  document.addEventListener("keydown", function (e) {
+    if (e.key !== "/" || e.metaKey || e.ctrlKey || e.altKey) return;
+    var a = document.activeElement;
+    if (a && /^(INPUT|TEXTAREA|SELECT)$/.test(a.tagName)) return;
+    var caja = document.getElementById("libQ") || document.getElementById("hsInput");
+    if (!caja) return;
+    e.preventDefault(); caja.focus(); caja.select && caja.select();
+  });
+
   window.RQArchivos = { buscar: buscar, dias: dias, titulo: titulo, dominio: dominio };
 })();

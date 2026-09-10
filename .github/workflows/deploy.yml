@@ -289,6 +289,12 @@ jobs:
       - name: Self-test de la identidad renderizada
         run: node scripts/check-identidad.mjs --self-test
 
+      # 22 tamanos de fuente, 76 elementos bajo 13px y dos colores que no pasaban AA.
+      # Nada de eso rompe una pagina: por eso duro. Se le pregunta a la pantalla, no al
+      # archivo — el h3 salia en 21,06px por herencia del navegador, sin regla propia.
+      - name: Self-test del sistema de diseño
+        run: node scripts/check-sistema.mjs --self-test
+
       # El sello de version va en TODA pagina servida, no solo en las de Astro: la consola
       # y las dos caras de Cleveland son HTML plano y nunca pasan por el layout, asi que
       # esperar su 200 no distinguia lo viejo de lo nuevo. El postbuild lo estampa y falla
@@ -486,3 +492,6 @@ jobs:
 
       - name: Ninguna pagina se renderiza en la identidad retirada
         run: node scripts/check-identidad.mjs --base https://rosettaquantum.com
+
+      - name: El sistema de diseño se sostiene, contra produccion
+        run: node scripts/check-sistema.mjs --base https://rosettaquantum.com

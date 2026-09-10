@@ -204,7 +204,7 @@ export function renderPostHTML(shellHtml, row, nav = {}) {
   try { sources = JSON.parse(row.sources_json || "[]"); } catch (e) {}
   const sourcesHtml = sources.length
     ? `<div class="sources"><div>${s.sources}:</div>` +
-      sources.map(x => `<div>· ${x.url ? `<a href="${esc(x.url)}" style="color:var(--faience)">${esc(x.label)}</a>` : esc(x.label)}</div>`).join("") +
+      sources.map(x => `<div>· ${x.url ? `<a href="${esc(x.url)}" style="color:var(--verdict)">${esc(x.label)}</a>` : esc(x.label)}</div>`).join("") +
       `</div>`
     : "";
   const article =

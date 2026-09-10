@@ -106,7 +106,7 @@ const SECCIONES = [
 <MarcaLayout
   title={`${d.titulo} — Informe ${mesLargo} · Rosetta Quantum`}
   description={`${d.subtitulo}. Edición ${d.numero}, ${mesLargo}. Medición técnica sobre endpoints reales, no encuesta.`}
-  lang="es" altUrl="/" ruta="/informe-pqc" pageCss={css} noindex={esBorrador}>
+  lang="es" altUrl="/" ruta="/informe-pqc" pageCss={css} scripts={["/js/frescura.js"]} noindex={esBorrador}>
 
 <div class="informe-doc">
 <div class="informe">
@@ -454,7 +454,7 @@ const SECCIONES = [
               <tr>
                 <td>{v.n}</td><td class="num">{v.norg}</td>
                 <td class="num"><strong>{v.indice}</strong></td>
-                <td class="num">{v.cert}<br /><span class="mono" style="font-size:10.5px;opacity:.6">{v.cert_iguales}/{v.cert_n}</span></td><td class="num">{v.higiene}</td><td class="num">{v.edge}</td>
+                <td class="num">{v.cert}<br /><span class="mono" style="font-size:var(--t-label);opacity:.6">{v.cert_iguales}/{v.cert_n}</span></td><td class="num">{v.higiene}</td><td class="num">{v.edge}</td>
                 <td><span class={`chip ${v.indice>=70?'ok':v.indice>=50?'warn':'crit'}`}>{banda(v.indice).n}</span></td>
               </tr>
             ))}
@@ -602,7 +602,7 @@ const SECCIONES = [
               <tr>
                 <td><strong>{f.q}</strong></td>
                 <td set:html={f.como}></td>
-                <td class="num"><strong>{f.pct} %</strong><br /><span class="mono" style="font-size:11px;opacity:.6">{f.v} de {d.tres_preguntas.n}</span></td>
+                <td class="num"><strong>{f.pct} %</strong><br /><span class="mono" style="font-size:var(--t-label);opacity:.6">{f.v} de {d.tres_preguntas.n}</span></td>
                 <td><span class={`chip ${f.sev}`}>{f.tipo}</span></td>
               </tr>
             ))}
@@ -1185,7 +1185,7 @@ const SECCIONES = [
     <div class="note"><strong>Derecho de exclusión y de acceso.</strong> Cualquier organización puede pedir su exclusión de futuras ediciones, o el detalle completo de lo observado en su superficie, sin costo y sin condiciones. Ambas dentro de 72 horas hábiles y sin justificación.</div>
 
     <div class="measure" style="margin-top:34px">
-      <p style="font-family:var(--serif);font-size:1.2rem;line-height:1.4;color:var(--ink)">La transición post-cuántica no se resuelve el día que exista la máquina. Se resuelve en los años previos, con inventario, con preguntas incómodas a los proveedores y con alguien a cargo. Nada de eso requiere creer en una fecha — solo requiere empezar antes de que la fecha la fije otro.</p>
+      <p style="font-family:var(--serif);font-size:var(--t-sub);line-height:1.4;color:var(--ink)">La transición post-cuántica no se resuelve el día que exista la máquina. Se resuelve en los años previos, con inventario, con preguntas incómodas a los proveedores y con alguien a cargo. Nada de eso requiere creer en una fecha — solo requiere empezar antes de que la fecha la fije otro.</p>
     </div>
 
     <p class="src">Rosetta Quantum · Edición {String(d.numero).padStart(2,'0')} · {mesLargo} · Blue Tuna SpA · Metodología y conjunto de datos agregado disponibles a solicitud.</p>

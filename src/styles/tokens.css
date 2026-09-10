@@ -1,0 +1,49 @@
+/* ── SISTEMA DE DISEÑO · una sola fuente de verdad ──────────────────────────────
+   Bloque 2 del spec maestro. Aquí viven los tokens y en ningún otro lado.
+
+   POR QUÉ EXISTE, medido en producción el 10-sep-2026 sobre la home:
+     · 22 tamaños de fuente distintos
+     · 76 elementos con texto bajo 13px — nueve tamaños distintos entre 9 y 12,5px
+     · dos colores de texto que NO pasan AA sobre el papel de la marca
+
+   El paso 0 de este bloque retiró `marca-gana.css` y sacó la identidad retirada de
+   `global.css` a `legado.css`. Sin eso, un token nuevo declarado aquí no se veía:
+   había cuatro capas peleando y la de abajo llegaba después. */
+
+:root{
+  /* ── ESCALA TIPOGRÁFICA · siete tamaños, un solo salto de display ───────────
+     Regla dura: ningún texto bajo 13px. Los nueve tamaños entre 9 y 12,5px eran
+     la causa principal de la sensación de apretado. */
+  --t-display: 60px;  --lh-display: 1.02;   /* h1 · Newsreader 400 · -0.02em */
+  --t-title:   34px;  --lh-title:   1.14;   /* h2 · Newsreader 400 · -0.01em */
+  --t-sub:     22px;  --lh-sub:     1.30;   /* h3 · Newsreader 500 · -0.01em */
+  --t-body:    18px;  --lh-body:    1.60;   /* IBM Plex Sans 400 */
+  --t-small:   16px;  --lh-small:   1.55;
+  --t-label:   13px;  --lh-label:   1.40;   /* etiquetas y nav · sentence case */
+  --t-data:    13px;  --lh-data:    1.45;   /* Plex Mono · ids, hashes, cifras selladas */
+
+  /* ── COLOR · cinco neutros y tres semánticos, todos con su contraste medido ──
+     Los tres semánticos NO se usan nunca decorativamente. Medido sobre --paper. */
+  --ink-2:    #4A4E48;   /* 7,75:1 — texto secundario */
+  --measured: #0C7268;   /* 5,29:1 — medido / sellado / vigente. Era #0F8B7E, 3,82:1 */
+  --promised: #8A6520;   /* 4,84:1 — prometido / en preparación. Era #B8892E, 2,88:1 */
+  --eroded:   #B4432F;   /* 5,07:1 — erosionado / negativo. Se mantiene */
+
+  /* Los dos tonos vivos —#0F8B7E y #B8892E— NO se declaran aquí. Se intentó, como
+     --verdict-fill / --pending-fill «para cuando un gráfico los necesite», y el
+     empaquetador los borró del bundle: lightningcss quita las custom properties que
+     nadie consume. Un token declarado y no usado es código muerto que además hace
+     fallar a un guardia que lo busque. Cuando un relleno los necesite, se declaran
+     junto a su primer uso y ahí sí los vigila T-css. */
+
+  /* ── ESPACIO ─────────────────────────────────────────────────────────────────
+     Entran con su primer consumidor (la banda de Library, 6.4). El contenedor y la
+     medida de lectura siguen esperando al bloque 4, que es quien los aplica: un token
+     declarado y no usado lo borra el empaquetador y además miente sobre lo que ya
+     cambió. */
+  --s1:8px; --s2:16px; --s3:24px; --s4:40px; --s5:64px; --s6:96px;
+}
+
+@media (max-width: 640px){
+  :root{ --t-display:40px; --t-title:27px; --t-sub:20px; --t-body:17px; }
+}

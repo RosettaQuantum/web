@@ -23,14 +23,23 @@ const es = lang === "es";
 // "¿como accedo al blog?". Se usa la misma palabra que el pie: una sola etiqueta para lo
 // mismo en todo el sitio.
 const ENLACES = es
+  /* B1.8 · Monitor sale del menu. Un item de navegacion que promete un producto y
+     entrega 158 palabras cuesta mas credibilidad que cualquier problema tipografico,
+     y Nicholas pregunto textualmente "que es la pestaña de monitor?".
+     LA PAGINA NO SE BORRA Y NO SE REDIRIGE TODAVIA: el spec manda 301 a
+     /ledger#monitor, pero esa ancla no existe hasta que el bloque 10 absorba el
+     contenido. Un 301 a un ancla inexistente es el mismo defecto que se arreglo el
+     9-sep con /errata: el enlace "funciona" y te deja en otra parte de la que dice.
+     Sigue anunciada en llms.txt y en el sitemap, y enlazada desde el pie. */
   ? [["/es/pilotos", "Pilotos"], ["/es/servicios", "Servicios"], ["/es/biblioteca", "Biblioteca"],
-     ["/es/ledger", "Ledger"], ["/es/monitor", "Monitor"], ["/es/metodologia", "Metodología"],
+     ["/es/ledger", "Ledger"], ["/es/metodologia", "Metodología"],
      ["/es/blog", "Notes"]]
   : [["/pilots", "Pilots"], ["/services", "Services"], ["/library", "Library"],
-     ["/ledger", "Ledger"], ["/monitor", "Monitor"], ["/methodology", "Methodology"],
+     ["/ledger", "Ledger"], ["/methodology", "Methodology"],
      ["/blog", "Notes"]];
 
-const CTA = es ? ["/es/pilotos", "Obtén un veredicto"] : ["/pilots", "Get a verdict"];
+/* B1.1 · copy del anexo A del spec maestro, aprobado. */
+const CTA = es ? ["/es/pilotos", "Pedir un árbitro"] : ["/pilots", "Request a referee"];
 const OTRO = alt || (es ? ruta.replace(/^\/es/, "") || "/" : "/es" + (ruta === "/" ? "/" : ruta));
 ---
 <nav>
@@ -43,18 +52,24 @@ const OTRO = alt || (es ? ruta.replace(/^\/es/, "") || "/" : "/es" + (ruta === "
       {ENLACES.map(([h, t]) => <a href={h}>{t}</a>)}
     </div>
     <div class="nav-right">
-      <span class="lang">{es ? <a href={OTRO}>EN</a> : <b>EN</b>} / {es ? <b>ES</b> : <a href={OTRO}>ES</a>}</span>
       <a class="nav-cta" href={CTA[0]}>{CTA[1]}</a>
+      <span class="lang">{es ? <a href={OTRO}>EN</a> : <b>EN</b>} / {es ? <b>ES</b> : <a href={OTRO}>ES</a>}</span>
       <button type="button" class="burger" id="burger" aria-label={es ? "Menú" : "Menu"} aria-expanded="false">
         <span></span><span></span><span></span>
       </button>
     </div>
   </div>
+  {/* B10.2 · FRESCURA DEL REGISTRO. Un registro sin fecha de actualizacion se asume
+      muerto, y este publica 93 corridas selladas sin decir en ningun lado cuando fue la
+      ultima. La franja se rellena desde /v1/state y /v1/runs al mirar la pagina; si el
+      archivo no responde NO se vacia ni se inventa: se queda con lo que trae el build y
+      lo rotula. Los dias se computan al mirar, nunca se hornean. */}
+  <div class="frescura" id="frescura" hidden></div>
   <div class="mobile-menu" id="mobileMenu">
     {ENLACES.map(([h, t]) => <a href={h}>{t}</a>)}
     <div class="mm-foot">
-      <span>{es ? <a href={OTRO}>EN</a> : <b>EN</b>} / {es ? <b>ES</b> : <a href={OTRO}>ES</a>}</span>
       <a class="nav-cta" href={CTA[0]}>{CTA[1]}</a>
+      <span>{es ? <a href={OTRO}>EN</a> : <b>EN</b>} / {es ? <b>ES</b> : <a href={OTRO}>ES</a>}</span>
     </div>
   </div>
 </nav>

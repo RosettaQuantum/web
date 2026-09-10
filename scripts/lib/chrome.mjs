@@ -110,6 +110,29 @@ async function abrirChromeUnaVez({ ancho = 1280, alto = 900 } = {}) {
       if (r.exceptionDetails) throw new Error("la pagina lanzo: " + r.exceptionDetails.text);
       return r.result.value;
     },
+    /**
+     * Instala un script que corre ANTES de que cualquier pagina pinte.
+     *
+     * Existe porque medir CLS con `evaluar` da CERO SIEMPRE: el observador se instala
+     * despues del renderizado, no ve ningun desplazamiento, y `window.__cls || 0`
+     * devuelve 0 — un instrumento que declara medir CLS y mide la nada. Se noto porque
+     * cuatro paginas distintas dieron exactamente 0.0000, que es demasiado limpio.
+     */
+    async antesDeCargar(fuente) {
+      await enviar("Page.addScriptToEvaluateOnNewDocument", { source: fuente }, sessionId);
+    },
+
+    /**
+     * Carga `url` y devuelve el PNG de la ventana, en base64.
+     * Lo usa build-og.mjs para rasterizar las tarjetas sociales sin traer una
+     * dependencia nueva: el mismo Chrome que ya miden las guardias.
+     */
+    async capturar(url, esperaMs = 1200) {
+      await enviar("Page.navigate", { url }, sessionId);
+      await new Promise(r => setTimeout(r, esperaMs));
+      const { data } = await enviar("Page.captureScreenshot", { format: "png" }, sessionId);
+      return Buffer.from(data, "base64");
+    },
     async cerrar() {
       sock.close();
       proc.kill();

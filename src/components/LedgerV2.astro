@@ -81,7 +81,7 @@ const ART = (data.artefactos && data.artefactos.items) || [];
           ? <>
               <div class={"vline" + (r.verdict.outcome === 'not yet' ? ' pend' : '')}>{t.vh}: {r.verdict.outcome}</div>
               <p>{resumen(r.verdict)}</p>
-              {cross(r.verdict) && <p class="mono" style="font-size:12.5px;color:var(--ink-60);margin-top:8px">{cross(r.verdict)}</p>}
+              {cross(r.verdict) && <p class="mono" style="font-size:var(--t-data);color:var(--ink-60);margin-top:8px">{cross(r.verdict)}</p>}
             </>
           : <div class="vline pend">{t.sinv}</div>}
         <dl>
@@ -89,11 +89,18 @@ const ART = (data.artefactos && data.artefactos.items) || [];
           <dt>{t.est}</dt><dd>{r.status}{r.qubits ? ` · ${r.qubits} qubits` : ''}</dd>
           <dt>{t.cor}</dt><dd>{(r.experiments || []).length}</dd>
         </dl>
+        {/* B9.2 · Antes: cinco enlaces de 9px pegados —`run 1 ↗ run 2 ↗ run 3 ↗ run 4 ↗ +15`—
+            que no se leen ni se aciertan con el dedo, y que ademas escondian quince. Ahora
+            es un control: dice CUANTAS hay y las abre. <details> nativo: funciona con
+            teclado y con lector de pantalla sin una linea de JS, y si el JS falla igual
+            se abre. */}
         {(r.experiments || []).length > 0 && (
-          <div class="vlinks">
-            {(r.experiments || []).slice(0, 4).map((e, i) => <a href={e.url}>{`run ${i + 1} ↗`}</a>)}
-            {(r.experiments || []).length > 4 && <span class="mono" style="color:var(--ink-60)">+{(r.experiments || []).length - 4}</span>}
-          </div>
+          <details class="vruns">
+            <summary>{(r.experiments || []).length} {t.cor}</summary>
+            <div class="vlinks">
+              {(r.experiments || []).map((e, i) => <a href={e.url}>{`run ${i + 1} ↗`}</a>)}
+            </div>
+          </details>
         )}
       </div>
     ))}
@@ -122,7 +129,7 @@ const ART = (data.artefactos && data.artefactos.items) || [];
         ))}
       </tbody>
     </table>
-    <p class="led-mas"><button type="button" class="btn btn-ghost" id="artMas">{t.mas}</button> <span class="mono" id="artDen" style="font-size:11.5px;color:var(--ink-60)"></span></p>
+    <p class="led-mas"><button type="button" class="btn btn-ghost" id="artMas">{t.mas}</button> <span class="mono" id="artDen" style="font-size:var(--t-data);color:var(--ink-60)"></span></p>
   </div>
 </section>
 

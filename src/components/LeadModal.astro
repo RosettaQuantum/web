@@ -22,7 +22,12 @@ const t = es ? {
 <div class="lead-ov" id="leadModal" aria-hidden="true">
   <div class="lead-box" role="dialog" aria-modal="true" aria-labelledby="leadTitle">
     <button class="lead-x" data-lead-close aria-label={t.close}>✕</button>
-    <div class="lead-ey">ROSETTA Q</div>
+    {/* B1.5 · aqui decia "ROSETTA Q", un nombre retirado, servido en produccion.
+        El spec pedia cambiarlo por "Early access" — pero el <h3> de la linea
+        siguiente YA dice exactamente eso, en los dos idiomas. Poner el mismo
+        texto dos veces, uno en versalitas y otro en serif, no es arreglarlo.
+        La versalita se retira: el titulo ya esta. (Adelanta la regla del
+        bloque 2: como maximo un eyebrow por pagina.) */}
     <h3 id="leadTitle">{t.title}</h3>
     <p class="lead-sub">{t.sub}</p>
     <form id="leadForm" novalidate data-ok={t.ok} data-err={t.err} data-sending={t.sending} data-req={t.req}>
@@ -52,20 +57,23 @@ const t = es ? {
 .lead-ov{position:fixed;inset:0;z-index:200;background:rgba(22,24,27,.62);backdrop-filter:blur(4px);display:none;align-items:center;justify-content:center;padding:20px}
 .lead-ov.open{display:flex}
 .lead-box{background:var(--paper);border:1px solid var(--line);border-radius:2px;max-width:520px;width:100%;padding:30px 30px 26px;position:relative;max-height:92vh;overflow:auto}
-.lead-x{position:absolute;top:12px;right:14px;background:none;border:none;color:var(--ink-60);font-size:18px;line-height:1;padding:6px;cursor:pointer}
+.lead-x{position:absolute;top:12px;right:14px;background:none;border:none;color:var(--ink-60);font-size:var(--t-body);line-height:1;padding:6px;cursor:pointer}
 .lead-x:hover{color:var(--ink)}
-.lead-ey{font-family:var(--mono);font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--verdict)}
-.lead-box h3{font-family:var(--serif);font-weight:500;font-size:25px;line-height:1.18;margin-top:8px;color:var(--ink)}
-.lead-sub{color:var(--ink-60);font-size:15px;margin:8px 0 18px}
-#leadForm label{display:block;font-family:var(--mono);font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-60);margin-bottom:12px}
+.lead-box h3{font-family:var(--serif);font-weight:500;font-size:var(--t-body);line-height:1.18;margin-top:8px;color:var(--ink)}
+.lead-sub{color:var(--ink-60);font-size:var(--t-small);margin:8px 0 18px}
+#leadForm label{display:block;font-family:var(--mono);font-size:var(--t-data);letter-spacing:.12em;text-transform:uppercase;color:var(--ink-60);margin-bottom:12px}
 .lg-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
 @media(max-width:480px){.lg-row{grid-template-columns:1fr}}
-#leadForm input,#leadForm select,#leadForm textarea{width:100%;margin-top:6px;background:#FFFFFE;border:1px solid var(--line);border-radius:2px;color:var(--ink);padding:10px 12px;font-family:var(--sans);font-size:15px;text-transform:none;letter-spacing:normal}
+/* B3.3 · 48px de alto y el mismo cuerpo que el texto. Un campo mas bajo que su boton
+   se lee como que el formulario esta a medio armar, y a 10px de padding el area
+   tactil quedaba por debajo del minimo. El textarea conserva su alto por filas. */
+#leadForm input,#leadForm select{width:100%;height:48px;margin-top:6px;background:#FFFFFE;border:1px solid var(--line);border-radius:2px;color:var(--ink);padding:0 12px;font-family:var(--sans);font-size:var(--t-body);text-transform:none;letter-spacing:normal}
+#leadForm textarea{width:100%;margin-top:6px;background:#FFFFFE;border:1px solid var(--line);border-radius:2px;color:var(--ink);padding:12px;font-family:var(--sans);font-size:var(--t-body);text-transform:none;letter-spacing:normal}
 #leadForm input:focus,#leadForm select:focus,#leadForm textarea:focus{outline:none;border-color:var(--verdict)}
-.lg-submit{width:100%;background:var(--ink);color:var(--paper);border:1px solid var(--ink);border-radius:2px;padding:13px 22px;font-family:var(--sans);font-weight:500;font-size:14.5px;cursor:pointer;margin-top:6px}
-.lg-submit:hover{background:var(--verdict);border-color:var(--verdict)}
+.lg-submit{width:100%;height:48px;background:var(--ink);color:var(--paper);border:1px solid var(--ink);border-radius:2px;padding:0 22px;font-family:var(--sans);font-weight:500;font-size:var(--t-body);cursor:pointer;margin-top:6px}
+.lg-submit:hover{background:var(--paper);color:var(--ink)}
 .lg-submit:disabled{opacity:.6;cursor:default}
-.lg-msg{font-size:14px;margin-bottom:10px;min-height:0}
+.lg-msg{font-size:var(--t-small);margin-bottom:10px;min-height:0}
 .lg-msg.ok{color:var(--verdict)} .lg-msg.err{color:var(--alert)}
 </style>
 <script is:inline>

@@ -26,11 +26,17 @@ export const CONSUMIDOR = {
 const PREVIEW = (process.env.PREVIEW_URL || "").replace(/\/+$/, "");
 if (!PREVIEW) { console.error("ABORTA: falta PREVIEW_URL"); process.exit(1); }
 
+/* B2 · LOS DOS TONOS DE TEXTO CAMBIARON, Y NO POR GUSTO. Medido sobre --paper el
+   10-sep-2026: el teal #0F8B7E daba 3,82:1 y el oro #B8892E daba 2,88:1, los dos por
+   debajo del 4,5:1 de la AA, y se usaban en textos de 9 a 12px. Bajan a #0C7268
+   (5,29:1) y #8A6520 (4,84:1). Los valores vivos siguen existiendo como
+   --verdict-fill / --pending-fill el dia que un relleno los pida: se declaran junto a
+   su primer uso, porque el empaquetador borra toda custom property que nadie consuma. */
 const MARCA = {
   "--paper": "#F4F5F1",
   "--ink": "#16181B",
-  "--verdict": "#0F8B7E",
-  "--pending": "#B8892E",
+  "--verdict": "#0C7268",
+  "--pending": "#8A6520",
   "--alert": "#B4432F",
 };
 
@@ -47,7 +53,11 @@ const MARCA = {
 const GEOMETRIA = [
   [".wrap",  "max-width",   "1000px"],
   ["body",   "font-family", "var(--sans)"],
-  ["body",   "font-size",   "16.5px"],
+  /* B2 · la escala pasa a siete tamanos con nombre. El body deja de ser 16.5px suelto
+     y toma --t-body: 18px en desktop, 17px bajo 640px (tokens.css). Se comprueba que
+     venga DEL TOKEN, no del numero: un 18px escrito a mano volveria a salirse de la
+     escala sin que nadie lo note. */
+  ["body",   "font-size",   "var(--t-body)"],
   ["footer", "padding",     "34px 0 44px"],
 ];
 // Solo las paginas YA portadas a la v20. /ledger/ y /blog/ siguen en el diseño viejo y

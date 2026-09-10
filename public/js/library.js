@@ -19,10 +19,14 @@
   var t = ES
     ? { claims:"Claims rastreados", algos:"Algoritmos del catálogo", runs:"Corridas selladas",
         vacio:"Sin coincidencias. Prueba con el nombre del vendor, la clase de problema o un id.",
+        vacioClaim:"Ningún claim coincide con «{q}» entre los 16 rastreados.",
+        pedir:"Pedir screening",
         error:"No se pudo consultar el archivo. Vuelve a intentar.",
         sinDesafio:"sin desafío registrado", dias:"días", de:"de", pista:"Escribe para buscar en los tres archivos." }
     : { claims:"Claims tracked", algos:"Catalogue algorithms", runs:"Sealed runs",
         vacio:"No matches. Try a vendor name, a problem class or an id.",
+        vacioClaim:"No claim matches \u201c{q}\u201d in the 16 tracked.",
+        pedir:"Request screening",
         error:"The archive could not be reached. Try again.",
         sinDesafio:"no challenge on record", dias:"days", de:"of", pista:"Type to search all three archives." };
 
@@ -75,7 +79,12 @@
               '<span class="res-m">' + esc(x.fecha || "") + "</span></a>";
           }).join("");
         }
-        out.innerHTML = h || '<div class="res-vacio">' + t.vacio + "</div>";
+        /* B9.3 · un vacio que solo dice "sin coincidencias" deja al lector sin salida.
+           Copy del anexo A del spec: nombra la consulta, dice sobre cuantos se busco, y
+           ofrece la accion. */
+        out.innerHTML = h || '<div class="res-vacio">' +
+          t.vacioClaim.replace("{q}", esc(q)) +
+          ' <a href="' + (ES ? "/es/contacto" : "/contact") + '">' + t.pedir + " \u2192</a></div>";
       });
     }
     caja.addEventListener("input", function(e){ clearTimeout(timer); var v=e.target.value; timer=setTimeout(function(){ buscar(v); },180); });
