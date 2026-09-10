@@ -110,6 +110,17 @@ async function abrirChromeUnaVez({ ancho = 1280, alto = 900 } = {}) {
       if (r.exceptionDetails) throw new Error("la pagina lanzo: " + r.exceptionDetails.text);
       return r.result.value;
     },
+    /**
+     * Carga `url` y devuelve el PNG de la ventana, en base64.
+     * Lo usa build-og.mjs para rasterizar las tarjetas sociales sin traer una
+     * dependencia nueva: el mismo Chrome que ya miden las guardias.
+     */
+    async capturar(url, esperaMs = 1200) {
+      await enviar("Page.navigate", { url }, sessionId);
+      await new Promise(r => setTimeout(r, esperaMs));
+      const { data } = await enviar("Page.captureScreenshot", { format: "png" }, sessionId);
+      return Buffer.from(data, "base64");
+    },
     async cerrar() {
       sock.close();
       proc.kill();

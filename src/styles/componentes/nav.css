@@ -10,12 +10,20 @@ nav{position:sticky;top:0;z-index:50;background:rgba(244,245,241,.94);backdrop-f
 .nav-links{display:none;gap:20px;font-size:13.5px;color:var(--ink-60)}
 .nav-links a:hover{color:var(--verdict)}
 .nav-right{display:flex;align-items:center;gap:14px}
-.nav-right .nav-cta{display:none}
+/* B1.1 · EL CTA DE LA BARRA NO EXISTIA EN NINGUN ANCHO.
+   Aqui decia `.nav-right .nav-cta{display:none}` — especificidad (0,2,0) contra el
+   (0,1,0) de la regla que lo mostraba, asi que ganaba SIEMPRE, no solo en movil. El
+   sitio no tenia ninguna accion en la barra en desktop, y en telefono sobrevivia de
+   casualidad porque `.mm-foot .nav-cta` empata en especificidad y va despues.
+   Ahora se oculta SOLO bajo 840px, que es donde el menu movil lo lleva. */
+@media(max-width:839px){ .nav-right .nav-cta{display:none} }
 .lang{font-family:var(--mono);font-size:11.5px;color:var(--ink-60)}
 .lang b{color:var(--ink);font-weight:500}
-.nav-cta{background:var(--verdict);color:var(--paper);padding:9px 15px;font-size:13px;font-weight:500;border-radius:2px;white-space:nowrap}
-.nav-cta{display:inline-block}
-.burger{display:inline-flex;flex-direction:column;justify-content:center;gap:4px;width:38px;height:38px;border:1px solid var(--line);border-radius:2px;background:var(--panel);cursor:pointer;padding:0 9px}
+/* El ESTILO del boton no se declara aqui: vive en styles/pages/home.css, que es la
+   hoja de la maqueta y la unica cuya copia (con prefijo `html`) gana la cascada.
+   Aqui solo se decide DONDE aparece. */
+/* 44x44 es el minimo tactil de las guias de Apple y de WCAG 2.5.5. Estaba en 38. */
+.burger{display:inline-flex;flex-direction:column;justify-content:center;align-items:center;gap:4px;width:44px;height:44px;border:1px solid var(--line);border-radius:2px;background:var(--panel);cursor:pointer;padding:0}
 .burger span{display:block;width:18px;height:2px;background:var(--ink);transition:transform .2s,opacity .2s}
 .mobile-menu{display:none;border-top:1px solid var(--line);background:var(--paper)}
 .mobile-menu.on{display:block}
@@ -26,7 +34,7 @@ nav{position:sticky;top:0;z-index:50;background:rgba(244,245,241,.94);backdrop-f
 /* El CTA dentro del menu movil heredaba la serif de `.mobile-menu a`: el mismo boton se
    servia en IBM Plex Sans en la barra y en Newsreader en el menu. Un boton fija su
    tipografia; no la pide prestada al contenedor. */
-.mobile-menu .nav-cta{font-family:var(--sans);font-size:13px}
+.mobile-menu .nav-cta{font-family:var(--sans);font-size:13.5px}
 .wrap{max-width:var(--maxw-brand);margin:0 auto;padding:0 22px}
 .mono{font-family:var(--mono)}
 footer{background:var(--paper)}

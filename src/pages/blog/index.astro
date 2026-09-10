@@ -47,14 +47,14 @@ const lastDate = posts[0]?.data.date ?? '';
     <p id="libempty" style="display:none;color:#6E675C;font-family:'IBM Plex Mono',monospace;font-size:0.85rem">No entries match. The library is young — ask us and it becomes the next entry.</p>
   </section>
   <style>
-    .lib-stats{display:flex;flex-wrap:wrap;gap:1.2rem;margin-top:1.2rem;font-family:'IBM Plex Mono',monospace;font-size:0.78rem;color:#B5AC99}
-    .lib-stats b{color:#4DC4B5;font-weight:600}
+    .lib-stats{display:flex;flex-wrap:wrap;gap:1.2rem;margin-top:1.2rem;font-family:var(--mono);font-size:0.78rem;color:var(--ink-60)}
+    .lib-stats b{color:var(--verdict);font-weight:600}
     .lib-controls{margin-top:1.4rem}
-    #libq{width:100%;max-width:560px;background:#100E0B;border:1px solid #3D372F;border-radius:2px;color:#F4EEDF;font-family:'IBM Plex Mono',monospace;font-size:0.85rem;padding:0.65rem 0.9rem;outline:none}
-    #libq:focus{border-color:#4DC4B5}
+    #libq{width:100%;max-width:560px;background:var(--panel);border:1.5px solid var(--ink);border-radius:2px;color:var(--ink);font-family:var(--mono);font-size:0.85rem;padding:0.65rem 0.9rem;outline:none}
+    #libq:focus{border-color:var(--verdict)}
     .chips{display:flex;flex-wrap:wrap;gap:0.4rem;margin-top:0.7rem}
-    .chip{background:transparent;border:1px solid #3D372F;border-radius:20px;color:#B5AC99;font-family:'IBM Plex Mono',monospace;font-size:0.7rem;padding:0.28rem 0.75rem;cursor:pointer}
-    .chip.on{border-color:#D9B87A;color:#D9B87A}
+    .chip{background:transparent;border:1px solid var(--line);border-radius:2px;color:var(--ink-60);font-family:var(--mono);font-size:0.7rem;padding:0.28rem 0.75rem;cursor:pointer}
+    .chip.on{border-color:var(--verdict);color:var(--verdict)}
   </style>
   <script>
     const q = document.getElementById('libq');

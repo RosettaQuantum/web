@@ -22,7 +22,12 @@ const t = es ? {
 <div class="lead-ov" id="leadModal" aria-hidden="true">
   <div class="lead-box" role="dialog" aria-modal="true" aria-labelledby="leadTitle">
     <button class="lead-x" data-lead-close aria-label={t.close}>✕</button>
-    <div class="lead-ey">ROSETTA Q</div>
+    {/* B1.5 · aqui decia "ROSETTA Q", un nombre retirado, servido en produccion.
+        El spec pedia cambiarlo por "Early access" — pero el <h3> de la linea
+        siguiente YA dice exactamente eso, en los dos idiomas. Poner el mismo
+        texto dos veces, uno en versalitas y otro en serif, no es arreglarlo.
+        La versalita se retira: el titulo ya esta. (Adelanta la regla del
+        bloque 2: como maximo un eyebrow por pagina.) */}
     <h3 id="leadTitle">{t.title}</h3>
     <p class="lead-sub">{t.sub}</p>
     <form id="leadForm" novalidate data-ok={t.ok} data-err={t.err} data-sending={t.sending} data-req={t.req}>
@@ -54,7 +59,6 @@ const t = es ? {
 .lead-box{background:var(--paper);border:1px solid var(--line);border-radius:2px;max-width:520px;width:100%;padding:30px 30px 26px;position:relative;max-height:92vh;overflow:auto}
 .lead-x{position:absolute;top:12px;right:14px;background:none;border:none;color:var(--ink-60);font-size:18px;line-height:1;padding:6px;cursor:pointer}
 .lead-x:hover{color:var(--ink)}
-.lead-ey{font-family:var(--mono);font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--verdict)}
 .lead-box h3{font-family:var(--serif);font-weight:500;font-size:25px;line-height:1.18;margin-top:8px;color:var(--ink)}
 .lead-sub{color:var(--ink-60);font-size:15px;margin:8px 0 18px}
 #leadForm label{display:block;font-family:var(--mono);font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-60);margin-bottom:12px}

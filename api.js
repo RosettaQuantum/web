@@ -288,7 +288,11 @@ async function posts(env, url) {
         // Nombre del spec. Si no hay ningun parrafo utilizable, se declara vacio en vez
         // de rellenar con el tldr: un campo que se cae de vuelta a otro campo esconde
         // que el cuerpo no tenia parrafos.
-        excerpt: (prosa[0] || "").slice(0, 220),
+        // B1.2 · `slice(0,220)` cortaba a media palabra: en produccion se leia
+        // "…built so that quantum and classical solv". El corte se hace en el ultimo
+        // espacio antes del limite y se cierra con elipsis; si no hay espacio (una
+        // sola palabra larguisima) se corta duro, que es preferible a no cortar.
+        excerpt: recortar(prosa[0] || "", 220),
         minutos: Math.max(1, Math.round(palabras / 220)),
       };
     }),
@@ -510,6 +514,20 @@ async function porId(env, id, completo) {
  */
 export function palabrasDe(q) {
   return String(q || "").toLowerCase().split(/\s+/).filter((w) => w.length > 1).slice(0, 8);
+}
+
+/**
+ * Corta un texto en el ultimo espacio antes del limite y cierra con elipsis.
+ * Un corte a media palabra se ve como un error de programa, no como un resumen.
+ */
+export function recortar(t, max) {
+  const s = String(t || "").trim();
+  if (s.length <= max) return s;
+  const duro = s.slice(0, max);
+  const esp = duro.lastIndexOf(" ");
+  // Si el ultimo espacio esta demasiado atras, cortar ahi mutila mas de lo que ayuda.
+  const base = esp > max * 0.6 ? duro.slice(0, esp) : duro;
+  return base.replace(/[\s.,;:—-]+$/, "") + "…";
 }
 
 async function buscar(env, q, limite = 20) {
@@ -1194,7 +1212,7 @@ export const CATALOGO = [
           slug: { type: "string" }, titulo: { type: "string" }, fecha: { type: "string", format: "date" },
           pilar: { type: "string" }, minutos: { type: "integer" },
           tldr: { type: "string" },
-          excerpt: { type: "string", description: "primer parrafo del cuerpo, <=220 caracteres; NUNCA el tldr recortado" },
+          excerpt: { type: "string", description: "primer parrafo del cuerpo, <=220 caracteres, cortado en palabra entera y cerrado con elipsis; NUNCA el tldr recortado" },
         } } },
       },
     } },

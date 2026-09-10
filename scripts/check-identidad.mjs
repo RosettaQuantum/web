@@ -48,6 +48,27 @@ import { abrirChrome } from "./lib/chrome.mjs";
 export const PAPEL = "rgb(244, 245, 241)";      // --paper #F4F5F1
 export const FAMILIAS_RETIRADAS = /Instrument Sans|Marcellus|Source Serif/;
 
+/**
+ * Los colores de la identidad retirada, en el formato en que los devuelve el navegador.
+ * La marca no comparte ninguno, asi que verlos EN CUALQUIER elemento es concluyente.
+ *
+ * Esto cierra el punto ciego que la version anterior declaraba y que costo caro: se
+ * medía solo el `body`. El 10-sep Nicholas abrio /es/blog y encontro tarjetas NEGRAS
+ * sobre papel — el fondo de la pagina estaba bien y lo de adentro no. "Una pagina con
+ * el fondo correcto y una seccion interior pintada en la paleta vieja pasa por aca":
+ * estaba escrito, y aun asi hubo que verlo a ojo.
+ */
+export const COLORES_RETIRADOS = {
+  "rgb(20, 18, 16)":    "--basalt",
+  "rgb(31, 28, 24)":    "--basalt-2",
+  "rgb(16, 14, 11)":    "--basalt-3",
+  "rgb(61, 55, 47)":    "--stone-line",
+  "rgb(244, 238, 223)": "--papyrus",
+  "rgb(181, 172, 153)": "--papyrus-dim",
+  "rgb(77, 196, 181)":  "--faience",
+  "rgb(217, 184, 122)": "--gold",
+};
+
 export const DECLARADAS = [
   { prefijo: "/consola",
     razon: "identidad terminal, unica excepcion aprobada por Nicholas el 14-ago-2026 (dos identidades: terminal y registro)" },
@@ -69,6 +90,9 @@ export function evaluarIdentidad(medidas) {
     const motivos = [];
     if (m.fondo !== PAPEL) motivos.push(`fondo ${m.fondo}`);
     if (FAMILIAS_RETIRADAS.test(m.familia || "")) motivos.push(`tipografia ${m.familia.split(",")[0]}`);
+    for (const d of m.dentro || []) {
+      motivos.push(`${d.donde}: ${d.motivos.map((x) => x.replace(/rgb\([^)]+\)/, (c) => COLORES_RETIRADOS[c] || c)).join(" · ")}`);
+    }
     if (!motivos.length) continue;
     const dec = DECLARADAS.find((d) => m.ruta === d.prefijo || m.ruta.startsWith(d.prefijo + "/"));
     (dec ? exentas : sucias).push({ ruta: m.ruta, motivos, razon: dec?.razon });
@@ -109,6 +133,19 @@ function selfTest() {
   const r2 = evaluarIdentidad([{ ruta: "/es/servicios", ...marca }]);
   p("una pagina de marca pasa aunque el CSS traiga la paleta vieja declarada", r2.sucias.length === 0);
 
+  // EL CASO DE /es/blog, 10-sep: fondo de pagina correcto, tarjetas NEGRAS adentro.
+  // Es el punto ciego que la version anterior declaraba y que hubo que ver a ojo.
+  const conDentro = evaluarIdentidad([{ ruta: "/es/blog", ...marca,
+    dentro: [{ donde: "a.post-item", motivos: ["fondo rgb(31, 28, 24)", "texto rgb(244, 238, 223)"] },
+             { donde: "div.q", motivos: ["tipografia Marcellus"] }] }]);
+  p("grita cuando el fondo esta bien y lo de ADENTRO no", conDentro.sucias.length === 1);
+  p("traduce el color al nombre del token retirado",
+    /--basalt-2/.test(conDentro.sucias[0].motivos.join()) && /--papyrus/.test(conDentro.sucias[0].motivos.join()),
+    JSON.stringify(conDentro.sucias[0].motivos));
+  p("dice DONDE vive, no solo que existe", /a\.post-item/.test(conDentro.sucias[0].motivos.join()));
+  p("y calla si adentro no queda nada retirado",
+    evaluarIdentidad([{ ruta: "/es/blog", ...marca, dentro: [] }]).sucias.length === 0);
+
   const r3 = evaluarIdentidad([
     { ruta: "/consola", fondo: "rgb(11, 15, 20)", familia: "IBM Plex Mono" },
     { ruta: "/q-ready/portal", fondo: "rgb(20, 18, 16)", familia: "Instrument Sans" },
@@ -145,7 +182,41 @@ function rutasDe(raiz) {
 
 function leerIdentidad() {
   const cs = getComputedStyle(document.body);
-  return { fondo: cs.backgroundColor, familia: cs.fontFamily };
+  // Ademas del body, TODO lo que se ve: si un color o una familia retirada sobrevive
+  // en cualquier elemento, aparece aca con el selector donde vive.
+  const RET_COLOR = ["rgb(20, 18, 16)", "rgb(31, 28, 24)", "rgb(16, 14, 11)",
+                     "rgb(61, 55, 47)", "rgb(244, 238, 223)", "rgb(181, 172, 153)",
+                     "rgb(77, 196, 181)", "rgb(217, 184, 122)"];
+  const RET_FAM = /Instrument Sans|Marcellus|Source Serif/;
+  const donde = (el) => el.tagName.toLowerCase() +
+    (el.id ? "#" + el.id : "") +
+    (el.className && typeof el.className === "string" && el.className.trim()
+      ? "." + el.className.trim().split(/\s+/)[0] : "");
+  const dentro = [];
+  const vistos = new Set();
+  /* EXCEPCION DECLARADA Y ACOTADA, 10-sep-2026: las ILUSTRACIONES dentro del cuerpo de
+     un post. 40 de los 114 posts publicados traen diagramas SVG con la paleta retirada
+     escrita adentro del `body_html`, en D1. Portarlos es una migracion de CONTENIDO
+     —no de chrome— y toca dato publicado, asi que se hace aparte y con revision.
+     Se excluye SOLO lo que cuelga de un <svg> o <figure> dentro del articulo: el resto
+     de esas mismas paginas se sigue vigilando entero. Una excepcion por pagina habria
+     apagado la guardia justo donde ya encontro dos defectos. */
+  const enIlustracion = (el) => !!el.closest("article svg, article figure, .body svg, .body figure");
+  for (const el of document.querySelectorAll("body *")) {
+    if (enIlustracion(el)) continue;
+    const c = getComputedStyle(el);
+    const motivos = [];
+    if (RET_COLOR.includes(c.backgroundColor)) motivos.push("fondo " + c.backgroundColor);
+    if (RET_COLOR.includes(c.color)) motivos.push("texto " + c.color);
+    if (RET_FAM.test(c.fontFamily)) motivos.push("tipografia " + c.fontFamily.split(",")[0].replace(/"/g, ""));
+    if (!motivos.length) continue;
+    const clave = donde(el) + "|" + motivos.join();
+    if (vistos.has(clave)) continue;          // un selector, no cien filas iguales
+    vistos.add(clave);
+    dentro.push({ donde: donde(el), motivos });
+    if (dentro.length >= 6) break;            // con seis basta para saber que arreglar
+  }
+  return { fondo: cs.backgroundColor, familia: cs.fontFamily, dentro };
 }
 
 import { pathToFileURL } from "node:url";

@@ -37,8 +37,11 @@ nav{position:sticky;top:0;z-index:50;background:rgba(244,245,241,.94);backdrop-f
 /* El CTA de la barra es el PRIMARIO en compacto, no un cuarto estilo: mismo fondo,
    mismo borde, mismo radio. Antes iba en teal lleno y competia con el primario del
    cuerpo en cada pantalla. */
-.nav-cta{background:var(--ink);color:var(--paper);border:1px solid var(--ink);padding:9px 15px;font-size:13px;font-weight:500;border-radius:2px;white-space:nowrap}
-.nav-cta:hover{background:var(--verdict);border-color:var(--verdict)}
+/* B1.1 · 40px de alto y 20px de aire. La definicion va AQUI y no en nav.css porque
+   esta es la hoja que lee build-marca-gana.mjs, y su copia con prefijo `html` es la
+   que termina ganando la cascada. Una cuarta definicion en otra hoja no se ve. */
+.nav-cta{display:inline-flex;align-items:center;height:40px;padding:0 20px;background:var(--ink);color:var(--paper);border:1px solid var(--ink);font-family:var(--sans);font-size:13.5px;font-weight:500;border-radius:2px;white-space:nowrap}
+.nav-cta:hover{background:var(--paper);color:var(--ink);border-color:var(--ink)}
 @media(min-width:840px){.nav-links{display:flex}}
 .burger{display:inline-flex;flex-direction:column;justify-content:center;gap:4px;width:38px;height:38px;border:1px solid var(--line);border-radius:2px;background:var(--panel);cursor:pointer;padding:0 9px}
 .burger span{display:block;width:18px;height:1.6px;background:var(--ink);transition:transform .2s,opacity .2s}
@@ -320,9 +323,12 @@ footer{border-top:1px solid var(--ink);padding:34px 0 44px;font-size:13px;color:
   .ftb{flex:0 0 auto}
 
   /* DEF-05 · La cabecera mono del panel ocupaba 5 líneas a 375 px (144 px de alto).
-     DESVIACIÓN DECLARADA: Cowork pidió una versión corta del texto; eso exige partir la
-     cadena en el HTML y volvería a tocar los 5 encabezados en los dos idiomas, con sus
-     mapeos. Se recorta a 2 líneas por CSS: el texto completo sigue en el HTML —lo lee un
-     rastreador y un lector de pantalla— y sólo se acorta lo que se pinta. */
-  .fight-title{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+     LO ANTERIOR, y por qué se retira (B1.3, 10-sep): se recortaba a 2 líneas por CSS
+     con `-webkit-line-clamp`, con el argumento de que el texto completo seguía en el
+     HTML para el rastreador y el lector de pantalla. Pero al lector HUMANO en un
+     teléfono le llegaba «…927 CONTACTS (Cα–Cα ≤ 8.5 Å) ·…», cortado a media unidad.
+     Un dato de procedencia recortado no es un dato: es un texto que parece roto justo
+     en la pieza que existe para demostrar rigor. Ahora envuelve completo. El formato
+     de tabla clave/valor —que es la solución de fondo— es del bloque 5. */
+  .fight-title{overflow-wrap:anywhere}
 }

@@ -110,30 +110,44 @@ footer{border-top:1px solid var(--stone-line);padding:44px 0 40px;margin-top:36p
 .foot-links a:hover{color:var(--faience)}
 .foot-line{margin-top:26px;font-family:'IBM Plex Mono',monospace;font-size:12px;color:#5C554A}
 .eyebrow{font-family:'IBM Plex Mono',monospace;font-size:12px;letter-spacing:.22em;text-transform:uppercase;color:var(--gold);margin-bottom:16px}
+/* ── EL BLOG, EN LA MARCA ────────────────────────────────────────────────────
+   Hasta el 9-sep-2026 este bloque entero seguia en la identidad retirada, y era
+   lo ultimo que quedaba: tarjetas NEGRAS (--basalt-2) sobre papel, titulares en
+   Marcellus, rotulos en oro y la caja del tl;dr en basalto con texto papiro. La
+   pagina que las contiene si estaba portada, asi que el resultado era un sitio
+   crema con bloques negros adentro. Lo encontro Nicholas mirando /es/blog.
+
+   Y `check-identidad` no lo vio porque mide el `body` — su punto ciego declarado:
+   "una pagina con el fondo correcto y una seccion interior pintada en la paleta
+   vieja pasa por aca". Era exactamente este caso. */
 .blog-hero{padding:64px 0 24px}
-.blog-hero h1{font-family:'Marcellus',serif;font-weight:400;font-size:clamp(28px,3.6vw,40px);line-height:1.16}
-.blog-hero p{color:var(--papyrus-dim);max-width:680px;margin-top:14px}
+.blog-hero h1{font-family:var(--serif);font-weight:500;font-size:clamp(28px,3.6vw,40px);line-height:1.16;letter-spacing:-.01em}
+.blog-hero p{color:var(--ink-60);max-width:680px;margin-top:14px}
 .post-list{padding:20px 0 60px;display:flex;flex-direction:column;gap:12px}
-.post-item{border:1px solid var(--stone-line);border-radius:4px;background:var(--basalt-2);padding:22px 24px;transition:border-color .2s;display:block}
-.post-item:hover{border-color:var(--faience)}
-.post-item .q{font-family:'Marcellus',serif;font-size:20px;color:var(--papyrus)}
-.post-item .meta{font-family:'IBM Plex Mono',monospace;font-size:11.5px;letter-spacing:.08em;color:var(--papyrus-dim);margin-top:8px;text-transform:uppercase}
-.post-item .tl{color:var(--papyrus-dim);font-size:15px;margin-top:10px}
+.post-item{border:1px solid var(--line);border-radius:2px;background:var(--panel);padding:22px 24px;transition:border-color .2s;display:block}
+.post-item:hover{border-color:var(--verdict)}
+.post-item .q{font-family:var(--serif);font-weight:500;font-size:20px;color:var(--ink);line-height:1.25}
+.post-item .meta{font-family:var(--mono);font-size:11px;letter-spacing:.09em;color:var(--ink-60);margin-top:8px;text-transform:uppercase}
+.post-item .tl{color:var(--ink-60);font-size:15px;margin-top:10px}
 .article{padding:56px 28px 40px;max-width:760px}
-.article .kicker{font-family:'IBM Plex Mono',monospace;font-size:11.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--gold)}
-.article h1{font-family:'Marcellus',serif;font-weight:400;font-size:clamp(28px,3.6vw,40px);line-height:1.16;margin:14px 0 18px}
-.article .tldr{border-left:2px solid var(--faience);background:var(--basalt-2);padding:16px 20px;border-radius:0 4px 4px 0;font-size:17px;color:var(--papyrus);margin-bottom:14px}
-.article .valid{font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--papyrus-dim);margin-bottom:28px}
-.article .body h2{font-family:'Marcellus',serif;font-weight:400;font-size:24px;margin:30px 0 12px;color:var(--papyrus)}
-.article .body p{color:var(--papyrus-dim);margin:12px 0}
-.article .body strong{color:var(--papyrus)}
-.article .body ul{color:var(--papyrus-dim);margin:12px 0 12px 22px}
-.article .body em{color:var(--faint)}
-.article .sources{margin-top:34px;border-top:1px solid var(--stone-line);padding-top:18px;font-family:'IBM Plex Mono',monospace;font-size:13px;color:var(--papyrus-dim)}
-.hreflang{font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--faience);margin-top:8px;display:inline-block}
-.lang-toggle{display:inline-flex;gap:0;border:1px solid var(--stone-line);border-radius:20px;overflow:hidden;font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.08em;margin-left:4px}
-.lang-toggle a{color:var(--papyrus-dim);padding:5px 10px;text-decoration:none}
-.lang-toggle a.on{background:var(--faience);color:var(--basalt);font-weight:600}
+.article .kicker{font-family:var(--mono);font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--verdict)}
+/* El titular del post NO hereda el max-width:12ch del hero de la portada: alli son
+   tres palabras y aqui es una pregunta entera. Con 12ch, "¿Cuanto acierta un detector
+   de proteinas congelado sobre estructuras que nunca vio?" salia en DIEZ lineas de
+   dos palabras. La regla del hero se queda como esta; esta la anula para el articulo. */
+.article h1{font-family:var(--serif);font-weight:500;font-size:clamp(28px,3.6vw,40px);line-height:1.14;letter-spacing:-.015em;margin:14px 0 18px;max-width:22ch}
+.article .tldr{border-left:2px solid var(--verdict);background:var(--teal-10);padding:16px 20px;border-radius:0 2px 2px 0;font-size:17px;color:var(--ink);margin-bottom:14px}
+.article .valid{font-family:var(--mono);font-size:12px;color:var(--ink-60);margin-bottom:28px}
+.article .body h2{font-family:var(--serif);font-weight:500;font-size:24px;margin:30px 0 12px;color:var(--ink)}
+.article .body p{color:var(--ink);margin:12px 0}
+.article .body strong{color:var(--ink);font-weight:600}
+.article .body ul{color:var(--ink);margin:12px 0 12px 22px}
+.article .body em{color:var(--ink-60)}
+.article .sources{margin-top:34px;border-top:1px solid var(--line);padding-top:18px;font-family:var(--mono);font-size:13px;color:var(--ink-60)}
+.hreflang{font-family:var(--mono);font-size:12px;color:var(--verdict);margin-top:8px;display:inline-block}
+.lang-toggle{display:inline-flex;gap:0;border:1px solid var(--line);border-radius:2px;overflow:hidden;font-family:var(--mono);font-size:11px;letter-spacing:.08em;margin-left:4px}
+.lang-toggle a{color:var(--ink-60);padding:5px 10px;text-decoration:none}
+.lang-toggle a.on{background:var(--ink);color:var(--paper);font-weight:500}
 
 /* fix: bloques de código nunca se recortan — scroll horizontal (Cowork, 24 jul) */
 .article .body pre, .body pre, pre { overflow-x: auto; max-width: 100%; }
@@ -161,20 +175,20 @@ code, .hash, .mono{overflow-wrap:anywhere}
    Ahora: tipografía propia, panel de marca, y sombras laterales que aparecen sólo
    cuando queda contenido fuera (background-attachment:local). */
 .article .body pre{
-  font-family:'IBM Plex Mono',ui-monospace,monospace;
+  font-family:var(--mono);
   font-size:13px;
   line-height:1.5;
-  color:var(--papyrus-dim);
-  border:1px solid var(--stone-line);
-  border-radius:4px;
+  color:var(--ink);
+  border:1px solid var(--line);
+  border-radius:2px;
   padding:16px 18px;
   margin:18px 0;
-  background-color:var(--basalt-3);
+  background-color:var(--paper-2);
   background-image:
-    linear-gradient(to right,#100E0B,rgba(16,14,11,0)),
-    linear-gradient(to left,#100E0B,rgba(16,14,11,0)),
-    linear-gradient(to right,rgba(77,196,181,.28),rgba(77,196,181,0)),
-    linear-gradient(to left,rgba(77,196,181,.28),rgba(77,196,181,0));
+    linear-gradient(to right,#ECEEE8,rgba(236,238,232,0)),
+    linear-gradient(to left,#ECEEE8,rgba(236,238,232,0)),
+    linear-gradient(to right,rgba(15,139,126,.22),rgba(15,139,126,0)),
+    linear-gradient(to left,rgba(15,139,126,.22),rgba(15,139,126,0));
   background-position:left center,right center,left center,right center;
   background-repeat:no-repeat;
   background-size:32px 100%,32px 100%,16px 100%,16px 100%;
@@ -205,19 +219,28 @@ code, .hash, .mono{overflow-wrap:anywhere}
 /* Navegación entre entradas de la Biblioteca (Opción C, 28 jul).
    Vive en global.css y no scoped porque el markup lo arma el Worker, no Astro. */
 /* mismo ancho y padding que .article para que quede alineado con el texto */
+/* B1.9 · LA NAVEGACION ENTRE POSTS, A LA MARCA (10-sep-2026).
+   La cazo `check-identidad` al ampliarse: 24 de 71 paginas servian `--faience`, el
+   teal retirado, en las flechas y en el enlace "todas las notas". Y al abrirlo
+   aparecio algo peor: `--card`, `--papyrus-100`, `--papyrus-400` y `--papyrus-600`
+   NO EXISTEN — no estan declarados en ninguna parte. Los `var()` caian a su valor
+   inicial, asi que el fondo de las tarjetas era transparente y el color, heredado.
+   Llevaba meses medio pintado y nadie lo vio: un token inexistente no da error.
+   De paso sale el `text-overflow:ellipsis` del titulo vecino, por la misma razon
+   que B1.3 — un titulo cortado con puntos suspensivos parece un error de programa. */
 .postnav{position:static;background:none;backdrop-filter:none;border:0;z-index:auto;
   display:grid;grid-template-columns:1fr 1fr;gap:.75rem;max-width:760px;
   margin:0 auto;padding:0 28px 56px;align-items:stretch}
 .postnav-item{display:flex;flex-direction:column;gap:.35rem;padding:.9rem 1rem;border:1px solid var(--line);
-  border-radius:6px;text-decoration:none;background:var(--card);transition:border-color .15s,transform .15s}
-a.postnav-item:hover{border-color:var(--faience);transform:translateY(-1px)}
+  border-radius:2px;text-decoration:none;background:var(--panel);transition:border-color .15s}
+a.postnav-item:hover{border-color:var(--ink)}
 .postnav-empty{border-color:transparent;background:transparent}
-.postnav-label{font-family:'IBM Plex Mono',monospace;font-size:.7rem;letter-spacing:.12em;
-  text-transform:uppercase;color:var(--papyrus-600)}
-.postnav-title{color:var(--papyrus-100);font-size:.95rem;line-height:1.35}
+.postnav-label{font-family:var(--mono);font-size:.7rem;letter-spacing:.12em;
+  text-transform:uppercase;color:var(--ink-60)}
+.postnav-title{color:var(--ink);font-size:.95rem;line-height:1.35}
 .postnav-next{text-align:right}
-.postnav-all{grid-column:1/-1;text-align:center;margin-top:.25rem;font-family:'IBM Plex Mono',monospace;
-  font-size:.75rem;letter-spacing:.1em;color:var(--faience);text-decoration:none}
+.postnav-all{grid-column:1/-1;text-align:center;margin-top:.25rem;font-family:var(--mono);
+  font-size:.75rem;letter-spacing:.1em;color:var(--ink);text-decoration:none}
 .postnav-all:hover{text-decoration:underline}
 @media(max-width:640px){.postnav{grid-template-columns:1fr}.postnav-next{text-align:left}.postnav-empty{display:none}}
 
@@ -226,18 +249,17 @@ a.postnav-item:hover{border-color:var(--faience);transform:translateY(-1px)}
 .postnav-top{position:static;background:none;backdrop-filter:none;border:0;z-index:auto;
   display:flex;gap:1rem;justify-content:space-between;align-items:stretch;
   max-width:760px;margin:0 auto;padding:40px 28px 4px}
-.pnt{display:flex;align-items:center;gap:.6rem;text-decoration:none;color:var(--papyrus-400);
-  max-width:48%;padding:.5rem .7rem;border:1px solid transparent;border-radius:6px;
+.pnt{display:flex;align-items:center;gap:.6rem;text-decoration:none;color:var(--ink-60);
+  max-width:48%;padding:.5rem .7rem;border:1px solid transparent;border-radius:2px;
   transition:border-color .15s,color .15s,background .15s}
-a.pnt:hover{border-color:var(--line);background:var(--card);color:var(--papyrus-100)}
+a.pnt:hover{border-color:var(--line);background:var(--panel);color:var(--ink)}
 .pnt-next{margin-left:auto;text-align:right}
 .pnt-empty{border:0;background:none}
-.pnt-arrow{font-family:'IBM Plex Mono',monospace;font-size:1rem;color:var(--faience);flex:0 0 auto}
+.pnt-arrow{font-family:var(--mono);font-size:1rem;color:var(--ink-60);flex:0 0 auto}
 .pnt-txt{display:flex;flex-direction:column;min-width:0}
-.pnt-label{font-family:'IBM Plex Mono',monospace;font-size:.62rem;letter-spacing:.14em;
-  text-transform:uppercase;color:var(--papyrus-600)}
-.pnt-title{font-size:.82rem;line-height:1.25;overflow:hidden;text-overflow:ellipsis;
-  white-space:nowrap;max-width:26ch}
+.pnt-label{font-family:var(--mono);font-size:.62rem;letter-spacing:.14em;
+  text-transform:uppercase;color:var(--ink-60)}
+.pnt-title{font-size:.82rem;line-height:1.25;max-width:26ch}
 @media(max-width:640px){
   .postnav-top{padding:16px 20px 0}
   .pnt-label{display:none}
