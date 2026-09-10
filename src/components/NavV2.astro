@@ -59,6 +59,12 @@ const OTRO = alt || (es ? ruta.replace(/^\/es/, "") || "/" : "/es" + (ruta === "
       </button>
     </div>
   </div>
+  {/* B10.2 · FRESCURA DEL REGISTRO. Un registro sin fecha de actualizacion se asume
+      muerto, y este publica 93 corridas selladas sin decir en ningun lado cuando fue la
+      ultima. La franja se rellena desde /v1/state y /v1/runs al mirar la pagina; si el
+      archivo no responde NO se vacia ni se inventa: se queda con lo que trae el build y
+      lo rotula. Los dias se computan al mirar, nunca se hornean. */}
+  <div class="frescura" id="frescura" hidden></div>
   <div class="mobile-menu" id="mobileMenu">
     {ENLACES.map(([h, t]) => <a href={h}>{t}</a>)}
     <div class="mm-foot">

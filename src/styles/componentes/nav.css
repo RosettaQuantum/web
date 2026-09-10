@@ -44,3 +44,11 @@ footer{background:var(--paper) !important}
 @media(min-width:900px){.foot-cols{grid-template-columns:repeat(4,1fr)}}
 @media(min-width:840px){.nav-links{display:flex}}
 @media(min-width:840px){.burger{display:none}}
+
+/* B10.2 · la franja de frescura, bajo la barra. Fina, sin caja, sin color: es un dato
+   de servicio, no un anuncio. Nace oculta y el JS la muestra solo si pudo leer el
+   archivo — una franja vacia diciendo "actualizado" seria peor que no tenerla. */
+.frescura{border-top:1px solid var(--line);background:var(--paper);
+  font-family:var(--mono);font-size:var(--t-data);color:var(--ink-60);
+  padding:7px 22px;max-width:var(--maxw-brand);margin:0 auto;
+  overflow-x:auto;white-space:nowrap}
