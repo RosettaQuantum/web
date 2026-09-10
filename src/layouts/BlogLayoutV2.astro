@@ -24,7 +24,6 @@ import PieV2 from '../components/PieV2.astro';
 import Boletin from '../components/Boletin.astro';
 import marca from '../styles/pages/home.css?raw';
 import navCss from '../styles/componentes/nav.css?raw';
-import gana from '../styles/componentes/marca-gana.css?raw';
 import blogCss from '../styles/pages/blog.css?raw';
 import paginasCss from '../styles/pages/paginas.css?raw';
 import { abs } from '../lib/urls.js';
@@ -35,7 +34,7 @@ const canonical = abs(Astro.url.pathname);
 const altHref = altHreflang ? abs(altHreflang) : null;
 const xDefault = lang === 'en' ? canonical : altHref;
 const FUENTES = 'https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,400;6..72,500;6..72,600&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap';
-const css = navCss + "\n" + marca + "\n" + paginasCss + "\n" + blogCss + "\n" + gana;
+const css = navCss + "\n" + marca + "\n" + paginasCss + "\n" + blogCss;
 ---
 <!doctype html>
 <html lang={lang}>

@@ -1,5 +1,8 @@
 ---
 import '../styles/global.css';
+/* La identidad retirada NO viaja en todas las paginas: la piden solo las que la
+   conservan por decision (`fuentes="vieja"`). Ver el encabezado de legado.css. */
+import legado from '../styles/legado.css?raw';
 import { sinComentarios } from '../lib/css-sin-comentarios.js';
 import Nav from '../components/Nav.astro';
 import Footer from '../components/Footer.astro';
@@ -99,6 +102,7 @@ const ogImagen = abs('/og/' + ((OG.find(([re]) => re.test(rutaOg)) || [null, 'de
       el H1 se pinta en sans y salta a serif a la vista del lector. */}
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href={hrefFuentes} rel="stylesheet" />
+  {fuentes === 'vieja' && <style is:global set:html={sinComentarios(legado)}></style>}
   {pageCss && <style is:global set:html={sinComentarios(pageCss)}></style>}
 </head>
 <body>

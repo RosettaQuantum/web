@@ -16,9 +16,9 @@ import NavV2 from '../components/NavV2.astro';
 import PieV2 from '../components/PieV2.astro';
 import marca from '../styles/pages/home.css?raw';
 import navCss from '../styles/componentes/nav.css?raw';
-// Va AL FINAL y con mas especificidad: Astro pone el <link> de global.css despues de
-// este <style>, asi que el orden no alcanza. Ver scripts/build-marca-gana.mjs.
-import gana from '../styles/componentes/marca-gana.css?raw';
+/* `marca-gana.css` se retiro el 10-sep (bloque 2, paso 0). Existia porque global.css
+   traia la identidad retirada a TODAS las paginas y habia que taparla; ahora esa hoja
+   la piden solo las paginas que la conservan, asi que no hay nada que tapar. */
 
 const { title, description, lang = 'en', altUrl = '/es/', ruta = '/', pageCss = '', scripts = [], noindex = false } = Astro.props;
 ---
@@ -27,7 +27,7 @@ const { title, description, lang = 'en', altUrl = '/es/', ruta = '/', pageCss = 
   description={description}
   lang={lang}
   altUrl={altUrl}
-  pageCss={navCss + "\n" + marca + "\n" + pageCss + "\n" + gana}
+  pageCss={navCss + "\n" + marca + "\n" + pageCss}
   scripts={scripts}
   noindex={noindex}
   nav={false}
