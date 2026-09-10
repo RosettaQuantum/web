@@ -36,11 +36,12 @@
      fallar a un guardia que lo busque. Cuando un relleno los necesite, se declaran
      junto a su primer uso y ahí sí los vigila T-css. */
 
-  /* ── ESPACIO Y RETÍCULA ──────────────────────────────────────────────────────
-     Se declaran con el bloque 4, que es el que los aplica. Declararlos ahora los
-     dejaría fuera del bundle igual (el empaquetador borra lo que nadie usa) y
-     además darían la impresión de que la retícula ya cambió, que no es el caso:
-     `.wrap` sigue en 1000px hasta que el bloque 4 lo mueva a 1120. */
+  /* ── ESPACIO ─────────────────────────────────────────────────────────────────
+     Entran con su primer consumidor (la banda de Library, 6.4). El contenedor y la
+     medida de lectura siguen esperando al bloque 4, que es quien los aplica: un token
+     declarado y no usado lo borra el empaquetador y además miente sobre lo que ya
+     cambió. */
+  --s1:8px; --s2:16px; --s3:24px; --s4:40px; --s5:64px; --s6:96px;
 }
 
 @media (max-width: 640px){

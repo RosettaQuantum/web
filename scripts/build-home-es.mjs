@@ -53,10 +53,9 @@ const T = [
   ["days · we called it", "días · lo dijimos nosotros", 1],
   ["· negative, self-published", "· negativo, autopublicado", 1],
   ["■ surviving · ■ contested · ■ eroded or self-negative", "■ en pie · ■ en disputa · ■ erosionado o negativo propio", 1],
-  ["all 16 tracked claims →", "los 16 claims rastreados →", 1],
+  ["all 16 tracked claims", "los 16 claims rastreados", 1],
 
   // ── Evidence Library ───────────────────────────────────────────────────────
-  ["A product of its own", "Un producto en sí mismo", 1],
   ["The Evidence Library.", "La Evidence Library.", 1],
   ["Is there real evidence for this quantum claim?", "¿Existe evidencia real para este claim cuántico?", 1],
   ["A search engine for quantum computing evidence — every claim dated, sourced, statused, and linked to its seal. Of 16 tracked advantage claims: 3 surviving, 5 contested, 6 eroded, 1 open, 1 self-published negative.",
@@ -67,10 +66,9 @@ const T = [
   ["references indexed", "referencias", 1],
   ["advantage claims tracked", "claims rastreados", 1],
   ["still surviving · 19%", "en pie · 19%", 1],
-  ["Open the Library →", "Abre la Biblioteca →", 1],
+  ["Open the Library", "Abre la Biblioteca", 1],
 
   // ── Casos ──────────────────────────────────────────────────────────────────
-  ["What a measurement looks like", "Cómo se ve una medición", 1],
   ["The fight, shown. Not described.", "La pelea, mostrada. No descrita.", 1],
   ["Five industries, five sealed experiments, one rule: the classical champion runs on the same field. Pick one.",
    "Cinco industrias, cinco experimentos sellados, una regla: el campeón clásico corre en la misma cancha. Elige uno.", 1],
@@ -117,7 +115,7 @@ const T = [
   [">raw data<", ">datos crudos<", 1],
   ["▸ every panel is drawn live from the sealed data — drag, switch and replay ·",
    "▸ cada panel se dibuja en vivo desde los datos sellados — arrastra, cambia y repite ·", 1],
-  ["the full fight & the industry cases →", "la pelea completa y los casos por industria →", 1],
+  ["the full fight & the industry cases", "la pelea completa y los casos por industria", 1],
 
   // ── Pilot Referee ──────────────────────────────────────────────────────────
 
@@ -126,7 +124,7 @@ const T = [
   // ── Ledger ─────────────────────────────────────────────────────────────────
   ["Every experiment, report and correction we produce is hash-anchored to Bitcoin via OpenTimestamps and mirrored on GitHub, Codeberg and D1 — including the ones we lose.",
    "Cada experimento, informe y corrección que producimos queda anclado por hash a Bitcoin vía OpenTimestamps y espejado en GitHub, Codeberg y D1 — incluidos los que perdemos.", 1],  // solo la etiqueta de la cifra; "20 sealed runs" es capa medida
-  ["Open the full ledger →", "Abre el ledger completo →", 1],
+  ["Open the full ledger", "Abre el ledger completo", 1],
 
   // ── Two-Layer ──────────────────────────────────────────────────────────────
 
@@ -139,9 +137,7 @@ const T = [
   ["one email when the edition seals · no list, no drip", "un solo correo cuando la edición selle · sin lista, sin goteo", 1],
 
   // ── Notes ──────────────────────────────────────────────────────────────────
-  ["Notes · published by our evidence engine", "Notes · publicadas por nuestro motor de evidencia", 1],
   ["Latest from the desk.", "Lo último del escritorio.", 1],
-  ["All notes →", "Todas las notas →", 1],
 
   // El pie ya no vive en el cuerpo: es el componente PieV2, que trae su propio texto
   // aprobado por idioma. Salio de aqui porque venia con los once enlaces en href="#".
@@ -275,7 +271,7 @@ const T = [
  * LOS ENLACES, QUE ES LO QUE FALTABA.
  *
  * Este generador traducia 190 cadenas de TEXTO y ni un solo `href`. La home española
- * servia 29 enlaces a rutas en ingles: "Abre la Biblioteca →" iba a /library, "Pide un
+ * servia 29 enlaces a rutas en ingles: "Abre la Biblioteca" iba a /library, "Pide un
  * referee →" a /pilots, "Verifica un sello" a /verify. El lector apretaba un boton en
  * español y aterrizaba en ingles. Lo encontro Nicholas navegando, no ningun guardia:
  * T-es buscaba PALABRAS en ingles en el texto y los destinos no son texto.
@@ -284,6 +280,11 @@ const T = [
  * sin agregar nada. Y al final se EXIGE que no quede ningun href en ingles sin mapear —
  * un mapa que se queda corto en silencio es como llegamos aqui.
  */
+/* Tres entradas salieron el 10-sep con el bloque 2 (6.5): los eyebrows "A product of
+   its own", "What a measurement looks like" y "Notes · published by our evidence engine"
+   se retiraron de la home —el <h2> siguiente ya dice de que trata la seccion— y con ellos
+   su traduccion. Las flechas de los enlaces de seccion tambien: la flecha queda solo en
+   el CTA primario. */
 const RUTAS = [
   ["/library/registry", "/es/biblioteca/registro"],
   ["/library", "/es/biblioteca"],
