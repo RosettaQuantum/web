@@ -128,6 +128,7 @@ const T = [
   /* Al quitarle la flecha (6.5) borre la entrada entera en vez de solo la flecha, y
      "All notes" quedo sin traducir en la home española. Lo caza T-es. */
   ["All notes", "Todas las notas", 1],
+  ["See a real decision page", "Mira una decision page real", 1],
   /* B4 · bloque «Con y sin». Copy del anexo A del spec, aprobado por Nicholas. */
   ["With a referee, and without one.", "Con árbitro, y sin árbitro.", 1],
   ["Without an independent referee", "Sin un árbitro independiente", 1],

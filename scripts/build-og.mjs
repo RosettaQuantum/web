@@ -31,6 +31,9 @@ const TARJETAS = [
   { slug: "ledger",   h1: "A public record that cannot be rewritten.",      de: "/ledger" },
   { slug: "services", h1: "Judgment, priced up front.",                     de: "/services" },
   { slug: "cases",    h1: "We make your pilot produce a defensible number.", de: "/pilots" },
+  /* B10.5 · la decision page de muestra es el producto y se comparte por enlace mas
+     que ninguna otra: lleva tarjeta propia. El titular es su propio <h1>. */
+  { slug: "decision", h1: "Constrained portfolio compression: does QAOA beat the classical champion?", de: "/services/sample-report" },
 ];
 
 const iBase = process.argv.indexOf("--base");
