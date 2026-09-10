@@ -17,6 +17,18 @@
  * Si el build pasa y el post sale vacío, el sospechoso es este archivo: el cascarón se
  * compila bien igual, y eso es la mina nº2 del catastro.
  */
+/* PRIMERO los tokens, igual que BaseLayout. FALTABAN, y el costo se midio el
+   10-sep-2026 en las 114 notas: `.article h1` de global.css pide var(--t-title), el
+   token no estaba definido en estas paginas, la declaracion quedaba invalida al
+   computar y el titular de cada post caia a los 16px heredados del body — el MISMO
+   tamano que sus parrafos. La regla existia, la hoja se cargaba, y aun asi el titular
+   no se veia como titular.
+   Es la trampa del empaquetador al reves: no es que lightningcss borrara un token sin
+   consumidor, es que el consumidor vivia en un layout que nunca importo la hoja donde
+   el token se declara. Se rompio al crear tokens.css en el bloque 2: antes ese h1
+   llevaba un tamano literal. Alcance MEDIDO: solo BlogLayoutV2 — las paginas de
+   MarcaLayout resuelven --t-title en 34px porque entran por BaseLayout. */
+import '../styles/tokens.css';
 import '../styles/global.css';
 import { sinComentarios } from '../lib/css-sin-comentarios.js';
 import NavV2 from '../components/NavV2.astro';
