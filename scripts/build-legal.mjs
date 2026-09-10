@@ -1,4 +1,8 @@
 #!/usr/bin/env node
+/* B10.2 · la franja de frescura tambien en las paginas legales. Va AQUI y no en los
+   .astro: son GENERADOS desde los .md, y `--verificar` compara byte a byte. Meter el
+   script a mano en el generado tumbo el deploy del 10-sep — el guardia hizo
+   exactamente lo que tenia que hacer, y en el paso correcto: antes de publicar. */
 /**
  * Arma las seis paginas legales LEYENDO el texto aprobado, no transcribiendolo.
  *
@@ -140,7 +144,7 @@ import css from '${relativo}styles/pages/legal.css?raw';
   lang="${P.lang}"
   altUrl="${P.alt}"
   ruta="${P.ruta}"
-  pageCss={css}>
+  pageCss={css} scripts={["/js/frescura.js"]}>
   <article class="article wrap legal">
       ${aHtml(md)}
 
