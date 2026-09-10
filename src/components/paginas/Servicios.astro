@@ -12,6 +12,21 @@
 const { lang = 'en' } = Astro.props;
 const es = lang === 'es';
 const PEDIDO = es ? 'a pedido' : 'on request';
+/* LOS CUATRO «A PEDIDO» SE CIFRARON EL 10-sep-2026, decision de Nicholas.
+ *
+ * Cada uno se deriva de un precio que ya estaba publicado, y la derivacion se MUESTRA
+ * al lado en vez de afirmarse: «5 x 4.500 + 28.000 = 50.500, juntos 42.500» se puede
+ * comprobar leyendo la misma tabla dos filas mas arriba. El descuento va como RESTA y
+ * no como porcentaje, por instruccion suya: muestra, no afirmes.
+ *
+ * EL RIESGO, dicho porque el que lo tomo lo dijo primero: publicar estos cuatro pone
+ * techo a lo que se puede cotizar a medida en un encargo grande. Se acepta porque un
+ * precio ausente en la mitad del catalogo hace dudar del precio de la otra mitad. La
+ * mitigacion es «Desde» en los dos que escalan.
+ *
+ * LO QUE NO ENTRO: la justificacion del Sealed Prediction Pack que traia el documento
+ * —«esta por debajo de un Screening doble»— es falsa: un doble son 9.000 y el pack son
+ * 9.500, o sea esta POR ENCIMA. El precio queda; el argumento no se publica. */
 const PROD = [
   { n:'Pilot Referee', capa:'B', precio: es ? 'US$15.000–35.000' : 'US$15,000–35,000',
     compra: es ? 'Corporativo con un piloto cuántico' : 'Corporate running a quantum pilot',
@@ -32,21 +47,29 @@ const PROD = [
     inc: es ? 'Fichas completas, filtros, export y alertas. Los niveles de evidencia son idénticos en todos los planes: lo pagado es profundidad, no una verdad distinta.'
             : 'Full records, filters, export and alerts. Evidence levels are identical in every tier: what you pay for is depth, not a different truth.',
     plazo: es ? 'inmediato' : 'immediate' },
-  { n:'Diligence + QPU', capa:'B', precio: PEDIDO,
+  { n:'Diligence + QPU', capa:'B', precio: es ? 'Desde US$45.000' : 'From US$45,000',
     compra: es ? 'Claims donde el hardware ES la disputa' : 'Claims where the hardware IS the dispute',
     inc: es ? 'Lo anterior + hardware real con paridad; el costo de máquina se pasa a costo, con tope' : 'The above + real hardware at parity; machine cost passed through at cost, capped',
-    plazo: es ? '5–8 semanas (la excepción, no el default)' : '5–8 weeks (the exception, not the default)' },
-  { n:'Portfolio Scan', capa:'B', precio: PEDIDO,
+    plazo: es ? '5–8 semanas (la excepción, no el default)' : '5–8 weeks (the exception, not the default)',
+    nota: es ? 'Más tiempo de máquina a costo, con tope de US$10.000 salvo que autorices más por escrito.'
+             : 'Plus QPU time at cost, capped at US$10,000 unless you approve more in writing.' },
+  { n:'Portfolio Scan', capa:'B', precio: es ? 'US$42.500' : 'US$42,500',
     compra: es ? 'Fondo o CVC con 3 o más posiciones' : 'Fund or CVC with 3+ positions',
     inc: es ? '5 screenings + 1 diligence + ranking de evidencia del portafolio' : '5 screenings + 1 diligence + portfolio evidence ranking',
-    plazo: es ? '6 semanas' : '6 weeks' },
-  { n:'Sealed Prediction Pack', capa:'A+B', precio: PEDIDO,
+    plazo: es ? '6 semanas' : '6 weeks',
+    nota: es ? 'Por separado: 5 × US$4.500 + US$28.000 = US$50.500. Juntos, US$42.500.'
+             : 'Separately: 5 × US$4,500 + US$28,000 = US$50,500. Together, US$42,500.' },
+  { n:'Sealed Prediction Pack', capa:'A+B', precio: es ? 'US$9.500' : 'US$9,500',
     compra: es ? 'Equipos de biología y química' : 'Biology and chemistry teams',
     inc: es ? 'Predicciones selladas antes del experimento, abiertas en público después' : 'Predictions sealed before the experiment, opened publicly afterwards',
-    plazo: es ? 'el calendario de tu experimento' : "your experiment's calendar" },
-  { n: es ? 'Library — Firm' : 'Library — Firm', capa:'B', precio: PEDIDO,
+    plazo: es ? 'el calendario de tu experimento' : "your experiment's calendar",
+    nota: es ? 'Cuatro dentro de doce meses, US$30.000.' : 'Four within twelve months, US$30,000.' },
+  { n: es ? 'Library — Firm' : 'Library — Firm', capa:'B', precio: es ? 'US$1.900 / mes' : 'US$1,900 / month',
     compra: es ? 'Fondos, consultoras, medios' : 'Funds, consultancies, media',
-    inc: es ? 'Asientos por equipo + briefing trimestral' : 'Team seats + quarterly briefing', plazo: es ? 'inmediato' : 'immediate' },
+    inc: es ? 'Hasta 15 asientos + briefing trimestral + watchlists compartidas' : 'Up to 15 seats + quarterly briefing + shared watchlists',
+    plazo: es ? 'inmediato' : 'immediate',
+    nota: es ? 'Quince asientos Analyst costarían US$2.235. Nunca conviene comprarlos sueltos.'
+             : 'Fifteen Analyst seats would cost US$2,235. Buying them separately is never the better deal.' },
 ];
 const t = es ? {
   eyebrow:'Juicio, con precio a la vista', h1:'Juicio, con precio por delante.',
@@ -103,7 +126,7 @@ const t = es ? {
           <td><b>{p.n}</b></td>
           <td>{p.compra}</td>
           <td>{p.inc}</td>
-          <td class={"precio" + (p.precio === PEDIDO ? " pedido" : "")}>{p.precio}</td>
+          <td class={"precio" + (p.precio === PEDIDO ? " pedido" : "")}>{p.precio}{p.nota && <span class="precio-nota">{p.nota}</span>}</td>
           <td class="capa">{p.plazo}</td>
         </tr>
       ))}

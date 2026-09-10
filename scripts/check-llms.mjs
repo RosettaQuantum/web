@@ -33,7 +33,11 @@ if (!PREVIEW) { console.error("ABORTA: falta PREVIEW_URL"); process.exit(1); }
 // /errata salio de aqui el 9-sep: ya no es una pagina, es un 301 a /ledger#erratas.
 // Las erratas siguen anunciadas — dentro de la linea del ledger, que es donde viven.
 const PUBLICAS = ["/services", "/pilots", "/methodology", "/about", "/ledger",
-                  "/contact", "/monitor", "/verify", "/library", "/library/registry"];
+                  "/contact", "/monitor", "/verify", "/library", "/library/registry",
+                  // Bloque 7 y 8, 10-sep. Son las paginas que responden la pregunta con
+                  // la que llega un lector, asi que son exactamente las que un modelo
+                  // deberia poder citar.
+                  "/for/investors", "/for/pilots", "/for/industry", "/how-we-compare"];
 // /policies es texto legal: no aporta nada a un modelo que busca evidencia, y obligarlo
 // aqui seria cobertura sin precision. Declarado, no olvidado.
 const NO_SE_ANUNCIAN = ["/policies"];

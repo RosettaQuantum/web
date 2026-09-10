@@ -33,6 +33,10 @@ if (!PREVIEW) { console.error("ABORTA: falta PREVIEW_URL"); process.exit(1); }
 import { DECIDIDOS } from "./lib/precios-decididos.mjs";
 
 const PAGINAS = ["/", "/es/", "/services", "/es/servicios", "/pilots", "/es/pilotos",
+  // Las tres puertas publican precio en su propio bloque, asi que entran aqui: un precio
+  // que se escribe en cuatro paginas y se vigila en dos es como divergio la lista de /v1.
+  "/for/investors", "/es/para/inversionistas", "/for/pilots", "/es/para/pilotos",
+  "/for/industry", "/es/para/industria",
                  "/library", "/es/biblioteca", "/methodology", "/es/metodologia"];
 
 const fallos = [];
@@ -43,14 +47,26 @@ for (const ruta of PAGINAS) {
   if (r.status !== 200) { console.log(`  FALLA ${ruta} -> ${r.status}`); fallos.push(ruta); continue; }
   const html = await r.text();
   // Sólo el cuerpo visible: un precio dentro de un comentario o de un script no se publica.
-  const texto = html.replace(/<script[\s\S]*?<\/script>/g, "").replace(/<style[\s\S]*?<\/style>/g, "").replace(/<!--[\s\S]*?-->/g, "");
+  let texto = html.replace(/<script[\s\S]*?<\/script>/g, "").replace(/<style[\s\S]*?<\/style>/g, "").replace(/<!--[\s\S]*?-->/g, "");
+  // UNA excepcion, y la pagina tiene que pedirla en voz alta: lo que va dentro de un
+  // <span class="ajeno"> es una cifra de MERCADO, no un precio nuestro. Nace de
+  // /for/pilots, que declara «los pilotos de nuestro rango cuestan entre US$250.000 y
+  // US$1.000.000» — un supuesto sobre lo que cobran otros, que no se puede meter en la
+  // lista de precios decididos sin convertir esa lista en un basurero.
+  //
+  // Es estrecha a proposito: hay que escribirla en el HTML, se ve en la revision, y no
+  // hay forma de que se trague un precio propio por accidente. Un guardia con una
+  // excepcion declarada sigue siendo un guardia; uno con una excepcion implicita, no.
+  const ajenas = [...texto.matchAll(/<span[^>]*class="[^"]*\bajeno\b[^"]*"[^>]*>([\s\S]*?)<\/span>/g)];
+  for (const a of ajenas) texto = texto.replace(a[0], " ");
   const montos = [...texto.matchAll(/(?:US\$|\$)\s?([\d][\d.,]*)/g)].map((m) => m[1].replace(/[.,]$/, ""));
   const sinAprobar = [...new Set(montos.filter((m) => !DECIDIDOS.has(m)))];
   if (sinAprobar.length) {
     console.log(`  FALLA ${ruta.padEnd(18)} precios sin decidir: ${sinAprobar.map((x) => "$" + x).join(" · ")}`);
     fallos.push(ruta);
   } else {
-    console.log(`  ok    ${ruta.padEnd(18)} ${montos.length} monto(s), todos decididos`);
+    const nota = ajenas.length ? ` · ${ajenas.length} cifra(s) de mercado declaradas y excluidas` : "";
+    console.log(`  ok    ${ruta.padEnd(18)} ${montos.length} monto(s), todos decididos${nota}`);
   }
 }
 

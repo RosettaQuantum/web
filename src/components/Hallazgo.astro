@@ -1,0 +1,36 @@
+---
+/**
+ * Un hallazgo publicado: la frase Y su definicion, juntas o ninguna.
+ *
+ * POR QUE EXISTE, y es una regla de Nicholas del 10-sep-2026, textual:
+ * «la frase y su definicion viajan siempre juntas. Sola es atacable en treinta
+ * segundos; con la definicion al lado no la desarma nadie.»
+ *
+ * Una regla escrita en un comentario es una regla que alguien borra sin querer en
+ * seis meses. Aca esta puesta donde no se puede saltar: el componente ABORTA EL BUILD
+ * si le llega una frase sin su definicion. No hay forma de publicar la mitad.
+ *
+ * El caso concreto que la origina: «ningun tercero ha reproducido nunca el resultado
+ * principal de otro equipo». Suelta, cualquiera responde «falso, el equipo de Singapur
+ * verifico las 2.051 salidas de IBM» — y tendria razon sobre OTRA cosa, porque
+ * verificar una salida no es reproducir un experimento. La definicion al lado es lo
+ * que convierte una frase atacable en la distincion que justifica que exista un
+ * arbitro.
+ */
+const { frase, definicion, fuente } = Astro.props;
+
+if (!frase || !String(frase).trim())
+  throw new Error('Hallazgo: falta `frase`.');
+if (!definicion || !String(definicion).trim())
+  throw new Error(
+    `Hallazgo: la frase "${String(frase).slice(0, 60)}…" viene sin \`definicion\`. ` +
+    'Una afirmacion de este tipo no se publica sola: la definicion es lo que la hace ' +
+    'defendible. Si no hay definicion, no hay hallazgo.');
+if (!fuente || !String(fuente).trim())
+  throw new Error('Hallazgo: falta `fuente` — contra que se comprobo y en que fecha.');
+---
+<div class="hallazgo">
+  <h2 class="hallazgo-frase">{frase}</h2>
+  <p class="hallazgo-def">{definicion}</p>
+  <p class="hallazgo-fuente mono">{fuente}</p>
+</div>

@@ -1,0 +1,174 @@
+---
+/**
+ * /how-we-compare y /es/como-comparamos — bloque 8.
+ *
+ * TRES REGLAS DURAS DE ESTA PAGINA, y las tres vienen de Nicholas:
+ *   1. Cada fila enlaza a la fuente original. Comprobados los cuatro contra la red
+ *      antes de escribirlos, no copiados del documento.
+ *   2. Ninguna afirmacion sobre un tercero sin fecha.
+ *   3. Ningun adjetivo valorativo sobre un competidor. La columna que podria
+ *      insultar se llama «que deja abierto» y describe ALCANCE, no calidad: que
+ *      DARPA sea cerrado a sus participantes es un hecho de su diseno, no un
+ *      defecto, y asi tiene que leerse.
+ *
+ * Y el cierre manda trafico a Metriq y al Quantum Advantage Tracker a proposito.
+ * No es generosidad: si alguien llega con la pregunta «¿es bueno este dispositivo?»
+ * y le vendemos un veredicto, le vendimos lo que no necesitaba. La casa se sostiene
+ * en que el veredicto sirva, y para eso tiene que ser el instrumento correcto.
+ *
+ * La cifra de la fila del QAT —las 47 entradas y la ausencia de reproduccion
+ * independiente— la medi el 10-sep-2026 bajando los tres submissions.json del
+ * repositorio del tracker. No sale de su portada.
+ */
+const { lang = 'en' } = Astro.props;
+const es = lang === 'es';
+
+const FILAS = [
+  {
+    n: 'DARPA QBI',
+    url: 'https://www.darpa.mil/research/programs/quantum-benchmarking-initiative',
+    fecha: es ? 'Stage B desde nov-2025' : 'Stage B since Nov 2025',
+    mide: es
+      ? 'Si la arquitectura de un fabricante puede llegar a escala útil hacia 2033. Veinte empresas evaluadas; once en Stage B.'
+      : 'Whether a manufacturer’s architecture can reach useful scale by 2033. Twenty companies evaluated; eleven in Stage B.',
+    quien: es ? 'Sólo participantes del programa.' : 'Program participants only.',
+    abre: es
+      ? 'No adjudica claims publicados, no responde por tu caso de uso, y su horizonte es 2033.'
+      : 'It does not adjudicate published claims, does not answer for your use case, and its horizon is 2033.',
+  },
+  {
+    n: 'Quantum Advantage Tracker',
+    sub: 'IBM + Algorithmiq',
+    url: 'https://quantum-advantage-tracker.github.io/',
+    fecha: es ? 'desde nov-2025' : 'since Nov 2025',
+    mide: es
+      ? 'Candidatos activos, superados y baseline en tres vías, con circuitos y datos adjuntos. Al 10-sep-2026: 47 entradas y más de quince organizaciones contribuyendo.'
+      : 'Active, superseded and baseline candidates across three tracks, with circuits and data attached. As of 10 Sep 2026: 47 entries and more than fifteen contributing organizations.',
+    quien: es ? 'Cualquiera, abierto.' : 'Anyone, open.',
+    abre: es
+      ? 'Lo lanzó un fabricante. No exige criterio pre-registrado por un tercero ni paridad de presupuesto, y ninguna entrada lleva un responsable que firme. En las 47 entradas no hay ninguna donde un equipo ajeno vuelva a correr el experimento de otro.'
+      : 'A manufacturer launched it. It does not require a criterion pre-registered by a third party or budget parity, and no entry carries a signatory. Across the 47 entries there is none where an outside team re-runs another team’s experiment.',
+  },
+  {
+    n: 'Metriq',
+    sub: 'Unitary Foundation',
+    url: 'https://metriq.info/',
+    fecha: es ? 'desde mar-2026' : 'since Mar 2026',
+    mide: es
+      ? 'Rendimiento de dispositivos entre proveedores: más de diez computadores, dataset abierto y versionado.'
+      : 'Device performance across vendors: more than ten computers, open and versioned dataset.',
+    quien: es ? 'Cualquiera, gratis.' : 'Anyone, free.',
+    abre: es
+      ? 'Mide máquinas, no afirmaciones. Sin campeón clásico obligatorio, sin sello y sin veredicto.'
+      : 'It measures machines, not claims. No mandatory classical champion, no seal, no verdict.',
+  },
+  {
+    n: 'QED-C',
+    url: 'https://quantumconsortium.org/',
+    fecha: es ? 'consultado 10-sep-2026' : 'checked 10 Sep 2026',
+    mide: es
+      ? 'Estándares y benchmarks de aplicación por consenso de consorcio.'
+      : 'Application standards and benchmarks by consortium consensus.',
+    quien: es ? 'Miembros del consorcio.' : 'Consortium members.',
+    abre: es
+      ? 'Consenso, no juicio: el formato no contempla que alguien firme un veredicto que incomode a un miembro.'
+      : 'Consensus, not judgment: the format does not contemplate anyone signing a verdict that discomfits a member.',
+  },
+  {
+    n: es ? 'Benchmarks del propio vendor' : 'The vendor’s own benchmarks',
+    fecha: null,
+    mide: es ? 'Lo que el vendor decidió medir.' : 'What the vendor decided to measure.',
+    quien: es ? 'Todos.' : 'Everyone.',
+    abre: es
+      ? 'El vendor elige baseline, presupuesto y métrica. Es el origen del problema, no la solución.'
+      : 'The vendor picks the baseline, the budget and the metric. It is the origin of the problem, not the solution.',
+  },
+  {
+    n: es ? 'Consultoras, o hacerlo internamente' : 'Consultancies, or doing it in-house',
+    fecha: null,
+    mide: es ? 'Lo que el cliente quiere saber.' : 'What the client wants to know.',
+    quien: es ? 'Quien pague, o quien tenga el equipo.' : 'Whoever pays, or whoever has the team.',
+    abre: es
+      ? 'Nadie en esa cadena pierde plata si el diagnóstico está equivocado.'
+      : 'Nobody in that chain loses money if the diagnosis is wrong.',
+  },
+];
+
+const t = es ? {
+  eyebrow: 'Con qué más puedes compararnos',
+  h1: 'No somos los únicos que miden.',
+  lede: 'Somos los únicos que emiten un veredicto que puedes citar. Acá está el resto, con nombre y con enlaces. Usa el que responda tu pregunta.',
+  cols: ['', 'Qué mide', 'Quién puede usarlo', 'Qué deja abierto'],
+  cierreH: 'Cuál te sirve',
+  cierre: [
+    ['«¿Es bueno este dispositivo?»', 'Usa Metriq: es gratis y abierto.', 'https://metriq.info/'],
+    ['«¿Alguien ha desafiado este circuito?»', 'El Quantum Advantage Tracker es el mejor registro público que existe.', 'https://quantum-advantage-tracker.github.io/'],
+    ['«¿Sobrevive este claim, y puedo dejarlo por escrito?»', 'Eso somos nosotros.', null],
+  ],
+  notaH: 'Nota',
+  nota: 'Espejamos y enlazamos estas fuentes. Cada entrada que indexamos acredita su origen. Construimos sobre su trabajo; no lo reemplazamos.',
+  cta: 'Ver los precios →',
+} : {
+  eyebrow: 'What else you could use',
+  h1: 'We are not the only ones measuring.',
+  lede: 'We are the only ones issuing a verdict you can cite. Here is everyone else, named, with links. Use whichever answers your question.',
+  cols: ['', 'What it measures', 'Who can use it', 'What it leaves open'],
+  cierreH: 'Which one you need',
+  cierre: [
+    ['“Is this device good?”', 'Use Metriq — it is free and open.', 'https://metriq.info/'],
+    ['“Has anyone challenged this circuit?”', 'The Quantum Advantage Tracker is the best public record there is.', 'https://quantum-advantage-tracker.github.io/'],
+    ['“Does this claim survive, and can I put that in writing?”', 'That is us.', null],
+  ],
+  notaH: 'Note',
+  nota: 'We mirror and link these sources. Every entry we index credits its origin. We built on their work; we did not replace it.',
+  cta: 'See pricing →',
+};
+---
+<section class="pg" style="border-top:none"><div class="wrap">
+  <div class="eyebrow">{t.eyebrow}</div>
+  <h1>{t.h1}</h1>
+  <p class="lede">{t.lede}</p>
+</div></section>
+
+<section><div class="wrap">
+  <div class="comparar-caja">
+    <table class="tabla comparar-tabla">
+      <thead><tr>{t.cols.map((c, i) => (<th scope="col" class={i === 0 ? 'comparar-quien' : undefined}>{c}</th>))}</tr></thead>
+      <tbody>
+        {FILAS.map((f) => (
+          <tr>
+            <th scope="row" class="comparar-quien">
+              {f.url ? <a href={f.url} rel="noopener">{f.n}</a> : <span>{f.n}</span>}
+              {f.sub && <span class="comparar-sub">{f.sub}</span>}
+              {f.fecha && <span class="comparar-fecha">{f.fecha}</span>}
+            </th>
+            <td data-col={t.cols[1]}>{f.mide}</td>
+            <td data-col={t.cols[2]}>{f.quien}</td>
+            <td data-col={t.cols[3]}>{f.abre}</td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  </div>
+</div></section>
+
+<section><div class="wrap">
+  <div class="eyebrow">{t.cierreH}</div>
+  <h2>{t.cierreH}</h2>
+  <dl class="comparar-cierre">
+    {t.cierre.map(([q, a, href]) => (
+      <div>
+        <dt>{q}</dt>
+        <dd>{href ? <a href={href} rel="noopener">{a}</a> : <b>{a}</b>}</dd>
+      </div>
+    ))}
+  </dl>
+  <p class="sealline mono" style="margin-top:20px">
+    <a href={es ? '/es/servicios' : '/services'}>{t.cta}</a>
+  </p>
+</div></section>
+
+<section class="puerta-cierre"><div class="wrap">
+  <div class="eyebrow">{t.notaH}</div>
+  <p class="lede">{t.nota}</p>
+</div></section>

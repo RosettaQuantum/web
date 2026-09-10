@@ -1,4 +1,5 @@
 ---
+import Hallazgo from '../Hallazgo.astro';
 /**
  * /errata · /contact · /monitor · /verify — commit 9. Cuatro paginas cortas, un
  * componente con un `tipo`, para que compartan chrome y reglas en vez de repetirlas.
@@ -30,11 +31,17 @@ const T = {
     eyebrow:'RQ Advantage Monitor · Edición 001 · en preparación', h1:'Lo que el ledger ya puede decir.',
     lede:'Una edición cuando selle. Sin lista, sin goteo. Los hallazgos salen del archivo: qué claims siguen en pie, cuáles se erosionaron y en cuántos días llegó el primer desafío.',
     ph:'tu@firma.com', boton:'Recibe la Edición 001 cuando selle', pie:'un solo correo cuando la edición selle · sin lista, sin goteo',
+    hFrase:'Ningún tercero ha reproducido nunca el resultado cuántico principal de otro equipo a partir de sus artefactos publicados.',
+    hDef:'EL3 significa reproducción independiente: un equipo que no fue autor vuelve a correr el experimento y obtiene el mismo resultado principal. Refutar un claim, verificar una salida o competir contra él con un método clásico son actos distintos — los tres han ocurrido. La reproducción, no.',
+    hFuente:'Verificado contra el Quantum Advantage Tracker el 10-sep-2026: 47 entradas en sus tres registros, ninguna instancia con dos brazos cuánticos de grupos disjuntos.',
     ok:'Anotado ✓', mal:'No se pudo anotar. Escríbenos a hello@rosettaquantum.com.',
   } : {
     eyebrow:'RQ Advantage Monitor · Edition 001 · in preparation', h1:'What the ledger can already say.',
     lede:'One edition when it seals. No list, no drip. The findings come out of the archive: which claims are still standing, which eroded, and how many days it took the first challenge to arrive.',
     ph:'you@firm.com', boton:'Get Edition 001 when it seals', pie:'one email when the edition seals · no list, no drip',
+    hFrase:'No third party has ever reproduced another team’s headline quantum result from its published artifacts.',
+    hDef:'EL3 means independent reproduction: a team that was not an author re-runs the experiment and obtains the same headline result. Refuting a claim, verifying an output, or competing against it with a classical method are different acts — all three have happened. Reproduction has not.',
+    hFuente:'Checked against the Quantum Advantage Tracker on 10 Sep 2026: 47 entries across its three registries, no instance with two quantum arms from disjoint groups.',
     ok:"You're on the list ✓", mal:'Could not sign you up. Write to hello@rosettaquantum.com.',
   },
   verify: es ? {
@@ -66,6 +73,10 @@ const T = {
       <p><button class="btn btn-solid" type="button" id="cGo" data-ok={T.ok} data-mal={T.mal}>{T.boton}</button></p>
       <p class="sealline mono"><a href="mailto:hello@rosettaquantum.com">hello@rosettaquantum.com</a></p>
     </div>
+  )}
+
+  {tipo === 'monitor' && (
+    <Hallazgo frase={T.hFrase} definicion={T.hDef} fuente={T.hFuente} />
   )}
 
   {tipo === 'monitor' && (

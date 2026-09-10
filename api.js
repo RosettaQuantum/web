@@ -195,7 +195,15 @@ async function claims(env, url) {
   const [{ results = [] }, totalRow, verifRow] = await Promise.all([
     env.DB.prepare(
       "SELECT id, claimant, title, title_es, title_en, claim_date, status, domain, domain_es, domain_en, " +
-      "clock_days, first_challenge, url " +
+      // clock_days SE CALCULA, no se lee. La columna guardada existe y estaba mal en
+      // 3 de las 11 filas con desafio (10-sep-2026): Google RCS publicaba 2 donde la
+      // resta da -2 —se habia perdido el signo—, Tang 862 contra 861 y USTC 270 contra
+      // 272. El numero se publica AL LADO de las dos fechas de las que sale, asi que
+      // cualquier lector lo desmiente restando. Derivarlo de las fechas hace que no
+      // pueda volver a divergir: el dato observable son las fechas, no el conteo.
+      "CAST(julianday(first_challenge) - julianday(claim_date) AS INTEGER) AS clock_days, " +
+      "clock_days AS clock_days_guardado, " +
+      "first_challenge, url " +
       "FROM rq_claims WHERE verified=1 ORDER BY claim_date DESC LIMIT ?"
     ).bind(limite).all(),
     env.DB.prepare("SELECT count(*) n FROM rq_claims").first(),
@@ -210,7 +218,7 @@ async function claims(env, url) {
     // inglesa, la pintaba tal cual. El ingles NO es traduccion nuestra: es el titular
     // del resultado tal como lo publico su autor.
     nota_idioma: "title/domain = español (compatibilidad). Las dos caras van en title_es/title_en y domain_es/domain_en.",
-    nota_clock_days: "días del claim al primer desafío registrado; NULL = sin desafío. NO son días a hoy: eso se computa con claim_date al momento de mirar.",
+    nota_clock_days: "días del claim al primer desafío registrado, DERIVADO de claim_date y first_challenge; NULL = sin desafío. Puede ser NEGATIVO: en RQC-2019-GOOGLE-RCS el primer desafío es anterior al claim, y eso es un hecho del caso, no un error de signo. NO son días a hoy: eso se computa con claim_date al momento de mirar.",
     total: results.length,
     verificados: (verifRow || { n: 0 }).n,
     en_la_tabla: (totalRow || { n: 0 }).n,
