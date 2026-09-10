@@ -9,9 +9,13 @@
 :root{
   color-scheme: light;
   --paper:#F4F5F1; --paper-2:#ECEEE8; --panel:#FBFBF9;
-  --ink:#16181B; --ink-60:#5A5D58; --line:#D9DBD6;
-  --verdict:#0F8B7E; --teal-10:#E6F2F0; --teal-20:#C4DFDA;
-  --pending:#B8892E; --pending-10:#F6EFDF; --pending-20:#E7D6AE;
+  --ink:#16181B; --ink-60:#4A4E48; --line:#D9DBD6;   /* --ink-60 sube de #5A5D58 (6,10:1) a 7,75:1 */
+  /* B2 · los dos tonos de TEXTO bajan a su version accesible. Medido sobre --paper:
+     el teal daba 3,82:1 y el oro 2,88:1, los dos por debajo del 4,5:1 de AA, y se
+     usaban en textos de 9 a 12px. Los valores vivos siguen disponibles como
+     --verdict-fill / --pending-fill para barras y puntos, donde no hay letra. */
+  --verdict:#0C7268; --teal-10:#E6F2F0; --teal-20:#C4DFDA;
+  --pending:#8A6520; --pending-10:#F6EFDF; --pending-20:#E7D6AE;
   --alert:#B4432F; --alert-10:#F8E9E5; --alert-20:#EDC9C0;
   --serif:'Newsreader',Georgia,serif;
   --sans:'IBM Plex Sans',system-ui,sans-serif;
