@@ -88,15 +88,15 @@
       <span class="fight-title">KRAS G12C · PDB 4OBE · 169 residuos · 927 contactos (Cα–Cα ≤ 8,5 Å) · desafío sellado cleveland-2026-07</span>
       <span class="fight-src" id="fightsrc">iψ̇ = Hψ integrado por RK4 en tu navegador · t = <span id="tval">0.00</span> · no es un video</span>
     </div>
-    <div class="fight-toggle" style="display:flex;gap:0;border-bottom:1px solid var(--line)">
-      <button type="button" class="ftb on" data-m="live">Caminata cuántica en vivo · física corriendo</button>
-      <button type="button" class="ftb" data-m="ctqw">Resultado sellado · CTQW</button>
-      <button type="button" class="ftb" data-m="diff">Resultado sellado · difusión clásica</button>
+    <div class="fight-toggle" role="tablist" style="display:flex;gap:0;border-bottom:1px solid var(--line)">
+      <button type="button" class="ftb on" role="tab" aria-selected="true" data-m="live">Caminata cuántica en vivo · física corriendo</button>
+      <button type="button" class="ftb" role="tab" aria-selected="false" data-m="ctqw">Resultado sellado · CTQW</button>
+      <button type="button" class="ftb" role="tab" aria-selected="false" data-m="diff">Resultado sellado · difusión clásica</button>
       <span class="ftl">● 25 residuos fuente · <span style="color:var(--verdict)">○</span> 20 residuos alostéricos verdaderos (verdad oculta al método)</span>
     </div>
-    <canvas class="walk" id="cvQ"></canvas>
+    <canvas class="walk" id="cvQ" role="img" aria-labelledby="veredicto-1"></canvas>
     <div class="plain"><b>En simple</b>Probamos si una «caminata cuántica» encuentra los puntos donde un fármaco puede agarrar una proteína de cáncer mejor que los métodos clásicos. No solo perdió contra los cinco métodos clásicos — perdió contra elegir al azar. Lo publicamos igual, porque es nuestro propio experimento.</div>
-    <div class="fight-verdict">
+    <div class="fight-verdict" id="veredicto-1">
       EXP-0007-013 · resultado: <span style="color:var(--alert);font-weight:500">cuántico peor que el azar</span> · mean percentile CTQW 35.63 · diffusion 53.65 · random 49.38 · <span class="pend">veredicto: pendiente</span>
       <div style="margin-top:6px;color:var(--ink-60)">La caminata en vivo corre el mismo código que nuestra pieza 3D (H = contactos Cα con peso gaussiano, corte 8,5 Å, σ 6,0, dt 0,01). Comprobada contra el resultado sellado: Spearman ρ = 0,746 en el ranking; la normalización difiere (declarada, no ajustada). La corrida sellada es el registro; la caminata en vivo es el método, mostrado.</div>
       <a href="/es/ledger#RQ-0007">corrida sellada</a><a href="/es/ledger#RQ-0007">datos del desafío</a>
@@ -110,14 +110,14 @@
       <span class="fight-title">V-0012 · Compresión de portafolio con restricciones · elige k de n activos · QAOA p=2 vs OR-Tools CP-SAT · 20 corridas selladas</span>
       <span class="fight-src">dibujado desde los datos sellados (verificados por hash) — no es una ilustración</span>
     </div>
-    <div class="fight-toggle" style="display:flex;border-bottom:1px solid var(--line)">
-      <button type="button" class="ftb on" data-panel="port" data-m="net">Red de correlaciones · una corrida</button>
-      <button type="button" class="ftb" data-panel="port" data-m="matrix">Las 20 corridas · elecciones</button>
+    <div class="fight-toggle" role="tablist" style="display:flex;border-bottom:1px solid var(--line)">
+      <button type="button" class="ftb on" role="tab" aria-selected="true" data-panel="port" data-m="net">Red de correlaciones · una corrida</button>
+      <button type="button" class="ftb" role="tab" aria-selected="false" data-panel="port" data-m="matrix">Las 20 corridas · elecciones</button>
       <span class="ftl"><button type="button" class="mini" id="runPrev">‹</button> <span id="runLabel" style="color:var(--ink)">EXP-0012-001</span> <button type="button" class="mini" id="runNext">›</button> · ■ optimum · <span style="color:var(--alert)">○</span> QAOA · edges = |correlation| ≥ 0.25</span>
     </div>
-    <canvas class="walk" id="cvF" style="height:420px"></canvas>
+    <canvas class="walk" id="cvF" style="height:420px" role="img" aria-labelledby="veredicto-2"></canvas>
     <div class="plain"><b>En simple</b>Tomamos 20 corridas selladas de optimización de portafolio. El método cuántico (QAOA) encontró el óptimo verdadero en carteras chicas y lo perdió al crecer — y el costo clásico de verificarlo crece 25× por cada 4 activos. Esa curva — no la brecha de hoy — es la razón de que la pregunta siga abierta.</div>
-    <div class="fight-verdict">
+    <div class="fight-verdict" id="veredicto-2">
       V-0012 · resultado: <span class="pend">not yet</span> · ventaja medida: ninguna · sellado 2026-07-24 · <span class="vtog" role="button" tabindex="0">verify ↗</span><span class="vwrap">sha256 f510eff6…6636
       </span><a href="/es/ledger#RQ-0012">veredicto</a><a href="/es/ledger#RQ-0012">OTS</a>
       <div style="margin-top:6px;color:var(--ink-60)">Nota medida al margen: el tiempo que le toma a CP-SAT <i>probar</i> la optimalidad creció ~25× por cada +4 activos (0,05 s → 1,3 s → 29 s). Esa curva — no la brecha de hoy — es la razón de que la pregunta siga abierta.</div>
@@ -127,28 +127,28 @@
   <div class="case" id="case-energy">
   <div class="fight-panel">
     <div class="fight-head"><span class="fight-title">RQ-0033 · Expansión de red · IEEE case118 · 118 barras · 173 líneas · elige 5 de 14 candidatas · semilla 42</span><span class="fight-src">dibujado desde los datos sellados (verificados por hash) — no es una ilustración</span></div>
-    <div class="fight-toggle" style="display:flex;border-bottom:1px solid var(--line)">
-      <button type="button" class="ftb on" data-panel="grid" data-m="cpsat">CP-SAT · óptimo exacto · 0,20 s</button>
-      <button type="button" class="ftb" data-panel="grid" data-m="qaoa">QAOA p=2 simulado · +1,02% · 51,8 s</button>
-      <button type="button" class="ftb" data-panel="grid" data-m="qpu">El mismo QAOA en hardware real · 8.192 disparos</button>
+    <div class="fight-toggle" role="tablist" style="display:flex;border-bottom:1px solid var(--line)">
+      <button type="button" class="ftb on" role="tab" aria-selected="true" data-panel="grid" data-m="cpsat">CP-SAT · óptimo exacto · 0,20 s</button>
+      <button type="button" class="ftb" role="tab" aria-selected="false" data-panel="grid" data-m="qaoa">QAOA p=2 simulado · +1,02% · 51,8 s</button>
+      <button type="button" class="ftb" role="tab" aria-selected="false" data-panel="grid" data-m="qpu">El mismo QAOA en hardware real · 8.192 disparos</button>
       <span class="ftl" id="gridleg">┈ 14 líneas candidatas · ━ las 5 construidas</span>
     </div>
-    <canvas class="walk" id="cvE" style="height:360px"></canvas>
+    <canvas class="walk" id="cvE" style="height:360px" role="img" aria-labelledby="veredicto-3"></canvas>
     <div class="plain"><b>En simple</b>Corrimos la expansión de una red eléctrica real de 118 nodos en un computador cuántico real (8.192 disparos en ibm_marrakesh) contra el solver clásico que usa la industria. El clásico encontró el óptimo; el cuántico no se le acercó. Eso también es un dato — y está sellado.</div>
-    <div class="fight-verdict">eon_case118@a3340c06 · resultado: <span class="pend">todavía no — gana el clásico</span> · QPU run RQ-EON-QPU-001 · ibm_marrakesh · 2,196 of 8,192 answers valid (26.8%) vs 24.6% blind chance · <span class="vtog" role="button" tabindex="0">verify ↗</span><span class="vwrap">sha256 6781f2d0…e12c </span><a href="/es/ledger#RQ-0033">corrida simulada</a><a href="/es/ledger#RQ-EON-QPU-001">corrida QPU</a><a href="/es/ledger#RQ-EON-QPU-001">conteos crudos</a></div>
+    <div class="fight-verdict" id="veredicto-3">eon_case118@a3340c06 · resultado: <span class="pend">todavía no — gana el clásico</span> · QPU run RQ-EON-QPU-001 · ibm_marrakesh · 2,196 of 8,192 answers valid (26.8%) vs 24.6% blind chance · <span class="vtog" role="button" tabindex="0">verify ↗</span><span class="vwrap">sha256 6781f2d0…e12c </span><a href="/es/ledger#RQ-0033">corrida simulada</a><a href="/es/ledger#RQ-EON-QPU-001">corrida QPU</a><a href="/es/ledger#RQ-EON-QPU-001">conteos crudos</a></div>
   </div>
   </div>
   <div class="case" id="case-banking">
   <div class="fight-panel">
     <div class="fight-head"><span class="fight-title">RQ-EXP-HSBC-Q-001 · Detección de fraude · 56.962 transacciones reales de tarjetas, 75 fraudes · kernel de fidelidad cuántico vs XGBoost sellado</span><span class="fight-src">dibujado desde los datos sellados (verificados por hash) — no es una ilustración</span></div>
-    <div class="fight-toggle" style="display:flex;border-bottom:1px solid var(--line)">
-      <button type="button" class="ftb on" data-panel="bank" data-m="cloud">La nube de puntajes · ¿quién rankea más alto el fraude?</button>
-      <button type="button" class="ftb" data-panel="bank" data-m="pr">Precisión-recall · 0,80 vs 0,26</button>
+    <div class="fight-toggle" role="tablist" style="display:flex;border-bottom:1px solid var(--line)">
+      <button type="button" class="ftb on" role="tab" aria-selected="true" data-panel="bank" data-m="cloud">La nube de puntajes · ¿quién rankea más alto el fraude?</button>
+      <button type="button" class="ftb" role="tab" aria-selected="false" data-panel="bank" data-m="pr">Precisión-recall · 0,80 vs 0,26</button>
       <span class="ftl"><span style="color:var(--alert)">●</span> los 75 fraudes · <span style="color:#9A9D98">·</span> 3.000 de 56.887 legítimas</span>
     </div>
-    <canvas class="walk" id="cvB" style="height:380px"></canvas>
+    <canvas class="walk" id="cvB" style="height:380px" role="img" aria-labelledby="veredicto-4"></canvas>
     <div class="plain"><b>En simple</b>Comparamos un kernel cuántico contra el clasificador clásico estándar sobre 56.962 transacciones reales de tarjetas. El clásico detecta el fraude tres veces mejor (0,80 vs 0,26). En simple: perdió.</div>
-    <div class="fight-verdict">RQ-EXP-HSBC-Q-001 · sealed 2026-08-26 · <span class="vtog" role="button" tabindex="0">verify ↗</span><span class="vwrap">sha256 436334b4…075f · quantum AUPRC 0.257 [0.155–0.369] · classical baseline (XGBoost, sealed) 0.801 [0.705–0.883] · resultado: </span><span style="color:var(--alert)">sin ventaja</span> (los intervalos no se solapan) <a href="/es/ledger#RQ-EXP-HSBC-Q-001">corrida sellada</a><a href="/es/ledger#RQ-EXP-HSBC-Q-001">puntajes</a>
+    <div class="fight-verdict" id="veredicto-4">RQ-EXP-HSBC-Q-001 · sealed 2026-08-26 · <span class="vtog" role="button" tabindex="0">verify ↗</span><span class="vwrap">sha256 436334b4…075f · quantum AUPRC 0.257 [0.155–0.369] · classical baseline (XGBoost, sealed) 0.801 [0.705–0.883] · resultado: </span><span style="color:var(--alert)">sin ventaja</span> (los intervalos no se solapan) <a href="/es/ledger#RQ-EXP-HSBC-Q-001">corrida sellada</a><a href="/es/ledger#RQ-EXP-HSBC-Q-001">puntajes</a>
       <div style="margin-top:6px;color:var(--ink-60)">Los dos archivos de puntajes son los sellados: kernel cuántico sha256 091914f1… · baseline clásico XGBoost sha256 62c29285… (RQ-EXP-HSBC-BASE-001). AUPRC recomputado desde los archivos: 0,257453 y 0,800822 — idénticos a los sellos. Partición temporal 80/20, sin duplicados exactos entre mitades.</div>
     </div>
   </div>
@@ -157,13 +157,13 @@
   <div class="case" id="case-aero">
   <div class="fight-panel">
     <div class="fight-head"><span class="fight-title">Desafío Airbus · flujo incompresible 2-D · vórtice de Taylor–Green · barrido clásico Re 10 → 102.400 vs brazo cuántico de Carleman</span><span class="fight-src">dibujado desde los datos sellados (verificados por hash) — no es una ilustración</span></div>
-    <div class="fight-toggle" style="display:flex;border-bottom:1px solid var(--line)">
-      <button type="button" class="ftb on" data-panel="aero" data-m="sweep">El barrido · error vs Reynolds</button>
-      <button type="button" class="ftb" data-panel="aero" data-m="nolin">El término que se anula · 18 variantes</button>
+    <div class="fight-toggle" role="tablist" style="display:flex;border-bottom:1px solid var(--line)">
+      <button type="button" class="ftb on" role="tab" aria-selected="true" data-panel="aero" data-m="sweep">El barrido · error vs Reynolds</button>
+      <button type="button" class="ftb" role="tab" aria-selected="false" data-panel="aero" data-m="nolin">El término que se anula · 18 variantes</button>
     </div>
-    <canvas class="walk" id="cvA" style="height:380px"></canvas>
+    <canvas class="walk" id="cvA" style="height:380px" role="img" aria-labelledby="veredicto-5"></canvas>
     <div class="plain"><b>En simple</b>El desafío pide resolver la parte difícil (no lineal) del flujo de un fluido. Medimos dos cosas. En todo el barrido, el error del solver clásico cae cuatro órdenes de magnitud mientras el enfoque cuántico nunca entra a la cancha: en cada punto necesita más qubits que su propio presupuesto — 21 a 45 contra un tope de 12. Y en el vórtice exacto que el enunciado especifica, el término no lineal se anula a cero de máquina — el benchmark no puede distinguir un solver correcto de uno que se salta la física.</div>
-    <div class="fight-verdict">RQ-PREREG-AIRBUS-001 · 4 sealed runs, 4 raw artifacts by hash · resultado: <span class="pend">el brazo cuántico no calificó</span> · cruces de ventaja declarados: 0 · <span class="vtog" role="button" tabindex="0">verify ↗</span><span class="vwrap">sha256 392c8f1a…4ab0 · 7a3aaf38…ab67 </span><a href="/es/ledger#RQ-PREREG-AIRBUS-001">corrida del barrido</a><a href="/es/ledger#RQ-PREREG-AIRBUS-001">corrida de no-linealidad</a><a href="/es/ledger#RQ-PREREG-AIRBUS-001">datos crudos</a></div>
+    <div class="fight-verdict" id="veredicto-5">RQ-PREREG-AIRBUS-001 · 4 sealed runs, 4 raw artifacts by hash · resultado: <span class="pend">el brazo cuántico no calificó</span> · cruces de ventaja declarados: 0 · <span class="vtog" role="button" tabindex="0">verify ↗</span><span class="vwrap">sha256 392c8f1a…4ab0 · 7a3aaf38…ab67 </span><a href="/es/ledger#RQ-PREREG-AIRBUS-001">corrida del barrido</a><a href="/es/ledger#RQ-PREREG-AIRBUS-001">corrida de no-linealidad</a><a href="/es/ledger#RQ-PREREG-AIRBUS-001">datos crudos</a></div>
   </div>
   </div>
   <div class="fight-cap">▸ cada panel se dibuja en vivo desde los datos sellados — arrastra, cambia y repite · <a href="/es/pilotos">la pelea completa y los casos por industria</a></div>
@@ -180,7 +180,7 @@
   </div>
   <div class="numbers-foot" style="margin-top:10px">En simple: la mayoría de los claims públicos de ventaja cuántica recibe su desafío en semanas; los pocos que aguantan años son de corrección de errores y hardware — los cimientos sobre los que se van a construir las aplicaciones útiles.</div>
   <div style="display:flex;gap:0;max-width:440px;border:1.5px solid var(--ink);border-radius:2px;background:#FFFFFE">
-    <input id="monMail" type="email" placeholder="tu@firma.com" aria-label="Correo para el Monitor 001" style="flex:1;border:none;background:transparent;font-family:var(--sans);font-size:var(--t-small);padding:12px 14px;color:var(--ink);outline:none">
+    <input id="monMail" type="email" placeholder="tu@firma.com" aria-label="Correo para el Monitor 001" style="flex:1;height:48px;border:none;background:transparent;font-family:var(--sans);font-size:var(--t-body);padding:0 14px;color:var(--ink);outline:none">
     <a id="monGo" class="btn btn-solid" href="mailto:hello@rosettaquantum.com?subject=Send%20me%20Monitor%20Edition%20001">Recibe la Edición 001 cuando selle</a>
   </div>
   <div style="font-family:var(--mono);font-size:var(--t-data);color:var(--ink-60);margin-top:8px">un solo correo cuando la edición selle · sin lista, sin goteo</div>
@@ -196,7 +196,7 @@
       <p style="font-size:var(--t-small);color:var(--ink-60);margin:2px 0 8px">The device that would let a quantum computer read classical data in superposition — and the unstated hardware assumption behind most quantum machine-learning claims. It does not exist yet.</p>
       <div class="nc-d">Pillar B · Canonical dictionary · 5 min read</div></div>
   </div>
-  <div class="hero-cta" style="margin-top:14px"><a class="btn btn-ghost" href="/es/blog">All notes</a></div>
+  <div class="hero-cta" style="margin-top:14px"><a class="btn btn-ghost" href="/es/blog">Todas las notas</a></div>
   <div class="sealline" style="margin-top:20px">
     <b><span data-rq="rq-sealed">93</span> corridas selladas · <span data-rq="rq-wins">0</span> victorias cuánticas medidas.</b>
     <span class="mono">Cada experimento, informe y corrección que producimos queda anclado por hash a Bitcoin vía OpenTimestamps y espejado en GitHub, Codeberg y D1 — incluidos los que perdemos.</span>

@@ -125,6 +125,9 @@ const T = [
   ["Every experiment, report and correction we produce is hash-anchored to Bitcoin via OpenTimestamps and mirrored on GitHub, Codeberg and D1 — including the ones we lose.",
    "Cada experimento, informe y corrección que producimos queda anclado por hash a Bitcoin vía OpenTimestamps y espejado en GitHub, Codeberg y D1 — incluidos los que perdemos.", 1],  // solo la etiqueta de la cifra; "20 sealed runs" es capa medida
   ["Open the full ledger", "Abre el ledger completo", 1],
+  /* Al quitarle la flecha (6.5) borre la entrada entera en vez de solo la flecha, y
+     "All notes" quedo sin traducir en la home española. Lo caza T-es. */
+  ["All notes", "Todas las notas", 1],
 
   // ── Two-Layer ──────────────────────────────────────────────────────────────
 

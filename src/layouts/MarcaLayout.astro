@@ -39,7 +39,14 @@ const { title, description, lang = 'en', altUrl = '/es/', ruta = '/', pageCss = 
       a /es/pilots —que no existe— en 19 de las 27 paginas. El destino correcto estaba
       en este mismo archivo, en `altUrl`, alimentando el hreflang del <head>: la pagina
       declaraba /es/pilotos a los buscadores y le ofrecia /es/pilots a la persona. */}
+  {/* B3.2 · LANDMARKS. No habia <main> en ninguna pagina ni enlace para saltar la
+      navegacion. Un lector de pantalla tenia que recorrer los siete enlaces de la barra
+      en cada pagina antes de llegar al contenido, y una revision basica de accesibilidad
+      —que es de lo primero que mira un comprador corporativo— fallaba de entrada. */}
+  <a class="saltar" href="#contenido">{lang === 'es' ? 'Saltar al contenido' : 'Skip to content'}</a>
   <NavV2 lang={lang} ruta={ruta} alt={altUrl} />
-  <slot />
+  <main id="contenido">
+    <slot />
+  </main>
   <PieV2 lang={lang} />
 </BaseLayout>

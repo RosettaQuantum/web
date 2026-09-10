@@ -64,10 +64,14 @@ const t = es ? {
 #leadForm label{display:block;font-family:var(--mono);font-size:var(--t-data);letter-spacing:.12em;text-transform:uppercase;color:var(--ink-60);margin-bottom:12px}
 .lg-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
 @media(max-width:480px){.lg-row{grid-template-columns:1fr}}
-#leadForm input,#leadForm select,#leadForm textarea{width:100%;margin-top:6px;background:#FFFFFE;border:1px solid var(--line);border-radius:2px;color:var(--ink);padding:10px 12px;font-family:var(--sans);font-size:var(--t-small);text-transform:none;letter-spacing:normal}
+/* B3.3 · 48px de alto y el mismo cuerpo que el texto. Un campo mas bajo que su boton
+   se lee como que el formulario esta a medio armar, y a 10px de padding el area
+   tactil quedaba por debajo del minimo. El textarea conserva su alto por filas. */
+#leadForm input,#leadForm select{width:100%;height:48px;margin-top:6px;background:#FFFFFE;border:1px solid var(--line);border-radius:2px;color:var(--ink);padding:0 12px;font-family:var(--sans);font-size:var(--t-body);text-transform:none;letter-spacing:normal}
+#leadForm textarea{width:100%;margin-top:6px;background:#FFFFFE;border:1px solid var(--line);border-radius:2px;color:var(--ink);padding:12px;font-family:var(--sans);font-size:var(--t-body);text-transform:none;letter-spacing:normal}
 #leadForm input:focus,#leadForm select:focus,#leadForm textarea:focus{outline:none;border-color:var(--verdict)}
-.lg-submit{width:100%;background:var(--ink);color:var(--paper);border:1px solid var(--ink);border-radius:2px;padding:13px 22px;font-family:var(--sans);font-weight:500;font-size:var(--t-small);cursor:pointer;margin-top:6px}
-.lg-submit:hover{background:var(--verdict);border-color:var(--verdict)}
+.lg-submit{width:100%;height:48px;background:var(--ink);color:var(--paper);border:1px solid var(--ink);border-radius:2px;padding:0 22px;font-family:var(--sans);font-weight:500;font-size:var(--t-body);cursor:pointer;margin-top:6px}
+.lg-submit:hover{background:var(--paper);color:var(--ink)}
 .lg-submit:disabled{opacity:.6;cursor:default}
 .lg-msg{font-size:var(--t-small);margin-bottom:10px;min-height:0}
 .lg-msg.ok{color:var(--verdict)} .lg-msg.err{color:var(--alert)}
