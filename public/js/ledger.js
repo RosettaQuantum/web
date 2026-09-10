@@ -49,7 +49,7 @@
     document.querySelectorAll("[data-rq]").forEach(function (n) {
       if (n.dataset.rqStale) return; n.dataset.rqStale = "1";
       var s = document.createElement("span");
-      s.style.cssText = "font-family:var(--mono);font-size:10px;color:var(--ink-60);margin-left:6px";
+      s.style.cssText = "font-family:var(--mono);font-size:var(--t-data);color:var(--ink-60);margin-left:6px";
       s.textContent = "as of build " + (m ? m.content.slice(0,7) : "?");
       n.appendChild(s);
     });
@@ -112,7 +112,7 @@
       caja.innerHTML = it.map(function (x) {
         var n = (x.errata && x.errata.nota) || "";
         return '<div class="err" id="' + esc(x.id) + '"><div class="eid">' + esc(x.id) + " · " + esc(x.fecha || "") + "</div><p>" + esc(n) + "</p>" +
-               (x.github_raw ? '<p class="mono" style="font-size:11px"><a href="' + esc(x.github_raw) + '">GitHub ↗</a></p>' : "") + "</div>";
+               (x.github_raw ? '<p class="mono" style="font-size:var(--t-data)"><a href="' + esc(x.github_raw) + '">GitHub ↗</a></p>' : "") + "</div>";
       }).join("");
       alHash();
     }).catch(function () {

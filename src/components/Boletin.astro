@@ -63,7 +63,7 @@ const ok = es ? 'Anotado ✓' : "You're on the list ✓";
 ---
 <section class="boletin" data-lista={lista}><div class="wrap">
   {t.eyebrow && <div class="eyebrow">{t.eyebrow}</div>}
-  <h2 style="font-size:24px">{t.h}</h2>
+  <h2 style="font-size:var(--t-body)">{t.h}</h2>
   {variante === 'weekly' && <p class="promesa">{t.pie}</p>}
   <div class="forma" style="margin-top:14px">
     <input id="monMail" type="email" placeholder={ph} aria-label={ph} />

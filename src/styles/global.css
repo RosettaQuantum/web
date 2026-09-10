@@ -48,12 +48,12 @@ html{scroll-behavior:smooth}
    las páginas que la piden. Estas reglas quedan con su especificidad natural, que es
    lo que permite que una página las ajuste sin pelear. */
 body{background:var(--paper);color:var(--ink);font-family:var(--sans);
-  font-size:16.5px;line-height:1.62;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+  font-size:var(--t-body);line-height:1.62;-webkit-font-smoothing:antialiased;overflow-x:hidden}
 ::selection{background:var(--teal-10);color:var(--ink)}
 a{color:inherit;text-decoration:none}
 .wrap{max-width:var(--maxw-brand);margin:0 auto;padding:0 22px}
 footer{background:var(--paper);border-top:1px solid var(--ink);padding:34px 0 44px;
-  font-size:13px;color:var(--ink-60)}
+  font-size:var(--t-label);color:var(--ink-60)}
 /* El navegador respeta la preferencia del sistema y pintaba el fondo oscuro detrás de
    una página que es de papel por diseño. Se declara una sola vez, aquí. */
 :root{color-scheme:light only}
@@ -68,31 +68,31 @@ footer{background:var(--paper);border-top:1px solid var(--ink);padding:34px 0 44
    "una pagina con el fondo correcto y una seccion interior pintada en la paleta
    vieja pasa por aca". Era exactamente este caso. */
 .blog-hero{padding:64px 0 24px}
-.blog-hero h1{font-family:var(--serif);font-weight:500;font-size:clamp(28px,3.6vw,40px);line-height:1.16;letter-spacing:-.01em}
+.blog-hero h1{font-family:var(--serif);font-weight:500;font-size:var(--t-title);line-height:var(--lh-title);letter-spacing:-.01em}
 .blog-hero p{color:var(--ink-60);max-width:680px;margin-top:14px}
 .post-list{padding:20px 0 60px;display:flex;flex-direction:column;gap:12px}
 .post-item{border:1px solid var(--line);border-radius:2px;background:var(--panel);padding:22px 24px;transition:border-color .2s;display:block}
 .post-item:hover{border-color:var(--verdict)}
-.post-item .q{font-family:var(--serif);font-weight:500;font-size:20px;color:var(--ink);line-height:1.25}
-.post-item .meta{font-family:var(--mono);font-size:11px;letter-spacing:.09em;color:var(--ink-60);margin-top:8px;text-transform:uppercase}
-.post-item .tl{color:var(--ink-60);font-size:15px;margin-top:10px}
+.post-item .q{font-family:var(--serif);font-weight:500;font-size:var(--t-sub);color:var(--ink);line-height:1.25}
+.post-item .meta{font-family:var(--mono);font-size:var(--t-data);letter-spacing:.09em;color:var(--ink-60);margin-top:8px;text-transform:uppercase}
+.post-item .tl{color:var(--ink-60);font-size:var(--t-small);margin-top:10px}
 .article{padding:56px 28px 40px;max-width:760px}
-.article .kicker{font-family:var(--mono);font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--verdict)}
+.article .kicker{font-family:var(--mono);font-size:var(--t-data);letter-spacing:.18em;text-transform:uppercase;color:var(--verdict)}
 /* El titular del post NO hereda el max-width:12ch del hero de la portada: alli son
    tres palabras y aqui es una pregunta entera. Con 12ch, "¿Cuanto acierta un detector
    de proteinas congelado sobre estructuras que nunca vio?" salia en DIEZ lineas de
    dos palabras. La regla del hero se queda como esta; esta la anula para el articulo. */
-.article h1{font-family:var(--serif);font-weight:500;font-size:clamp(28px,3.6vw,40px);line-height:1.14;letter-spacing:-.015em;margin:14px 0 18px;max-width:22ch}
-.article .tldr{border-left:2px solid var(--verdict);background:var(--teal-10);padding:16px 20px;border-radius:0 2px 2px 0;font-size:17px;color:var(--ink);margin-bottom:14px}
-.article .valid{font-family:var(--mono);font-size:12px;color:var(--ink-60);margin-bottom:28px}
-.article .body h2{font-family:var(--serif);font-weight:500;font-size:24px;margin:30px 0 12px;color:var(--ink)}
+.article h1{font-family:var(--serif);font-weight:500;font-size:var(--t-title);line-height:var(--lh-title);letter-spacing:-.015em;margin:14px 0 18px;max-width:22ch}
+.article .tldr{border-left:2px solid var(--verdict);background:var(--teal-10);padding:16px 20px;border-radius:0 2px 2px 0;font-size:var(--t-body);color:var(--ink);margin-bottom:14px}
+.article .valid{font-family:var(--mono);font-size:var(--t-data);color:var(--ink-60);margin-bottom:28px}
+.article .body h2{font-family:var(--serif);font-weight:500;font-size:var(--t-sub);margin:30px 0 12px;color:var(--ink)}
 .article .body p{color:var(--ink);margin:12px 0}
 .article .body strong{color:var(--ink);font-weight:600}
 .article .body ul{color:var(--ink);margin:12px 0 12px 22px}
 .article .body em{color:var(--ink-60)}
-.article .sources{margin-top:34px;border-top:1px solid var(--line);padding-top:18px;font-family:var(--mono);font-size:13px;color:var(--ink-60)}
-.hreflang{font-family:var(--mono);font-size:12px;color:var(--verdict);margin-top:8px;display:inline-block}
-.lang-toggle{display:inline-flex;gap:0;border:1px solid var(--line);border-radius:2px;overflow:hidden;font-family:var(--mono);font-size:11px;letter-spacing:.08em;margin-left:4px}
+.article .sources{margin-top:34px;border-top:1px solid var(--line);padding-top:18px;font-family:var(--mono);font-size:var(--t-data);color:var(--ink-60)}
+.hreflang{font-family:var(--mono);font-size:var(--t-data);color:var(--verdict);margin-top:8px;display:inline-block}
+.lang-toggle{display:inline-flex;gap:0;border:1px solid var(--line);border-radius:2px;overflow:hidden;font-family:var(--mono);font-size:var(--t-data);letter-spacing:.08em;margin-left:4px}
 .lang-toggle a{color:var(--ink-60);padding:5px 10px;text-decoration:none}
 .lang-toggle a.on{background:var(--ink);color:var(--paper);font-weight:500}
 
@@ -123,7 +123,7 @@ code, .hash, .mono{overflow-wrap:anywhere}
    cuando queda contenido fuera (background-attachment:local). */
 .article .body pre{
   font-family:var(--mono);
-  font-size:13px;
+  font-size:var(--t-data);
   line-height:1.5;
   color:var(--ink);
   border:1px solid var(--line);
@@ -150,7 +150,7 @@ code, .hash, .mono{overflow-wrap:anywhere}
      un teléfono. Los bloques anchos siguen deslizándose — eso es correcto para
      tablas; los diagramas 2D no se arreglan deslizando y se convirtieron en SVG. */
   .article .body pre{
-    font-size:11px;
+    font-size:var(--t-label);
     line-height:1.45;
     padding:14px 16px;
     margin-left:-28px;
@@ -182,12 +182,12 @@ code, .hash, .mono{overflow-wrap:anywhere}
   border-radius:2px;text-decoration:none;background:var(--panel);transition:border-color .15s}
 a.postnav-item:hover{border-color:var(--ink)}
 .postnav-empty{border-color:transparent;background:transparent}
-.postnav-label{font-family:var(--mono);font-size:.7rem;letter-spacing:.12em;
+.postnav-label{font-family:var(--mono);font-size:var(--t-data);letter-spacing:.12em;
   text-transform:uppercase;color:var(--ink-60)}
-.postnav-title{color:var(--ink);font-size:.95rem;line-height:1.35}
+.postnav-title{color:var(--ink);font-size:var(--t-small);line-height:1.35}
 .postnav-next{text-align:right}
 .postnav-all{grid-column:1/-1;text-align:center;margin-top:.25rem;font-family:var(--mono);
-  font-size:.75rem;letter-spacing:.1em;color:var(--ink);text-decoration:none}
+  font-size:var(--t-data);letter-spacing:.1em;color:var(--ink);text-decoration:none}
 .postnav-all:hover{text-decoration:underline}
 @media(max-width:640px){.postnav{grid-template-columns:1fr}.postnav-next{text-align:left}.postnav-empty{display:none}}
 
@@ -202,11 +202,11 @@ a.postnav-item:hover{border-color:var(--ink)}
 a.pnt:hover{border-color:var(--line);background:var(--panel);color:var(--ink)}
 .pnt-next{margin-left:auto;text-align:right}
 .pnt-empty{border:0;background:none}
-.pnt-arrow{font-family:var(--mono);font-size:1rem;color:var(--ink-60);flex:0 0 auto}
+.pnt-arrow{font-family:var(--mono);font-size:var(--t-small);color:var(--ink-60);flex:0 0 auto}
 .pnt-txt{display:flex;flex-direction:column;min-width:0}
-.pnt-label{font-family:var(--mono);font-size:.62rem;letter-spacing:.14em;
+.pnt-label{font-family:var(--mono);font-size:var(--t-data);letter-spacing:.14em;
   text-transform:uppercase;color:var(--ink-60)}
-.pnt-title{font-size:.82rem;line-height:1.25;max-width:26ch}
+.pnt-title{font-size:var(--t-label);line-height:1.25;max-width:26ch}
 @media(max-width:640px){
   .postnav-top{padding:16px 20px 0}
   .pnt-label{display:none}

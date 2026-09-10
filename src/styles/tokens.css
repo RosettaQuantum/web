@@ -29,16 +29,18 @@
   --promised: #8A6520;   /* 4,84:1 — prometido / en preparación. Era #B8892E, 2,88:1 */
   --eroded:   #B4432F;   /* 5,07:1 — erosionado / negativo. Se mantiene */
 
-  /* Los dos tonos vivos SOBREVIVEN, pero sólo como relleno de barra o punto en un
-     gráfico: ahí no hay texto y el contraste no aplica. Nunca como color de letra. */
-  --verdict-fill: #0F8B7E;
-  --pending-fill: #B8892E;
+  /* Los dos tonos vivos —#0F8B7E y #B8892E— NO se declaran aquí. Se intentó, como
+     --verdict-fill / --pending-fill «para cuando un gráfico los necesite», y el
+     empaquetador los borró del bundle: lightningcss quita las custom properties que
+     nadie consume. Un token declarado y no usado es código muerto que además hace
+     fallar a un guardia que lo busque. Cuando un relleno los necesite, se declaran
+     junto a su primer uso y ahí sí los vigila T-css. */
 
-  /* ── ESPACIO Y RETÍCULA ────────────────────────────────────────────────────── */
-  --s1:8px; --s2:16px; --s3:24px; --s4:40px; --s5:64px; --s6:96px; --s7:128px;
-  --measure: 68ch;      /* medida de lectura; el ancho del contenedor no la fija */
-  --container: 1120px;
-  --gutter: 32px;
+  /* ── ESPACIO Y RETÍCULA ──────────────────────────────────────────────────────
+     Se declaran con el bloque 4, que es el que los aplica. Declararlos ahora los
+     dejaría fuera del bundle igual (el empaquetador borra lo que nadie usa) y
+     además darían la impresión de que la retícula ya cambió, que no es el caso:
+     `.wrap` sigue en 1000px hasta que el bloque 4 lo mueva a 1120. */
 }
 
 @media (max-width: 640px){

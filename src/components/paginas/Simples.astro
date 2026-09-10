@@ -80,9 +80,9 @@ const T = {
 
   {tipo === 'verify' && (
     <div class="ver-caja" style="margin-top:20px">
-      <p class="mono" style="font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-60)">{T.l1}</p>
-      <p><select id="vId" style="font-family:var(--mono);font-size:13px;padding:8px;border:1px solid var(--line);background:#FFFFFE;max-width:100%"><option value="">—</option></select></p>
-      <p class="mono" style="font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-60);margin-top:10px">{T.l2}</p>
+      <p class="mono" style="font-size:var(--t-data);letter-spacing:.1em;text-transform:uppercase;color:var(--ink-60)">{T.l1}</p>
+      <p><select id="vId" style="font-family:var(--mono);font-size:var(--t-data);padding:8px;border:1px solid var(--line);background:#FFFFFE;max-width:100%"><option value="">—</option></select></p>
+      <p class="mono" style="font-size:var(--t-data);letter-spacing:.1em;text-transform:uppercase;color:var(--ink-60);margin-top:10px">{T.l2}</p>
       <div class="forma" style="max-width:100%"><input id="vIdLibre" type="text" placeholder="RQ-…" aria-label={T.l2} /></div>
       <p><button class="btn btn-solid" type="button" id="vGo">{T.l3}</button></p>
       <div class="r" id="vOut"></div>
