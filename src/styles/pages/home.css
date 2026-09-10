@@ -253,6 +253,16 @@ footer{border-top:1px solid var(--ink);padding:34px 0 44px;font-size:var(--t-lab
 .foot-cols{display:grid;grid-template-columns:1fr;gap:18px;margin:16px 0 20px}
 @media(min-width:640px){.foot-cols{grid-template-columns:repeat(2,1fr)}}
 @media(min-width:900px){.foot-cols{grid-template-columns:repeat(4,1fr)}}
+/* B4 · «Con y sin». Sin cajas: dos columnas, una linea arriba de cada una y espacio.
+   Es el bloque de conversion mas directo del sitio y no necesita marco para serlo. */
+.consin{display:grid;grid-template-columns:1fr 1fr;gap:var(--s4);margin-top:var(--s3)}
+@media(max-width:700px){.consin{grid-template-columns:1fr;gap:var(--s3)}}
+.consin > div{border-top:1px solid var(--line);padding-top:var(--s2)}
+.cs-h{font-family:var(--sans);font-size:var(--t-label);font-weight:500;color:var(--ink);margin-bottom:var(--s1)}
+.consin ul{list-style:none;padding:0;margin:0}
+.consin li{font-size:var(--t-small);color:var(--ink-60);line-height:var(--lh-small);padding:6px 0}
+.consin li + li{border-top:1px solid var(--paper-2)}
+
 /* ── B3.2 · SALTAR AL CONTENIDO Y FOCO VISIBLE ────────────────────────────────
    El enlace de salto NO se esconde con display:none: eso lo saca del orden de
    tabulacion y deja de existir para quien lo necesita. Se saca de pantalla y vuelve

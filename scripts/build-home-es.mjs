@@ -128,6 +128,18 @@ const T = [
   /* Al quitarle la flecha (6.5) borre la entrada entera en vez de solo la flecha, y
      "All notes" quedo sin traducir en la home española. Lo caza T-es. */
   ["All notes", "Todas las notas", 1],
+  /* B4 · bloque «Con y sin». Copy del anexo A del spec, aprobado por Nicholas. */
+  ["With a referee, and without one.", "Con árbitro, y sin árbitro.", 1],
+  ["Without an independent referee", "Sin un árbitro independiente", 1],
+  ["With one", "Con uno", 1],
+  ["The vendor picks the baseline and the compute budget.", "El vendor elige el baseline y el presupuesto de cómputo.", 1],
+  ["The success criterion is written after the results are in.", "El criterio de éxito se escribe después de ver los resultados.", 1],
+  ["A negative result never gets published.", "Un resultado negativo nunca se publica.", 1],
+  ["Your committee gets a PDF it cannot audit.", "Tu comité recibe un PDF que no puede auditar.", 1],
+  ["The criterion is registered and sealed before the run.", "El criterio se registra y se sella antes de correr.", 1],
+  ["The classical champion runs at the same budget.", "El campeón clásico corre con el mismo presupuesto.", 1],
+  ["The result is published either way, hash-anchored, with a date.", "El resultado se publica igual, anclado por hash y con fecha.", 1],
+  ["Your committee gets a decision page with an ID it can cite.", "Tu comité recibe una decision page con un ID que puede citar.", 1],
 
   // ── Two-Layer ──────────────────────────────────────────────────────────────
 
