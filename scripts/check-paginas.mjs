@@ -26,6 +26,12 @@ if (!PREVIEW) { console.error("ABORTA: falta PREVIEW_URL"); process.exit(1); }
 const PARES = [
   ["/services", "/es/servicios"],
   ["/pilots", "/es/pilotos"],
+  // Bloque 7 y 8, 10-sep. Las cuatro nacen con sus dos caras: el componente es uno solo
+  // y una cara sin la otra seria un error de cascara, no de traduccion.
+  ["/for/investors", "/es/para/inversionistas"],
+  ["/for/pilots", "/es/para/pilotos"],
+  ["/for/industry", "/es/para/industria"],
+  ["/how-we-compare", "/es/como-comparamos"],
   ["/methodology", "/es/metodologia"],
   ["/about", "/es/nosotros"],
   // /errata y /es/erratas dejaron de ser paginas el 9-sep: son 301 a /ledger#erratas.

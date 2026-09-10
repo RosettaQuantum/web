@@ -19,6 +19,13 @@ export const GET: APIRoute = async ({ site }) => {
     `- [Survival Registry](${base}/library/registry): what happens to quantum advantage claims after the press release`,
     `- [Services & pricing](${base}/services): public prices, no "contact us" to find out what it costs`,
     `- [Pilot Referee](${base}/pilots): we make your quantum pilot produce a defensible number`,
+    // Bloque 7 y 8, 10-sep-2026. Las tres puertas entran ANTES de metodologia porque
+    // responden la pregunta con la que llega el lector, y la metodologia responde la
+    // siguiente. La descripcion de cada una es la `description` de su propia pagina.
+    `- [If you invest](${base}/for/investors): does this claim survive — evidence level, survival status and every challenge on record, sealed and citable`,
+    `- [If you run a pilot](${base}/for/pilots): will my pilot produce a defensible number — criterion sealed before it runs, classical champion at parity`,
+    `- [If you decide for an industry](${base}/for/industry): is this real for my industry yet — sixteen claims tracked since 2009, three standing, six eroded`,
+    `- [What else you could use](${base}/how-we-compare): DARPA QBI, the Quantum Advantage Tracker, Metriq and QED-C, with what each one leaves open`,
     `- [Methodology](${base}/methodology): the five layers of a verdict, the EL0-EL5 evidence scale and budget parity under juez-v1`,
     `- [Who signs](${base}/about): every verdict carries a named author, and who may never pay us`,
     `- [Errata](${base}/ledger#erratas): the corrections we published against ourselves, inside the ledger`,

@@ -1,0 +1,16 @@
+---
+/**
+ * /es/como-comparamos — bloque 8. Las dos caras salen del mismo componente.
+ */
+import MarcaLayout from '../../layouts/MarcaLayout.astro';
+import Comparacion from '../../components/paginas/Comparacion.astro';
+import css from '../../styles/pages/paginas.css?raw';
+---
+<MarcaLayout
+  title="No somos los únicos que miden — Rosetta Quantum"
+  description="DARPA QBI, el Quantum Advantage Tracker, Metriq, QED-C, los benchmarks del vendor y las consultoras: qué mide cada uno, quién puede usarlo y qué deja abierto."
+  lang="es" altUrl="/how-we-compare" ruta="/es/como-comparamos"
+  pageCss={css} scripts={["/js/frescura.js"]}
+>
+  <Comparacion lang="es" />
+</MarcaLayout>

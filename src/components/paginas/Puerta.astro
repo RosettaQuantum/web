@@ -1,0 +1,261 @@
+---
+/**
+ * Las tres puertas — /for/investors, /for/pilots, /for/industry. Bloque 7.
+ *
+ * UN componente con las tres puertas como dato, y no tres componentes, por la misma
+ * razon que Pilotos.astro tiene sus dos idiomas juntos: lo que vive en dos archivos
+ * diverge. Aqui la estructura es identica en las tres —pregunta, como se hace hoy,
+ * que hacemos, que recibes, precio, un caso del ledger, cierre— y si manana se agrega
+ * una seccion, entra en las tres o en ninguna.
+ *
+ * LAS CIFRAS DE ESTA PAGINA SE MIDIERON CONTRA /v1 EL 10-sep-2026, no se copiaron del
+ * documento de copy. Tres afirmaciones del borrador no sobrevivieron y Nicholas aprobo
+ * sus reemplazos ese mismo dia:
+ *
+ *   1. «el unico claim sin desafios es el nuestro» -> son CINCO, y tres son de Google
+ *      y Quantinuum. La linea de abajo del mismo bloque dice «abrir el ledger», asi
+ *      que el lector que hacia clic veia los cinco.
+ *   2. «el desafio mas rapido llego dos dias DESPUES» -> llego dos dias ANTES:
+ *      RQC-2019-GOOGLE-RCS tiene claim 2019-10-23 y primer desafio 2019-10-21.
+ *   3. «el campeon clasico gano TODAS las corridas selladas» -> de las 78 con
+ *      veredicto, 43 las gana el clasico, 6 empatan y 4 dicen «quantum win».
+ *
+ * La tercera es la que mas importa y por eso se cuenta entera: que existan cuatro
+ * corridas favorables y que publiquemos igual el agregado negativo es la prueba de
+ * que no elegimos las corridas. Recortarla a «siempre gana el clasico» habria sido
+ * mas comodo y menos cierto, y se cae abriendo /v1/archives.
+ *
+ * OJO AL CUANTIFICADOR, que es donde estuvo el error: /pilots dice «en ninguno de los
+ * cinco EXPERIMENTOS gano el lado cuantico» y eso SI es correcto —el agregado de los
+ * cinco es negativo. Lo que no se puede decir es «en ninguna CORRIDA», porque las
+ * corridas es justo donde viven los cuatro «quantum win». Experimento y corrida no
+ * son intercambiables en esta frase.
+ */
+const { puerta, lang = 'en' } = Astro.props;
+const es = lang === 'es';
+
+const T = {
+  investors: {
+    es: {
+      eyebrow: 'Para quien invierte',
+      h1: '¿Sobrevive este claim?',
+      lede: 'Estás por firmar un memo cuya tesis técnica descansa en el comunicado de prensa de otro. El riesgo no es perderte el upside. El riesgo es que el claim se erosione seis meses después de que salga el cheque, y que el razonamiento detrás de tu decisión nunca haya quedado escrito en ninguna parte que puedas mostrar.',
+      hoyH: 'Cómo se hace la diligencia hoy',
+      hoy: [
+        'Un asesor científico cobra por hora y no te deja ningún artefacto archivable.',
+        'El paper del vendor reporta el baseline que el vendor eligió.',
+        'Un profesor de confianza te da una opinión, no un registro con fecha.',
+        'Ninguna de las tres resiste una pregunta de tu LP dieciocho meses después.',
+      ],
+      queH: 'Lo que hacemos en cambio',
+      que: 'Tomamos un claim publicado y lo ubicamos en la escala de evidencia: qué se midió, contra qué método clásico, con qué presupuesto, y quién lo ha desafiado desde entonces. Recibes el registro y la fecha, no una opinión.',
+      recibesH: 'Lo que recibes',
+      recibes: 'Una decision page con el nivel de evidencia del claim, su estado de supervivencia, cada desafío registrado con su fecha, y qué tendría que ocurrir para que suba de nivel. Sellada, anclada por hash, con un ID citable. Pública o privada, tú decides.',
+      muestra: 'Mira una real: V-0012 →',
+      precioH: 'Precio',
+      precio: 'Claim Screening — US$4.500 · 5 días hábiles.',
+      precio2: 'Portfolio Scan — cinco screenings más un informe de diligencia completo. Por separado son 5 × US$4.500 + US$28.000 = US$50.500; juntos, US$42.500.',
+      ledgerH: 'Del ledger, para ti',
+      ledger: 'Dieciséis claims de ventaja rastreados desde 2009. Tres siguen en pie. Seis se erosionaron con trabajo posterior. El desafío más rápido del registro llegó dos días antes de que se publicara el claim.',
+      ledgerCta: 'Abrir el registro de supervivencia →',
+      cierre: 'No le cobramos a los vendors que juzgamos. Ese es el producto entero.',
+    },
+    en: {
+      eyebrow: 'For investors',
+      h1: 'Does this claim survive?',
+      lede: 'You are about to sign a memo whose technical thesis rests on someone else’s press release. The risk is not missing the upside. The risk is that the claim erodes six months after the wire clears, and the reasoning behind your decision was never written down anywhere you can point to.',
+      hoyH: 'What diligence looks like today',
+      hoy: [
+        'A scientific advisor bills by the hour and leaves no artifact you can file.',
+        'The vendor’s paper reports the baseline the vendor chose.',
+        'A professor you trust gives you an opinion, not a dated record.',
+        'None of the three survives a question from your LP eighteen months later.',
+      ],
+      queH: 'What we do instead',
+      que: 'We take one published claim and place it on the evidence scale: what was measured, against which classical method, at what budget, and who has challenged it since. You get the record and the date, not an opinion.',
+      recibesH: 'What you get',
+      recibes: 'A decision page with the claim’s evidence level, its survival status, every challenge on record with its date, and what would have to happen for it to move up a level. Sealed, hash-anchored, with a citable ID. Public or private, your call.',
+      muestra: 'See a real one: V-0012 →',
+      precioH: 'Price',
+      precio: 'Claim Screening — US$4,500 · 5 business days.',
+      precio2: 'Portfolio Scan — five screenings plus one full diligence report. Separately that is 5 × US$4,500 + US$28,000 = US$50,500; together, US$42,500.',
+      ledgerH: 'From the ledger, for you',
+      ledger: 'Sixteen advantage claims tracked since 2009. Three still standing. Six eroded under later work. The fastest challenge on record landed two days before the claim was published.',
+      ledgerCta: 'Open the survival registry →',
+      cierre: 'We do not bill the vendors we judge. That is the whole product.',
+    },
+  },
+  pilots: {
+    es: {
+      eyebrow: 'Para quien corre un piloto',
+      h1: '¿Va a producir mi piloto un número defendible?',
+      lede: 'Tu piloto va a producir un número. La pregunta que va a hacer tu comité no es si el número es bueno. Es quién decidió qué contaba como bueno, y cuándo.',
+      hoyH: 'Cómo se corren los pilotos hoy',
+      hoy: [
+        'El vendor elige el baseline clásico contra el que se lo va a comparar.',
+        'El presupuesto de cómputo de cada lado nunca se declara.',
+        'El criterio de éxito se escribe después de ver los resultados.',
+        'Un resultado negativo se convierte, calladamente, en una lámina sobre aprendizajes.',
+      ],
+      queH: 'Qué cambia un árbitro',
+      que: 'Registramos y sellamos el criterio de éxito antes de que corra nada. Elegimos el campeón clásico —no tu vendor— y lo corremos con el mismo presupuesto declarado. El resultado se publica sea cual sea.',
+      recibesH: 'Lo que recibes',
+      recibes: 'Un pre-registro sellado, la corrida completa del campeón clásico en paridad, una decision page de cinco capas, una entrada en el ledger si la autorizas, y el procedure@version congelado — o sea que tu próximo piloto parte de un protocolo y no de una discusión.',
+      muestra: 'Mira una decision page real →',
+      precioH: 'Precio',
+      precio: 'Pilot Referee — US$15.000–35.000 · 5–8 semanas.',
+      precio2: 'El supuesto, dicho derecho: los pilotos cuánticos corporativos de nuestro rango cuestan entre <span class="ajeno">US$250.000</span> y <span class="ajeno">US$1.000.000</span> todo incluido, y nuestra factura nunca pasa del 15 % de lo que arbitra. Si el tuyo es más chico, dilo y ajustamos el alcance.',
+      ledgerH: 'Del ledger, para ti',
+      ledger: 'Corrimos una caminata cuántica contra cinco métodos clásicos para encontrar el bolsillo de unión en KRAS G12C. Perdió contra los cinco, y después perdió contra el azar. Habíamos sellado el criterio antes, así que lo publicamos en nuestra contra.',
+      ledgerCta: 'Ver la corrida sellada →',
+      cierre: 'El punto de un árbitro no es que tu piloto tenga éxito. Es que su resultado signifique algo.',
+    },
+    en: {
+      eyebrow: 'For pilot owners',
+      h1: 'Will my pilot produce a defensible number?',
+      lede: 'Your pilot will produce a number. The question your committee will ask is not whether the number is good. It is who decided what counted as good, and when.',
+      hoyH: 'How pilots are run today',
+      hoy: [
+        'The vendor picks the classical baseline it will be compared against.',
+        'The compute budget on each side is never declared.',
+        'The success criterion gets written after the results are in.',
+        'A negative result quietly becomes a slide about lessons learned.',
+      ],
+      queH: 'What a referee changes',
+      que: 'We register and seal the success criterion before anything runs. We choose the classical champion — not your vendor — and we run it at the same declared budget. The result is published either way.',
+      recibesH: 'What you get',
+      recibes: 'A sealed pre-registration, the classical champion’s full run at parity, a five-layer decision page, an optional ledger entry, and the frozen procedure@version — which means your next pilot starts from a protocol instead of from an argument.',
+      muestra: 'See a real decision page →',
+      precioH: 'Price',
+      precio: 'Pilot Referee — US$15,000–35,000 · 5–8 weeks.',
+      precio2: 'Assumption stated plainly: typical corporate quantum pilots in our range run <span class="ajeno">US$250,000</span> to <span class="ajeno">US$1,000,000</span> all-in, and our invoice never exceeds 15 % of what it referees. If yours is smaller, tell us and we will scope down.',
+      ledgerH: 'From the ledger, for you',
+      ledger: 'We ran a quantum walk against five classical methods to find the binding pocket on KRAS G12C. It lost to every one of them, and then it lost to random guessing. We had sealed the criterion first, so we published it against ourselves.',
+      ledgerCta: 'See the sealed run →',
+      cierre: 'The point of a referee is not to make your pilot succeed. It is to make its result mean something.',
+    },
+  },
+  industry: {
+    es: {
+      eyebrow: 'Para quien decide por una industria',
+      h1: '¿Esto ya es real para mi industria?',
+      lede: 'Te están pidiendo decidir entre tres cosas: entrar, esperar o quedarte afuera. Todos los que te venden una respuesta también venden la implementación.',
+      hoyH: 'Dónde está el campo realmente',
+      hoy: [
+        'Dieciséis claims de ventaja rastreados. Tres siguen en pie. Seis se erosionaron.',
+        'Ningún tercero ha reproducido nunca el resultado principal de otro equipo a partir de sus artefactos publicados.',
+        'De las 78 corridas selladas con veredicto, 43 las gana el campeón clásico, 6 empatan y 4 las gana el brazo cuántico. Publicamos el agregado igual: bien juntadas, la contribución cuántica no es significativa. Quedarse con las cuatro habría sido la jugada del vendor.',
+        'Eso es una razón para esperar, y una razón para saber exactamente cuándo dejar de esperar.',
+      ],
+      queH: 'Lo que hacemos',
+      que: 'Mantenemos el registro. Cada claim con fecha, fuente, estado y enlace a su sello — incluidos los que publicamos en nuestra contra. Cuando algo cambie en tu industria, lo vas a ver en el registro antes que en un keynote.',
+      recibesH: 'Lo que recibes',
+      recibes: 'Acceso completo a la Evidence Library: el índice, el buscador, los claims, los niveles de evidencia, el reloj de supervivencia. Exportes con sello, watchlists con alerta y el semanal completo.',
+      muestra: 'Explorar es gratis. Mira antes de pagar →',
+      precioH: 'Precio',
+      precio: 'Evidence Library — Analyst, US$149 por asiento / mes.',
+      precio2: 'Firm — US$1.900 al mes hasta 15 asientos, con briefing trimestral y watchlists compartidas. Quince asientos Analyst costarían US$2.235. Los niveles de evidencia son idénticos en todos los planes: lo que pagas es profundidad de herramientas, nunca una verdad distinta.',
+      ledgerH: 'Del ledger, para ti',
+      ledger: 'Cinco claims del registro no tienen ningún desafío anotado. Dos son nuestros, y uno de esos dos es un resultado negativo que publicamos en nuestra contra.',
+      ledgerCta: 'Abrir el ledger →',
+      cierre: 'Preferimos que este año no gastes nada en buena evidencia, a que gastes una fortuna en una demo.',
+    },
+    en: {
+      eyebrow: 'For industry decision-makers',
+      h1: 'Is this real for my industry yet?',
+      lede: 'You are being asked to decide between three things: enter, wait, or stay out. Everyone selling you an answer also sells the implementation.',
+      hoyH: 'Where the field actually stands',
+      hoy: [
+        'Sixteen advantage claims tracked. Three still standing. Six eroded.',
+        'No third party has ever reproduced another team’s headline result from its published artifacts.',
+        'Of the 78 sealed runs with a verdict, 43 went to the classical champion, 6 tied, and 4 went to the quantum arm. We published the aggregate anyway: pooled properly, the quantum contribution was not significant. Picking the four would have been the vendor’s move.',
+        'That is a reason to wait, and a reason to know exactly when to stop waiting.',
+      ],
+      queH: 'What we do',
+      que: 'We keep the record. Every claim dated, sourced, statused and linked to its seal — including the ones we published against ourselves. When something in your industry changes, you will see it in the registry before you see it in a keynote.',
+      recibesH: 'What you get',
+      recibes: 'Full access to the Evidence Library: the index, the search, the claims, the evidence levels, the survival clock. Exports with seals, watchlists with alerts, and the full weekly.',
+      muestra: 'Browsing is free. Look before you pay →',
+      precioH: 'Price',
+      precio: 'Evidence Library — Analyst, US$149 per seat / month.',
+      precio2: 'Firm — US$1,900 per month for up to 15 seats, with a quarterly briefing and shared watchlists. Fifteen Analyst seats would cost US$2,235. Evidence levels are identical in every tier: what you pay for is depth of tooling, never a different truth.',
+      ledgerH: 'From the ledger, for you',
+      ledger: 'Five claims in the registry have no challenge on record. Two of them are ours, and one of those is a negative we published against ourselves.',
+      ledgerCta: 'Open the ledger →',
+      cierre: 'We would rather you spend nothing this year on good evidence than a fortune on a demo.',
+    },
+  },
+};
+
+const t = T[puerta][es ? 'es' : 'en'];
+
+/* A donde apunta cada puerta.
+ *
+ * V-0012 es HTML suelto en public/ y no tiene cara en espanol, asi que la ruta de la
+ * muestra es la misma en los dos idiomas — un enlace a una pagina que existe vale mas
+ * que uno traducido a un 404.
+ *
+ * DOS DESTINOS QUE CORREGI AL COMPROBARLOS, y los dos fallaban en silencio:
+ *   · /ledger#corridas NO existe. Las unicas anclas de /ledger son #contenido,
+ *     #erratas y #frescura. El enlace habria cargado bien y dejado al lector en el
+ *     tope de la pagina, que es el mismo defecto de /errata del 9-sep: «funciona» y
+ *     te deja en otra parte de la que dice.
+ *   · La Biblioteca es /library y /es/biblioteca. /clases responde 200 pero es el
+ *     archivador de los 74 algoritmos, no la Library que nombra el copy.
+ * Comprobado contra produccion antes de escribirlo, no contra el menu. */
+const DESTINO = {
+  investors: { muestra: '/services/sample-report/', ledger: es ? '/es/ledger' : '/ledger' },
+  pilots:    { muestra: '/services/sample-report/', ledger: es ? '/es/ledger' : '/ledger' },
+  industry:  { muestra: es ? '/es/biblioteca' : '/library', ledger: es ? '/es/ledger' : '/ledger' },
+};
+const d = DESTINO[puerta];
+const contacto = es ? '/es/contacto' : '/contact';
+const servicios = es ? '/es/servicios' : '/services';
+const compara = es ? '/es/como-comparamos' : '/how-we-compare';
+---
+<section class="pg" style="border-top:none"><div class="wrap">
+  <div class="eyebrow">{t.eyebrow}</div>
+  <h1>{t.h1}</h1>
+  <p class="lede">{t.lede}</p>
+  <p style="margin-top:18px">
+    <a class="btn btn-solid" href={contacto}>{es ? 'Escríbenos →' : 'Get in touch →'}</a>
+    <a class="btn btn-ghost" href={d.muestra}>{t.muestra}</a>
+  </p>
+</div></section>
+
+<section><div class="wrap">
+  <div class="eyebrow">{t.hoyH}</div>
+  <h2>{t.hoyH}</h2>
+  <ul class="puerta-hoy">
+    {t.hoy.map((linea) => (<li>{linea}</li>))}
+  </ul>
+</div></section>
+
+<section><div class="wrap">
+  <div class="eyebrow">{t.queH}</div>
+  <h2>{t.queH}</h2>
+  <p class="lede">{t.que}</p>
+  <h3>{t.recibesH}</h3>
+  <p>{t.recibes}</p>
+</div></section>
+
+<section><div class="wrap">
+  <div class="eyebrow">{t.precioH}</div>
+  <h2>{t.precioH}</h2>
+  <p class="lede">{t.precio}</p>
+  <p set:html={t.precio2}></p>
+  <p class="sealline mono" style="margin-top:12px">
+    <a href={servicios}>{es ? 'Todos los precios →' : 'All pricing →'}</a> · <a href={compara}>{es ? 'Con qué más puedes compararnos →' : 'What else you could use →'}</a>
+  </p>
+</div></section>
+
+<section><div class="wrap">
+  <div class="eyebrow">{t.ledgerH}</div>
+  <h2>{t.ledgerH}</h2>
+  <p>{t.ledger}</p>
+  <p class="sealline mono" style="margin-top:12px"><a href={d.ledger}>{t.ledgerCta}</a></p>
+</div></section>
+
+<section class="puerta-cierre"><div class="wrap">
+  <p class="lede">{t.cierre}</p>
+</div></section>

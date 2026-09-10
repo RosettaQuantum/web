@@ -62,3 +62,72 @@
 .porprecio{list-style:none;padding:0;margin:var(--s2) 0 0;max-width:66ch}
 .porprecio li{border-top:1px solid var(--line);padding:12px 0;
   font-size:var(--t-body);line-height:var(--lh-body);color:var(--ink)}
+
+/* ── LAS TRES PUERTAS · bloque 7 ─────────────────────────────────────────────
+   Dos clases nuevas y nada mas. El resto de la pagina reusa .pg, .wrap, .eyebrow,
+   .lede y .sealline, que es lo que ya usan /pilots y /services: una puerta que
+   necesitara su propio sistema visual seria una puerta que no pertenece al sitio. */
+.puerta-hoy{list-style:none;margin:0;padding:0;display:grid;gap:var(--s1)}
+.puerta-hoy li{
+  position:relative;padding:12px 0 12px 26px;border-bottom:1px solid var(--line);
+  font-size:var(--t-body);line-height:1.55;color:var(--ink-60)}
+.puerta-hoy li:last-child{border-bottom:none}
+/* La marca es un menos, no una vineta ni un check: estas cuatro lineas son lo que
+   HOY no alcanza, y el signo tiene que decir eso sin adjetivos. */
+.puerta-hoy li::before{
+  content:"—";position:absolute;left:0;top:12px;color:var(--alert);
+  font-family:var(--mono);font-size:var(--t-small);line-height:1.55}
+.puerta-cierre{background:var(--paper-2);border-top:1px solid var(--line)}
+.puerta-cierre .lede{margin:0;max-width:52ch;font-family:var(--serif);color:var(--ink)}
+
+/* ── /how-we-compare · bloque 8 ──────────────────────────────────────────────
+   Reusa .tabla, que bajo 700px NO hace scroll horizontal: esconde el thead y apila
+   las celdas. (El comentario que estaba aqui decia «ya trae el scroll horizontal
+   propio» y era falso — lo escribi sin mirar la regla.)
+   Apilar sirve para /services, donde cada celda se explola sola, y NO sirve aca:
+   las tres celdas son prosa y sin encabezado quedan tres frases sueltas de las que
+   no se sabe cual responde que. Por eso cada celda carga su rotulo en `data-col` y
+   se pinta solo en el ancho donde el encabezado desaparecio.
+   La columna de nombre lleva tres cosas apiladas —quien, de quien es, y desde
+   cuando— porque la regla de la pagina es que ninguna afirmacion sobre un tercero
+   viaje sin su fecha. */
+/* La caja existe solo por si un ancho intermedio deja la tabla mas ancha que el texto:
+   el cuerpo de la pagina nunca puede desplazarse en horizontal, la tabla si. */
+.comparar-caja{overflow-x:auto}
+.comparar-tabla th[scope="row"]{text-align:left;vertical-align:top;font-weight:600}
+.comparar-quien{min-width:190px}
+.comparar-quien a{color:var(--verdict)}
+.comparar-sub,.comparar-fecha{
+  display:block;font-family:var(--mono);font-size:var(--t-label);font-weight:400;
+  color:var(--ink-60);line-height:1.5;margin-top:3px}
+.comparar-cierre{margin:0;display:grid;gap:var(--s1)}
+.comparar-cierre>div{padding:14px 0;border-bottom:1px solid var(--line)}
+.comparar-cierre>div:last-child{border-bottom:none}
+.comparar-cierre dt{font-family:var(--serif);font-size:var(--t-sub);line-height:1.35;margin:0 0 6px}
+.comparar-cierre dd{margin:0;color:var(--ink-60);font-size:var(--t-body)}
+.comparar-cierre dd a{color:var(--verdict)}
+.comparar-cierre dd b{color:var(--ink);font-weight:600}
+@media(max-width:700px){
+  .comparar-tabla td{padding:10px 0 2px}
+  .comparar-tabla td::before{
+    content:attr(data-col);display:block;font-family:var(--mono);font-size:var(--t-label);
+    letter-spacing:.12em;text-transform:uppercase;color:var(--ink-60);margin-bottom:4px}
+  .comparar-tabla th[scope="row"]{display:block;padding:14px 0 6px}
+}
+
+/* ── UN HALLAZGO PUBLICADO ───────────────────────────────────────────────────
+   La frase pesa y la definicion la sostiene, asi que la definicion NO puede verse
+   como letra chica: va a tamano de cuerpo, no de pie de pagina. Lo unico que baja
+   de tamano es la fuente, que es procedencia y no argumento. */
+.hallazgo{margin:var(--s4) 0 var(--s3);padding-left:var(--s2);border-left:2px solid var(--verdict);max-width:62ch}
+.hallazgo-frase{font-family:var(--serif);font-size:var(--t-sub);line-height:1.32;margin:0 0 var(--s1);letter-spacing:-.008em;text-wrap:balance}
+.hallazgo-def{font-size:var(--t-body);line-height:1.58;color:var(--ink-60);margin:0 0 10px}
+.hallazgo-fuente{font-size:var(--t-label);color:var(--ink-60);margin:0}
+/* Una cifra que NO es precio nuestro. Va marcada en el HTML porque check-precios la
+   necesita para distinguirla de un compromiso, y se pinta igual que el resto del texto:
+   la marca es para el guardia, no para el lector. */
+.ajeno{font-variant-numeric:tabular-nums}
+/* La derivacion de un precio, bajo el precio. No es letra chica escondiendo algo: es
+   lo contrario — es la resta que el lector puede comprobar contra la misma tabla. */
+.precio-nota{display:block;font-family:var(--sans);font-size:var(--t-label);line-height:1.5;
+  color:var(--ink-60);margin-top:5px;white-space:normal;max-width:34ch}

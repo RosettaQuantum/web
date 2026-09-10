@@ -1,0 +1,19 @@
+---
+/**
+ * /es/para/pilotos — una de las tres puertas del bloque 7.
+ *
+ * La cascara no lleva contenido a proposito: las dos caras salen del mismo
+ * componente para que no puedan divergir. El texto vive en Puerta.astro.
+ */
+import MarcaLayout from '../../../layouts/MarcaLayout.astro';
+import Puerta from '../../../components/paginas/Puerta.astro';
+import css from '../../../styles/pages/paginas.css?raw';
+---
+<MarcaLayout
+  title="¿Va a producir mi piloto un número defendible? — Rosetta Quantum"
+  description="Sellamos el criterio de éxito antes de que tu piloto corra y corremos al campeón clásico en paridad. US$15.000-35.000, 5-8 semanas."
+  lang="es" altUrl="/for/pilots" ruta="/es/para/pilotos"
+  pageCss={css} scripts={["/js/frescura.js"]}
+>
+  <Puerta puerta="pilots" lang="es" />
+</MarcaLayout>

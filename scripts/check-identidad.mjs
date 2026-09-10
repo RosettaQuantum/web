@@ -84,8 +84,32 @@ export const DECLARADAS = [
  * @param {{ruta:string, fondo:string, familia:string}[]} medidas
  */
 export function evaluarIdentidad(medidas) {
-  const sucias = [], exentas = [], sinMedir = [];
+  const sucias = [], exentas = [], sinMedir = [], noRespondieron = [];
   for (const m of medidas) {
+    /* PRIMERO EL ESTADO, DESPUES LOS PIXELES.
+     *
+     * EL DEFECTO REAL (10-sep-2026): este guardia media el color de fondo sin
+     * comprobar que la pagina existiera. Una ruta que da 404 igual pinta algo —la
+     * pantalla de error de Astro es negra (rgb(25,24,27)) y la de Chrome es gris
+     * oscuro (rgb(32,33,36))— asi que las dos entraban como «se renderiza en la
+     * identidad retirada».
+     *
+     * Costo medido el mismo dia, y en las dos direcciones:
+     *   contra el dev server ... 25 de 79 «sucias», y las paginas eran statics de
+     *                            public/ que el dev server no sirve
+     *   contra produccion ...... 8 de 79, y eran las paginas nuevas que todavia no
+     *                            estaban desplegadas
+     * En los dos casos el numero medía «cuantas paginas faltan en esta base», con
+     * el rotulo de otra cosa. Es la falla de la casa: el instrumento declara una
+     * condicion y mide otra, y ademas manda a arreglar la paleta de una pagina que
+     * lo que necesita es existir.
+     *
+     * Las dos cosas son problemas y las dos bloquean — pero se reportan por
+     * separado, porque mandan a lugares distintos. */
+    if (m.estado != null && m.estado !== 200) {
+      noRespondieron.push({ ruta: m.ruta, estado: m.estado });
+      continue;
+    }
     if (!m.fondo) { sinMedir.push(m.ruta); continue; }
     const motivos = [];
     if (m.fondo !== PAPEL) motivos.push(`fondo ${m.fondo}`);
@@ -99,8 +123,8 @@ export function evaluarIdentidad(medidas) {
   }
   return {
     revisadas: medidas.length,
-    enLaMarca: medidas.length - sucias.length - exentas.length - sinMedir.length,
-    exentas, sucias, sinMedir,
+    enLaMarca: medidas.length - sucias.length - exentas.length - sinMedir.length - noRespondieron.length,
+    exentas, sucias, sinMedir, noRespondieron,
   };
 }
 
@@ -145,6 +169,24 @@ function selfTest() {
   p("dice DONDE vive, no solo que existe", /a\.post-item/.test(conDentro.sucias[0].motivos.join()));
   p("y calla si adentro no queda nada retirado",
     evaluarIdentidad([{ ruta: "/es/blog", ...marca, dentro: [] }]).sucias.length === 0);
+
+  // EL FALSO POSITIVO DEL 10-sep: una pagina ausente puntuada como identidad retirada.
+  // Los dos colores son reales: el 404 de Astro en el dev server y el error de Chrome
+  // contra produccion. Antes del arreglo, estas dos entraban como `sucias`.
+  const r404 = evaluarIdentidad([
+    { ruta: "/services/sample-report/", estado: 404, fondo: "rgb(25, 24, 27)", familia: "sans-serif" },
+    { ruta: "/how-we-compare/", estado: 404, fondo: "rgb(32, 33, 36)", familia: "sans-serif" },
+    { ruta: "/", estado: 200, ...marca },
+  ]);
+  p("una pagina que no responde NO se acusa de identidad retirada", r404.sucias.length === 0, JSON.stringify(r404.sucias));
+  p("se reporta como lo que es, con su codigo", r404.noRespondieron.length === 2
+    && r404.noRespondieron.every((x) => x.estado === 404));
+  p("y no se cuenta como si estuviera en la marca", r404.enLaMarca === 1);
+  // Y AL REVES: una pagina que SI responde y esta sucia sigue gritando. El arreglo no
+  // puede haber comprado el silencio a cambio de dejar de mirar.
+  const rSucia = evaluarIdentidad([
+    { ruta: "/informe-pqc", estado: 200, fondo: "rgb(20, 18, 16)", familia: "Instrument Sans, sans-serif" }]);
+  p("una pagina viva y sucia sigue gritando", rSucia.sucias.length === 1 && rSucia.noRespondieron.length === 0);
 
   const r3 = evaluarIdentidad([
     { ruta: "/consola", fondo: "rgb(11, 15, 20)", familia: "IBM Plex Mono" },
@@ -232,19 +274,32 @@ if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) 
     // 1.500 ms, no 250: con la espera corta el `body` de /blog/ se medía transparente
     // —la hoja todavía no había aplicado— y la guardia la acusaba de estar fuera de la
     // marca. Medir antes de tiempo es medir otra cosa.
-    try { medidas.push({ ruta: r, ...(await c.evaluar(BASE + r, leerIdentidad, 1500)) }); }
-    catch (e) { medidas.push({ ruta: r, fondo: null, familia: null }); }
+    // El estado se pide por HTTP y no al navegador: Chrome no expone el codigo de la
+    // navegacion principal por esta via, y lo que hace falta saber es justamente si
+    // hay pagina que juzgar.
+    let estado = null;
+    try { estado = (await fetch(BASE + r, { headers: { "x-rq-check": "1" }, redirect: "follow" })).status; }
+    catch { estado = 0; }
+    if (estado !== 200) { medidas.push({ ruta: r, estado, fondo: null, familia: null }); continue; }
+    try { medidas.push({ ruta: r, estado, ...(await c.evaluar(BASE + r, leerIdentidad, 1500)) }); }
+    catch (e) { medidas.push({ ruta: r, estado, fondo: null, familia: null }); }
   }
   await c.cerrar();
   const res = evaluarIdentidad(medidas);
   res.exentas.forEach((e) => console.log(`  exenta ${e.ruta} — ${e.razon}`));
   res.sinMedir.forEach((r) => console.log(`  NO SE PUDO MEDIR ${r}`));
-  if (!res.sucias.length && !res.sinMedir.length) {
+  // Se listan APARTE de las sucias, y con su codigo: «esta pagina no esta en esta base»
+  // manda a desplegar o a arreglar el inventario, no a tocar la paleta.
+  res.noRespondieron.forEach((x) => console.log(`  NO RESPONDIO   ${x.ruta} -> ${x.estado || "sin respuesta"}`));
+  if (!res.sucias.length && !res.sinMedir.length && !res.noRespondieron.length) {
     console.log(`  ok   ${res.enLaMarca} en la marca · ${res.exentas.length} exentas declaradas · 0 en la identidad retirada`);
     process.exit(0);
   }
   res.sucias.forEach((s) => console.log(`  FALLA ${s.ruta}: ${s.motivos.join(" · ")}`));
   console.log(`\n  ${res.sucias.length} de ${res.revisadas} paginas se renderizan en la identidad retirada sin estar declaradas.` +
+    (res.noRespondieron.length ? ` · ${res.noRespondieron.length} no respondieron en esta base (≠ tienen mala paleta).` : "") +
     (res.sinMedir.length ? ` · ${res.sinMedir.length} no se pudieron medir (≠ estan bien).` : ""));
-  process.exit(res.sucias.length ? 1 : 2);
+  if (res.noRespondieron.length && !res.sucias.length)
+    console.log("  Ninguna pagina tiene la paleta mal. Lo que falta es que existan en la base que se midio.");
+  process.exit(res.sucias.length || res.noRespondieron.length ? 1 : 2);
 }

@@ -41,7 +41,11 @@ footer{background:var(--paper)}
 footer{background:var(--paper) !important}
 .foot-cols{display:grid;grid-template-columns:1fr;gap:18px;margin:16px 0 20px}
 @media(min-width:640px){.foot-cols{grid-template-columns:repeat(2,1fr)}}
-@media(min-width:900px){.foot-cols{grid-template-columns:repeat(4,1fr)}}
+/* El numero de columnas NO se escribe: el pie tenia repeat(4,1fr) clavado y al
+   entrar la quinta columna («Start here», con las tres puertas) la quinta se fue
+   sola a una segunda fila. auto-fit se acomoda a 4, a 5 o a las que haya, asi que
+   la proxima columna no vuelve a romperlo en silencio. (10-sep-2026) */
+@media(min-width:900px){.foot-cols{grid-template-columns:repeat(auto-fit,minmax(170px,1fr))}}
 @media(min-width:840px){.nav-links{display:flex}}
 @media(min-width:840px){.burger{display:none}}
 

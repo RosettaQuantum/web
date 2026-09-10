@@ -22,6 +22,11 @@ const COLS = es
   ? [
       ["Evaluación", [["/es/metodologia", "Metodología v1.0"], ["/es/metodologia#el-definitions", "Definiciones EL"],
                       ["/es/metodologia#juez-v1", "Protocolo juez-v1"], ["/es/ledger#erratas", "Erratas"]]],
+      // Las tres puertas y la comparacion entran POR EL PIE y no por el menu: el menu
+      // ya tiene seis items y B1.1 costo entender que un septimo no cabe a 840px. El pie
+      // las alcanza desde cualquier pagina, que es lo que necesitan para no ser huerfanas.
+      ["Por dónde empezar", [["/es/para/inversionistas", "Si inviertes"], ["/es/para/pilotos", "Si corres un piloto"],
+                             ["/es/para/industria", "Si decides por una industria"], ["/es/como-comparamos", "Con qué más compararnos"]]],
       ["La firma",   [["/es/nosotros", "Nosotros"], ["/es/contacto", "Contacto"], ["/es/blog", "Notes"]]],
       // Las tres politicas, POR SU NOMBRE y a un clic. Paddle pide que sean "clearly
       // accessible via navigation": el centro de politicas las tenia, pero el pie decia
@@ -35,6 +40,8 @@ const COLS = es
   : [
       ["Evaluation", [["/methodology", "Methodology v1.0"], ["/methodology#el-definitions", "EL Definitions"],
                       ["/methodology#juez-v1", "Protocol juez-v1"], ["/ledger#erratas", "Errata"]]],
+      ["Start here", [["/for/investors", "If you invest"], ["/for/pilots", "If you run a pilot"],
+                      ["/for/industry", "If you decide for an industry"], ["/how-we-compare", "What else you could use"]]],
       ["Firm",       [["/about", "About"], ["/contact", "Contact"], ["/blog", "Notes"]]],
       ["Legal", [["/terms", "Terms"], ["/refunds", "Refunds"],
                  ["/privacy", "Privacy"], ["/policies", "Policies & Conduct"]]],

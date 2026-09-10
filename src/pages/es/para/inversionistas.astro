@@ -1,0 +1,19 @@
+---
+/**
+ * /es/para/inversionistas — una de las tres puertas del bloque 7.
+ *
+ * La cascara no lleva contenido a proposito: las dos caras salen del mismo
+ * componente para que no puedan divergir. El texto vive en Puerta.astro.
+ */
+import MarcaLayout from '../../../layouts/MarcaLayout.astro';
+import Puerta from '../../../components/paginas/Puerta.astro';
+import css from '../../../styles/pages/paginas.css?raw';
+---
+<MarcaLayout
+  title="¿Sobrevive este claim? — Rosetta Quantum"
+  description="Verificación independiente de un claim publicado de ventaja cuántica: nivel de evidencia, estado de supervivencia y cada desafío con su fecha. Sellado y citable. US$4.500, 5 días hábiles."
+  lang="es" altUrl="/for/investors" ruta="/es/para/inversionistas"
+  pageCss={css} scripts={["/js/frescura.js"]}
+>
+  <Puerta puerta="investors" lang="es" />
+</MarcaLayout>
