@@ -1,6 +1,13 @@
 ---
-import BaseLayout from '../../layouts/BaseLayout.astro';
+import MarcaLayout from '../../layouts/MarcaLayout.astro';
+// Misma barra, mismo pie y misma marca (public/rosetta-mark.svg) que /informe-pqc.
+// El 14-sep este documento salio con la barra vieja del layout base y un simbolo
+// distinto al del informe largo, y Nicholas lo vio a ojo en el PDF.
 import css from '../../styles/pages/informe-pqc.css?raw';
+/* En papel, cada seccion del informe individual abre pagina: son cortas y con titulo
+   propio, y asi ninguna tarjeta queda a caballo. La ultima (alcance y limites) fluye
+   detras de los adjuntos: forzarla dejaba una pagina con solo ese recuadro (14-sep-2026). */
+const cssPapel = '@media print{.informe-doc section{break-before:page}.informe-doc section:last-of-type{break-before:auto}}';
 
 // Un JSON por cliente. Misma hoja de estilo y mismos componentes que el informe agregado:
 // para el lector, los dos documentos salen de la misma máquina.
@@ -54,30 +61,26 @@ if (B.n !== d.irec.banda)
 const dif = d.irec.score - d.irec.mediana_pais;
 const difSec = d.irec.score - d.irec.mediana_sector;
 
+/* «Posición en su sector» llega como UNA frase («2 de 12 organizaciones de banca están por
+   debajo suyo y 3 empatan con usted; …») y se pintaba entera en la casilla del número grande:
+   en la p2 del PDF de Santander esa columna crecía hasta media página (15-sep-2026). Va en el
+   texto chico, entera. NO se parte «2 de 12» como número grande: bajo «Posición en su sector»
+   se lee como «segundo lugar», y la frase dice que 2 están POR DEBAJO. */
+
 const SECCIONES = [
   ['indice','Su índice'], ['hallazgo','El hallazgo principal'], ['superficie','Su superficie pública'],
   ['ruta','Su ruta crítica'], ['plan','Plan 30 · 90 · 365'], ['alcance','Alcance y límites'],
 ];
 ---
-<BaseLayout
+<MarcaLayout
   title={`${d.cliente} — Informe individual ${mesLargo} · Rosetta Quantum`}
   description={`Informe confidencial de exposición criptográfica para ${d.cliente}.`}
-  lang="es" pageCss={css}>
+  lang="es" altUrl="/" ruta="/informe-cliente" pageCss={css + '\n' + cssPapel} noindex={true}>
 
 <div class="informe-doc">
 <div class="informe">
 
   <header class="mast">
-    <div class="brandrow">
-      <svg class="slabmark" viewBox="0 0 40 40" aria-hidden="true">
-        <rect x="12.5" y="3.5" width="15" height="27" rx="7.5" fill="none" stroke="#9A7228" stroke-width="1.8"/>
-        <line x1="13.5" y1="35" x2="26.5" y2="35" stroke="#9A7228" stroke-width="1.8" stroke-linecap="round"/>
-        <circle cx="20" cy="12.5" r="3" fill="none" stroke="#3D372F" stroke-width="1.5"/>
-        <circle cx="20" cy="21.5" r="3" fill="#1E7A6E"/>
-      </svg>
-      <span class="brandname">Rosetta Quantum</span>
-    </div>
-
     <div class="edicion">
       <span class="num">Informe individual</span>
       <span>{mesLargo}</span>
@@ -120,7 +123,7 @@ const SECCIONES = [
         <div class={`tile ${SCORE >= 70 ? 'ok' : SCORE >= 50 ? 'warn' : 'crit'}`}><span class="k">Su índice QEX</span><span class="v">{SCORE}</span><span class="sub">de 100 · techo externo {TOPE} · {B.n}</span></div>
         <div class="tile"><span class="k">Mediana nacional</span><span class="v">{d.irec.mediana_pais}</span><span class="sub"><span class="delta up">{dif} pts</span> bajo el país</span></div>
         <div class="tile"><span class="k">Mediana de {d.vertical.toLowerCase()}</span><span class="v">{d.irec.mediana_sector}</span><span class="sub"><span class="delta up">{difSec} pts</span> bajo su sector</span></div>
-        <div class="tile"><span class="k">Posición en su sector</span><span class="v" style="font-size:1.25rem;line-height:1.5">{d.irec.posicion_sector}</span><span class="sub">de {d.irec.n_sector} organizaciones medidas</span></div>
+        <div class="tile"><span class="k">Posición en su sector</span><span class="sub">{d.irec.posicion_sector}</span><span class="sub">de {d.irec.n_sector} organizaciones medidas</span></div>
       </div>
     </div>
 
@@ -318,4 +321,4 @@ const SECCIONES = [
 
 </div>
 </div>
-</BaseLayout>
+</MarcaLayout>
