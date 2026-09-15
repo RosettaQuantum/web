@@ -1,12 +1,21 @@
 ---
-import BaseLayout from '../../../layouts/BaseLayout.astro';
-import QrLanding from '../../../components/qready/QrLanding.astro';
-import css from '../../../styles/pages/q-ready.css?raw';
+/**
+ * /es/q-ready — la puerta de seguridad en la marca vigente (15-sep-2026). El contenido vive
+ * en QReadyPuerta.astro. Antes esta cáscara usaba BaseLayout con QrLanding, en la identidad
+ * retirada y con `noindex`. Ahora es indexable: la puerta existe para que la encuentre quien
+ * busca, y una página con noindex no se encuentra por mucho que se busque.
+ * Checkout, portal y el informe de muestra de Q-Ready siguen como estaban.
+ */
+import MarcaLayout from '../../../layouts/MarcaLayout.astro';
+import QReadyPuerta from '../../../components/paginas/QReadyPuerta.astro';
+import paginas from '../../../styles/pages/paginas.css?raw';
+import propia from '../../../styles/pages/qready-puerta.css?raw';
 ---
-<BaseLayout
-  title="Rosetta Q-Ready — ¿Su criptografía está lista para el reloj cuántico?"
-  description="Mapa automatizado de su exposición criptográfica post-cuántica. Evidencia de superficie pública, un score Q-Ready 0–100 e informe board-ready — sin acceso a su red en el nivel External."
-  noindex
-  lang="es" altUrl="/q-ready" pageCss={css}>
-  <QrLanding lang="es" />
-</BaseLayout>
+<MarcaLayout
+  title="¿Qué tan lista está su criptografía para el momento cuántico? — Rosetta Q-Ready"
+  description="Medimos desde afuera, sin tocar su red, qué criptografía expone su superficie pública y quién decide su plazo real de migración. Informe individual gratis y confidencial."
+  lang="es" altUrl="/q-ready" ruta="/es/q-ready"
+  pageCss={paginas + '\n' + propia} scripts={["/js/qready-puerta.js", "/js/frescura.js"]}
+>
+  <QReadyPuerta />
+</MarcaLayout>

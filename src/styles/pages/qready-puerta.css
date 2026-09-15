@@ -1,0 +1,113 @@
+/* ── /es/q-ready · la puerta de seguridad (15-sep-2026). Sale de la maqueta aprobada, extraída
+   por programa y no retipeada. Usa SOLO tokens y clases que ya existen en la hoja del sitio. ── */
+/* EL DEFECTO QUE ESTO EVITA (15-sep): .qr-velo{display:grid} le ganaba al atributo
+   `hidden` —la regla del navegador para [hidden] pesa menos que cualquier clase—, así que
+   el pop-up quedaba ABIERTO desde la carga y «cerrar» no lo cerraba. Lo mismo le pasaba
+   a los botones .btn que el interruptor «oculta». */
+[hidden]{display:none !important}
+.qr-hero-grid{display:grid;grid-template-columns:1.35fr 1fr;gap:var(--s4);align-items:end}
+@media(max-width:860px){.qr-hero-grid{grid-template-columns:1fr;gap:var(--s3)}}
+.qr-hero{padding-bottom:var(--s4) !important}
+.qr-hero h1{max-width:18ch;text-wrap:balance}
+.qr-acciones{display:flex;flex-wrap:wrap;gap:10px;margin:var(--s3) 0 var(--s1)}
+.qr-acciones .btn{width:auto}
+.qr-acciones{align-items:center;gap:10px 22px}
+.qr-link{font:inherit;font-size:var(--t-small);color:var(--verdict);background:none;border:0;padding:6px 0;cursor:pointer;text-decoration:underline;text-underline-offset:4px;text-decoration-thickness:1px}
+.qr-link:hover{color:var(--ink)}
+.qr-nota{font-size:var(--t-small);color:var(--ink-60);margin:var(--s1) 0 0}
+.qr-medida{max-width:62ch}
+.qr-prueba{background:var(--panel);border:1px solid var(--line);border-radius:2px;padding:var(--s3)}
+.qr-prueba-h{display:flex;justify-content:space-between;gap:12px;font-family:var(--mono);font-size:var(--t-label);color:var(--ink-60);text-transform:uppercase;letter-spacing:.08em}
+.qr-prueba-n{font-family:var(--serif);font-size:var(--t-display);line-height:1;color:var(--pending);margin:var(--s2) 0 var(--s1);font-variant-numeric:tabular-nums}
+.qr-prueba-n small{font-family:var(--sans);font-size:var(--t-small);color:var(--ink-60)}
+.qr-prueba p{font-size:var(--t-small);color:var(--ink-60);margin:var(--s2) 0 0}
+.qr-rango{position:relative;height:10px;background:var(--paper-2);border-radius:2px}
+.qr-rango i{position:absolute;top:0;bottom:0;background:var(--pending-20);border-radius:2px}
+.qr-rango b{position:absolute;top:-4px;width:2px;height:18px;background:var(--pending)}
+.qr-rango-et{position:relative;height:16px;margin-top:6px;font-family:var(--mono);font-size:var(--t-label);color:var(--ink-60)}
+.qr-rango-et.qr-arriba{margin:var(--s2) 0 4px}
+.qr-rango-et span{position:absolute;transform:translateX(-50%);white-space:nowrap}
+.qr-rango em{position:absolute;top:-4px;width:0;height:18px;border-left:2px dashed var(--ink-60)}
+.qr-dos{display:grid;grid-template-columns:1fr 1fr;gap:var(--s5);align-items:start}
+@media(max-width:860px){.qr-dos{grid-template-columns:1fr;gap:var(--s3)}}
+.qr-hndl{list-style:none;margin:0;padding:0;counter-reset:h;display:grid;gap:1px;background:var(--line);border:1px solid var(--line)}
+.qr-hndl li{counter-increment:h;background:var(--panel);padding:var(--s2) var(--s3);font-size:var(--t-small);color:var(--ink-60);display:grid;grid-template-columns:2.2em 6.5em 1fr;align-items:baseline}
+.qr-hndl li::before{content:counter(h,decimal-leading-zero);font-family:var(--mono);font-size:var(--t-label);color:var(--alert)}
+.qr-hndl li b{font-family:var(--serif);font-weight:500;font-size:var(--t-sub);color:var(--ink)}
+.qr-reloj{margin:var(--s3) 0 0;background:var(--panel);border:1px solid var(--line);border-radius:2px;padding:var(--s3)}
+.qr-reloj figcaption{font-size:var(--t-small);color:var(--ink-60);margin-top:var(--s2);max-width:70ch}
+.qr-reloj figcaption b{color:var(--ink);font-weight:500}
+.qr-reloj-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
+.qr-deslice{display:none;margin:0 0 8px;font-family:var(--mono);font-size:var(--t-label);color:var(--verdict)}
+@media(max-width:700px){.qr-deslice{display:block}}
+.reloj-svg{display:block;width:100%;min-width:640px;height:auto}
+.rj-grid{stroke:var(--line);stroke-width:1}
+.rj-eje,.rj-lab,.rj-corte-t,.rj-sub{font-family:var(--mono);font-size:12px;fill:var(--ink-60)}
+.rj-fila{font-family:var(--sans);font-size:14px;font-weight:500;fill:var(--ink)}
+.rj-sub{font-weight:400}
+.rj-dentro{font-family:var(--mono);font-size:12px;fill:#fff}
+.rj-migra{fill:var(--verdict)}
+.rj-secreto{fill:var(--pending)}
+.rj-prob{fill:var(--alert);opacity:.82}
+.rj-lab{fill:var(--alert);font-weight:500}
+.rj-corte{stroke:var(--ink);stroke-width:1.5;stroke-dasharray:4 3}
+.rj-corte-t{fill:var(--ink)}
+.qr-cifras{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:1px;background:var(--line);border:1px solid var(--line);margin-top:var(--s3)}
+.qr-cifra{background:var(--panel);padding:var(--s3);display:flex;flex-direction:column;gap:6px}
+.qr-n{font-family:var(--serif);font-size:var(--t-title);line-height:1;font-variant-numeric:tabular-nums;color:var(--ink)}
+.qr-cifra.mal .qr-n{color:var(--alert)}
+.qr-cifra.ok .qr-n{color:var(--verdict)}
+.qr-k{font-size:var(--t-small);font-weight:500;color:var(--ink)}
+.qr-base{font-family:var(--mono);font-size:var(--t-label);color:var(--verdict);white-space:nowrap;margin-top:auto;padding-top:6px;text-decoration:none}
+.qr-base:hover{text-decoration:underline;text-underline-offset:3px}
+.qr-s{font-family:var(--mono);font-size:var(--t-label);color:var(--ink-60);line-height:1.45}
+.qr-indice{list-style:none;margin:0;padding:0;border-top:1px solid var(--line)}
+.qr-indice li{display:grid;grid-template-columns:2.6em 1fr;column-gap:var(--s1);padding:var(--s2) 0;border-bottom:1px solid var(--line);font-size:var(--t-small);color:var(--ink-60)}
+.qr-indice li span{grid-row:span 2;font-family:var(--mono);font-size:var(--t-label);color:var(--pending);padding-top:4px}
+.qr-indice li b{font-family:var(--serif);font-weight:500;font-size:var(--t-sub);color:var(--ink)}
+.qr-pasos{display:grid;grid-template-columns:repeat(4,1fr);gap:var(--s3);margin-top:var(--s2)}
+@media(max-width:860px){.qr-pasos{grid-template-columns:1fr 1fr}}
+@media(max-width:520px){.qr-pasos{grid-template-columns:1fr}}
+.qr-pasos .paso p{font-size:var(--t-small);color:var(--ink-60);margin:6px 0 0}
+.qr-cierre{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:var(--s2)}
+.qr-cierre .btn{width:auto}
+.qr-trampa{margin-top:var(--s2) !important}
+.qr-cierre .lede{font-size:var(--t-sub);max-width:34ch;margin:0}
+/* ── pop-up ── */
+.qr-velo{position:fixed;inset:0;z-index:90;background:rgba(22,24,27,.42);display:grid;place-items:center;padding:18px;overflow:auto}
+.qr-dialogo{position:relative;width:min(920px,100%);max-height:calc(100vh - 36px);overflow:auto;background:var(--paper);border:1px solid var(--line);border-radius:3px;padding:var(--s4);box-shadow:0 24px 60px rgba(22,24,27,.18)}
+@media(max-width:600px){.qr-dialogo{padding:var(--s3) var(--s2)}}
+.qr-dialogo h2{margin:4px 0 var(--s3)}
+/* La X queda FIJA arriba aunque el diálogo se desplace: en teléfono, al llevar a la vista la
+   tarjeta pedida, una X absoluta se iba fuera de pantalla y no había cómo cerrar (no hay Esc,
+   y el borde para tocar afuera es de 18px). */
+.qr-cerrar{width:44px;height:44px;border:0;background:transparent;font-size:28px;line-height:1;color:var(--ink-60);cursor:pointer}
+.qr-dialogo>.qr-cerrar{position:sticky;top:0;float:right;margin:calc(-1*var(--s3)) calc(-1*var(--s3)) 0 0;z-index:3;background:var(--paper);border-radius:50%}
+@media(max-width:600px){.qr-dialogo>.qr-cerrar{margin:calc(-1*var(--s2)) calc(-1*var(--s1)) 0 0}}
+.qr-cerrar:hover{color:var(--ink)}
+.qr-opciones{display:grid;grid-template-columns:1fr 1.25fr;gap:var(--s2)}
+@media(max-width:760px){.qr-opciones{grid-template-columns:1fr}}
+.qr-op{background:var(--panel);border:1px solid var(--line);border-radius:2px;padding:var(--s3);display:flex;flex-direction:column;gap:10px}
+.qr-op-individual{border-top:3px solid var(--verdict)}
+.qr-op-informe{border-top:3px solid var(--pending)}
+.qr-op .qr-op-et{margin:0;font-size:var(--t-label) !important;font-family:var(--mono);font-size:var(--t-label);text-transform:uppercase;letter-spacing:.1em;color:var(--ink-60)}
+.qr-op h3{margin:0;font-family:var(--serif);font-weight:500;font-size:var(--t-sub)}
+.qr-op p{margin:0;font-size:var(--t-small);color:var(--ink-60)}
+.qr-op .qr-op-meta{color:var(--pending);font-family:var(--mono);font-size:var(--t-label)}
+.qr-op label{display:flex;flex-direction:column;gap:4px;font-size:var(--t-label);font-weight:500;color:var(--ink)}
+.qr-op input:not([type=checkbox]){font:inherit;font-size:var(--t-small);font-weight:400;padding:10px 12px;border:1.5px solid var(--line);border-radius:2px;background:#fff;color:var(--ink);min-height:44px}
+.qr-op input:focus-visible{outline:2px solid var(--verdict);outline-offset:1px;border-color:var(--verdict)}
+.qr-op input[aria-invalid=true]{border-color:var(--alert)}
+.qr-par{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+@media(max-width:520px){.qr-par{grid-template-columns:1fr}}
+.qr-op .qr-check{flex-direction:row;align-items:flex-start;gap:8px;font-weight:400;color:var(--ink-60);font-size:var(--t-label);line-height:1.45}
+.qr-op .qr-check input{margin-top:2px;width:16px;height:16px;flex:none;accent-color:var(--verdict)}
+.qr-op .btn{margin-top:auto;width:100%}
+.qr-pie{margin:var(--s2) 0 0;font-size:var(--t-label);color:var(--ink-60)}
+
+/* el diálogo con una sola opción (informe todavía en revisión legal) */
+.qr-opciones.qr-una{grid-template-columns:1fr}
+.qr-velo:has(.qr-una) .qr-dialogo{width:min(620px,100%)}
+/* lo que responde el formulario: nunca «recibido» antes de que el endpoint confirme */
+.qr-estado{margin:0;font-size:var(--t-label) !important;color:var(--alert) !important}
+.qr-estado.qr-bien{color:var(--verdict) !important;font-weight:500}

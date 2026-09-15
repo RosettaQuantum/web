@@ -113,23 +113,33 @@ else ok(`${montos.length} monto(s) en el archivo, todos decididos`);
 // Decision de Nicholas del 8-sep: /q-ready y /q-ready/sample-report quedan VIVAS y salen
 // del indice. Fuera del sitemap ya estaban; sin la etiqueta, un enlace desde afuera las
 // mete igual — de hecho asi entraron muchas paginas que nadie enlazo desde su casa.
-const NOINDEX = ["/q-ready/", "/q-ready/sample-report/", "/es/q-ready/", "/es/q-ready/sample-report/"];
+// 15-sep-2026: /es/q-ready/ SALE de esta lista. Se portó a la marca como puerta de seguridad y
+// Nicholas pidió publicarla: existe para que la encuentre quien busca, y con noindex no la
+// encuentra nadie. Pasa a la lista inversa de abajo. Las otras tres no se portaron y siguen igual.
+const NOINDEX = ["/q-ready/", "/q-ready/sample-report/", "/es/q-ready/sample-report/"];
 const mapa = await (await fetch(PREVIEW + "/sitemap-0.xml", { headers: { "x-rq-check": "1" } })).text();
+// La ruta tiene que ir PEGADA al dominio. La version anterior hacia mapa.includes("/q-ready/"),
+// que tambien calza dentro de «…/es/q-ready/»: acusaba a /q-ready/ de estar en el sitemap
+// cuando la que estaba era la española (15-sep-2026).
+const enMapa = (ruta) => new RegExp(`<loc>https?://[^/<]+${ruta.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}</loc>`).test(mapa);
 for (const p of NOINDEX) {
   const h = await (await fetch(PREVIEW + p, { headers: { "x-rq-check": "1" } })).text();
   const problemas = [];
   if (!/<meta\s+name="robots"\s+content="noindex"/.test(h)) problemas.push("sin <meta robots noindex>");
-  if (mapa.includes(p)) problemas.push("figura en el sitemap");
+  if (enMapa(p)) problemas.push("figura en el sitemap");
   if (txt.includes(p.replace(/\/$/, ""))) problemas.push("figura en llms.txt");
   if (problemas.length) mal(`${p} ${problemas.join(" · ")}`);
   else ok(`${p.padEnd(28)} noindex · fuera del sitemap · fuera de llms.txt · sirve 200`);
 }
 // Y el reverso: la etiqueta NO puede aparecer en una pagina que si queremos indexada.
 // Un noindex de mas en la home no rompe nada visible y borra el sitio del buscador.
-for (const p of ["/", "/es/", "/library", "/ledger/", "/services"]) {
+for (const p of ["/", "/es/", "/library", "/ledger/", "/services", "/es/q-ready/"]) {
   const h = await (await fetch(PREVIEW + p, { headers: { "x-rq-check": "1" } })).text();
   if (/content="noindex"/.test(h)) mal(`${p} lleva noindex y es una pagina que queremos indexada`);
 }
+// La puerta de seguridad, además de indexable, tiene que estar declarada: sin el sitemap un
+// buscador la encuentra sólo si alguien la enlaza desde afuera.
+if (!enMapa("/es/q-ready/")) mal("/es/q-ready/ no figura en el sitemap");
 ok("ninguna pagina publica lleva noindex por accidente");
 
 // 6 bis · EL INFORME PQC: lo que la pagina DICE de si misma y como se ofrece al indice
