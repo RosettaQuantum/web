@@ -56,3 +56,14 @@ footer{background:var(--paper) !important}
   font-family:var(--mono);font-size:var(--t-data);color:var(--ink-60);
   padding:7px 22px;max-width:var(--maxw-brand);margin:0 auto;
   overflow-x:auto;white-space:nowrap}
+
+/* PAPEL (14-sep-2026). Nicholas imprimio los dos informes a PDF y la barra web salia
+   entera —enlaces, EN/ES, hamburguesa— y el pie del sitio ocupaba una pagina. En papel
+   la barra se reduce a la marca (hoja + «Rosetta Quantum»); el resto no significa nada
+   impreso. Se decide AQUI, en el componente, para que valga en toda pagina de marca. */
+@media print{
+  nav{position:static;background:none;backdrop-filter:none;border-bottom:0}
+  .nav-inner{height:auto;padding:0 0 6mm}
+  .nav-links,.nav-right,.frescura,.mobile-menu,.saltar,footer{display:none !important}
+  .wrap{max-width:170mm;padding:0}
+}

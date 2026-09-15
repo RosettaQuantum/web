@@ -184,8 +184,111 @@ td.num{font-family:var(--mono);font-variant-numeric:tabular-nums;text-align:righ
   .bar-lab{font-size:var(--t-label)}
   .cta{flex-direction:column;align-items:flex-start}
 }
+/* ---------- papel (14-sep-2026) ----------
+   Nicholas vio los PDF: «las paginas se cortan a la mitad». Causas medidas, en dos
+   iteraciones mirando las 38 paginas una por una:
+   (1) `section{break-inside:avoid-page}` mandaba cada seccion entera a la pagina
+       siguiente y dejaba la anterior medio vacia;
+   (2) `overflow:hidden|auto` en paneles, graficos y tablas los vuelve monoliticos al
+       fragmentar, y Chrome los recorta en el borde de la pagina en vez de partirlos;
+   (3) `break-inside:avoid` sobre una tabla mas alta que la pagina no evita nada: la
+       empuja a la pagina siguiente (dejando la anterior al 10 %) y la parte igual.
+       Por eso las tablas y paneles con 10 filas o mas fragmentan ENTRE filas con la
+       cabecera repetida, y todo lo demas (tarjetas, graficos, recuadros, parrafos)
+       viaja entero;
+   (4) los chips con `white-space:nowrap` ensanchaban una tabla mas alla del margen.
+   Aqui se fija A4, se abre el overflow y se llevan los tamanos a papel (nada bajo
+   10,5 pt). No se declara ningun token: los tamanos van en pt sobre los mismos
+   selectores. Lo que NO cubre: un titulo de seccion queda con su primer parrafo,
+   pero el panel que viene despues puede caer en la pagina siguiente si no cabe. */
+@page{size:A4;margin:18mm 16mm;
+  @bottom-right{content:counter(page) " / " counter(pages);font-family:'IBM Plex Mono',monospace;font-size:8pt;color:#4A4E48}}
 @media print{
-  .toc,.cta,.draft{break-inside:avoid}
-  section{break-inside:avoid-page;padding-top:26px}
-  body{font-size:11pt}
+  *,*::before,*::after{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  html{scroll-behavior:auto}
+  /* la hoja entera es el soporte: sin un rectangulo de papel dentro del margen blanco */
+  html,body,main,nav,.informe-doc,.informe-doc header,.informe-doc section{background:transparent !important}
+  .informe-doc{padding-bottom:0}
+  .informe{max-width:170mm;padding:0;margin:0 auto}
+  .informe-doc,.informe-doc p,.informe-doc li,.lede,.standfirst,.cta p,.sp h4{font-size:10.5pt;line-height:1.5}
+  .measure,.lede,.standfirst,.pull,.term,.note{max-width:none}
+  .informe-doc h1{font-size:24pt}
+  .informe-doc h2{font-size:17pt;margin-top:0}
+  .informe-doc h3{font-size:12.5pt;margin-top:1.4em}
+  .pull p{font-size:13pt}
+  .tile .v{font-size:20pt}
+  .eyebrow,.edicion,.delta,.toc h2,.toc a,.toc a::before,.snum,.panel-h h3,.panel-h .meta,
+  .tile .k,.tile .sub,.chip,.chart-t,.chart-s,.bar-lab,.bar-val,.informe-doc table,.informe-doc th,
+  .sp .cap,.sp li,.term dt,.term dd,.note,.src,.gi h4,.gi .en,.gi p,.legal p,.legal li,
+  .rev h4,.rev li,.btn,.informe-doc a.btn,.draft,.wm{font-size:10.5pt}
+  .informe-doc th,.informe-doc td{padding:6px 9px}
+  .chip,.delta{white-space:normal;text-align:left}
+  .mast{padding-top:0}
+  .informe-doc section{padding-top:7mm}
+  /* espaciado de papel: los aires de pantalla dejaban colas de 12 % en la ultima pagina */
+  .edicion{margin-bottom:16px}
+  .panel,.chart{margin:16px 0}
+  .toc{margin:20px 0}
+  .note{margin:12px 0}
+  .pull{margin:20px 0;padding:14px 0}
+  .term{margin:14px 0}
+  .cta{margin:20px 0;padding:14px 18px}
+  .draft{margin:16px 0}
+  .split,.gloss{margin:16px 0}
+  .legal{margin-top:0;padding-top:3mm}
+  .informe-doc section:last-of-type{padding-top:3mm}
+  /* dos columnas que se rellenan pagina por pagina. Como rejilla, partida entre dos paginas
+     abria la siguiente con la columna derecha y la izquierda vacia (Rosetta Main, 14-sep,
+     p33→p34). Indivisible no alcanza: el bloque mide 1,1 paginas y Chrome lo parte igual
+     (iteracion 6). Una columna sola lo alarga y deja una ultima pagina con dos lineas
+     (iteracion 7). Multicolumna equilibra cada pagina y conserva el orden de lectura. */
+  .legal .cols{display:block;column-count:2;column-gap:16px;break-inside:auto}
+  .legal .cols > *{break-inside:auto}
+  .legal .cols h3{break-after:avoid}
+  .legal h3{margin:.9em 0 .35em} .legal .cols h3:first-child{margin-top:0}
+  .legal p,.legal li{margin-bottom:.7em}
+  .legal .note{margin:6px 0} .legal .src{margin-top:4px}
+  /* lo que viaja entero */
+  .chart,.tiles,.tile,.toc,.draft,.split,.sp,.term,.note,.pull,.rev,.cta,.gi,.bar-row,
+  figure,pre,.mast,.edicion,.informe-doc p,.informe-doc li,.informe-doc tr,.informe-doc thead,.panel-h{break-inside:avoid}
+  .panel,.tw,.informe-doc table{break-inside:avoid}
+  /* ...salvo tablas largas (10 filas o mas), que no caben enteras: fragmentan entre filas */
+  .panel:has(tbody tr:nth-of-type(n+10)),.tw:has(tbody tr:nth-of-type(n+10)),
+  .informe-doc table:has(tbody tr:nth-of-type(n+10)){break-inside:auto}
+  .informe-doc thead{display:table-header-group}
+  /* a · la nota al pie de una tabla viaja con su ultima fila: sola en la pagina siguiente
+     no se entiende («Verticales con menos de 3…», p11→p12) */
+  .tw + .src,.informe-doc table + .src,.chart-b + .src{break-before:avoid}
+  /* solo en tablas largas: en una corta arrastraba dos filas altas a la pagina siguiente y dejaba
+     medio panel en blanco («Como se compone», iteracion 9) */
+  .informe-doc table:has(tbody tr:nth-of-type(n+10)) tbody tr:last-child{break-before:avoid}
+  /* b · el titulo de seccion y su entradilla bajan con el primer bloque: si ese bloque es un
+     recuadro alto que no cabe, bajan los tres («08 · El costo de esperar», p23) */
+  /* solo si la entradilla es un parrafo: con dos, el conjunto titulo+texto+panel no cabe en una
+     pagina y el panel se parte con medio recuadro en blanco («04 · El indice», iteracion 10) */
+  .informe-doc h2 + .measure:not(:has(> :nth-child(2))),.informe-doc h2 + p.lede,.informe-doc h2 + .lede{break-after:avoid}
+  /* la entradilla nunca cierra pagina: dentro de un .measure el corte caia entre ella y el
+     parrafo que presenta el panel («04 · El indice», iteracion 6) */
+  .informe-doc .lede{break-after:avoid}
+  /* el colofon cierra el documento pegado a lo ultimo que se leyo, nunca solo en una pagina (iteracion 11) */
+  .informe-doc section:last-of-type > .src:last-child{break-before:avoid}
+  .informe-doc section:last-of-type > .measure:has(+ .src:last-child){break-inside:avoid}
+  /* menor · la nota suelta dentro de un panel no toca el borde del recuadro */
+  .panel > .src,.chart > .src{padding:0 20px 14px;margin-top:0}
+  /* un titulo nunca queda solo al pie: viaja con lo que sigue */
+  .informe-doc h1,.informe-doc h2,.informe-doc h3,.informe-doc h4,.sechead,.eyebrow,.panel-h,.chart-h,.mast,.informe-doc thead{break-after:avoid}
+  /* un titulo de dos lineas tampoco se parte en dos paginas (visto en 06 · La trampa) */
+  .informe-doc h1,.informe-doc h2,.informe-doc h3,.informe-doc h4,.sechead,.eyebrow{break-inside:avoid}
+  /* rejillas: sin el fondo de linea, que al partirse pintaba un bloque gris */
+  .gloss{background:none;border:0;gap:6px;break-inside:auto}
+  .gi{border:1px solid var(--line);border-radius:3px}
+  .tiles{background:none;gap:0;border-top:1px solid var(--line)}
+  .tile{border-right:1px solid var(--line);border-bottom:1px solid var(--line)}
+  .tile:nth-child(4n){border-right:0}
+  /* lo monolitico se abre para que fragmente en vez de recortarse */
+  .panel,.chart,.chart-b,.split,.gloss,.tw{overflow:visible}
+  .informe .bars{min-width:0}
+  /* enlaces: conservan el texto, no el aspecto de enlace */
+  .informe-doc a{color:inherit;text-decoration:none}
+  .informe-doc a.btn,.btn{background:none;color:var(--ink);border:1px solid var(--ink);transition:none}
 }
