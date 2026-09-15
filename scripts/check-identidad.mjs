@@ -74,8 +74,12 @@ export const DECLARADAS = [
     razon: "identidad terminal, unica excepcion aprobada por Nicholas el 14-ago-2026 (dos identidades: terminal y registro)" },
   { prefijo: "/q-ready",
     razon: "vivas con noindex por decision de Nicholas en el cierre pre-GO; fuera del menu y sin indexar, el porte queda pendiente" },
-  { prefijo: "/es/q-ready",
-    razon: "misma decision que /q-ready" },
+  // /es/q-ready (la landing) YA NO está exenta: se portó a la marca el 15-sep-2026 como
+  // puerta de seguridad. Una página portada que sigue exenta pasa este guardia aunque se
+  // rompa — el verde no mediría nada. Sólo quedan exentas las tres que NO se portaron.
+  { prefijo: "/es/q-ready/checkout", razon: "misma decision que /q-ready; no se porto con la landing" },
+  { prefijo: "/es/q-ready/portal", razon: "misma decision que /q-ready; no se porto con la landing" },
+  { prefijo: "/es/q-ready/sample-report", razon: "misma decision que /q-ready; no se porto con la landing" },
 ];
 
 /**

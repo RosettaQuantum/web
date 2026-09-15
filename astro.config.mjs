@@ -75,7 +75,9 @@ export default defineConfig({
       // siguen respondiendo —qready_leads y su workflow quedan intactos— pero deja de
       // anunciarse como parte de este sitio. Estaba fuera del nav desde el commit 4 y
       // seguía en el sitemap: media salida es la que no se nota.
-      filter: (page) => !page.includes('/rq-shell-') && !page.includes('/q-ready')
+      // 15-sep-2026: vuelve SÓLO /es/q-ready, portada a la marca como puerta de seguridad.
+      // Checkout, portal y la muestra siguen fuera: no se portaron.
+      filter: (page) => !page.includes('/rq-shell-') && (!page.includes('/q-ready') || /\/es\/q-ready\/?$/.test(page))
         && !(INFORME_BORRADOR && page.includes('/informe-pqc')),
       i18n: { defaultLocale: 'en', locales: { en: 'en', es: 'es' } },
       serialize(item) {
