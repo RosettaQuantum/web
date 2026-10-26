@@ -1,24 +1,21 @@
--- SEMILLA DE PRUEBA LOCAL para /og/<id>.png. NO ES UN ESQUEMA DECLARADO.
+-- Semilla local SOLO para el camino de RESPALDO de /og/<id>.png: la tabla `posts`.
 --
--- POR QUE VIVE EN test/ Y NO EN db/
--- --------------------------------
--- `li_cards` existe en la D1 de produccion (catastro del 31-ago: aparece en la lista de
--- tablas vivas) y **no esta declarada en ningun db/*.schema.sql**. Su forma real NO se
--- pudo leer en la sesion que escribio esto: la consulta a la base de produccion quedo
--- fuera de permiso. Asi que el CREATE de abajo es una forma PLAUSIBLE para ejercer el
--- camino de lectura en local, no la de produccion.
+-- LA PARTE DE li_cards SE BORRO DE AQUI, Y POR QUE IMPORTA
+-- -------------------------------------------------------
+-- Este archivo llego a declarar un `li_cards (post_id, title, tldr, pillar, date, lang)`
+-- INVENTADO, porque la lectura de la base de produccion estaba fuera de permiso y se
+-- resolvio adivinando. El esquema real tiene tres columnas y el contenido vive dentro de
+-- `spec_json`: ninguna de las que decia esta fixture existe. Como el codigo emparejaba
+-- nombres candidatos contra lo que encontrara, **la fixture inventada hacia pasar al
+-- codigo inventado** y la cabecera devolvia sus propios nombres como si fueran un dato
+-- de produccion. Una fixture que se escribe para que pase el codigo no prueba nada.
 --
--- Ponerlo en db/ seria peor que no tenerlo: `check-esquema-deriva` grita por toda tabla
--- que vive en D1 y nadie declara, y un CREATE inventado la CALLARIA — una tabla sin
--- respaldo pasaria a parecer respaldada. Exactamente el defecto que ese guardia existe
--- para no reabrir.
+-- Las filas de li_cards para probar son REALES y viven en `test/li_cards.real.seed.sql`,
+-- copiadas de produccion. El esquema declarado esta en `db/li-cards.schema.sql`.
 --
--- Por eso lib/og-ruta.mjs no asume columnas: descubre las de la tabla viva desde
--- sqlite_master y las empareja contra una lista de candidatas. Esta semilla comprueba
--- que ese emparejado funciona cuando los nombres son `post_id/title/tldr/pillar/date`.
---
--- Uso:
+-- Uso (las dos, en este orden):
 --   npx wrangler d1 execute rosettaq-ledger --local --file test/og-local.seed.sql
+--   npx wrangler d1 execute rosettaq-ledger --local --file test/li_cards.real.seed.sql
 
 CREATE TABLE IF NOT EXISTS posts (
   id TEXT PRIMARY KEY, slug_base TEXT NOT NULL, lang TEXT NOT NULL,
@@ -27,30 +24,16 @@ CREATE TABLE IF NOT EXISTS posts (
   published INTEGER NOT NULL DEFAULT 0, created_at TEXT NOT NULL
 );
 
-CREATE TABLE IF NOT EXISTS li_cards (
-  post_id TEXT PRIMARY KEY,
-  title   TEXT NOT NULL,
-  tldr    TEXT,
-  pillar  TEXT,
-  date    TEXT,
-  lang    TEXT
-);
-
-DELETE FROM posts    WHERE id IN ('advantaged-solve-en','advantaged-solve-es');
-DELETE FROM li_cards WHERE post_id = 'advantaged-solve';
+DELETE FROM posts WHERE id IN ('advantaged-solve-en','advantaged-solve-es');
 
 -- El titular y el resumen NO son texto nuevo: son los de la nota /blog/advantaged-solve-en/
--- VIVA en produccion, leidos de su HTML el 26-oct-2026 (titulo, pilar B y fecha 2026-08-26
--- incluidos). Es la fixture que pedia el encargo y ademas la correcta: se prueba contra la
--- fila real, no contra un ejemplo inventado. Su tldr tiene 400 caracteres a proposito —
--- ejerce la regla de que un tldr que no entra entero en dos lineas se OMITE en vez de
--- recortarse. Una fixture con una frase inventada seria
--- texto publico sin aprobar entrando por la puerta de atras.
+-- VIVA en produccion, leidos de su HTML el 26-oct-2026 (titulo, Pilar B y fecha incluidos).
+-- Su tldr tiene 400 caracteres a proposito: ejerce la regla de que un tldr que no entra
+-- entero se OMITE en vez de recortar texto aprobado.
 --
--- Y la fila en espanol lleva TILDES y signo de apertura a proposito: es el unico modo
--- de ejercer de verdad que la TTF embebida trae esos glifos. Una fixture sin tildes
--- habria pasado verde con una fuente que no sabe pintarlas — el defecto de 74 de 74
--- notas sin una sola tilde, pasando un guardia de idioma.
+-- La fila en espanol lleva tildes y signo de apertura tambien a proposito: es el unico
+-- modo de ejercer que las TTF embebidas traen esos glifos. Una fixture sin tildes habria
+-- pasado verde con una fuente que no sabe pintarlas.
 INSERT INTO posts (id, slug_base, lang, title, tldr, date, pillar, sources_json, body_html, published, created_at)
 VALUES
  ('advantaged-solve-en','advantaged-solve','en',
@@ -59,11 +42,5 @@ VALUES
   '2026-08-26','B','[]','<p>fixture</p>',1,'2026-08-26T00:00:00Z'),
  ('advantaged-solve-es','advantaged-solve','es',
   '¿Qué es una "solución con ventaja" y por qué importa?',
-  'Una fila en español con tildes y signo de apertura: es el unico modo de ejercer que la TTF embebida trae esos glifos.',
-  '2026-08-26','B','[]','<p>fixture</p>',1,'2026-10-12T00:00:00Z');
-
-INSERT INTO li_cards (post_id, title, tldr, pillar, date, lang)
-VALUES ('advantaged-solve',
-  'What is an "advantaged solve" and why does it matter?',
-  'An advantaged solve is one problem instance where a quantum recipe measurably beat the strongest classical baseline its user could field — same instance, same budget, measured, dated, and re-runnable. It is a unit of evidence, not a unit of billing, and it is equally honest about counting zero. As of August 2026, zero advantaged solves are verified in Rosetta Q''s ledger — including its own runs.',
-  'B','2026-08-26','en');
+  'Una fila en español con tildes y signo de apertura: es el único modo de ejercer que la TTF embebida trae esos glifos.',
+  '2026-08-26','B','[]','<p>fixture</p>',1,'2026-08-26T00:00:00Z');
