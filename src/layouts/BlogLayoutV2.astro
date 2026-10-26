@@ -40,13 +40,30 @@ import blogCss from '../styles/pages/blog.css?raw';
 import paginasCss from '../styles/pages/paginas.css?raw';
 import { abs } from '../lib/urls.js';
 
-const { title, description, lang = 'en', altUrl = '/es/', altHreflang = null, jsonld } = Astro.props;
+const { title, description, lang = 'en', altUrl = '/es/', altHreflang = null, jsonld,
+        ogImage = '/og/default.png', ogUrl = null } = Astro.props;
 const altLang = lang === 'en' ? 'es' : 'en';
 const canonical = abs(Astro.url.pathname);
 const altHref = altHreflang ? abs(altHreflang) : null;
 const xDefault = lang === 'en' ? canonical : altHref;
 const FUENTES = 'https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,400;6..72,500;6..72,600&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap';
 const css = navCss + "\n" + marca + "\n" + paginasCss + "\n" + blogCss;
+
+/* METADATOS SOCIALES DEL BLOG. Medido el 26-oct-2026 sobre este archivo: `og:` y
+   `twitter:` aparecian CERO veces. Los catorce de B1.4 viven en BaseLayout, y el blog
+   —las 106 notas y los dos cascarones— no entra por BaseLayout: entra por aqui. O sea
+   que la superficie que mas se comparte era justo la que no los tenia, y el guardia de
+   B1.4 no lo vio porque mira lo que SI los declara.
+
+   Los valores que el cascaron no puede saber viajan como MARCADOR, igual que los cuatro
+   que ya existen: el cascaron se compila en /rq-shell-xx/, asi que su `canonical` —y por
+   tanto su og:url— es el del cascaron, y su tarjeta tendria que ser la generica. El
+   Worker sustituye __RQ_URL__ y __RQ_OGIMG__ por los de la nota real (worker.js) y
+   T-cascaron comprueba que los dos sigan existiendo en el compilado. Un marcador se
+   puede comprobar; un regex sobre el <head> compilado, no. */
+const esMarcador = (v) => typeof v === 'string' && v.startsWith('__RQ_');
+const ogImagen = esMarcador(ogImage) ? ogImage : abs(ogImage);
+const ogUrlFinal = ogUrl ? (esMarcador(ogUrl) ? ogUrl : abs(ogUrl)) : canonical;
 ---
 <!doctype html>
 <html lang={lang}>
@@ -58,6 +75,19 @@ const css = navCss + "\n" + marca + "\n" + paginasCss + "\n" + blogCss;
   <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
   <link rel="alternate icon" href="/favicon.ico" sizes="16x16 32x32" />
   <link rel="canonical" href={canonical} />
+  <meta property="og:type" content="article" />
+  <meta property="og:site_name" content="Rosetta Quantum" />
+  <meta property="og:title" content={title} />
+  <meta property="og:description" content={description} />
+  <meta property="og:url" content={ogUrlFinal} />
+  <meta property="og:image" content={ogImagen} />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta property="og:locale" content={lang === 'es' ? 'es_ES' : 'en_US'} />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content={title} />
+  <meta name="twitter:description" content={description} />
+  <meta name="twitter:image" content={ogImagen} />
   {altHref && <link rel="alternate" hreflang={lang} href={canonical} />}
   {altHref && <link rel="alternate" hreflang={altLang} href={altHref} />}
   {xDefault && <link rel="alternate" hreflang="x-default" href={xDefault} />}

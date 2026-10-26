@@ -1,5 +1,6 @@
 import { manejarApi } from "./api.js";
 import { manejarQreadyLead } from "./lib/qready-lead.mjs";
+import { manejarOg } from "./lib/og-ruta.mjs";
 
 // Serves the static Astro build (dist/), redirects to the canonical host,
 // accepts lead submissions at POST /api/lead -> D1 `leads`, and serves
@@ -138,6 +139,18 @@ export default {
       return json(cuerpo, status);
     }
 
+    // La tarjeta social de una nota: /og/<id>.png, rasterizada aqui porque las notas se
+    // publican por INSERT y en el build no existen. Devuelve null cuando no hay fila, y
+    // entonces la peticion sigue a ASSETS: asi las seis tarjetas fijas de public/og/
+    // ganan por existir y un id inexistente da el 404 del asset.
+    //
+    // VA FUERA DEL `if (method === "GET")`, y el defecto de haberlo puesto dentro se
+    // midio: HEAD /og/<id>.png devolvia 404 mientras GET devolvia 200. El bloque de
+    // abajo es solo-GET a proposito (un POST a /blog no tiene sentido), pero una imagen
+    // SI tiene que contestar HEAD: es lo primero que piden varios rastreadores.
+    const tarjeta = await manejarOg(request, env, ctx);
+    if (tarjeta) return tarjeta;
+
     // --- D1-backed Library: publish a post by INSERT, no rebuild needed ---
     if (request.method === "GET") {
       // (1) single post URL: /blog/<id>/  (ids end in -en / -es, both live under /blog/)
@@ -246,6 +259,12 @@ export function renderPostHTML(shellHtml, row, nav = {}) {
     .split("__RQ_TITLE__").join(esc(row.title))
     .split("__RQ_DESC__").join(esc(row.tldr))
     .split("__RQ_ALT__").join(esc(altUrl))
+    // El cascaron se compila en /rq-shell-xx/, asi que su og:url seria el del cascaron
+    // —LinkedIn resolveria la nota compartida al cascaron— y su og:image la generica.
+    // Los dos van por marcador y no por regex sobre el <head>: T-cascaron puede contar
+    // un marcador en el compilado y no puede comprobar un regex.
+    .split("__RQ_URL__").join(esc(selfUrl))
+    .split("__RQ_OGIMG__").join(esc(`${SITE}/og/${row.id}.png`))
     .replace("__RQ_ARTICLE__", article)
     .replace(/<link rel="canonical"[^>]*>/, head)
     .replace("</head>", `<script type="application/ld+json">${JSON.stringify(jsonld)}</script></head>`);
