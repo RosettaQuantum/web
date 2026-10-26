@@ -1,5 +1,10 @@
 import { manejarApi } from "./api.js";
 import { manejarQreadyLead } from "./lib/qready-lead.mjs";
+import { manejarOg } from "./lib/og-ruta.mjs";
+// /sitemap-0.xml vive en lib/ para que una guardia de Node pueda ejercerlo: worker.js
+// importa .ttf/.css/.wasm y no se puede cargar fuera del Worker. Ahi esta tambien el
+// bug que devolvia una respuesta ya consumida y daba 500.
+import { augmentSitemap } from "./lib/sitemap.mjs";
 
 // Serves the static Astro build (dist/), redirects to the canonical host,
 // accepts lead submissions at POST /api/lead -> D1 `leads`, and serves
@@ -138,6 +143,18 @@ export default {
       return json(cuerpo, status);
     }
 
+    // La tarjeta social de una nota: /og/<id>.png, rasterizada aqui porque las notas se
+    // publican por INSERT y en el build no existen. Devuelve null cuando no hay fila, y
+    // entonces la peticion sigue a ASSETS: asi las seis tarjetas fijas de public/og/
+    // ganan por existir y un id inexistente da el 404 del asset.
+    //
+    // VA FUERA DEL `if (method === "GET")`, y el defecto de haberlo puesto dentro se
+    // midio: HEAD /og/<id>.png devolvia 404 mientras GET devolvia 200. El bloque de
+    // abajo es solo-GET a proposito (un POST a /blog no tiene sentido), pero una imagen
+    // SI tiene que contestar HEAD: es lo primero que piden varios rastreadores.
+    const tarjeta = await manejarOg(request, env, ctx);
+    if (tarjeta) return tarjeta;
+
     // --- D1-backed Library: publish a post by INSERT, no rebuild needed ---
     if (request.method === "GET") {
       // (1) single post URL: /blog/<id>/  (ids end in -en / -es, both live under /blog/)
@@ -246,6 +263,12 @@ export function renderPostHTML(shellHtml, row, nav = {}) {
     .split("__RQ_TITLE__").join(esc(row.title))
     .split("__RQ_DESC__").join(esc(row.tldr))
     .split("__RQ_ALT__").join(esc(altUrl))
+    // El cascaron se compila en /rq-shell-xx/, asi que su og:url seria el del cascaron
+    // —LinkedIn resolveria la nota compartida al cascaron— y su og:image la generica.
+    // Los dos van por marcador y no por regex sobre el <head>: T-cascaron puede contar
+    // un marcador en el compilado y no puede comprobar un regex.
+    .split("__RQ_URL__").join(esc(selfUrl))
+    .split("__RQ_OGIMG__").join(esc(`${SITE}/og/${row.id}.png`))
     .replace("__RQ_ARTICLE__", article)
     .replace(/<link rel="canonical"[^>]*>/, head)
     .replace("</head>", `<script type="application/ld+json">${JSON.stringify(jsonld)}</script></head>`);
@@ -608,42 +631,3 @@ async function augmentRss(env, request) {
   });
 }
 
-// Declara en el sitemap los posts que solo existen en D1 (los migrados ya vienen del
-// build). Reconstruye el par de idioma cuando las dos caras estan publicadas: declarar
-// un alternate que no existe es peor que no declarar ninguno.
-async function augmentSitemap(env, request) {
-  const assetRes = await env.ASSETS.fetch(request);
-  if (assetRes.status !== 200) return assetRes;
-  const { results = [] } = await env.DB.prepare(
-    "SELECT id, slug_base, lang, date FROM posts WHERE published=1"
-  ).all();
-  let xml = await assetRes.text();
-  const live = new Set(results.map(p => `${p.slug_base}|${p.lang}`));
-  const fresh = results.filter(p => !xml.includes(`/blog/${p.id}`));
-  if (!fresh.length) return assetRes;
-
-  const SITE = "https://rosettaquantum.com";
-  const entries = fresh.map(p => {
-    const other = p.lang === "es" ? "en" : "es";
-    const loc = `${SITE}/blog/${p.id}/`;
-    let links = "";
-    if (live.has(`${p.slug_base}|${other}`)) {
-      const enUrl = `${SITE}/blog/${p.slug_base}-en/`;
-      const esUrl = `${SITE}/blog/${p.slug_base}-es/`;
-      links =
-        `<xhtml:link rel="alternate" hreflang="en" href="${enUrl}"/>` +
-        `<xhtml:link rel="alternate" hreflang="es" href="${esUrl}"/>` +
-        `<xhtml:link rel="alternate" hreflang="x-default" href="${enUrl}"/>`;
-    }
-    return `<url><loc>${loc}</loc><lastmod>${p.date}</lastmod>${links}</url>`;
-  }).join("");
-
-  xml = xml.replace("</urlset>", entries + "</urlset>");
-  return new Response(xml, {
-    headers: {
-      "Content-Type": assetRes.headers.get("content-type") || "application/xml; charset=utf-8",
-      "Cache-Control": "public, s-maxage=60",
-      "X-RQ-Sitemap": `added:${fresh.length}`,
-    },
-  });
-}

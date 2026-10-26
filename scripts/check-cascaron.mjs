@@ -42,6 +42,11 @@ const MARCADORES = [
   ["__RQ_DESC__", "min1", "worker.js usa split/join"],
   ["__RQ_ALT__", "min1", "worker.js usa split/join"],
   ["__RQ_ARTICLE__", "exacto1", "worker.js usa replace: con dos, la pagina se parte por la primera y se pierde el resto"],
+  // 26-oct-2026: los metadatos sociales del blog. Sin ellos en el compilado, el post
+  // servido declara el og:url del CASCARON (LinkedIn resuelve la nota al cascaron) y la
+  // tarjeta generica en vez de la suya. worker.js usa split/join para los dos.
+  ["__RQ_URL__", "min1", "worker.js usa split/join"],
+  ["__RQ_OGIMG__", "min1", "worker.js usa split/join"],
 ];
 
 for (const f of SHELLS) {
@@ -71,7 +76,7 @@ for (const f of SHELLS) {
   if (!h.includes("</head>")) problemas.push("sin </head> — es un punto de insercion");
 
   if (problemas.length) { console.log(`  FALLA ${f}`); problemas.forEach((p) => console.log(`        ${p}`)); fallos.push(f); }
-  else console.log(`  ok    ${f.padEnd(32)} 4 marcadores · 0 contenedores propios · 1 canonical · </head>`);
+  else console.log(`  ok    ${f.padEnd(32)} 6 marcadores · 0 contenedores propios · 1 canonical · </head>`);
 }
 
 // Caso de silencio: un cascarón sano no puede hacerlo gritar, y uno con el marcador

@@ -9,12 +9,35 @@
   "assets": {
     "binding": "ASSETS",
     "directory": "./dist",
+    // /og/* entra por una razon distinta a las demas y conviene no "arreglarla": un GET
+    // a una tarjeta inexistente ya caia al Worker solo, pero un HEAD NO —medido en
+    // local el 26-oct: GET /og/<id>.png daba 200 y HEAD daba 404, porque la capa de
+    // assets responde el HEAD sin invocar al Worker— y varios rastreadores sociales
+    // piden HEAD antes de bajar la imagen. Meterla aqui es seguro porque el Worker
+    // termina en `env.ASSETS.fetch(request)`: las SEIS tarjetas fijas de public/og/
+    // siguen ganando por existir (comprobado byte a byte en local).
+    //
     // /clases y /es/clases SI existen como archivo construido, asi que sin esta
     // lista Cloudflare los sirve tal cual y el codigo que inyecta el archivador
     // desde D1 no llega a ejecutarse nunca. Misma trampa que costo dos deploys
     // con el indice de la Biblioteca.
-    "run_worker_first": ["/blog", "/blog/*", "/es/blog", "/es/blog/", "/llms.txt", "/rss.xml", "/sitemap-0.xml", "/v1", "/v1/*", "/mcp"]
+    "run_worker_first": ["/blog", "/blog/*", "/es/blog", "/es/blog/", "/llms.txt", "/rss.xml", "/sitemap-0.xml", "/v1", "/v1/*", "/mcp", "/og/*"]
   },
+  // La tarjeta social por nota (/og/<id>.png) se rasteriza DENTRO del Worker con
+  // resvg-wasm, porque aqui no hay Chrome y las notas se publican por INSERT sin
+  // rebuild. Tres tipos de modulo no-JS entran al bundle por eso:
+  //   Data  -> las dos TTF. resvg en un Worker NO tiene fuentes del sistema: un texto
+  //            sin su familia cargada no da error, sale VACIO (medido). Van embebidas y
+  //            no se bajan en caliente para que la tarjeta no dependa de una tercera
+  //            parte en el momento en que LinkedIn la pide.
+  //   Text  -> global.css, para leer los tokens de marca de SU UNICA fuente en vez de
+  //            copiar los hex al codigo de la tarjeta; y rosetta-mark.svg, el mismo
+  //            archivo que sirve el sitio, para no duplicar el path del logotipo.
+  // El .wasm no necesita regla: CompiledWasm es el tipo por defecto de **/*.wasm.
+  "rules": [
+    { "type": "Data", "globs": ["**/*.ttf"], "fallthrough": true },
+    { "type": "Text", "globs": ["**/global.css", "**/rosetta-mark.svg"], "fallthrough": true }
+  ],
   "d1_databases": [
     { "binding": "DB", "database_name": "rosettaq-ledger", "database_id": "f0919403-5bd0-4842-a1d3-0954fdd47633" }
   ],
@@ -50,7 +73,7 @@
       "assets": {
         "binding": "ASSETS",
         "directory": "./dist",
-        "run_worker_first": ["/blog", "/blog/*", "/es/blog", "/es/blog/", "/llms.txt", "/rss.xml", "/sitemap-0.xml", "/v1", "/v1/*", "/mcp"]
+        "run_worker_first": ["/blog", "/blog/*", "/es/blog", "/es/blog/", "/llms.txt", "/rss.xml", "/sitemap-0.xml", "/v1", "/v1/*", "/mcp", "/og/*"]
       },
       "d1_databases": [
         { "binding": "DB", "database_name": "rosettaq-ledger", "database_id": "f0919403-5bd0-4842-a1d3-0954fdd47633" }
