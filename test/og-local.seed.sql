@@ -39,8 +39,12 @@ CREATE TABLE IF NOT EXISTS li_cards (
 DELETE FROM posts    WHERE id IN ('advantaged-solve-en','advantaged-solve-es');
 DELETE FROM li_cards WHERE post_id = 'advantaged-solve';
 
--- El titular y el resumen NO son texto nuevo: son los de /services/sample-report, que ya
--- estan publicados y ya pasaron por Nicholas. Una fixture con una frase inventada seria
+-- El titular y el resumen NO son texto nuevo: son los de la nota /blog/advantaged-solve-en/
+-- VIVA en produccion, leidos de su HTML el 26-oct-2026 (titulo, pilar B y fecha 2026-08-26
+-- incluidos). Es la fixture que pedia el encargo y ademas la correcta: se prueba contra la
+-- fila real, no contra un ejemplo inventado. Su tldr tiene 400 caracteres a proposito —
+-- ejerce la regla de que un tldr que no entra entero en dos lineas se OMITE en vez de
+-- recortarse. Una fixture con una frase inventada seria
 -- texto publico sin aprobar entrando por la puerta de atras.
 --
 -- Y la fila en espanol lleva TILDES y signo de apertura a proposito: es el unico modo
@@ -50,16 +54,16 @@ DELETE FROM li_cards WHERE post_id = 'advantaged-solve';
 INSERT INTO posts (id, slug_base, lang, title, tldr, date, pillar, sources_json, body_html, published, created_at)
 VALUES
  ('advantaged-solve-en','advantaged-solve','en',
-  'Constrained portfolio compression: does QAOA beat the classical champion?',
-  'A public record that cannot be rewritten.',
-  '2026-10-12','C','[]','<p>fixture</p>',1,'2026-10-12T00:00:00Z'),
+  'What is an "advantaged solve" and why does it matter?',
+  'An advantaged solve is one problem instance where a quantum recipe measurably beat the strongest classical baseline its user could field — same instance, same budget, measured, dated, and re-runnable. It is a unit of evidence, not a unit of billing, and it is equally honest about counting zero. As of August 2026, zero advantaged solves are verified in Rosetta Q''s ledger — including its own runs.',
+  '2026-08-26','B','[]','<p>fixture</p>',1,'2026-08-26T00:00:00Z'),
  ('advantaged-solve-es','advantaged-solve','es',
-  'Compresión de cartera con restricciones: ¿le gana QAOA al campeón clásico?',
-  'Un registro público que no se puede reescribir.',
-  '2026-10-12','C','[]','<p>fixture</p>',1,'2026-10-12T00:00:00Z');
+  '¿Qué es una "solución con ventaja" y por qué importa?',
+  'Una fila en español con tildes y signo de apertura: es el unico modo de ejercer que la TTF embebida trae esos glifos.',
+  '2026-08-26','B','[]','<p>fixture</p>',1,'2026-10-12T00:00:00Z');
 
 INSERT INTO li_cards (post_id, title, tldr, pillar, date, lang)
 VALUES ('advantaged-solve',
-  'Constrained portfolio compression: does QAOA beat the classical champion?',
-  'A public record that cannot be rewritten.',
-  'C','2026-10-12','en');
+  'What is an "advantaged solve" and why does it matter?',
+  'An advantaged solve is one problem instance where a quantum recipe measurably beat the strongest classical baseline its user could field — same instance, same budget, measured, dated, and re-runnable. It is a unit of evidence, not a unit of billing, and it is equally honest about counting zero. As of August 2026, zero advantaged solves are verified in Rosetta Q''s ledger — including its own runs.',
+  'B','2026-08-26','en');
