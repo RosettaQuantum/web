@@ -1,0 +1,80 @@
+---
+/**
+ * /es/q-ready/borde — re-medición EN VIVO del borde de un dominio (29-oct-2026).
+ * Nació para la reunión con el equipo de ciberseguridad de Santander (3-nov, por videollamada):
+ * Nicholas comparte pantalla, escribe el dominio y la página muestra los tres saludos TLS.
+ *
+ * Es una herramienta general: no guarda nada del dominio medido, no muestra ningún informe
+ * de cliente (los informes individuales viajan por archivo, nunca por la web: decisión de
+ * Nicholas, 21-ago) y no escribe en D1. El instrumento es lib/borde-envivo.mjs, puerto fiel
+ * de probe_soporte.py + rescan_eleccion.py, verificado 6 de 6 contra ellos el 29-oct.
+ *
+ * noindex hasta que Nicholas apruebe el texto: la página se usa por enlace directo.
+ */
+import MarcaLayout from '../../../../layouts/MarcaLayout.astro';
+import paginas from '../../../../styles/pages/paginas.css?raw';
+import propia from '../../../../styles/pages/borde-envivo.css?raw';
+---
+<MarcaLayout
+  title="Su borde, medido en vivo — Rosetta Q-Ready"
+  description="Tres saludos TLS a su servidor: ¿soporta el intercambio post-cuántico X25519MLKEM768, lo elige, lo pide? Sin completar la conexión, sin datos, con la huella del resultado."
+  lang="es" altUrl="/q-ready" ruta="/es/q-ready/borde"
+  pageCss={paginas + '\n' + propia} scripts={["/js/borde-envivo.js"]} noindex={true}
+>
+  <section class="bv">
+    <div class="wrap bv-wrap">
+      <p class="eyebrow">Rosetta Q-Ready · medición en vivo</p>
+      <h1>Su borde, medido en vivo.</h1>
+      <p class="bv-lede">Tres saludos TLS a su servidor, uno por pregunta. Ninguno completa la conexión, ninguno envía datos ni credenciales. El resultado sale con su huella y la hora del servidor.</p>
+
+      <form class="bv-form" id="bv-form" novalidate>
+        <label for="bv-host">Dominio</label>
+        <div class="bv-fila">
+          <input id="bv-host" name="host" type="text" inputmode="url" autocomplete="off" spellcheck="false" placeholder="www.santander.cl" required>
+          <button class="btn btn-solid" type="submit" id="bv-ir">Medir ahora</button>
+        </div>
+        <p class="bv-estado" id="bv-estado" role="status" aria-live="polite" hidden></p>
+      </form>
+
+      <ol class="bv-pasos" id="bv-pasos" aria-live="polite">
+        <li data-paso="dns">
+          <span class="bv-n">1</span>
+          <div><h2>Quién sirve su borde</h2><p class="bv-q">La cadena de nombres de su dominio: qué CDN responde por usted.</p><p class="bv-r" data-r></p></div>
+          <span class="bv-ms" data-ms></span>
+        </li>
+        <li data-paso="A">
+          <span class="bv-n">2</span>
+          <div><h2>Como lo haría un navegador</h2><p class="bv-q">Ofrecemos todos los grupos y la llave clásica x25519. ¿Su borde pide el híbrido post-cuántico?</p><p class="bv-r" data-r></p></div>
+          <span class="bv-ms" data-ms></span>
+        </li>
+        <li data-paso="B">
+          <span class="bv-n">3</span>
+          <div><h2>Sólo post-cuántico</h2><p class="bv-q">Ofrecemos sólo X25519MLKEM768, sin llave. Si su borde lo pide, lo soporta.</p><p class="bv-r" data-r></p></div>
+          <span class="bv-ms" data-ms></span>
+        </li>
+        <li data-paso="C">
+          <span class="bv-n">4</span>
+          <div><h2>Libre elección</h2><p class="bv-q">Ofrecemos el híbrido y el clásico, sin llave. ¿Cuál elige su borde?</p><p class="bv-r" data-r></p></div>
+          <span class="bv-ms" data-ms></span>
+        </li>
+      </ol>
+
+      <div class="bv-veredicto" id="bv-veredicto" hidden>
+        <p class="bv-v-titulo" id="bv-v-titulo"></p>
+        <ul class="bv-v-lista" id="bv-v-lista"></ul>
+        <p class="bv-alcance">Esto mide el tramo de su cliente hasta su borde. El tramo del borde a su servidor de origen no se ve desde afuera: es una pregunta para su proveedor.</p>
+        <div class="bv-recibo">
+          <span>Medido <b id="bv-cuando"></b></span>
+          <span>huella sha256 <code id="bv-huella"></code></span>
+          <button class="bv-link" type="button" id="bv-copiar">Copiar el resultado completo (JSON)</button>
+        </div>
+      </div>
+
+      <details class="bv-como">
+        <summary>Cómo se mide</summary>
+        <p>Abrimos una conexión al puerto 443 y enviamos un único mensaje de saludo TLS 1.3 (ClientHello). Leemos la primera respuesta del servidor y cerramos. No hay sesión, no viajan datos de aplicación ni credenciales, y no es una prueba de intrusión. Cada medición son tres saludos, equivalentes a abrir su sitio tres veces.</p>
+        <p>El paso 3 es el que decide si su borde <b>soporta</b> el intercambio post-cuántico: al no ofrecer otra opción, el servidor o lo pide o rechaza el saludo. El paso 2 sólo muestra si lo pide cuando el cliente llega con la llave clásica; un borde que soporta el híbrido puede aceptar la clásica para ahorrarse un viaje. Leer el paso 2 como soporte fue un error nuestro de agosto, y lo corregimos.</p>
+      </details>
+    </div>
+  </section>
+</MarcaLayout>

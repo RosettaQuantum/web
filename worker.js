@@ -1,6 +1,7 @@
 import { manejarApi } from "./api.js";
 import { manejarQreadyLead } from "./lib/qready-lead.mjs";
 import { manejarOg } from "./lib/og-ruta.mjs";
+import { manejarBorde } from "./lib/borde-envivo.mjs";
 // /sitemap-0.xml vive en lib/ para que una guardia de Node pueda ejercerlo: worker.js
 // importa .ttf/.css/.wasm y no se puede cargar fuera del Worker. Ahi esta tambien el
 // bug que devolvia una respuesta ya consumida y daba 500.
@@ -78,6 +79,10 @@ export default {
     // que no existen como archivo; si devuelve null, sigue el flujo normal del sitio.
     const api = await manejarApi(request, env, url, ctx);
     if (api) return api;
+
+    // Re-medición en vivo del borde (demo de la reunión con Santander, 3-nov-2026).
+    // Herramienta general: no guarda nada del dominio medido ni escribe en D1.
+    if (url.pathname === "/api/borde") return manejarBorde(request);
 
     if (url.pathname === "/api/lead" && request.method === "POST") {
       try {
