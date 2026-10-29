@@ -1,0 +1,131 @@
+---
+/**
+ * /es/q-ready/medicion — el informe QEX completo, medido EN VIVO (30-oct-2026).
+ * Para la reunión con Santander (3-nov, videollamada) y para cualquier cliente después: se
+ * escribe el dominio, la página mide las cuatro dimensiones, muestra la suma del QEX, y si se le
+ * carga la foto anterior compara ítem por ítem: qué había, qué hay, qué cambió, qué se mantiene.
+ *
+ * Reglas que esta página no rompe:
+ * - La foto anterior se lee EN EL NAVEGADOR (FileReader) y no viaja a ningún servidor. Los
+ *   informes de cliente nunca se sirven desde la web (decisión de Nicholas, 21-ago).
+ * - No guarda nada: ni D1 ni caché. El servidor sólo hace lo que exige un socket (lib/informe-envivo.mjs).
+ * - El cálculo vive en public/js/qex-nucleo.mjs, el mismo que verifica scripts/check-informe-envivo.mjs
+ *   contra la medición de Python. Lo no medido se muestra «sin dato», nunca como cero ni como «se mantiene».
+ *
+ * noindex hasta que Nicholas apruebe el texto.
+ */
+import MarcaLayout from '../../../../layouts/MarcaLayout.astro';
+import paginas from '../../../../styles/pages/paginas.css?raw';
+import borde from '../../../../styles/pages/borde-envivo.css?raw';
+import propia from '../../../../styles/pages/medicion-envivo.css?raw';
+---
+<MarcaLayout
+  title="Su exposición criptográfica, medida hoy — Rosetta Q-Ready"
+  description="El QEX completo en vivo: certificados, superficie, borde post-cuántico y postura HNDL, con la suma a la vista y la comparación contra su medición anterior."
+  lang="es" altUrl="/q-ready" ruta="/es/q-ready/medicion"
+  pageCss={paginas + '\n' + borde + '\n' + propia} noindex={true}
+>
+  <section class="bv mv">
+    <div class="wrap bv-wrap mv-wrap">
+      <p class="eyebrow">Rosetta Q-Ready · medición en vivo</p>
+      <h1>Su exposición criptográfica, medida hoy.</h1>
+      <p class="bv-lede">Las cuatro dimensiones del índice QEX, medidas desde afuera en un par de minutos, con la suma a la vista. Si tiene la foto de una medición anterior, cárguela: comparamos ítem por ítem qué había, qué hay, qué cambió y qué se mantiene.</p>
+
+      <form class="bv-form mv-form" id="mv-form" novalidate>
+        <div class="mv-campos">
+          <div class="mv-campo mv-dominio">
+            <label for="mv-dominio">Dominio</label>
+            <input id="mv-dominio" type="text" inputmode="url" autocomplete="off" spellcheck="false" placeholder="santander.cl">
+          </div>
+          <div class="mv-campo">
+            <label for="mv-sector">Sector</label>
+            <select id="mv-sector"></select>
+          </div>
+        </div>
+        <div class="mv-campo mv-archivo">
+          <label for="mv-previa">Foto anterior <span class="mv-opc">(opcional)</span></label>
+          <input id="mv-previa" type="file" accept="application/json,.json">
+          <p class="mv-nota" id="mv-previa-estado">El archivo se lee en su navegador y no se envía a ningún servidor.</p>
+        </div>
+        <div class="bv-fila mv-ir"><button type="submit" id="mv-ir">Medir ahora</button></div>
+        <p class="bv-estado" id="mv-estado" role="status" aria-live="polite" hidden></p>
+      </form>
+
+      <ol class="bv-pasos mv-pasos" aria-live="polite">
+        <li data-paso="ct">
+          <span class="bv-n">1</span>
+          <div><h2>Su superficie pública</h2><p class="bv-q">Todos los nombres que su dominio ha certificado, según el registro público de certificados (Certificate Transparency).</p><div class="bv-r" data-r></div></div>
+          <span class="bv-ms" data-ms></span>
+        </li>
+        <li data-paso="end">
+          <span class="bv-n">2</span>
+          <div><h2>Endpoints sensibles</h2><p class="bv-q">Los nombres de pruebas, legado o infraestructura: ¿siguen publicados en DNS? ¿responden desde internet?</p><div class="bv-r" data-r></div></div>
+          <span class="bv-ms" data-ms></span>
+        </li>
+        <li data-paso="borde">
+          <span class="bv-n">3</span>
+          <div><h2>Su borde y el intercambio post-cuántico</h2><p class="bv-q">Tres saludos TLS a su sitio: ¿soporta X25519MLKEM768? ¿lo elige?</p><div class="bv-r" data-r></div></div>
+          <span class="bv-ms" data-ms></span>
+        </li>
+        <li data-paso="cert">
+          <span class="bv-n">4</span>
+          <div><h2>Su certificado</h2><p class="bv-q">El certificado que entrega su sitio: algoritmo, emisor y vigencia.</p><div class="bv-r" data-r></div></div>
+          <span class="bv-ms" data-ms></span>
+        </li>
+        <li data-paso="prov">
+          <span class="bv-n">5</span>
+          <div><h2>Correo y canal de reporte</h2><p class="bv-q">Quién recibe su correo, y si publica un canal para reportarle fallas de seguridad.</p><div class="bv-r" data-r></div></div>
+          <span class="bv-ms" data-ms></span>
+        </li>
+      </ol>
+
+      <section class="mv-qex" id="mv-qex" hidden aria-labelledby="mv-qex-t">
+        <h2 id="mv-qex-t" class="mv-h2">Su QEX de hoy</h2>
+        <div class="mv-qex-cab">
+          <p class="mv-score"><span id="mv-score"></span><span class="mv-de"> / 100</span></p>
+          <p class="mv-ref" id="mv-ref"></p>
+        </div>
+        <div class="mv-tabla-caja">
+          <table class="mv-tabla mv-suma">
+            <thead><tr><th scope="col">Dimensión</th><th scope="col">Su valor</th><th scope="col">Peso</th><th scope="col">Aporte</th><th scope="col">Cómo se obtiene</th></tr></thead>
+            <tbody id="mv-suma"></tbody>
+            <tfoot><tr><th scope="row" colspan="3">Suma</th><td id="mv-suma-total"></td><td id="mv-suma-nota"></td></tr></tfoot>
+          </table>
+        </div>
+        <p class="bv-alcance" id="mv-tope"></p>
+      </section>
+
+      <section class="mv-comp" id="mv-comp" hidden aria-labelledby="mv-comp-t">
+        <h2 id="mv-comp-t" class="mv-h2"></h2>
+        <p class="mv-resumen" id="mv-comp-resumen"></p>
+        <div class="mv-tabla-caja">
+          <table class="mv-tabla mv-delta">
+            <thead><tr><th scope="col">Ítem</th><th scope="col" id="mv-col-antes">Qué había</th><th scope="col" id="mv-col-ahora">Qué hay</th><th scope="col">Estado</th></tr></thead>
+            <tbody id="mv-delta"></tbody>
+          </table>
+        </div>
+        <div class="mv-hosts" id="mv-hosts"></div>
+      </section>
+
+      <section class="mv-foto bv-veredicto" id="mv-foto" hidden>
+        <p class="bv-v-titulo">La foto de hoy</p>
+        <p class="bv-alcance">Todo lo medido, en un archivo con su huella. Guárdelo: es la base para comparar la próxima medición.</p>
+        <div class="bv-recibo">
+          <span>Medido <b id="mv-cuando"></b></span>
+          <span>huella sha256 <code id="mv-huella"></code></span>
+          <button class="bv-link" type="button" id="mv-guardar">Guardar la foto (JSON)</button>
+        </div>
+      </section>
+
+      <details class="bv-como">
+        <summary>Qué medimos y qué no</summary>
+        <p><b>Superficie.</b> Consultamos el registro público de certificados (crt.sh) y clasificamos cada nombre con las mismas reglas de todas nuestras ediciones: ambientes no productivos, legado, infraestructura sensible y servicios críticos.</p>
+        <p><b>Endpoints.</b> Para cada nombre sensible preguntamos al DNS si sigue publicado y, si lo está, enviamos un único saludo TLS al puerto 443. No completamos ninguna conexión ni enviamos datos.</p>
+        <p><b>Borde y certificado.</b> Tres saludos TLS 1.3 deciden si su borde soporta y elige el intercambio híbrido; un saludo TLS 1.2 nos muestra el certificado, que en esa versión viaja sin cifrar.</p>
+        <p><b>Postura HNDL.</b> No se mide: es un valor de su sector (cuántos años debe protegerse el dato y cuánto tarda la migración). Lo marcamos como modelo.</p>
+        <p><b>Lo que no se ve desde afuera.</b> El tramo de su borde a su servidor de origen, sus HSM, la criptografía interna y la de sus proveedores. Por eso el índice tiene un tope de 84: ninguna medición externa puede afirmar que una organización está preparada.</p>
+      </details>
+    </div>
+  </section>
+  <script is:inline type="module" src="/js/medicion-envivo.mjs"></script>
+</MarcaLayout>
