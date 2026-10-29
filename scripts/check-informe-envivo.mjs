@@ -12,6 +12,9 @@ import fs from "node:fs";
 import path from "node:path";
 import * as N from "../public/js/qex-nucleo.mjs";
 
+export const CONSUMIDOR = { quien: "npm run check:envivo, y quien genere una foto o el informe de un cliente (entregables/*/envivo)",
+  hace: "no confía en una cifra del QEX en vivo ni en una comparación de fotos si esto no pasa con --corpus" };
+
 let pasa = 0, falla = 0, salta = 0;
 const ok = (c, m) => { if (c) { pasa++; } else { falla++; console.log("  FALLA " + m); } };
 const eq = (a, b, m) => ok(JSON.stringify(a) === JSON.stringify(b), `${m}: ${JSON.stringify(a)} ≠ ${JSON.stringify(b)}`);
