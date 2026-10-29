@@ -62,7 +62,12 @@
     "check:grep": "node scripts/check-grep.mjs",
     "check:3d": "node scripts/check-3d.mjs",
     "check:og": "node scripts/check-og-tarjeta.mjs",
-    "check:sitemap": "node scripts/check-sitemap-cuerpo.mjs"
+    "check:sitemap": "node scripts/check-sitemap-cuerpo.mjs",
+    "compilador:test": "node test/compilador.test.mjs && bash test/mcp.test.sh",
+    "compilador:sync": "cp lib/compilador.mjs public/compilador/compilador.mjs && cp recetas/*.json public/compilador/ && node scripts/check-compilador-copia.mjs",
+    "compilador:servir": "node scripts/servir-compilador.mjs",
+    "compilador:mcp": "node mcp/servidor.mjs",
+    "check:compilador-copia": "node scripts/check-compilador-copia.mjs"
   },
   "dependencies": {
     "@astrojs/rss": "latest",

@@ -1,0 +1,155 @@
+<!doctype html>
+<html lang="es"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>El Compilador — Rosetta Quantum</title>
+<style>
+:root{--paper:#F4F5F1;--panel:#FBFBF9;--ink:#16181B;--ink60:#5A5D58;--line:#D9DBD6;
+      --verdict:#0F8B7E;--pend:#B8892E;--alert:#B4432F;--teal10:#E6F2F0;
+      --sans:"IBM Plex Sans",-apple-system,system-ui,sans-serif;
+      --mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+      --serif:"Newsreader",Georgia,serif}
+*{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);font:15px/1.55 var(--sans)}
+.envoltura{max-width:1100px;margin:0 auto;padding:40px 28px 80px}
+h1{font:500 34px/1.1 var(--serif);margin:.2em 0 .1em;letter-spacing:-.015em}
+.cejilla{font:500 10.5px/1 var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--verdict)}
+.lede{font-size:16px;color:var(--ink60);max-width:68ch;margin:14px 0 0}
+.aviso{border-left:3px solid var(--pend);background:var(--panel);padding:14px 18px;margin:26px 0;max-width:78ch}
+.aviso b{color:var(--pend)}
+.rejilla{display:grid;grid-template-columns:minmax(0,420px) minmax(0,1fr);gap:26px;margin-top:30px;align-items:start}
+@media(max-width:860px){.rejilla{grid-template-columns:minmax(0,1fr)}}
+.caja{background:var(--panel);border:1px solid var(--line);border-radius:4px;padding:20px}
+h2{font:500 11px/1 var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--ink);margin:0 0 16px}
+label{display:block;font:500 12px/1 var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--ink60);margin:16px 0 7px}
+select,textarea{width:100%;font:13px/1.5 var(--mono);padding:9px 11px;border:1px solid var(--line);border-radius:3px;background:#fff;color:var(--ink)}
+textarea{min-height:168px;resize:vertical}
+.fila{display:flex;gap:9px;flex-wrap:wrap;margin-top:12px}
+button{white-space:nowrap}
+button{font:500 13px var(--sans);padding:9px 17px;border-radius:3px;border:1px solid var(--verdict);background:var(--verdict);color:#fff;cursor:pointer}
+button.sec{background:transparent;color:var(--verdict)}
+button:hover{opacity:.88}
+pre{white-space:pre-wrap;word-break:break-word;font:12.5px/1.5 var(--mono);background:#fff;border:1px solid var(--line);border-radius:3px;padding:14px;overflow:auto;max-height:420px;margin:0}
+.chip{display:inline-block;font:500 10.5px var(--mono);letter-spacing:.08em;text-transform:uppercase;padding:4px 9px;border-radius:3px;border:1px solid}
+.ok{color:var(--verdict);border-color:var(--verdict);background:var(--teal10)}
+.mal{color:var(--alert);border-color:var(--alert);background:#fdf1ef}
+.campo{border-left:3px solid var(--alert);background:#fff;padding:9px 13px;margin:9px 0;font:12.5px var(--mono)}
+.campo b{color:var(--alert)}
+.recetas{font:12.5px var(--mono);color:var(--ink60)}
+.recetas div{padding:7px 0;border-bottom:1px solid var(--line)}
+.pie{margin-top:46px;padding-top:20px;border-top:1px solid var(--line);color:var(--ink60);font-size:13px;max-width:78ch}
+code{font:12.5px var(--mono);background:var(--teal10);padding:1px 5px;border-radius:2px}
+</style></head><body>
+<div class="envoltura">
+  <div class="cejilla">Rosetta Quantum · el compilador</div>
+  <h1>Compone un pedido y mira si se sostiene</h1>
+  <p class="lede">Valida tu pedido contra la receta <b>antes</b> de que cueste algo: te devuelve el
+  <i>config</i> exacto que correría el ejecutor, o te nombra el campo que sobra. Lo mismo que hace
+  el MCP, con la misma definición.</p>
+
+  <div class="aviso">
+    <b>Esto no ejecuta nada, y conviene decirlo antes de que lo pruebes.</b><br>
+    Hoy no existe ningún código que, ante un evento de esta página, corra un experimento.
+    Compilar y validar sí existen. Ejecutar es la pieza P2 del plan y depende de una decisión
+    abierta. Ninguna respuesta de aquí va a decirte que algo quedó encolado.
+  </div>
+
+  <div class="rejilla">
+    <div class="caja">
+      <h2>El pedido</h2>
+      <label for="receta">Receta</label>
+      <select id="receta"></select>
+      <label for="params">Parámetros <span style="text-transform:none;letter-spacing:0">(JSON)</span></label>
+      <textarea id="params" spellcheck="false"></textarea>
+      <label style="display:flex;align-items:center;gap:8px;text-transform:none;letter-spacing:0;font:13px var(--sans);color:var(--ink);margin-top:16px;cursor:pointer">
+        <input type="checkbox" id="simular" style="width:auto;margin:0">
+        Simular que la receta es vendible
+      </label>
+      <div style="font:11.5px/1.45 var(--mono);color:var(--ink60);margin-top:5px">
+        Hoy ninguna receta lo es, así que sin esto el Compilador para en la primera compuerta y
+        nunca llegas a ver la validación de parámetros. La simulación se declara en la respuesta.
+      </div>
+      <div class="fila">
+        <button id="compilar">Compilar</button>
+        <button class="sec" id="ej-ok">Ejemplo válido</button>
+        <button class="sec" id="ej-mal">Con un campo que sobra</button>
+      </div>
+      <label style="margin-top:22px">Lo que hay en el catálogo</label>
+      <div class="recetas" id="catalogo"></div>
+    </div>
+
+    <div class="caja">
+      <h2>La respuesta</h2>
+      <div id="estado" style="margin-bottom:14px"></div>
+      <div id="campos"></div>
+      <pre id="salida">Compila para ver el plan, o el rechazo.</pre>
+    </div>
+  </div>
+
+  <div class="pie">
+    La página, el servidor MCP y —cuando se apruebe— el Worker usan <code>lib/compilador.mjs</code>,
+    el mismo archivo. Un guardia compara las copias por sha256 y falla cerrado si divergen, porque
+    una definición que vive en dos lugares ya divergió.
+  </div>
+</div>
+
+<script type="module">
+import { compilar } from "./compilador.mjs";
+
+const RECETAS = ["qksvm-multiclase.json"];
+const cargadas = [];
+for (const f of RECETAS) cargadas.push(await (await fetch(f)).json());
+
+const $ = (id) => document.getElementById(id);
+const sel = $("receta"), params = $("params");
+
+cargadas.forEach((r) => {
+  const o = document.createElement("option");
+  o.value = r.id; o.textContent = `${r.id} — ${r.identidad.name}`;
+  sel.appendChild(o);
+});
+$("catalogo").innerHTML = cargadas.map((r) => {
+  const pedible = r.estado === "sellable";
+  return `<div><span class="chip ${pedible ? "ok" : "mal"}">${r.estado}</span>
+    &nbsp;${r.id} · emite ${r.promesa.scorable ? "VERDICT" : "PREDICTION"}
+    ${pedible ? "" : `<br><span style="color:var(--alert)">le falta:</span> ${r._por_que_no_es_sellable}`}</div>`;
+}).join("");
+
+const EJ_OK  = { datasets: ["Iris", "Tae"] };
+const EJ_MAL = { datasets: ["Iris"], esto_no_existe: 123, semilla: 42 };
+const poner = (o) => { params.value = JSON.stringify(o, null, 2); };
+poner(EJ_OK);
+$("ej-ok").onclick  = () => { poner(EJ_OK);  correr(); };
+// El ejemplo del campo que sobra sólo enseña algo con la simulación puesta.
+$("ej-mal").onclick = () => { poner(EJ_MAL); $("simular").checked = true; correr(); };
+$("simular").onchange = correr;
+$("compilar").onclick = correr;
+
+function correr() {
+  const receta = cargadas.find((r) => r.id === sel.value);
+  let p;
+  try { p = JSON.parse(params.value || "{}"); }
+  catch (e) {
+    $("estado").innerHTML = '<span class="chip mal">json invalido</span>';
+    $("campos").innerHTML = `<div class="campo"><b>el texto no es JSON</b> — ${e.message}</div>`;
+    $("salida").textContent = ""; return;
+  }
+  const simular = $("simular").checked;
+  // La simulación NO toca el catálogo: clona la receta y lo dice en la respuesta.
+  const usada = simular && receta.estado !== "sellable"
+    ? { ...receta, estado: "sellable" } : receta;
+  const r0 = compilar({ pedido: { receta: sel.value, params: p }, receta: usada });
+  const r = (simular && receta.estado !== "sellable")
+    ? { ...r0, _simulado: `la receta real está en estado «${receta.estado}»; esto es lo que pasaría si fuera vendible` }
+    : r0;
+  const bien = r.status === "plan";
+  $("estado").innerHTML = `<span class="chip ${bien ? "ok" : "mal"}">${bien ? "plan" : r.code}</span>
+    <span style="color:var(--ink60);font-size:13px">&nbsp; ${bien ? "el pedido se sostiene" : r.reason}</span>`
+    + (r._simulado ? `<div style="margin-top:9px"><span class="chip" style="color:var(--pend);border-color:var(--pend);background:#fdf6e8">simulado</span>
+       <span style="color:var(--ink60);font-size:12.5px">&nbsp; ${r._simulado}</span></div>` : "");
+  $("campos").innerHTML = (r.fields || []).map((f) =>
+    `<div class="campo"><b>${f.campo}</b> — ${f.problema}${f.acepta ? `<br>acepta: ${f.acepta.join(", ")}` : ""}</div>`
+  ).join("") + (!bien && r.missing ? `<div class="campo"><b>le falta</b> — ${r.missing}</div>` : "");
+  $("salida").textContent = JSON.stringify(r, null, 2);
+}
+correr();
+</script></body></html>
