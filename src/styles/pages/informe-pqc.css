@@ -91,6 +91,10 @@ html{scroll-behavior:smooth}
 .chip.crit{color:var(--alert);border-color:var(--alert-20);background:var(--alert-10)}
 .chip.warn{color:var(--pending);border-color:var(--pending-20);background:var(--pending-10)}
 .chip.ok{color:var(--verdict);border-color:var(--teal-20);background:var(--teal-10)}
+/* Estados de la sección «Agosto → octubre»: neutro para lo que se mantiene, y en una sola línea
+   también en papel (en impresión los chips pasan a white-space:normal y «se mantiene» partía en dos). */
+.chip.neutro{color:var(--ink-60);border-color:var(--line);background:transparent}
+.chip.evo,.informe-doc .chip.evo{white-space:nowrap}
 
 /* ---------- gráficos ---------- */
 .chart{margin:30px 0;border:1px solid var(--line);background:var(--panel);border-radius:3px;overflow:hidden}
@@ -252,6 +256,9 @@ td.num{font-family:var(--mono);font-variant-numeric:tabular-nums;text-align:righ
   .chart,.tiles,.tile,.toc,.draft,.split,.sp,.term,.note,.pull,.rev,.cta,.gi,.bar-row,
   figure,pre,.mast,.edicion,.informe-doc p,.informe-doc li,.informe-doc tr,.informe-doc thead,.panel-h{break-inside:avoid}
   .panel,.tw,.informe-doc table{break-inside:avoid}
+  /* La tabla de superficie con «Estado hoy» (desde octubre) no cabe con sus fichas en el resto de
+     la página: entera saltaba y dejaba media hoja vacía dentro del panel. Se deja partir. */
+  .panel:has(.tw.se-parte),.tw.se-parte,.tw.se-parte table{break-inside:auto}
   /* ...salvo tablas largas (10 filas o mas), que no caben enteras: fragmentan entre filas */
   .panel:has(tbody tr:nth-of-type(n+10)),.tw:has(tbody tr:nth-of-type(n+10)),
   .informe-doc table:has(tbody tr:nth-of-type(n+10)){break-inside:auto}

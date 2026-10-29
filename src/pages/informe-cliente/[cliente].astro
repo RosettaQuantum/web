@@ -67,10 +67,15 @@ const difSec = d.irec.score - d.irec.mediana_sector;
    texto chico, entera. NO se parte «2 de 12» como número grande: bajo «Posición en su sector»
    se lee como «segundo lugar», y la frase dice que 2 están POR DEBAJO. */
 
+/* `evolucion` (desde octubre-2026): la comparación ítem por ítem contra la foto anterior. Es
+   opcional para que la edición de agosto se construya idéntica; la numeración sale de la lista. */
 const SECCIONES = [
-  ['indice','Su índice'], ['hallazgo','El hallazgo principal'], ['superficie','Su superficie pública'],
+  ['indice','Su índice'], ...(d.evolucion ? [['evolucion', d.evolucion.toc]] : []),
+  ['hallazgo','El hallazgo principal'], ['superficie','Su superficie pública'],
   ['ruta','Su ruta crítica'], ['plan','Plan 30 · 90 · 365'], ['alcance','Alcance y límites'],
 ];
+const nro = (id: string) => String(SECCIONES.findIndex(([i]) => i === id) + 1).padStart(2, '0');
+const CHIP_EVO: Record<string, [string, string]> = { cambio: ['warn', 'cambió'], se_mantiene: ['neutro', 'se mantiene'], medido_hoy: ['ok', 'medido hoy'], sin_dato: ['neutro', 'sin dato hoy'] };
 ---
 <MarcaLayout
   title={`${d.cliente} — Informe individual ${mesLargo} · Rosetta Quantum`}
@@ -110,7 +115,7 @@ const SECCIONES = [
   <section id="indice">
     <div class="sechead">
       <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 20h18"/><path d="M6 20V9M11 20V5M16 20v-7M21 20v-4"/></svg>
-      <span class="snum">01 · Su índice</span>
+      <span class="snum">{nro('indice')} · Su índice</span>
     </div>
     <h2>QEX — Quantum Exposure Index, by Rosetta</h2>
 
@@ -156,11 +161,50 @@ const SECCIONES = [
     </div>
   </section>
 
-  <!-- 02 · EL HALLAZGO -->
+  {d.evolucion && (
+  <section id="evolucion">
+    <div class="sechead">
+      <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12h12"/><path d="m12 7 5 5-5 5"/><path d="M20 5v14"/></svg>
+      <span class="snum">{nro('evolucion')} · {d.evolucion.toc}</span>
+    </div>
+    <h2>{d.evolucion.titulo}</h2>
+    <div class="measure"><p class="lede" set:html={d.evolucion.lede}></p></div>
+    <div class="panel">
+      <div class="panel-h"><h3>Ítem por ítem</h3><span class="meta">{d.evolucion.meta}</span></div>
+      <div class="chart-b"><div class="tw">
+        <table>
+          <thead><tr><th>Ítem</th><th>{d.evolucion.col_antes}</th><th>{d.evolucion.col_ahora}</th><th>Estado</th></tr></thead>
+          <tbody>
+            {d.evolucion.grupos.map((g: any) => (<>
+              <tr><th colspan="4" style="font-family:var(--mono);font-size:.72rem;font-weight:400;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-60)">{g.titulo}</th></tr>
+              {g.filas.map((f: any) => (
+                <tr>
+                  <td class={f.mono ? 'mono' : ''} style={f.mono ? 'font-size:.82rem' : ''}>{f.item}</td>
+                  <td>{f.antes ?? 'no medido'}</td><td>{f.ahora ?? 'no medido'}</td>
+                  <td><span class={`chip evo ${CHIP_EVO[f.estado][0]}`}>{CHIP_EVO[f.estado][1]}</span></td>
+                </tr>
+              ))}
+            </>))}
+          </tbody>
+        </table>
+      </div>
+      <p class="src" set:html={d.evolucion.nota}></p>
+      </div>
+    </div>
+    {d.evolucion.nuevos && d.evolucion.nuevos.length > 0 && (
+      <div class="measure">
+        <p><strong>{d.evolucion.nuevos_titulo}</strong></p>
+        <ul>{d.evolucion.nuevos.map((h: string) => <li class="mono" style="font-size:.82rem">{h}</li>)}</ul>
+      </div>
+    )}
+  </section>
+  )}
+
+  <!-- EL HALLAZGO -->
   <section id="hallazgo">
     <div class="sechead">
       <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 3.5 7.5v5c0 4.3 3.5 7.6 8.5 8.8 5-1.2 8.5-4.5 8.5-8.8v-5Z"/><path d="M12 8.5v4.5M12 16.2v.3"/></svg>
-      <span class="snum">02 · El hallazgo principal</span>
+      <span class="snum">{nro('hallazgo')} · El hallazgo principal</span>
     </div>
     <h2>{d.hallazgo.titulo}</h2>
     <div class="measure">
@@ -198,7 +242,7 @@ const SECCIONES = [
   <section id="superficie">
     <div class="sechead">
       <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5 21 21"/></svg>
-      <span class="snum">03 · Su superficie pública</span>
+      <span class="snum">{nro('superficie')} · Su superficie pública</span>
     </div>
     <h2>Qué encontramos en registros públicos</h2>
 
@@ -207,24 +251,25 @@ const SECCIONES = [
       <div class="tiles">
         <div class="tile warn"><span class="k">Nombres de host</span><span class="v">{d.superficie.hostnames}</span><span class="sub">mediana de su sector: {d.superficie.mediana_sector}</span></div>
         <div class="tile warn"><span class="k">Subdominios profundos</span><span class="v">{d.superficie.profundos}</span><span class="sub">tercer y cuarto nivel, sin dueño claro</span></div>
-        <div class="tile crit"><span class="k">Infra sensible expuesta</span><span class="v">{d.superficie.infra_expuesta}</span><span class="sub">alcanzable desde internet</span></div>
-        <div class="tile crit"><span class="k">Ambiente no productivo</span><span class="v">{d.superficie.no_productivo}</span><span class="sub">respondiendo en internet</span></div>
+        <div class="tile crit"><span class="k">Infra sensible expuesta</span><span class="v">{d.superficie.infra_expuesta}</span><span class="sub">{d.superficie.sub_infra ?? 'alcanzable desde internet'}</span></div>
+        <div class="tile crit"><span class="k">Ambiente no productivo</span><span class="v">{d.superficie.no_productivo}</span><span class="sub">{d.superficie.sub_no_productivo ?? 'respondiendo en internet'}</span></div>
       </div>
-      <div class="chart-b" style="border-top:1px solid var(--rule)"><div class="tw">
+      <div class="chart-b" style="border-top:1px solid var(--rule)"><div class={d.superficie.col_estado ? 'tw se-parte' : 'tw'}>
         <table>
-          <thead><tr><th>Host</th><th>Qué parece ser</th><th>Por qué importa</th></tr></thead>
+          <thead><tr><th>Host</th><th>Qué parece ser</th><th>Por qué importa</th>{d.superficie.col_estado && <th>{d.superficie.col_estado}</th>}</tr></thead>
           <tbody>
             {d.superficie.hallazgos.map((h: any) => (
               <tr>
                 <td class="mono" style="font-size:.82rem">{h.host}</td>
                 <td>{h.que} <span class={`chip ${h.sev}`}>{h.sev === 'crit' ? 'atención' : 'revisar'}</span></td>
                 <td>{h.porque}</td>
+                {d.superficie.col_estado && <td>{h.estado_hoy}</td>}
               </tr>
             ))}
           </tbody>
         </table>
       </div>
-      <p class="src">No accedimos a ninguno de estos sistemas. Solo constatamos que existen y que responden.</p>
+      <p class="src">{d.superficie.nota ?? 'No accedimos a ninguno de estos sistemas. Solo constatamos que existen y que responden.'}</p>
       </div>
     </div>
   </section>
@@ -233,7 +278,7 @@ const SECCIONES = [
   <section id="ruta">
     <div class="sechead">
       <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20 9 9l4 6 3-4 4 9Z"/><circle cx="9" cy="9" r="1.5"/><circle cx="16" cy="11" r="1.5"/></svg>
-      <span class="snum">04 · Su ruta crítica</span>
+      <span class="snum">{nro('ruta')} · Su ruta crítica</span>
     </div>
     <h2>Quién fija realmente su plazo</h2>
     <div class="measure">
@@ -265,7 +310,7 @@ const SECCIONES = [
   <section id="plan">
     <div class="sechead">
       <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 18h16"/><path d="M7 18v-5M12 18V7M17 18v-9"/></svg>
-      <span class="snum">05 · Plan 30 · 90 · 365</span>
+      <span class="snum">{nro('plan')} · Plan 30 · 90 · 365</span>
     </div>
     <h2>Qué hacer, en qué orden</h2>
     <div class="measure">
@@ -282,7 +327,7 @@ const SECCIONES = [
       </table>
     </div>
     <div class="measure">
-      <p><strong>Las primeras cuatro acciones no requieren presupuesto ni proyecto.</strong> Son configuración, baja de un host, publicar un archivo de texto y enviar un correo. Entre las cuatro mueven {d.irec.dimensiones[3].peso} puntos del índice y cierran los hallazgos de mayor severidad.</p>
+      {d.plan_nota ? <p set:html={d.plan_nota}></p> : <p><strong>Las primeras cuatro acciones no requieren presupuesto ni proyecto.</strong> Son configuración, baja de un host, publicar un archivo de texto y enviar un correo. Entre las cuatro mueven {d.irec.dimensiones[3].peso} puntos del índice y cierran los hallazgos de mayor severidad.</p>}
     </div>
 
     <div class="panel">
@@ -297,7 +342,7 @@ const SECCIONES = [
   <section id="alcance" class="legal">
     <div class="sechead">
       <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3.5 4.5 6.5v5.2c0 4.4 3.1 7.6 7.5 8.8 4.4-1.2 7.5-4.4 7.5-8.8V6.5Z"/><path d="M9.3 12.2l1.9 1.9 3.6-3.8"/></svg>
-      <span class="snum">06 · Alcance y límites</span>
+      <span class="snum">{nro('alcance')} · Alcance y límites</span>
     </div>
     <h2>Qué mide este informe y qué no</h2>
     <div class="cols">
