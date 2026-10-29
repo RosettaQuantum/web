@@ -73,7 +73,7 @@ import propia from '../../../../styles/pages/borde-envivo.css?raw';
       <details class="bv-como">
         <summary>Cómo se mide</summary>
         <p>Abrimos una conexión al puerto 443 y enviamos un único mensaje de saludo TLS 1.3 (ClientHello). Leemos la primera respuesta del servidor y cerramos. No hay sesión, no viajan datos de aplicación ni credenciales, y no es una prueba de intrusión. Cada medición son tres saludos, equivalentes a abrir su sitio tres veces.</p>
-        <p>El paso 3 es el que decide si su borde <b>soporta</b> el intercambio post-cuántico: al no ofrecer otra opción, el servidor o lo pide o rechaza el saludo. El paso 2 sólo muestra si lo pide cuando el cliente llega con la llave clásica; un borde que soporta el híbrido puede aceptar la clásica para ahorrarse un viaje. Leer el paso 2 como soporte fue un error nuestro de agosto, y lo corregimos.</p>
+        <p>El paso 3 es el que decide si su borde <b>soporta</b> el intercambio post-cuántico: al no ofrecer otra opción, el servidor o lo pide o rechaza el saludo. El paso 2 sólo muestra si lo pide cuando el cliente llega con la llave clásica; un borde que soporta el híbrido puede aceptar la clásica para ahorrarse un viaje.</p>
       </details>
     </div>
   </section>

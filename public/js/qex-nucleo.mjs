@@ -218,3 +218,41 @@ export function comparar(antes, ahora) {
     items: it, endpoints, hosts: { nuevos, retirados, siguen },
     resumen: { cambio: n("cambio"), se_mantiene: n("se_mantiene"), medido_hoy: n("medido_hoy"), sin_dato: n("sin_dato") } };
 }
+
+// ---------------------------------------------------------------- armar la foto
+// Una sola definición de qué es una foto: la usan la página y entregables/…/envivo/foto_envivo.mjs
+// (la que alimenta el PDF). Entradas crudas: filas de crt.sh (o null si no hubo registro) y la
+// respuesta de /api/sondas tal cual. Devuelve la foto SIN sellar y el detalle que la página muestra.
+export function armarFoto({ dominio, www, vertical, medido, ct, sondas: s, referencia, origen }) {
+  const mapa = ct ? nombresCT(ct.filas, dominio) : null;
+  const hosts = mapa ? hostsCT(mapa, dominio) : [];
+  const cuentas = mapa ? conteos([...mapa.keys()]) : null;
+  const clases = new Map(hosts.map((h) => [h.host, h.clases]));
+  const endpoints = s.endpoints.map((x) => ({ host: x.host, clases: clases.get(x.host) || clasesDe(x.host), dns_status: x.dns_status,
+    ip: x.ip, cname: x.cname, responde_443: x.responde_443, detalle: x.detalle, medido_utc: x.medido_utc }));
+  const b = s.borde, v = b.veredicto, A = b.saludos.A_como_navegador;
+  // TLS 1.3: el saludo A sólo ofrece 1.3. Respuesta de servidor = sí; alerta 70 (protocol_version) = no; corte = sin dato.
+  const tls13 = A.grupo ? true : (A.alerta && /\/70$/.test(A.alerta)) ? false : null;
+  const c = s.certificado;
+  const ref = referencia.verticales[vertical];
+  if (!ref) throw new Error(`sector desconocido: ${vertical}`);
+  const dim = { certificados: certificadosValor(c), higiene: higiene(tls13 === false ? true : tls13 === true ? false : null, cuentas),
+    hndl: ref.hndl, edge: edgeValor(v.soporta) };
+  const q = qex(dim);
+  const tipos = { certificados: "medido", higiene: ct ? "medido" : "medido, sin superficie", hndl: "modelo de sector", edge: "medido" };
+  const corta = (iso) => (iso ? iso.slice(0, 10) : null);
+  const foto = {
+    esquema: ESQUEMA_FOTO, edicion: medido.slice(0, 7), dominio, www, vertical, medido_utc: medido, origen,
+    ct: ct ? { fuente: ct.fuente, intentos: ct.intentos ?? null, consultado_utc: medido, filas: ct.filas.length, sha256_crudo: ct.sha256, conteos: cuentas, hosts } : null,
+    endpoints,
+    borde: { cdn: b.dns.cdn, cadena: b.dns.cadena, soporta: v.soporta, elige: v.elige, pide_mejora: v.pide_mejora, sha256_medicion: b.sha256 },
+    tls13,
+    certificado: c.ok ? { ok: true, algoritmo: c.algoritmo, curva: c.curva, bits: c.bits, firma: c.firma, emisor: c.emisor, sujeto: c.sujeto,
+      not_before: corta(c.not_before), not_after: corta(c.not_after) } : { ok: false, error: c.error },
+    proveedores: { correo: s.correo.proveedor, mx: s.correo.mx, security_txt: s.security_txt.publicado },
+    qex: { ...q, tipos },
+    referencia: { edicion: referencia.edicion, mediana_pais: referencia.mediana_pais, mediana_sector: ref.mediana, n_sector: ref.n },
+    instrumentos: { pagina: "qex-nucleo.mjs", servidor: s.instrumento },
+  };
+  return { foto, detalle: { cuentas, hosts, endpoints, tls13, dim, q, tipos, ref } };
+}

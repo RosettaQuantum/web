@@ -1,15 +1,16 @@
 /* /es/q-ready/medicion — el informe QEX en vivo (30-oct-2026). Se apoya en borde-envivo.css
    (pasos, recibo, botón) y agrega formulario de tres campos, la suma del QEX y la tabla de
    comparación. Sólo tokens existentes. Pensada para pantalla compartida: letra grande. */
-.mv-wrap{max-width:960px}
+.mv-wrap{max-width:1240px}
+.mv-grid{display:grid;grid-template-columns:minmax(0,1fr) 270px;gap:var(--s5);align-items:start}
+.mv-main{min-width:0;max-width:940px}
 .mv-campos{display:grid;grid-template-columns:2fr 1fr;gap:var(--s2)}
 .mv-campo{display:flex;flex-direction:column;min-width:0}
 .mv-campo input[type=text],.mv-campo select{font-family:var(--mono);font-size:var(--t-sub);padding:14px 16px;border:1px solid var(--line);border-radius:2px;background:var(--panel);color:var(--ink);min-width:0}
 .mv-campo select{font-family:var(--sans);font-size:var(--t-body)}
 .mv-campo input:focus-visible,.mv-campo select:focus-visible{outline:2px solid var(--verdict);outline-offset:1px}
-.mv-archivo{margin-top:var(--s2)}
-.mv-archivo input{font-family:var(--sans);font-size:var(--t-small);color:var(--ink)}
-.mv-opc{text-transform:none;letter-spacing:0;color:var(--ink-60)}
+.mv-comparar{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 16px;margin-top:var(--s2)}
+.mv-comparar .mv-nota{margin:0}
 .mv-nota{font-size:var(--t-small);color:var(--ink-60);margin:6px 0 0}
 .mv-nota.mv-ok{color:var(--measured)}
 .mv-nota.bv-mal{color:var(--alert)}
@@ -46,7 +47,36 @@
 .mv-hosts code{font-family:var(--mono);font-size:var(--t-data)}
 .mv-hosts ul{columns:2;column-gap:var(--s3);margin:var(--s1) 0 0;padding-left:1.1em}
 .mv-foto{margin-top:var(--s5)}
+/* Bandeja «Sus fotos»: al costado en escritorio; en pantallas angostas va al final. */
+.mv-bandeja{position:sticky;top:96px;border:1px solid var(--line);background:var(--panel);padding:var(--s3) var(--s2);margin-top:var(--s5)}
+.mv-bandeja h2{font-family:var(--serif);font-weight:500;font-size:var(--t-sub);line-height:var(--lh-sub);margin:0 0 6px}
+.mv-bandeja > .mv-nota{margin:0 0 var(--s2)}
+.mv-b-lista{list-style:none;margin:0 0 var(--s2);padding:0;display:grid;gap:6px;max-height:52vh;overflow-y:auto}
+.mv-b-dom{font-family:var(--mono);font-size:var(--t-label);color:var(--ink-60);margin-top:var(--s1);overflow-wrap:anywhere}
+.mv-b-item{border:1px solid var(--line);border-radius:2px;background:var(--paper)}
+.mv-b-activa{border-color:var(--measured);box-shadow:inset 3px 0 0 var(--measured)}
+.mv-b-elegir{display:grid;grid-template-columns:1fr auto;gap:2px 8px;width:100%;text-align:left;background:none;border:0;padding:10px 12px 4px;cursor:pointer;color:var(--ink);font:inherit}
+.mv-b-elegir:hover .mv-b-sub{color:var(--verdict)}
+.mv-b-elegir:focus-visible{outline:2px solid var(--verdict);outline-offset:-2px}
+.mv-b-fecha{font-family:var(--mono);font-size:var(--t-data)}
+.mv-b-qex{font-family:var(--mono);font-size:var(--t-data);font-variant-numeric:tabular-nums}
+.mv-b-sub{grid-column:1/-1;font-size:var(--t-label);color:var(--ink-60)}
+.mv-b-activa .mv-b-sub{color:var(--measured)}
+.mv-b-acc{display:flex;gap:14px;padding:0 12px 8px}
+.mv-b-acc .bv-link{font-size:var(--t-label)}
+.mv-b-agregar{display:inline-block;font-size:var(--t-small);color:var(--verdict);text-decoration:underline;text-underline-offset:4px;cursor:pointer}
+.mv-b-agregar input{position:absolute;width:1px;height:1px;opacity:0}
+.mv-b-agregar:focus-within{outline:2px solid var(--verdict);outline-offset:2px}
+@media(max-width:980px){
+  .mv-grid{grid-template-columns:1fr;gap:0}
+  .mv-bandeja{position:static;margin:var(--s4) 0 0}
+  .mv-b-lista{max-height:none}
+}
 @media(max-width:640px){
+  /* La tabla de endpoints apila host y estado: lado a lado, el estado (nowrap) aplastaba el host a una letra por línea. */
+  .mv-mini tr{display:flex;flex-direction:column;gap:4px;border-top:1px solid var(--line);padding:8px 0}
+  .mv-mini td{border:0;padding:0}
+  .mv-chip{white-space:normal}
   .mv-campos{grid-template-columns:1fr}
   .mv-hosts ul{columns:1}
   .mv-score{font-size:var(--t-title)}
