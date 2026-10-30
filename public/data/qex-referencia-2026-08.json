@@ -1,0 +1,111 @@
+{
+ "edicion": "2026-08",
+ "fuente": "indice-agosto-2026.json (170 organizaciones chilenas; sólo agregados)",
+ "n": 170,
+ "mediana_pais": 57.0,
+ "mediana_pais_dimension": {
+  "certificados": 75.0,
+  "higiene": 60.0,
+  "hndl": 12.0,
+  "edge": 100
+ },
+ "hndl_es_modelo": "La postura HNDL es un valor del sector (vida útil del dato y plazo de migración), no una medición de la organización.",
+ "verticales": {
+  "banca": {
+   "nombre": "Banca",
+   "n": 12,
+   "mediana": 57.0,
+   "p25": 56.0,
+   "p75": 58.0,
+   "hndl": 12
+  },
+  "educacion": {
+   "nombre": "Educación",
+   "n": 15,
+   "mediana": 62,
+   "p25": 55.5,
+   "p75": 62.0,
+   "hndl": 37
+  },
+  "energia": {
+   "nombre": "Energía",
+   "n": 19,
+   "mediana": 56,
+   "p25": 49.0,
+   "p75": 58.0,
+   "hndl": 12
+  },
+  "fintech": {
+   "nombre": "Fintech",
+   "n": 15,
+   "mediana": 71,
+   "p25": 70.0,
+   "p75": 71.0,
+   "hndl": 65
+  },
+  "gobierno": {
+   "nombre": "Gobierno",
+   "n": 15,
+   "mediana": 48,
+   "p25": 47.0,
+   "p75": 57.0,
+   "hndl": 12
+  },
+  "mineria": {
+   "nombre": "Minería",
+   "n": 11,
+   "mediana": 62,
+   "p25": 57.0,
+   "p75": 63.5,
+   "hndl": 37
+  },
+  "prevision": {
+   "nombre": "Previsión",
+   "n": 17,
+   "mediana": 56,
+   "p25": 53.0,
+   "p75": 58.0,
+   "hndl": 12
+  },
+  "retail": {
+   "nombre": "Retail",
+   "n": 14,
+   "mediana": 71.0,
+   "p25": 69.5,
+   "p75": 71.0,
+   "hndl": 65
+  },
+  "salud_clinica": {
+   "nombre": "Salud · clínicas",
+   "n": 17,
+   "mediana": 50,
+   "p25": 48.0,
+   "p75": 56.0,
+   "hndl": 12
+  },
+  "salud_isapre": {
+   "nombre": "Salud · isapres",
+   "n": 9,
+   "mediana": 50,
+   "p25": 46.0,
+   "p75": 56.0,
+   "hndl": 12
+  },
+  "seguros": {
+   "nombre": "Seguros",
+   "n": 16,
+   "mediana": 58.0,
+   "p25": 55.25,
+   "p75": 60.0,
+   "hndl": 12
+  },
+  "telecom": {
+   "nombre": "Telecomunicaciones",
+   "n": 10,
+   "mediana": 51.5,
+   "p25": 48.0,
+   "p75": 55.25,
+   "hndl": 12
+  }
+ }
+}

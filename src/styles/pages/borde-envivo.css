@@ -1,0 +1,47 @@
+/* /es/q-ready/borde — medición en vivo (29-oct-2026). Pensada para pantalla compartida en una
+   videollamada: letra grande, un solo campo, los pasos llenándose en orden. Sólo tokens que
+   ya existen en global.css / tokens.css. */
+[hidden]{display:none !important}
+.bv{padding-block:var(--s5) var(--s6)}
+.bv-wrap{max-width:880px}
+.bv h1{font-family:var(--serif);font-weight:400;font-size:var(--t-display);line-height:var(--lh-display);letter-spacing:-.02em;margin:var(--s2) 0 var(--s2);text-wrap:balance}
+.bv-lede{font-size:var(--t-body);line-height:var(--lh-body);color:var(--ink-60);max-width:62ch;margin:0}
+.bv-form{margin:var(--s4) 0 var(--s3)}
+.bv-form label{display:block;font-family:var(--mono);font-size:var(--t-label);text-transform:uppercase;letter-spacing:.08em;color:var(--ink-60);margin-bottom:8px}
+.bv-fila{display:flex;flex-wrap:wrap;gap:10px}
+.bv-fila input{flex:1 1 280px;min-width:0;font-family:var(--mono);font-size:var(--t-sub);padding:14px 16px;border:1px solid var(--line);border-radius:2px;background:var(--panel);color:var(--ink)}
+.bv-fila input:focus-visible{outline:2px solid var(--verdict);outline-offset:1px}
+.bv-fila button{font-family:var(--sans);font-size:var(--t-body);font-weight:500;padding:14px 26px;border:1px solid var(--ink);border-radius:2px;background:var(--ink);color:var(--paper);cursor:pointer;width:auto}
+.bv-fila button:hover{background:var(--verdict);border-color:var(--verdict)}
+.bv-fila button:disabled{opacity:.6;cursor:progress}
+.bv-fila button:focus-visible{outline:2px solid var(--verdict);outline-offset:2px}
+.bv-estado{font-size:var(--t-small);color:var(--ink-60);margin:var(--s1) 0 0}
+.bv-estado.bv-mal{color:var(--alert)}
+.bv-pasos{list-style:none;margin:0;padding:0;display:grid;gap:1px;background:var(--line);border:1px solid var(--line)}
+.bv-pasos li{display:grid;grid-template-columns:2.2em 1fr auto;gap:var(--s2);align-items:start;background:var(--panel);padding:var(--s3)}
+.bv-pasos li > div{min-width:0}
+.bv-n{font-family:var(--mono);font-size:var(--t-label);color:var(--ink-60);padding-top:6px}
+.bv-pasos h2{font-family:var(--serif);font-weight:500;font-size:var(--t-sub);line-height:var(--lh-sub);margin:0}
+.bv-q{font-size:var(--t-small);color:var(--ink-60);margin:4px 0 0;max-width:60ch}
+.bv-r{font-size:var(--t-body);margin:10px 0 0;min-height:0;overflow-wrap:anywhere}
+.bv-r:empty{display:none}
+.bv-r code,.bv-recibo code{font-family:var(--mono);font-size:var(--t-data)}
+.bv-ms{font-family:var(--mono);font-size:var(--t-data);color:var(--ink-60);font-variant-numeric:tabular-nums;padding-top:6px;white-space:nowrap}
+.bv-pasos li.bv-espera .bv-ms::after{content:"midiendo…"}
+.bv-pasos li.bv-si .bv-r{color:var(--measured)}
+.bv-pasos li.bv-no .bv-r{color:var(--alert)}
+.bv-pasos li.bv-neutro .bv-r{color:var(--ink)}
+.bv-veredicto{margin:var(--s3) 0 0;border:1px solid var(--ink);border-radius:2px;padding:var(--s3);background:var(--panel)}
+.bv-v-titulo{font-family:var(--serif);font-size:var(--t-title);line-height:var(--lh-title);margin:0 0 var(--s2);text-wrap:balance}
+.bv-v-lista{margin:0 0 var(--s2);padding-left:1.2em;font-size:var(--t-body)}
+.bv-v-lista li{margin:4px 0}
+.bv-alcance{font-size:var(--t-small);color:var(--ink-60);margin:0 0 var(--s2);max-width:66ch}
+.bv-recibo{display:flex;flex-wrap:wrap;gap:6px 22px;align-items:baseline;font-family:var(--mono);font-size:var(--t-data);color:var(--ink-60);border-top:1px solid var(--line);padding-top:var(--s2)}
+.bv-recibo b{color:var(--ink);font-weight:500}
+.bv-recibo code{color:var(--ink);overflow-wrap:anywhere}
+.bv-link{font:inherit;font-size:var(--t-small);font-family:var(--sans);color:var(--verdict);background:none;border:0;padding:0;cursor:pointer;text-decoration:underline;text-underline-offset:4px}
+.bv-link:focus-visible{outline:2px solid var(--verdict);outline-offset:2px}
+.bv-como{margin:var(--s4) 0 0;font-size:var(--t-small);color:var(--ink-60);max-width:66ch}
+.bv-como summary{cursor:pointer;color:var(--ink);font-weight:500}
+.bv-como p{margin:var(--s1) 0 0}
+@media(max-width:560px){.bv-pasos li{grid-template-columns:1.6em 1fr}.bv-ms{grid-column:2;padding-top:0}}
