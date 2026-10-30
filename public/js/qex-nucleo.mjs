@@ -191,7 +191,9 @@ export function comparar(antes, ahora) {
 
   const eA = new Map((antes.endpoints || []).map((e) => [e.host, e])), eB = new Map((ahora.endpoints || []).map((e) => [e.host, e]));
   const endpoints = [...new Set([...eA.keys(), ...eB.keys()])].sort().map((h) => {
-    const ea = eA.get(h), eb = eB.get(h), a = estadoEndpoint(ea), b = estadoEndpoint(eb);
+    const ea = eA.get(h), eb = eB.get(h), b = estadoEndpoint(eb);
+    // Un nombre que la foto anterior no tenía en CT no estaba «sin medir»: todavía no existía en el registro.
+    const a = ea ? estadoEndpoint(ea) : nuevos?.includes(h) ? "aún no estaba en el registro público" : null;
     const medidoB = eb && !soloPresencia(eb) ? b : null;
     return { host: h, antes: a, ahora: b, estado: estadoPar(ea && !soloPresencia(ea) ? a : null, medidoB, (x, y) => x === y) };
   });

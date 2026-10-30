@@ -60,6 +60,13 @@ if (B.n !== d.irec.banda)
 
 const dif = d.irec.score - d.irec.mediana_pais;
 const difSec = d.irec.score - d.irec.mediana_sector;
+/* «−1 pt», no «-1 pts»: signo menos tipográfico y singular para 1 (corregido 30-oct-2026). */
+const pts = (n: number) => `${n < 0 ? '−' : n > 0 ? '+' : ''}${Math.abs(n)} ${Math.abs(n) === 1 ? 'pt' : 'pts'}`;
+const coma = (n: number) => String(n).replace('.', ',');
+/* El recuadro «cómo se construye» (corrección de agosto): la suma ponderada a la vista y el número publicado. */
+const SUMA = d.irec.suma_ponderada;
+const TERMINOS = d.irec.dimensiones.map((x: any) => `${x.suyo} × ${coma((x.peso / 100).toFixed(2))}`).join(' + ');
+const APORTES = d.irec.dimensiones.map((x: any) => coma(Math.round(x.suyo * x.peso) / 100)).join(' + ');
 
 /* «Posición en su sector» llega como UNA frase («2 de 12 organizaciones de banca están por
    debajo suyo y 3 empatan con usted; …») y se pintaba entera en la casilla del número grande:
@@ -82,14 +89,14 @@ const CHIP_EVO: Record<string, [string, string]> = { cambio: ['warn', 'cambió']
   description={`Informe confidencial de exposición criptográfica para ${d.cliente}.`}
   lang="es" altUrl="/" ruta="/informe-cliente" pageCss={css + '\n' + cssPapel} noindex={true}>
 
-<div class="informe-doc">
+<div class="informe-doc cliente">
 <div class="informe">
 
   <header class="mast">
     <div class="edicion">
       <span class="num">Informe individual</span>
       <span>{mesLargo}</span>
-      <span>Medición {d.ventana.desde} → {d.ventana.hasta}</span>
+      <span>Medición {d.ventana.desde === d.ventana.hasta ? d.ventana.desde : `${d.ventana.desde} → ${d.ventana.hasta}`}</span>
       <span class="mono">{d.dominio}</span>
       <span>Vertical: {d.vertical}</span>
     </div>
@@ -126,8 +133,8 @@ const CHIP_EVO: Record<string, [string, string]> = { cambio: ['warn', 'cambió']
       </div>
       <div class="tiles">
         <div class={`tile ${SCORE >= 70 ? 'ok' : SCORE >= 50 ? 'warn' : 'crit'}`}><span class="k">Su índice QEX</span><span class="v">{SCORE}</span><span class="sub">de 100 · techo externo {TOPE} · {B.n}</span></div>
-        <div class="tile"><span class="k">Mediana nacional</span><span class="v">{d.irec.mediana_pais}</span><span class="sub"><span class="delta up">{dif} pts</span> bajo el país</span></div>
-        <div class="tile"><span class="k">Mediana de {d.vertical.toLowerCase()}</span><span class="v">{d.irec.mediana_sector}</span><span class="sub"><span class="delta up">{difSec} pts</span> bajo su sector</span></div>
+        <div class="tile"><span class="k">Mediana nacional</span><span class="v">{d.irec.mediana_pais}</span><span class="sub"><span class="delta up">{pts(dif)}</span> bajo el país</span></div>
+        <div class="tile"><span class="k">Mediana de {d.vertical.toLowerCase()}</span><span class="v">{d.irec.mediana_sector}</span><span class="sub"><span class="delta up">{pts(difSec)}</span> bajo su sector</span></div>
         <div class="tile"><span class="k">Posición en su sector</span><span class="sub">{d.irec.posicion_sector}</span><span class="sub">de {d.irec.n_sector} organizaciones medidas</span></div>
       </div>
     </div>
@@ -153,6 +160,10 @@ const CHIP_EVO: Record<string, [string, string]> = { cambio: ['warn', 'cambió']
         <p class="src">Tres dimensiones se miden sobre sus endpoints reales. La postura HNDL <span class="chip warn">modelo</span> se deriva del perfil de su sector y se ajusta con datos suyos en el nivel Assisted.</p>
       </div>
     </div>
+
+    {SUMA != null && (
+      <div class="measure"><p><strong>Cómo se construye este número.</strong> {TERMINOS} = {APORTES} = <strong>{coma(SUMA)}</strong> — se publica {SCORE}. El techo externo es {TOPE} porque una medición desde afuera puede demostrar que una organización no está preparada, nunca que sí lo está.</p></div>
+    )}
 
     <div class="measure">
       {d.irec.dimensiones.map((x: any) => (
@@ -195,6 +206,7 @@ const CHIP_EVO: Record<string, [string, string]> = { cambio: ['warn', 'cambió']
       <div class="measure">
         <p><strong>{d.evolucion.nuevos_titulo}</strong></p>
         <ul>{d.evolucion.nuevos.map((h: string) => <li class="mono" style="font-size:.82rem">{h}</li>)}</ul>
+        {d.evolucion.nuevos_nota && <p class="src" set:html={d.evolucion.nuevos_nota}></p>}
       </div>
     )}
   </section>
@@ -249,7 +261,7 @@ const CHIP_EVO: Record<string, [string, string]> = { cambio: ['warn', 'cambió']
     <div class="panel">
       <div class="panel-h"><h3>Superficie descubierta</h3><span class="meta">Certificate Transparency</span></div>
       <div class="tiles">
-        <div class="tile warn"><span class="k">Nombres de host</span><span class="v">{d.superficie.hostnames}</span><span class="sub">mediana de su sector: {d.superficie.mediana_sector}</span></div>
+        <div class="tile warn"><span class="k">Nombres de host</span><span class="v">{d.superficie.hostnames}</span><span class="sub">mediana de su sector{d.superficie.mediana_ref ? ` (${d.superficie.mediana_ref})` : ''}: {d.superficie.mediana_sector}</span></div>
         <div class="tile warn"><span class="k">Subdominios profundos</span><span class="v">{d.superficie.profundos}</span><span class="sub">tercer y cuarto nivel, sin dueño claro</span></div>
         <div class="tile crit"><span class="k">Infra sensible expuesta</span><span class="v">{d.superficie.infra_expuesta}</span><span class="sub">{d.superficie.sub_infra ?? 'alcanzable desde internet'}</span></div>
         <div class="tile crit"><span class="k">Ambiente no productivo</span><span class="v">{d.superficie.no_productivo}</span><span class="sub">{d.superficie.sub_no_productivo ?? 'respondiendo en internet'}</span></div>

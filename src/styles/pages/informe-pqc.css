@@ -299,3 +299,6 @@ td.num{font-family:var(--mono);font-variant-numeric:tabular-nums;text-align:righ
   .informe-doc a{color:inherit;text-decoration:none}
   .informe-doc a.btn,.btn{background:none;color:var(--ink);border:1px solid var(--ink);transition:none}
 }
+/* Informe de cliente (30-oct-2026): sus notas .src son prosa que explica la tabla, no una línea de
+   fuente; en mono se leían como código. El informe mensual conserva el mono. */
+.cliente .src{font-family:var(--sans);font-size:var(--t-small)}

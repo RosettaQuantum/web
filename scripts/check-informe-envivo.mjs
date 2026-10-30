@@ -66,7 +66,10 @@ eq(N.clasesDe("api-test.santander.cl"), ["no_productivo", "critico"], "api-test:
   const d = N.comparar({ ...a, borde: {}, endpoints: [{ host: "mail.x.cl", dns_status: "NOERROR", responde_443: true }] }, b);
   eq(d.items.find((i) => i.k === "soporta").estado, "medido_hoy", "no medido antes → medido hoy");
   eq(d.endpoints[0].estado, "cambio", "medido en ambas y distinto → cambió");
-  const sinHosts = N.comparar({ ...a, ct: { conteos: {} } }, b);
+  const conNuevo = N.comparar(a, { ...b, endpoints: [...b.endpoints, { host: "c.x.cl", dns_status: "NOERROR", responde_443: true }] });
+  eq(conNuevo.endpoints.find((e) => e.host === "c.x.cl"), { host: "c.x.cl", antes: "aún no estaba en el registro público", ahora: "responde en el puerto 443", estado: "medido_hoy" }, "nombre nuevo en CT: «aún no estaba», no «no medido»");
+  eq(N.comparar({ ...a, ct: { conteos: {} } }, { ...b, endpoints: [{ host: "c.x.cl", dns_status: "NOERROR", responde_443: true }] }).endpoints[0].antes, null, "sin lista previa no se afirma que no estaba");
+  const sinHosts =N.comparar({ ...a, ct: { conteos: {} } }, b);
   eq(sinHosts.hosts, { nuevos: null, retirados: null, siguen: null }, "sin lista previa: null, no «0 nuevos»");
 }
 // --- sello: integridad detecta un cambio de un carácter
