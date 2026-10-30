@@ -1,125 +1,178 @@
 ---
 /**
- * /es/q-ready/medicion — el informe QEX completo, medido EN VIVO (30-oct-2026).
+ * /es/q-ready/medicion — el informe QEX completo, medido EN VIVO (30-oct-2026; rediseño del mismo día).
  * Para la reunión con Santander (3-nov, videollamada) y para cualquier cliente después: se
  * escribe el dominio, la página mide las cuatro dimensiones, muestra la suma del QEX, y si se le
- * carga la foto anterior compara ítem por ítem: qué había, qué hay, qué cambió, qué se mantiene.
+ * elige una foto anterior compara ítem por ítem: qué había, qué hay, qué cambió, qué se mantiene.
+ *
+ * Diseño: un instrumento, no un formulario. La consola muestra cada evento real de la medición
+ * (consultas, saludos TLS, tiempos) a medida que ocurre; la barra del QEX ES la suma — cada
+ * dimensión es un tramo de ancho igual a su aporte, y el tramo de 84 a 100 queda rayado porque
+ * no es observable desde afuera.
  *
  * Reglas que esta página no rompe:
- * - La foto anterior se lee EN EL NAVEGADOR (FileReader) y no viaja a ningún servidor. Los
- *   informes de cliente nunca se sirven desde la web (decisión de Nicholas, 21-ago).
- * - No guarda nada: ni D1 ni caché. El servidor sólo hace lo que exige un socket (lib/informe-envivo.mjs).
+ * - Las fotos viven en el navegador (localStorage y archivos del usuario) y no viajan a ningún
+ *   servidor. Los informes de cliente nunca se sirven desde la web (decisión de Nicholas, 21-ago).
+ * - El servidor sólo hace lo que exige un socket (lib/informe-envivo.mjs) y no guarda nada.
  * - El cálculo vive en public/js/qex-nucleo.mjs, el mismo que verifica scripts/check-informe-envivo.mjs
  *   contra la medición de Python. Lo no medido se muestra «sin dato», nunca como cero ni como «se mantiene».
+ *
+ * Los paneles son <div role="region">, no <section>: la base de marca fuerza en modo oscuro
+ * «section{background:var(--paper) !important}», y la consola salía clara (30-oct-2026).
  *
  * noindex hasta que Nicholas apruebe el texto.
  */
 import MarcaLayout from '../../../../layouts/MarcaLayout.astro';
 import paginas from '../../../../styles/pages/paginas.css?raw';
-import borde from '../../../../styles/pages/borde-envivo.css?raw';
 import propia from '../../../../styles/pages/medicion-envivo.css?raw';
 ---
 <MarcaLayout
   title="Su exposición criptográfica, medida hoy — Rosetta Q-Ready"
   description="El QEX completo en vivo: certificados, superficie, borde post-cuántico y postura HNDL, con la suma a la vista y la comparación contra su medición anterior."
   lang="es" altUrl="/q-ready" ruta="/es/q-ready/medicion"
-  pageCss={paginas + '\n' + borde + '\n' + propia} noindex={true}
+  pageCss={paginas + '\n' + propia} noindex={true}
 >
-  <section class="bv mv">
-    <div class="wrap mv-wrap">
+  <section class="mv">
+    <div class="mv-wrap">
      <div class="mv-grid">
       <div class="mv-main">
-      <p class="eyebrow">Rosetta Q-Ready · medición en vivo</p>
-      <h1>Su exposición criptográfica, medida hoy.</h1>
-      <p class="bv-lede">Las cuatro dimensiones del índice QEX, medidas desde afuera en menos de un minuto, con la suma a la vista. Elija una foto anterior en «Sus fotos» y comparamos ítem por ítem qué había, qué hay, qué cambió y qué se mantiene.</p>
 
-      <form class="bv-form mv-form" id="mv-form" novalidate>
-        <div class="mv-campos">
-          <div class="mv-campo mv-dominio">
-            <label for="mv-dominio">Dominio</label>
-            <input id="mv-dominio" type="text" inputmode="url" autocomplete="off" spellcheck="false" placeholder="santander.cl">
-          </div>
-          <div class="mv-campo">
-            <label for="mv-sector">Sector</label>
-            <select id="mv-sector"></select>
-          </div>
+      <header class="mv-cab">
+        <p class="mv-eyebrow">Rosetta Q-Ready · medición en vivo · QEX-1.0</p>
+        <h1>Su exposición criptográfica, medida hoy.</h1>
+        <p class="mv-lede">Las cuatro dimensiones del índice QEX, medidas desde afuera en menos de un minuto y con la suma a la vista. Elija una foto anterior en «Sus fotos» y la comparamos ítem por ítem: qué había, qué hay, qué cambió y qué se mantiene.</p>
+      </header>
+
+      <form class="mv-instrumento" id="mv-form" novalidate>
+        <div class="mv-campo mv-dominio">
+          <label for="mv-dominio">Dominio</label>
+          <input id="mv-dominio" type="text" inputmode="url" autocomplete="off" spellcheck="false" placeholder="santander.cl">
         </div>
+        <div class="mv-campo mv-sector">
+          <label for="mv-sector">Sector</label>
+          <select id="mv-sector"></select>
+        </div>
+        <button type="submit" id="mv-ir" class="mv-ir">Medir ahora</button>
         <div class="mv-comparar">
-          <p class="mv-nota" id="mv-previa-estado" role="status">Sin foto anterior: se mide sin comparar. Elija una en «Sus fotos» para comparar.</p>
-          <button class="bv-link" type="button" id="mv-previa-quitar" hidden>No comparar</button>
+          <p class="mv-nota" id="mv-previa-estado" role="status">Sin foto anterior: se mide sin comparar.</p>
+          <button class="mv-link" type="button" id="mv-previa-quitar" hidden>No comparar</button>
         </div>
-        <div class="bv-fila mv-ir"><button type="submit" id="mv-ir">Medir ahora</button></div>
-        <p class="bv-estado" id="mv-estado" role="status" aria-live="polite" hidden></p>
+        <p class="mv-estado" id="mv-estado" role="status" aria-live="polite" hidden></p>
       </form>
 
-      <ol class="bv-pasos mv-pasos" aria-live="polite">
-        <li data-paso="ct">
-          <span class="bv-n">1</span>
-          <div><h2>Su superficie pública</h2><p class="bv-q">Todos los nombres que su dominio ha certificado, según el registro público de certificados (Certificate Transparency).</p><div class="bv-r" data-r></div></div>
-          <span class="bv-ms" data-ms></span>
-        </li>
-        <li data-paso="end">
-          <span class="bv-n">2</span>
-          <div><h2>Endpoints sensibles</h2><p class="bv-q">Los nombres de pruebas, legado o infraestructura: ¿siguen publicados en DNS? ¿responden desde internet?</p><div class="bv-r" data-r></div></div>
-          <span class="bv-ms" data-ms></span>
-        </li>
-        <li data-paso="borde">
-          <span class="bv-n">3</span>
-          <div><h2>Su borde y el intercambio post-cuántico</h2><p class="bv-q">Tres saludos TLS a su sitio: ¿soporta X25519MLKEM768? ¿lo elige?</p><div class="bv-r" data-r></div></div>
-          <span class="bv-ms" data-ms></span>
-        </li>
-        <li data-paso="cert">
-          <span class="bv-n">4</span>
-          <div><h2>Su certificado</h2><p class="bv-q">El certificado que entrega su sitio: algoritmo, emisor y vigencia.</p><div class="bv-r" data-r></div></div>
-          <span class="bv-ms" data-ms></span>
-        </li>
-        <li data-paso="prov">
-          <span class="bv-n">5</span>
-          <div><h2>Correo y canal de reporte</h2><p class="bv-q">Quién recibe su correo, y si publica un canal para reportarle fallas de seguridad.</p><div class="bv-r" data-r></div></div>
-          <span class="bv-ms" data-ms></span>
-        </li>
-      </ol>
-
-      <section class="mv-qex" id="mv-qex" hidden aria-labelledby="mv-qex-t">
-        <h2 id="mv-qex-t" class="mv-h2">Su QEX de hoy</h2>
-        <div class="mv-qex-cab">
-          <p class="mv-score"><span id="mv-score"></span><span class="mv-de"> / 100</span></p>
-          <p class="mv-ref" id="mv-ref"></p>
+      <div role="region" class="mv-consola" aria-labelledby="mv-consola-t">
+        <div class="mv-consola-cab">
+          <h2 id="mv-consola-t">Consola</h2>
+          <ol class="mv-riel" aria-label="Pasos de la medición">
+            <li data-paso="ct"><span>Superficie</span></li>
+            <li data-paso="end"><span>Endpoints</span></li>
+            <li data-paso="borde"><span>Borde</span></li>
+            <li data-paso="cert"><span>Certificado</span></li>
+            <li data-paso="prov"><span>Correo</span></li>
+          </ol>
+          <span class="mv-reloj" id="mv-reloj" aria-hidden="true">0,0 s</span>
         </div>
-        <div class="mv-tabla-caja">
-          <table class="mv-tabla mv-suma">
-            <thead><tr><th scope="col">Dimensión</th><th scope="col">Su valor</th><th scope="col">Peso</th><th scope="col">Aporte</th><th scope="col">Cómo se obtiene</th></tr></thead>
-            <tbody id="mv-suma"></tbody>
-            <tfoot><tr><th scope="row" colspan="3">Suma</th><td id="mv-suma-total"></td><td id="mv-suma-nota"></td></tr></tfoot>
-          </table>
-        </div>
-        <p class="bv-alcance" id="mv-tope"></p>
-      </section>
+        <ol class="mv-traza" id="mv-traza" aria-live="polite">
+          <li class="mv-t-quieto">Esperando un dominio. Cada consulta y cada saludo TLS aparecerá aquí, con su tiempo.</li>
+        </ol>
+        <div class="mv-ct-falla" id="mv-ct-falla" hidden></div>
+      </div>
 
-      <section class="mv-comp" id="mv-comp" hidden aria-labelledby="mv-comp-t">
-        <h2 id="mv-comp-t" class="mv-h2"></h2>
-        <p class="mv-resumen" id="mv-comp-resumen"></p>
-        <div class="mv-tabla-caja">
-          <table class="mv-tabla mv-delta">
-            <thead><tr><th scope="col">Ítem</th><th scope="col" id="mv-col-antes">Qué había</th><th scope="col" id="mv-col-ahora">Qué hay</th><th scope="col">Estado</th></tr></thead>
-            <tbody id="mv-delta"></tbody>
-          </table>
-        </div>
-        <div class="mv-hosts" id="mv-hosts"></div>
-      </section>
+      <div class="mv-resultado" id="mv-resultado" hidden>
 
-      <section class="mv-foto bv-veredicto" id="mv-foto" hidden>
-        <p class="bv-v-titulo">La foto de hoy</p>
-        <p class="bv-alcance">Todo lo medido, en un archivo con su huella. Guárdelo: es la base para comparar la próxima medición.</p>
-        <div class="bv-recibo">
-          <span>Medido <b id="mv-cuando"></b></span>
-          <span>huella sha256 <code id="mv-huella"></code></span>
-          <button class="bv-link" type="button" id="mv-guardar">Descargar la foto (JSON)</button>
+        <div role="region" class="mv-bloque mv-qex" id="mv-qex" aria-labelledby="mv-qex-t">
+          <div class="mv-bloque-cab">
+            <h2 id="mv-qex-t">Su QEX de hoy</h2>
+            <p class="mv-meta" id="mv-qex-meta"></p>
+          </div>
+          <div class="mv-qex-fila">
+            <p class="mv-score"><span id="mv-score">—</span><span class="mv-de">/ 100</span></p>
+            <p class="mv-ref" id="mv-ref"></p>
+          </div>
+          <div class="mv-escala" id="mv-escala" role="img" aria-labelledby="mv-escala-desc">
+            <div class="mv-escala-pista">
+              <div class="mv-tramos" id="mv-tramos"></div>
+              <div class="mv-techo" id="mv-techo"><span>no observable desde afuera</span></div>
+              <div class="mv-marcas" id="mv-marcas"></div>
+            </div>
+            <div class="mv-escala-eje" aria-hidden="true"><span style="left:0">0</span><span style="left:50%">50</span><span id="mv-eje-tope" style="left:84%">84</span><span style="left:100%">100</span></div>
+          </div>
+          <p class="mv-sr" id="mv-escala-desc"></p>
+          <div class="mv-formula" id="mv-formula"></div>
+          <div class="mv-dims" id="mv-dims"></div>
         </div>
-        <p class="mv-nota mv-ok" id="mv-guardada"></p>
-      </section>
 
-      <details class="bv-como">
+        <div role="region" class="mv-bloque" aria-labelledby="mv-sup-t">
+          <div class="mv-bloque-cab">
+            <h2 id="mv-sup-t">Su superficie pública</h2>
+            <p class="mv-meta" id="mv-sup-meta"></p>
+          </div>
+          <p class="mv-texto" id="mv-sup-lede"></p>
+          <div class="mv-mapa-caja">
+            <div class="mv-mapa" id="mv-mapa" role="img" aria-label="Mapa de los nombres de su dominio en el registro público, por clase"></div>
+            <ul class="mv-leyenda" id="mv-leyenda"></ul>
+          </div>
+          <h3 class="mv-h3">Endpoints sensibles</h3>
+          <div class="mv-tabla-caja"><table class="mv-tabla mv-endp"><thead><tr><th scope="col">Nombre</th><th scope="col">Clase</th><th scope="col">DNS</th><th scope="col">Puerto 443</th><th scope="col">Detalle</th></tr></thead><tbody id="mv-endp"></tbody></table></div>
+        </div>
+
+        <div role="region" class="mv-bloque" aria-labelledby="mv-borde-t">
+          <div class="mv-bloque-cab">
+            <h2 id="mv-borde-t">Su borde y el intercambio post-cuántico</h2>
+            <p class="mv-meta" id="mv-borde-meta"></p>
+          </div>
+          <div class="mv-tramos-dib" id="mv-dos-tramos"></div>
+          <div class="mv-tabla-caja"><table class="mv-tabla mv-saludos"><thead><tr><th scope="col">Saludo TLS</th><th scope="col">Qué ofrecimos</th><th scope="col">Qué eligió su borde</th><th scope="col" class="num">ms</th></tr></thead><tbody id="mv-saludos"></tbody></table></div>
+          <p class="mv-nota" id="mv-borde-lectura"></p>
+        </div>
+
+        <div class="mv-par">
+          <div role="region" class="mv-bloque mv-ficha" aria-labelledby="mv-cert-t">
+            <h2 id="mv-cert-t">Su certificado</h2>
+            <dl class="mv-dl" id="mv-cert"></dl>
+          </div>
+          <div role="region" class="mv-bloque mv-ficha" aria-labelledby="mv-prov-t">
+            <h2 id="mv-prov-t">Correo y canal de reporte</h2>
+            <dl class="mv-dl" id="mv-prov"></dl>
+          </div>
+        </div>
+
+        <div role="region" class="mv-bloque mv-comp" id="mv-comp" hidden aria-labelledby="mv-comp-t">
+          <div class="mv-bloque-cab">
+            <h2 id="mv-comp-t"></h2>
+            <p class="mv-meta" id="mv-comp-meta"></p>
+          </div>
+          <ul class="mv-contadores" id="mv-comp-resumen"></ul>
+          <div class="mv-tabla-caja">
+            <table class="mv-tabla mv-delta">
+              <thead><tr><th scope="col">Ítem</th><th scope="col" id="mv-col-antes">Qué había</th><th scope="col" id="mv-col-ahora">Qué hay</th><th scope="col">Estado</th></tr></thead>
+              <tbody id="mv-delta"></tbody>
+            </table>
+          </div>
+          <div class="mv-hosts" id="mv-hosts"></div>
+        </div>
+
+        <div role="region" class="mv-bloque mv-recibo" aria-labelledby="mv-foto-t">
+          <div class="mv-bloque-cab">
+            <h2 id="mv-foto-t">La foto de hoy</h2>
+            <p class="mv-meta">esquema rosetta-qex-foto/1</p>
+          </div>
+          <p class="mv-texto">Todo lo medido, en un archivo con su huella. Es la base para comparar la próxima medición: cualquier cambio de un carácter cambia la huella.</p>
+          <dl class="mv-dl mv-dl-recibo">
+            <div><dt>Medido</dt><dd id="mv-cuando"></dd></div>
+            <div><dt>Huella sha256</dt><dd><code id="mv-huella"></code></dd></div>
+            <div><dt>Integridad</dt><dd id="mv-integra">—</dd></div>
+          </dl>
+          <div class="mv-acciones">
+            <button class="mv-boton" type="button" id="mv-guardar">Descargar la foto (JSON)</button>
+            <button class="mv-boton mv-boton-2" type="button" id="mv-verificar">Verificar la huella</button>
+            <button class="mv-boton mv-boton-2" type="button" id="mv-imprimir">Imprimir o guardar en PDF</button>
+          </div>
+          <p class="mv-nota mv-ok" id="mv-guardada"></p>
+        </div>
+      </div>
+
+      <details class="mv-como">
         <summary>Qué medimos y qué no</summary>
         <p><b>Superficie.</b> Consultamos el registro público de certificados (crt.sh) y clasificamos cada nombre con las mismas reglas de todas nuestras ediciones: ambientes no productivos, legado, infraestructura sensible y servicios críticos.</p>
         <p><b>Endpoints.</b> Para cada nombre sensible preguntamos al DNS si sigue publicado y, si lo está, enviamos un único saludo TLS al puerto 443. No completamos ninguna conexión ni enviamos datos.</p>
@@ -131,9 +184,9 @@ import propia from '../../../../styles/pages/medicion-envivo.css?raw';
 
       <aside class="mv-bandeja" aria-labelledby="mv-b-t">
         <h2 id="mv-b-t">Sus fotos</h2>
-        <p class="mv-nota">Se guardan sólo en este navegador; nunca se envían a un servidor. Cada medición se agrega sola.</p>
+        <p class="mv-nota">Se guardan sólo en este navegador; nunca se envían a un servidor. Cada medición se agrega sola. Toque una para comparar contra ella.</p>
         <p class="mv-nota mv-b-vacia" id="mv-b-vacia">Todavía no hay fotos aquí.</p>
-        <ul class="mv-b-lista" id="mv-b-lista"></ul>
+        <ol class="mv-b-lista" id="mv-b-lista"></ol>
         <label class="mv-b-agregar">Agregar desde un archivo
           <input id="mv-b-archivo" type="file" accept="application/json,.json" multiple>
         </label>

@@ -245,7 +245,7 @@ export function armarFoto({ dominio, www, vertical, medido, ct, sondas: s, refer
   const corta = (iso) => (iso ? iso.slice(0, 10) : null);
   const foto = {
     esquema: ESQUEMA_FOTO, edicion: medido.slice(0, 7), dominio, www, vertical, medido_utc: medido, origen,
-    ct: ct ? { fuente: ct.fuente, intentos: ct.intentos ?? null, consultado_utc: medido, filas: ct.filas.length, sha256_crudo: ct.sha256, conteos: cuentas, hosts } : null,
+    ct: ct ? { fuente: ct.fuente, intentos: ct.intentos ?? null, consultado_utc: ct.consultado_utc || medido, filas: ct.filas.length, sha256_crudo: ct.sha256, conteos: cuentas, hosts } : null,
     endpoints,
     borde: { cdn: b.dns.cdn, cadena: b.dns.cadena, soporta: v.soporta, elige: v.elige, pide_mejora: v.pide_mejora, sha256_medicion: b.sha256 },
     tls13,
