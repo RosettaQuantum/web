@@ -1,0 +1,56 @@
+{
+ "instrumento": "rosetta-sonda-correo/1 · STARTTLS + ClientHello de probe_soporte.py",
+ "dominio": "outlook.com",
+ "medido_utc": "2026-11-02T14:57:31Z",
+ "desde_ip": "45.88.191.121",
+ "mx_publicados": [
+  "outlook-com.olc.protection.outlook.com"
+ ],
+ "mx_medidos": 1,
+ "mx_omitidos": 0,
+ "servidores": [
+  {
+   "mx": "outlook-com.olc.protection.outlook.com",
+   "saludos": {
+    "A_como_navegador": {
+     "saludo_220": "220 BN2PEPF0000449E.mail.protection.outlook.com Microsoft ESMTP MAIL Service ready at Mon, 2 Nov 2026 14:57:30 +0000 [08DF36CC497A7C4B]",
+     "starttls": true,
+     "grupo": "secp384r1",
+     "hrr": true,
+     "alerta": null,
+     "rechazo": null,
+     "error": null,
+     "ms": 457
+    },
+    "B_solo_hibrido": {
+     "saludo_220": "220 BY1PEPF00026958.mail.protection.outlook.com Microsoft ESMTP MAIL Service ready at Mon, 2 Nov 2026 14:57:30 +0000 [08DF369E482AE8A7]",
+     "starttls": true,
+     "grupo": null,
+     "hrr": null,
+     "alerta": null,
+     "rechazo": null,
+     "error": "OSError: respuesta TLS corta",
+     "ms": 742
+    },
+    "C_eleccion_libre": {
+     "saludo_220": "220 BY1PEPF0002695D.mail.protection.outlook.com Microsoft ESMTP MAIL Service ready at Mon, 2 Nov 2026 14:57:32 +0000 [08DF368593D40F1D]",
+     "starttls": true,
+     "grupo": null,
+     "hrr": null,
+     "alerta": null,
+     "rechazo": null,
+     "error": "OSError: respuesta TLS corta",
+     "ms": 734
+    }
+   },
+   "veredicto": {
+    "estado": "no_medido",
+    "starttls": true,
+    "soporta": null,
+    "pide_mejora": false,
+    "elige": null
+   }
+  }
+ ],
+ "alcance": "Mide el tramo remitente → servidor de correo del dominio (STARTTLS). No ve lo que pasa dentro de la organización."
+}

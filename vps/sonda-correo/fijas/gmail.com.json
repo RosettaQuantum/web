@@ -1,0 +1,186 @@
+{
+ "instrumento": "rosetta-sonda-correo/1 · STARTTLS + ClientHello de probe_soporte.py",
+ "dominio": "gmail.com",
+ "medido_utc": "2026-11-02T14:57:27Z",
+ "desde_ip": "45.88.191.121",
+ "mx_publicados": [
+  "gmail-smtp-in.l.google.com",
+  "alt1.gmail-smtp-in.l.google.com",
+  "alt2.gmail-smtp-in.l.google.com",
+  "alt3.gmail-smtp-in.l.google.com",
+  "alt4.gmail-smtp-in.l.google.com"
+ ],
+ "mx_medidos": 4,
+ "mx_omitidos": 1,
+ "servidores": [
+  {
+   "mx": "gmail-smtp-in.l.google.com",
+   "saludos": {
+    "A_como_navegador": {
+     "saludo_220": "220 mx.google.com ESMTP ffacd0b85a97d-48e71ba5463si19362944f8f.64 - gsmtp",
+     "starttls": true,
+     "grupo": "X25519MLKEM768",
+     "hrr": true,
+     "alerta": null,
+     "rechazo": null,
+     "error": null,
+     "ms": 107
+    },
+    "B_solo_hibrido": {
+     "saludo_220": "220 mx.google.com ESMTP ffacd0b85a97d-48e71ba3064si17920834f8f.134 - gsmtp",
+     "starttls": true,
+     "grupo": "X25519MLKEM768",
+     "hrr": true,
+     "alerta": null,
+     "rechazo": null,
+     "error": null,
+     "ms": 84
+    },
+    "C_eleccion_libre": {
+     "saludo_220": "220 mx.google.com ESMTP ffacd0b85a97d-48e71b4ac55si19223705f8f.15 - gsmtp",
+     "starttls": true,
+     "grupo": "X25519MLKEM768",
+     "hrr": true,
+     "alerta": null,
+     "rechazo": null,
+     "error": null,
+     "ms": 76
+    }
+   },
+   "veredicto": {
+    "estado": "medido",
+    "starttls": true,
+    "soporta": true,
+    "pide_mejora": true,
+    "elige": true
+   }
+  },
+  {
+   "mx": "alt1.gmail-smtp-in.l.google.com",
+   "saludos": {
+    "A_como_navegador": {
+     "saludo_220": "220 mx.google.com ESMTP 4fb4d7f45d1cf-6b4eca3e1afsi7056873a12.183 - gsmtp",
+     "starttls": true,
+     "grupo": "X25519MLKEM768",
+     "hrr": true,
+     "alerta": null,
+     "rechazo": null,
+     "error": null,
+     "ms": 119
+    },
+    "B_solo_hibrido": {
+     "saludo_220": "220 mx.google.com ESMTP a640c23a62f3a-c4cabfc3a03si655530966b.175 - gsmtp",
+     "starttls": true,
+     "grupo": "X25519MLKEM768",
+     "hrr": true,
+     "alerta": null,
+     "rechazo": null,
+     "error": null,
+     "ms": 126
+    },
+    "C_eleccion_libre": {
+     "saludo_220": "220 mx.google.com ESMTP a640c23a62f3a-c4cac0b510dsi668417266b.309 - gsmtp",
+     "starttls": true,
+     "grupo": "X25519MLKEM768",
+     "hrr": true,
+     "alerta": null,
+     "rechazo": null,
+     "error": null,
+     "ms": 223
+    }
+   },
+   "veredicto": {
+    "estado": "medido",
+    "starttls": true,
+    "soporta": true,
+    "pide_mejora": true,
+    "elige": true
+   }
+  },
+  {
+   "mx": "alt2.gmail-smtp-in.l.google.com",
+   "saludos": {
+    "A_como_navegador": {
+     "saludo_220": "220 mx.google.com ESMTP ffacd0b85a97d-48e71baf60asi23729192f8f.154 - gsmtp",
+     "starttls": true,
+     "grupo": "X25519MLKEM768",
+     "hrr": true,
+     "alerta": null,
+     "rechazo": null,
+     "error": null,
+     "ms": 58
+    },
+    "B_solo_hibrido": {
+     "saludo_220": "220 mx.google.com ESMTP ffacd0b85a97d-48e71ba3619si18509072f8f.95 - gsmtp",
+     "starttls": true,
+     "grupo": "X25519MLKEM768",
+     "hrr": true,
+     "alerta": null,
+     "rechazo": null,
+     "error": null,
+     "ms": 64
+    },
+    "C_eleccion_libre": {
+     "saludo_220": "220 mx.google.com ESMTP ffacd0b85a97d-48e71ba3240si19324063f8f.76 - gsmtp",
+     "starttls": true,
+     "grupo": "X25519MLKEM768",
+     "hrr": true,
+     "alerta": null,
+     "rechazo": null,
+     "error": null,
+     "ms": 76
+    }
+   },
+   "veredicto": {
+    "estado": "medido",
+    "starttls": true,
+    "soporta": true,
+    "pide_mejora": true,
+    "elige": true
+   }
+  },
+  {
+   "mx": "alt3.gmail-smtp-in.l.google.com",
+   "saludos": {
+    "A_como_navegador": {
+     "saludo_220": "220 mx.google.com ESMTP 4fb4d7f45d1cf-6b4eca3a631si6787389a12.147 - gsmtp",
+     "starttls": true,
+     "grupo": "X25519MLKEM768",
+     "hrr": true,
+     "alerta": null,
+     "rechazo": null,
+     "error": null,
+     "ms": 169
+    },
+    "B_solo_hibrido": {
+     "saludo_220": "220 mx.google.com ESMTP 4fb4d7f45d1cf-6b4eca4d4c1si6721541a12.212 - gsmtp",
+     "starttls": true,
+     "grupo": "X25519MLKEM768",
+     "hrr": true,
+     "alerta": null,
+     "rechazo": null,
+     "error": null,
+     "ms": 241
+    },
+    "C_eleccion_libre": {
+     "saludo_220": "220 mx.google.com ESMTP a640c23a62f3a-c4cda9e27b0si179175966b.338 - gsmtp",
+     "starttls": true,
+     "grupo": "X25519MLKEM768",
+     "hrr": true,
+     "alerta": null,
+     "rechazo": null,
+     "error": null,
+     "ms": 214
+    }
+   },
+   "veredicto": {
+    "estado": "medido",
+    "starttls": true,
+    "soporta": true,
+    "pide_mejora": true,
+    "elige": true
+   }
+  }
+ ],
+ "alcance": "Mide el tramo remitente → servidor de correo del dominio (STARTTLS). No ve lo que pasa dentro de la organización."
+}

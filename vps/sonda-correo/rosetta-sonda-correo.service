@@ -1,0 +1,27 @@
+# Sonda de correo de Rosetta Q-Ready. Instalación: vps/sonda-correo/README.md
+[Unit]
+Description=Rosetta Q-Ready - sonda de correo (STARTTLS + saludo TLS)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+User=nicholas
+WorkingDirectory=/home/nicholas/rosetta-sonda-correo
+EnvironmentFile=/home/nicholas/rosetta-sonda-correo/.env
+ExecStart=/usr/bin/python3 -I /home/nicholas/rosetta-sonda-correo/sonda_correo.py
+Restart=on-failure
+RestartSec=5
+# Aislamiento: sólo lee su carpeta, no escribe en el disco, no gana privilegios.
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=read-only
+PrivateTmp=true
+PrivateDevices=true
+ProtectKernelTunables=true
+ProtectControlGroups=true
+RestrictAddressFamilies=AF_INET AF_INET6
+MemoryMax=128M
+CPUQuota=50%
+
+[Install]
+WantedBy=multi-user.target

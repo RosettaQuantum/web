@@ -1,0 +1,185 @@
+{
+ "instrumento": "rosetta-sonda-correo/1 · STARTTLS + ClientHello de probe_soporte.py",
+ "dominio": "santander.cl",
+ "medido_utc": "2026-11-02T14:57:21Z",
+ "desde_ip": "45.88.191.121",
+ "mx_publicados": [
+  "mx1.hc5532-55.iphmx.com",
+  "mx2.hc5532-55.iphmx.com",
+  "mx1.santandergroup.c3s2.iphmx.com",
+  "mx2.santandergroup.c3s2.iphmx.com"
+ ],
+ "mx_medidos": 4,
+ "mx_omitidos": 0,
+ "servidores": [
+  {
+   "mx": "mx1.hc5532-55.iphmx.com",
+   "saludos": {
+    "A_como_navegador": {
+     "saludo_220": "220 esa.hc5532-55.iphmx.com ESMTP",
+     "starttls": true,
+     "grupo": "x25519",
+     "hrr": false,
+     "alerta": null,
+     "rechazo": null,
+     "error": null,
+     "ms": 733
+    },
+    "B_solo_hibrido": {
+     "saludo_220": "220 esa.hc5532-55.iphmx.com ESMTP",
+     "starttls": true,
+     "grupo": null,
+     "hrr": null,
+     "alerta": "alert 2/40",
+     "rechazo": null,
+     "error": null,
+     "ms": 714
+    },
+    "C_eleccion_libre": {
+     "saludo_220": "220 esa.hc5532-55.iphmx.com ESMTP",
+     "starttls": true,
+     "grupo": "x25519",
+     "hrr": true,
+     "alerta": null,
+     "rechazo": null,
+     "error": null,
+     "ms": 943
+    }
+   },
+   "veredicto": {
+    "estado": "medido",
+    "starttls": true,
+    "soporta": false,
+    "pide_mejora": false,
+    "elige": false
+   }
+  },
+  {
+   "mx": "mx2.hc5532-55.iphmx.com",
+   "saludos": {
+    "A_como_navegador": {
+     "saludo_220": "220 esa.hc5532-55.iphmx.com ESMTP",
+     "starttls": true,
+     "grupo": "x25519",
+     "hrr": false,
+     "alerta": null,
+     "rechazo": null,
+     "error": null,
+     "ms": 1039
+    },
+    "B_solo_hibrido": {
+     "saludo_220": "220 esa.hc5532-55.iphmx.com ESMTP",
+     "starttls": true,
+     "grupo": null,
+     "hrr": null,
+     "alerta": "alert 2/40",
+     "rechazo": null,
+     "error": null,
+     "ms": 766
+    },
+    "C_eleccion_libre": {
+     "saludo_220": "220 esa.hc5532-55.iphmx.com ESMTP",
+     "starttls": true,
+     "grupo": "x25519",
+     "hrr": true,
+     "alerta": null,
+     "rechazo": null,
+     "error": null,
+     "ms": 875
+    }
+   },
+   "veredicto": {
+    "estado": "medido",
+    "starttls": true,
+    "soporta": false,
+    "pide_mejora": false,
+    "elige": false
+   }
+  },
+  {
+   "mx": "mx1.santandergroup.c3s2.iphmx.com",
+   "saludos": {
+    "A_como_navegador": {
+     "saludo_220": "220 esa13.santandergroup.c3s2.iphmx.com ESMTP",
+     "starttls": true,
+     "grupo": "x25519",
+     "hrr": false,
+     "alerta": null,
+     "rechazo": null,
+     "error": null,
+     "ms": 66
+    },
+    "B_solo_hibrido": {
+     "saludo_220": "220 esa1.santandergroup.c3s2.iphmx.com ESMTP",
+     "starttls": true,
+     "grupo": null,
+     "hrr": null,
+     "alerta": "alert 2/40",
+     "rechazo": null,
+     "error": null,
+     "ms": 36
+    },
+    "C_eleccion_libre": {
+     "saludo_220": "220 esa17.santandergroup.c3s2.iphmx.com ESMTP",
+     "starttls": true,
+     "grupo": "x25519",
+     "hrr": true,
+     "alerta": null,
+     "rechazo": null,
+     "error": null,
+     "ms": 39
+    }
+   },
+   "veredicto": {
+    "estado": "medido",
+    "starttls": true,
+    "soporta": false,
+    "pide_mejora": false,
+    "elige": false
+   }
+  },
+  {
+   "mx": "mx2.santandergroup.c3s2.iphmx.com",
+   "saludos": {
+    "A_como_navegador": {
+     "saludo_220": "220 esa16.santandergroup.c3s2.iphmx.com ESMTP",
+     "starttls": true,
+     "grupo": "x25519",
+     "hrr": false,
+     "alerta": null,
+     "rechazo": null,
+     "error": null,
+     "ms": 157
+    },
+    "B_solo_hibrido": {
+     "saludo_220": "220 esa17.santandergroup.c3s2.iphmx.com ESMTP",
+     "starttls": true,
+     "grupo": null,
+     "hrr": null,
+     "alerta": "alert 2/40",
+     "rechazo": null,
+     "error": null,
+     "ms": 66
+    },
+    "C_eleccion_libre": {
+     "saludo_220": "220 esa2.santandergroup.c3s2.iphmx.com ESMTP",
+     "starttls": true,
+     "grupo": "x25519",
+     "hrr": true,
+     "alerta": null,
+     "rechazo": null,
+     "error": null,
+     "ms": 75
+    }
+   },
+   "veredicto": {
+    "estado": "medido",
+    "starttls": true,
+    "soporta": false,
+    "pide_mejora": false,
+    "elige": false
+   }
+  }
+ ],
+ "alcance": "Mide el tramo remitente → servidor de correo del dominio (STARTTLS). No ve lo que pasa dentro de la organización."
+}
