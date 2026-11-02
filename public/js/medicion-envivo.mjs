@@ -336,6 +336,8 @@ form.addEventListener("submit", async (e) => {
   pararReloj();
 
   pintarResultado({ d, s, ct, mapa, hostsCT, dominio, www, nuevosCT });
+  // La lectura en cuatro pasos (canales, cápsula, Shor) la pinta /js/medicion-historia.mjs con el mismo dato.
+  window.dispatchEvent(new CustomEvent("mv:medido", { detail: { d, s, dominio, www } }));
   if (comparar) mostrarComparacion(comparar, fotoHoy);
   $("mv-cuando").textContent = fechaUtc(medido);
   $("mv-huella").textContent = fotoHoy.sha256;
@@ -345,7 +347,7 @@ form.addEventListener("submit", async (e) => {
   pintarBandeja();
   terminar();
   $("mv-resultado").hidden = false;
-  $("mv-qex").scrollIntoView({ behavior: quieto ? "auto" : "smooth", block: "start" });
+  $("mv-acto1").scrollIntoView({ behavior: quieto ? "auto" : "smooth", block: "start" });
 });
 
 // ---------------------------------------------------------------- resultado

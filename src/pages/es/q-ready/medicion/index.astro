@@ -82,6 +82,21 @@ import propia from '../../../../styles/pages/medicion-envivo.css?raw';
       </div>
 
       <div class="mv-resultado" id="mv-resultado" hidden>
+        <nav class="mv-actos" aria-label="Los cuatro pasos de la lectura">
+          <ol>
+            <li><a href="#mv-acto1" class="mv-acto-on"><b>1</b>Qué tiene hoy</a></li>
+            <li><a href="#mv-acto2"><b>2</b>Qué significa</a></li>
+            <li><a href="#mv-acto3"><b>3</b>Por qué importa</a></li>
+            <li><a href="#mv-acto4"><b>✓</b>Su foto sellada</a></li>
+          </ol>
+        </nav>
+
+        <div class="mv-acto" id="mv-acto1">
+          <div class="mv-acto-cab"><p class="mv-acto-n">1 · El dato</p><div><h2>Qué tiene hoy</h2><p>Cada canal por el que viajan sus datos, medido por separado. Un canal que no pudimos medir dice «no medido», nunca «no protegido».</p></div></div>
+          <div class="mv-canales" id="mv-canales"></div>
+          <div class="mv-puente" id="mv-puente" hidden></div>
+        </div>
+
 
         <div role="region" class="mv-bloque mv-qex" id="mv-qex" aria-labelledby="mv-qex-t">
           <div class="mv-bloque-cab">
@@ -155,6 +170,45 @@ import propia from '../../../../styles/pages/medicion-envivo.css?raw';
           <div class="mv-hosts" id="mv-hosts"></div>
         </div>
 
+        <div class="mv-acto" id="mv-acto2">
+          <div class="mv-acto-cab"><p class="mv-acto-n">2 · La consecuencia</p><div><h2>Lo que alguien puede guardar hoy</h2><p>«Cosechar ahora, descifrar después»: el tráfico cifrado con métodos clásicos se puede copiar hoy y leer cuando exista un computador cuántico suficiente. Esta es una captura real, tomada por nosotros, de cómo se ve.</p></div></div>
+          <div class="mv-canal-sel" id="mv-canal-sel" role="group" aria-label="Canal"></div>
+          <div class="mv-capsulas">
+            <div class="mv-capsula">
+              <h3>Cápsula A · canal clásico</h3><span class="mv-cap-estado mv-cap-abre">se abre en el futuro</span>
+              <p class="mv-cap-hex" id="mv-cap-hex">cargando la captura…</p>
+              <p class="mv-cap-pie" id="mv-cap-pie"></p>
+            </div>
+            <div class="mv-capsula">
+              <h3>Cápsula B · canal híbrido</h3><span class="mv-cap-estado mv-cap-cierra">sigue cerrada</span>
+              <p class="mv-cap-hex">El mismo mensaje, cifrado con X25519MLKEM768. Copiarlo hoy no sirve: la parte post-cuántica resiste al computador cuántico.</p>
+              <p class="mv-cap-pie" id="mv-cap-pie-b"></p>
+            </div>
+          </div>
+          <p class="mv-texto mv-cap-lee" id="mv-cap-lee"></p>
+        </div>
+
+        <div class="mv-acto" id="mv-acto3">
+          <div class="mv-acto-cab"><p class="mv-acto-n">3 · El mecanismo</p><div><h2>Por qué importa ahora</h2><p>La cápsula se abre con el algoritmo de Shor. No es teoría: aquí corre, en pequeño.</p></div></div>
+          <div class="mv-par">
+            <div class="mv-bloque">
+              <h3 class="mv-h3">Shor encuentra el período y rompe la llave</h3>
+              <div class="mv-picos" id="mv-picos" role="img" aria-label="Picos medidos por la transformada de Fourier cuántica"></div>
+              <p class="mv-shor-res" id="mv-shor-res"></p>
+              <p class="mv-nota" id="mv-shor-nota"></p>
+            </div>
+            <div class="mv-bloque">
+              <h3 class="mv-h3">La ventana de riesgo es la vida útil de sus datos</h3>
+              <div class="mv-linea" aria-hidden="true"><div class="mv-vida"></div><div class="mv-hito mv-hito-hoy" style="left:0"><span>hoy<br>se cosecha</span></div><div class="mv-hito" style="left:40%"><span>2030<br>NIST depreca</span></div><div class="mv-hito mv-hito-fin" style="left:90%"><span>2035<br>NIST prohíbe</span></div></div>
+              <p class="mv-texto mv-linea-txt">Si un dato debe seguir siendo secreto más allá del día en que exista la máquina, el riesgo ya empezó hoy. Ninguna fecha es un plazo garantizado; 2030 es la fecha firme de NIST.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="mv-acto mv-acto-ultimo" id="mv-acto4">
+          <div class="mv-acto-cab"><p class="mv-acto-n">✓ · La prueba</p><div><h2>Su foto de hoy, sellada</h2><p>Todo lo de arriba queda en una foto con su huella. La próxima medición se compara contra ésta, ítem por ítem.</p></div></div>
+        </div>
+
         <div role="region" class="mv-bloque mv-recibo" aria-labelledby="mv-foto-t">
           <div class="mv-bloque-cab">
             <h2 id="mv-foto-t">La foto de hoy</h2>
@@ -199,4 +253,5 @@ import propia from '../../../../styles/pages/medicion-envivo.css?raw';
     </div>
   </section>
   <script is:inline type="module" src="/js/medicion-envivo.mjs"></script>
+  <script is:inline type="module" src="/js/medicion-historia.mjs"></script>
 </MarcaLayout>

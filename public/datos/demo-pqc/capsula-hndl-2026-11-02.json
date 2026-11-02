@@ -1,0 +1,80 @@
+{
+ "titulo": "Cápsula HNDL - captura real de una sesión TLS 1.3 clásica",
+ "capturado_utc": "2026-11-02T19:40:41+00:00",
+ "destino": "demo-clasico.rosetta.local (servidor de demostración propio)",
+ "key_exchange": "x25519 (clásico)",
+ "bytes": {
+  "C→S": 574,
+  "S→C": 1322
+ },
+ "registros": {
+  "C→S": [
+   {
+    "tipo": "handshake",
+    "bytes": 270
+   },
+   {
+    "tipo": "change_cipher_spec",
+    "bytes": 1
+   },
+   {
+    "tipo": "application_data",
+    "bytes": 69
+   },
+   {
+    "tipo": "application_data",
+    "bytes": 190
+   },
+   {
+    "tipo": "application_data",
+    "bytes": 19
+   }
+  ],
+  "S→C": [
+   {
+    "tipo": "handshake",
+    "bytes": 122
+   },
+   {
+    "tipo": "change_cipher_spec",
+    "bytes": 1
+   },
+   {
+    "tipo": "application_data",
+    "bytes": 23
+   },
+   {
+    "tipo": "application_data",
+    "bytes": 448
+   },
+   {
+    "tipo": "application_data",
+    "bytes": 95
+   },
+   {
+    "tipo": "application_data",
+    "bytes": 69
+   },
+   {
+    "tipo": "application_data",
+    "bytes": 250
+   },
+   {
+    "tipo": "application_data",
+    "bytes": 250
+   },
+   {
+    "tipo": "application_data",
+    "bytes": 19
+   }
+  ]
+ },
+ "app_c2s_hex": [
+  "170303004557b9e31a9b7f6de196521d656deef046290cc35eaa9466145f787440dcc01e28178e9c8569e6330577cfcfe3d8aa5e48a0b6099a99266380e9f5f513b62befb0c03923e7a5",
+  "17030300bec08f1073c0efef64aa924bf87339b7298b117049e7d08b84e9cd69592bf31b49a6294c7feae7ec5f1495d426b8b923ced9be67f14a8f7f5fc60b05b49e32ef00fb922fb054af3080b95e47349734efe023d05d7a9e696f61176fb4730fe28376faf7a34e2eae7110b757ee497edb1e0cbc413ad231f6e46adeb5b6e406c5e0ad2e0487f12101e3784b332f4e93863ff6b4ab7fa8a6365ac4a2b1147257ecc452cc1ca89d4cd711e988a0a84f76d6c3d90c3e492a6cefce3bba16abdc05df",
+  "1703030013acee27ad03d5166ec7f606d1aa10eeb40036f9"
+ ],
+ "keyshare_publico_hex": "0024001d00201642438a776fed66c87b8404ca53ea5b3f77f01a435dd24b9b4671440a4e5b47",
+ "plaintext_demo": "POST /transferencias HTTP/1.1\r\nHost: demo-clasico.rosetta.local\r\n\r\n{\"origen\":\"CTA-0012-DEMO\",\"destino\":\"CTA-7788-DEMO\",\"monto_clp\":48500000,\"glosa\":\"pago proveedor - DEMO\"}\n",
+ "sha256_captura": "baa72759e239ad3e4a0708cfdde9584baeaa113d5ae3c5e0a3e7b557a34a5d35"
+}
