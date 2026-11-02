@@ -46,6 +46,22 @@ eq(N.clasesDe("prensa.santander.cl"), [], "prensa NO es pre");
 eq(N.clasesDe("smtp.corp.santander.cl"), ["infra_expuesta"], "smtp");
 eq(N.clasesDe("mailing.santander.cl"), [], "mailing NO es mail");
 eq(N.clasesDe("api-test.santander.cl"), ["no_productivo", "critico"], "api-test: dos clases");
+// --- correo: SÓLO la redacción del 443. Grito, silencio, y el silencio de los límites.
+{
+  const mail = { host: "smtp.corp.santander.cl", dns_status: "NOERROR", responde_443: false };
+  const web = { host: "portal.santander.cl", dns_status: "NOERROR", responde_443: false };
+  ok(N.esNombreDeCorreo("smtp.corp.santander.cl"), "smtp es nombre de correo");
+  ok(!N.esNombreDeCorreo("correos-corporativos.cl"), "«correos» NO es «correo»: manda el límite");
+  ok(!N.esNombreDeCorreo("mailing.santander.cl"), "«mailing» NO es «mail»");
+  eq(N.estadoEndpoint(mail), "publicado en DNS, sin servicio web: es lo normal en un servidor de correo", "correo sin web");
+  eq(N.estadoEndpoint(web), "publicado en DNS, no responde en 443", "no-correo conserva la redacción de siempre");
+  eq([N.claveEndpoint(mail), N.claveEndpoint(web)], ["no_responde", "no_responde"], "misma medición = misma clave, aunque se lean distinto");
+  eq(N.estadoEndpoint({ host: "mail.x.cl", dns_status: "NXDOMAIN", responde_443: null }), "ya no publicado en DNS", "rama NXDOMAIN intacta");
+  eq(N.estadoEndpoint({ host: "mail.x.cl", dns_status: "NOERROR", responde_443: true }), "responde en el puerto 443", "rama responde intacta");
+  eq(N.detalleCorreoSinWeb("sin respuesta TLS en 443 (sin respuesta en 8 s)"),
+    "sin respuesta en 443 (sin respuesta en 8 s): el nombre no expone un servicio web", "el detalle se redacta sin inventarle un tiempo");
+  eq(N.higiene(false, { no_productivo: 1, infra_expuesta: 4, legado: 0 }), 50, "la redacción no mueve la higiene: el 443 nunca entró al puntaje");
+}
 // --- comparación: un ítem sin dato nunca se lee como «se mantiene»
 {
   const a = { dominio: "x.cl", qex: { score: 56, dimensiones: { certificados: 75, higiene: 50, hndl: 12, edge: 100 } },
@@ -81,7 +97,7 @@ eq(N.clasesDe("api-test.santander.cl"), ["no_productivo", "critico"], "api-test:
 
 // --- corpus privado: el núcleo JS tiene que reproducir lo medido con Python
 const i = process.argv.indexOf("--corpus");
-const PRUEBAS_CORPUS = 7;
+const PRUEBAS_CORPUS = 10;
 if (i < 0) {
   salta += PRUEBAS_CORPUS;
   console.log(`  (sin --corpus: ${PRUEBAS_CORPUS} pruebas de reproducción contra Python SALTADAS)`);
@@ -101,6 +117,18 @@ if (i < 0) {
   const q = J(path.join(M, "qex-santander-2026-10.json"));
   eq(N.higiene(false, N.conteos([...hoy.keys()])), q.dimensiones.higiene, "higiene = Python");
   eq(N.irec(q.dimensiones), q.score, "QEX octubre = Python");
+  // Redacción del 443 contra la foto que produjo el propio medidor, no contra un literal mío.
+  const fotoOct = J(path.join(R, "entregables/santander-2026-11/fotos/foto-santander.cl-2026-10.json"));
+  eq(N.comparar(fotoOct, fotoOct).endpoints.filter((e) => e.estado !== "se_mantiene").length, 0,
+    "foto real contra sí misma: ningún endpoint marca «cambió»");
+  eq(fotoOct.endpoints.filter((e) => e.responde_443 === false).map((e) => N.estadoEndpoint(e)),
+    ["publicado en DNS, sin servicio web: es lo normal en un servidor de correo",
+      "publicado en DNS, sin servicio web: es lo normal en un servidor de correo"],
+    "las dos filas reales de correo se leen como configuración correcta");
+  // El grito: la MISMA fila medida, con un nombre real que no es de correo.
+  const filaCorreo = fotoOct.endpoints.find((e) => e.host === "mail.corp.santander.cl");
+  eq(N.estadoEndpoint({ ...filaCorreo, host: "openfinance-desa.santander.cl" }), "publicado en DNS, no responde en 443",
+    "mismo dato real con nombre que no es de correo: redacción de siempre");
   const idx = J(path.join(R, "indice-agosto-2026.json"));
   const malas = idx.filter((r) => N.irec(r) !== r.score);
   eq(`${idx.length - malas.length}/${idx.length}`, `${idx.length}/${idx.length}`, "irec reproduce el índice de agosto");

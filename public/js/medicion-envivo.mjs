@@ -424,9 +424,9 @@ function pintarResultado({ d, s, ct, mapa, hostsCT, dominio, www, nuevosCT = [] 
   $("mv-endp").innerHTML = d.endpoints.length ? d.endpoints.map((x) => {
     const crudoE = (s.endpoints || []).find((y) => y.host === x.host) || {};
     const dns = x.dns_status === "NXDOMAIN" ? '<span class="mv-chip mv-si">no publicado</span>' : x.dns_status === "NOERROR" ? '<span class="mv-chip mv-neutro">publicado</span>' : `<span class="mv-chip mv-neutro">${esc(x.dns_status || "sin dato")}</span>`;
-    const p443 = x.dns_status === "NXDOMAIN" ? '<span class="mv-neutro">—</span>' : x.responde_443 === true ? `<span class="mv-chip ${alerta(x) ? "mv-no" : "mv-neutro"}">responde</span>` : x.responde_443 === false ? '<span class="mv-chip mv-si">no responde</span>' : '<span class="mv-chip mv-neutro">sin dato</span>';
+    const p443 = x.dns_status === "NXDOMAIN" ? '<span class="mv-neutro">—</span>' : x.responde_443 === true ? `<span class="mv-chip ${alerta(x) ? "mv-no" : "mv-neutro"}">responde</span>` : x.responde_443 === false ? `<span class="mv-chip mv-si">${N.esNombreDeCorreo(x.host) ? "sin servicio web" : "no responde"}</span>` : '<span class="mv-chip mv-neutro">sin dato</span>';
     return `<tr><td><code>${esc(x.host)}</code></td><td>${esc(x.clases.length ? x.clases.map((c) => CLASE[c] || c).join(", ") : PRUEBA_LOCAL.test(x.host) ? "Posible ambiente de prueba por su nombre (fuera de la regla del índice)" : nuevosVistos.has(x.host) ? "Nuevo desde la foto anterior" : "Sin clase")}</td><td>${dns}</td><td>${p443}</td>
-      <td class="mv-neutro">${esc([crudoE.cname?.length ? `CNAME ${crudoE.cname[crudoE.cname.length - 1]}` : "", crudoE.detalle || ""].filter(Boolean).join(" · ") || "—")}</td></tr>`;
+      <td class="mv-neutro">${esc([crudoE.cname?.length ? `CNAME ${crudoE.cname[crudoE.cname.length - 1]}` : "", (x.responde_443 === false && N.esNombreDeCorreo(x.host) ? N.detalleCorreoSinWeb(crudoE.detalle) : crudoE.detalle || "")].filter(Boolean).join(" · ") || "—")}</td></tr>`;
   }).join("") : `<tr><td colspan="5" class="mv-neutro">${ct ? "Ningún nombre sensible en su superficie." : "Sin superficie, no hay endpoints que medir."}</td></tr>`;
 
   // ---- borde: dos tramos y los tres saludos

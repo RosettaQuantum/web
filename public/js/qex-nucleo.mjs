@@ -24,6 +24,19 @@ export const PAT = {
 // Clases que se sondean una por una: lo que la dimensión higiene castiga.
 export const CLASES_SENSIBLES = ["no_productivo", "legado", "infra_expuesta"];
 
+// Nombres que anuncian un servicio de correo. NO es parte de PAT y no se usa para clasificar:
+// sólo decide cómo se REDACTA el resultado del sondeo al puerto 443. Un servidor de correo que
+// no contesta TLS en 443 está bien configurado —ahí no va un servicio web— y leerlo como
+// «no responde» hace que la fila parezca un hallazgo. No toca clases, conteos ni el puntaje.
+export const PAT_CORREO = /(^|[.\-])(mail|smtp|webmail|imap|pop3?|mx\d*|correo|owa|exchange)([.\-]|$)/;
+export const esNombreDeCorreo = (host) => PAT_CORREO.test(String(host || ""));
+
+// El detalle que viaja en la foto es la medición cruda y no se toca: la foto guarda lo que pasó.
+// Esto sólo lo redacta al pintarlo. Si la sonda cambiara su texto, esto le añade la explicación
+// sin inventarle un tiempo que no midió.
+export const detalleCorreoSinWeb = (crudo) =>
+  `${String(crudo || "sin respuesta en 443").replace("sin respuesta TLS en 443", "sin respuesta en 443")}: el nombre no expone un servicio web`;
+
 // Filas de crt.sh → { host: [filas] }. Filtro heredado de agosto: `endsWith(dominio)` de cadena,
 // no de etiqueta DNS (cuenta mail.extranetsantander.cl como de santander.cl). Se conserva a
 // propósito para comparar igual con igual; `etiqueta_estricta` lo declara por host.
@@ -168,12 +181,29 @@ function estadoPar(antes, ahora, mismo) {
 // Un endpoint que la foto anterior sólo registró como presente en CT no tiene estado medido.
 const soloPresencia = (e) => e && e.dns_status == null && e.responde_443 == null;
 
+// La CLAVE es la medición y es estable; la ETIQUETA es cómo se lee y puede cambiar de redacción.
+// `comparar` compara claves. Que quede dicho con precisión: esto NO arregla un defecto vivo.
+// Una foto guardada antes de un cambio de redacción guarda la medición cruda, y `comparar`
+// vuelve a redactar los dos lados con el código de hoy, así que nunca inventó un «cambió» —
+// medido: mutar esto para comparar etiquetas deja la suite en 59/0. Es prevención, y sólo
+// muerde el día que una foto llegue con una etiqueta ya escrita adentro.
+export function claveEndpoint(e) {
+  if (!e) return null;
+  if (e.dns_status == null && e.responde_443 == null) return "presente_ct";
+  if (e.dns_status === "NXDOMAIN") return "no_publicado";
+  if (e.responde_443 === true) return "responde";
+  if (e.responde_443 === false) return "no_responde";
+  return e.dns_status ? `dns_${e.dns_status}` : "sin_medicion";
+}
+
 export function estadoEndpoint(e) {
   if (!e) return null;
   if (e.dns_status == null && e.responde_443 == null) return "presente en el registro público";
   if (e.dns_status === "NXDOMAIN") return "ya no publicado en DNS";
   if (e.responde_443 === true) return "responde en el puerto 443";
-  if (e.responde_443 === false) return "publicado en DNS, no responde en 443";
+  if (e.responde_443 === false) return esNombreDeCorreo(e.host)
+    ? "publicado en DNS, sin servicio web: es lo normal en un servidor de correo"
+    : "publicado en DNS, no responde en 443";
   return e.dns_status ? `DNS ${e.dns_status}` : "sin medición";
 }
 
@@ -194,8 +224,9 @@ export function comparar(antes, ahora) {
     const ea = eA.get(h), eb = eB.get(h), b = estadoEndpoint(eb);
     // Un nombre que la foto anterior no tenía en CT no estaba «sin medir»: todavía no existía en el registro.
     const a = ea ? estadoEndpoint(ea) : nuevos?.includes(h) ? "aún no estaba en el registro público" : null;
-    const medidoB = eb && !soloPresencia(eb) ? b : null;
-    return { host: h, antes: a, ahora: b, estado: estadoPar(ea && !soloPresencia(ea) ? a : null, medidoB, (x, y) => x === y) };
+    const kb = eb && !soloPresencia(eb) ? claveEndpoint(eb) : null;
+    const ka = ea && !soloPresencia(ea) ? claveEndpoint(ea) : null;
+    return { host: h, antes: a, ahora: b, estado: estadoPar(ka, kb, (x, y) => x === y) };
   });
 
   const bA = antes.borde || {}, bB = ahora.borde || {};
