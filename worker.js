@@ -3,6 +3,7 @@ import { manejarQreadyLead } from "./lib/qready-lead.mjs";
 import { manejarOg } from "./lib/og-ruta.mjs";
 import { manejarBorde } from "./lib/borde-envivo.mjs";
 import { manejarSondas } from "./lib/informe-envivo.mjs";
+import { manejarCorreo } from "./lib/correo-envivo.mjs";
 // /sitemap-0.xml vive en lib/ para que una guardia de Node pueda ejercerlo: worker.js
 // importa .ttf/.css/.wasm y no se puede cargar fuera del Worker. Ahi esta tambien el
 // bug que devolvia una respuesta ya consumida y daba 500.
@@ -84,6 +85,7 @@ export default {
     // Re-medición en vivo del borde (demo de la reunión con Santander, 3-nov-2026).
     // Herramienta general: no guarda nada del dominio medido ni escribe en D1.
     if (url.pathname === "/api/borde") return manejarBorde(request);
+    if (url.pathname.startsWith("/api/sondas/correo")) return manejarCorreo(request, env, url);
     if (url.pathname === "/api/sondas") return manejarSondas(request, env);
 
     if (url.pathname === "/api/lead" && request.method === "POST") {

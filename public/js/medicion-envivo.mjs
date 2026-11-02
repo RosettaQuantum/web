@@ -35,6 +35,27 @@ let previa = null, fotoHoy = null, referencia = null;
 const decir = (t, mal) => { const e = $("mv-estado"); e.textContent = t; e.hidden = !t; e.classList.toggle("mv-mal", !!mal); };
 const chip = (v, si = "sí", no = "no") => v === true ? `<span class="mv-chip mv-si">${si}</span>` : v === false ? `<span class="mv-chip mv-no">${no}</span>` : `<span class="mv-chip mv-neutro">sin dato</span>`;
 
+// ---------------------------------------------------------------- correo (sonda en el VPS, por cola)
+// El Worker no abre el puerto 25: la sonda vive en un servidor aparte que toma el pedido de
+// una cola (lib/correo-envivo.mjs). Aquí sólo se pide y se espera. Sin respuesta en 95 s,
+// el correo queda «no medido» con su causa; la medición del resto no lo espera para fallar.
+async function pedirCorreo(dominio) {
+  const r = await fetch("/api/sondas/correo", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ dominio }) });
+  const j = await r.json().catch(() => ({}));
+  if (!r.ok || !j.ok) return { estado: "error", causa: j.error || `el servicio respondió ${r.status}` };
+  const hasta = Date.now() + 95000;
+  while (Date.now() < hasta) {
+    const g = await fetch(`/api/sondas/correo/${j.id}`).then((x) => x.json()).catch(() => null);
+    if (g && (g.estado === "hecho" || g.estado === "sin_respuesta")) return { ...g, reusada: j.reusada };
+    await espera(2000);
+  }
+  return { estado: "sin_respuesta", causa: "no llegó respuesta en 95 s" };
+}
+const SOPORTA_CORREO = (v) => v.estado === "medido" ? chip(v.soporta, "ofrece el híbrido", "no lo ofrece")
+  : v.estado === "rechazado" ? '<span class="mv-chip mv-neutro">nos rechazó: no medido</span>'
+  : v.estado === "sin_starttls" ? '<span class="mv-chip mv-no">sin cifrado (no ofrece STARTTLS)</span>'
+  : '<span class="mv-chip mv-neutro">no medido</span>';
+
 // ---------------------------------------------------------------- consola
 let t0 = 0, relojId = null;
 const segundos = () => `+${num((performance.now() - t0) / 1000, 1)} s`;
@@ -248,6 +269,7 @@ form.addEventListener("submit", async (e) => {
   const todos = [...new Set([...sensibles, ...(comparar ? (comparar.endpoints || []).map((x) => x.host) : []), ...nuevosCT])];
   const pedidos = todos.slice(0, 15);
   ["end", "borde", "cert", "prov"].forEach((k) => riel(k, "activo"));
+  const correoP = pedirCorreo(dominio).catch((e) => ({ estado: "error", causa: String(e.message || e) }));
   traza(`DNS y saludos TLS desde nuestro servidor: ${pedidos.length} nombres (${sensibles.length} sensibles${nuevosCT.length ? `, ${nuevosCT.length} nuevos desde la foto anterior` : ""}), su borde, su certificado y su correo…`);
   let s;
   try {
@@ -292,6 +314,19 @@ form.addEventListener("submit", async (e) => {
   traza(`correo · ${num((s.correo.mx || []).length)} registros MX → <b>${esc(s.correo.proveedor || "sin proveedor identificado")}</b>`, "mv-t-ok");
   const sec = s.security_txt;
   traza(`canal de reporte · ${sec.publicado === true ? "<b>security.txt publicado</b>" : sec.publicado === false ? "security.txt no publicado" : "el sitio no dejó leer /.well-known/security.txt"}${(sec.intentos || []).length ? ` (${sec.intentos.map((i) => `${esc(new URL(i.url).host)}: ${esc(i.status ?? "sin respuesta")}`).join(", ")})` : ""}`, sec.publicado === true ? "mv-t-ok" : "mv-t-mal");
+  traza("cifrado del correo · esperando a la sonda de correo (corre en un servidor aparte)…");
+  const co = await correoP;
+  s.correo_tls = co;
+  if (co.estado === "hecho" && co.resultado?.servidores) {
+    for (const m of co.resultado.servidores) {
+      const v = m.veredicto, B = m.saludos.B_solo_hibrido;
+      traza(`correo <code>${esc(m.mx)}</code> · ${v.estado === "medido" ? (v.soporta ? "<b>ofrece X25519MLKEM768</b>" : `no ofrece el híbrido (${esc(B.alerta || B.grupo || "sin respuesta")})`)
+        : v.estado === "rechazado" ? "nos rechazó en el saludo: no medido" : v.estado === "sin_starttls" ? "no ofrece STARTTLS" : "no medido"} · ${ms(B.ms)}`,
+        v.estado === "medido" ? "mv-t-ok" : "mv-t-mal");
+    }
+    if (co.resultado.mx_omitidos) traza(`se midieron ${co.resultado.mx_medidos} de ${co.resultado.mx_publicados.length} servidores de correo (tope por medición)`, "mv-t-mal");
+    if (co.resultado.error) traza(`correo: ${esc(co.resultado.error)}`, "mv-t-mal");
+  } else traza(`cifrado del correo no medido: ${esc(co.causa || co.error || co.estado)}`, "mv-t-mal");
   riel("prov", "ok");
 
   // QEX y la foto sellada
@@ -422,6 +457,10 @@ function pintarResultado({ d, s, ct, mapa, hostsCT, dominio, www, nuevosCT = [] 
   const sec = s.security_txt;
   $("mv-prov").innerHTML = fila("Correo", `<b>${esc(s.correo.proveedor || "sin proveedor identificado")}</b>`)
     + fila("MX", (s.correo.mx || []).length ? (s.correo.mx || []).map((m) => `<code>${esc(m)}</code>`).join("<br>") : "sin registros MX")
+    + (s.correo_tls?.estado === "hecho" && s.correo_tls.resultado?.servidores?.length
+      ? fila("Cifrado post-cuántico", s.correo_tls.resultado.servidores.map((m) => `<code>${esc(m.mx)}</code> ${SOPORTA_CORREO(m.veredicto)}`).join("<br>")
+        + `<br><span class="mv-nota">Medido desde ${esc(s.correo_tls.resultado.desde_ip || "nuestro servidor de medición")}, ${esc(fechaUtc(s.correo_tls.resultado.medido_utc))}. Informativo: no entra al índice ni a la foto.</span>`)
+      : fila("Cifrado post-cuántico", `<span class="mv-chip mv-neutro">no medido</span> ${esc(s.correo_tls?.causa || "")}`))
     + fila("Canal de reporte", `${chip(sec.publicado, "publicado", "no publicado")}${sec.publicado == null ? " el sitio no dejó leer la ruta estándar" : ""}`)
     + ((sec.intentos || []).length ? fila("Rutas probadas", sec.intentos.map((i) => `<code>${esc(i.url)}</code> → ${esc(i.status ?? "sin respuesta")}`).join("<br>")) : "");
 }

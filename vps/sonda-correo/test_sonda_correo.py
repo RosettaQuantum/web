@@ -23,19 +23,21 @@ def prueba(nombre, f):
 def igual(a, b, q=""):
     if a != b: raise AssertionError(f"{q}: {a!r} ≠ {b!r}")
 
-# --- 1. El ClientHello es el de agosto, byte a byte (con el azar fijo).
-ORIGINAL = AQUI.parents[3] / "probe_soporte.py"
-def con_original(f):
-    if not ORIGINAL.exists(): raise AssertionError(f"no está el original en {ORIGINAL}")
-    spec = importlib.util.spec_from_file_location("probe_soporte", ORIGINAL)
-    m = importlib.util.module_from_spec(spec); spec.loader.exec_module(m)
-    m.os.urandom = lambda n: bytes(n)
-    try: f(m)
-    finally: m.os.urandom = os.urandom
+# --- 1. El ClientHello es el de agosto, byte a byte (con el azar en ceros).
+#        Los bytes de referencia los produjo probe_soporte.py (fijas/clienthello-agosto.json),
+#        así la prueba corre también donde el original no está (CI). Si el original está a
+#        mano, se regenera y se compara con él, por si cambió.
+REF = json.loads((AQUI / "fijas" / "clienthello-agosto.json").read_text())
 for nombre, grupos, share in [("A", S.TODOS, True), ("B", S.SOLO_HIB, False), ("C", S.LIBRE, False)]:
-    prueba(f"ClientHello {nombre} idéntico a probe_soporte.py",
-           lambda g=grupos, s=share: con_original(lambda m: igual(S.hello("mx.ejemplo.cl", g, s, azar=lambda n: bytes(n)),
-                                                                   m.hello("mx.ejemplo.cl", g, s), "bytes")))
+    prueba(f"ClientHello {nombre} idéntico al de probe_soporte.py",
+           lambda n=nombre, g=grupos, sh=share: igual(S.hello("mx.ejemplo.cl", g, sh, azar=lambda k: bytes(k)).hex(), REF[n], n))
+ORIGINAL = AQUI.parents[3] / "probe_soporte.py"
+if ORIGINAL.exists():
+    def _regenera():
+        spec = importlib.util.spec_from_file_location("probe_soporte", ORIGINAL)
+        m = importlib.util.module_from_spec(spec); spec.loader.exec_module(m); m.os.urandom = lambda n: bytes(n)
+        igual(m.hello("mx.ejemplo.cl", S.SOLO_HIB, False).hex(), REF["B"], "original regenerado")
+    prueba("el original de agosto, regenerado aquí, sigue dando los mismos bytes", _regenera)
 
 # Los tres juegos de grupos son los MISMOS que usa el borde web (lib/borde-envivo.mjs). Si uno
 # cambia y el otro no, el correo y el sitio dejarían de medir lo mismo con el mismo nombre.
@@ -49,7 +51,7 @@ for _n in ("TODOS", "SOLO_HIB", "LIBRE"):
     prueba(f"grupos {_n} iguales a los del borde web", lambda n=_n: igual(getattr(S, n), _grupos_js(n), n))
 
 # --- 2. Las corridas reales se vuelven a juzgar igual, y dicen lo que deben decir.
-fijas = {p.stem: json.loads(p.read_text()) for p in (AQUI / "fijas").glob("*.json")}
+fijas = {p.stem: json.loads(p.read_text()) for p in (AQUI / "fijas").glob("*.json") if p.stem != "clienthello-agosto"}
 prueba("hay tres corridas reales guardadas", lambda: igual(sorted(fijas), ["gmail.com", "outlook.com", "santander.cl"]))
 for dom, j in fijas.items():
     prueba(f"{dom}: el veredicto guardado sale otra vez de sus saludos", lambda j=j: [
@@ -82,21 +84,52 @@ prueba("respuesta SMTP de varias líneas: el 554 real de Cisco se lee entero",
        lambda: igual(S.respuesta_smtp(io.BytesIO(b"554-esa.hc5532-55.iphmx.com\r\n554 Your access to this mail system has been rejected due to the sending MTA's poor reputation.\r\n")),
                      (554, ["554-esa.hc5532-55.iphmx.com", "554 Your access to this mail system has been rejected due to the sending MTA's poor reputation."])))
 
-# --- 4. El servicio: sin firma válida y fresca no hace nada (y no toca la red).
-srv = S.ThreadingHTTPServer(("127.0.0.1", 0), S.Manejador)
+# --- 4. El trabajador: firma lo que manda, no mide sin trabajo, y entrega lo medido.
+#        Contra un sitio falso que verifica la firma por su cuenta (no con las funciones de S).
+from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
+CLAVE_T = "k" * 48
+S.CLAVE = CLAVE_T
+visto = {"cola": [], "entregas": [], "firmas_malas": 0}
+class Falso(BaseHTTPRequestHandler):
+    def log_message(self, *a): pass
+    def _firma_ok(self, cuerpo):
+        ts = self.headers.get("x-ts", "")
+        esperada = hmac.new(CLAVE_T.encode(), f"{self.command}\n{self.path}\n{ts}\n{cuerpo}".encode(), hashlib.sha256).hexdigest()
+        ok = hmac.compare_digest(self.headers.get("x-firma", ""), esperada) and abs(time.time() - int(ts)) < 120
+        if not ok: visto["firmas_malas"] += 1
+        return ok
+    def do_GET(self):
+        if not self._firma_ok(""): self.send_response(401); self.end_headers(); return
+        if not visto["cola"]: self.send_response(204); self.end_headers(); return
+        b = json.dumps(visto["cola"].pop(0)).encode()
+        self.send_response(200); self.send_header("content-length", str(len(b))); self.end_headers(); self.wfile.write(b)
+    def do_POST(self):
+        c = self.rfile.read(int(self.headers["content-length"])).decode()
+        if not self._firma_ok(c): self.send_response(401); self.end_headers(); return
+        visto["entregas"].append((self.path, json.loads(c)))
+        self.send_response(200); self.send_header("content-length", "2"); self.end_headers(); self.wfile.write(b"{}")
+srv = ThreadingHTTPServer(("127.0.0.1", 0), Falso)
 threading.Thread(target=srv.serve_forever, daemon=True).start()
-URL = f"http://127.0.0.1:{srv.server_address[1]}/correo"
-S.medir_dominio = lambda d: (_ for _ in ()).throw(AssertionError("NO debía medir"))
-def pedir(cuerpo, firma):
-    r = urllib.request.Request(URL, data=cuerpo, method="POST", headers={"x-firma": firma})
-    try: return urllib.request.urlopen(r, timeout=5).status
-    except urllib.error.HTTPError as e: return e.code
-ok_cuerpo = json.dumps({"dominio": "santander.cl", "ts": time.time()}).encode()
-prueba("firma equivocada → 401", lambda: igual(pedir(ok_cuerpo, "0" * 64), 401))
-viejo = json.dumps({"dominio": "santander.cl", "ts": time.time() - 3600}).encode()
-prueba("firma válida pero vencida → 401", lambda: igual(pedir(viejo, S.firma(viejo)), 401))
-malo = json.dumps({"dominio": "127.0.0.1", "ts": time.time()}).encode()
-prueba("dominio que no es nombre público → 400", lambda: igual(pedir(malo, S.firma(malo)), 400))
+BASE = f"http://127.0.0.1:{srv.server_address[1]}"
+def no_medir(d): raise AssertionError("NO debía medir")
+prueba("sin trabajos pendientes: no mide nada", lambda: igual(S.una_vuelta(BASE, medir=no_medir), "nada"))
+ID = "0b6c1d2e-3f40-4a5b-8c6d-7e8f90a1b2c3"
+def _entrega():
+    visto["cola"].append({"id": ID, "dominio": "santander.cl"})
+    S.una_vuelta(BASE, medir=lambda d: fijas["santander.cl"])
+    ruta, cuerpo = visto["entregas"][-1]
+    igual((ruta, cuerpo["dominio"], len(cuerpo["servidores"])), (f"/api/sondas/correo/{ID}/resultado", "santander.cl", 4))
+prueba("con un trabajo: mide ese dominio y entrega a su id", _entrega)
+def _ajeno():
+    visto["cola"].append({"id": ID, "dominio": "127.0.0.1"})
+    igual(S.una_vuelta(BASE, medir=no_medir).startswith("descartado"), True)
+prueba("un «dominio» que no es nombre público se descarta sin medir", _ajeno)
+def _falla():
+    visto["cola"].append({"id": ID, "dominio": "ejemplo.cl"})
+    S.una_vuelta(BASE, medir=lambda d: (_ for _ in ()).throw(OSError("DNS caído")))
+    igual("DNS caído" in visto["entregas"][-1][1]["error"], True)
+prueba("si la medición revienta, se entrega el error (no se calla)", _falla)
+prueba("todas las firmas que mandó el trabajador fueron válidas", lambda: igual(visto["firmas_malas"], 0))
 srv.shutdown()
 
 print(f"\ncheck-sonda-correo: {pasa} pasaron, {falla} fallaron, 0 saltadas")

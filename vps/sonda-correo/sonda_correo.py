@@ -18,19 +18,15 @@ compara byte a byte con el original y con el puerto JS (scripts/check-sonda-corr
 Reglas que este archivo no rompe:
   · No se mide cualquier host: sólo los MX que el propio servicio resuelve para el dominio.
   · Un rechazo (554), un corte o un silencio es «no medido» con su causa, nunca «no soporta».
-  · Sin firma HMAC válida y fresca no hace nada. Sin clave configurada no arranca.
+  · No abre puertos: pregunta al sitio y entrega firmado (HMAC). Sin clave no arranca.
 """
-import hashlib, hmac, json, os, socket, struct, sys, threading, time, urllib.request
+import hashlib, hmac, json, os, socket, struct, sys, time, urllib.request
 from concurrent.futures import ThreadPoolExecutor
-from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 
 INSTRUMENTO = "rosetta-sonda-correo/1 · STARTTLS + ClientHello de probe_soporte.py"
 EHLO = "rosettaquantum.com"
 ESPERA = 12
 MAX_MX = 4
-VENTANA_FIRMA = 120          # segundos de tolerancia del reloj entre el Worker y el VPS
-TOPE_POR_HORA = 30           # dominios distintos por hora: protege la reputación de esta IP
-CACHE_SEG = 1800             # mismo dominio en 30 min → misma respuesta, sin volver a tocar sus MX
 
 # ------------------------------------------------------------ TLS (copia fiel de probe_soporte.py)
 HRR_RANDOM = bytes.fromhex("CF21AD74E59A6111BE1D8C021E65B891C2A211167ABB8C5E079E09E2C8A8339C")
@@ -186,68 +182,70 @@ def medir_dominio(dominio):
             "alcance": "Mide el tramo remitente → servidor de correo del dominio (STARTTLS). No ve lo que pasa dentro de la organización."}
 
 
-# ------------------------------------------------------------ servicio
-CLAVE = os.environ.get("SONDA_CORREO_CLAVE", "").encode()
+# ------------------------------------------------------------ trabajador (pregunta; no escucha)
+# No abre ningún puerto: pregunta al sitio cada POLL segundos si hay mediciones pendientes y
+# entrega el resultado firmado. Así el servidor, compartido con Sigo, no expone nada nuevo.
+CLAVE = os.environ.get("SONDA_CORREO_CLAVE", "")
 IP_SALIDA = os.environ.get("SONDA_IP_SALIDA", "")
-_cache, _hora, _cerrojo = {}, [], threading.Lock()
+POLL = 2
+TOPE_POR_HORA = 30           # dominios distintos por hora: protege la reputación de esta IP
+_hora = []
 
 
-def firma(datos: bytes) -> str:
-    return hmac.new(CLAVE, datos, hashlib.sha256).hexdigest()
+def texto_firmado(metodo, ruta, ts, cuerpo=""):
+    """Debe ser idéntico a textoFirmado() de lib/correo-envivo.mjs."""
+    return f"{metodo}\n{ruta}\n{ts}\n{cuerpo}"
 
 
-class Manejador(BaseHTTPRequestHandler):
-    server_version = "rosetta-sonda-correo/1"
-
-    def responder(self, codigo, obj):
-        cuerpo = json.dumps(obj, ensure_ascii=False, separators=(",", ":")).encode()
-        self.send_response(codigo)
-        self.send_header("content-type", "application/json; charset=utf-8")
-        self.send_header("content-length", str(len(cuerpo)))
-        self.send_header("x-firma", firma(cuerpo))
-        self.send_header("connection", "close")
-        self.end_headers(); self.wfile.write(cuerpo)
-
-    def log_message(self, fmt, *args):
-        sys.stderr.write("%s %s\n" % (time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()), fmt % args))
-
-    def do_POST(self):
-        if self.path != "/correo": return self.responder(404, {"ok": False, "error": "ruta"})
-        n = int(self.headers.get("content-length") or 0)
-        if n <= 0 or n > 2048: return self.responder(400, {"ok": False, "error": "cuerpo"})
-        cuerpo = self.rfile.read(n)
-        dada = self.headers.get("x-firma", "")
-        if not hmac.compare_digest(dada, firma(cuerpo)):
-            return self.responder(401, {"ok": False, "error": "firma"})
-        try: pedido = json.loads(cuerpo)
-        except Exception: return self.responder(400, {"ok": False, "error": "json"})
-        if abs(time.time() - float(pedido.get("ts", 0))) > VENTANA_FIRMA:
-            return self.responder(401, {"ok": False, "error": "firma vencida"})
-        dominio = str(pedido.get("dominio", "")).strip().lower().rstrip(".")
-        if not HOST_OK.match(dominio): return self.responder(400, {"ok": False, "error": "dominio"})
-        ahora = time.time()
-        with _cerrojo:
-            c = _cache.get(dominio)
-            if c and ahora - c[0] < CACHE_SEG:
-                return self.responder(200, {"ok": True, "en_cache": True, **c[1]})
-            _hora[:] = [t for t in _hora if ahora - t < 3600]
-            if len(_hora) >= TOPE_POR_HORA:
-                return self.responder(429, {"ok": False, "error": "tope por hora alcanzado"})
-            _hora.append(ahora)
-        try: r = medir_dominio(dominio)
-        except Exception as e: return self.responder(502, {"ok": False, "error": f"DNS: {e}"[:200]})
-        with _cerrojo: _cache[dominio] = (ahora, r)
-        return self.responder(200, {"ok": True, "en_cache": False, **r})
+def cabeceras(metodo, ruta, cuerpo=""):
+    ts = str(int(time.time()))
+    f = hmac.new(CLAVE.encode(), texto_firmado(metodo, ruta, ts, cuerpo).encode(), hashlib.sha256).hexdigest()
+    return {"x-ts": ts, "x-firma": f, "content-type": "application/json", "user-agent": "rosetta-sonda-correo/1"}
 
 
-def main():
-    if len(CLAVE) < 32: sys.exit("SONDA_CORREO_CLAVE ausente o corta: el servicio no arranca sin ella.")
-    puerto = int(os.environ.get("SONDA_PUERTO", "8625"))
-    ThreadingHTTPServer(("0.0.0.0", puerto), Manejador).serve_forever()
+def llamar(base, metodo, ruta, cuerpo=""):
+    r = urllib.request.Request(base + ruta, data=cuerpo.encode() if metodo == "POST" else None,
+                               method=metodo, headers=cabeceras(metodo, ruta, cuerpo))
+    with urllib.request.urlopen(r, timeout=20) as resp:
+        return resp.status, resp.read()
+
+
+def una_vuelta(base, medir=None):
+    """Toma a lo más un trabajo y lo entrega. Devuelve lo que hizo (para el registro y las pruebas)."""
+    medir = medir or medir_dominio
+    st, b = llamar(base, "GET", "/api/sondas/correo/pendiente")
+    if st == 204: return "nada"
+    t = json.loads(b); dominio = t["dominio"]
+    if not HOST_OK.match(dominio): return f"descartado {dominio!r}"
+    ahora = time.time()
+    _hora[:] = [x for x in _hora if ahora - x < 3600]
+    if len(_hora) >= TOPE_POR_HORA:
+        r = {"dominio": dominio, "instrumento": INSTRUMENTO, "desde_ip": IP_SALIDA, "error": "tope por hora alcanzado: no medido"}
+    else:
+        _hora.append(ahora)
+        try: r = medir(dominio)
+        except Exception as e: r = {"dominio": dominio, "instrumento": INSTRUMENTO, "desde_ip": IP_SALIDA, "error": f"{type(e).__name__}: {e}"[:200]}
+    cuerpo = json.dumps(r, ensure_ascii=False, separators=(",", ":"))
+    st, _ = llamar(base, "POST", f"/api/sondas/correo/{t['id']}/resultado", cuerpo)
+    return f"entregado {dominio} {st}"
+
+
+def trabajar(base):
+    if len(CLAVE) < 32: sys.exit("SONDA_CORREO_CLAVE ausente o corta: el trabajador no arranca sin ella.")
+    while True:
+        try:
+            hecho = una_vuelta(base)
+            if hecho != "nada": print(time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()), hecho, flush=True)
+        except Exception as e:
+            print(time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()), "error", type(e).__name__, str(e)[:200], flush=True)
+            time.sleep(10)
+        time.sleep(POLL)
 
 
 if __name__ == "__main__":
-    if len(sys.argv) == 3 and sys.argv[1] == "--medir":       # uso a mano, sin servicio
+    if len(sys.argv) == 3 and sys.argv[1] == "--medir":       # uso a mano
         print(json.dumps(medir_dominio(sys.argv[2]), ensure_ascii=False, indent=1))
+    elif len(sys.argv) == 3 and sys.argv[1] == "--trabajar":  # el servicio
+        trabajar(sys.argv[2].rstrip("/"))
     else:
-        main()
+        sys.exit("uso: sonda_correo.py --medir <dominio> | --trabajar https://rosettaquantum.com")
