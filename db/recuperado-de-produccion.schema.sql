@@ -74,7 +74,8 @@ CREATE INDEX idx_run_archives_type ON run_archives (type);
 -- Recuperadas de sqlite_master el 2026-11-02 (check-esquema-deriva las encontro vivas y sin declarar).
 -- ejecutor_jobs y ejecutor_artefactos: la fuente es ejecutor/esquema.sql (Worker rosetta-ejecutor, repo aparte).
 -- Aqui viven como respaldo para reconstruir el ledger; si cambian alla, se recuperan de nuevo desde D1.
--- pqc_indicators: 24 filas, sin codigo en ningun repo que la cree; dueno por confirmar.
+-- pqc_indicators: 24 filas. La escribe la rutina en la nube «Rosetta PQC Security Engine»
+-- (trig_01DUvm6Xz3ZXsrvNauDaZcPT, diaria 9:35) con INSERT OR REPLACE; ningun repo la crea ni la lee.
 
 CREATE TABLE ejecutor_artefactos (job_id TEXT NOT NULL, ruta TEXT NOT NULL, sha256 TEXT NOT NULL, bytes INTEGER NOT NULL, clave_r2 TEXT NOT NULL, creado_utc TEXT NOT NULL, PRIMARY KEY (job_id, ruta));
 
