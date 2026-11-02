@@ -21,6 +21,7 @@ const MESES = ["ene", "feb", "mar", "abr", "may", "jun", "jul", "ago", "sep", "o
 const MESES_L = ["enero", "febrero", "marzo", "abril", "mayo", "junio", "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre"];
 const fechaUtc = (iso) => { const d = new Date(iso); return `${d.getUTCDate()}-${MESES[d.getUTCMonth()]}-${d.getUTCFullYear()} ${String(d.getUTCHours()).padStart(2, "0")}:${String(d.getUTCMinutes()).padStart(2, "0")} UTC`; };
 const fechaCorta = (iso) => { if (!iso) return null; const d = new Date(iso.length === 10 ? iso + "T12:00:00Z" : iso); return `${d.getUTCDate()}-${MESES[d.getUTCMonth()]}-${d.getUTCFullYear()}`; };
+const horaLocal = (iso) => (iso && iso.length > 10 ? new Date(iso).toLocaleTimeString("es-CL", { hour: "2-digit", minute: "2-digit", hour12: false }) : null);
 const edicionLarga = (f) => { const m = /^(\d{4})-(\d{2})/.exec(f.edicion || f.medido_utc || ""); return m ? `${MESES_L[Number(m[2]) - 1]} de ${m[1]}` : "la foto anterior"; };
 const capital = (s) => s[0].toUpperCase() + s.slice(1);
 const espera = (ms) => new Promise((r) => setTimeout(r, ms));
@@ -76,12 +77,17 @@ async function pintarBandeja() {
   const integras = await Promise.all(fotos.map((f) => N.fotoIntegra(f)));
   let dom = null, html = "";
   fotos.forEach((f, i) => {
-    if (f.dominio !== dom) { dom = f.dominio; html += `<li class="mv-b-dom">${esc(dom)}</li>`; }
+    if (f.dominio !== dom) { dom = f.dominio; const n = fotos.filter((x) => x.dominio === dom).length; html += `<li class="mv-b-dom">${esc(dom)} <span>${n} ${n === 1 ? "corrida" : "corridas"}</span></li>`; }
+    // la anterior del mismo dominio es la siguiente en la lista (orden: más reciente primero)
+    const ant = fotos[i + 1] && fotos[i + 1].dominio === f.dominio ? fotos[i + 1] : null;
+    const d = ant && Number.isFinite(f.qex?.score) && Number.isFinite(ant.qex?.score) ? f.qex.score - ant.qex.score : null;
+    const delta = d === null ? "" : `<span class="mv-b-delta${d > 0 ? " mv-b-mas" : d < 0 ? " mv-b-menos" : ""}">${d === 0 ? "=" : (d > 0 ? "+" : "−") + num(Math.abs(d))}</span>`;
+    const hora = horaLocal(f.medido_utc);
     const activa = !!(previa && previa.sha256 === f.sha256);
     html += `<li class="mv-b-item${activa ? " mv-b-activa" : ""}">
       <button type="button" class="mv-b-elegir" data-sha="${esc(f.sha256)}" aria-pressed="${activa}">
-        <span class="mv-b-fecha">${esc(fechaCorta(f.medido_utc))}</span>
-        <span class="mv-b-qex">QEX ${esc(num(f.qex?.score))}</span>
+        <span class="mv-b-fecha">${esc(fechaCorta(f.medido_utc))}${hora ? ` <time datetime="${esc(f.medido_utc)}">${esc(hora)}</time>` : ""}</span>
+        <span class="mv-b-qex">QEX ${esc(num(f.qex?.score))}${delta}</span>
         <span class="mv-b-sub">${activa ? "comparando con esta" : integras[i] ? "comparar con esta" : "huella alterada"}</span>
       </button>
       <span class="mv-b-acc"><button type="button" class="mv-link" data-bajar="${esc(f.sha256)}">descargar</button>
@@ -107,7 +113,7 @@ function descargar(foto) {
   const blob = new Blob([JSON.stringify(foto, null, 1)], { type: "application/json" });
   const a = document.createElement("a");
   a.href = URL.createObjectURL(blob);
-  a.download = `foto-${foto.dominio}-${foto.medido_utc.slice(0, 10)}.json`;
+  a.download = `foto-${foto.dominio}-${foto.medido_utc.slice(0, 16).replace(/[:T]/g, (c) => (c === "T" ? "_" : ""))}.json`;
   document.body.appendChild(a); a.click(); a.remove();
   setTimeout(() => URL.revokeObjectURL(a.href), 1000);
 }
@@ -209,7 +215,7 @@ form.addEventListener("submit", async (e) => {
   decir(previa && !comparar ? `La foto elegida es de ${previa.dominio}, no de ${dominio}: se mide sin comparar.` : "", !!(previa && !comparar));
   $("mv-resultado").hidden = true; $("mv-comp").hidden = true;
   $("mv-ir").disabled = true; $("mv-ir").textContent = "Midiendo…";
-  const terminar = () => { pararReloj(); $("mv-ir").disabled = false; $("mv-ir").textContent = "Medir de nuevo"; };
+  const terminar = () => { pararReloj(); $("mv-ir").disabled = false; $("mv-ir").innerHTML = 'Medir de nuevo <span class="mv-ir-flecha" aria-hidden="true">→</span>'; };
   arrancarConsola();
   const medido = new Date().toISOString();
   traza(`medición de <code>${esc(dominio)}</code> · sector ${esc(referencia.verticales[vertical]?.nombre || vertical)}${comparar ? ` · se comparará con la foto del ${esc(fechaCorta(comparar.medido_utc))}` : ""}`);

@@ -46,13 +46,16 @@ import propia from '../../../../styles/pages/medicion-envivo.css?raw';
       <form class="mv-instrumento" id="mv-form" novalidate>
         <div class="mv-campo mv-dominio">
           <label for="mv-dominio">Dominio</label>
-          <input id="mv-dominio" type="text" inputmode="url" autocomplete="off" spellcheck="false" placeholder="santander.cl">
+          <div class="mv-entrada">
+            <span class="mv-prefijo" aria-hidden="true">https://</span>
+            <input id="mv-dominio" type="text" inputmode="url" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="su-dominio.cl">
+          </div>
         </div>
         <div class="mv-campo mv-sector">
           <label for="mv-sector">Sector</label>
           <select id="mv-sector"></select>
         </div>
-        <button type="submit" id="mv-ir" class="mv-ir">Medir ahora</button>
+        <button type="submit" id="mv-ir" class="mv-ir">Medir ahora <span class="mv-ir-flecha" aria-hidden="true">→</span></button>
         <div class="mv-comparar">
           <p class="mv-nota" id="mv-previa-estado" role="status">Sin foto anterior: se mide sin comparar.</p>
           <button class="mv-link" type="button" id="mv-previa-quitar" hidden>No comparar</button>
