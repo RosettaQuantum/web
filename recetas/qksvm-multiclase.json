@@ -3,7 +3,7 @@
   "version": 1,
   "_fuente": "Los valores salen de fabrica/recetas/qksvm-multiclase/{brazo_clasico,brazo_cuantico}.py, leidos el 2026-10-29. Ninguno esta tecleado de memoria.",
   "identidad": {
-    "name": "Kernel cuantico de fidelidad vs SVM-RBF afinado, multiclase",
+    "name": "Kernel cuántico de fidelidad contra SVM-RBF afinado (clasificación multiclase)",
     "problem_class": "Multiclass classification",
     "vertical": "Benchmark",
     "algorithm": "Quantum fidelity kernels (FQK/LQK/CQK/XQK) vs SVC-RBF",
@@ -84,5 +84,5 @@
   },
   "precio": { "tarifa_creditos": null, "tarifa_medida_at": null },
   "estado": "measuring",
-  "_por_que_no_es_sellable": "Le faltan la ficha de requisitos, la plantilla de informe y la tarifa medida (SPEC-05 §5, objetos 10a, 10b y 11)."
+  "_por_que_no_es_sellable": "Todavía le faltan tres cosas: la ficha de requisitos, la plantilla del informe y una tarifa medida. Sin una tarifa medida no publicamos precio."
 }

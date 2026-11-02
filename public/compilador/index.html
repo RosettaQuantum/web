@@ -42,16 +42,12 @@ code{font:12.5px var(--mono);background:var(--teal10);padding:1px 5px;border-rad
 </style></head><body>
 <div class="envoltura">
   <div class="cejilla">Rosetta Quantum · el compilador</div>
-  <h1>Compone un pedido y mira si se sostiene</h1>
-  <p class="lede">Valida tu pedido contra la receta <b>antes</b> de que cueste algo: te devuelve el
-  <i>config</i> exacto que correría el ejecutor, o te nombra el campo que sobra. Lo mismo que hace
-  el MCP, con la misma definición.</p>
+  <h1>Arma tu pedido y comprueba si se sostiene</h1>
+  <p class="lede">Antes de pedir un experimento, compruébalo contra su receta. Si el pedido es válido, te mostramos la configuración exacta con la que se correría. Si no lo es, te decimos qué campo sobra o qué valor está fuera de rango.</p>
 
   <div class="aviso">
-    <b>Esto no ejecuta nada, y conviene decirlo antes de que lo pruebes.</b><br>
-    Hoy no existe ningún código que, ante un evento de esta página, corra un experimento.
-    Compilar y validar sí existen. Ejecutar es la pieza P2 del plan y depende de una decisión
-    abierta. Ninguna respuesta de aquí va a decirte que algo quedó encolado.
+    <b>Esta página no ejecuta nada.</b><br>
+    Comprueba pedidos; no corre experimentos. La ejecución todavía no está habilitada, así que ninguna respuesta de esta página va a decirte que tu experimento quedó en marcha. Además, hoy ninguna receta del catálogo se puede pedir. Abajo verás qué le falta a cada una.
   </div>
 
   <div class="rejilla">
@@ -63,18 +59,17 @@ code{font:12.5px var(--mono);background:var(--teal10);padding:1px 5px;border-rad
       <textarea id="params" spellcheck="false"></textarea>
       <label style="display:flex;align-items:center;gap:8px;text-transform:none;letter-spacing:0;font:13px var(--sans);color:var(--ink);margin-top:16px;cursor:pointer">
         <input type="checkbox" id="simular" style="width:auto;margin:0">
-        Simular que la receta es vendible
+        Ver qué pasaría si la receta ya se pudiera pedir
       </label>
       <div style="font:11.5px/1.45 var(--mono);color:var(--ink60);margin-top:5px">
-        Hoy ninguna receta lo es, así que sin esto el Compilador para en la primera compuerta y
-        nunca llegas a ver la validación de parámetros. La simulación se declara en la respuesta.
+        Como hoy ninguna receta se puede pedir, sin esta opción la comprobación se detiene en el primer paso y no llegas a ver la revisión de tus parámetros. Si la activas, la respuesta lo indica.
       </div>
       <div class="fila">
-        <button id="compilar">Compilar</button>
+        <button id="compilar">Comprobar</button>
         <button class="sec" id="ej-ok">Ejemplo válido</button>
-        <button class="sec" id="ej-mal">Con un campo que sobra</button>
+        <button class="sec" id="ej-mal">Ejemplo con un campo que sobra</button>
       </div>
-      <label style="margin-top:22px">Lo que hay en el catálogo</label>
+      <label style="margin-top:22px">Recetas del catálogo</label>
       <div class="recetas" id="catalogo"></div>
     </div>
 
@@ -82,14 +77,12 @@ code{font:12.5px var(--mono);background:var(--teal10);padding:1px 5px;border-rad
       <h2>La respuesta</h2>
       <div id="estado" style="margin-bottom:14px"></div>
       <div id="campos"></div>
-      <pre id="salida">Compila para ver el plan, o el rechazo.</pre>
+      <pre id="salida">Presiona «Comprobar» para ver la configuración que se correría, o por qué se rechaza el pedido.</pre>
     </div>
   </div>
 
   <div class="pie">
-    La página, el servidor MCP y —cuando se apruebe— el Worker usan <code>lib/compilador.mjs</code>,
-    el mismo archivo. Un guardia compara las copias por sha256 y falla cerrado si divergen, porque
-    una definición que vive en dos lugares ya divergió.
+    Esta página y nuestro servidor MCP usan el mismo código para comprobar un pedido. Un control automático bloquea la publicación si las dos copias dejan de ser idénticas.
   </div>
 </div>
 
@@ -103,6 +96,21 @@ for (const f of RECETAS) cargadas.push(await (await fetch(f)).json());
 const $ = (id) => document.getElementById(id);
 const sel = $("receta"), params = $("params");
 
+// Generado de handoff/producto/COMPILADOR-texto-2026-11-02.md, el texto que aprobo
+// Nicholas. El JSON de la API NO cambia: esto es solo como la pagina lo muestra, y el
+// codigo sigue a la vista en la etiqueta. Un codigo sin frase cae a `r.reason`: mejor el
+// ingles crudo que esconder el rechazo.
+const ESTADO_ES = {
+  "measuring": "en medición",
+  "sellable": "se puede pedir"
+};
+const RECHAZO_ES = {
+  "UNKNOWN_RECIPE": "Esa receta no está en el catálogo.",
+  "RECIPE_NOT_SELLABLE": "Esa receta existe, pero todavía no se puede pedir. Abajo dice qué le falta.",
+  "INVALID_PARAMS": "El pedido trae campos que esta receta no acepta, o valores fuera de rango. Abajo se nombra cada uno. No se corrió ni se cobró nada.",
+  "NOT_SCORABLE": "Pediste un veredicto sobre una receta que no puede emitirlo: sólo entrega una predicción."
+};
+
 cargadas.forEach((r) => {
   const o = document.createElement("option");
   o.value = r.id; o.textContent = `${r.id} — ${r.identidad.name}`;
@@ -110,8 +118,8 @@ cargadas.forEach((r) => {
 });
 $("catalogo").innerHTML = cargadas.map((r) => {
   const pedible = r.estado === "sellable";
-  return `<div><span class="chip ${pedible ? "ok" : "mal"}">${r.estado}</span>
-    &nbsp;${r.id} · emite ${r.promesa.scorable ? "VERDICT" : "PREDICTION"}
+  return `<div><span class="chip ${pedible ? "ok" : "mal"}">${ESTADO_ES[r.estado] ?? r.estado}</span>
+    &nbsp;${r.id} · ${r.promesa.scorable ? "entrega un veredicto" : "entrega una predicción"}
     ${pedible ? "" : `<br><span style="color:var(--alert)">le falta:</span> ${r._por_que_no_es_sellable}`}</div>`;
 }).join("");
 
@@ -130,8 +138,8 @@ function correr() {
   let p;
   try { p = JSON.parse(params.value || "{}"); }
   catch (e) {
-    $("estado").innerHTML = '<span class="chip mal">json invalido</span>';
-    $("campos").innerHTML = `<div class="campo"><b>el texto no es JSON</b> — ${e.message}</div>`;
+    $("estado").innerHTML = '<span class="chip mal">JSON inválido</span>';
+    $("campos").innerHTML = `<div class="campo"><b>el texto no es JSON válido</b> — ${e.message}</div>`;
     $("salida").textContent = ""; return;
   }
   const simular = $("simular").checked;
@@ -140,15 +148,15 @@ function correr() {
     ? { ...receta, estado: "sellable" } : receta;
   const r0 = compilar({ pedido: { receta: sel.value, params: p }, receta: usada });
   const r = (simular && receta.estado !== "sellable")
-    ? { ...r0, _simulado: `la receta real está en estado «${receta.estado}»; esto es lo que pasaría si fuera vendible` }
+    ? { ...r0, _simulado: `esta receta todavía no se puede pedir; esto es lo que pasaría si se pudiera` }
     : r0;
   const bien = r.status === "plan";
-  $("estado").innerHTML = `<span class="chip ${bien ? "ok" : "mal"}">${bien ? "plan" : r.code}</span>
-    <span style="color:var(--ink60);font-size:13px">&nbsp; ${bien ? "el pedido se sostiene" : r.reason}</span>`
-    + (r._simulado ? `<div style="margin-top:9px"><span class="chip" style="color:var(--pend);border-color:var(--pend);background:#fdf6e8">simulado</span>
+  $("estado").innerHTML = `<span class="chip ${bien ? "ok" : "mal"}">${bien ? "pedido válido" : r.code}</span>
+    <span style="color:var(--ink60);font-size:13px">&nbsp; ${bien ? "el pedido se sostiene" : (RECHAZO_ES[r.code] ?? r.reason)}</span>`
+    + (r._simulado ? `<div style="margin-top:9px"><span class="chip" style="color:var(--pend);border-color:var(--pend);background:#fdf6e8">simulación</span>
        <span style="color:var(--ink60);font-size:12.5px">&nbsp; ${r._simulado}</span></div>` : "");
   $("campos").innerHTML = (r.fields || []).map((f) =>
-    `<div class="campo"><b>${f.campo}</b> — ${f.problema}${f.acepta ? `<br>acepta: ${f.acepta.join(", ")}` : ""}</div>`
+    `<div class="campo"><b>${f.campo}</b> — ${f.problema}${f.acepta ? `<br>campos que acepta: ${f.acepta.join(", ")}` : ""}</div>`
   ).join("") + (!bien && r.missing ? `<div class="campo"><b>le falta</b> — ${r.missing}</div>` : "");
   $("salida").textContent = JSON.stringify(r, null, 2);
 }
