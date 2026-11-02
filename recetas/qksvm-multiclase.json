@@ -1,0 +1,88 @@
+{
+  "id": "RQ-M1-QKSVM",
+  "version": 1,
+  "_fuente": "Los valores salen de fabrica/recetas/qksvm-multiclase/{brazo_clasico,brazo_cuantico}.py, leidos el 2026-10-29. Ninguno esta tecleado de memoria.",
+  "identidad": {
+    "name": "Kernel cuántico de fidelidad contra SVM-RBF afinado (clasificación multiclase)",
+    "problem_class": "Multiclass classification",
+    "vertical": "Benchmark",
+    "algorithm": "Quantum fidelity kernels (FQK/LQK/CQK/XQK) vs SVC-RBF",
+    "algoritmo_catalogo": null,
+    "sin_mapeo_razon": "Los kernels de fidelidad del paper no son una entrada del Quantum Algorithm Zoo; el catalogo cubre familias algoritmicas, no variantes de kernel."
+  },
+  "promesa": {
+    "scorable": 1,
+    "arbitro": "juez-v1",
+    "verdad_de_referencia": "La etiqueta de clase de cada dataset publico. No la define ninguno de los dos brazos.",
+    "declaracion_a5": {
+      "ventaja": "NO se promete ventaja cuantica. El pre-registro fija el criterio y los dos desenlaces son entregables.",
+      "hardware": "NO se ejecuta en QPU: simulacion exacta por vector de estado. Es una eleccion metodologica declarada, no una limitacion escondida.",
+      "amparo_textual": "El propio paper (arXiv 2411.02913v2) reporta simulacion exacta."
+    }
+  },
+  "pedido": {
+    "params_schema": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["datasets"],
+      "properties": {
+        "datasets": {
+          "type": "array", "minItems": 1, "maxItems": 6, "uniqueItems": true,
+          "items": { "enum": ["Iris", "Tae", "Penguin", "Glass", "Ecoli", "Vowel"] },
+          "_nota": "qubits por dataset, fijados por el ancho de la PCA: Iris 4 · Tae 5 · Penguin 5 · Glass 5 · Ecoli 5 · Vowel 6"
+        },
+        "familias": {
+          "type": "array", "minItems": 1, "uniqueItems": true,
+          "items": { "enum": ["FQK", "LQK", "CQK", "XQK"] },
+          "default": ["FQK", "LQK", "CQK", "XQK"],
+          "_nota": "el orden tambien es el de desempate (A4 punto 3)"
+        },
+        "C_grid":  { "type": "array", "minItems": 1, "items": { "enum": [0.01, 0.1, 1, 10, 100, 1000] },
+                     "default": [0.01, 0.1, 1, 10, 100, 1000] },
+        "gammas":  { "type": "array", "minItems": 1, "items": { "enum": [0.125, 0.5, 2, 8] },
+                     "default": [0.125, 0.5, 2, 8], "_nota": "grilla del brazo clasico" },
+        "repeticiones": { "type": "integer", "minimum": 1, "maximum": 10, "default": 10,
+                          "_nota": "RepeatedStratifiedKFold(5 pliegues, n repeticiones)" },
+        "semilla": { "type": "integer", "const": 20261026,
+                     "_nota": "congelada por el pre-registro: cambiarla es otro experimento" },
+        "contexto": { "type": "boolean", "default": false,
+                      "_nota": "corre ademas GBM/RF/kNN como contexto; no deciden" }
+      }
+    },
+    "result_schema": {
+      "type": "object",
+      "required": ["veredicto", "por_dataset", "sellos"],
+      "properties": {
+        "veredicto": { "enum": ["win", "negative", "not yet"] },
+        "por_dataset": { "type": "array", "items": {
+          "type": "object",
+          "required": ["dataset", "clasico", "cuantico", "delta", "p"],
+          "properties": { "dataset": {"type":"string"}, "clasico": {"type":"number"},
+                          "cuantico": {"type":"number"}, "delta": {"type":"number"}, "p": {"type":"number"} } } },
+        "sellos": { "type": "array", "items": { "type": "string" } }
+      }
+    }
+  },
+  "ejecucion": {
+    "contrato_ejecutor": {
+      "ejecutor": "pendiente-D1",
+      "config_fijo": {
+        "pliegues_externos": 5,
+        "semilla_externa": 20261026,
+        "semilla_interna": "1000 + k",
+        "cv_anidada": 5,
+        "preprocesado": "z-score (+PCA) ajustado SOLO en el train externo"
+      },
+      "compuertas": ["C2", "C3", "C5", "C6", "C7", "C8", "C9"],
+      "_compuertas_implementadas": "juez.py: (a) fuga, (c) mismos pliegues contra sha256, (d) presupuesto 24/24, y_real identica entre brazos"
+    }
+  },
+  "informe": {
+    "ficha_requisitos": null,
+    "plantilla_informe": null,
+    "_falta": "Ninguna de las dos existe todavia (SPEC-03 §11, fase F4)."
+  },
+  "precio": { "tarifa_creditos": null, "tarifa_medida_at": null },
+  "estado": "measuring",
+  "_por_que_no_es_sellable": "Todavía le faltan tres cosas: la ficha de requisitos, la plantilla del informe y una tarifa medida. Sin una tarifa medida no publicamos precio."
+}
