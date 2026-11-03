@@ -233,4 +233,32 @@ for (const r of evaluarReparticiones(edicion)) {
 
 
 console.log(`\n${cubiertos} recomputados · ${saltados} sin cobertura · ${fallas} fallas`);
+
+// --- El registro, para que la compuerta pueda comparar entre meses ---------------
+// Se escribe SIEMPRE que se pida, pase o falle, y ANTES de salir con error. Un
+// registro que solo se anota cuando todo salio bien es un recibo: registra exitos y
+// pierde justo el mes que importa (CLAUDE.md 5 ter).
+//
+// Guarda `saltados` y no solo `fallas` porque la compuerta exige que la cobertura no
+// retroceda: un verde con dos cifras menos recomputadas no significa lo mismo.
+if (process.argv.includes('--registrar')) {
+  const { readFileSync, writeFileSync } = await import('node:fs');
+  // FUERA de src/data/informe-pqc/: dos componentes recorren `*.json` de ese
+  // directorio y `index.astro` lanza error con cualquier nombre que no sea
+  // AAAA-MM.json. Un registro guardado ahi adentro rompe el build del sitio.
+  const RUTA = 'src/data/registro-guardias-informe-pqc.json';
+  let reg = {};
+  try { reg = JSON.parse(readFileSync(RUTA, 'utf8')); } catch { /* primera vez */ }
+  reg[edicion.edicion] = {
+    guardia: 'check-informe-cifras',
+    corrida: new Date().toISOString(),
+    recomputados: cubiertos,
+    sin_cobertura: saltados,
+    fallas,
+  };
+  const ordenado = Object.fromEntries(Object.entries(reg).sort((a, b) => b[0].localeCompare(a[0])));
+  writeFileSync(RUTA, JSON.stringify(ordenado, null, 1) + '\n', 'utf8');
+  console.log(`registro: ${RUTA} · ${edicion.edicion} -> ${fallas} fallas, ${saltados} sin cobertura`);
+}
+
 if (fallas) process.exit(1);
