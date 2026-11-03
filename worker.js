@@ -1,4 +1,6 @@
-import { manejarApi } from "./api.js";
+import { manejarApi, registrarMedicion } from "./api.js";
+import * as medicionAgentes from "./lib/medicion-agentes.mjs";
+registrarMedicion(medicionAgentes);
 import { manejarQreadyLead } from "./lib/qready-lead.mjs";
 import { manejarOg } from "./lib/og-ruta.mjs";
 import { manejarBorde } from "./lib/borde-envivo.mjs";

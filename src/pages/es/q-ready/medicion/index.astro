@@ -20,7 +20,7 @@
  * Los paneles son <div role="region">, no <section>: la base de marca fuerza en modo oscuro
  * «section{background:var(--paper) !important}», y la consola salía clara (30-oct-2026).
  *
- * noindex hasta que Nicholas apruebe el texto.
+ * Indexable desde el 3-nov-2026 (decisión de Nicholas), con ficha JSON-LD y entrada en llms.txt.
  */
 import MarcaLayout from '../../../../layouts/MarcaLayout.astro';
 import paginas from '../../../../styles/pages/paginas.css?raw';
@@ -30,8 +30,19 @@ import propia from '../../../../styles/pages/medicion-envivo.css?raw';
   title="Su exposición criptográfica, medida hoy — Rosetta Q-Ready"
   description="El QEX completo en vivo: certificados, superficie, borde post-cuántico y postura HNDL, con la suma a la vista y la comparación contra su medición anterior."
   lang="es" altUrl="/q-ready" ruta="/es/q-ready/medicion"
-  pageCss={paginas + '\n' + propia} noindex={true}
+  pageCss={paginas + "\n" + propia} noindex={false}
 >
+  <script type="application/ld+json" set:html={JSON.stringify({
+    "@context": "https://schema.org", "@type": "WebApplication",
+    name: "Rosetta Q-Ready · medición en vivo",
+    url: "https://rosettaquantum.com/es/q-ready/medicion/",
+    applicationCategory: "SecurityApplication", operatingSystem: "Web", inLanguage: "es",
+    isAccessibleForFree: true,
+    description: "Mide desde afuera la exposición post-cuántica pública de un dominio: sitio web, correo, endpoints sensibles y certificado, con el índice QEX y una foto sellada.",
+    offers: { "@type": "Offer", price: "0", priceCurrency: "USD" },
+    provider: { "@type": "Organization", name: "Rosetta Quantum", url: "https://rosettaquantum.com" },
+    potentialAction: { "@type": "Action", name: "Medir un dominio por API", target: "https://rosettaquantum.com/v1/medicion" }
+  })} />
   <section class="mv">
     <div class="mv-wrap">
      <div class="mv-grid">

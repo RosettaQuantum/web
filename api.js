@@ -28,6 +28,12 @@ const CORS = {
   "Access-Control-Allow-Headers": "content-type",
 };
 import { legiblesDe } from "./lib/legible.mjs";
+// La medición en vivo usa sockets TCP (cloudflare:sockets), que el build de Astro no puede
+// resolver, y este archivo también lo importa Astro (llms.txt, /api-docs). Por eso no se
+// importa aquí: worker.js la registra al arrancar. Sin registro, responde 503 y lo dice.
+let MEDICION = null;
+export const registrarMedicion = (m) => { MEDICION = m; };
+const sinMedicion = { http: 503, cuerpo: { ok: false, error: "La medición en vivo no está disponible en este servidor." } };
 import { evaluarPeticion, RECHAZOS as RECHAZOS_PUERTA, huellaDelCuerpo } from "./lib/puerta.mjs";
 
 const SITE = "https://rosettaquantum.com";
@@ -848,6 +854,27 @@ async function challengePorId(env, id, clave) {
 // aca y un chequeo la compara contra tools/list en vivo.
 export const HERRAMIENTAS = [
   {
+    name: "medir_exposicion_pqc",
+    description:
+      "Mide EN VIVO, desde afuera, la exposición post-cuántica pública de un dominio: si su " +
+      "sitio negocia el intercambio híbrido X25519MLKEM768, qué certificado presenta, sus " +
+      "servidores de correo y su security.txt. Envía saludos TLS reales (no es lectura de un " +
+      "archivo). El cifrado del correo llega aparte: la respuesta trae un id para " +
+      "ver_medicion_correo. null significa «no medido», nunca «no protegido». Límite: pocas " +
+      "mediciones por minuto.",
+    inputSchema: { type: "object", required: ["dominio"],
+      properties: { dominio: { type: "string", description: "dominio público, p.ej. ejemplo.cl" } } },
+  },
+  {
+    name: "ver_medicion_correo",
+    description:
+      "Resultado de la medición del cifrado post-cuántico del correo que inició " +
+      "medir_exposicion_pqc: por cada servidor MX, si acepta el intercambio híbrido. Estados: " +
+      "pendiente, tomado, hecho, sin_respuesta.",
+    inputSchema: { type: "object", required: ["id"],
+      properties: { id: { type: "string", description: "el id que devolvió medir_exposicion_pqc" } } },
+  },
+  {
     name: "estado_del_archivo",
     description:
       "Estado medido del Evidence Ledger de Rosetta Quantum: cuántas corridas selladas " +
@@ -961,7 +988,9 @@ export const HERRAMIENTAS = [
   },
 ];
 
-async function ejecutarHerramienta(env, nombre, args) {
+async function ejecutarHerramienta(env, nombre, args, ip) {
+  if (nombre === "medir_exposicion_pqc") return (MEDICION ? await MEDICION.medirParaAgente(env, args.dominio, ip) : sinMedicion).cuerpo;
+  if (nombre === "ver_medicion_correo") return (MEDICION ? await MEDICION.correoParaAgente(env, String(args.id || "")) : sinMedicion).cuerpo;
   if (nombre === "estado_del_archivo") return await estado(env);
   if (nombre === "buscar_evidencia") {
     const r = await buscar(env, args.consulta);
@@ -1032,7 +1061,7 @@ async function mcp(request, env, info = {}) {
     if (req.method === "tools/call") {
       const { name, arguments: args = {} } = req.params || {};
       info.tool = name;   // para el contador de uso; no se guarda nada mas del que llama
-      const salida = await ejecutarHerramienta(env, name, args);
+      const salida = await ejecutarHerramienta(env, name, args, request.headers.get("cf-connecting-ip"));
       return responder({ content: [{ type: "text", text: JSON.stringify(salida, null, 2) }] }, req.id);
     }
     return fallar(-32601, `método no soportado: ${req.method}`, req.id);
@@ -1176,6 +1205,15 @@ export const CATALOGO = [
       503: { description: "The recipe catalogue could not be read: the request cannot be validated" },
       422: { description: "Invalid request, or unknown recipe" },
       501: { description: "Real execution does not exist yet" },
+    } },
+  { ruta: "/v1/medicion", metodo: "POST", grupo: "medicion",
+    resumen: "Live, outside-in post-quantum exposure of a domain: hybrid X25519MLKEM768 on the website, certificate, mail servers and security.txt. Same instrument as /es/q-ready/medicion. Mail encryption arrives separately (id + URL to poll). null means not measured, never not protected.",
+    cuerpo: { type: "object", required: ["dominio"], properties: { dominio: { type: "string", description: "Public domain, e.g. example.cl" } } },
+    respuestas: {
+      200: { description: "Measured. correo.cifrado_pq carries the id and URL to poll for the mail result." },
+      400: { description: "Missing or invalid domain" },
+      405: { description: "Only POST" },
+      429: { description: "Too many measurements in a minute from this address" },
     } },
   { ruta: "/v1", resumen: "Indice de la API", grupo: "meta" },
   { ruta: "/v1/openapi.json", resumen: "Esta especificacion, en OpenAPI 3.1", grupo: "meta" },
@@ -1464,6 +1502,7 @@ function openapiDoc() {
       { name: "archivador", description: "El campo catalogado, con la cita pegada a cada dato" },
       { name: "challenges", description: "Corridas de challenge, con sus predicciones y sellos" },
       { name: "motor", description: "Lo que publica el motor: redes de contactos y propagaciones" },
+      { name: "medicion", description: "Exposición post-cuántica de un dominio, medida en vivo desde afuera" },
     ],
     paths,
     components: { schemas: ESQUEMAS },
@@ -1663,6 +1702,13 @@ async function enrutar(request, env, url, info = {}) {
   // servidor de archivos y devolviera una pagina en vez de una respuesta de API. Un POST a una
   // ruta de API que contesta HTML es peor que un 404: el que llama no sabe si se equivoco de
   // ruta o de metodo.
+  if (p === "/v1/medicion" || p === "/v1/medicion/") {
+    if (request.method !== "POST")
+      return json({ ok: false, error: "Usa POST con {\"dominio\": \"ejemplo.cl\"}." }, 405, { allow: "POST, OPTIONS" });
+    const c = await request.json().catch(() => ({}));
+    const r = MEDICION ? await MEDICION.medirParaAgente(env, c.dominio, request.headers.get("cf-connecting-ip")) : sinMedicion;
+    return json(r.cuerpo, r.http);
+  }
   if (p === "/v1/jobs" || p === "/v1/jobs/") {
     if (request.method !== "POST") {
       return json({ status: "rejected", code: "METHOD_NOT_ALLOWED", http: 405,

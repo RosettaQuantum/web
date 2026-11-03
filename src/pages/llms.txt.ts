@@ -1,4 +1,4 @@
-import { CATALOGO } from '../../api.js';
+import { CATALOGO, HERRAMIENTAS } from '../../api.js';
 import type { APIRoute } from 'astro';
 import { getCollection } from 'astro:content';
 
@@ -43,7 +43,8 @@ export const GET: APIRoute = async ({ site }) => {
     '## For agents',
     'Rosetta is the infrastructure that turns claims into sealed evidence — one door, one',
     'price per run, anyone can pay and use it. Human or agent.',
-    `- \`POST ${base}/mcp\` — MCP server, JSON-RPC 2.0, 9 tools, no key required for reads.`,
+    `- \`POST ${base}/mcp\` — MCP server, JSON-RPC 2.0, ${HERRAMIENTAS.length} tools, no key required.`,
+    `- \`POST ${base}/v1/medicion\` (or MCP tool \`medir_exposicion_pqc\`) — free, rate-limited live measurement of a domain's post-quantum exposure. Human page: ${base}/es/q-ready/medicion/`,
     `- \`GET ${base}/v1/openapi.json\` — the full contract. If you are a machine, start here.`,
     '- The site is the shop window; the product speaks JSON. Do not scrape us: ask us.',
     '',
@@ -53,7 +54,7 @@ export const GET: APIRoute = async ({ site }) => {
     // esta ya iba 7 de 17 sin que nadie lo notara.
     `- \`GET ${base}/v1/openapi.json\` — full OpenAPI 3.1 spec. Start here if you are a machine.`,
     ...CATALOGO.filter(e => e.ruta !== '/v1/openapi.json')
-      .map(e => `- \`GET ${base}${e.ruta}\` — ${e.resumen}`),
+      .map(e => `- \`${e.metodo || 'GET'} ${base}${e.ruta}\` — ${e.resumen}`),
     `- \`POST ${base}/mcp\` — MCP server (JSON-RPC 2.0) for agents`,
     '',
     'Every response carries the sealed sha256 plus the raw URLs of two independent',
