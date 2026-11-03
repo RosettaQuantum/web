@@ -43,7 +43,9 @@ const PUBLICAS = ["/services", "/pilots", "/methodology", "/about", "/ledger",
 const NO_SE_ANUNCIAN = ["/policies"];
 // Lo retirado no puede volver por este archivo. Cada entrada trae POR QUE salio.
 const RETIRADO = [
-  [/\/q-ready/, "la pagina ya no se enlaza desde el sitio ni esta en el sitemap"],
+  // 3-nov-2026: Nicholas decidió indexar la medición en vivo (gratis, sin precio): ESA ruta
+  // sí puede anunciarse. El resto de /q-ready sigue retirado.
+  [/\/q-ready(?!\/medicion\b)/, "la pagina ya no se enlaza desde el sitio ni esta en el sitemap"],
   [/4,900|4\.900/, "precio de un producto que no esta en la lista decidida"],
 ];
 
@@ -103,7 +105,9 @@ for (const [re, porque] of RETIRADO) {
 }
 
 // 5 · ningun precio que Nicholas no haya decidido. Misma lista que T-precios, un archivo.
-const montos = [...new Set([...txt.matchAll(/(?:US\$|\$)\s?([\d][\d.,]*)/g)]
+// Una cifra de mercado en el título de una nota («$350 million») no es un precio nuestro: nuestros
+// precios nunca van en millones. Caso real 3-nov-2026 (la nota del Pentágono).
+const montos = [...new Set([...txt.matchAll(/(?:US\$|\$)\s?([\d][\d.,]*)(?![\d.,]|\s?(?:million|millones|billion|mil millones)\b)/g)]
   .map((m) => m[1].replace(/[.,]$/, "")))];
 const sinAprobar = montos.filter((m) => !DECIDIDOS.has(m));
 if (sinAprobar.length) mal(`precios sin decidir: ${sinAprobar.map((x) => "$" + x).join(" · ")}`);
@@ -127,7 +131,10 @@ for (const p of NOINDEX) {
   const problemas = [];
   if (!/<meta\s+name="robots"\s+content="noindex"/.test(h)) problemas.push("sin <meta robots noindex>");
   if (enMapa(p)) problemas.push("figura en el sitemap");
-  if (txt.includes(p.replace(/\/$/, ""))) problemas.push("figura en llms.txt");
+  // Ruta PEGADA al dominio, igual que en el sitemap: «/q-ready» también calza dentro de
+  // «/es/q-ready/medicion», que se anuncia por decisión de Nicholas (3-nov-2026).
+  const enLlms = new RegExp("https?://[^/\\s]+" + p.replace(/\/$/, "").replace(/[.*+?^${}()|[\]\\]/g, "\\$&") + "/?(?=[\\s)`]|$)").test(txt);
+  if (enLlms) problemas.push("figura en llms.txt");
   if (problemas.length) mal(`${p} ${problemas.join(" · ")}`);
   else ok(`${p.padEnd(28)} noindex · fuera del sitemap · fuera de llms.txt · sirve 200`);
 }
@@ -181,6 +188,11 @@ ok("ninguna pagina publica lleva noindex por accidente");
 // sabe callarse el dia que todo esta bien — y esta prueba ya cazo un error mio.
 {
   const conRetirado = txt + "\n- [Q-Ready](https://x/q-ready): US$4,900\n";
+  // Silencio: la medición permitida y una cifra de mercado no deben gritar.
+  const callaMedicion = !RETIRADO[0][0].test("- [M](https://x/es/q-ready/medicion/)");
+  const callaMercado = ![..."$350 million".matchAll(/(?:US\$|\$)\s?([\d][\d.,]*)(?![\d.,]|\s?(?:million|millones|billion|mil millones)\b)/g)].length;
+  if (callaMedicion && callaMercado) ok("silencio                 la medición permitida y «$350 million» no gritan");
+  else mal(`el silencio falla (medicion:${callaMedicion} mercado:${callaMercado})`);
   const gritaRetirado = RETIRADO.every(([re]) => re.test(conRetirado));
   const sinMonitor = new Set([...paginas].filter((p) => p !== "/monitor"));
   const gritaFalta = PUBLICAS.some((p) => !sinMonitor.has(p));
