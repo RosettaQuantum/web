@@ -860,13 +860,13 @@ export const HERRAMIENTAS = [
       "sitio negocia el intercambio híbrido X25519MLKEM768, qué certificado presenta, sus " +
       "servidores de correo y su security.txt. Envía saludos TLS reales (no es lectura de un " +
       "archivo). El cifrado del correo llega aparte: la respuesta trae un id para " +
-      "ver_medicion_correo. null significa «no medido», nunca «no protegido». Límite: pocas " +
+      "ver_cifrado_correo. null significa «no medido», nunca «no protegido». Límite: pocas " +
       "mediciones por minuto.",
     inputSchema: { type: "object", required: ["dominio"],
       properties: { dominio: { type: "string", description: "dominio público, p.ej. ejemplo.cl" } } },
   },
   {
-    name: "ver_medicion_correo",
+    name: "ver_cifrado_correo",
     description:
       "Resultado de la medición del cifrado post-cuántico del correo que inició " +
       "medir_exposicion_pqc: por cada servidor MX, si acepta el intercambio híbrido. Estados: " +
@@ -990,7 +990,7 @@ export const HERRAMIENTAS = [
 
 async function ejecutarHerramienta(env, nombre, args, ip) {
   if (nombre === "medir_exposicion_pqc") return (MEDICION ? await MEDICION.medirParaAgente(env, args.dominio, ip) : sinMedicion).cuerpo;
-  if (nombre === "ver_medicion_correo") return (MEDICION ? await MEDICION.correoParaAgente(env, String(args.id || "")) : sinMedicion).cuerpo;
+  if (nombre === "ver_cifrado_correo") return (MEDICION ? await MEDICION.correoParaAgente(env, String(args.id || "")) : sinMedicion).cuerpo;
   if (nombre === "estado_del_archivo") return await estado(env);
   if (nombre === "buscar_evidencia") {
     const r = await buscar(env, args.consulta);
@@ -1207,7 +1207,7 @@ export const CATALOGO = [
       501: { description: "Real execution does not exist yet" },
     } },
   { ruta: "/v1/medicion", metodo: "POST", grupo: "medicion",
-    resumen: "Live, outside-in post-quantum exposure of a domain: hybrid X25519MLKEM768 on the website, certificate, mail servers and security.txt. Same instrument as /es/q-ready/medicion. Mail encryption arrives separately (id + URL to poll). null means not measured, never not protected.",
+    resumen: "Live, outside-in post-quantum exposure of a domain: hybrid X25519MLKEM768 on the website, certificate, mail servers and security.txt. Same instrument as the Q-Ready live page. Mail encryption arrives separately (id + URL to poll). null means not measured, never not protected.",
     cuerpo: { type: "object", required: ["dominio"], properties: { dominio: { type: "string", description: "Public domain, e.g. example.cl" } } },
     respuestas: {
       200: { description: "Measured. correo.cifrado_pq carries the id and URL to poll for the mail result." },
