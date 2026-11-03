@@ -125,7 +125,37 @@ function riel() {
   document.querySelectorAll(".mv-acto").forEach((s) => io.observe(s));
 }
 
+// El informe por correo: lo arma y lo envía nuestro servidor de Contabo (vps/sonda-correo/informe_pdf.py).
+// Aquí sólo se pide; la página consulta si salió, y lo dice con lo que el servidor contestó.
+let medicion = null;
+async function pedirEnvio(e) {
+  e.preventDefault();
+  const est = $("mv-envio-estado"), ir = $("mv-envio-ir"), email = $("mv-envio-email").value.trim();
+  const decir = (t, mal) => { est.textContent = t; est.classList.toggle("mv-mal", !!mal); };
+  if (!medicion?.foto) return decir("Primero mida un dominio.", true);
+  if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) return decir("Escriba un correo válido.", true);
+  if (!$("mv-envio-acepto").checked) return decir("Para enviarle el informe necesitamos que acepte guardar su correo.", true);
+  ir.disabled = true; decir("Enviando…");
+  try {
+    const r = await fetch("/api/medicion/envio", { method: "POST", headers: { "content-type": "application/json" },
+      body: JSON.stringify({ email, acepta: true, foto: medicion.foto, correo_id: medicion.s?.correo_tls?.id || null }) });
+    const j = await r.json().catch(() => ({}));
+    if (!r.ok || !j.ok) { decir(j.error || `No pudimos pedir el envío (el servicio respondió ${r.status}).`, true); ir.disabled = false; return; }
+    for (let i = 0; i < 45; i++) {
+      await new Promise((ok) => setTimeout(ok, 2000));
+      const g = await fetch(`/api/medicion/envio/${j.id}`).then((x) => x.json()).catch(() => null);
+      if (g?.estado === "enviado") return decir(`Listo: el informe va camino a ${email}.`);
+      if (g?.estado === "fallido") { decir("No pudimos enviarlo. Escríbanos a hello@rosettaquantum.com y se lo mandamos.", true); ir.disabled = false; return; }
+    }
+    decir("Su pedido quedó registrado; el informe le llegará en los próximos minutos.");
+  } catch { decir("No pudimos pedir el envío. Revise su conexión e intente de nuevo.", true); ir.disabled = false; }
+}
+$("mv-envio")?.addEventListener("submit", pedirEnvio);
+
 window.addEventListener("mv:medido", (ev) => {
+  medicion = ev.detail;
+  $("mv-envio-dom").textContent = ev.detail.dominio;
+  $("mv-envio-ir").disabled = false; $("mv-envio-estado").textContent = "";
   actual = canales(ev.detail);
   const r = pintarCanales(actual);
   pintarSelector(r);

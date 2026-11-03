@@ -238,6 +238,18 @@ import propia from '../../../../styles/pages/medicion-envivo.css?raw';
           </div>
           <p class="mv-nota mv-ok" id="mv-guardada"></p>
         </div>
+
+        <form class="mv-bloque mv-envio" id="mv-envio" novalidate aria-labelledby="mv-envio-t">
+          <h2 id="mv-envio-t">Reciba este informe en su correo</h2>
+          <p class="mv-texto">Le enviamos el informe de <b id="mv-envio-dom">su dominio</b> en PDF, con la foto sellada para comparar su próxima medición.</p>
+          <div class="mv-envio-fila">
+            <label class="mv-sr" for="mv-envio-email">Correo</label>
+            <input id="mv-envio-email" type="email" autocomplete="email" placeholder="nombre@su-empresa.cl" required>
+            <button type="submit" class="mv-ir" id="mv-envio-ir">Enviarme el informe</button>
+          </div>
+          <label class="mv-envio-acepto"><input type="checkbox" id="mv-envio-acepto"> Acepto que Rosetta Quantum guarde mi correo y el dominio medido para enviarme este informe y, más adelante, avisos si algo cambia y el informe mensual de la gran empresa chilena. No los compartimos; cada correo trae un enlace para darse de baja.</label>
+          <p class="mv-nota" id="mv-envio-estado" role="status" aria-live="polite"></p>
+        </form>
       </div>
 
       <details class="mv-como">

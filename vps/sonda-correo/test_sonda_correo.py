@@ -51,7 +51,7 @@ for _n in ("TODOS", "SOLO_HIB", "LIBRE"):
     prueba(f"grupos {_n} iguales a los del borde web", lambda n=_n: igual(getattr(S, n), _grupos_js(n), n))
 
 # --- 2. Las corridas reales se vuelven a juzgar igual, y dicen lo que deben decir.
-fijas = {p.stem: json.loads(p.read_text()) for p in (AQUI / "fijas").glob("*.json") if p.stem != "clienthello-agosto"}
+fijas = {p.stem: json.loads(p.read_text()) for p in (AQUI / "fijas").glob("*.json") if p.stem != "clienthello-agosto" and not p.stem.startswith("foto-")}
 prueba("hay tres corridas reales guardadas", lambda: igual(sorted(fijas), ["gmail.com", "outlook.com", "santander.cl"]))
 for dom, j in fijas.items():
     prueba(f"{dom}: el veredicto guardado sale otra vez de sus saludos", lambda j=j: [

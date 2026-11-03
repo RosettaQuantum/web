@@ -1,0 +1,2041 @@
+{
+ "esquema": "rosetta-qex-foto/1",
+ "edicion": "2026-10",
+ "dominio": "bancoejemplo.cl",
+ "www": "www.bancoejemplo.cl",
+ "vertical": "banca",
+ "medido_utc": "2026-10-29T19:58:53.015Z",
+ "origen": "Foto tomada con entregables/bancoejemplo-2026-11/envivo/foto_envivo.mjs contra https://rosetta-quantum-preview.nicholasiakl.workers.dev/api/sondas (misma función armarFoto que la página).",
+ "ct": {
+  "fuente": "crt.sh",
+  "intentos": 3,
+  "consultado_utc": "2026-10-29T19:58:53.015Z",
+  "filas": 1873,
+  "sha256_crudo": "d1da0010229fb7a06f668fd0e3b3b2f02ab99de14773b2a336c8e74d515deed9",
+  "conteos": {
+   "hostnames": 227,
+   "profundos": 67,
+   "no_productivo": 1,
+   "legado": 0,
+   "infra_expuesta": 4,
+   "critico": 13
+  },
+  "hosts": [
+   {
+    "host": "ag-dt.bancoejemplo.cl",
+    "clases": [],
+    "profundo": false,
+    "etiqueta_estricta": true,
+    "ultimo_not_before": "2022-08-05T00:00:00",
+    "ultimo_not_after": "2023-09-05T23:59:59"
+   },
+   {
+    "host": "analytics.extranetbancoejemplo.cl",
+    "clases": [],
+    "profundo": false,
+    "etiqueta_estricta": false,
+    "ultimo_not_before": "2018-10-08T00:00:00",
+    "ultimo_not_after": "2019-04-19T12:00:00"
+   },
+   {
+    "host": "analytics.bancoejemplo.cl",
+    "clases": [],
+    "profundo": false,
+    "etiqueta_estricta": true,
+    "ultimo_not_before": "2023-08-14T00:00:00",
+    "ultimo_not_after": "2024-08-16T23:59:59"
+   },
+   {
+    "host": "analyticsmvd.bancoejemplo.cl",
+    "clases": [],
+    "profundo": false,
+    "etiqueta_estricta": true,
+    "ultimo_not_before": "2018-06-15T00:00:00",
+    "ultimo_not_after": "2019-05-08T12:00:00"
+   },
+   {
+    "host": "api-7b4df495.bancoejemplo.cl",
+    "clases": [
+     "critico"
+    ],
+    "profundo": false,
+    "etiqueta_estricta": true,
+    "ultimo_not_before": "2025-11-25T00:00:00",
+    "ultimo_not_after": "2026-11-25T23:59:59"
+   },
+   {
+    "host": "api-app.bancoejemplo.cl",
+    "clases": [
+     "critico"
+    ],
+    "profundo": false,
+    "etiqueta_estricta": true,
+    "ultimo_not_before": "2026-09-29T19:28:51",
+    "ultimo_not_after": "2027-03-09T23:59:59"
+   },
+   {
+    "host": "api-dsk.bancoejemplo.cl",
+    "clases": [
+     "critico"
+    ],
+    "profundo": false,
+    "etiqueta_estricta": true,
+    "ultimo_not_before": "2026-09-29T19:28:51",
+    "ultimo_not_after": "2027-03-05T23:59:59"
+   },
+   {
+    "host": "api.bancoejemplo.cl",
+    "clases": [
+     "critico"
+    ],
+    "profundo": false,
+    "etiqueta_estricta": true,
+    "ultimo_not_before": "2026-09-29T19:28:51",
+    "ultimo_not_after": "2027-03-17T23:59:59"
+   },
+   {
+    "host": "apideveloper.bancoejemplo.cl",
+    "clases": [],
+    "profundo": false,
+    "etiqueta_estricta": true,
+    "ultimo_not_before": "2026-09-29T19:28:51",
+    "ultimo_not_after": "2027-03-17T23:59:59"
+   },
+   {
+    "host": "apifun.extranetbancoejemplo.cl",
+    "clases": [],
+    "profundo": false,
+    "etiqueta_estricta": false,
+    "ultimo_not_before": "2023-08-14T00:00:00",
+    "ultimo_not_after": "2024-08-16T23:59:59"
+   },
+   {
+    "host": "apifun.bancoejemplo.cl",
+    "clases": [],
+    "profundo": false,
+    "etiqueta_estricta": true,
+    "ultimo_not_before": "2026-09-29T19:28:51",
+    "ultimo_not_after": "2026-12-28T19:28:50"
+   },
+   {
+    "host": "apimc.bancoejemplo.cl",
+    "clases": [],
+    "profundo": false,
+    "etiqueta_estricta": true,
+    "ultimo_not_before": "2019-10-22T00:00:00",
+    "ultimo_not_after": "2020-10-21T12:00:00"
+   },
+   {
+    "host": "apiper.bancoejemplo.cl",
+    "clases": [],
+    "profundo": false,
+    "etiqueta_estricta": true,
+    "ultimo_not_before": "2026-09-29T19:28:51",
+    "ultimo_not_after": "2027-03-17T23:59:59"
+   },
+   {
+    "host": "apiter.bancoejemplo.cl",
+    "clases": [],
+    "profundo": false,
+    "etiqueta_estricta": true,
+    "ultimo_not_before": "2026-08-31T00:00:00",
+    "ultimo_not_after": "2027-03-17T23:59:59"
+   },
+   {
+    "host": "apiter1.bancoejemplo.cl",
+    "clases": [],
+    "profundo": false,
+    "etiqueta_estricta": true,
+    "ultimo_not_before": "2023-08-14T00:00:00",
+    "ultimo_not_after": "2024-08-16T23:59:59"
+   },
+   {
+    "host": "app-cl.bancoejemplo.cl",
+    "clases": [],
+    "profundo": false,
+    "etiqueta_estricta": true,
+    "ultimo_not_before": "2026-02-17T00:00:00",
+    "ultimo_not_after": "2027-02-17T23:59:59"
+   },
+   {
+    "host": "app.bancoejemplo.cl",
+    "clases": [],
+    "profundo": false,
+    "etiqueta_estricta": true,
+    "ultimo_not_before": "2026-09-29T19:28:51",
+    "ultimo_not_after": "2026-12-28T19:28:50"
+   },
+   {
+    "host": "assets.bancoejemplo.cl",
+    "clases": [],
+    "profundo": false,
+    "etiqueta_estricta": true,
+    "ultimo_not_before": "2026-09-29T00:00:00",
+    "ultimo_not_after": "2027-04-14T23:59:59"
+   },
+   {
+    "host": "autocompara.bancoejemplo.cl",
+    "clases": [],
+    "profundo": false,
+    "etiqueta_estricta": true,
+    "ultimo_not_before": "2026-02-27T00:00:00",
+    "ultimo_not_after": "2027-02-27T23:59:59"
+   },
+   {
+    "host": "autodiscover.corp.bancoejemplo.cl",
+    "clases": [],
+    "profundo": true,
+    "etiqueta_estricta": true,
+    "ultimo_not_before": "2025-11-25T00:00:00",
+    "ultimo_not_after": "2026-11-25T23:59:59"
+   },
+   {
+    "host": "autodiscover.bancoejemplo.cl",
+    "clases": [],
+    "profundo": false,
+    "etiqueta_estricta": true,
+    "ultimo_not_before": "2023-08-14T00:00:00",
+    "ultimo_not_after": "2024-08-16T23:59:59"
+   },
+   {
+    "host": "autodiscoverredirect.extranetbancoejemplo.cl",
+    "clases": [],
+    "profundo": false,
+    "etiqueta_estricta": false,
+    "ultimo_not_before": "2023-07-14T00:00:00",
+    "ultimo_not_after": "2024-07-16T23:59:59"
+   },
+   {
+    "host": "ayuda.bancoejemplo.cl",
+    "clases": [],
+    "profundo": false,
+    "etiqueta_estricta": true,
+    "ultimo_not_before": "2026-09-29T19:28:51",
+    "ultimo_not_after": "2026-12-28T19:28:50"
+   },
+   {
+    "host": "azuremfa.corp.bancoejemplo.cl",
+    "clases": [],
+    "profundo": true,
+    "etiqueta_estricta": true,
+    "ultimo_not_before": "2018-05-07T00:00:00",
+    "ultimo_not_after": "2019-05-08T12:00:00"
+   },
+   {
+    "host": "banco.bancoejemplo.cl",
+    "clases": [],
+    "profundo": false,
+    "etiqueta_estricta": true,
+    "ultimo_not_before": "2026-09-29T19:28:51",
+    "ultimo_not_after": "2027-04-14T23:59:59"
+   },
+   {
+    "host": "bandera2023ap.bancoejemplo.cl",
+    "clases": [],
+    "profundo": false,
+    "etiqueta_estricta": true,
+    "ultimo_not_before": "2025-12-24T00:00:00",
+    "ultimo_not_after": "2026-12-24T23:59:59"
+   },
+   {
+    "host": "bandera2023dk.bancoejemplo.cl",
+    "clases": [],
+    "profundo": false,
+    "etiqueta_estricta": true,
+    "ultimo_not_before": "2025-12-24T00:00:00",
+    "ultimo_not_after": "2026-12-24T23:59:59"
+   },
+   {
+    "host": "bcdn-7b4df495.bancoejemplo.cl",
+    "clases": [],
+    "profundo": false,
+    "etiqueta_estricta": true,
+    "ultimo_not_before": "2025-11-25T00:00:00",
+    "ultimo_not_after": "2026-11-25T23:59:59"
+   },
+   {
+    "host": "biocatch.bancoejemplo.cl",
+    "clases": [],
+    "profundo": false,
+    "etiqueta_estricta": true,
+    "ultimo_not_before": "2025-11-25T00:00:00",
+    "ultimo_not_after": "2026-11-25T23:59:59"
+   },
+   {
+    "host": "brp.bancoejemplo.cl",
+    "clases": [],
+    "profundo": false,
+    "etiqueta_estricta": true,
+    "ultimo_not_before": "2026-09-29T19:28:51",
+    "ultimo_not_after": "2027-03-17T23:59:59"
+   },
+   {
+    "host": "bsm.extranetbancoejemplo.cl",
+    "clases": [],
+    "profundo": false,
+    "etiqueta_estricta": false,
+    "ultimo_not_before": "2019-10-22T00:00:00",
+    "ultimo_not_after": "2020-10-21T12:00:00"
+   },
+   {
+    "host": "captiveportal.bancoejemplo.cl",
+    "clases": [],
+    "profundo": false,
+    "etiqueta_estricta": true,
+    "ultimo_not_before": "2026-08-11T00:00:00",
+    "ultimo_not_after": "2027-02-25T23:59:59"
+   },
+   {
+    "host": "cargapropuestawebapp.extranetbancoejemplo.cl",
+    "clases": [],
+    "profundo": false,
+    "etiqueta_estricta": false,
+    "ultimo_not_before": "2019-12-10T00:00:00",
+    "ultimo_not_after": "2020-10-21T12:00:00"
+   },
+   {
+    "host": "ccweb.bancoejemplo.cl",
+    "clases": [],
+    "profundo": false,
+    "etiqueta_estricta": true,
+    "ultimo_not_before": "2022-10-05T00:00:00",
+    "ultimo_not_after": "2023-11-03T23:59:59"
+   },
+   {
+    "host": "cdn.comunicaciones.bancoejemplo.cl",
+    "clases": [],
+    "profundo": true,
+    "etiqueta_estricta": true,
+    "ultimo_not_before": "2025-12-03T00:00:00",
+    "ultimo_not_after": "2027-01-01T23:59:59"
+   },
+   {
+    "host": "click.banca.bancoejemplo.cl",
+    "clases": [
+     "critico"
+    ],
+    "profundo": true,
+    "etiqueta_estricta": true,
+    "ultimo_not_before": "2026-09-21T00:00:00",
+    "ultimo_not_after": "2027-04-04T23:59:59"
+   },
+   {
+    "host": "click.risk.bancoejemplo.cl",
+    "clases": [],
+    "profundo": true,
+    "etiqueta_estricta": true,
+    "ultimo_not_before": "2025-11-06T00:00:00",
+    "ultimo_not_after": "2026-12-07T23:59:59"
+   },
+   {
+    "host": "clienteonline.bancoejemplo.cl",
+    "clases": [],
+    "profundo": false,
+    "etiqueta_estricta": true,
+    "ultimo_not_before": "2026-09-29T19:28:51",
+    "ultimo_not_after": "2027-03-17T23:59:59"
+   },
+   {
+    "host": "clientepyme.bancoejemplo.cl",
+    "clases": [],
+    "profundo": false,
+    "etiqueta_estricta": true,
+    "ultimo_not_before": "2026-09-29T19:28:51",
+    "ultimo_not_after": "2026-12-28T19:28:50"
+   },
+   {
+    "host": "cloud.banca.bancoejemplo.cl",
+    "clases": [
+     "critico"
+    ],
+    "profundo": true,
+    "etiqueta_estricta": true,
+    "ultimo_not_before": "2026-09-15T00:00:00",
+    "ultimo_not_after": "2027-04-01T23:59:59"
+   },
+   {
+    "host": "cloud.risk.bancoejemplo.cl",
+    "clases": [],
+    "profundo": true,
+    "etiqueta_estricta": true,
+    "ultimo_not_before": "2025-11-06T00:00:00",
+    "ultimo_not_after": "2026-12-07T23:59:59"
+   },
+   {
+    "host": "clsfbaccess.bancoejemplo.cl",
+    "clases": [],
+    "profundo": false,
+    "etiqueta_estricta": true,
+    "ultimo_not_before": "2019-08-13T00:00:00",
+    "ultimo_not_after": "2020-09-11T12:00:00"
+   },
+   {
+    "host": "club.bancoejemplo.cl",
+    "clases": [],
+    "profundo": false,
+    "etiqueta_estricta": true,
+    "ultimo_not_before": "2024-06-19T06:47:34",
+    "ultimo_not_after": "2025-06-19T06:47:32"
+   },
+   {
+    "host": "clwconaccess.bancoejemplo.cl",
+    "clases": [],
+    "profundo": false,
+    "etiqueta_estricta": true,
+    "ultimo_not_before": "2019-08-13T00:00:00",
+    "ultimo_not_after": "2020-09-11T12:00:00"
+   },
+   {
+    "host": "cmg.bancoejemplo.cl",
+    "clases": [],
+    "profundo": false,
+    "etiqueta_estricta": true,
+    "ultimo_not_before": "2020-07-15T00:00:00",
+    "ultimo_not_after": "2021-07-16T12:00:00"
+   },
+   {
+    "host": "cmgprochl.bancoejemplo.cl",
+    "clases": [],
+    "profundo": false,
+    "etiqueta_estricta": true,
+    "ultimo_not_before": "2026-05-07T00:00:00",
+    "ultimo_not_after": "2026-11-21T23:59:59"
+   },
+   {
+    "host": "cmgprochlnew.bancoejemplo.cl",
+    "clases": [],
+    "profundo": false,
+    "etiqueta_estricta": true,
+    "ultimo_not_before": "2024-05-14T15:01:14",
+    "ultimo_not_after": "2025-05-14T15:01:13"
+   },
+   {
+    "host": "comex.bancoejemplo.cl",
+    "clases": [],
+    "profundo": false,
+    "etiqueta_estricta": true,
+    "ultimo_not_before": "2019-09-02T00:00:00",
+    "ultimo_not_after": "2020-05-27T12:00:00"
+   },
+   {
+    "host": "comitefiscalia.extranetbancoejemplo.cl",
+    "clases": [],
+    "profundo": false,
+    "etiqueta_estricta": false,
+    "ultimo_not_before": "2019-12-10T00:00:00",
+    "ultimo_not_after": "2020-10-21T12:00:00"
+   },
+   {
+    "host": "comunidadesworkcafe.bancoejemplo.cl",
+    "clases": [],
+    "profundo": false,
+    "etiqueta_estricta": true,
+    "ultimo_not_before": "2022-08-16T00:00:00",
+    "ultimo_not_after": "2023-08-16T23:59:59"
+   },
+   {
+    "host": "contacto.rvbancoejemplo.cl",
+    "clases": [],
+    "profundo": false,
+    "etiqueta_estricta": false,
+    "ultimo_not_before": "2026-09-29T19:28:51",
+    "ultimo_not_after": "2026-12-28T19:28:50"
+   },
+   {
+    "host": "controljuicios-h.extranetbancoejemplo.cl",
+    "clases": [],
+    "profundo": false,
+    "etiqueta_estricta": false,
+    "ultimo_not_before": "2023-08-14T00:00:00",
+    "ultimo_not_after": "2024-08-16T23:59:59"
+   },
+   {
+    "host": "controljuicios.extranetbancoejemplo.cl",
+    "clases": [],
+    "profundo": false,
+    "etiqueta_estricta": false,
+    "ultimo_not_before": "2026-08-31T00:00:00",
+    "ultimo_not_after": "2027-03-17T23:59:59"
+   },
+   {
+    "host": "controllerworkcafe.bancoejemplo.cl",
+    "clases": [],
+    "profundo": false,
+    "etiqueta_estricta": true,
+    "ultimo_not_before": "2019-03-08T00:00:00",
+    "ultimo_not_after": "2020-03-12T12:00:00"
+   },
+   {
+    "host": "convenios.bancoejemplo.cl",
+    "clases": [],
+    "profundo": false,
+    "etiqueta_estricta": true,
+    "ultimo_not_before": "2026-08-31T00:00:00",
+    "ultimo_not_after": "2027-03-17T23:59:59"
+   },
+   {
+    "host": "ctx.extranetbancoejemplo.cl",
+    "clases": [],
+    "profundo": false,
+    "etiqueta_estricta": false,
+    "ultimo_not_before": "2019-12-10T00:00:00",
+    "ultimo_not_after": "2020-10-21T12:00:00"
+   },
+   {
+    "host": "data.comunicaciones.bancoejemplo.cl",
+    "clases": [],
+    "profundo": true,
+    "etiqueta_estricta": true,
+    "ultimo_not_before": "2026-08-27T00:00:00",
+    "ultimo_not_after": "2027-03-13T23:59:59"
+   },
+   {
+    "host": "dealers.bancoejemplo.cl",
+    "clases": [],
+    "profundo": false,
+    "etiqueta_estricta": true,
+    "ultimo_not_before": "2024-11-20T00:00:00",
+    "ultimo_not_after": "2025-11-20T23:59:59"
+   },
+   {
+    "host": "developer.bancoejemplo.cl",
+    "clases": [],
+    "profundo": false,
+    "etiqueta_estricta": true,
+    "ultimo_not_before": "2021-08-03T00:00:00",
+    "ultimo_not_after": "2022-08-18T23:59:59"
+   },
+   {
+    "host": "dialin.bancoejemplo.cl",
+    "clases": [],
+    "profundo": false,
+    "etiqueta_estricta": true,
+    "ultimo_not_before": "2023-08-14T00:00:00",
+    "ultimo_not_after": "2024-08-16T23:59:59"
+   },
+   {
+    "host": "empleos.bancoejemplo.cl",
+    "clases": [],
+    "profundo": false,
+    "etiqueta_estricta": true,
+    "ultimo_not_before": "2026-09-29T19:28:51",
+    "ultimo_not_after": "2026-12-28T19:28:50"
+   },
+   {
+    "host": "extranet.grupobancoejemplo.cl",
+    "clases": [],
+    "profundo": false,
+    "etiqueta_estricta": false,
+    "ultimo_not_before": "2026-08-31T00:00:00",
+    "ultimo_not_after": "2027-03-17T23:59:59"
+   },
+   {
+    "host": "extranetbancoejemplo.cl",
+    "clases": [],
+    "profundo": false,
+    "etiqueta_estricta": false,
+    "ultimo_not_before": "2026-08-31T00:00:00",
+    "ultimo_not_after": "2027-03-17T23:59:59"
+   },
+   {
+    "host": "fatca.bancoejemplo.cl",
+    "clases": [],
+    "profundo": false,
+    "etiqueta_estricta": true,
+    "ultimo_not_before": "2021-11-19T00:00:00",
+    "ultimo_not_after": "2022-12-20T23:59:59"
+   },
+   {
+    "host": "fichaclientes.rvbancoejemplo.cl",
+    "clases": [],
+    "profundo": false,
+    "etiqueta_estricta": false,
+    "ultimo_not_before": "2026-09-29T19:28:51",
+    "ultimo_not_after": "2026-12-28T19:28:50"
+   },
+   {
+    "host": "filemanagerapi.extranetbancoejemplo.cl",
+    "clases": [],
+    "profundo": false,
+    "etiqueta_estricta": false,
+    "ultimo_not_before": "2022-08-16T00:00:00",
+    "ultimo_not_after": "2023-08-16T23:59:59"
+   },
+   {
+    "host": "firmas.bancoejemplo.cl",
+    "clases": [],
+    "profundo": false,
+    "etiqueta_estricta": true,
+    "ultimo_not_before": "2025-07-31T00:00:00",
+    "ultimo_not_after": "2026-07-31T23:59:59"
+   },
+   {
+    "host": "fogape.bancoejemplo.cl",
+    "clases": [],
+    "profundo": false,
+    "etiqueta_estricta": true,
+    "ultimo_not_before": "2021-04-06T00:00:00",
+    "ultimo_not_after": "2022-05-07T23:59:59"
+   },
+   {
+    "host": "fxenlinea.bancoejemplo.cl",
+    "clases": [],
+    "profundo": false,
+    "etiqueta_estricta": true,
+    "ultimo_not_before": "2023-08-14T00:00:00",
+    "ultimo_not_after": "2024-08-16T23:59:59"
+   },
+   {
+    "host": "gestioninmobiliaria.bancoejemplo.cl",
+    "clases": [],
+    "profundo": false,
+    "etiqueta_estricta": true,
+    "ultimo_not_before": "2026-09-29T19:28:51",
+    "ultimo_not_after": "2027-03-19T23:59:59"
+   },
+   {
+    "host": "getnet.bancoejemplo.cl",
+    "clases": [],
+    "profundo": false,
+    "etiqueta_estricta": true,
+    "ultimo_not_before": "2026-09-29T19:28:51",
+    "ultimo_not_after": "2026-12-28T19:28:50"
+   },
+   {
+    "host": "gwsmtp1.bancoejemplo.cl",
+    "clases": [],
+    "profundo": false,
+    "etiqueta_estricta": true,
+    "ultimo_not_before": "2018-12-18T00:00:00",
+    "ultimo_not_after": "2020-01-05T12:00:00"
+   },
+   {
+    "host": "gwsmtp2.bancoejemplo.cl",
+    "clases": [],
+    "profundo": false,
+    "etiqueta_estricta": true,
+    "ultimo_not_before": "2018-12-18T00:00:00",
+    "ultimo_not_after": "2020-01-05T12:00:00"
+   },
+   {
+    "host": "habilitacliente.extranetbancoejemplo.cl",
+    "clases": [],
+    "profundo": false,
+    "etiqueta_estricta": false,
+    "ultimo_not_before": "2023-08-14T00:00:00",
+    "ultimo_not_after": "2024-08-16T23:59:59"
+   },
+   {
+    "host": "hpbsm.extranetbancoejemplo.cl",
+    "clases": [],
+    "profundo": false,
+    "etiqueta_estricta": false,
+    "ultimo_not_before": "2023-08-14T00:00:00",
+    "ultimo_not_after": "2024-08-16T23:59:59"
+   },
+   {
+    "host": "image.banca.bancoejemplo.cl",
+    "clases": [
+     "critico"
+    ],
+    "profundo": true,
+    "etiqueta_estricta": true,
+    "ultimo_not_before": "2025-12-04T00:00:00",
+    "ultimo_not_after": "2027-01-04T23:59:59"
+   },
+   {
+    "host": "image.risk.bancoejemplo.cl",
+    "clases": [],
+    "profundo": true,
+    "etiqueta_estricta": true,
+    "ultimo_not_before": "2026-02-12T00:00:00",
+    "ultimo_not_after": "2027-03-15T23:59:59"
+   },
+   {
+    "host": "imagenenmail.bancoejemplo.cl",
+    "clases": [],
+    "profundo": false,
+    "etiqueta_estricta": true,
+    "ultimo_not_before": "2026-09-02T05:27:44",
+    "ultimo_not_after": "2027-01-06T23:59:59"
+   },
+   {
+    "host": "imagenes.bancoejemplo.cl",
+    "clases": [],
+    "profundo": false,
+    "etiqueta_estricta": true,
+    "ultimo_not_before": "2026-10-09T00:00:00",
+    "ultimo_not_after": "2027-04-25T23:59:59"
+   },
+   {
+    "host": "inversiones.bancoejemplo.cl",
+    "clases": [],
+    "profundo": false,
+    "etiqueta_estricta": true,
+    "ultimo_not_before": "2023-08-14T00:00:00",
+    "ultimo_not_after": "2024-08-16T23:59:59"
+   },
+   {
+    "host": "invm.bancoejemplo.cl",
+    "clases": [],
+    "profundo": false,
+    "etiqueta_estricta": true,
+    "ultimo_not_before": "2020-02-21T00:00:00",
+    "ultimo_not_after": "2021-03-01T12:00:00"
+   },
+   {
+    "host": "ir.bancoejemplo.cl",
+    "clases": [],
+    "profundo": false,
+    "etiqueta_estricta": true,
+    "ultimo_not_before": "2026-01-26T00:23:56",
+    "ultimo_not_after": "2026-12-12T23:59:59"
+   },
+   {
+    "host": "ive.grupobancoejemplo.cl",
+    "clases": [],
+    "profundo": false,
+    "etiqueta_estricta": false,
+    "ultimo_not_before": "2019-09-04T00:00:00",
+    "ultimo_not_after": "2020-05-27T12:00:00"
+   },
+   {
+    "host": "log-7b4df495.bancoejemplo.cl",
+    "clases": [],
+    "profundo": false,
+    "etiqueta_estricta": true,
+    "ultimo_not_before": "2025-11-25T00:00:00",
+    "ultimo_not_after": "2026-11-25T23:59:59"
+   },
+   {
+    "host": "loginintervencion.bancoejemplo.cl",
+    "clases": [],
+    "profundo": false,
+    "etiqueta_estricta": true,
+    "ultimo_not_before": "2021-10-04T00:00:00",
+    "ultimo_not_after": "2022-10-04T23:59:59"
+   },
+   {
+    "host": "lyncdiscover.bancoejemplo.cl",
+    "clases": [],
+    "profundo": false,
+    "etiqueta_estricta": true,
+    "ultimo_not_before": "2019-08-13T00:00:00",
+    "ultimo_not_after": "2020-09-11T12:00:00"
+   },
+   {
+    "host": "mail.corp.bancoejemplo.cl",
+    "clases": [
+     "infra_expuesta"
+    ],
+    "profundo": true,
+    "etiqueta_estricta": true,
+    "ultimo_not_before": "2025-11-25T00:00:00",
+    "ultimo_not_after": "2026-11-25T23:59:59"
+   },
+   {
+    "host": "mail.extranetbancoejemplo.cl",
+    "clases": [
+     "infra_expuesta"
+    ],
+    "profundo": false,
+    "etiqueta_estricta": false,
+    "ultimo_not_before": "2023-08-14T00:00:00",
+    "ultimo_not_after": "2024-08-16T23:59:59"
+   },
+   {
+    "host": "mail01.dte.bancoejemplo.cl",
+    "clases": [],
+    "profundo": true,
+    "etiqueta_estricta": true,
+    "ultimo_not_before": "2018-06-18T00:00:00",
+    "ultimo_not_after": "2019-06-19T12:00:00"
+   },
+   {
+    "host": "mail02.dte.bancoejemplo.cl",
+    "clases": [],
+    "profundo": true,
+    "etiqueta_estricta": true,
+    "ultimo_not_before": "2018-06-18T00:00:00",
+    "ultimo_not_after": "2019-06-19T12:00:00"
+   },
+   {
+    "host": "mail1.bancoejemplo.cl",
+    "clases": [],
+    "profundo": false,
+    "etiqueta_estricta": true,
+    "ultimo_not_before": "2021-11-19T00:00:00",
+    "ultimo_not_after": "2022-12-20T23:59:59"
+   },
+   {
+    "host": "mail2.bancoejemplo.cl",
+    "clases": [],
+    "profundo": false,
+    "etiqueta_estricta": true,
+    "ultimo_not_before": "2021-11-19T00:00:00",
+    "ultimo_not_after": "2022-12-20T23:59:59"
+   },
+   {
+    "host": "mail3.bancoejemplo.cl",
+    "clases": [],
+    "profundo": false,
+    "etiqueta_estricta": true,
+    "ultimo_not_before": "2021-11-19T00:00:00",
+    "ultimo_not_after": "2022-12-20T23:59:59"
+   },
+   {
+    "host": "mail4.bancoejemplo.cl",
+    "clases": [],
+    "profundo": false,
+    "etiqueta_estricta": true,
+    "ultimo_not_before": "2021-11-19T00:00:00",
+    "ultimo_not_after": "2022-12-20T23:59:59"
+   },
+   {
+    "host": "mail5.bancoejemplo.cl",
+    "clases": [],
+    "profundo": false,
+    "etiqueta_estricta": true,
+    "ultimo_not_before": "2021-11-19T00:00:00",
+    "ultimo_not_after": "2022-12-20T23:59:59"
+   },
+   {
+    "host": "mail6.bancoejemplo.cl",
+    "clases": [],
+    "profundo": false,
+    "etiqueta_estricta": true,
+    "ultimo_not_before": "2021-11-19T00:00:00",
+    "ultimo_not_after": "2022-12-20T23:59:59"
+   },
+   {
+    "host": "mdescl.bancoejemplo.cl",
+    "clases": [],
+    "profundo": false,
+    "etiqueta_estricta": true,
+    "ultimo_not_before": "2022-11-26T00:00:00",
+    "ultimo_not_after": "2023-11-07T23:59:59"
+   },
+   {
+    "host": "mds.extranetbancoejemplo.cl",
+    "clases": [],
+    "profundo": false,
+    "etiqueta_estricta": false,
+    "ultimo_not_before": "2019-10-22T00:00:00",
+    "ultimo_not_after": "2020-10-21T12:00:00"
+   },
+   {
+    "host": "meet.bancoejemplo.cl",
+    "clases": [],
+    "profundo": false,
+    "etiqueta_estricta": true,
+    "ultimo_not_before": "2019-08-13T00:00:00",
+    "ultimo_not_after": "2020-09-11T12:00:00"
+   },
+   {
+    "host": "meritolife.bancoejemplo.cl",
+    "clases": [],
+    "profundo": false,
+    "etiqueta_estricta": true,
+    "ultimo_not_before": "2023-08-14T00:00:00",
+    "ultimo_not_after": "2024-08-16T23:59:59"
+   },
+   {
+    "host": "mfamapp.corp.bancoejemplo.cl",
+    "clases": [],
+    "profundo": true,
+    "etiqueta_estricta": true,
+    "ultimo_not_before": "2018-05-07T00:00:00",
+    "ultimo_not_after": "2019-05-08T12:00:00"
+   },
+   {
+    "host": "mg.extranetbancoejemplo.cl",
+    "clases": [],
+    "profundo": false,
+    "etiqueta_estricta": false,
+    "ultimo_not_before": "2019-10-22T00:00:00",
+    "ultimo_not_after": "2020-10-21T12:00:00"
+   },
+   {
+    "host": "mibanco.hy.bancoejemplo.cl",
+    "clases": [],
+    "profundo": true,
+    "etiqueta_estricta": true,
+    "ultimo_not_before": "2026-09-03T00:00:00",
+    "ultimo_not_after": "2027-03-19T23:59:59"
+   },
+   {
+    "host": "mibanco.bancoejemplo.cl",
+    "clases": [],
+    "profundo": false,
+    "etiqueta_estricta": true,
+    "ultimo_not_before": "2026-09-29T19:28:51",
+    "ultimo_not_after": "2026-12-28T19:28:50"
+   },
+   {
+    "host": "mibanco.wp.bancoejemplo.cl",
+    "clases": [],
+    "profundo": true,
+    "etiqueta_estricta": true,
+    "ultimo_not_before": "2026-07-20T00:00:00",
+    "ultimo_not_after": "2027-02-02T23:59:59"
+   },
+   {
+    "host": "micorreo.bancoejemplo.cl",
+    "clases": [],
+    "profundo": false,
+    "etiqueta_estricta": true,
+    "ultimo_not_before": "2019-09-04T00:00:00",
+    "ultimo_not_after": "2020-05-27T12:00:00"
+   },
+   {
+    "host": "mibancoejemplo.extranetbancoejemplo.cl",
+    "clases": [],
+    "profundo": false,
+    "etiqueta_estricta": false,
+    "ultimo_not_before": "2022-08-16T00:00:00",
+    "ultimo_not_after": "2023-08-16T23:59:59"
+   },
+   {
+    "host": "mob.extranetbancoejemplo.cl",
+    "clases": [],
+    "profundo": false,
+    "etiqueta_estricta": false,
+    "ultimo_not_before": "2019-12-10T00:00:00",
+    "ultimo_not_after": "2020-10-21T12:00:00"
+   },
+   {
+    "host": "mov.bancoejemplo.cl",
+    "clases": [],
+    "profundo": false,
+    "etiqueta_estricta": true,
+    "ultimo_not_before": "2023-08-14T00:00:00",
+    "ultimo_not_after": "2024-08-16T23:59:59"
+   },
+   {
+    "host": "movil.bancoejemplo.cl",
+    "clases": [],
+    "profundo": false,
+    "etiqueta_estricta": true,
+    "ultimo_not_before": "2026-09-29T19:28:51",
+    "ultimo_not_after": "2026-12-28T19:28:50"
+   },
+   {
+    "host": "neobei.bancoejemplo.cl",
+    "clases": [],
+    "profundo": false,
+    "etiqueta_estricta": true,
+    "ultimo_not_before": "2026-04-20T00:00:00",
+    "ultimo_not_after": "2026-11-04T23:59:59"
+   },
+   {
+    "host": "neoconnect.extranetbancoejemplo.cl",
+    "clases": [],
+    "profundo": false,
+    "etiqueta_estricta": false,
+    "ultimo_not_before": "2026-08-31T00:00:00",
+    "ultimo_not_after": "2027-03-17T23:59:59"
+   },
+   {
+    "host": "neoconnect.bancoejemplo.cl",
+    "clases": [],
+    "profundo": false,
+    "etiqueta_estricta": true,
+    "ultimo_not_before": "2019-12-10T00:00:00",
+    "ultimo_not_after": "2020-10-21T12:00:00"
+   },
+   {
+    "host": "odsapi.bancoejemplo.cl",
+    "clases": [],
+    "profundo": false,
+    "etiqueta_estricta": true,
+    "ultimo_not_before": "2026-09-29T19:28:51",
+    "ultimo_not_after": "2027-04-14T23:59:59"
+   },
+   {
+    "host": "openbanking.bancoejemplo.cl",
+    "clases": [],
+    "profundo": false,
+    "etiqueta_estricta": true,
+    "ultimo_not_before": "2026-09-29T19:28:51",
+    "ultimo_not_after": "2027-01-15T23:59:59"
+   },
+   {
+    "host": "openfinance-desa.bancoejemplo.cl",
+    "clases": [],
+    "profundo": false,
+    "etiqueta_estricta": true,
+    "ultimo_not_before": "2026-09-10T14:57:17",
+    "ultimo_not_after": "2026-12-09T14:57:16"
+   },
+   {
+    "host": "pagos.bancoejemplo.cl",
+    "clases": [
+     "critico"
+    ],
+    "profundo": false,
+    "etiqueta_estricta": true,
+    "ultimo_not_before": "2026-09-29T19:28:51",
+    "ultimo_not_after": "2027-03-17T23:59:59"
+   },
+   {
+    "host": "pcanaltf.bancoejemplo.cl",
+    "clases": [],
+    "profundo": false,
+    "etiqueta_estricta": true,
+    "ultimo_not_before": "2022-10-18T00:00:00",
+    "ultimo_not_after": "2023-10-18T23:59:59"
+   },
+   {
+    "host": "personas.bancoejemplo.cl",
+    "clases": [],
+    "profundo": false,
+    "etiqueta_estricta": true,
+    "ultimo_not_before": "2026-08-31T00:00:00",
+    "ultimo_not_after": "2027-03-17T23:59:59"
+   },
+   {
+    "host": "practicas.bancoejemplo.cl",
+    "clases": [],
+    "profundo": false,
+    "etiqueta_estricta": true,
+    "ultimo_not_before": "2022-11-14T11:49:36",
+    "ultimo_not_after": "2023-02-12T11:49:35"
+   },
+   {
+    "host": "pre.fxenlinea.bancoejemplo.cl",
+    "clases": [
+     "no_productivo"
+    ],
+    "profundo": true,
+    "etiqueta_estricta": true,
+    "ultimo_not_before": "2024-09-23T00:00:00",
+    "ultimo_not_after": "2025-09-23T23:59:59"
+   },
+   {
+    "host": "privatebanking.bancoejemplo.cl",
+    "clases": [],
+    "profundo": false,
+    "etiqueta_estricta": true,
+    "ultimo_not_before": "2025-10-15T00:00:00",
+    "ultimo_not_after": "2026-10-15T23:59:59"
+   },
+   {
+    "host": "productos.rvbancoejemplo.cl",
+    "clases": [],
+    "profundo": false,
+    "etiqueta_estricta": false,
+    "ultimo_not_before": "2026-09-29T19:28:51",
+    "ultimo_not_after": "2026-12-28T19:28:50"
+   },
+   {
+    "host": "pulsogestion.extranetbancoejemplo.cl",
+    "clases": [],
+    "profundo": false,
+    "etiqueta_estricta": false,
+    "ultimo_not_before": "2019-09-04T00:00:00",
+    "ultimo_not_after": "2020-05-27T12:00:00"
+   },
+   {
+    "host": "ra.extranetbancoejemplo.cl",
+    "clases": [],
+    "profundo": false,
+    "etiqueta_estricta": false,
+    "ultimo_not_before": "2019-10-22T00:00:00",
+    "ultimo_not_after": "2020-10-21T12:00:00"
+   },
+   {
+    "host": "ripple-fxt.bancoejemplo.cl",
+    "clases": [],
+    "profundo": false,
+    "etiqueta_estricta": true,
+    "ultimo_not_before": "2022-02-01T00:00:00",
+    "ultimo_not_after": "2023-03-04T23:59:59"
+   },
+   {
+    "host": "ripple-ldg.bancoejemplo.cl",
+    "clases": [],
+    "profundo": false,
+    "etiqueta_estricta": true,
+    "ultimo_not_before": "2022-02-01T00:00:00",
+    "ultimo_not_after": "2023-03-04T23:59:59"
+   },
+   {
+    "host": "ripple-msg.bancoejemplo.cl",
+    "clases": [],
+    "profundo": false,
+    "etiqueta_estricta": true,
+    "ultimo_not_before": "2022-02-01T00:00:00",
+    "ultimo_not_after": "2023-03-04T23:59:59"
+   },
+   {
+    "host": "ripple-val.bancoejemplo.cl",
+    "clases": [],
+    "profundo": false,
+    "etiqueta_estricta": true,
+    "ultimo_not_before": "2022-02-01T00:00:00",
+    "ultimo_not_after": "2023-03-04T23:59:59"
+   },
+   {
+    "host": "ripplenet.bancoejemplo.cl",
+    "clases": [],
+    "profundo": false,
+    "etiqueta_estricta": true,
+    "ultimo_not_before": "2026-10-15T00:00:00",
+    "ultimo_not_after": "2027-05-01T23:59:59"
+   },
+   {
+    "host": "root-certificate-cws-prd.bancoejemplo.cl",
+    "clases": [],
+    "profundo": false,
+    "etiqueta_estricta": true,
+    "ultimo_not_before": "2022-01-28T00:00:00",
+    "ultimo_not_after": "2023-02-16T23:59:59"
+   },
+   {
+    "host": "root-certificate-stm-prd.bancoejemplo.cl",
+    "clases": [],
+    "profundo": false,
+    "etiqueta_estricta": true,
+    "ultimo_not_before": "2022-01-28T00:00:00",
+    "ultimo_not_after": "2023-02-16T23:59:59"
+   },
+   {
+    "host": "saladecomunicacion.bancoejemplo.cl",
+    "clases": [],
+    "profundo": false,
+    "etiqueta_estricta": true,
+    "ultimo_not_before": "2026-09-29T19:28:51",
+    "ultimo_not_after": "2027-02-10T23:59:59"
+   },
+   {
+    "host": "bancoejemplo.cl",
+    "clases": [],
+    "profundo": false,
+    "etiqueta_estricta": true,
+    "ultimo_not_before": "2026-08-31T00:00:00",
+    "ultimo_not_after": "2027-06-11T17:38:18"
+   },
+   {
+    "host": "sbcchldcpri.bancoejemplo.cl",
+    "clases": [],
+    "profundo": false,
+    "etiqueta_estricta": true,
+    "ultimo_not_before": "2025-09-23T00:00:00",
+    "ultimo_not_after": "2026-09-23T23:59:59"
+   },
+   {
+    "host": "sbcchldcsec.bancoejemplo.cl",
+    "clases": [],
+    "profundo": false,
+    "etiqueta_estricta": true,
+    "ultimo_not_before": "2025-06-06T00:00:00",
+    "ultimo_not_after": "2026-06-06T23:59:59"
+   },
+   {
+    "host": "seguros.bancoejemplo.cl",
+    "clases": [],
+    "profundo": false,
+    "etiqueta_estricta": true,
+    "ultimo_not_before": "2023-08-14T00:00:00",
+    "ultimo_not_after": "2024-08-16T23:59:59"
+   },
+   {
+    "host": "sistemajudicial.extranetbancoejemplo.cl",
+    "clases": [],
+    "profundo": false,
+    "etiqueta_estricta": false,
+    "ultimo_not_before": "2026-09-29T19:28:51",
+    "ultimo_not_after": "2026-12-28T19:28:50"
+   },
+   {
+    "host": "sitioprivado.rvbancoejemplo.cl",
+    "clases": [],
+    "profundo": false,
+    "etiqueta_estricta": false,
+    "ultimo_not_before": "2026-09-29T19:28:51",
+    "ultimo_not_after": "2026-12-28T19:28:50"
+   },
+   {
+    "host": "smtp.corp.bancoejemplo.cl",
+    "clases": [
+     "infra_expuesta"
+    ],
+    "profundo": true,
+    "etiqueta_estricta": true,
+    "ultimo_not_before": "2025-11-25T00:00:00",
+    "ultimo_not_after": "2026-11-25T23:59:59"
+   },
+   {
+    "host": "socypoderes.extranetbancoejemplo.cl",
+    "clases": [],
+    "profundo": false,
+    "etiqueta_estricta": false,
+    "ultimo_not_before": "2026-09-29T19:28:51",
+    "ultimo_not_after": "2027-03-17T23:59:59"
+   },
+   {
+    "host": "solicitudtarjeta.bancoejemplo.cl",
+    "clases": [],
+    "profundo": false,
+    "etiqueta_estricta": true,
+    "ultimo_not_before": "2026-09-29T19:28:51",
+    "ultimo_not_after": "2026-12-28T19:28:50"
+   },
+   {
+    "host": "sst.bancoejemplo.cl",
+    "clases": [],
+    "profundo": false,
+    "etiqueta_estricta": true,
+    "ultimo_not_before": "2026-08-31T00:00:00",
+    "ultimo_not_after": "2027-03-17T23:59:59"
+   },
+   {
+    "host": "sst2.bancoejemplo.cl",
+    "clases": [],
+    "profundo": false,
+    "etiqueta_estricta": true,
+    "ultimo_not_before": "2026-09-29T19:28:51",
+    "ultimo_not_after": "2027-02-11T23:59:59"
+   },
+   {
+    "host": "stmcl.bancoejemplo.cl",
+    "clases": [],
+    "profundo": false,
+    "etiqueta_estricta": true,
+    "ultimo_not_before": "2022-10-17T00:00:00",
+    "ultimo_not_after": "2023-11-09T23:59:59"
+   },
+   {
+    "host": "superpuntos.bancoejemplo.cl",
+    "clases": [],
+    "profundo": false,
+    "etiqueta_estricta": true,
+    "ultimo_not_before": "2019-12-10T00:00:00",
+    "ultimo_not_after": "2020-12-21T12:00:00"
+   },
+   {
+    "host": "tasaciones-h.extranetbancoejemplo.cl",
+    "clases": [],
+    "profundo": false,
+    "etiqueta_estricta": false,
+    "ultimo_not_before": "2019-10-22T00:00:00",
+    "ultimo_not_after": "2020-10-21T12:00:00"
+   },
+   {
+    "host": "tasaciones.extranetbancoejemplo.cl",
+    "clases": [],
+    "profundo": false,
+    "etiqueta_estricta": false,
+    "ultimo_not_before": "2026-09-29T19:28:51",
+    "ultimo_not_after": "2027-03-17T23:59:59"
+   },
+   {
+    "host": "tienda.bancoejemplo.cl",
+    "clases": [],
+    "profundo": false,
+    "etiqueta_estricta": true,
+    "ultimo_not_before": "2026-09-29T19:28:51",
+    "ultimo_not_after": "2027-03-03T23:59:59"
+   },
+   {
+    "host": "trf.bancoejemplo.cl",
+    "clases": [],
+    "profundo": false,
+    "etiqueta_estricta": true,
+    "ultimo_not_before": "2017-09-13T00:00:00",
+    "ultimo_not_after": "2018-09-13T23:59:59"
+   },
+   {
+    "host": "trt.bancoejemplo.cl",
+    "clases": [],
+    "profundo": false,
+    "etiqueta_estricta": true,
+    "ultimo_not_before": "2017-09-13T00:00:00",
+    "ultimo_not_after": "2018-09-13T23:59:59"
+   },
+   {
+    "host": "tru.bancoejemplo.cl",
+    "clases": [],
+    "profundo": false,
+    "etiqueta_estricta": true,
+    "ultimo_not_before": "2017-09-13T00:00:00",
+    "ultimo_not_after": "2018-09-13T23:59:59"
+   },
+   {
+    "host": "tst.bancoejemplo.cl",
+    "clases": [],
+    "profundo": false,
+    "etiqueta_estricta": true,
+    "ultimo_not_before": "2017-09-13T00:00:00",
+    "ultimo_not_after": "2018-09-13T23:59:59"
+   },
+   {
+    "host": "uns.comunicaciones.bancoejemplo.cl",
+    "clases": [],
+    "profundo": true,
+    "etiqueta_estricta": true,
+    "ultimo_not_before": "2026-10-01T00:00:00",
+    "ultimo_not_after": "2027-04-17T23:59:59"
+   },
+   {
+    "host": "vdi.extranetbancoejemplo.cl",
+    "clases": [],
+    "profundo": false,
+    "etiqueta_estricta": false,
+    "ultimo_not_before": "2019-12-10T00:00:00",
+    "ultimo_not_after": "2020-10-21T12:00:00"
+   },
+   {
+    "host": "view.banca.bancoejemplo.cl",
+    "clases": [
+     "critico"
+    ],
+    "profundo": true,
+    "etiqueta_estricta": true,
+    "ultimo_not_before": "2026-09-15T00:00:00",
+    "ultimo_not_after": "2027-04-01T23:59:59"
+   },
+   {
+    "host": "view.risk.bancoejemplo.cl",
+    "clases": [],
+    "profundo": true,
+    "etiqueta_estricta": true,
+    "ultimo_not_before": "2025-11-06T00:00:00",
+    "ultimo_not_after": "2026-12-07T23:59:59"
+   },
+   {
+    "host": "vun.extranetbancoejemplo.cl",
+    "clases": [],
+    "profundo": false,
+    "etiqueta_estricta": false,
+    "ultimo_not_before": "2019-10-22T00:00:00",
+    "ultimo_not_after": "2020-10-21T12:00:00"
+   },
+   {
+    "host": "vunchart.extranetbancoejemplo.cl",
+    "clases": [],
+    "profundo": false,
+    "etiqueta_estricta": false,
+    "ultimo_not_before": "2022-08-16T00:00:00",
+    "ultimo_not_after": "2023-08-16T23:59:59"
+   },
+   {
+    "host": "wallet.bancoejemplo.cl",
+    "clases": [],
+    "profundo": false,
+    "etiqueta_estricta": true,
+    "ultimo_not_before": "2023-08-14T00:00:00",
+    "ultimo_not_after": "2024-08-16T23:59:59"
+   },
+   {
+    "host": "webappcomitev2.extranetbancoejemplo.cl",
+    "clases": [],
+    "profundo": false,
+    "etiqueta_estricta": false,
+    "ultimo_not_before": "2019-12-10T00:00:00",
+    "ultimo_not_after": "2020-10-21T12:00:00"
+   },
+   {
+    "host": "whu.grupobancoejemplo.cl",
+    "clases": [],
+    "profundo": false,
+    "etiqueta_estricta": false,
+    "ultimo_not_before": "2022-08-16T00:00:00",
+    "ultimo_not_after": "2023-08-16T23:59:59"
+   },
+   {
+    "host": "whu.bancoejemplo.cl",
+    "clases": [],
+    "profundo": false,
+    "etiqueta_estricta": true,
+    "ultimo_not_before": "2026-09-29T19:28:51",
+    "ultimo_not_after": "2027-03-05T23:59:59"
+   },
+   {
+    "host": "workcafe-adx.bancoejemplo.cl",
+    "clases": [],
+    "profundo": false,
+    "etiqueta_estricta": true,
+    "ultimo_not_before": "2022-10-17T00:00:00",
+    "ultimo_not_after": "2023-10-19T23:59:59"
+   },
+   {
+    "host": "workcafe.bancoejemplo.cl",
+    "clases": [],
+    "profundo": false,
+    "etiqueta_estricta": true,
+    "ultimo_not_before": "2023-08-14T00:00:00",
+    "ultimo_not_after": "2024-08-16T23:59:59"
+   },
+   {
+    "host": "ws.bancoejemplo.cl",
+    "clases": [],
+    "profundo": false,
+    "etiqueta_estricta": true,
+    "ultimo_not_before": "2023-08-14T00:00:00",
+    "ultimo_not_after": "2024-08-16T23:59:59"
+   },
+   {
+    "host": "ws2.bancoejemplo.cl",
+    "clases": [],
+    "profundo": false,
+    "etiqueta_estricta": true,
+    "ultimo_not_before": "2019-12-10T00:00:00",
+    "ultimo_not_after": "2020-10-21T12:00:00"
+   },
+   {
+    "host": "wsadfs.corp.bancoejemplo.cl",
+    "clases": [],
+    "profundo": true,
+    "etiqueta_estricta": true,
+    "ultimo_not_before": "2026-08-03T00:00:00",
+    "ultimo_not_after": "2027-02-17T23:59:59"
+   },
+   {
+    "host": "wscargapropuesta.extranetbancoejemplo.cl",
+    "clases": [],
+    "profundo": false,
+    "etiqueta_estricta": false,
+    "ultimo_not_before": "2019-12-10T00:00:00",
+    "ultimo_not_after": "2020-10-21T12:00:00"
+   },
+   {
+    "host": "wshlgu.bancoejemplo.cl",
+    "clases": [],
+    "profundo": false,
+    "etiqueta_estricta": true,
+    "ultimo_not_before": "2024-05-21T07:03:08",
+    "ultimo_not_after": "2025-05-21T07:03:07"
+   },
+   {
+    "host": "wsplgu.bancoejemplo.cl",
+    "clases": [],
+    "profundo": false,
+    "etiqueta_estricta": true,
+    "ultimo_not_before": "2023-09-06T09:10:03",
+    "ultimo_not_after": "2024-09-06T09:10:02"
+   },
+   {
+    "host": "wssfb.bancoejemplo.cl",
+    "clases": [],
+    "profundo": false,
+    "etiqueta_estricta": true,
+    "ultimo_not_before": "2022-08-16T00:00:00",
+    "ultimo_not_after": "2023-08-16T23:59:59"
+   },
+   {
+    "host": "wssfbwac.bancoejemplo.cl",
+    "clases": [],
+    "profundo": false,
+    "etiqueta_estricta": true,
+    "ultimo_not_before": "2019-08-13T00:00:00",
+    "ultimo_not_after": "2020-09-11T12:00:00"
+   },
+   {
+    "host": "wup-7b4df495.bancoejemplo.cl",
+    "clases": [],
+    "profundo": false,
+    "etiqueta_estricta": true,
+    "ultimo_not_before": "2025-11-25T00:00:00",
+    "ultimo_not_after": "2026-11-25T23:59:59"
+   },
+   {
+    "host": "www.academiabancoejemplo.cl",
+    "clases": [],
+    "profundo": false,
+    "etiqueta_estricta": false,
+    "ultimo_not_before": "2024-09-23T00:00:00",
+    "ultimo_not_after": "2025-09-23T23:59:59"
+   },
+   {
+    "host": "www.api-app.bancoejemplo.cl",
+    "clases": [
+     "critico"
+    ],
+    "profundo": true,
+    "etiqueta_estricta": true,
+    "ultimo_not_before": "2026-03-09T00:00:00",
+    "ultimo_not_after": "2027-03-09T23:59:59"
+   },
+   {
+    "host": "www.api-dsk.bancoejemplo.cl",
+    "clases": [
+     "critico"
+    ],
+    "profundo": true,
+    "etiqueta_estricta": true,
+    "ultimo_not_before": "2026-03-05T00:00:00",
+    "ultimo_not_after": "2027-03-05T23:59:59"
+   },
+   {
+    "host": "www.api.bancoejemplo.cl",
+    "clases": [
+     "critico"
+    ],
+    "profundo": true,
+    "etiqueta_estricta": true,
+    "ultimo_not_before": "2026-01-15T00:00:00",
+    "ultimo_not_after": "2027-01-15T23:59:59"
+   },
+   {
+    "host": "www.apideveloper.bancoejemplo.cl",
+    "clases": [],
+    "profundo": true,
+    "etiqueta_estricta": true,
+    "ultimo_not_before": "2026-06-15T00:00:00",
+    "ultimo_not_after": "2026-12-30T23:59:59"
+   },
+   {
+    "host": "www.apifun.bancoejemplo.cl",
+    "clases": [],
+    "profundo": true,
+    "etiqueta_estricta": true,
+    "ultimo_not_before": "2025-11-19T00:00:00",
+    "ultimo_not_after": "2026-11-19T23:59:59"
+   },
+   {
+    "host": "www.apiper.bancoejemplo.cl",
+    "clases": [],
+    "profundo": true,
+    "etiqueta_estricta": true,
+    "ultimo_not_before": "2026-01-15T00:00:00",
+    "ultimo_not_after": "2027-01-15T23:59:59"
+   },
+   {
+    "host": "www.apiter.bancoejemplo.cl",
+    "clases": [],
+    "profundo": true,
+    "etiqueta_estricta": true,
+    "ultimo_not_before": "2026-01-22T00:00:00",
+    "ultimo_not_after": "2027-01-22T23:59:59"
+   },
+   {
+    "host": "www.app-cl.bancoejemplo.cl",
+    "clases": [],
+    "profundo": true,
+    "etiqueta_estricta": true,
+    "ultimo_not_before": "2026-02-17T00:00:00",
+    "ultimo_not_after": "2027-02-17T23:59:59"
+   },
+   {
+    "host": "www.app.bancoejemplo.cl",
+    "clases": [],
+    "profundo": true,
+    "etiqueta_estricta": true,
+    "ultimo_not_before": "2026-05-14T00:00:00",
+    "ultimo_not_after": "2026-11-28T23:59:59"
+   },
+   {
+    "host": "www.autocompara.bancoejemplo.cl",
+    "clases": [],
+    "profundo": true,
+    "etiqueta_estricta": true,
+    "ultimo_not_before": "2026-02-27T00:00:00",
+    "ultimo_not_after": "2027-02-27T23:59:59"
+   },
+   {
+    "host": "www.ayuda.bancoejemplo.cl",
+    "clases": [],
+    "profundo": true,
+    "etiqueta_estricta": true,
+    "ultimo_not_before": "2025-11-19T00:00:00",
+    "ultimo_not_after": "2026-11-19T23:59:59"
+   },
+   {
+    "host": "www.banco.bancoejemplo.cl",
+    "clases": [],
+    "profundo": true,
+    "etiqueta_estricta": true,
+    "ultimo_not_before": "2026-09-28T00:00:00",
+    "ultimo_not_after": "2027-04-14T23:59:59"
+   },
+   {
+    "host": "www.bandera2023ap.bancoejemplo.cl",
+    "clases": [],
+    "profundo": true,
+    "etiqueta_estricta": true,
+    "ultimo_not_before": "2025-12-24T00:00:00",
+    "ultimo_not_after": "2026-12-24T23:59:59"
+   },
+   {
+    "host": "www.bandera2023dk.bancoejemplo.cl",
+    "clases": [],
+    "profundo": true,
+    "etiqueta_estricta": true,
+    "ultimo_not_before": "2025-12-24T00:00:00",
+    "ultimo_not_after": "2026-12-24T23:59:59"
+   },
+   {
+    "host": "www.biocatch.bancoejemplo.cl",
+    "clases": [],
+    "profundo": true,
+    "etiqueta_estricta": true,
+    "ultimo_not_before": "2025-11-25T00:00:00",
+    "ultimo_not_after": "2026-11-25T23:59:59"
+   },
+   {
+    "host": "www.brp.bancoejemplo.cl",
+    "clases": [],
+    "profundo": true,
+    "etiqueta_estricta": true,
+    "ultimo_not_before": "2025-06-12T00:00:00",
+    "ultimo_not_after": "2026-06-12T23:59:59"
+   },
+   {
+    "host": "www.captiveportal.bancoejemplo.cl",
+    "clases": [],
+    "profundo": true,
+    "etiqueta_estricta": true,
+    "ultimo_not_before": "2026-08-11T00:00:00",
+    "ultimo_not_after": "2027-02-25T23:59:59"
+   },
+   {
+    "host": "www.clienteonline.bancoejemplo.cl",
+    "clases": [],
+    "profundo": true,
+    "etiqueta_estricta": true,
+    "ultimo_not_before": "2025-12-03T00:00:00",
+    "ultimo_not_after": "2026-12-03T23:59:59"
+   },
+   {
+    "host": "www.clientepyme.bancoejemplo.cl",
+    "clases": [],
+    "profundo": true,
+    "etiqueta_estricta": true,
+    "ultimo_not_before": "2025-05-07T00:00:00",
+    "ultimo_not_after": "2026-05-07T23:59:59"
+   },
+   {
+    "host": "www.clubbancoejemplo.cl",
+    "clases": [],
+    "profundo": false,
+    "etiqueta_estricta": false,
+    "ultimo_not_before": "2022-08-16T00:00:00",
+    "ultimo_not_after": "2023-08-16T23:59:59"
+   },
+   {
+    "host": "www.cmgprochl.bancoejemplo.cl",
+    "clases": [],
+    "profundo": true,
+    "etiqueta_estricta": true,
+    "ultimo_not_before": "2026-05-07T00:00:00",
+    "ultimo_not_after": "2026-11-21T23:59:59"
+   },
+   {
+    "host": "www.confirmingbancoejemplo.cl",
+    "clases": [],
+    "profundo": false,
+    "etiqueta_estricta": false,
+    "ultimo_not_before": "2026-09-29T19:28:51",
+    "ultimo_not_after": "2027-03-17T23:59:59"
+   },
+   {
+    "host": "www.dealers.bancoejemplo.cl",
+    "clases": [],
+    "profundo": true,
+    "etiqueta_estricta": true,
+    "ultimo_not_before": "2024-11-20T00:00:00",
+    "ultimo_not_after": "2025-11-20T23:59:59"
+   },
+   {
+    "host": "www.firmas.bancoejemplo.cl",
+    "clases": [],
+    "profundo": true,
+    "etiqueta_estricta": true,
+    "ultimo_not_before": "2025-07-31T00:00:00",
+    "ultimo_not_after": "2026-07-31T23:59:59"
+   },
+   {
+    "host": "www.gestioninmobiliaria.bancoejemplo.cl",
+    "clases": [],
+    "profundo": true,
+    "etiqueta_estricta": true,
+    "ultimo_not_before": "2026-09-02T00:00:00",
+    "ultimo_not_after": "2027-03-19T23:59:59"
+   },
+   {
+    "host": "www.getnet.bancoejemplo.cl",
+    "clases": [],
+    "profundo": true,
+    "etiqueta_estricta": true,
+    "ultimo_not_before": "2026-05-27T00:00:00",
+    "ultimo_not_after": "2026-12-11T23:59:59"
+   },
+   {
+    "host": "www.imagenenmail.bancoejemplo.cl",
+    "clases": [],
+    "profundo": true,
+    "etiqueta_estricta": true,
+    "ultimo_not_before": "2026-01-06T00:00:00",
+    "ultimo_not_after": "2027-01-06T23:59:59"
+   },
+   {
+    "host": "www.imagenes.bancoejemplo.cl",
+    "clases": [],
+    "profundo": true,
+    "etiqueta_estricta": true,
+    "ultimo_not_before": "2026-10-09T00:00:00",
+    "ultimo_not_after": "2027-04-25T23:59:59"
+   },
+   {
+    "host": "www.ir.bancoejemplo.cl",
+    "clases": [],
+    "profundo": true,
+    "etiqueta_estricta": true,
+    "ultimo_not_before": "2025-12-12T00:00:00",
+    "ultimo_not_after": "2026-12-12T23:59:59"
+   },
+   {
+    "host": "www.mail.corp.bancoejemplo.cl",
+    "clases": [
+     "infra_expuesta"
+    ],
+    "profundo": true,
+    "etiqueta_estricta": true,
+    "ultimo_not_before": "2025-11-25T00:00:00",
+    "ultimo_not_after": "2026-11-25T23:59:59"
+   },
+   {
+    "host": "www.mibanco.bancoejemplo.cl",
+    "clases": [],
+    "profundo": true,
+    "etiqueta_estricta": true,
+    "ultimo_not_before": "2026-05-05T00:00:00",
+    "ultimo_not_after": "2026-11-19T23:59:59"
+   },
+   {
+    "host": "www.movil.bancoejemplo.cl",
+    "clases": [],
+    "profundo": true,
+    "etiqueta_estricta": true,
+    "ultimo_not_before": "2026-05-27T00:00:00",
+    "ultimo_not_after": "2026-12-11T23:59:59"
+   },
+   {
+    "host": "www.neobei.bancoejemplo.cl",
+    "clases": [],
+    "profundo": true,
+    "etiqueta_estricta": true,
+    "ultimo_not_before": "2026-04-20T00:00:00",
+    "ultimo_not_after": "2026-11-04T23:59:59"
+   },
+   {
+    "host": "www.obbancoejemplo.cl",
+    "clases": [],
+    "profundo": false,
+    "etiqueta_estricta": false,
+    "ultimo_not_before": "2022-08-16T00:00:00",
+    "ultimo_not_after": "2023-08-16T23:59:59"
+   },
+   {
+    "host": "www.openbanking.bancoejemplo.cl",
+    "clases": [],
+    "profundo": true,
+    "etiqueta_estricta": true,
+    "ultimo_not_before": "2026-01-15T00:00:00",
+    "ultimo_not_after": "2027-01-15T23:59:59"
+   },
+   {
+    "host": "www.pagos.bancoejemplo.cl",
+    "clases": [
+     "critico"
+    ],
+    "profundo": true,
+    "etiqueta_estricta": true,
+    "ultimo_not_before": "2025-11-25T00:00:00",
+    "ultimo_not_after": "2026-11-25T23:59:59"
+   },
+   {
+    "host": "www.personas.bancoejemplo.cl",
+    "clases": [],
+    "profundo": true,
+    "etiqueta_estricta": true,
+    "ultimo_not_before": "2025-03-13T00:00:00",
+    "ultimo_not_after": "2026-03-13T23:59:59"
+   },
+   {
+    "host": "www.practicasbancoejemplo.cl",
+    "clases": [],
+    "profundo": false,
+    "etiqueta_estricta": false,
+    "ultimo_not_before": "2026-08-31T00:00:00",
+    "ultimo_not_after": "2027-03-17T23:59:59"
+   },
+   {
+    "host": "www.privatebanking.bancoejemplo.cl",
+    "clases": [],
+    "profundo": true,
+    "etiqueta_estricta": true,
+    "ultimo_not_before": "2025-10-15T00:00:00",
+    "ultimo_not_after": "2026-10-15T23:59:59"
+   },
+   {
+    "host": "www.ripplenet.bancoejemplo.cl",
+    "clases": [],
+    "profundo": true,
+    "etiqueta_estricta": true,
+    "ultimo_not_before": "2026-10-15T00:00:00",
+    "ultimo_not_after": "2027-05-01T23:59:59"
+   },
+   {
+    "host": "www.saladecomunicacion.bancoejemplo.cl",
+    "clases": [],
+    "profundo": true,
+    "etiqueta_estricta": true,
+    "ultimo_not_before": "2026-07-27T00:00:00",
+    "ultimo_not_after": "2027-02-10T23:59:59"
+   },
+   {
+    "host": "www.bancoejemplo.cl",
+    "clases": [],
+    "profundo": false,
+    "etiqueta_estricta": true,
+    "ultimo_not_before": "2026-09-29T19:28:51",
+    "ultimo_not_after": "2026-12-28T19:28:50"
+   },
+   {
+    "host": "www.sbcchldcpri.bancoejemplo.cl",
+    "clases": [],
+    "profundo": true,
+    "etiqueta_estricta": true,
+    "ultimo_not_before": "2025-09-23T00:00:00",
+    "ultimo_not_after": "2026-09-23T23:59:59"
+   },
+   {
+    "host": "www.sbcchldcsec.bancoejemplo.cl",
+    "clases": [],
+    "profundo": true,
+    "etiqueta_estricta": true,
+    "ultimo_not_before": "2025-06-06T00:00:00",
+    "ultimo_not_after": "2026-06-06T23:59:59"
+   },
+   {
+    "host": "www.solicitudtarjeta.bancoejemplo.cl",
+    "clases": [],
+    "profundo": true,
+    "etiqueta_estricta": true,
+    "ultimo_not_before": "2025-11-21T00:00:00",
+    "ultimo_not_after": "2026-11-21T23:59:59"
+   },
+   {
+    "host": "www.sst.bancoejemplo.cl",
+    "clases": [],
+    "profundo": true,
+    "etiqueta_estricta": true,
+    "ultimo_not_before": "2025-10-16T00:00:00",
+    "ultimo_not_after": "2026-10-16T23:59:59"
+   },
+   {
+    "host": "www.sst2.bancoejemplo.cl",
+    "clases": [],
+    "profundo": true,
+    "etiqueta_estricta": true,
+    "ultimo_not_before": "2026-07-28T00:00:00",
+    "ultimo_not_after": "2027-02-11T23:59:59"
+   },
+   {
+    "host": "www.tienda.bancoejemplo.cl",
+    "clases": [],
+    "profundo": true,
+    "etiqueta_estricta": true,
+    "ultimo_not_before": "2026-08-17T00:00:00",
+    "ultimo_not_after": "2027-03-03T23:59:59"
+   },
+   {
+    "host": "www.whu.bancoejemplo.cl",
+    "clases": [],
+    "profundo": true,
+    "etiqueta_estricta": true,
+    "ultimo_not_before": "2026-03-05T00:00:00",
+    "ultimo_not_after": "2027-03-05T23:59:59"
+   },
+   {
+    "host": "www.wsadfs.corp.bancoejemplo.cl",
+    "clases": [],
+    "profundo": true,
+    "etiqueta_estricta": true,
+    "ultimo_not_before": "2026-08-03T00:00:00",
+    "ultimo_not_after": "2027-02-17T23:59:59"
+   },
+   {
+    "host": "www.youbancoejemplo.cl",
+    "clases": [],
+    "profundo": false,
+    "etiqueta_estricta": false,
+    "ultimo_not_before": "2026-09-01T16:53:51",
+    "ultimo_not_after": "2027-03-17T23:59:59"
+   },
+   {
+    "host": "youbancoejemplo.cl",
+    "clases": [],
+    "profundo": false,
+    "etiqueta_estricta": false,
+    "ultimo_not_before": "2023-10-19T00:00:00",
+    "ultimo_not_after": "2024-10-18T23:59:59"
+   }
+  ]
+ },
+ "endpoints": [
+  {
+   "host": "mail.corp.bancoejemplo.cl",
+   "clases": [
+    "infra_expuesta"
+   ],
+   "dns_status": "NOERROR",
+   "ip": [
+    "170.18.1.42",
+    "170.18.1.43"
+   ],
+   "cname": [],
+   "responde_443": false,
+   "detalle": "sin respuesta TLS en 443 (sin respuesta en 8 s)",
+   "medido_utc": "2026-10-29T19:59:15.245Z"
+  },
+  {
+   "host": "mail.extranetbancoejemplo.cl",
+   "clases": [
+    "infra_expuesta"
+   ],
+   "dns_status": "NXDOMAIN",
+   "ip": [],
+   "cname": [],
+   "responde_443": null,
+   "detalle": "el nombre ya no existe en DNS: no se envió saludo",
+   "medido_utc": "2026-10-29T19:59:15.245Z"
+  },
+  {
+   "host": "pre.fxenlinea.bancoejemplo.cl",
+   "clases": [
+    "no_productivo"
+   ],
+   "dns_status": "NXDOMAIN",
+   "ip": [],
+   "cname": [],
+   "responde_443": null,
+   "detalle": "el nombre ya no existe en DNS: no se envió saludo",
+   "medido_utc": "2026-10-29T19:59:15.245Z"
+  },
+  {
+   "host": "smtp.corp.bancoejemplo.cl",
+   "clases": [
+    "infra_expuesta"
+   ],
+   "dns_status": "NOERROR",
+   "ip": [
+    "170.18.1.40",
+    "170.18.1.41",
+    "170.18.1.89",
+    "170.18.1.90"
+   ],
+   "cname": [],
+   "responde_443": false,
+   "detalle": "sin respuesta TLS en 443 (sin respuesta en 8 s)",
+   "medido_utc": "2026-10-29T19:59:15.245Z"
+  },
+  {
+   "host": "www.mail.corp.bancoejemplo.cl",
+   "clases": [
+    "infra_expuesta"
+   ],
+   "dns_status": "NXDOMAIN",
+   "ip": [],
+   "cname": [],
+   "responde_443": null,
+   "detalle": "el nombre ya no existe en DNS: no se envió saludo",
+   "medido_utc": "2026-10-29T19:59:15.245Z"
+  },
+  {
+   "host": "openfinance-desa.bancoejemplo.cl",
+   "clases": [],
+   "dns_status": "NOERROR",
+   "ip": [
+    "2.17.167.5",
+    "2.17.167.8"
+   ],
+   "cname": [
+    "e326721.dscb.akamaiedge.net"
+   ],
+   "responde_443": true,
+   "detalle": "responde; grupo x25519",
+   "medido_utc": "2026-10-29T19:59:15.245Z"
+  }
+ ],
+ "borde": {
+  "cdn": "Akamai Enhanced TLS",
+  "cadena": [
+   "wild.bancoejemplo.edgekey.net",
+   "e39625.b.akamaiedge.net"
+  ],
+  "soporta": true,
+  "elige": true,
+  "pide_mejora": false,
+  "sha256_medicion": "b7034a3404b59216644f614acddae3a59935a6b956112c0992cbff8e4d209ee9"
+ },
+ "tls13": true,
+ "certificado": {
+  "ok": true,
+  "algoritmo": "EC",
+  "curva": "P-256",
+  "bits": 256,
+  "firma": "ecdsa-with-SHA384",
+  "emisor": "DigiCert Inc",
+  "sujeto": "bancoejemplo.cl",
+  "not_before": "2026-08-31",
+  "not_after": "2027-03-17"
+ },
+ "proveedores": {
+  "correo": "Cisco Secure Email (IronPort)",
+  "mx": [
+   "mx1.hc0000-00.iphmx.com",
+   "mx1.bancogrupo.c3s2.iphmx.com",
+   "mx2.hc0000-00.iphmx.com",
+   "mx2.bancogrupo.c3s2.iphmx.com"
+  ],
+  "security_txt": null
+ },
+ "qex": {
+  "version": "QEX-1.0",
+  "dimensiones": {
+   "certificados": 75,
+   "higiene": 50,
+   "hndl": 12,
+   "edge": 100
+  },
+  "pesos": {
+   "certificados": 0.4,
+   "higiene": 0.25,
+   "hndl": 0.25,
+   "edge": 0.1
+  },
+  "aportes": {
+   "certificados": 30,
+   "higiene": 12.5,
+   "hndl": 3,
+   "edge": 10
+  },
+  "suma": 55.5,
+  "peso_usado": 1,
+  "score": 56,
+  "tope": 84,
+  "tipos": {
+   "certificados": "medido",
+   "higiene": "medido",
+   "hndl": "modelo de sector",
+   "edge": "medido"
+  }
+ },
+ "referencia": {
+  "edicion": "2026-08",
+  "mediana_pais": 57,
+  "mediana_sector": 57,
+  "n_sector": 12
+ },
+ "instrumentos": {
+  "pagina": "qex-nucleo.mjs",
+  "servidor": "rosetta-sondas-envivo/1"
+ },
+ "extras": [
+  "openfinance-desa.bancoejemplo.cl"
+ ],
+ "sha256": "3b3a32434b2d42317b2c106e7361cc4d1607d9295ca38461206a0a9e473b1dd1"
+}
