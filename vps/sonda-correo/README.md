@@ -19,6 +19,6 @@ y entrega firmado (`POST /api/sondas/correo/<id>/resultado`). Ver `lib/correo-en
 ## Probar
 
 - `python3 -I vps/sonda-correo/test_sonda_correo.py` (también corre en el prebuild).
-- A mano en el VPS, sin el sitio: `python3 -I sonda_correo.py --medir santander.cl`.
+- A mano en el VPS, sin el sitio: `python3 -I sonda_correo.py --medir ejemplo.cl`.
 
 `rosetta-sonda-correo.service` es la alternativa con systemd; necesita sudo y no está instalada.

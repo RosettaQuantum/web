@@ -25,7 +25,7 @@ def igual(a, b, q=""):
     if a != b: raise AssertionError(f"{q}: {a!r} ≠ {b!r}")
 
 FOTO = json.loads((AQUI / "fijas" / "foto-anonima-2026-10.json").read_text())
-SANT = json.loads((AQUI / "fijas" / "santander.cl.json").read_text())   # corrida real del correo, 2-nov
+SANT = json.loads((AQUI / "fijas" / "bancoejemplo.cl.json").read_text())   # corrida real del correo, 2-nov
 CORREO = {"estado": "hecho", "resultado": SANT}
 est = lambda cs: {n: s for n, s, _, _ in cs}  # noqa: E731
 

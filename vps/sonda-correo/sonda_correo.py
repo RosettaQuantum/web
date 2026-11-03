@@ -2,8 +2,8 @@
 """Sonda de correo de Rosetta Q-Ready (2-nov-2026). Corre en el VPS Contabo, no en Cloudflare.
 
 ¿Por qué aquí? Cloudflare Workers no abre el puerto 25, y desde la IP compartida de los
-contenedores de Cloudflare el filtro Cisco de santander.cl corta con 554 («poor reputation»).
-Desde este VPS los 4 MX de santander.cl contestan 220 y ofrecen STARTTLS (medido 2-nov).
+contenedores de Cloudflare el filtro Cisco de un banco chileno corta con 554 («poor reputation»).
+Desde este VPS sus 4 MX contestan 220 y ofrecen STARTTLS (medido 2-nov).
 
 Qué hace, por cada servidor de correo (MX) del dominio pedido:
   1. Abre el puerto 25, lee el saludo, manda EHLO, mira si ofrece STARTTLS.

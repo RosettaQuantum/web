@@ -151,6 +151,7 @@ async function pedirEnvio(e) {
   } catch { decir("No pudimos pedir el envío. Revise su conexión e intente de nuevo.", true); ir.disabled = false; }
 }
 $("mv-envio")?.addEventListener("submit", pedirEnvio);
+fetch("/api/medicion/envio/estado").then((r) => r.json()).then((j) => { if (j?.activo && $("mv-envio")) $("mv-envio").hidden = false; }).catch(() => {});
 
 window.addEventListener("mv:medido", (ev) => {
   medicion = ev.detail;

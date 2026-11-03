@@ -1,7 +1,7 @@
 ---
 /**
  * /es/q-ready/borde — re-medición EN VIVO del borde de un dominio (29-oct-2026).
- * Nació para la reunión con el equipo de ciberseguridad de Santander (3-nov, por videollamada):
+ * Nació para la reunión con el equipo de ciberseguridad de un banco (3-nov, por videollamada):
  * Nicholas comparte pantalla, escribe el dominio y la página muestra los tres saludos TLS.
  *
  * Es una herramienta general: no guarda nada del dominio medido, no muestra ningún informe
@@ -30,7 +30,7 @@ import propia from '../../../../styles/pages/borde-envivo.css?raw';
       <form class="bv-form" id="bv-form" novalidate>
         <label for="bv-host">Dominio</label>
         <div class="bv-fila">
-          <input id="bv-host" name="host" type="text" inputmode="url" autocomplete="off" spellcheck="false" placeholder="www.santander.cl" required>
+          <input id="bv-host" name="host" type="text" inputmode="url" autocomplete="off" spellcheck="false" placeholder="www.su-dominio.cl" required>
           <button class="btn btn-solid" type="submit" id="bv-ir">Medir ahora</button>
         </div>
         <p class="bv-estado" id="bv-estado" role="status" aria-live="polite" hidden></p>
