@@ -172,5 +172,93 @@ console.log('\ndesgloses que declaran un total:');
 recorrer(edicion, '');
 
 
+// --- Una reparticion suma la base que declara OTRO campo (agregado 2026-11-03) ---
+// El guardia de arriba exige que el `total` viva en el MISMO objeto que las partes.
+// `superficie` reparte las 170 organizaciones del indice en cinco tramos y no declara
+// total: su base vive en el titular del mismo nombre. Asi que caia en la rama de los
+// guiones -"no tiene partes sumables"- y nadie sumaba la columna.
+//
+// Medido el 2026-11-03: los cinco tramos sumaban 174 sobre 170, y esa tabla ya habia
+// salido en el HTML que genero el PDF de la edicion 1. El guardia de agosto corria,
+// pasaba, e imprimia su propio punto ciego entre doce lineas que empiezan igual.
+//
+// Las reparticiones se declaran a mano, una por una. Un recorrido generico que sumara
+// cualquier array con `n` gritaria sobre `verticales`, `plazos` y `qday`, que no son
+// reparticiones de nada: un falso positivo retiene trabajo bueno, que es peor que
+// dejar pasar un caso.
+const REPARTICIONES = [
+  { ruta: 'superficie',
+    partes: (e) => e.superficie,
+    base: (e) => e.titulares.find((t) => t.id === 'superficie')?.base,
+    comoBase: 'titulares[superficie].base' },
+];
+
+function evaluarReparticiones(e) {
+  return REPARTICIONES.map((r) => {
+    const partes = r.partes(e), base = r.base(e);
+    if (!Array.isArray(partes) || !partes.length || typeof base !== 'number')
+      return { ...r, estado: 'ausente' };          // falla cerrado: ver abajo
+    return { ...r, estado: 'medido', suma: partes.reduce((a, x) => a + x.n, 0), base };
+  });
+}
+
+// La autoprueba NO va detras de un flag. Un chequeo que corre solo cuando alguien se
+// acuerda es un chequeo que no corre, y cuesta dos evaluaciones en memoria. El caso
+// que grita es el archivo tal como estaba en origin/main, no un literal inventado:
+// 62 + 40 + 30 son los tres tramos que el recomputo contra el descubrimiento bajo a
+// 60 + 39 + 29.
+const CASO_QUE_GRITA = JSON.parse(JSON.stringify(edicion));
+for (const [i, n] of [[2, 62], [3, 40], [4, 30]]) CASO_QUE_GRITA.superficie[i].n = n;
+const grito = evaluarReparticiones(CASO_QUE_GRITA).filter((r) => r.suma !== r.base);
+if (grito.length !== 1 || grito[0].suma !== 174) {
+  console.log(`  ✗ autoprueba: el caso de 174 sobre 170 NO hace gritar la regla`);
+  fallas++;
+}
+
+console.log('\nreparticiones (las partes suman la base que declara otro campo):');
+for (const r of evaluarReparticiones(edicion)) {
+  if (r.estado === 'ausente') {
+    // Ni silencio ni grito: la reparticion que se declaro aqui ya no existe en la
+    // edicion, o perdio su base. Eso es una falla, no un salto -si no, basta con
+    // renombrar un campo para que el guardia deje de mirar sin que nadie lo note.
+    console.log(`  ✗ ${r.ruta.padEnd(34)} declarada aqui y no se pudo evaluar (falta la lista o ${r.comoBase})`);
+    fallas++;
+  } else if (r.suma !== r.base) {
+    console.log(`  ✗ ${r.ruta.padEnd(34)} sus ${r.partes(edicion).length} partes suman ${r.suma} · ${r.comoBase} dice ${r.base}`);
+    fallas++;
+  } else {
+    console.log(`  ✓ ${r.ruta.padEnd(34)} ${r.partes(edicion).length} partes suman ${r.suma} = ${r.comoBase}`);
+  }
+}
+
+
 console.log(`\n${cubiertos} recomputados · ${saltados} sin cobertura · ${fallas} fallas`);
+
+// --- El registro, para que la compuerta pueda comparar entre meses ---------------
+// Se escribe SIEMPRE que se pida, pase o falle, y ANTES de salir con error. Un
+// registro que solo se anota cuando todo salio bien es un recibo: registra exitos y
+// pierde justo el mes que importa (CLAUDE.md 5 ter).
+//
+// Guarda `saltados` y no solo `fallas` porque la compuerta exige que la cobertura no
+// retroceda: un verde con dos cifras menos recomputadas no significa lo mismo.
+if (process.argv.includes('--registrar')) {
+  const { readFileSync, writeFileSync } = await import('node:fs');
+  // FUERA de src/data/informe-pqc/: dos componentes recorren `*.json` de ese
+  // directorio y `index.astro` lanza error con cualquier nombre que no sea
+  // AAAA-MM.json. Un registro guardado ahi adentro rompe el build del sitio.
+  const RUTA = 'src/data/registro-guardias-informe-pqc.json';
+  let reg = {};
+  try { reg = JSON.parse(readFileSync(RUTA, 'utf8')); } catch { /* primera vez */ }
+  reg[edicion.edicion] = {
+    guardia: 'check-informe-cifras',
+    corrida: new Date().toISOString(),
+    recomputados: cubiertos,
+    sin_cobertura: saltados,
+    fallas,
+  };
+  const ordenado = Object.fromEntries(Object.entries(reg).sort((a, b) => b[0].localeCompare(a[0])));
+  writeFileSync(RUTA, JSON.stringify(ordenado, null, 1) + '\n', 'utf8');
+  console.log(`registro: ${RUTA} · ${edicion.edicion} -> ${fallas} fallas, ${saltados} sin cobertura`);
+}
+
 if (fallas) process.exit(1);
