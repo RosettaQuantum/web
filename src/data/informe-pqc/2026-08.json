@@ -219,31 +219,17 @@
     "propio": false
    },
    {
+    "n": "Otros (Imperva, Azure, Akamai Standard TLS)",
+    "total": 14,
+    "soporta": 4,
+    "pct": 29,
+    "propio": false
+   },
+   {
     "n": "CloudFront",
     "total": 12,
     "soporta": 12,
     "pct": 100,
-    "propio": false
-   },
-   {
-    "n": "Imperva",
-    "total": 4,
-    "soporta": 4,
-    "pct": 100,
-    "propio": false
-   },
-   {
-    "n": "Azure",
-    "total": 6,
-    "soporta": 0,
-    "pct": 0,
-    "propio": false
-   },
-   {
-    "n": "Akamai Standard TLS",
-    "total": 4,
-    "soporta": 0,
-    "pct": 0,
     "propio": false
    },
    {
