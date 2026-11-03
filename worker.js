@@ -1,5 +1,6 @@
 import { manejarApi, registrarMedicion } from "./api.js";
 import * as medicionAgentes from "./lib/medicion-agentes.mjs";
+import { manejarEnvio, manejarBaja } from "./lib/envio-informe.mjs";
 registrarMedicion(medicionAgentes);
 import { manejarQreadyLead } from "./lib/qready-lead.mjs";
 import { manejarOg } from "./lib/og-ruta.mjs";
@@ -84,9 +85,11 @@ export default {
     const api = await manejarApi(request, env, url, ctx);
     if (api) return api;
 
-    // Re-medición en vivo del borde (demo de la reunión con Santander, 3-nov-2026).
+    // Re-medición en vivo del borde (demo de la reunión con un banco, 3-nov-2026).
     // Herramienta general: no guarda nada del dominio medido ni escribe en D1.
     if (url.pathname === "/api/borde") return manejarBorde(request);
+    if (url.pathname.startsWith("/api/medicion/envio")) return manejarEnvio(request, env, url);
+    if (url.pathname === "/baja") return manejarBaja(request, env, url);
     if (url.pathname.startsWith("/api/sondas/correo")) return manejarCorreo(request, env, url);
     if (url.pathname === "/api/sondas") return manejarSondas(request, env);
 

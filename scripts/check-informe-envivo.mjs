@@ -4,7 +4,7 @@
 // Siempre: vectores fijos (redondeo al par de Python, irec, clases de CT, comparación).
 // Con --corpus <carpeta del proyecto Rosetta Quantum>: exige que el núcleo JS reproduzca la
 // medición de Python sobre los MISMOS archivos crudos — conteos de agosto reconstruidos
-// (220/66/1/0/4/13), conteos y lista de hosts de octubre (ct-santander-2026-10.json), higiene,
+// (220/66/1/0/4/13), conteos y lista de hosts de octubre (archivo ct-*.json del corpus privado), higiene,
 // QEX 56, y las 170 filas de indice-agosto-2026.json. Ese corpus trae nombres de organizaciones
 // y NO vive en este repositorio (es público): por eso entra por argumento.
 // Sin --corpus esas pruebas salen como SALTADAS en el resumen, nunca como pasadas.
@@ -23,13 +23,13 @@ const eq = (a, b, m) => ok(JSON.stringify(a) === JSON.stringify(b), `${m}: ${JSO
 eq(N.redondearPar(55.5), 56, "55,5"); eq(N.redondearPar(56.5), 56, "56,5 (Math.round daría 57)"); eq(N.redondearPar(57.5), 58, "57,5");
 eq(N.redondearPar(56.49), 56, "56,49"); eq(N.redondearPar(56.51), 57, "56,51");
 // --- irec
-eq(N.irec({ certificados: 75, higiene: 50, hndl: 12, edge: 100 }), 56, "Santander agosto");
+eq(N.irec({ certificados: 75, higiene: 50, hndl: 12, edge: 100 }), 56, "un banco, agosto");
 eq(N.irec({ certificados: 100, higiene: 100, hndl: 100, edge: 100 }), 84, "tope 84");
 eq(N.irec({ certificados: 75, higiene: 60, hndl: 12, edge: null }), N.redondearPar((75 * .4 + 60 * .25 + 12 * .25) / .9), "edge no medido renormaliza");
 eq(N.irec({ certificados: null, higiene: null, hndl: null, edge: null }), null, "nada medido = null, no 0");
 let lanzo = false; try { N.irec({ certificados: 75 }); } catch { lanzo = true; } ok(lanzo, "falta dimensión debe lanzar");
 // --- higiene: grito y silencio
-eq(N.higiene(false, { no_productivo: 1, infra_expuesta: 4, legado: 0 }), 50, "higiene Santander");
+eq(N.higiene(false, { no_productivo: 1, infra_expuesta: 4, legado: 0 }), 50, "higiene de un banco");
 eq(N.higiene(false, { no_productivo: 0, infra_expuesta: 2, legado: 0 }), 70, "infra 2 no descuenta");
 eq(N.higiene(false, { no_productivo: 0, infra_expuesta: 3, legado: 0 }), 60, "infra 3 SÍ descuenta (borde del umbral)");
 eq(N.higiene(false, { no_productivo: 0, infra_expuesta: 0, legado: 1 }), 60, "legado 1 descuenta");
@@ -41,18 +41,18 @@ eq(N.certificadosValor({ ok: true, algoritmo: "EC", bits: 384 }), 100, "P-384 = 
 eq(N.certificadosValor({ ok: true, algoritmo: "RSA", bits: 2048 }), 75, "RSA 2048 = 75");
 eq(N.certificadosValor({ ok: false }), null, "certificado no leído = null, no 0");
 // --- clases: grito y silencio (el silencio paradójico: la palabra dentro de otra)
-eq(N.clasesDe("pre.fxenlinea.santander.cl"), ["no_productivo"], "pre. es no productivo");
-eq(N.clasesDe("prensa.santander.cl"), [], "prensa NO es pre");
-eq(N.clasesDe("smtp.corp.santander.cl"), ["infra_expuesta"], "smtp");
-eq(N.clasesDe("mailing.santander.cl"), [], "mailing NO es mail");
-eq(N.clasesDe("api-test.santander.cl"), ["no_productivo", "critico"], "api-test: dos clases");
+eq(N.clasesDe("pre.fxenlinea.bancoejemplo.cl"), ["no_productivo"], "pre. es no productivo");
+eq(N.clasesDe("prensa.bancoejemplo.cl"), [], "prensa NO es pre");
+eq(N.clasesDe("smtp.corp.bancoejemplo.cl"), ["infra_expuesta"], "smtp");
+eq(N.clasesDe("mailing.bancoejemplo.cl"), [], "mailing NO es mail");
+eq(N.clasesDe("api-test.bancoejemplo.cl"), ["no_productivo", "critico"], "api-test: dos clases");
 // --- correo: SÓLO la redacción del 443. Grito, silencio, y el silencio de los límites.
 {
-  const mail = { host: "smtp.corp.santander.cl", dns_status: "NOERROR", responde_443: false };
-  const web = { host: "portal.santander.cl", dns_status: "NOERROR", responde_443: false };
-  ok(N.esNombreDeCorreo("smtp.corp.santander.cl"), "smtp es nombre de correo");
+  const mail = { host: "smtp.corp.bancoejemplo.cl", dns_status: "NOERROR", responde_443: false };
+  const web = { host: "portal.bancoejemplo.cl", dns_status: "NOERROR", responde_443: false };
+  ok(N.esNombreDeCorreo("smtp.corp.bancoejemplo.cl"), "smtp es nombre de correo");
   ok(!N.esNombreDeCorreo("correos-corporativos.cl"), "«correos» NO es «correo»: manda el límite");
-  ok(!N.esNombreDeCorreo("mailing.santander.cl"), "«mailing» NO es «mail»");
+  ok(!N.esNombreDeCorreo("mailing.bancoejemplo.cl"), "«mailing» NO es «mail»");
   eq(N.estadoEndpoint(mail), "publicado en DNS, sin servicio web: es lo normal en un servidor de correo", "correo sin web");
   eq(N.estadoEndpoint(web), "publicado en DNS, no responde en 443", "no-correo conserva la redacción de siempre");
   eq([N.claveEndpoint(mail), N.claveEndpoint(web)], ["no_responde", "no_responde"], "misma medición = misma clave, aunque se lean distinto");
@@ -103,22 +103,25 @@ if (i < 0) {
   console.log(`  (sin --corpus: ${PRUEBAS_CORPUS} pruebas de reproducción contra Python SALTADAS)`);
 } else {
   const R = process.argv[i + 1];
-  const M = path.join(R, "entregables/santander-2026-11/medicion-octubre");
+  // Qué cliente y qué archivos: entregables/corpus-envivo.json, PRIVADO y fuera del repo público.
+  // El código no nombra clientes (decisión de Nicholas, 3-nov-2026); el corpus sí, porque es suyo.
   const J = (p) => JSON.parse(fs.readFileSync(p, "utf8"));
-  const filas = J(path.join(M, "crudo/crtsh-santander.cl.json"));
-  const ref = J(path.join(M, "ct-santander-2026-10.json"));
-  const ago = N.nombresCT(filas, "santander.cl", ref.corte_agosto_not_before);
-  const hoy = N.nombresCT(filas, "santander.cl");
+  const C = J(path.join(R, "entregables/corpus-envivo.json"));
+  const M = path.join(R, C.medicion);
+  const filas = J(path.join(M, C.crtsh));
+  const ref = J(path.join(M, C.ct));
+  const ago = N.nombresCT(filas, C.dominio, ref.corte_agosto_not_before);
+  const hoy = N.nombresCT(filas, C.dominio);
   eq(N.conteos([...ago.keys()]), ref.conteos_agosto_publicado, "agosto reconstruido = 220/66/1/0/4/13 publicados");
   eq(N.conteos([...hoy.keys()]), ref.conteos_octubre, "conteos de octubre = Python");
   eq([...hoy.keys()].sort(), ref.hosts.map((h) => h.host), "lista de hosts de octubre = Python");
-  eq(N.hostsCT(hoy, "santander.cl").map((h) => [h.host, h.clases, h.profundo, h.etiqueta_estricta]),
-    ref.hosts.map((h) => [h.host, h.clases, h.profundo, h.etiqueta_estricta_santander_cl]), "clases por host = Python");
-  const q = J(path.join(M, "qex-santander-2026-10.json"));
+  eq(N.hostsCT(hoy, C.dominio).map((h) => [h.host, h.clases, h.profundo, h.etiqueta_estricta]),
+    ref.hosts.map((h) => [h.host, h.clases, h.profundo, h[C.etiqueta_estricta]]), "clases por host = Python");
+  const q = J(path.join(M, C.qex));
   eq(N.higiene(false, N.conteos([...hoy.keys()])), q.dimensiones.higiene, "higiene = Python");
   eq(N.irec(q.dimensiones), q.score, "QEX octubre = Python");
   // Redacción del 443 contra la foto que produjo el propio medidor, no contra un literal mío.
-  const fotoOct = J(path.join(R, "entregables/santander-2026-11/fotos/foto-santander.cl-2026-10.json"));
+  const fotoOct = J(path.join(R, C.foto));
   eq(N.comparar(fotoOct, fotoOct).endpoints.filter((e) => e.estado !== "se_mantiene").length, 0,
     "foto real contra sí misma: ningún endpoint marca «cambió»");
   eq(fotoOct.endpoints.filter((e) => e.responde_443 === false).map((e) => N.estadoEndpoint(e)),
@@ -126,8 +129,8 @@ if (i < 0) {
       "publicado en DNS, sin servicio web: es lo normal en un servidor de correo"],
     "las dos filas reales de correo se leen como configuración correcta");
   // El grito: la MISMA fila medida, con un nombre real que no es de correo.
-  const filaCorreo = fotoOct.endpoints.find((e) => e.host === "mail.corp.santander.cl");
-  eq(N.estadoEndpoint({ ...filaCorreo, host: "openfinance-desa.santander.cl" }), "publicado en DNS, no responde en 443",
+  const filaCorreo = fotoOct.endpoints.find((e) => e.host === C.host_correo);
+  eq(N.estadoEndpoint({ ...filaCorreo, host: C.host_no_correo }), "publicado en DNS, no responde en 443",
     "mismo dato real con nombre que no es de correo: redacción de siempre");
   const idx = J(path.join(R, "indice-agosto-2026.json"));
   const malas = idx.filter((r) => N.irec(r) !== r.score);

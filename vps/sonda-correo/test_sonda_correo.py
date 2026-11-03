@@ -2,7 +2,7 @@
 """Pruebas de sonda_correo.py. Corre con: python3 -I vps/sonda-correo/test_sonda_correo.py
 
 Los casos salen de respuestas REALES, no inventadas:
-  · fijas/*.json — corridas del 2-nov-2026 desde el VPS (santander.cl, gmail.com, outlook.com).
+  · fijas/*.json — corridas del 2-nov-2026 desde el VPS (un banco chileno anonimizado, gmail.com, outlook.com).
   · el 554 de reputación es el texto literal que Cisco le devolvió a Lab desde Cloudflare
     (handoff/producto/MEDICION-sonda-smtp-2026-11-02.json).
   · el ClientHello se compara byte a byte con probe_soporte.py, el instrumento de agosto.
@@ -51,18 +51,18 @@ for _n in ("TODOS", "SOLO_HIB", "LIBRE"):
     prueba(f"grupos {_n} iguales a los del borde web", lambda n=_n: igual(getattr(S, n), _grupos_js(n), n))
 
 # --- 2. Las corridas reales se vuelven a juzgar igual, y dicen lo que deben decir.
-fijas = {p.stem: json.loads(p.read_text()) for p in (AQUI / "fijas").glob("*.json") if p.stem != "clienthello-agosto"}
-prueba("hay tres corridas reales guardadas", lambda: igual(sorted(fijas), ["gmail.com", "outlook.com", "santander.cl"]))
+fijas = {p.stem: json.loads(p.read_text()) for p in (AQUI / "fijas").glob("*.json") if p.stem != "clienthello-agosto" and not p.stem.startswith("foto-")}
+prueba("hay tres corridas reales guardadas", lambda: igual(sorted(fijas), ["bancoejemplo.cl", "gmail.com", "outlook.com"]))
 for dom, j in fijas.items():
     prueba(f"{dom}: el veredicto guardado sale otra vez de sus saludos", lambda j=j: [
         igual(S.veredicto(*[s["saludos"][k] for k in ("A_como_navegador", "B_solo_hibrido", "C_eleccion_libre")]),
               s["veredicto"], s["mx"]) for s in j["servidores"]])
-# Grito: Gmail soporta; Santander rechaza el híbrido con alerta 40 → soporta = False (leído, no supuesto).
+# Grito: Gmail soporta; el banco (anonimizado) rechaza el híbrido con alerta 40 → soporta = False (leído, no supuesto).
 prueba("gmail.com: los 4 MX soportan y eligen el híbrido",
        lambda: igual({(s["veredicto"]["soporta"], s["veredicto"]["elige"]) for s in fijas["gmail.com"]["servidores"]}, {(True, True)}))
-prueba("santander.cl: los 4 MX contestan y NO soportan (alerta 40 en B)", lambda: [
+prueba("bancoejemplo.cl: los 4 MX contestan y NO soportan (alerta 40 en B)", lambda: [
     igual((s["veredicto"]["estado"], s["veredicto"]["soporta"], s["saludos"]["B_solo_hibrido"]["alerta"]),
-          ("medido", False, "alert 2/40"), s["mx"]) for s in fijas["santander.cl"]["servidores"]])
+          ("medido", False, "alert 2/40"), s["mx"]) for s in fijas["bancoejemplo.cl"]["servidores"]])
 # Silencio: Outlook corta sin alerta en B. Un corte NO es «no soporta».
 prueba("outlook.com: corte sin alerta → no medido, soporta None (nunca False)",
        lambda: igual((fijas["outlook.com"]["servidores"][0]["veredicto"]["estado"],
@@ -70,7 +70,7 @@ prueba("outlook.com: corte sin alerta → no medido, soporta None (nunca False)"
 
 # --- 3. Rechazos y ausencias: nunca se leen como «no soporta».
 VACIO = {"saludo_220": None, "starttls": None, "grupo": None, "hrr": None, "alerta": None, "rechazo": None, "error": None, "ms": 1}
-R554 = "554-esa.hc5532-55.iphmx.com 554 Your access to this mail system has been rejected due to the sending MTA's poor reputation."
+R554 = "554-esa.hc0000-00.iphmx.com 554 Your access to this mail system has been rejected due to the sending MTA's poor reputation."
 def con(**k): d = dict(VACIO); d.update(k); return d
 def _r554():
     v = S.veredicto(con(rechazo=R554), con(rechazo=R554), con(rechazo=R554))
@@ -81,8 +81,8 @@ prueba("sin STARTTLS → «sin_starttls», soporta None", lambda: igual(
 prueba("silencio en B aunque A responda → soporta None", lambda: igual(
     S.veredicto(con(starttls=True, grupo="x25519"), con(starttls=True, error="timeout"), con(starttls=True, grupo="x25519"))["soporta"], None))
 prueba("respuesta SMTP de varias líneas: el 554 real de Cisco se lee entero",
-       lambda: igual(S.respuesta_smtp(io.BytesIO(b"554-esa.hc5532-55.iphmx.com\r\n554 Your access to this mail system has been rejected due to the sending MTA's poor reputation.\r\n")),
-                     (554, ["554-esa.hc5532-55.iphmx.com", "554 Your access to this mail system has been rejected due to the sending MTA's poor reputation."])))
+       lambda: igual(S.respuesta_smtp(io.BytesIO(b"554-esa.hc0000-00.iphmx.com\r\n554 Your access to this mail system has been rejected due to the sending MTA's poor reputation.\r\n")),
+                     (554, ["554-esa.hc0000-00.iphmx.com", "554 Your access to this mail system has been rejected due to the sending MTA's poor reputation."])))
 
 # --- 4. El trabajador: firma lo que manda, no mide sin trabajo, y entrega lo medido.
 #        Contra un sitio falso que verifica la firma por su cuenta (no con las funciones de S).
@@ -115,10 +115,10 @@ def no_medir(d): raise AssertionError("NO debía medir")
 prueba("sin trabajos pendientes: no mide nada", lambda: igual(S.una_vuelta(BASE, medir=no_medir), "nada"))
 ID = "0b6c1d2e-3f40-4a5b-8c6d-7e8f90a1b2c3"
 def _entrega():
-    visto["cola"].append({"id": ID, "dominio": "santander.cl"})
-    S.una_vuelta(BASE, medir=lambda d: fijas["santander.cl"])
+    visto["cola"].append({"id": ID, "dominio": "bancoejemplo.cl"})
+    S.una_vuelta(BASE, medir=lambda d: fijas["bancoejemplo.cl"])
     ruta, cuerpo = visto["entregas"][-1]
-    igual((ruta, cuerpo["dominio"], len(cuerpo["servidores"])), (f"/api/sondas/correo/{ID}/resultado", "santander.cl", 4))
+    igual((ruta, cuerpo["dominio"], len(cuerpo["servidores"])), (f"/api/sondas/correo/{ID}/resultado", "bancoejemplo.cl", 4))
 prueba("con un trabajo: mide ese dominio y entrega a su id", _entrega)
 def _ajeno():
     visto["cola"].append({"id": ID, "dominio": "127.0.0.1"})

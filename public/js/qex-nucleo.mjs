@@ -38,7 +38,7 @@ export const detalleCorreoSinWeb = (crudo) =>
   `${String(crudo || "sin respuesta en 443").replace("sin respuesta TLS en 443", "sin respuesta en 443")}: el nombre no expone un servicio web`;
 
 // Filas de crt.sh → { host: [filas] }. Filtro heredado de agosto: `endsWith(dominio)` de cadena,
-// no de etiqueta DNS (cuenta mail.extranetsantander.cl como de santander.cl). Se conserva a
+// no de etiqueta DNS (cuenta mail.extranetbanco.cl como de banco.cl). Se conserva a
 // propósito para comparar igual con igual; `etiqueta_estricta` lo declara por host.
 export function nombresCT(filas, dominio, corteNotBefore = null) {
   const s = new Map();

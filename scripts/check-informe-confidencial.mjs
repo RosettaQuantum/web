@@ -9,7 +9,7 @@
  *
  * Decision de Nicholas, 2026-08-21, textual: «ese informe es privado».
  *
- * Nace de un riesgo real: `/informe-cliente/santander` se habria desplegado sin
+ * Nace de un riesgo real: `/informe-cliente/<cliente>` se habria desplegado sin
  * noindex, sin autenticacion y con URL adivinable, publicando el score de un
  * banco con nombre, su inventario criptografico y la frase «cuatro endpoints
  * sensibles alcanzables desde internet». Y el propio documento lleva un banner

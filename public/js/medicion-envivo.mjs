@@ -46,7 +46,7 @@ async function pedirCorreo(dominio) {
   const hasta = Date.now() + 95000;
   while (Date.now() < hasta) {
     const g = await fetch(`/api/sondas/correo/${j.id}`).then((x) => x.json()).catch(() => null);
-    if (g && (g.estado === "hecho" || g.estado === "sin_respuesta")) return { ...g, reusada: j.reusada };
+    if (g && (g.estado === "hecho" || g.estado === "sin_respuesta")) return { ...g, id: j.id, reusada: j.reusada };
     await espera(2000);
   }
   return { estado: "sin_respuesta", causa: "no llegó respuesta en 95 s" };
@@ -337,7 +337,7 @@ form.addEventListener("submit", async (e) => {
 
   pintarResultado({ d, s, ct, mapa, hostsCT, dominio, www, nuevosCT });
   // La lectura en cuatro pasos (canales, cápsula, Shor) la pinta /js/medicion-historia.mjs con el mismo dato.
-  window.dispatchEvent(new CustomEvent("mv:medido", { detail: { d, s, dominio, www } }));
+  window.dispatchEvent(new CustomEvent("mv:medido", { detail: { d, s, dominio, www, foto: fotoHoy } }));
   if (comparar) mostrarComparacion(comparar, fotoHoy);
   $("mv-cuando").textContent = fechaUtc(medido);
   $("mv-huella").textContent = fotoHoy.sha256;

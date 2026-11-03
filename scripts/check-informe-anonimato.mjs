@@ -85,7 +85,14 @@ if (esSelfTest) {
   limpia.cdn.mismoProveedor.bajoN = 9;
   for (const d of limpia.cdn.desglose) if (d.total < UMBRAL_ANONIMATO) d.total = 9;
   c('umbral: se calla con todas las bases en 9 o mas', evaluar(limpia).bajoUmbral.length, 0);
-  c('umbral: grita con las cuatro bases chicas de agosto', evaluar(edicion).bajoUmbral.length, 4);
+
+  // El caso de grito se arma poniendo de vuelta un valor MEDIDO, no uno inventado: 4
+  // es lo que el artefacto conto para Akamai Standard TLS. Asi la prueba sigue siendo
+  // valida cuando la edicion se corrija -antes afirmaba «cuatro bases chicas» y se
+  // quedo vieja en cuanto se fundieron tres de ellas en «Otros»-.
+  const conBaseChica = JSON.parse(JSON.stringify(limpia));
+  conBaseChica.cdn.mismoProveedor.bajoN = 4;
+  c('umbral: grita con una base medida de 4', evaluar(conBaseChica).bajoUmbral.length, 1);
 
   const sinRuta = JSON.parse(JSON.stringify(limpia));
   delete sinRuta.cdn.mismoProveedor.bajoN;
@@ -93,9 +100,11 @@ if (esSelfTest) {
 
   c('nombres: se calla con la edicion real (0 de 220)', evaluar(edicion).nombradas.length, 0);
   const conNombre = JSON.parse(JSON.stringify(limpia));
-  conNombre.verticales[0].n = 'Fintech y pagos (ejemplo: www.bci.cl)';
+  conNombre.verticales[0].n = 'Fintech y pagos (ejemplo: www.bancoejemplo.cl)';
   c('nombres: grita con un dominio metido en una vertical', evaluar(conNombre).nombradas.length, 1);
 
+  const hoy = evaluar(edicion);
+  console.log(`\n  (estado del archivo de hoy, informado y no afirmado: ${hoy.bajoUmbral.length} bases bajo 8, ${hoy.nombradas.length} nombradas)`);
   console.log(`\n${casos.length} casos · ${fallas} fallas`);
   if (fallas) process.exit(1);
 } else {

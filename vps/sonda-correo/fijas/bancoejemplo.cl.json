@@ -1,22 +1,22 @@
 {
  "instrumento": "rosetta-sonda-correo/1 · STARTTLS + ClientHello de probe_soporte.py",
- "dominio": "santander.cl",
+ "dominio": "bancoejemplo.cl",
  "medido_utc": "2026-11-02T14:57:21Z",
  "desde_ip": "45.88.191.121",
  "mx_publicados": [
-  "mx1.hc5532-55.iphmx.com",
-  "mx2.hc5532-55.iphmx.com",
-  "mx1.santandergroup.c3s2.iphmx.com",
-  "mx2.santandergroup.c3s2.iphmx.com"
+  "mx1.hc0000-00.iphmx.com",
+  "mx2.hc0000-00.iphmx.com",
+  "mx1.bancogrupo.c3s2.iphmx.com",
+  "mx2.bancogrupo.c3s2.iphmx.com"
  ],
  "mx_medidos": 4,
  "mx_omitidos": 0,
  "servidores": [
   {
-   "mx": "mx1.hc5532-55.iphmx.com",
+   "mx": "mx1.hc0000-00.iphmx.com",
    "saludos": {
     "A_como_navegador": {
-     "saludo_220": "220 esa.hc5532-55.iphmx.com ESMTP",
+     "saludo_220": "220 esa.hc0000-00.iphmx.com ESMTP",
      "starttls": true,
      "grupo": "x25519",
      "hrr": false,
@@ -26,7 +26,7 @@
      "ms": 733
     },
     "B_solo_hibrido": {
-     "saludo_220": "220 esa.hc5532-55.iphmx.com ESMTP",
+     "saludo_220": "220 esa.hc0000-00.iphmx.com ESMTP",
      "starttls": true,
      "grupo": null,
      "hrr": null,
@@ -36,7 +36,7 @@
      "ms": 714
     },
     "C_eleccion_libre": {
-     "saludo_220": "220 esa.hc5532-55.iphmx.com ESMTP",
+     "saludo_220": "220 esa.hc0000-00.iphmx.com ESMTP",
      "starttls": true,
      "grupo": "x25519",
      "hrr": true,
@@ -55,10 +55,10 @@
    }
   },
   {
-   "mx": "mx2.hc5532-55.iphmx.com",
+   "mx": "mx2.hc0000-00.iphmx.com",
    "saludos": {
     "A_como_navegador": {
-     "saludo_220": "220 esa.hc5532-55.iphmx.com ESMTP",
+     "saludo_220": "220 esa.hc0000-00.iphmx.com ESMTP",
      "starttls": true,
      "grupo": "x25519",
      "hrr": false,
@@ -68,7 +68,7 @@
      "ms": 1039
     },
     "B_solo_hibrido": {
-     "saludo_220": "220 esa.hc5532-55.iphmx.com ESMTP",
+     "saludo_220": "220 esa.hc0000-00.iphmx.com ESMTP",
      "starttls": true,
      "grupo": null,
      "hrr": null,
@@ -78,7 +78,7 @@
      "ms": 766
     },
     "C_eleccion_libre": {
-     "saludo_220": "220 esa.hc5532-55.iphmx.com ESMTP",
+     "saludo_220": "220 esa.hc0000-00.iphmx.com ESMTP",
      "starttls": true,
      "grupo": "x25519",
      "hrr": true,
@@ -97,10 +97,10 @@
    }
   },
   {
-   "mx": "mx1.santandergroup.c3s2.iphmx.com",
+   "mx": "mx1.bancogrupo.c3s2.iphmx.com",
    "saludos": {
     "A_como_navegador": {
-     "saludo_220": "220 esa13.santandergroup.c3s2.iphmx.com ESMTP",
+     "saludo_220": "220 esa13.bancogrupo.c3s2.iphmx.com ESMTP",
      "starttls": true,
      "grupo": "x25519",
      "hrr": false,
@@ -110,7 +110,7 @@
      "ms": 66
     },
     "B_solo_hibrido": {
-     "saludo_220": "220 esa1.santandergroup.c3s2.iphmx.com ESMTP",
+     "saludo_220": "220 esa1.bancogrupo.c3s2.iphmx.com ESMTP",
      "starttls": true,
      "grupo": null,
      "hrr": null,
@@ -120,7 +120,7 @@
      "ms": 36
     },
     "C_eleccion_libre": {
-     "saludo_220": "220 esa17.santandergroup.c3s2.iphmx.com ESMTP",
+     "saludo_220": "220 esa17.bancogrupo.c3s2.iphmx.com ESMTP",
      "starttls": true,
      "grupo": "x25519",
      "hrr": true,
@@ -139,10 +139,10 @@
    }
   },
   {
-   "mx": "mx2.santandergroup.c3s2.iphmx.com",
+   "mx": "mx2.bancogrupo.c3s2.iphmx.com",
    "saludos": {
     "A_como_navegador": {
-     "saludo_220": "220 esa16.santandergroup.c3s2.iphmx.com ESMTP",
+     "saludo_220": "220 esa16.bancogrupo.c3s2.iphmx.com ESMTP",
      "starttls": true,
      "grupo": "x25519",
      "hrr": false,
@@ -152,7 +152,7 @@
      "ms": 157
     },
     "B_solo_hibrido": {
-     "saludo_220": "220 esa17.santandergroup.c3s2.iphmx.com ESMTP",
+     "saludo_220": "220 esa17.bancogrupo.c3s2.iphmx.com ESMTP",
      "starttls": true,
      "grupo": null,
      "hrr": null,
@@ -162,7 +162,7 @@
      "ms": 66
     },
     "C_eleccion_libre": {
-     "saludo_220": "220 esa2.santandergroup.c3s2.iphmx.com ESMTP",
+     "saludo_220": "220 esa2.bancogrupo.c3s2.iphmx.com ESMTP",
      "starttls": true,
      "grupo": "x25519",
      "hrr": true,
