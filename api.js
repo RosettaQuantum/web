@@ -290,7 +290,15 @@ async function posts(env, url) {
         return w.length ? w.filter((x) => x === x.toUpperCase() && /[A-ZÁÉÍÓÚÑ]/.test(x)).length / w.length : 0;
       };
       const titulo = (p.title || "").trim();
-      const prosa = parrafos.filter((t) => !(titulo && t.includes(titulo)) && mayus(t) < 0.3);
+      // 4-nov: un post abrio su cuerpo con su tldr palabra por palabra y la home mostro el
+      // mismo texto dos veces (lo cazo check-api contra produccion). El parrafo era el tldr
+      // con un retoque en el caracter 628: igual en todo lo que la home muestra. Por eso se
+      // compara LO QUE SE PUBLICARIA —los 220 caracteres recortados—, la misma regla que el
+      // guardia. Precision sobre cobertura: retomar sólo la primera frase sigue valiendo.
+      const plano = (t) => String(t || "").replace(/\s+/g, " ").trim();
+      const tldr = plano(p.tldr);
+      const esTldr = (t) => { const e = recortar(plano(t), 220).replace(/…$/, "").trim(); return !!tldr && e.length >= 40 && tldr.startsWith(e.slice(0, -1)); };
+      const prosa = parrafos.filter((t) => !(titulo && t.includes(titulo)) && mayus(t) < 0.3 && !esTldr(t));
       const texto = (p.body_html || "").replace(/<[^>]+>/g, " ").replace(/&[a-z]+;/g, " ").replace(/\s+/g, " ").trim();
       const palabras = texto.split(/\s+/).filter(Boolean).length;
       return {
