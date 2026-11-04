@@ -249,15 +249,6 @@
    "n": 87,
    "soporta": 29,
    "pct": 33
-  },
-  "mismoProveedor": {
-   "proveedor": "Akamai",
-   "alto": "Enhanced TLS",
-   "altoN": 16,
-   "altoPct": 100,
-   "bajo": "Standard TLS",
-   "bajoN": 4,
-   "bajoPct": 0
   }
  },
  "superficie": [

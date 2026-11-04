@@ -16,9 +16,13 @@
  *
  * MEDIDO EL 3-NOV-2026, antes de escribir el guardia: la edicion de agosto NO nombra
  * ninguna de las 220 organizaciones de la muestra -comprobado por nombre y por
- * dominio, cero de 220, por dos caminos distintos- y SI publica cuatro cifras sobre
- * bases menores a ocho. O sea: el punto 2 se cumple y el punto 3 no. Ese es el caso
- * de grito de la regla 2, y no es un literal inventado.
+ * dominio, cero de 220, por dos caminos distintos- y publicaba CUATRO cifras sobre
+ * bases menores a ocho.
+ *
+ * EL 2026-11-04 SE CERRARON LAS CUATRO: tres se fundieron en la fila «Otros» del
+ * desglose de CDN y la cuarta -el argumento del contrato de Akamai- se retiro. Las
+ * fijas de la autoprueba siguen usando esos valores medidos (Imperva, total 4), no
+ * literales inventados.
  */
 import { readFileSync } from 'node:fs';
 
@@ -32,8 +36,10 @@ export const BASES_DE_ORGANIZACIONES = [
   { ruta: 'verticales[].nprobe',          leer: (e) => e.verticales.map((v) => [v.n, v.nprobe]) },
   { ruta: 'indice.verticales[].norg',     leer: (e) => e.indice.verticales.map((v) => [v.id ?? v.nombre, v.norg]) },
   { ruta: 'cdn.desglose[].total',         leer: (e) => e.cdn.desglose.map((d) => [d.prov ?? d.n, d.total]) },
-  { ruta: 'cdn.mismoProveedor.altoN',     leer: (e) => [[`${e.cdn.mismoProveedor.proveedor} ${e.cdn.mismoProveedor.alto}`, e.cdn.mismoProveedor.altoN]] },
-  { ruta: 'cdn.mismoProveedor.bajoN',     leer: (e) => [[`${e.cdn.mismoProveedor.proveedor} ${e.cdn.mismoProveedor.bajo}`, e.cdn.mismoProveedor.bajoN]] },
+  // `cdn.mismoProveedor` se RETIRO de la edicion el 2026-11-04, asi que su declaracion
+  // tambien se retira. No es un hueco: la regla de que una ruta ausente es falla hizo
+  // justo lo que debia -2 fallas en cuanto se quito el bloque- y obligo a este borrado
+  // deliberado. Si la cifra vuelve el mes que su base llegue a ocho, vuelve aqui.
   { ruta: 'cdn.conCdn.n / sinCdn.n',      leer: (e) => [['con CDN', e.cdn.conCdn.n], ['sin CDN', e.cdn.sinCdn.n]] },
   { ruta: 'superficie[].n',               leer: (e) => e.superficie.map((s) => [s.rango, s.n]) },
 ];
@@ -82,7 +88,6 @@ if (esSelfTest) {
   const limpia = JSON.parse(JSON.stringify(edicion));
   // Para el silencio del umbral hay que subir las cuatro bases chicas de agosto: el
   // archivo real GRITA hoy, y eso es el hallazgo, no un defecto del guardia.
-  limpia.cdn.mismoProveedor.bajoN = 9;
   for (const d of limpia.cdn.desglose) if (d.total < UMBRAL_ANONIMATO) d.total = 9;
   c('umbral: se calla con todas las bases en 9 o mas', evaluar(limpia).bajoUmbral.length, 0);
 
@@ -91,11 +96,11 @@ if (esSelfTest) {
   // valida cuando la edicion se corrija -antes afirmaba «cuatro bases chicas» y se
   // quedo vieja en cuanto se fundieron tres de ellas en «Otros»-.
   const conBaseChica = JSON.parse(JSON.stringify(limpia));
-  conBaseChica.cdn.mismoProveedor.bajoN = 4;
+  conBaseChica.cdn.desglose.push({ n: 'Imperva', total: 4, soporta: 4, pct: 100, propio: false });
   c('umbral: grita con una base medida de 4', evaluar(conBaseChica).bajoUmbral.length, 1);
 
   const sinRuta = JSON.parse(JSON.stringify(limpia));
-  delete sinRuta.cdn.mismoProveedor.bajoN;
+  delete sinRuta.cdn.conCdn.n;
   c('umbral: una ruta declarada que desaparece es falla', evaluar(sinRuta).bajoUmbral.length > 0, true);
 
   c('nombres: se calla con la edicion real (0 de 220)', evaluar(edicion).nombradas.length, 0);

@@ -647,19 +647,13 @@ const SECCIONES = [
       </div>
     </div>
 
-    <div class="measure">
-      <p>La lectura fácil sería «contrate una red de distribución». La tabla dice algo más
-      incómodo: <strong>dos organizaciones con el mismo proveedor pueden estar en extremos
-      opuestos</strong>. Las {d.cdn.mismoProveedor.altoN} que usan {d.cdn.mismoProveedor.proveedor}
-      {' '}{d.cdn.mismoProveedor.alto} están al {d.cdn.mismoProveedor.altoPct}%; las
-      {' '}{d.cdn.mismoProveedor.bajoN} que usan {d.cdn.mismoProveedor.bajo}, al
-      {' '}{d.cdn.mismoProveedor.bajoPct}%. Mismo proveedor, mismo país, distinto nivel de
-      producto contratado.</p>
-
-      <p>Lo que separa a esas dos mitades no es una decisión de seguridad. Es una línea en un
-      contrato comercial que probablemente firmó otra gerencia, hace años, por razones de
-      rendimiento y costo.</p>
-    </div>
+    {/* RETIRADO el 2026-11-04 por decision de Nicholas. Aqui iba el argumento del
+        contrato: 16 organizaciones en Akamai Enhanced TLS al 100 % contra 4 en
+        Standard TLS al 0 %. Es uno de los argumentos mas fuertes del informe y se
+        retira igual, porque su lado bajo tiene base 4 y el punto 3 de la seccion
+        legal prohibe publicar una cifra sobre menos de ocho organizaciones: cuatro
+        son identificables por DNS y sobre ellas se afirmaba algo negativo. Vuelve
+        el mes que ese lado llegue a ocho. Lo vigila check-informe-anonimato.mjs. */}
 
     <div class="pull"><p>La mayor parte de la protección post-cuántica que hoy tiene Chile no la decidió ningún equipo de seguridad. La decidió un contrato de red de distribución de contenido.</p></div>
 
@@ -776,21 +770,6 @@ const SECCIONES = [
       <p>Eso protege algo real: el tráfico entre el navegador de su cliente y el borde de la red. No es nada. Pero <strong>es la parte de su criptografía que usted no gestiona, no la que define su riesgo</strong>, y es exactamente la que un auditor, un competidor o un periodista puede medir sin permiso.</p>
     </div>
 
-    <div class="chart">
-      <div class="chart-h"><p class="chart-t">Mismo proveedor, resultado opuesto</p>
-      <p class="chart-s">Organizaciones sobre {d.cdn.mismoProveedor.proveedor}, según el nivel de producto contratado.</p></div>
-      <div class="chart-b">
-        <div class="bars">
-          <div class="bar-row"><span class="bar-lab">{d.cdn.mismoProveedor.proveedor} {d.cdn.mismoProveedor.alto}</span>
-            <div class="bar-track"><div class="bar-fill hi" style={`width:${d.cdn.mismoProveedor.altoPct}%`}></div></div>
-            <span class="bar-val">{d.cdn.mismoProveedor.altoPct}%</span></div>
-          <div class="bar-row"><span class="bar-lab">{d.cdn.mismoProveedor.proveedor} {d.cdn.mismoProveedor.bajo}</span>
-            <div class="bar-track"><div class="bar-fill lo" style={`width:${Math.max(d.cdn.mismoProveedor.bajoPct, 0.6)}%`}></div></div>
-            <span class="bar-val">{d.cdn.mismoProveedor.bajoPct}%</span></div>
-        </div>
-        <p class="src">{d.cdn.mismoProveedor.altoN} organizaciones en {d.cdn.mismoProveedor.alto}, todas protegidas. {d.cdn.mismoProveedor.bajoN} en {d.cdn.mismoProveedor.bajo}, ninguna. Es la misma empresa proveedora y el mismo país: cambia la línea del contrato.</p>
-      </div>
-    </div>
 
     <div class="split">
       <div class="sp yes">
