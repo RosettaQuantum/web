@@ -55,6 +55,15 @@ const PENDIENTE_POR_DEFECTO =
 const esBorrador = d.borrador !== false;
 const pendiente = typeof d.borrador === "string" ? d.borrador : PENDIENTE_POR_DEFECTO;
 
+/* La nota al pie de la tabla de normas dice DOS cosas: que lo marcado «por
+ * verificar» no se publica, y que se muestra porque esto es un borrador. Las dos
+ * dejan de ser ciertas en cuanto no queda ninguna fila sin verificar, y la frase
+ * estaba FIJA — fuera de `esBorrador`. Apagar el borrador la habria publicado
+ * afirmando ser borrador, y afirmando una regla que ella misma incumplia.
+ * Ahora cuelga del DATO y no de la memoria de nadie: si vuelve a entrar una
+ * norma sin verificar, la nota vuelve sola. (4-nov-2026) */
+const hayPorVerificar = d.chile.normas.some((n: any) => n.estado === "noverificado");
+
 const MESES = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
 const [yy, mm] = d.edicion.split('-').map(Number);
 const mesLargo = `${MESES[mm-1]} de ${yy}`;
@@ -339,7 +348,9 @@ const SECCIONES = [
           </tbody>
         </table>
       </div>
+      {hayPorVerificar && (
       <p class="src">Las marcadas «por verificar» no se publican hasta confirmarse contra la fuente primaria del regulador. Se muestran acá porque este documento es un borrador de trabajo.</p>
+      )}
       </div>
     </div>
 

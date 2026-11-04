@@ -1,7 +1,7 @@
 {
  "edicion": "2026-08",
  "_borrador": "Un solo interruptor para dos cosas: enciende el cartel de la pagina Y el noindex. Hasta el 9-sep-2026 vivian separados y la pagina decia \"pendiente de revision legal\" mientras se ofrecia a los buscadores. Texto = lo que falta; false = publicada; ausente = borrador (falla cerrado).",
- "borrador": "revisión legal de los cuatro puntos marcados en la sección 11, y aviso previo a las organizaciones con hallazgos",
+ "borrador": false,
  "numero": 1,
  "titulo": "Criptografía post-cuántica en la gran empresa chilena",
  "subtitulo": "Medición técnica sobre la infraestructura pública de 220 organizaciones",
@@ -862,9 +862,9 @@
    },
    {
     "n": "CMF · Recopilación Actualizada de Normas",
-    "q": "Riesgo operacional y seguridad de la información en bancos",
-    "f": "por verificar",
-    "estado": "noverificado"
+    "q": "Riesgo operacional y seguridad de la información en bancos: capítulos 20-10 (seguridad de la información y ciberseguridad), 21-8 (riesgo operacional), 20-7 (externalización), 20-8 (incidentes) y 20-9 (continuidad)",
+    "f": "vigente",
+    "estado": "ok"
    }
   ]
  },
