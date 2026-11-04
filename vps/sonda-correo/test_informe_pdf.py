@@ -11,6 +11,8 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 
 AQUI = Path(__file__).resolve().parent
 os.environ["SONDA_CORREO_CLAVE"] = "k" * 48
+import tempfile  # noqa: E402
+os.environ["INFORME_ENVIOS_HORA"] = str(Path(tempfile.mkdtemp()) / "envios-hora.json")
 sys.path.insert(0, str(AQUI))
 import sonda_correo as S  # noqa: E402
 import informe_pdf as I  # noqa: E402
@@ -84,6 +86,22 @@ def _falla():
     I.una_vuelta(BASE, enviar_fn=lambda *a: (_ for _ in ()).throw(RuntimeError("falta RESEND_API_KEY")), pdf_fn=lambda f, c: b"%PDF")
     igual((visto["entregas"][-1][1]["ok"], "RESEND" in visto["entregas"][-1][1]["detalle"]), (False, True))
 prueba("si el envío revienta, se entrega «fallido» con la causa (no se calla)", _falla)
+def _tope():
+    # El defecto real: el cron relanza el proceso cada minuto. El tope tiene que sobrevivir a eso,
+    # así que se simula un proceso nuevo por pedido recargando el módulo.
+    import importlib
+    Path(os.environ["INFORME_ENVIOS_HORA"]).write_text(json.dumps([time.time()] * (I.TOPE_POR_HORA - 1)))
+    n0 = len(enviados)
+    for _ in range(2):
+        importlib.reload(I)
+        visto["cola"].append({"id": ID, "email": "a@ejemplo.cl", "dominio": "bancoejemplo.cl", "foto": FOTO, "correo_id": None, "baja": None})
+        I.una_vuelta(BASE, enviar_fn=falso_envio, pdf_fn=lambda f, c: b"%PDF")
+    igual(len(enviados) - n0, 1, "envíos con un solo cupo libre")
+    igual("tope" in visto["entregas"][-1][1]["detalle"], True, "el segundo se entrega fallido por tope")
+prueba("el tope por hora sobrevive a que el cron relance el proceso", _tope)
+prueba("silencio: con la hora vacía el tope no frena", lambda: (Path(os.environ["INFORME_ENVIOS_HORA"]).write_text("[]"),
+    visto["cola"].append({"id": ID, "email": "a@ejemplo.cl", "dominio": "bancoejemplo.cl", "foto": FOTO, "correo_id": None, "baja": None}),
+    igual(I.una_vuelta(BASE, enviar_fn=falso_envio, pdf_fn=lambda f, c: b"%PDF").startswith("enviado"), True)))
 prueba("todas las firmas que mandó el trabajador fueron válidas", lambda: igual(visto["firmas_malas"], 0))
 srv.shutdown()
 

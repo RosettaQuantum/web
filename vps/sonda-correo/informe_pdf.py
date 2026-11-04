@@ -12,6 +12,7 @@ Todo texto que lee el cliente vive en TEXTOS, arriba: es lo que aprueba Nicholas
 Regla que no se rompe: lo no medido se escribe «no medido», nunca «clásico» ni «no protegido».
 """
 import base64, html, json, os, sys, time, urllib.request
+from pathlib import Path
 from datetime import datetime, timezone
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
@@ -145,7 +146,15 @@ def enviar(destino, foto, correo, pdf_bytes, baja):
         return json.loads(resp.read()).get("id")
 
 
-_hora = []
+# El tope vive en un archivo, no en memoria: el cron relanza el proceso cada minuto, y una
+# lista en memoria se vaciaba en cada vuelta (el tope era de 20 por minuto, no por hora).
+# Se anota ANTES de enviar: un envío que revienta a mitad cuenta igual (registro, no recibo).
+ENVIOS_HORA = os.environ.get("INFORME_ENVIOS_HORA", str(Path(__file__).resolve().parent / "envios-hora.json"))
+def _envios_hora(ahora):
+    try: xs = json.loads(Path(ENVIOS_HORA).read_text())
+    except FileNotFoundError: xs = []
+    return [x for x in xs if ahora - x < 3600]
+
 def una_vuelta(base, enviar_fn=None, pdf_fn=None):
     """Toma a lo más un pedido y lo entrega. Devuelve lo que hizo (para el registro y las pruebas)."""
     enviar_fn, pdf_fn = enviar_fn or enviar, pdf_fn or pdf
@@ -153,10 +162,10 @@ def una_vuelta(base, enviar_fn=None, pdf_fn=None):
     if st == 204: return "nada"
     t = json.loads(b)
     ahora = time.time()
-    _hora[:] = [x for x in _hora if ahora - x < 3600]
     try:
-        if len(_hora) >= TOPE_POR_HORA: raise RuntimeError("tope por hora alcanzado: no enviado")
-        _hora.append(ahora)
+        hora = _envios_hora(ahora)
+        if len(hora) >= TOPE_POR_HORA: raise RuntimeError("tope por hora alcanzado: no enviado")
+        Path(ENVIOS_HORA).write_text(json.dumps(hora + [ahora]))
         correo = correo_de(f"{base}/api/sondas/correo/{t['correo_id']}") if t.get("correo_id") else None
         rid = enviar_fn(t["email"], t["foto"], correo, pdf_fn(t["foto"], correo), t.get("baja"))
         r = {"ok": True, "detalle": f"resend {rid}"}
