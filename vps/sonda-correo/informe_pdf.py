@@ -28,8 +28,9 @@ TEXTOS = {
     "correo": (
         "Adjuntamos el informe de {dominio}, medido el {fecha}.\n\n"
         "{lectura}\n\n"
-        "Cada mes volveremos a medir su dominio y le escribiremos sólo si algo cambia. "
-        "También le enviaremos el informe mensual de la gran empresa chilena.\n\n"
+        # Retirado el 4-nov por decisión de Nicholas: prometía una medición mensual que aún no
+        # existe. Vuelve cuando la medición mensual corra: «Cada mes volveremos a medir su dominio
+        # y le escribiremos sólo si algo cambia. También le enviaremos el informe mensual…»
         "La foto sellada va adjunta: súbala en rosettaquantum.com/es/q-ready/medicion/ para compararla con su próxima medición.\n\n"
         "Rosetta Quantum\n\n"
         "Para no recibir más correos sobre este dominio: {baja}"

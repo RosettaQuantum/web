@@ -44,6 +44,11 @@ prueba("el HTML lleva la huella entera de la foto", lambda: igual(FOTO["sha256"]
 prueba("ninguna palabra sin tilde de las de siempre en los textos", lambda: igual(
     [w for w in ("medicion", "cuantico", "tecnica", "numero", "publico") if w in re.sub(r"\S*\.(?:com|cl)\S*", "", json.dumps(I.TEXTOS, ensure_ascii=False).lower())], []))
 
+# La medición mensual no existe todavía (4-nov): el correo no la promete. Cuando exista, esta
+# prueba se cambia junto con el texto, no antes.
+prueba("el correo no promete una medición mensual que aún no corre", lambda: igual(
+    [w for w in ("cada mes", "informe mensual") if w in I.TEXTOS["correo"].lower()], []))
+
 # --- el trabajador, contra un sitio falso que verifica la firma por su cuenta
 CLAVE_T = "k" * 48
 visto = {"cola": [], "entregas": [], "firmas_malas": 0}
