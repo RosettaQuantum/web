@@ -26,6 +26,11 @@
  */
 import { readFileSync } from 'node:fs';
 
+export const CONSUMIDOR = {
+  quien: "sesion Q-Ready medicion",
+  hace: "funde en «Otros» o retira la cifra con base menor a ocho organizaciones antes de publicar la edicion",
+};
+
 export const UMBRAL_ANONIMATO = 8;
 
 // Las bases se declaran a mano, ruta por ruta. Un recorrido generico que gritara
