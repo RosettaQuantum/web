@@ -117,7 +117,7 @@
    "hibrido": 16,
    "ratio": 94,
    "gate": 93,
-   "medianaHosts": 40
+   "medianaHosts": 43
   },
   {
    "n": "Seguros",
@@ -126,7 +126,7 @@
    "hibrido": 14,
    "ratio": 82,
    "gate": 56,
-   "medianaHosts": 76
+   "medianaHosts": 75
   },
   {
    "n": "Educación superior",
@@ -171,7 +171,7 @@
    "hibrido": 10,
    "ratio": 59,
    "gate": 33,
-   "medianaHosts": 14
+   "medianaHosts": 16
   },
   {
    "n": "Telecomunicaciones",
@@ -189,7 +189,7 @@
    "hibrido": 9,
    "ratio": 38,
    "gate": 47,
-   "medianaHosts": 26,
+   "medianaHosts": 33,
    "nota": "isapres y clínicas agrupadas por regla de anonimato (n≥8)"
   },
   {
@@ -902,7 +902,7 @@
  "prosa": {
   "mas30_pct": 60,
   "profundos_pct": 83,
-  "sin_hibrido_pct": 35,
+  "sin_hibrido_pct": 34,
   "base": 170
  },
  "dos_tramos": {
