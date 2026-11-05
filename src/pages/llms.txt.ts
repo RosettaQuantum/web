@@ -6,6 +6,17 @@ export const GET: APIRoute = async ({ site }) => {
   const posts = (await getCollection('blog', ({ data }) => !data.draft))
     .sort((a, b) => b.data.date.localeCompare(a.data.date));
   const base = site?.toString().replace(/\/$/, '') ?? 'https://rosettaquantum.com';
+  // El informe mensual. Agosto se publico el 4-nov-2026 y este archivo no lo nombraba por
+  // ninguna parte —ni la ruta, ni «informe», ni «chilena», ni QEX, ni 220, en 50 KB—: estaba
+  // en el sitemap y mudo en el canal que leen los modelos. Nicholas pidio agregarlo.
+  // No se escribe a mano: el titulo y el subtitulo salen del JSON de la edicion, igual que
+  // los lee la pagina, asi que el mes que viene entra solo. Y usa LA MISMA regla de borrador
+  // que /informe-pqc (`borrador !== false` = borrador, falla cerrado): una edicion en
+  // borrador lleva noindex y esta fuera del sitemap, asi que tampoco se anuncia aqui.
+  const ult = Object.entries(import.meta.glob('../data/informe-pqc/*.json', { eager: true }))
+    .map(([p, m]: any) => ({ slug: p.split('/').pop()!.replace(/\.json$/, ''), d: m.default ?? m }))
+    .sort((a, b) => b.slug.localeCompare(a.slug))[0];
+  const informe = ult && ult.d.borrador === false ? ult : null;
   const lines = [
     '# Rosetta Quantum',
     '',
@@ -17,6 +28,7 @@ export const GET: APIRoute = async ({ site }) => {
     `- [Evidence Ledger](${base}/ledger): verdicts by recipe and problem class — including published self-corrections (errata) that cite the original sealed file and never overwrite it`,
     `- [Evidence Library](${base}/library): every tracked claim and the 74-algorithm catalogue, dated, sourced and linked to its seal`,
     `- [Survival Registry](${base}/library/registry): what happens to quantum advantage claims after the press release`,
+    ...(informe ? [`- [${informe.d.titulo}](${base}/informe-pqc): ${informe.d.subtitulo}. In Spanish, monthly; latest edition ${informe.slug}.`] : []),
     `- [Services & pricing](${base}/services): public prices, no "contact us" to find out what it costs`,
     `- [Pilot Referee](${base}/pilots): we make your quantum pilot produce a defensible number`,
     // Bloque 7 y 8, 10-sep-2026. Las tres puertas entran ANTES de metodologia porque

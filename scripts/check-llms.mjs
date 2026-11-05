@@ -49,6 +49,11 @@ const RETIRADO = [
   [/4,900|4\.900/, "precio de un producto que no esta en la lista decidida"],
 ];
 
+// El informe, anunciado como ENLACE y con la ruta PEGADA al dominio. Ni «/informe-cliente»
+// ni un «/informe-pqc-viejo» son esta pagina: la leccion del caso /monitorX de mas abajo es
+// que una ruta buscada como cadena suelta calza dentro de otra y el guardia se vuelve mudo.
+const ENLLMS = /\]\(https?:\/\/[^/)]+\/informe-pqc\/?\)/;
+
 const fallos = [];
 const ok = (m) => console.log("  ok    " + m);
 const mal = (m) => { console.log("  FALLA " + m); fallos.push(m); };
@@ -168,15 +173,21 @@ ok("ninguna pagina publica lleva noindex por accidente");
     const tieneNoindex = /<meta\s+name="robots"\s+content="noindex"/.test(h);
     const enSitemap = mapa.includes("/informe-pqc");
     const tieneCartel = /Borrador de trabajo/.test(h);
+    // El TERCER canal. Agosto se publico el 4-nov-2026 y este archivo no lo nombraba por
+    // ninguna parte: en el sitemap si, mudo para los modelos. Este guardia miraba dos de
+    // los tres canales, asi que el hueco salio a ojo y no de aqui. Ahora son tres.
+    const enLlms = ENLLMS.test(txt);
     const problemas = [];
     if (borrador) {
       if (!tieneNoindex) problemas.push("es borrador y NO lleva noindex");
       if (enSitemap) problemas.push("es borrador y figura en el sitemap");
       if (!tieneCartel) problemas.push("es borrador y no lo dice en la pagina");
+      if (enLlms) problemas.push("es borrador y se anuncia en llms.txt");
     } else {
       if (tieneNoindex) problemas.push("esta publicada y lleva noindex: no la va a ver nadie");
       if (!enSitemap) problemas.push("esta publicada y NO figura en el sitemap");
       if (tieneCartel) problemas.push("esta publicada y sigue mostrando el cartel de borrador");
+      if (!enLlms) problemas.push("esta publicada y NO se anuncia en llms.txt: publicada para Google y muda para los modelos");
     }
     if (problemas.length) mal(`informe-pqc (${d.edicion}) ${problemas.join(" · ")}`);
     else ok(`informe-pqc ${d.edicion}          ${borrador ? "borrador: lo dice, lleva noindex y esta fuera del sitemap"
@@ -193,6 +204,14 @@ ok("ninguna pagina publica lleva noindex por accidente");
   const callaMercado = ![..."$350 million".matchAll(/(?:US\$|\$)\s?([\d][\d.,]*)(?![\d.,]|\s?(?:million|millones|billion|mil millones)\b)/g)].length;
   if (callaMedicion && callaMercado) ok("silencio                 la medición permitida y «$350 million» no gritan");
   else mal(`el silencio falla (medicion:${callaMedicion} mercado:${callaMercado})`);
+  // El informe: que se caiga la linea tiene que detectarse, y que NO se confunda con una
+  // ruta parecida. Sin estas dos, la regla de arriba solo demuestra que sabe callarse.
+  const sinInforme = txt.replace(ENLLMS, "](https://x/otra)");
+  const gritaInforme = ENLLMS.test(txt) && !ENLLMS.test(sinInforme);
+  const callaParecida = !ENLLMS.test("- [x](https://rosettaquantum.com/informe-cliente/acme)")
+                     && !ENLLMS.test("- [x](https://rosettaquantum.com/informe-pqc-viejo)");
+  if (gritaInforme && callaParecida) ok("grito/silencio           si cae la linea del informe se detecta, y /informe-cliente no la suplanta");
+  else mal(`la mutacion del informe no sirve (grita:${gritaInforme} calla:${callaParecida})`);
   const gritaRetirado = RETIRADO.every(([re]) => re.test(conRetirado));
   const sinMonitor = new Set([...paginas].filter((p) => p !== "/monitor"));
   const gritaFalta = PUBLICAS.some((p) => !sinMonitor.has(p));
