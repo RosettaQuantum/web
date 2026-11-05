@@ -69,8 +69,40 @@ html{scroll-behavior:smooth}
   font-size:var(--t-data);color:var(--pending);flex:none}
 .toc a:hover{color:var(--pending)}
 
+/* ---------- barra fina de contenido ---------- */
+/* Aparece sola: va despues del indice en el DOM y es sticky, asi que mientras el indice
+   esta en pantalla no se ve. Se pega a 60 px, el alto de .nav-inner, y con z-index 40
+   queda POR DEBAJO de la barra del sitio (50) en vez de encima. */
+.tocbar{position:sticky;top:60px;z-index:40;margin:0 0 6px;
+  background:rgba(244,245,241,.94);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+.tocbar>summary{display:flex;align-items:center;gap:11px;cursor:pointer;list-style:none;
+  padding:9px 2px;font-size:var(--t-small);color:var(--ink-60)}
+.tocbar>summary::-webkit-details-marker{display:none}
+.tocbar>summary:hover{color:var(--ink)}
+.tb-n{font-family:var(--mono);font-size:var(--t-data);color:var(--pending);flex:none}
+.tb-t{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.tb-v{width:15px;height:15px;flex:none;stroke:currentColor;stroke-width:1.5;fill:none;
+  stroke-linecap:round;stroke-linejoin:round;transition:transform .15s}
+.tocbar[open] .tb-v{transform:rotate(180deg)}
+/* La lista abierta FLOTA. Si empujara el documento, abrirla correria el texto que el
+   lector esta mirando: el mismo defecto que esta barra viene a arreglar. El ancla es
+   .tocbar, que es `sticky` y por tanto elemento posicionado. */
+.tb-lista{position:absolute;left:0;right:0;top:100%;margin:0;padding:6px 0 10px;list-style:none;
+  max-height:min(62vh,420px);overflow:auto;background:var(--panel);
+  border-bottom:1px solid var(--line);box-shadow:0 10px 24px rgba(0,0,0,.07);
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:0 26px}
+.tb-lista li{margin:0;border-bottom:1px solid var(--paper-2)}
+.tb-lista a{display:flex;gap:11px;align-items:baseline;padding:8px 2px;font-size:var(--t-small)}
+.tb-lista a:hover{color:var(--pending)}
+.tb-ln{font-family:var(--mono);font-size:var(--t-data);color:var(--pending);flex:none}
+.tb-lista a[aria-current="true"]{color:var(--pending)}
+@media print{.tocbar{display:none}}
+
 /* ---------- secciones ---------- */
-.informe-doc section{padding-top:54px;scroll-margin-top:20px}
+/* scroll-margin-top sube de 20 a 56: con la barra del sitio (60) y la barra fina (38),
+   un salto a #seccion dejaba el titulo DEBAJO de las dos. 56 + los 54 de padding ponen el
+   titulo a ~110 px, justo bajo ellas. */
+.informe-doc section{padding-top:54px;scroll-margin-top:56px}
 .sechead{display:flex;align-items:center;gap:11px;margin-bottom:9px}
 .snum{font-family:var(--mono);font-size:var(--t-data);letter-spacing:.16em;
   text-transform:uppercase;color:var(--pending)}

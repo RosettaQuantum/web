@@ -97,14 +97,34 @@ function deltaVert(id: string, ratio: number) {
 const nf = (n: number) => n.toLocaleString('es-CL');
 const cdnPct = (o: any) => o.pct;
 
-const SECCIONES = [
-  ['panel','Panel de exposición'], ['ejecutivo','Resumen para directorio'],
-  ['indice','El índice QEX'], ['medicion','La medición del mes'], ['trampa','La trampa del CDN'],
-  ['ruta','Ruta crítica por proveedor'], ['costo','El costo de esperar'],
-  ['entregable','Así se ve su informe'], ['contexto','Por qué existe el problema'],
-  ['reloj','Dónde está la máquina y cuándo llega'], ['glosario','Glosario'],
-  ['legal','Metodología, límites y aviso legal'],
+/* Las secciones del documento, en una sola lista.
+ *
+ * Esta constante ya existia y NO la usaba nadie: doce entradas, con otros titulos y sin
+ * «Los cuatro relojes», mientras el indice visible se escribia a mano con trece. Dos
+ * listas de lo mismo, una muerta y ya divergida. Ahora manda esta y de ella salen las dos
+ * cosas que la nombran —el indice de arriba y la barra fina al desplazar—, asi que no
+ * pueden decir cosas distintas.
+ *
+ * Los titulos son LOS PUBLICADOS, copiados del indice que ya estaba en la pagina: este
+ * cambio es de estructura, no de texto. Y el orden es el del documento: si se agrega una
+ * seccion, entra aqui y aparece sola en los dos lugares. Lo cubre check-informe-indice.mjs,
+ * que compara esta lista contra los <section id> del HTML construido. */
+const SECCIONES: { id: string; t: string }[] = [
+  { id: 'panel',      t: 'Panel de exposición · lectura de 30 segundos' },
+  { id: 'ejecutivo',  t: 'Resumen para directorio · dos minutos' },
+  { id: 'relojes',    t: 'Los cuatro relojes' },
+  { id: 'indice',     t: 'El índice' },
+  { id: 'medicion',   t: 'La medición' },
+  { id: 'trampa',     t: 'La trampa' },
+  { id: 'ruta',       t: 'Lo que sí define su plazo' },
+  { id: 'costo',      t: 'El costo de esperar' },
+  { id: 'entregable', t: 'Qué se puede saber de su organización' },
+  { id: 'contexto',   t: 'Por qué existe el problema' },
+  { id: 'reloj',      t: 'Dónde está la máquina y cuándo llega' },
+  { id: 'glosario',   t: 'Glosario' },
+  { id: 'legal',      t: 'Metodología, límites y aviso legal' },
 ];
+const nn = (i: number) => String(i + 1).padStart(2, '0');
 ---
 {/* Portado a la marca el 2026-09-09 por instruccion de Nicholas. Antes usaba
     BaseLayout, que le daba el chrome retirado —barra oscura en basalto, pie en
@@ -115,7 +135,7 @@ const SECCIONES = [
 <MarcaLayout
   title={`${d.titulo} — Informe ${mesLargo} · Rosetta Quantum`}
   description={`${d.subtitulo}. Edición ${d.numero}, ${mesLargo}. Medición técnica sobre endpoints reales, no encuesta.`}
-  lang="es" altUrl="/" ruta="/informe-pqc" pageCss={css} scripts={["/js/frescura.js"]} noindex={esBorrador}>
+  lang="es" altUrl="/" ruta="/informe-pqc" pageCss={css} scripts={["/js/frescura.js", "/js/informe-indice.js"]} noindex={esBorrador}>
 
 <div class="informe-doc">
 <div class="informe">
@@ -157,21 +177,30 @@ const SECCIONES = [
   <nav class="toc" id="contenido" aria-label="Contenido">
     <h2>Contenido de esta edición</h2>
     <ol>
-      <li><a href="#panel"><span class="tl">Panel de exposición · lectura de 30 segundos</span></a></li>
-      <li><a href="#ejecutivo"><span class="tl">Resumen para directorio · dos minutos</span></a></li>
-      <li><a href="#relojes"><span class="tl">Los cuatro relojes</span></a></li>
-      <li><a href="#indice"><span class="tl">El índice</span></a></li>
-      <li><a href="#medicion"><span class="tl">La medición</span></a></li>
-      <li><a href="#trampa"><span class="tl">La trampa</span></a></li>
-      <li><a href="#ruta"><span class="tl">Lo que sí define su plazo</span></a></li>
-      <li><a href="#costo"><span class="tl">El costo de esperar</span></a></li>
-      <li><a href="#entregable"><span class="tl">Qué se puede saber de su organización</span></a></li>
-      <li><a href="#contexto"><span class="tl">Por qué existe el problema</span></a></li>
-      <li><a href="#reloj"><span class="tl">Dónde está la máquina y cuándo llega</span></a></li>
-      <li><a href="#glosario"><span class="tl">Glosario</span></a></li>
-      <li><a href="#legal"><span class="tl">Metodología, límites y aviso legal</span></a></li>
+      {SECCIONES.map((s) => (
+        <li><a href={`#${s.id}`}><span class="tl">{s.t}</span></a></li>
+      ))}
     </ol>
   </nav>
+
+  {/* La barra fina. Vive DESPUES del indice en el DOM y es sticky, asi que no se ve
+      mientras el indice esta en pantalla y aparece sola en cuanto se pasa: no hace falta
+      JS para mostrarla ni esconderla. Se pega a 60 px —el alto de la barra del sitio— y
+      queda por debajo de ella (z-index 40 contra 50), que es exactamente lo que el indice
+      no hacia. Sin JS muestra la seccion 01 y abre la lista igual (es un <details>), asi
+      que no depende del script para servir. */}
+  <details class="tocbar" id="tocbar">
+    <summary>
+      <span class="tb-n">01</span>
+      <span class="tb-t">{SECCIONES[0].t}</span>
+      <svg class="tb-v" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
+    </summary>
+    <ol class="tb-lista">
+      {SECCIONES.map((s, i) => (
+        <li><a href={`#${s.id}`} data-n={nn(i)}><span class="tb-ln">{nn(i)}</span><span>{s.t}</span></a></li>
+      ))}
+    </ol>
+  </details>
 
   <!-- CONTEXTO GLOBAL -->
   <div class="chart" style="margin:34px 0 6px">
