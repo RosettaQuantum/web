@@ -1,7 +1,18 @@
 /* Barra y pie — portados VERBATIM de la maqueta v20 (congelada).
    No se re-escriben a mano: copiarlos a ojo es como se pierde una maqueta aprobada.
    Los tokens salen de global.css (commit 3); aqui NO se declara ninguno. */
-nav{position:sticky;top:0;z-index:50;background:rgba(244,245,241,.94);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+/* El selector es `nav:not([class])` y no `nav` a secas. La barra del sitio (NavV2) es el
+   unico <nav> del repo SIN clase; todos los demas llevan la suya. Con el selector desnudo,
+   cualquier <nav> semantico que naciera despues heredaba sticky+top:0+z-index:50 — y como
+   va despues en el DOM, se pintaba ENCIMA de la barra. Caso real, visto a ojo en la pagina
+   publicada el 5-nov-2026: el indice de /informe-pqc (<nav class="toc">) quedaba clavado
+   arriba tapando el menu y comiendose 365 de los 800 px de pantalla durante todo el
+   documento. Lo mismo le pasaba a <nav class="toc"> de /informe-cliente y a
+   <nav class="rq-subtabs"> dentro de su propio contenedor sticky.
+   Lo que SI quiere pegarse lo declara en su hoja: `html nav.sitenav` (legado.css) y
+   `.mv-actos` (medicion-envivo.css) traen su propia regla y no dependen de esta.
+   Lo cubre scripts/check-nav.mjs. */
+nav:not([class]){position:sticky;top:0;z-index:50;background:rgba(244,245,241,.94);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
 .nav-inner{display:flex;align-items:center;justify-content:space-between;height:60px;gap:12px}
 .nav-inner{display:flex;align-items:center;justify-content:space-between;height:60px;gap:12px}
 .wordmark{display:flex;align-items:center;gap:10px;min-width:0}

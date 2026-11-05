@@ -51,7 +51,15 @@ html{scroll-behavior:smooth}
 .delta.new{color:var(--pending);border-color:var(--pending-20);background:var(--pending-10)}
 
 /* ---------- índice ---------- */
-.toc{border:1px solid var(--line);background:var(--panel);padding:20px 24px;margin:34px 0;border-radius:3px}
+/* `position:static` NO es decorativo y no se borra. El indice es un <nav>, y hay CINCO
+   copias de una regla `nav{position:sticky;top:0;z-index:50}` repartidas por las hojas del
+   sitio (nav.css, home.css, index.css, ledger.css, clases.css). Cualquiera de ellas lo
+   clavaba arriba: tapaba el menu —mismo z-index, y el indice va despues en el DOM— y se
+   comia 365 de 800 px de pantalla durante todo el documento. Visto a ojo en la pagina
+   publicada, 5-nov-2026. Va con clase, no con `nav`, para ganar por especificidad sin
+   depender del orden en que se inlinean las hojas. */
+.toc{position:static;z-index:auto;backdrop-filter:none;
+  border:1px solid var(--line);background:var(--panel);padding:20px 24px;margin:34px 0;border-radius:3px}
 .toc h2{font-size:var(--t-small);margin:0 0 12px}
 .toc ol{margin:0;padding:0;list-style:none;counter-reset:t;
   display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:0 26px}
