@@ -73,7 +73,11 @@ html{scroll-behavior:smooth}
 /* Aparece sola: va despues del indice en el DOM y es sticky, asi que mientras el indice
    esta en pantalla no se ve. Se pega a 60 px, el alto de .nav-inner, y con z-index 40
    queda POR DEBAJO de la barra del sitio (50) en vez de encima. */
-.tocbar{position:sticky;top:60px;z-index:40;margin:0 0 6px;
+/* 6-nov-2026: en produccion la barra del sitio NO mide 60. La franja de frescura nace oculta
+   y el JS la muestra cuando lee el archivo; con ella la barra mide ~97 y tapaba entera a esta
+   (z 50 sobre 40). En la vista previa local la franja no aparece, por eso paso la revision.
+   El alto real lo mide informe-indice.js y lo deja en --alto-nav; 60 queda como respaldo. */
+.tocbar{position:sticky;top:var(--alto-nav,60px);z-index:40;margin:0 0 6px;
   background:rgba(244,245,241,.94);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
 .tocbar>summary{display:flex;align-items:center;gap:11px;cursor:pointer;list-style:none;
   padding:9px 2px;font-size:var(--t-small);color:var(--ink-60)}
@@ -102,7 +106,7 @@ html{scroll-behavior:smooth}
 /* scroll-margin-top sube de 20 a 56: con la barra del sitio (60) y la barra fina (38),
    un salto a #seccion dejaba el titulo DEBAJO de las dos. 56 + los 54 de padding ponen el
    titulo a ~110 px, justo bajo ellas. */
-.informe-doc section{padding-top:54px;scroll-margin-top:56px}
+.informe-doc section{padding-top:54px;scroll-margin-top:calc(var(--alto-nav,60px) - 4px)}
 .sechead{display:flex;align-items:center;gap:11px;margin-bottom:9px}
 .snum{font-family:var(--mono);font-size:var(--t-data);letter-spacing:.16em;
   text-transform:uppercase;color:var(--pending)}
