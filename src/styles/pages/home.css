@@ -27,7 +27,15 @@ h3{font-family:var(--serif);font-weight:500;font-size:var(--t-sub);line-height:v
 .note-banner{background:var(--ink);color:var(--paper);font-family:var(--mono);font-size:var(--t-data);letter-spacing:.08em;text-align:center;padding:7px 12px}
 .note-banner b{color:#7FD9CE;font-weight:500}
 
-nav{position:sticky;top:0;z-index:50;background:rgba(244,245,241,.94);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+/* Acotado a `nav:not([class])`, igual que en componentes/nav.css. Esta hoja trae una
+   COPIA textual del bloque de la barra y se inlinea en las mismas paginas, asi que
+   mientras la regla siguiera desnuda aqui, acotarla alla no servia de nada: la ultima
+   que entra gana y las dos entran. Esta es la unica copia desnuda que llegaba a paginas
+   construidas — 72 de ellas. Las de pages/index.css, pages/ledger.css y pages/clases.css
+   no las importa nadie y llegan a 0, medido sobre dist. La barra del sitio (NavV2) es el
+   unico <nav> sin clase; todos los demas llevan la suya.
+   Lo cubre scripts/check-nav.mjs, que prohibe el selector desnudo en toda hoja. */
+nav:not([class]){position:sticky;top:0;z-index:50;background:rgba(244,245,241,.94);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
 .nav-inner{display:flex;align-items:center;justify-content:space-between;height:60px;gap:12px}
 .wordmark{display:flex;align-items:center;gap:10px;min-width:0}
 .wm{font-family:var(--serif);font-size:var(--t-body);letter-spacing:.02em;white-space:nowrap}
