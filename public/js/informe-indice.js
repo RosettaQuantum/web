@@ -30,8 +30,21 @@
   }).filter(function (s) { return s.el; });
   if (!secciones.length) return;
 
+  // La barra del sitio no tiene un alto fijo: la franja de frescura aparece despues, cuando
+  // el JS del sitio lee el archivo, y suma ~37 px. Se mide de verdad, y se vuelve a medir
+  // cada vez que cambia, en vez de suponer los 60 de .nav-inner (6-nov-2026).
   var UMBRAL = 120;
   var actual = -1;
+  var sitio = document.querySelector('body > nav, nav:not([class])');
+  function medir() {
+    if (!sitio) return;
+    var alto = Math.round(sitio.getBoundingClientRect().height);
+    if (!(alto > 0)) return;
+    document.documentElement.style.setProperty('--alto-nav', alto + 'px');
+    UMBRAL = alto + barra.offsetHeight + 22;
+  }
+  medir();
+  if (sitio && window.ResizeObserver) new ResizeObserver(function () { medir(); actual = -1; pintar(); }).observe(sitio);
 
   function pintar() {
     var i = 0;
