@@ -905,7 +905,7 @@ const nn = (i: number) => String(i + 1).padStart(2, '0');
           </tbody>
         </table>
       </div>
-      <p class="src">Ninguna es un pronóstico de Q-Day: son plazos de acción. El documento del NIST que fija 2030 y 2035 para EE. UU. sigue siendo un borrador.</p>
+      <p class="src">Ninguna es un pronóstico de Q-Day: son plazos de acción. El documento del NIST que fija 2030 y 2035 para EE. UU. ya está en versión final (octubre de 2026).</p>
       </div>
     </div>
 
@@ -916,7 +916,7 @@ const nn = (i: number) => String(i + 1).padStart(2, '0');
       <h3>Tres precisiones que casi todo el material comercial confunde</h3>
       <p><strong>Australia merece nota al pie.</strong> Es la fecha más agresiva del mundo —2030 contra el 2031 alemán y el 2035 de casi todos— y retira de aprobación no solo RSA y curvas elípticas, sino también AES-128, SHA-256 e incluso los parámetros post-cuánticos intermedios ML-KEM-768 y ML-DSA-65. Pero su fuerza legal es la más débil: el manual australiano declara expresamente que ninguna organización está obligada por ley a cumplirlo, y las fechas de 2030 viven en el texto explicativo, no en un control numerado.</p>
 
-      <p><strong>Ninguna de estas fechas es un pronóstico de Q-Day</strong> — son plazos de acción, deliberadamente conservadores. Y el documento del NIST que fija 2030 y 2035 para Estados Unidos <strong>sigue siendo un borrador</strong>: el propio memorándum de junio lo cita como tal, agregando "o el documento que lo suceda". Se está exigiendo cumplimiento contra un texto que aún no existe en versión final.</p>
+      <p><strong>Ninguna de estas fechas es un pronóstico de Q-Day</strong> — son plazos de acción, deliberadamente conservadores. Y el documento del NIST que fija 2030 y 2035 para Estados Unidos <strong>ya está en versión final</strong>: se publicó en octubre de 2026, después de que el memorándum de junio lo citara como borrador.</p>
 
       <p><strong>Las tres autoridades técnicas más influyentes fuera de Estados Unidos se contradicen</strong> en el punto central de la transición. Australia sostiene que los esquemas híbridos no tienen valor práctico frente a un computador cuántico y no los recomienda. Alemania recomienda explícitamente el híbrido, con construcciones nombradas. Francia lo hace <em>obligatorio</em> para otorgar sus certificaciones. Una organización multinacional no puede satisfacer a las tres con una sola arquitectura.</p>
 
@@ -1189,7 +1189,10 @@ const nn = (i: number) => String(i + 1).padStart(2, '0');
       </div>
     </div>
 
-    <div class="rev">
+    {/* 6-nov-2026: el recuadro sale sólo en borrador. Publicada, una edición que dice estar
+        «pendiente de revisión legal antes de publicar» se contradice (decisión de Nicholas).
+        T-llms lo vigila sobre la página servida. */}
+    {esBorrador && (<div class="rev">
       <h4>Pendiente de revisión legal antes de publicar</h4>
       <ol>
         <li>Redacción del método frente a la legislación chilena sobre acceso no autorizado.</li>
@@ -1199,7 +1202,7 @@ const nn = (i: number) => String(i + 1).padStart(2, '0');
         <li>Menciones a proveedores como ausencia de declaración pública, no afirmación sobre el producto.</li>
         <li>Suficiencia de los descargos de este apartado.</li>
       </ol>
-    </div>
+    </div>)}
 
     <div class="note"><strong>Derecho de exclusión y de acceso.</strong> Cualquier organización puede pedir su exclusión de futuras ediciones, o el detalle completo de lo observado en su superficie, sin costo y sin condiciones. Ambas dentro de 72 horas hábiles y sin justificación.</div>
 

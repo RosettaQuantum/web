@@ -181,6 +181,12 @@ ok("ninguna pagina publica lleva noindex por accidente");
     const tieneNoindex = /<meta\s+name="robots"\s+content="noindex"/.test(h);
     const enSitemap = mapa.includes("/informe-pqc");
     const tieneCartel = /Borrador de trabajo/.test(h);
+    // 6-nov-2026: dos frases que una edicion publicada no puede llevar. El recuadro legal decia
+    // «pendiente de revision legal antes de publicar» en una pagina ya publicada, y NIST IR 8547
+    // figuraba como borrador cuando su version final ya existia (oct-2026). Se miran sobre la
+    // pagina SERVIDA: el comentario del .astro que explica el arreglo no llega al HTML.
+    const tieneRecuadroLegal = /Pendiente de revisi[oó]n legal/i.test(h);
+    const nistBorrador = /Initial Public Draft|versi[oó]n final a[uú]n no existe/i.test(h);
     // El TERCER canal. Agosto se publico el 4-nov-2026 y este archivo no lo nombraba por
     // ninguna parte: en el sitemap si, mudo para los modelos. Este guardia miraba dos de
     // los tres canales, asi que el hueco salio a ojo y no de aqui. Ahora son tres.
@@ -195,6 +201,8 @@ ok("ninguna pagina publica lleva noindex por accidente");
       if (tieneNoindex) problemas.push("esta publicada y lleva noindex: no la va a ver nadie");
       if (!enSitemap) problemas.push("esta publicada y NO figura en el sitemap");
       if (tieneCartel) problemas.push("esta publicada y sigue mostrando el cartel de borrador");
+      if (tieneRecuadroLegal) problemas.push("esta publicada y dice estar pendiente de revision legal antes de publicar");
+      if (nistBorrador) problemas.push("esta publicada y cita NIST IR 8547 como borrador: la version final es de oct-2026");
       if (!enLlms) problemas.push("esta publicada y NO se anuncia en llms.txt: publicada para Google y muda para los modelos");
     }
     if (problemas.length) mal(`informe-pqc (${d.edicion}) ${problemas.join(" · ")}`);

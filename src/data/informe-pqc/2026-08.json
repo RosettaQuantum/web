@@ -838,10 +838,10 @@
   {
    "id": "nist",
    "n": "Las fechas técnicas ya están escritas",
-   "sub": "aunque todavía en borrador",
+   "sub": "y ya están en versión final",
    "sev": "warn",
-   "cuerpo": "NIST publicó su calendario de transición: deprecación de RSA y curvas elípticas en 2030, prohibición en 2035. El documento —IR 8547— sigue siendo borrador público inicial y lo decimos así: no es una obligación vigente. Pero es la fecha contra la que sus proveedores están planificando sus versiones, y eso sí lo va a sentir.",
-   "pie": "NIST IR 8547, Initial Public Draft, 12-nov-2024. La versión final aún no existe."
+   "cuerpo": "NIST publicó la versión final de su calendario de transición (IR 8547, octubre de 2026): RSA y curvas elípticas quedan deprecados después de 2030 y prohibidos después de 2035, con cualquier tamaño de clave. Es la fecha contra la que sus proveedores están planificando sus versiones, y eso sí lo va a sentir.",
+   "pie": "NIST IR 8547, versión final, octubre de 2026."
   }
  ],
  "chile": {
