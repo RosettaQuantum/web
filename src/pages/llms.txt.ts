@@ -28,7 +28,7 @@ export const GET: APIRoute = async ({ site }) => {
     `- [Evidence Ledger](${base}/ledger): verdicts by recipe and problem class — including published self-corrections (errata) that cite the original sealed file and never overwrite it`,
     `- [Evidence Library](${base}/library): every tracked claim and the 74-algorithm catalogue, dated, sourced and linked to its seal`,
     `- [Survival Registry](${base}/library/registry): what happens to quantum advantage claims after the press release`,
-    ...(informe ? [`- [${informe.d.titulo}](${base}/informe-pqc): ${informe.d.subtitulo}. In Spanish, monthly; latest edition ${informe.slug}.`] : []),
+    ...(informe ? [`- [${informe.d.titulo}](${base}/informe-pqc): ${informe.d.subtitulo}. In Spanish; latest edition ${informe.slug}.`] : []),
     `- [Services & pricing](${base}/services): public prices, no "contact us" to find out what it costs`,
     `- [Pilot Referee](${base}/pilots): we make your quantum pilot produce a defensible number`,
     // Bloque 7 y 8, 10-sep-2026. Las tres puertas entran ANTES de metodologia porque
