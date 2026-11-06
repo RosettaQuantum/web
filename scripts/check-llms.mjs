@@ -53,6 +53,12 @@ const RETIRADO = [
 // ni un «/informe-pqc-viejo» son esta pagina: la leccion del caso /monitorX de mas abajo es
 // que una ruta buscada como cadena suelta calza dentro de otra y el guardia se vuelve mudo.
 const ENLLMS = /\]\(https?:\/\/[^/)]+\/informe-pqc\/?\)/;
+// 6-nov-2026: la linea del informe no promete periodicidad. La medicion mensual todavia no
+// corre; el 4-nov Nicholas saco la misma promesa del correo y el 6-nov de esta linea. Vuelve
+// cuando la remedicion exista. Se mira SOLO la linea del informe: «monthly» en otra parte del
+// archivo (un precio por mes, por ejemplo) no es esta promesa.
+const PROMESA_MENSUAL = /\b(monthly|every month|mensual(?:es|mente)?|cada mes)\b/i;
+const prometeMensual = (t) => t.split("\n").some((l) => ENLLMS.test(l) && PROMESA_MENSUAL.test(l));
 
 const fallos = [];
 const ok = (m) => console.log("  ok    " + m);
@@ -104,6 +110,8 @@ if (inexistentes.length) mal(`rutas de API anunciadas que no existen: ${inexiste
 else ok(`${apis.length - plantillas.length} rutas de API anunciadas existen (${plantillas.length} plantillas con {id}, no consultables)`);
 
 // 4 · lo retirado no vuelve
+if (prometeMensual(txt)) mal("la linea del informe promete una medicion mensual que todavia no corre");
+else ok("informe sin promesa      la linea del informe no promete periodicidad");
 for (const [re, porque] of RETIRADO) {
   if (re.test(txt)) mal(`${re} sigue en llms.txt — ${porque}`);
   else ok(`${String(re).padEnd(24)} fuera del archivo`);
@@ -212,6 +220,11 @@ ok("ninguna pagina publica lleva noindex por accidente");
                      && !ENLLMS.test("- [x](https://rosettaquantum.com/informe-pqc-viejo)");
   if (gritaInforme && callaParecida) ok("grito/silencio           si cae la linea del informe se detecta, y /informe-cliente no la suplanta");
   else mal(`la mutacion del informe no sirve (grita:${gritaInforme} calla:${callaParecida})`);
+  const lineaMensual = "- [Informe](https://rosettaquantum.com/informe-pqc): 220 organizaciones. In Spanish, monthly; latest edition 2026-08.";
+  const gritaMensual = prometeMensual(txt + "\n" + lineaMensual + "\n");
+  const callaMensual = !prometeMensual("- [Plan](https://rosettaquantum.com/services): US$99 monthly\n" + lineaMensual.replace("monthly; ", ""));
+  if (gritaMensual && callaMensual) ok("grito/silencio           «monthly» en la linea del informe grita; en otra linea no");
+  else mal(`la mutacion de la promesa mensual no sirve (grita:${gritaMensual} calla:${callaMensual})`);
   const gritaRetirado = RETIRADO.every(([re]) => re.test(conRetirado));
   const sinMonitor = new Set([...paginas].filter((p) => p !== "/monitor"));
   const gritaFalta = PUBLICAS.some((p) => !sinMonitor.has(p));
