@@ -5,7 +5,13 @@ body{background:var(--basalt);color:var(--papyrus);font-family:'Instrument Sans'
 ::selection{background:var(--faience);color:var(--basalt)}
 a{color:inherit;text-decoration:none}
 .wrap{max-width:var(--maxw);margin:0 auto;padding:0 28px}
-nav{position:sticky;top:0;z-index:50;background:rgba(23,21,18,.92);backdrop-filter:blur(10px);border-bottom:1px solid var(--stone-line)}
+/* Acotado a `nav.sitenav`, que es la barra de la identidad vieja que esta hoja pinta
+   (la declara igual legado.css, con `html nav.sitenav`). Desnudo alcanzaba a cualquier
+   <nav> de la pagina: asi se clavo arriba el indice del informe, tapando el menu.
+   Esta hoja hoy no la importa nadie y llega a 0 paginas construidas, medido sobre dist
+   el 5-nov-2026; se acota igual para que el dia que alguien la importe no vuelva el
+   defecto. Lo cubre scripts/check-nav.mjs. */
+nav.sitenav{position:sticky;top:0;z-index:50;background:rgba(23,21,18,.92);backdrop-filter:blur(10px);border-bottom:1px solid var(--stone-line)}
 .nav-inner{display:flex;align-items:center;justify-content:space-between;height:64px}
 .wordmark{display:flex;align-items:center;gap:12px}
 .slabmark{width:34px;height:34px;flex-shrink:0}
