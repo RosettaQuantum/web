@@ -1,0 +1,67 @@
+---
+/**
+ * Barra de compartir al pie de cada nota (encargo del 8-nov-2026, motor de contenido).
+ *
+ * Una sola implementacion en el cliente cubre las notas estaticas y las servidas desde D1:
+ * el cascaron compilado ya la trae, y el script lee la nota que tiene delante (URL sin query
+ * string, el h1 y el TL;DR) en vez de recibirla por props, que en el cascaron son marcadores.
+ * Si la pagina no tiene <article class="article">, la barra se queda oculta: no aparece en
+ * los indices.
+ *
+ * Sin iconos ni scripts de terceros: los tres botones sociales son enlaces de "compartir"
+ * de cada red, y la tarjeta que muestran sale de las metas og: que ya existen.
+ */
+const { lang = 'en' } = Astro.props;
+const es = lang === 'es';
+const t = es
+  ? { label: 'COMPARTIR', link: 'Copiar enlace', tldr: 'Copiar TL;DR + enlace', ok: 'Copiado' }
+  : { label: 'SHARE', link: 'Copy link', tldr: 'Copy TL;DR + link', ok: 'Copied' };
+---
+<style is:inline>
+.compartir{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin:28px auto 8px;font-family:var(--mono);font-size:12px}
+.compartir[hidden]{display:none}
+.compartir .cl{color:var(--ink-60);letter-spacing:2px;margin-right:6px}
+.compartir a,.compartir button{font:inherit;color:var(--ink);background:var(--panel);border:1px solid var(--line);border-radius:2px;padding:7px 12px;cursor:pointer;text-decoration:none;line-height:1.2}
+.compartir a:hover,.compartir button:hover,.compartir a:focus-visible,.compartir button:focus-visible{border-color:var(--verdict);outline:none}
+</style>
+<div class="compartir wrap" id="rqCompartir" hidden data-ok={t.ok}>
+  <span class="cl">{t.label}</span>
+  <a data-red="linkedin" target="_blank" rel="noopener">LinkedIn</a>
+  <a data-red="x" target="_blank" rel="noopener">X</a>
+  <a data-red="whatsapp" target="_blank" rel="noopener">WhatsApp</a>
+  <button type="button" data-copia="link">{t.link}</button>
+  <button type="button" data-copia="tldr">{t.tldr}</button>
+</div>
+<script is:inline>
+(function () {
+  var b = document.getElementById('rqCompartir');
+  var art = document.querySelector('article.article');
+  if (!b || !art) return;
+  var url = location.origin + location.pathname;
+  var h1 = art.querySelector('h1');
+  var titulo = h1 ? h1.textContent.trim() : document.title;
+  var tl = art.querySelector('.tldr');
+  var tldr = tl ? tl.textContent.trim() : '';
+  var e = encodeURIComponent;
+  var enlaces = {
+    linkedin: 'https://www.linkedin.com/sharing/share-offsite/?url=' + e(url),
+    x: 'https://twitter.com/intent/tweet?text=' + e(titulo) + '&url=' + e(url),
+    whatsapp: 'https://wa.me/?text=' + e(titulo + ' ' + url)
+  };
+  b.querySelectorAll('a[data-red]').forEach(function (a) { a.href = enlaces[a.dataset.red]; });
+  var copias = b.querySelectorAll('button[data-copia]');
+  if (!navigator.clipboard) copias.forEach(function (x) { x.hidden = true; });
+  if (!tldr) b.querySelector('button[data-copia="tldr"]').hidden = true;
+  copias.forEach(function (x) {
+    x.addEventListener('click', function () {
+      var texto = x.dataset.copia === 'tldr' ? tldr + '\n' + url : url;
+      var antes = x.textContent;
+      navigator.clipboard.writeText(texto).then(function () {
+        x.textContent = b.dataset.ok;
+        setTimeout(function () { x.textContent = antes; }, 1600);
+      }, function () {});
+    });
+  });
+  b.hidden = false;
+})();
+</script>

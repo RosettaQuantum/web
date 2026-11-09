@@ -34,6 +34,7 @@ import { sinComentarios } from '../lib/css-sin-comentarios.js';
 import NavV2 from '../components/NavV2.astro';
 import PieV2 from '../components/PieV2.astro';
 import Boletin from '../components/Boletin.astro';
+import Compartir from '../components/Compartir.astro';
 import marca from '../styles/pages/home.css?raw';
 import navCss from '../styles/componentes/nav.css?raw';
 import blogCss from '../styles/pages/blog.css?raw';
@@ -99,6 +100,7 @@ const ogUrlFinal = ogUrl ? (esMarcador(ogUrl) ? ogUrl : abs(ogUrl)) : canonical;
 <body>
   <NavV2 lang={lang} ruta={lang === 'es' ? '/es/blog' : '/blog'} alt={altUrl} />
   <slot />
+  <Compartir lang={lang} />
   <Boletin lang={lang} variante="weekly" />
   <PieV2 lang={lang} />
   <script is:inline src="/js/paginas.js"></script>

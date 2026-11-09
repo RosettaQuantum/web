@@ -1,3 +1,4 @@
+import { registrarVisita } from "./lib/hits.mjs";
 import { manejarApi, registrarMedicion } from "./api.js";
 import * as medicionAgentes from "./lib/medicion-agentes.mjs";
 import { manejarEnvio, manejarBaja } from "./lib/envio-informe.mjs";
@@ -51,6 +52,15 @@ const REDIRECTS_301 = {
 
 export default {
   async fetch(request, env, ctx) {
+    // Contador de visitas (lib/hits.mjs): mira la respuesta FINAL y escribe fuera del
+    // camino, por waitUntil. Un contador caido nunca baja una pagina.
+    const res = await atender(request, env, ctx);
+    registrarVisita(request, res, env, ctx);
+    return res;
+  }
+};
+
+async function atender(request, env, ctx) {
     const url = new URL(request.url);
 
     // El preview vive en *.workers.dev. Sin esta excepcion, la canonicalizacion de
@@ -204,8 +214,7 @@ export default {
     }
 
     return env.ASSETS.fetch(request);
-  }
-};
+}
 
 function json(obj, status = 200) {
   return new Response(JSON.stringify(obj), { status, headers: { "Content-Type": "application/json" } });
