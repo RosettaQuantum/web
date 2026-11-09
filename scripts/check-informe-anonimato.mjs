@@ -47,6 +47,20 @@ export const BASES_DE_ORGANIZACIONES = [
   // deliberado. Si la cifra vuelve el mes que su base llegue a ocho, vuelve aqui.
   { ruta: 'cdn.conCdn.n / sinCdn.n',      leer: (e) => [['con CDN', e.cdn.conCdn.n], ['sin CDN', e.cdn.sinCdn.n]] },
   { ruta: 'superficie[].n',               leer: (e) => e.superficie.map((s) => [s.rango, s.n]) },
+  // AGREGADAS EL 9-NOV-2026. Las dos son conteos de organizaciones y no estaban
+  // declaradas, asi que el umbral no las miraba. Lo encontre armando noviembre:
+  // la maquina mide ahora 220 organizaciones en vez de 170, y con eso
+  //   - `indice.distribucion` reparte 220 en tramos de cinco puntos, y los
+  //     tramos de los extremos se vacian: los seis que caen bajo 45 darian
+  //     tramos de 2 y de 4;
+  //   - `certificados_detalle` publica 7 organizaciones por sobre el minimo
+  //     vigente, y 7 es menos que ocho.
+  // En agosto las dos pasaban por casualidad -el tramo mas chico tenia 8 y los
+  // certificados sobre el minimo eran 11-, asi que nadie noto que faltaban. Es
+  // el alcance de un guardia leyendose como mayor del que es (CLAUDE.md 5 bis).
+  { ruta: 'indice.distribucion[].n',      leer: (e) => e.indice.distribucion.map((d) => [d.rango, d.n]) },
+  { ruta: 'indice.certificados_detalle.distribucion[].n',
+    leer: (e) => e.indice.certificados_detalle.distribucion.map((d) => [`valor ${d.valor}`, d.n]) },
 ];
 
 // Un dominio dentro de la edicion es una organizacion nombrada, sin vuelta. Los de
@@ -81,8 +95,14 @@ export function evaluar(edicion) {
 const esSelfTest = process.argv.includes('--self-test');
 const RUTA = 'src/data/informe-pqc';
 const { readdirSync } = await import('node:fs');
-const slug = readdirSync(RUTA).filter((f) => /^\d{4}-\d{2}\.json$/.test(f)).sort().pop();
-const edicion = JSON.parse(readFileSync(`${RUTA}/${slug}`, 'utf8'));
+// Un argumento que sea una ruta .json manda sobre el barrido: asi la compuerta
+// del corpus puede apuntar este guardia al BORRADOR del mes antes de que exista
+// en el arbol. Sin argumento, el comportamiento es el de siempre.
+const rutaDada = process.argv.slice(2).find((a) => a.endsWith('.json') && !a.startsWith('-'));
+const slug = rutaDada
+  ? rutaDada.split('/').pop()
+  : readdirSync(RUTA).filter((f) => /^\d{4}-\d{2}\.json$/.test(f)).sort().pop();
+const edicion = JSON.parse(readFileSync(rutaDada ?? `${RUTA}/${slug}`, 'utf8'));
 let fallas = 0;
 
 if (esSelfTest) {
