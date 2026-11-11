@@ -2,7 +2,7 @@
 /**
  * El lector de /es/q-ready/medicion no ve errores técnicos en inglés.
  *
- * Defecto real (11-nov-2026): la tarjeta del certificado de falabella.com dijo
+ * Defecto real (11-nov-2026): la tarjeta del certificado de un dominio medido dijo
  * «No pudimos leer el certificado: Stream was cancelled». El texto crudo sigue en la traza
  * (el registro de la medición); en tarjetas y tablas pasa por enPalabras().
  * Comprueba:
@@ -25,10 +25,11 @@ for (const t of ["Stream was cancelled", "The operation was aborted", "connect E
   const r = enPalabras(t);
   if (!r || INGLES.test(r)) fallas.push(`«${t}» llega al lector como «${r}»`);
 }
-igual(enPalabras("Stream was cancelled"), "la conexión se cortó antes de terminar", "caso falabella");
+igual(enPalabras("Stream was cancelled"), "la conexión se cortó antes de terminar", "caso real");
 // silencio: nuestro español no se toca
 igual(enPalabras("el servidor de medición no entregó a tiempo"), "el servidor de medición no entregó a tiempo", "español intacto");
 igual(enPalabras(""), "", "vacío");
+igual(enPalabras("La medición de correo no está habilitada en este servidor."), "La medición de correo no está habilitada en este servidor", "sin punto doble (caso real: «servidor..»)");
 
 // cableado: en lo visible nada de error crudo (la traza sí lo lleva, a propósito)
 // Interpolación directa del campo (`${c.error}`, `${esc(sa.error)}`); un `${c.error ? …` es una condición, no lo muestra.
@@ -45,7 +46,7 @@ if (CRUDO.test('fila("Estado", `No pudimos leer el certificado: ${esc(enPalabras
 
 // veredicto
 const L = (w, c, ce) => [{ k: "web", estado: w }, { k: "correo", estado: c }, { k: "endp", estado: "info" }, { k: "cert", estado: ce }, { k: "ssh", estado: "nm" }];
-igual(fraseVeredicto(L("si", "no", "no")), "Su sitio ya está protegido. Su correo y su certificado, todavía no.", "santander 11-nov");
+igual(fraseVeredicto(L("si", "no", "no")), "Su sitio ya está protegido. Su correo y su certificado, todavía no.", "sitio sí, correo y certificado no");
 igual(fraseVeredicto(L("si", "nm", "no")), "Su sitio ya está protegido. Su certificado, todavía no. No pudimos medir su correo.", "no medido aparte");
 if (/todavía no/.test(fraseVeredicto(L("nm", "nm", "nm")))) fallas.push("tres canales sin medir se leen como no protegidos");
 if (/ssh/i.test(fraseVeredicto(L("si", "si", "si")))) fallas.push("el veredicto nombra SSH, que esta página no mide");

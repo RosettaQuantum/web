@@ -1,7 +1,7 @@
 /*
  * Lo que el lector ve cuando algo no se pudo medir (11-nov-2026).
  *
- * Defecto real que lo motivó: la tarjeta del certificado de falabella.com mostró
+ * Defecto real que lo motivó: la tarjeta del certificado de un dominio medido mostró
  * «No pudimos leer el certificado: Stream was cancelled», el texto crudo del runtime.
  * El mensaje técnico sigue intacto en el registro de la medición (la traza); en las
  * tarjetas y tablas va esta traducción.
@@ -27,7 +27,8 @@ const ES = /[áéíóúñ¿¡]|\b(el|la|los|las|del|servidor|respondió|medició
 
 /** Traduce un error técnico a una frase corta para el lector. Vacío → "". */
 export function enPalabras(err) {
-  const t = String(err ?? "").trim();
+  // Sin punto final: quien la usa la pone dentro de su propia oración («…: <causa>.»).
+  const t = String(err ?? "").trim().replace(/[.\s]+$/, "");
   if (!t) return "";
   if (ES.test(t)) return t;
   for (const [re, frase] of REGLAS) if (re.test(t)) return frase;
