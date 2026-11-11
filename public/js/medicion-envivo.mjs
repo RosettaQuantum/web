@@ -26,7 +26,7 @@ const edicionLarga = (f) => { const m = /^(\d{4})-(\d{2})/.exec(f.edicion || f.m
 const capital = (s) => s[0].toUpperCase() + s.slice(1);
 const espera = (ms) => new Promise((r) => setTimeout(r, ms));
 const quieto = matchMedia("(prefers-reduced-motion: reduce)").matches;
-const CT_ESPERA_MS = 120000;
+const CT_ESPERA_MS = 60000;   // el servidor tarda como máximo ~45 s (25 crt.sh + 20 Cert Spotter)
 const ms = (x) => x == null ? "" : x >= 1000 ? `${num(x / 1000, 1)} s` : `${x} ms`;
 
 const form = $("mv-form"); if (!form) throw new Error("sin formulario");
@@ -170,27 +170,22 @@ $("mv-b-archivo").addEventListener("change", async (e) => {
 })();
 
 // ---------------------------------------------------------------- paso 1: CT
-// crt.sh falla a ratos (un 502 sin cabecera CORS llega como «Failed to fetch»): hasta 3 intentos
-// dentro del mismo plazo total. Medido el 30-oct: un primer intento fallido y el siguiente en 4 s.
-// El 30-oct falló tres veces seguidas en 13 s y respondió al minuto: ahora son 6 intentos con
-// esperas crecientes (~45 s), dentro del mismo plazo total.
-const CT_ESPERAS = [0, 3000, 5000, 8000, 12000, 15000];
+// El registro se pide a NUESTRO servidor (/api/ct, lib/ct-registro.mjs), que guarda una copia de
+// 24 h por dominio, le da 25 s a crt.sh y, si no responde, pregunta a Cert Spotter. Antes el
+// navegador esperaba a crt.sh hasta 120 s antes de medir nada más (medido el 11-nov: >60 s, 41 s,
+// 13 s y 17 s para un mismo dominio): la página parecía rota. La respuesta declara su fuente.
 async function consultarCT(dominio, aviso) {
   const t = performance.now();
   const ctl = new AbortController(); const reloj = setTimeout(() => ctl.abort(), CT_ESPERA_MS);
-  let ultimo;
   try {
-    for (let i = 0; i < CT_ESPERAS.length; i++) {
-      if (i) { aviso(`el registro no respondió (${esc(ultimo?.message || "error")}); reintento ${i} de ${CT_ESPERAS.length - 1} en ${CT_ESPERAS[i] / 1000} s`); await espera(CT_ESPERAS[i]); }
-      try {
-        const r = await fetch(`https://crt.sh/?q=%25.${encodeURIComponent(dominio)}&output=json`, { signal: ctl.signal });
-        if (!r.ok) throw new Error(`el registro respondió ${r.status}`);
-        const texto = await r.text();
-        guardarCT(dominio, texto);
-        return { filas: JSON.parse(texto), sha256: await N.sha256Hex(texto), ms: Math.round(performance.now() - t), fuente: "crt.sh", intentos: i + 1 };
-      } catch (e) { ultimo = e; if (e.name === "AbortError") throw e; }
-    }
-    throw ultimo;
+    const r = await fetch(`/api/ct?d=${encodeURIComponent(dominio)}`, { signal: ctl.signal });
+    const j = await r.json().catch(() => ({}));
+    for (const x of j.intentos || []) aviso(`${esc(x.fuente)} no respondió (${esc(x.error)}) · ${ms(x.ms)}`);
+    if (!r.ok || !j.ok) throw new Error(j.error || `el servicio respondió ${r.status}`);
+    guardarCT(dominio, j.texto);
+    return { filas: JSON.parse(j.texto), sha256: await N.sha256Hex(j.texto), ms: Math.round(performance.now() - t),
+      fuente: j.desde_copia ? `${j.fuente}, copia del servidor` : j.fuente,
+      consultado_utc: j.desde_copia ? j.consultado_utc : undefined, intentos: 1 };
   } finally { clearTimeout(reloj); }
 }
 // Copia local de la última respuesta buena del registro, por dominio: sólo en este navegador, con
@@ -243,7 +238,7 @@ form.addEventListener("submit", async (e) => {
 
   // 1 · superficie
   riel("ct", "activo");
-  const lineaCT = traza("consultando el registro público de certificados (crt.sh)…");
+  const lineaCT = traza("consultando el registro público de certificados…");
   let ct = null;
   try { ct = await consultarCT(dominio, (t) => { traza(t, "mv-t-mal"); }); }
   catch (err) {
@@ -256,7 +251,7 @@ form.addEventListener("submit", async (e) => {
   if (ct) {
     const k = N.conteos([...mapa.keys()]);
     lineaCT.classList.add("mv-t-ok");
-    traza(`crt.sh · ${num(ct.filas.length)} certificados → <b>${num(k.hostnames)} nombres</b> · ${num(k.profundos)} de 3 niveles o más · ${num(k.no_productivo + k.infra_expuesta + k.legado)} sensibles · ${ms(ct.ms)}${ct.intentos > 1 ? ` · ${ct.intentos} intentos` : ""}`, "mv-t-ok");
+    traza(`${esc(ct.fuente)} · ${num(ct.filas.length)} certificados → <b>${num(k.hostnames)} nombres</b> · ${num(k.profundos)} de 3 niveles o más · ${num(k.no_productivo + k.infra_expuesta + k.legado)} sensibles · ${ms(ct.ms)}${ct.intentos > 1 ? ` · ${ct.intentos} intentos` : ""}`, "mv-t-ok");
     riel("ct", "ok");
   } else { traza("sin superficie: la higiene se calcula sólo con TLS", "mv-t-mal"); riel("ct", "mal"); }
 

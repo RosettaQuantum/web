@@ -6,6 +6,7 @@ registrarMedicion(medicionAgentes);
 import { manejarQreadyLead } from "./lib/qready-lead.mjs";
 import { manejarOg } from "./lib/og-ruta.mjs";
 import { manejarBorde } from "./lib/borde-envivo.mjs";
+import { manejarCT } from "./lib/ct-registro.mjs";
 import { manejarSondas } from "./lib/informe-envivo.mjs";
 import { manejarCorreo } from "./lib/correo-envivo.mjs";
 // /sitemap-0.xml vive en lib/ para que una guardia de Node pueda ejercerlo: worker.js
@@ -98,6 +99,8 @@ async function atender(request, env, ctx) {
     // Re-medición en vivo del borde (demo de la reunión con un banco, 3-nov-2026).
     // Herramienta general: no guarda nada del dominio medido ni escribe en D1.
     if (url.pathname === "/api/borde") return manejarBorde(request);
+    // Registro público de certificados con caché y segunda fuente (lib/ct-registro.mjs).
+    if (url.pathname === "/api/ct") return manejarCT(request, ctx);
     if (url.pathname.startsWith("/api/medicion/envio")) return manejarEnvio(request, env, url);
     if (url.pathname === "/baja") return manejarBaja(request, env, url);
     if (url.pathname.startsWith("/api/sondas/correo")) return manejarCorreo(request, env, url);
