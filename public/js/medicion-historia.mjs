@@ -123,6 +123,12 @@ async function pintarShor() {
 
 // El riel marca en qué paso está el lector.
 function riel() {
+  // El índice se pega bajo la barra del sitio, que no tiene alto fijo (la franja de frescura llega
+  // después): se mide de verdad y se vuelve a medir, igual que en el informe PQC.
+  const sitio = document.querySelector("body > nav, nav:not([class])");
+  const medir = () => { const a = Math.round(sitio?.getBoundingClientRect().height || 0); if (a > 0) document.documentElement.style.setProperty("--alto-nav", a + "px"); };
+  medir();
+  if (sitio && window.ResizeObserver) new ResizeObserver(medir).observe(sitio);
   const links = [...document.querySelectorAll(".mv-actos a")];
   const io = new IntersectionObserver((es) => es.forEach((e) => {
     if (e.isIntersecting) links.forEach((a) => a.classList.toggle("mv-acto-on", a.getAttribute("href") === "#" + e.target.id));

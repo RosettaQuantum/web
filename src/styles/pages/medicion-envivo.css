@@ -11,8 +11,8 @@
 
 /* ---- cabecera */
 .mv-cab{max-width:860px}
-.mv-eyebrow{font-family:var(--mono);font-size:var(--t-label);letter-spacing:.08em;text-transform:uppercase;color:var(--verdict);margin:0}
-.mv-cab h1{font-family:var(--serif);font-weight:400;font-size:var(--t-display);line-height:var(--lh-display);letter-spacing:-.02em;margin:var(--s2) 0;text-wrap:balance}
+.mv-eyebrow{font-family:var(--mono);font-size:var(--t-label);letter-spacing:.18em;text-transform:uppercase;color:var(--verdict);margin:0}
+.mv-cab h1{font-family:var(--serif);font-weight:500;font-size:var(--t-display);line-height:var(--lh-display);letter-spacing:-.02em;margin:var(--s2) 0;text-wrap:balance}
 .mv-lede{font-size:var(--t-body);line-height:var(--lh-body);color:var(--ink-60);max-width:64ch;margin:0}
 
 /* ---- barra de mando */
@@ -54,7 +54,7 @@
    que le ganaba a una clase sola y dejaba la consola y los bloques del color del papel. */
 .mv .mv-consola{background:var(--ink);color:var(--paper);border-radius:2px;overflow:hidden}
 .mv-consola-cab{display:flex;flex-wrap:wrap;align-items:center;gap:10px var(--s3);padding:14px var(--s3);border-bottom:1px solid var(--ink-60)}
-.mv-consola-cab h2{font-family:var(--mono);font-size:var(--t-label);font-weight:400;text-transform:uppercase;letter-spacing:.1em;color:var(--line);margin:0}
+.mv-consola-cab h2{font-family:var(--mono);font-size:var(--t-label);font-weight:400;text-transform:uppercase;letter-spacing:.1em;color:var(--line) !important;margin:0} /* !important: home.css fuerza h2 a --ink en modo oscuro y el título desaparecía (1,00:1) */
 .mv-riel{list-style:none;display:flex;flex-wrap:wrap;gap:6px;margin:0;padding:0;flex:1}
 .mv-riel li{font-family:var(--mono);font-size:var(--t-label);padding:4px 10px;border:1px solid var(--ink-60);border-radius:2px;color:var(--line);transition:color .2s,border-color .2s,background .2s}
 .mv-riel li[data-estado="activo"]{color:var(--paper);border-color:var(--pending-20)}
@@ -85,7 +85,7 @@
 .mv-resultado{display:grid;gap:var(--s3);margin-top:var(--s3)}
 .mv .mv-bloque{background:var(--panel);border:1px solid var(--line);padding:var(--s3);min-width:0;animation:mv-sube .4s ease-out both}
 .mv-bloque-cab{display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:4px var(--s2);margin-bottom:var(--s2)}
-.mv-bloque h2{font-family:var(--serif);font-weight:400;font-size:var(--t-title);line-height:var(--lh-title);letter-spacing:-.01em;margin:0;text-wrap:balance}
+.mv-bloque h2{font-family:var(--serif);font-weight:500;font-size:var(--t-title);line-height:var(--lh-title);letter-spacing:-.01em;margin:0;text-wrap:balance}
 .mv-ficha h2{font-size:var(--t-sub);line-height:var(--lh-sub);margin-bottom:var(--s2)}
 .mv-h3{font-family:var(--mono);font-size:var(--t-label);font-weight:400;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-60);margin:var(--s3) 0 var(--s1)}
 .mv-meta{font-family:var(--mono);font-size:var(--t-data);color:var(--ink-60);margin:0}
@@ -232,7 +232,7 @@ i.mv-k-legado{background:var(--ink)}
 .mv-b-fecha{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .mv-b-activa .mv-b-sub{color:var(--promised)}
 .mv-b-acc{display:flex;gap:14px;padding:0 12px 8px}
-.mv-b-acc .mv-link{font-size:var(--t-label)}
+.mv-b-acc .mv-link{font-size:var(--t-label);min-height:24px}
 .mv-b-agregar{display:inline-block;font-size:var(--t-small);color:var(--verdict);text-decoration:underline;text-underline-offset:4px;cursor:pointer;position:relative}
 .mv-b-agregar input{position:absolute;width:1px;height:1px;opacity:0}
 .mv-b-agregar:focus-within{outline:2px solid var(--verdict);outline-offset:2px}
@@ -276,6 +276,7 @@ i.mv-k-legado{background:var(--ink)}
 }
 /* Imprimir: el resultado como documento; la consola, el formulario y la bandeja no van. */
 @media print{
+  .mv-actos{display:none !important}
   .mv-instrumento,.mv-consola,.mv-bandeja,.mv-acciones,.mv-como,.mv-b-agregar{display:none !important}
   .mv-grid{grid-template-columns:1fr}
   .mv-bloque{break-inside:avoid;animation:none}
@@ -294,12 +295,12 @@ i.mv-k-legado{background:var(--ink)}
 .mv-b-delta.mv-b-menos{color:var(--alert);border-color:var(--alert)}
 
 /* ---- Página única en cuatro pasos (2-nov-2026): riel, canales, cápsula, Shor. Sólo tokens del sitio. */
-.mv-actos{contain:inline-size;min-width:0;position:sticky;top:0;z-index:5;background:var(--paper);border-bottom:1px solid var(--line);margin:0 0 var(--s3)}
+.mv-actos{contain:inline-size;min-width:0;position:sticky;top:var(--alto-nav,61px);z-index:5;background:var(--paper);border-bottom:1px solid var(--line);margin:0 0 var(--s3)}
 .mv-actos ol{list-style:none;margin:0;padding:0;display:flex;gap:var(--s3);overflow-x:auto}
 .mv-actos a{display:flex;gap:8px;align-items:baseline;padding:12px 0;color:var(--ink-60);text-decoration:none;white-space:nowrap;border-bottom:2px solid transparent;font-size:var(--t-small)}
 .mv-actos a b{font-family:var(--mono);font-weight:400;font-size:12px}
 .mv-actos a.mv-acto-on{color:var(--ink);border-bottom-color:var(--verdict)}
-.mv-acto{padding:var(--s4) 0 var(--s2);scroll-margin-top:56px}
+.mv-acto{padding:var(--s4) 0 var(--s2);scroll-margin-top:calc(var(--alto-nav,61px) + 56px)}
 .mv-acto-cab{display:grid;grid-template-columns:140px 1fr;gap:var(--s3);margin-bottom:var(--s3)}
 .mv-acto-n{font-family:var(--mono);font-size:12px;text-transform:uppercase;letter-spacing:.08em;color:var(--verdict);margin:10px 0 0}
 .mv-acto-cab h2{font-family:var(--serif);font-weight:500;font-size:var(--t-title);line-height:1.1;margin:0 0 6px;text-wrap:balance}
@@ -353,3 +354,10 @@ i.mv-k-legado{background:var(--ink)}
 .mv-envio-fila .mv-ir{height:48px}
 .mv-envio-acepto{display:flex;gap:8px;align-items:flex-start;font-size:var(--t-small);color:var(--ink-60);max-width:72ch}
 .mv-envio-acepto input{margin-top:3px}
+
+@media(max-width:560px){
+  .mv-formula{white-space:normal}
+  .mv-hito span{width:72px;left:-36px}
+  .mv-hito-hoy span{left:0}
+  .mv-hito-fin span{left:-70px}
+}
