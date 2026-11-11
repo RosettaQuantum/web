@@ -7,7 +7,7 @@
  * La consola muestra eventos REALES de esta medición (lo que respondió cada consulta, con su
  * tiempo): no hay animación que simule trabajo. Si algo no se midió, la consola lo dice.
  *
- * La bandeja «Sus fotos» vive SÓLO en este navegador (localStorage): ninguna foto viaja a un
+ * La bandeja «Su historial» vive SÓLO en este navegador (localStorage): ninguna foto viaja a un
  * servidor. Es una comodidad del que mide, no un archivo: si el navegador la borra, la foto
  * descargada sigue siendo la copia que vale.
  * Todo lo que viene de afuera (nombres de CT, respuestas de servidores, fotos cargadas) se escapa.
@@ -80,7 +80,7 @@ function arrancarConsola() {
 }
 const pararReloj = () => { clearInterval(relojId); $("mv-reloj").textContent = `${num((performance.now() - t0) / 1000, 1)} s`; };
 
-// ---------------------------------------------------------------- bandeja «Sus fotos»
+// ---------------------------------------------------------------- bandeja «Su historial»
 const CLAVE = "rq-qex-fotos/1";
 const leerBandeja = () => { try { const v = JSON.parse(localStorage.getItem(CLAVE) || "[]"); return Array.isArray(v) ? v : []; } catch { return []; } };
 function guardarEnBandeja(foto) {
@@ -93,24 +93,37 @@ function quitarDeBandeja(sha) {
   if (previa && previa.sha256 === sha) elegirPrevia(null);
   pintarBandeja();
 }
+// La serie del QEX de un dominio, de la más antigua a la más reciente, en la escala 0–100 del índice.
+// Con una sola medición no hay línea que dibujar.
+function linea(serie) {
+  const v = serie.map((f) => f.qex?.score).filter(Number.isFinite).reverse();
+  if (v.length < 2) return "";
+  const x = (i) => (i / (v.length - 1)) * 100, y = (s) => 22 - (s / 100) * 20;
+  const pts = v.map((s, i) => `${x(i).toFixed(1)},${y(s).toFixed(1)}`).join(" ");
+  return `<svg class="mv-b-serie" viewBox="-2 0 104 24" preserveAspectRatio="none" role="img" aria-label="QEX en el tiempo: ${v.map((s) => num(s)).join(", ")}"><polyline points="${pts}"/></svg>`;
+}
 async function pintarBandeja() {
   const fotos = leerBandeja().sort((a, b) => a.dominio.localeCompare(b.dominio) || b.medido_utc.localeCompare(a.medido_utc));
   $("mv-b-vacia").hidden = fotos.length > 0;
   const integras = await Promise.all(fotos.map((f) => N.fotoIntegra(f)));
   let dom = null, html = "";
   fotos.forEach((f, i) => {
-    if (f.dominio !== dom) { dom = f.dominio; const n = fotos.filter((x) => x.dominio === dom).length; html += `<li class="mv-b-dom">${esc(dom)} <span>${n} ${n === 1 ? "corrida" : "corridas"}</span></li>`; }
+    if (f.dominio !== dom) {
+      dom = f.dominio;
+      const serie = fotos.filter((x) => x.dominio === dom);
+      html += `<li class="mv-b-dom"><span class="mv-b-dom-n">${esc(dom)}</span><span>${serie.length} ${serie.length === 1 ? "medición" : "mediciones"}</span>${linea(serie)}</li>`;
+    }
     // la anterior del mismo dominio es la siguiente en la lista (orden: más reciente primero)
     const ant = fotos[i + 1] && fotos[i + 1].dominio === f.dominio ? fotos[i + 1] : null;
     const d = ant && Number.isFinite(f.qex?.score) && Number.isFinite(ant.qex?.score) ? f.qex.score - ant.qex.score : null;
-    const delta = d === null ? "" : `<span class="mv-b-delta${d > 0 ? " mv-b-mas" : d < 0 ? " mv-b-menos" : ""}">${d === 0 ? "=" : (d > 0 ? "+" : "−") + num(Math.abs(d))}</span>`;
+    const delta = d === null ? "" : `<span class="mv-b-delta${d > 0 ? " mv-b-mas" : d < 0 ? " mv-b-menos" : ""}" title="frente a la medición anterior">${d === 0 ? "=" : (d > 0 ? "+" : "−") + num(Math.abs(d))}</span>`;
     const hora = horaLocal(f.medido_utc);
     const activa = !!(previa && previa.sha256 === f.sha256);
     html += `<li class="mv-b-item${activa ? " mv-b-activa" : ""}">
       <button type="button" class="mv-b-elegir" data-sha="${esc(f.sha256)}" aria-pressed="${activa}">
-        <span class="mv-b-fecha">${esc(fechaCorta(f.medido_utc))}${hora ? ` <time datetime="${esc(f.medido_utc)}">${esc(hora)}</time>` : ""}</span>
-        <span class="mv-b-qex">QEX ${esc(num(f.qex?.score))}${delta}</span>
-        <span class="mv-b-sub">${activa ? "comparando con esta" : integras[i] ? "comparar con esta" : "huella alterada"}</span>
+        <span class="mv-b-fecha">${esc(fechaCorta(f.medido_utc))}${hora ? ` · <time datetime="${esc(f.medido_utc)}">${esc(hora)}</time>` : ""}</span>
+        <span class="mv-b-qex"><small>QEX</small> <b>${esc(num(f.qex?.score))}</b></span>
+        <span class="mv-b-sub">${activa ? "comparando con esta" : integras[i] ? "comparar con esta" : "huella alterada"}</span>${delta}
       </button>
       <span class="mv-b-acc"><button type="button" class="mv-link" data-bajar="${esc(f.sha256)}">descargar</button>
       <button type="button" class="mv-link" data-quitar="${esc(f.sha256)}">quitar</button></span></li>`;
@@ -121,7 +134,7 @@ function elegirPrevia(f) {
   previa = f || null;
   const est = $("mv-previa-estado");
   $("mv-previa-quitar").hidden = !f;
-  if (!f) { est.className = "mv-nota"; est.textContent = "Sin foto anterior: se mide sin comparar. Elija una en «Sus fotos» para comparar."; pintarBandeja(); return; }
+  if (!f) { est.className = "mv-nota"; est.textContent = "Sin foto anterior: se mide sin comparar. Elija una en «Su historial» para comparar."; pintarBandeja(); return; }
   N.fotoIntegra(f).then((ok) => {
     est.className = "mv-nota " + (ok ? "mv-ok" : "mv-mal");
     est.textContent = ok ? `Se comparará con la foto de ${edicionLarga(f)} (${fechaCorta(f.medido_utc)}) de ${f.dominio}.`
@@ -338,8 +351,8 @@ form.addEventListener("submit", async (e) => {
   $("mv-cuando").textContent = fechaUtc(medido);
   $("mv-huella").textContent = fotoHoy.sha256;
   $("mv-integra").innerHTML = '<span class="mv-chip mv-si">íntegra</span> recalculada en este navegador';
-  $("mv-guardada").textContent = guardarEnBandeja(fotoHoy) ? "Quedó guardada en «Sus fotos», en este navegador."
-    : "Este navegador no dejó guardarla en «Sus fotos»: descárguela para no perderla.";
+  $("mv-guardada").textContent = guardarEnBandeja(fotoHoy) ? "Quedó guardada en «Su historial», en este navegador."
+    : "Este navegador no dejó guardarla en «Su historial»: descárguela para no perderla.";
   pintarBandeja();
   terminar();
   $("mv-resultado").hidden = false;
