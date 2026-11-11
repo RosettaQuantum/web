@@ -10,6 +10,8 @@
 //
 // Regla que no se rompe: un canal que no se pudo medir dice «no medido», nunca «clásico».
 
+import { enPalabras, fraseVeredicto } from "./medicion-palabras.mjs";
+
 const $ = (id) => document.getElementById(id);
 const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 const num = (x) => Number(x).toLocaleString("es-CL");
@@ -34,7 +36,7 @@ function canales({ d, s, dominio, www }) {
   const est = !med.length ? "nm" : conPq.length === med.length ? "si" : "no";
   out.push({ k: "correo", q: "Correo entrante", estado: est,
     chip: est === "si" ? "post-cuántico" : est === "no" ? "clásico" : "no medido",
-    txt: est === "nm" ? `No pudimos medir el cifrado de su correo${co?.causa ? `: ${co.causa}` : ""}.`
+    txt: est === "nm" ? `No pudimos medir el cifrado de su correo${co?.causa ? `: ${enPalabras(co.causa)}` : ""}.`
       : est === "si" ? `Sus ${med.length} servidores de correo medidos aceptan el intercambio híbrido.`
       : conPq.length ? `${conPq.length} de ${med.length} servidores de correo aceptan el intercambio híbrido.`
       : `Ninguno de sus ${med.length} servidores de correo acepta el intercambio híbrido.`,
@@ -50,7 +52,7 @@ function canales({ d, s, dominio, www }) {
   const alg = c.ok ? `${c.algoritmo === "EC" ? "ECDSA" : c.algoritmo} ${c.curva || (c.bits ? c.bits + " bits" : "")}`.trim() : null;
   const pqCert = c.ok && /ML-?DSA|SLH-?DSA|FALCON/i.test(`${c.algoritmo} ${c.curva || ""}`);
   out.push({ k: "cert", q: "Certificado", estado: !c.ok ? "nm" : pqCert ? "si" : "no", chip: alg || "no leído",
-    txt: pqCert ? "Firma post-cuántica." : c.ok ? "NIST lo depreca después de 2030, con cualquier curva o tamaño." : `No pudimos leer el certificado${c.error ? `: ${c.error}` : ""}.`,
+    txt: pqCert ? "Firma post-cuántica." : c.ok ? "NIST lo depreca después de 2030, con cualquier curva o tamaño." : `No pudimos leer el certificado${c.error ? `: ${enPalabras(c.error)}` : ""}. Vuelva a medir en unos minutos.`,
     det: c.ok ? "NIST IR 8547, versión final" : "" });
 
   out.push({ k: "ssh", q: "Acceso SSH", estado: "nm", chip: "no medido",
@@ -67,6 +69,9 @@ function pintarCanales(lista) {
   $("mv-canales").innerHTML = lista.map((c) => `<article class="mv-canal${c.k === debil ? " mv-canal-debil" : ""}">
     <span class="mv-canal-q">${esc(c.q)}</span>${chip(CLASE[c.estado], c.chip)}<p>${esc(c.txt)}</p><span class="mv-canal-det">${esc(c.det)}</span></article>`).join("");
   const web = lista.find((c) => c.k === "web"), cor = lista.find((c) => c.k === "correo");
+  const ver = $("mv-veredicto");
+  ver.textContent = fraseVeredicto(lista);
+  ver.hidden = false;
   const p = $("mv-puente");
   if (debil) {
     const otro = debil === "correo" ? web : cor;

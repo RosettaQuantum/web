@@ -13,6 +13,7 @@
  * Todo lo que viene de afuera (nombres de CT, respuestas de servidores, fotos cargadas) se escapa.
  */
 import * as N from "./qex-nucleo.mjs";
+import { enPalabras } from "./medicion-palabras.mjs";
 
 const $ = (id) => document.getElementById(id);
 const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
@@ -436,7 +437,7 @@ function pintarResultado({ d, s, ct, mapa, hostsCT, dominio, www, nuevosCT = [] 
     <div class="mv-nodo mv-nodo-niebla"><b>Su origen</b><span>servidores propios</span></div>`;
   $("mv-saludos").innerHTML = Object.entries(b.saludos).map(([k, sa]) => {
     const S = SALUDOS[k] || { corto: k, ofrece: "", lee: () => "" };
-    const res = sa.error ? `<span class="mv-chip mv-neutro">error</span><span class="mv-sub">${esc(sa.error)}</span>`
+    const res = sa.error ? `<span class="mv-chip mv-neutro">sin respuesta</span><span class="mv-sub">${esc(enPalabras(sa.error))}</span>`
       : sa.alerta != null ? `<span class="mv-chip mv-no">alerta ${esc(sa.alerta)}</span>`
       : `<span class="mv-chip ${sa.grupo === "X25519MLKEM768" ? "mv-si" : "mv-neutro"}">${esc(sa.grupo)}</span>${sa.hrr ? '<span class="mv-sub">con un viaje extra (HelloRetryRequest)</span>' : ""}<span class="mv-sub">${esc(S.lee(sa))}</span>`;
     return `<tr><th scope="row">${esc(S.corto)}</th><td>${esc(S.ofrece)}</td><td>${res}</td><td class="num">${esc(sa.ms ?? "—")}</td></tr>`;
@@ -450,14 +451,14 @@ function pintarResultado({ d, s, ct, mapa, hostsCT, dominio, www, nuevosCT = [] 
       + fila("Emisor", esc(c.emisor)) + fila("Sujeto", `<code>${esc(c.sujeto || "—")}</code>`)
       + fila("Vigencia", `${esc(fechaCorta(c.not_before))} → <b>${esc(fechaCorta(c.not_after))}</b>`)
       + fila("Lectura", "La versión final de NIST IR 8547 (octubre de 2026) depreca ECDSA y RSA después de 2030 y los prohíbe después de 2035, con cualquier curva o tamaño.")
-    : fila("Estado", `No pudimos leer el certificado: ${esc(c.error)}`);
+    : fila("Estado", `No pudimos leer el certificado: ${esc(enPalabras(c.error))}. Vuelva a medir en unos minutos.`);
   const sec = s.security_txt;
   $("mv-prov").innerHTML = fila("Correo", `<b>${esc(s.correo.proveedor || "sin proveedor identificado")}</b>`)
     + fila("MX", (s.correo.mx || []).length ? (s.correo.mx || []).map((m) => `<code>${esc(m)}</code>`).join("<br>") : "sin registros MX")
     + (s.correo_tls?.estado === "hecho" && s.correo_tls.resultado?.servidores?.length
       ? fila("Cifrado post-cuántico", s.correo_tls.resultado.servidores.map((m) => `<code>${esc(m.mx)}</code> ${SOPORTA_CORREO(m.veredicto)}`).join("<br>")
         + `<br><span class="mv-nota">Medido desde ${esc(s.correo_tls.resultado.desde_ip || "nuestro servidor de medición")}, ${esc(fechaUtc(s.correo_tls.resultado.medido_utc))}. Informativo: no entra al índice ni a la foto.</span>`)
-      : fila("Cifrado post-cuántico", `<span class="mv-chip mv-neutro">no medido</span> ${esc(s.correo_tls?.causa || "")}`))
+      : fila("Cifrado post-cuántico", `<span class="mv-chip mv-neutro">no medido</span> ${esc(enPalabras(s.correo_tls?.causa))}`))
     + fila("Canal de reporte", `${chip(sec.publicado, "publicado", "no publicado")}${sec.publicado == null ? " el sitio no dejó leer la ruta estándar" : ""}`)
     + ((sec.intentos || []).length ? fila("Rutas probadas", sec.intentos.map((i) => `<code>${esc(i.url)}</code> → ${esc(i.status ?? "sin respuesta")}`).join("<br>")) : "");
 }
