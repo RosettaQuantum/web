@@ -11,7 +11,7 @@
  *   node scripts/check-ct-registro.mjs --self-test
  */
 import { readFileSync } from "node:fs";
-import { filasDesdeCertSpotter, certSpotter, dominioValido } from "../lib/ct-registro.mjs";
+import { filasDesdeCertSpotter, certSpotter, dominioValido, manejarCT } from "../lib/ct-registro.mjs";
 
 export const CONSUMIDOR = { quien: "sesion web de Rosetta", hace: "repara lib/ct-registro.mjs o la llamada de la medición en vivo antes de desplegar" };
 
@@ -51,5 +51,27 @@ igual(JSON.parse(await certSpotter("x.cl", falla2)).length, 100, "conserva lo ya
 let dioError = false; try { await certSpotter("x.cl", async () => new Response("", { status: 503 })); } catch { dioError = true; }
 igual(dioError, true, "sin ninguna página es error, nunca «cero nombres»");
 
+// PRIORIDAD (defecto medido en producción el 11-nov): una copia de crt.sh de días gana a Cert
+// Spotter, que ve sólo certificados vigentes (120 contra 1.873). Caché y red simuladas.
+const almacen = new Map();
+globalThis.caches = { default: {
+  match: async (k) => { const v = almacen.get(k.url); return v ? new Response(v) : undefined; },
+  put: async (k, r) => { almacen.set(k.url, await r.text()); },
+} };
+const ctx = { waitUntil: (p) => p };
+const fetchOriginal = globalThis.fetch;
+globalThis.fetch = async (u) => String(u).includes("crt.sh") ? new Response("", { status: 502 })
+  : new Response(JSON.stringify([{ id: "1", dns_names: ["a.banco.cl"] }]));
+const pedir = async () => (await manejarCT(new Request("https://rosettaquantum.com/api/ct?d=banco.cl", { headers: { "cf-connecting-ip": "1.2.3." + Math.random() } }), ctx)).json();
+let r = await pedir();
+igual(r.fuente.startsWith("Cert Spotter"), true, "sin copia de crt.sh y crt.sh caído: Cert Spotter, declarado");
+almacen.set("https://rosettaquantum.com/__ct/v2/crtsh/banco.cl", JSON.stringify({ fuente: "crt.sh", consultado_utc: new Date(Date.now() - 3 * 86400e3).toISOString(), texto: "[]" }));
+r = await pedir();
+igual([r.fuente, r.vieja], ["crt.sh", true], "copia de crt.sh de 3 días gana a Cert Spotter, declarada vieja");
+almacen.set("https://rosettaquantum.com/__ct/v2/crtsh/banco.cl", JSON.stringify({ fuente: "crt.sh", consultado_utc: new Date(Date.now() - 3600e3).toISOString(), texto: "[]" }));
+r = await pedir();
+igual([r.fuente, r.desde_copia, !!r.vieja], ["crt.sh", true, false], "copia fresca de crt.sh sin ir a la red");
+globalThis.fetch = fetchOriginal;
+
 if (fallas.length) { console.error("check-ct-registro: FALLA\n  " + fallas.join("\n  ")); process.exit(1); }
-console.log("check-ct-registro: ok (cableado, conversión, paginación, falla cerrada)");
+console.log("check-ct-registro: ok (cableado, conversión, paginación, falla cerrada, prioridad de fuentes)");
