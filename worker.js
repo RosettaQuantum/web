@@ -4,6 +4,7 @@ import * as medicionAgentes from "./lib/medicion-agentes.mjs";
 import { manejarEnvio, manejarBaja } from "./lib/envio-informe.mjs";
 registrarMedicion(medicionAgentes);
 import { manejarQreadyLead } from "./lib/qready-lead.mjs";
+import { manejarInformeIndustria, manejarDescarga } from "./lib/captacion.mjs";
 import { manejarOg } from "./lib/og-ruta.mjs";
 import { manejarBorde } from "./lib/borde-envivo.mjs";
 import { manejarCT } from "./lib/ct-registro.mjs";
@@ -101,6 +102,9 @@ async function atender(request, env, ctx) {
     if (url.pathname === "/api/borde") return manejarBorde(request);
     // Registro público de certificados con caché y segunda fuente (lib/ct-registro.mjs).
     if (url.pathname === "/api/ct") return manejarCT(request, ctx, env);
+    // Los formularios con correo y Turnstile (lib/captacion.mjs): sin token válido no escriben en D1.
+    if (url.pathname === "/api/medicion/descarga") return manejarDescarga(request, env);
+    if (url.pathname === "/api/qready/informe-industria") return manejarInformeIndustria(request, env);
     if (url.pathname.startsWith("/api/medicion/envio")) return manejarEnvio(request, env, url);
     if (url.pathname === "/baja") return manejarBaja(request, env, url);
     if (url.pathname.startsWith("/api/sondas/correo")) return manejarCorreo(request, env, url);

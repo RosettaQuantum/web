@@ -37,7 +37,7 @@ const correoLib = leer("lib/correo-envivo.mjs");
 const causaReal = /no entregó a tiempo/.test(correoLib) ? "el servidor de medición no entregó a tiempo" : null;
 if (!causaReal) fallas.push("lib/correo-envivo.mjs ya no escribe «el servidor de medición no entregó a tiempo»: actualizar el caso real");
 const reales = [...correoLib.matchAll(/error: "([^"]*[a-záéíóúñ][^"]*)"/g), ...leer("lib/informe-envivo.mjs").matchAll(/error: "([^"]*[áéíóúñ][^"]*)"/g),
-  ...leer("lib/envio-informe.mjs").matchAll(/error: "([^"]*[áéíóúñ][^"]*)"/g), ...leer("lib/ct-registro.mjs").matchAll(/error: "([^"]*[áéíóúñ ][^"]*)"/g)]
+  ...leer("lib/envio-informe.mjs").matchAll(/error: "([^"]*[áéíóúñ][^"]*)"/g), ...leer("lib/captacion.mjs").matchAll(/error: "([^"]*[áéíóúñ][^"]*)"/g), ...leer("lib/ct-registro.mjs").matchAll(/error: "([^"]*[áéíóúñ ][^"]*)"/g)]
   .map((m) => m[1]).filter((t) => t.length > 6 && /\s/.test(t));
 // Y los errores que esas mismas bibliotecas LANZAN y viajan como texto (caso real del 12-nov:
 // «crt.sh respondió 502» llegó a la consola inglesa como frase general). Las interpolaciones se

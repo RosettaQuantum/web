@@ -108,6 +108,9 @@ const SERVIDOR_EN = [
   [/^escriba un correo válido$/i, "Enter a valid email address"],
   [/^falta aceptar el envío$/i, "You need to accept the sending terms"],
   [/^la foto no es íntegra: vuelva a medir$/i, "The snapshot failed its integrity check: measure again"],
+  [/^no pudimos verificar que es una persona\. recargue la página e intente de nuevo$/i, "We could not verify that you are a person. Reload the page and try again"],
+  [/^no pudimos registrar su (pedido|correo)$/i, "We could not record your request"],
+  [/^registramos su pedido, pero no pudimos poner el envío en la cola$/i, "We recorded your request, but could not queue the email"],
   [/^el servicio respondió (\d+)$/i, "the service returned $1"],
   [/^sin_respuesta$/, "no response"],
   // errores que lanzan lib/ct-registro.mjs, lib/borde-envivo.mjs y lib/informe-envivo.mjs

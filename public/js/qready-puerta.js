@@ -126,3 +126,44 @@
     boton.disabled = false;
   }));
 })();
+
+/*
+ * El panel del informe de la industria (12-nov-2026): correo + Turnstile → /api/qready/informe-industria.
+ * Igual que el formulario individual: el enlace al informe aparece SÓLO cuando el endpoint confirma
+ * que la fila quedó escrita. Sin token de Turnstile no se envía; el servidor lo vuelve a exigir.
+ */
+(() => {
+  const form = document.getElementById('qr-informe-form');
+  if (!form) return;
+  const est = form.querySelector('.qr-estado');
+  const decir = (html, ok) => { est.innerHTML = html; est.hidden = false; est.classList.toggle('qr-bien', !!ok); };
+  const ts = window.rqTurnstile ? window.rqTurnstile.montar(form.querySelector('[data-turnstile]')) : null;
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const email = form.querySelector('[name=email]');
+    const bien = email.checkValidity() && email.value.trim() !== '';
+    email.setAttribute('aria-invalid', bien ? 'false' : 'true');
+    if (!bien) { email.focus(); decir('Escriba un correo válido.'); return; }
+    const boton = form.querySelector('button[type=submit]');
+    boton.disabled = true; decir('Verificando…');
+    const token = ts ? await ts.esperarToken() : null;
+    if (!token) { decir('No pudimos verificar que es una persona. Recargue la página e intente de nuevo.'); boton.disabled = false; return; }
+    try {
+      const r = await fetch('/api/qready/informe-industria', {
+        method: 'POST', headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ email: email.value.trim(), edicion: form.dataset.edicion, proxima: form.querySelector('[name=proxima]').checked, turnstile: token, lang: 'es' }),
+      });
+      const j = await r.json().catch(() => ({}));
+      if (r.ok && j.ok) {
+        decir('Listo. <a href="/informe-pqc">Abrir el informe →</a>', true);
+        form.querySelectorAll('input').forEach((i) => { i.disabled = true; });
+        return;
+      }
+      decir(j.error ? String(j.error).replace(/[<>&]/g, '') : 'No pudimos registrar su correo. Escríbanos a hello@rosettaquantum.com.');
+    } catch {
+      decir('No pudimos conectar. Escríbanos a hello@rosettaquantum.com.');
+    }
+    if (ts) ts.reiniciar();
+    boton.disabled = false;
+  });
+})();

@@ -57,33 +57,98 @@ const barras = d.qday.map((q: any) => {
 const desc = `Migrar toma ${MIGRA} años, de ${AHORA} a ${finMigra}. Lo último migrado debe seguir secreto ${SECRETO} años más, hasta ${hasta}. `
   + d.qday.map((q: any) => `hacia ${q.h.split('·')[1].trim()} la probabilidad estimada es ${q.lab}`).join('; ') + '.';
 
+// ── EL PANEL DEL INFORME DE LA INDUSTRIA (12-nov-2026) ──────────────────────────────────
+// Va a la derecha del hero aunque INFORME_PUBLICO siga en false: ese interruptor nació (15-sep)
+// porque la edición de agosto era «borrador pendiente de revisión legal», y agosto se publicó el
+// 4-nov (borrador:false). El panel no mira el interruptor: mira cada edición y muestra SÓLO las
+// que declaran borrador:false, así que una edición nueva en revisión no aparece sola.
+// La figura es la distribución del QEX de la última edición publicada, dibujada de su JSON.
+const publicadas = Object.entries(mods).map(([p, m]: any) => ({ slug: p.split('/').pop().replace('.json', ''), d: m.default ?? m }))
+  .filter((e) => e.d.borrador === false).sort((a, b) => b.slug.localeCompare(a.slug));
+const P = publicadas[0]?.d;
+const mesDe = (ed: string) => { const [a, m] = ed.split('-').map(Number); return `${MESES[m - 1]} de ${a}`; };
+const Mayus = (x: string) => x.charAt(0).toUpperCase() + x.slice(1);
+const HX0 = 34, HX1 = 306, HD0 = 40, HD1 = 90;
+const hx = (v: number) => HX0 + (v - HD0) * (HX1 - HX0) / (HD1 - HD0);
+const HBASE = 118, HALTO = 84;
+const dist = P ? P.indice.distribucion.map((b: any) => {
+  const [a, z] = String(b.rango).split(/[–-]/).map(Number);
+  return { a, z, n: b.n, pct: b.pct };
+}) : [];
+const pctMax = Math.max(1, ...dist.map((b: any) => b.pct));
+const barrasQ = dist.map((b: any) => {
+  const h = HALTO * b.pct / pctMax;
+  return { x: hx(b.a) + 1, w: hx(b.z + 1) - hx(b.a) - 2, y: HBASE - h, h, pct: b.pct, n: b.n,
+    med: P.indice.mediana >= b.a && P.indice.mediana <= b.z, lx: (hx(b.a) + hx(b.z + 1)) / 2 };
+});
+const ejesQ = [40, 50, 60, 70, 80, 90];
+const descQ = P ? `Distribución del índice QEX en ${mesDe(P.edicion)}: ` + dist.map((b: any) => `${b.a} a ${b.z}, ${b.n} organizaciones (${b.pct} %)`).join('; ')
+  + `. Mediana ${P.indice.mediana}. Techo observable desde afuera: ${P.indice.tope}.` : '';
+
 const ANCLA: Record<string, string> = { ambientes: 'panel', infra: 'panel', canal: 'panel', hibrido: 'medicion', proveedores: 'ruta' };
 const CIFRAS = [
   { id: 'ambientes', sev: 'mal' }, { id: 'infra', sev: 'mal' }, { id: 'canal', sev: 'mal' },
   { id: 'hibrido', sev: '' }, { id: 'proveedores', sev: 'mal', k: 'Proveedores de core con fecha comprometida' },
 ].map((c) => ({ ...c, t: T[c.id] }));
 ---
-<section class="pg qr-hero" style="border-top:none" id="arriba"><div class={`wrap ${INFORME_PUBLICO ? 'qr-hero-grid' : ''}`}>
+<section class="pg qr-hero" style="border-top:none" id="arriba"><div class={`wrap ${P ? 'qr-hero-grid' : ''}`}>
   <div>
     <div class="eyebrow">Q-Ready · exposición criptográfica post-cuántica</div>
     <h1>¿Qué tan lista está su criptografía para el momento cuántico?</h1>
     <p class="lede">Medimos desde afuera, sin tocar su red, qué criptografía expone hoy su superficie pública y quién decide de verdad su plazo de migración. Es el mismo método con que medimos a {M.organizaciones} organizaciones chilenas en {mesLargo}.</p>
     <p class="qr-acciones">
       <button type="button" class="btn btn-solid" data-abrir="individual">Solicitar mi informe individual</button>
-      <a class="qr-link" href="/es/q-ready/medicion">Medir mi dominio ahora →</a>
+      <a class="btn btn-ghost qr-medir" href="/es/q-ready/medicion"><span class="qr-vivo" aria-hidden="true"></span>Medir mi dominio ahora <span class="qr-medir-flecha" aria-hidden="true">→</span></a>
       {INFORME_PUBLICO && <button type="button" class="qr-link" data-abrir="informe">o reciba el informe de la industria →</button>}
     </p>
     <p class="qr-nota">El informe individual es gratis y confidencial: no se publica ni se comparte.</p>
   </div>
-  {INFORME_PUBLICO && (
-    <aside class="qr-prueba" aria-label={`Índice nacional de ${mesLargo}`}>
-      <div class="qr-prueba-h"><span>Índice QEX</span><span>{mesLargo}</span></div>
-      <div class="qr-prueba-n">{I.mediana}<small> / 100 · mediana nacional</small></div>
-      <div class="qr-rango-et qr-arriba" aria-hidden="true"><span style={`left:${I.tope}%`}>techo {I.tope}</span></div>
-      <div class="qr-rango" aria-hidden="true"><i style={`left:${I.min}%;width:${I.max - I.min}%`}></i><b style={`left:${I.mediana}%`}></b><em style={`left:${I.tope}%`}></em></div>
-      <div class="qr-rango-et" aria-hidden="true"><span style={`left:${I.min}%`}>{I.min}</span><span style={`left:${I.max}%`}>{I.max}</span></div>
-      <p><a class="qr-base" href="/informe-pqc#indice">n = {I.n} · fuente →</a></p>
-      <p>{I.n} organizaciones entre {I.min} y {I.max}. Ninguna llega al techo de {I.tope}: {I.tope_razon.charAt(0).toLowerCase() + I.tope_razon.slice(1)}</p>
+  {P && (
+    <aside class="qr-informe" aria-labelledby="qr-informe-t">
+      <p class="qr-informe-et"><span>Informe PQC mensual</span><span>edición {P.numero} · {mesDe(P.edicion)}</span></p>
+      <h2 id="qr-informe-t" class="qr-informe-h">La gran empresa chilena, medida.</h2>
+      <figure class="qr-qex">
+        <div class="qr-qex-cab">
+          <p class="qr-qex-n">{P.indice.mediana}<small> QEX · mediana</small></p>
+          <p class="qr-qex-m">n = {P.indice.n} organizaciones<br />de {P.indice.min} a {P.indice.max}</p>
+        </div>
+        <svg class="qr-qex-svg" viewBox="0 0 320 146" role="img" aria-labelledby="qr-qex-t qr-qex-d">
+          <title id="qr-qex-t">Distribución del QEX · {mesDe(P.edicion)}</title>
+          <desc id="qr-qex-d">{descQ}</desc>
+          <rect class="qx-techo" x={hx(P.indice.tope)} y="18" width={HX1 - hx(P.indice.tope)} height={HBASE - 18} />
+          {barrasQ.map((b: any) => (<>
+            <rect class={b.med ? 'qx-barra qx-med' : 'qx-barra'} x={b.x} y={b.y} width={b.w} height={b.h} />
+            <text class="qx-pct" x={b.lx} y={b.y - 4} text-anchor="middle">{b.pct}%</text>
+          </>))}
+          <line class="qx-base" x1={HX0} y1={HBASE} x2={HX1} y2={HBASE} />
+          <line class="qx-corte" x1={hx(P.indice.tope)} y1="12" x2={hx(P.indice.tope)} y2={HBASE} />
+          <text class="qx-et" x={hx(P.indice.tope) - 4} y="12" text-anchor="end">techo {P.indice.tope}</text>
+          {ejesQ.map((v) => <text class="qx-eje" x={hx(v)} y={HBASE + 16} text-anchor="middle">{v}</text>)}
+        </svg>
+        <figcaption>Distribución del índice en {P.indice.n} organizaciones. Ninguna pasa de {P.indice.max}; sobre {P.indice.tope} no se puede afirmar nada midiendo desde afuera.</figcaption>
+      </figure>
+      <form class="qr-informe-form" id="qr-informe-form" data-edicion={P.edicion} novalidate>
+        <label for="qr-informe-email">Deje su correo y ábralo ahora</label>
+        <div class="qr-informe-fila">
+          <input id="qr-informe-email" type="email" name="email" autocomplete="email" required placeholder="nombre@empresa.cl" />
+          <button type="submit" class="btn btn-solid">Abrir el informe</button>
+        </div>
+        <label class="qr-informe-check"><input type="checkbox" name="proxima" /> Avísenme cuando salga la próxima edición</label>
+        <p class="qr-informe-pie">Guardamos su correo sólo para esto. Para borrarlo, escriba a hello@rosettaquantum.com.</p>
+        <div class="qr-ts" data-turnstile></div>
+        <p class="qr-estado" role="status" aria-live="polite" hidden></p>
+      </form>
+      <div class="qr-archivo">
+        <p class="qr-archivo-t">Ediciones</p>
+        <ol>
+          {publicadas.map((e, k) => (
+            <li>
+              {k === 0 ? <a href="/informe-pqc">{Mayus(mesDe(e.d.edicion))}</a> : <span>{Mayus(mesDe(e.d.edicion))}</span>}
+              <span class="qr-archivo-m">n.º {e.d.numero} · mediana {e.d.indice.mediana} · n = {e.d.indice.n}</span>
+            </li>
+          ))}
+        </ol>
+      </div>
     </aside>
   )}
 </div></section>
@@ -218,6 +283,7 @@ const CIFRAS = [
           <p>Medición técnica sobre endpoints reales de la gran empresa chilena, no una encuesta. Le llega por correo.</p>
           <label>Correo<input type="email" name="email" autocomplete="email" required placeholder="nombre@empresa.cl" /></label>
           <label class="qr-check"><input type="checkbox" name="proxima" /> Avísenme cuando salga la próxima edición</label>
+        <p class="qr-informe-pie">Guardamos su correo sólo para esto. Para borrarlo, escriba a hello@rosettaquantum.com.</p>
           <button type="submit" class="btn btn-ghost">Enviármelo</button>
           <p class="qr-estado" role="status" hidden></p>
         </form>
