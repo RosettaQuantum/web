@@ -55,6 +55,7 @@ export const PAGINAS = [
   { md: "privacy-en.md",  salida: "src/pages/privacy.astro",       ruta: "/privacy/",         alt: "/es/privacidad/", lang: "en",
     sha: "d5a51279a8aa5bbdebd55d8e9cf3d90d469eca30634dac07f68887b775e2b939",
     titulo: "Privacy Policy — Rosetta Q",
+    h1: "Privacy Policy",
     desc: "What personal data Rosetta Quantum collects, why, and what rights you have over it." },
   { md: "terms-es.md",    salida: "src/pages/es/terminos.astro",   ruta: "/es/terminos/",     alt: "/terms/",         lang: "es",
     sha: "fa320e43e80f12633c0d25e3e154b306eac2a5ec32b8f1d34814b3abacaf3d90",
@@ -66,6 +67,7 @@ export const PAGINAS = [
   { md: "privacy-es.md",  salida: "src/pages/es/privacidad.astro", ruta: "/es/privacidad/",   alt: "/privacy/",       lang: "es",
     sha: "d4bf8c50968a82cfff76b6a009e912524d597a6d92751d9ca20d61ea4054b94d",
     titulo: "Política de privacidad — Rosetta Q",
+    h1: "Política de privacidad",
     desc: "Qué datos personales recoge Rosetta Quantum, para qué, y qué derechos tienes sobre ellos." },
 ];
 
@@ -86,51 +88,29 @@ const enlinea = s => esc(s)
   .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2">$1</a>')
   .replace(/\b([a-z0-9._%+-]+@rosettaquantum\.com)\b/g, '<a href="mailto:$1">$1</a>');
 
-/** El subconjunto de markdown que estos documentos usan: h1, h2, vinnetas, parrafos. */
-function aHtml(md) {
-  const out = [];
-  const L = md.split("\n");
-  let i = 0;
-  while (i < L.length) {
-    const l = L[i];
-    if (/^# /.test(l))  { out.push(`<h1>${enlinea(l.slice(2))}</h1>`); i++; continue; }
-    if (/^## /.test(l)) { out.push(`<h2>${enlinea(l.slice(3))}</h2>`); i++; continue; }
-    if (/^### /.test(l)){ out.push(`<h3>${enlinea(l.slice(4))}</h3>`); i++; continue; }
-    if (/^- /.test(l)) {
-      const it = []; while (i < L.length && /^- /.test(L[i])) it.push(L[i++].slice(2));
-      out.push(`<ul>${it.map(x => `<li>${enlinea(x)}</li>`).join("")}</ul>`); continue;
-    }
-    if (/^---+$/.test(l)) { out.push("<hr>"); i++; continue; }
-    if (!l.trim()) { i++; continue; }
-    // Los saltos de linea DENTRO de un parrafo se respetan: en la cabecera, "Last
-    // updated: 2026-08-11" va en su propia linea bajo el nombre, y unirlas dejaria la
-    // fecha corrida contra el dominio.
-    const par = []; while (i < L.length && L[i].trim() && !/^(#|- |---)/.test(L[i])) par.push(L[i++]);
-    out.push(`<p>${par.map(enlinea).join("<br>")}</p>`);
-  }
-  return out.join("\n      ");
-}
-
 /**
- * La forma DOCUMENTO — la de los terminos. Mismo texto que `aHtml`, mismo conversor de
- * linea; lo que agrega es estructura: cabecera con la fecha a la vista, un id por
- * seccion para el indice y para el 301, y el anexo con sus encabezados un nivel abajo.
- *
- * Por que no se cambia `aHtml`: privacidad sigue saliendo de ahi, byte a byte igual.
- * Pasarla a esta forma es una decision aparte, no un efecto colateral.
+ * La forma DOCUMENTO — la de las cuatro paginas legales desde el 12-nov-2026 (antes
+ * eran un `<article>` corrido, sin indice). Mismo conversor de linea; lo que agrega es
+ * estructura: cabecera con la fecha a la vista, un id por seccion para el indice y para
+ * el 301, y —solo en los terminos— el anexo de reembolsos con sus encabezados un nivel
+ * abajo.
  */
-const ES_FECHA = /^(Last updated|Última actualización):/;
+// La linea de fecha puede venir envuelta en `_…_` (privacidad) o suelta (terminos).
+const ES_FECHA = /^_?(Last updated|Última actualización):/;
+const sinGuiones = x => x.replace(/^_(.*)_$/, "$1");
 
 function bloques(md) {
-  // Devuelve [{t:"h1"|"h2"|"p"|"ul"|"ol"|"hr", ...}] con el mismo corte que aHtml.
+  // Devuelve [{t:"h1"|"h2"|"p"|"ul"|"ol"|"hr", ...}]. Los saltos de linea DENTRO de
+  // un parrafo se respetan: en la cabecera de los terminos la fecha va en su propia linea.
   const out = []; const L = md.split("\n"); let i = 0;
   while (i < L.length) {
     const l = L[i];
     if (/^# /.test(l))   { out.push({ t: "h1", x: l.slice(2) }); i++; continue; }
     if (/^## /.test(l))  { out.push({ t: "h2", x: l.slice(3) }); i++; continue; }
+    if (/^### /.test(l)) throw new Error("h3 en un documento legal: la forma documento no lo contempla");
     if (/^- /.test(l))   { const it = []; while (i < L.length && /^- /.test(L[i])) it.push(L[i++].slice(2)); out.push({ t: "ul", it }); continue; }
     // Lista numerada: el anexo de reembolsos la trae ("1. Email…  2. That's it") y
-    // `aHtml` la publicaba como un parrafo con <br>. Se lee como lo que dice ser.
+    // el conversor anterior la publicaba como un parrafo con <br>.
     if (/^\d+\. /.test(l)) { const it = []; while (i < L.length && /^\d+\. /.test(L[i])) it.push(L[i++].replace(/^\d+\. /, "")); out.push({ t: "ol", it }); continue; }
     if (/^---+$/.test(l)) { out.push({ t: "hr" }); i++; continue; }
     if (!l.trim()) { i++; continue; }
@@ -143,7 +123,7 @@ function bloques(md) {
 const numero = x => (x.match(/^(\d+)\./) || [])[1];
 const sinEtiquetas = s => s.replace(/<[^>]+>/g, "");
 
-function aDocumento(P, mdPrincipal, mdAnexo, shaPrincipal, shaAnexo) {
+function aDocumento(P, mdPrincipal, shaPrincipal, mdAnexo = null, shaAnexo = null) {
   const es = P.lang === "es";
   const pref = es ? "seccion" : "section";
   const indice = [];       // [{id, txt, hijos:[{id,txt}]}]
@@ -151,12 +131,16 @@ function aDocumento(P, mdPrincipal, mdAnexo, shaPrincipal, shaAnexo) {
   let cabeza = "";
 
   const B = bloques(mdPrincipal);
-  // Cabecera: el h1 (reemplazado por el titulo nuevo) y el parrafo que lo sigue —el
-  // nombre y la fecha—, con la fecha en su propia linea marcada para que se vea.
-  if (B[0]?.t !== "h1" || B[1]?.t !== "p") throw new Error(`${P.md}: la cabecera no tiene la forma esperada (h1 + parrafo)`);
-  const meta = B[1].lineas.map(x => ES_FECHA.test(x)
-    ? `<span class="doc-fecha">${enlinea(x)}</span>` : `<span>${enlinea(x)}</span>`).join("");
-  if (!B[1].lineas.some(x => ES_FECHA.test(x))) throw new Error(`${P.md}: no encontre la linea de fecha en la cabecera`);
+  // Cabecera: el h1 (con el titulo de `P.h1`) y, de lo que hay antes de la primera
+  // seccion, el UNICO parrafo que trae la fecha —en los terminos va con el nombre y el
+  // dominio; en privacidad va solo—. El resto de ese tramo queda como entrada del texto.
+  if (B[0]?.t !== "h1") throw new Error(`${P.md}: no empieza con su titulo`);
+  const fin = B.findIndex(b => b.t === "h2");
+  const previos = B.slice(1, fin);
+  const conFecha = previos.filter(b => b.t === "p" && b.lineas.some(x => ES_FECHA.test(x)));
+  if (conFecha.length !== 1) throw new Error(`${P.md}: esperaba un parrafo con la fecha antes de la seccion 1, hay ${conFecha.length}`);
+  const meta = conFecha[0].lineas.map(x => ES_FECHA.test(x)
+    ? `<span class="doc-fecha">${enlinea(sinGuiones(x))}</span>` : `<span>${enlinea(x)}</span>`).join("");
   cabeza = `<header class="doc-cabeza">
       <p class="eyebrow">Legal</p>
       <h1>${esc(P.h1)}</h1>
@@ -171,7 +155,7 @@ function aDocumento(P, mdPrincipal, mdAnexo, shaPrincipal, shaAnexo) {
     throw new Error(`bloque inesperado ${b.t}`);
   };
 
-  for (const b of B.slice(2)) {
+  for (const b of [...previos.filter(b => b !== conFecha[0]), ...B.slice(fin)]) {
     if (b.t === "h1") throw new Error(`${P.md}: un segundo h1`);
     if (b.t === "h2") {
       const n = numero(b.x); if (!n) throw new Error(`${P.md}: seccion sin numero: ${b.x}`);
@@ -183,6 +167,7 @@ function aDocumento(P, mdPrincipal, mdAnexo, shaPrincipal, shaAnexo) {
   }
 
   // El anexo: su h1 pasa a h2 con el ancla del 301; sus h2 pasan a h3.
+  if (mdAnexo !== null) {
   const A = bloques(mdAnexo);
   if (A[0]?.t !== "h1") throw new Error(`${P.anexo.md}: no empieza con su titulo`);
   const parte = { id: P.anexo.id, txt: enlinea(A[0].x), hijos: [] };
@@ -198,7 +183,9 @@ function aDocumento(P, mdPrincipal, mdAnexo, shaPrincipal, shaAnexo) {
     }
     cuerpo.push(pintar(b));
   }
+  }
 
+  const sellos = [shaPrincipal, shaAnexo].filter(Boolean);
   const li = e => `<li><a href="#${e.id}">${sinEtiquetas(e.txt)}</a>${e.hijos.length
     ? `<ol>${e.hijos.map(h => `<li><a href="#${h.id}">${sinEtiquetas(h.txt)}</a></li>`).join("")}</ol>` : ""}</li>`;
 
@@ -212,11 +199,10 @@ function aDocumento(P, mdPrincipal, mdAnexo, shaPrincipal, shaAnexo) {
       <article class="doc-texto">
       ${cuerpo.join("\n      ")}
 
-      <p class="sello-fuente">${es
-        ? "Texto publicado desde sus documentos aprobados"
-        : "Published from its approved source documents"} ·
-        <code>sha256:${shaPrincipal.slice(0, 16)}…</code> ·
-        <code>sha256:${shaAnexo.slice(0, 16)}…</code></p>
+      <p class="sello-fuente">${sellos.length > 1
+        ? (es ? "Texto publicado desde sus documentos aprobados" : "Published from its approved source documents")
+        : (es ? "Texto publicado desde su documento aprobado" : "Published from its approved source document")} ·
+        ${sellos.map(x => `<code>sha256:${x.slice(0, 16)}…</code>`).join(" ·\n        ")}</p>
       </article>
     </div>
   </div>`;
@@ -248,20 +234,21 @@ let escritas = 0;
 for (const P of PAGINAS) {
   const { txt: md, sha } = leerAprobado(P.md, P.sha);
   const relativo = P.lang === "es" ? "../../" : "../";
-  let pagina;
 
-  if (P.anexo) {
-    const { txt: mdA, sha: shaA } = leerAprobado(P.anexo.md, P.anexo.sha);
-    pagina = `---
+  const anexo = P.anexo ? leerAprobado(P.anexo.md, P.anexo.sha) : null;
+  const origen = anexo
+    ? `El texto sale de DOS documentos aprobados por Nicholas el 2026-08-11, leidos por el
+// armador y no tecleados por nadie: src/aprobado/legal/${P.md} y, como seccion
+// #${P.anexo.id}, src/aprobado/legal/${P.anexo.md}.`
+    : `El texto sale de src/aprobado/legal/${P.md}, aprobado por Nicholas el 2026-08-11,
+// leido por el armador y no tecleado por nadie.`;
+  const pagina = `---
 // GENERADO por scripts/build-legal.mjs — no editar a mano.
 //
-// El texto sale de DOS documentos aprobados por Nicholas el 2026-08-11, leidos por el
-// armador y no tecleados por nadie: src/aprobado/legal/${P.md} y, como seccion
-// #${P.anexo.id}, src/aprobado/legal/${P.anexo.md}. Para cambiarlo se edita el .md, se
+// ${origen} Para cambiarlo se edita el .md, se
 // mueve el sha en el armador y se regenera, en el mismo commit.
 //
-// texto fuente sha256: ${sha}
-// anexo        sha256: ${shaA}
+// texto fuente sha256: ${sha}${anexo ? `\n// anexo        sha256: ${anexo.sha}` : ""}
 import MarcaLayout from '${relativo}layouts/MarcaLayout.astro';
 import css from '${relativo}styles/pages/legal-doc.css?raw';
 ---
@@ -272,39 +259,9 @@ import css from '${relativo}styles/pages/legal-doc.css?raw';
   altUrl="${P.alt}"
   ruta="${P.ruta}"
   pageCss={css} scripts={["/js/frescura.js"]}>
-  ${aDocumento(P, md, mdA, sha, shaA)}
+  ${aDocumento(P, md, sha, anexo?.txt ?? null, anexo?.sha ?? null)}
 </MarcaLayout>
 `;
-  } else {
-  pagina = `---
-// GENERADO por scripts/build-legal.mjs — no editar a mano.
-//
-// El texto sale de src/aprobado/legal/${P.md}, aprobado por Nicholas el 2026-08-11,
-// leido por el armador y no tecleado por nadie. Para cambiarlo se edita el .md, se
-// mueve el sha en el armador y se regenera, en el mismo commit.
-//
-// texto fuente sha256: ${sha}
-import MarcaLayout from '${relativo}layouts/MarcaLayout.astro';
-import css from '${relativo}styles/pages/legal.css?raw';
----
-<MarcaLayout
-  title="${P.titulo}"
-  description="${P.desc}"
-  lang="${P.lang}"
-  altUrl="${P.alt}"
-  ruta="${P.ruta}"
-  pageCss={css} scripts={["/js/frescura.js"]}>
-  <article class="article wrap legal">
-      ${aHtml(md)}
-
-      <p class="sello-fuente">${P.lang === "es"
-        ? "Texto publicado desde su documento aprobado"
-        : "Published from its approved source document"} ·
-        <code>sha256:${sha.slice(0, 16)}…</code></p>
-  </article>
-</MarcaLayout>
-`;
-  }
 
   const destino = join(RAIZ, P.salida);
   if (VERIFICAR) {
