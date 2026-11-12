@@ -118,7 +118,7 @@ const t = es ? {
   <h1>{t.h1}</h1>
   <p class="lede">{t.lede}</p>
 
-  <table class="tabla">
+  <div class="tabla-scroll"><table class="tabla">
     <thead><tr><th>{t.th.p}</th><th>{t.th.c}</th><th>{t.th.i}</th><th>{t.th.pr}</th><th>{t.th.pl}</th></tr></thead>
     <tbody>
       {PROD.map((p) => (
@@ -131,7 +131,7 @@ const t = es ? {
         </tr>
       ))}
     </tbody>
-  </table>
+  </table></div>
   <div class="prun" style="margin-top:4px">
     <span class="tag">{es ? 'En construcción · abre con la Ventanilla del Laboratorio' : 'In construction · opens with the Lab Window'}</span>
     <span class="tx"><b>{es ? 'Corrida sellada (API)' : 'Sealed run (API)'}</b> — {es

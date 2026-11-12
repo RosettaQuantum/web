@@ -7,6 +7,7 @@
 .pg ol,.pg ul{margin:10px 0 10px 20px}
 .pg li{margin:6px 0}
 
+.tabla-scroll{overflow-x:auto;max-width:100%}
 .tabla{width:100%;border-collapse:collapse;margin:18px 0;font-size:var(--t-small)}
 .tabla th{font-family:var(--mono);font-size:var(--t-data);letter-spacing:.12em;text-transform:uppercase;color:var(--ink-60);text-align:left;padding:8px 10px;border-bottom:1px solid var(--ink)}
 .tabla td{padding:11px 10px;border-bottom:1px solid var(--line);vertical-align:top}

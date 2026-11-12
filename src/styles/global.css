@@ -20,7 +20,7 @@
   --serif:'Newsreader',Georgia,serif;
   --sans:'IBM Plex Sans',system-ui,sans-serif;
   --mono:'IBM Plex Mono',monospace;
-  --maxw-brand:1000px;
+  --maxw-brand:1400px;
 }
 /* Los tres pares -10/-20 son el fondo y el borde de una senal semantica sobre papel
    (un delta que empeora, un chip pendiente, un aviso). Existian como literales sueltos
@@ -32,7 +32,7 @@
 :root{
   --basalt:#141210; --basalt-2:#1F1C18; --basalt-3:#100E0B; --stone-line:#3D372F;
   --papyrus:#F4EEDF; --papyrus-dim:#B5AC99; --faint:#6E675C;
-  --faience:#4DC4B5; --gold:#D9B87A; --maxw:1080px;
+  --faience:#4DC4B5; --gold:#D9B87A; --maxw:1400px;
 }
 *{margin:0;padding:0;box-sizing:border-box}
 /* Los controles de formulario NO heredan la tipografia: el navegador les pone la suya.
@@ -52,6 +52,9 @@ body{background:var(--paper);color:var(--ink);font-family:var(--sans);
 ::selection{background:var(--teal-10);color:var(--ink)}
 a{color:inherit;text-decoration:none}
 .wrap{max-width:var(--maxw-brand);margin:0 auto;padding:0 22px}
+/* 12-nov-2026: el marco pasa de 1.000 a 1.400 px para usar los costados; el TEXTO no se estira.
+   Tope de lectura de 72 caracteres con especificidad cero (:where): cualquier max-width propio gana. */
+:where(.wrap) :where(p, li, dd, figcaption, blockquote){max-width:72ch}
 footer{background:var(--paper);border-top:1px solid var(--ink);padding:34px 0 44px;
   font-size:var(--t-label);color:var(--ink-60)}
 /* El navegador respeta la preferencia del sistema y pintaba el fondo oscuro detrás de

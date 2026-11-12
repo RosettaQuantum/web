@@ -4,7 +4,7 @@
    (--ink de fondo): la paleta basalto es la identidad retirada y check-identidad la rechaza. Pensada para pantalla compartida: letra grande. */
 [hidden]{display:none !important}
 .mv{padding-block:var(--s4) var(--s6)}
-.mv-wrap{max-width:1280px;margin:0 auto;padding-inline:var(--s3)}
+.mv-wrap{max-width:var(--maxw-brand);margin:0 auto;padding-inline:var(--s3)}
 .mv-grid{display:grid;grid-template-columns:minmax(0,1fr) 280px;gap:var(--s4);align-items:start}
 .mv-main{min-width:0}
 .mv-sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
