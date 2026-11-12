@@ -624,18 +624,20 @@ console.log("\n  -- la consola --");
 console.log("\n  -- las tres politicas legales --");
 {
   const LEGAL = [
-    { ruta: "/terms/",         alt: "/es/terminos/",   marca: /Terms of Service/i },
+    { ruta: "/terms/",         alt: "/es/terminos/",   marca: /Terms and Conditions/i, ancla: 'id="refunds"' },
     { ruta: "/privacy/",       alt: "/es/privacidad/", marca: /Privacy Policy/i },
-    { ruta: "/refunds/",       alt: "/es/reembolsos/", marca: /Refund Policy/i },
-    { ruta: "/es/terminos/",   alt: "/terms/",         marca: /Términos de servicio/i },
+    { ruta: "/es/terminos/",   alt: "/terms/",         marca: /Términos y Condiciones/i, ancla: 'id="reembolsos"' },
     { ruta: "/es/privacidad/", alt: "/privacy/",       marca: /Política de privacidad/i },
-    { ruta: "/es/reembolsos/", alt: "/refunds/",       marca: /Política de reembolsos/i },
   ];
   for (const P of LEGAL) {
     const r = await traer(P.ruta);
     comprobar(`${P.ruta} responde`, r.status === 200, `dio ${r.status}`);
     if (r.status !== 200) continue;
     comprobar(`${P.ruta} trae su titulo`, P.marca.test(r.txt), "no encontre el titulo de la politica");
+    // Desde el 12-nov los reembolsos son una seccion de los terminos: la politica
+    // sigue publicada, ahora en el ancla a la que salta el 301 de /refunds.
+    if (P.ancla) comprobar(`${P.ruta} trae la politica de reembolsos (${P.ancla})`,
+      r.txt.includes(P.ancla), `no encontre ${P.ancla}`);
     comprobar(`${P.ruta} enlaza su cara alterna`, r.txt.includes(P.alt), `no encontre ${P.alt}`);
     // El texto va TAL CUAL: un marcador de relleno servido en la pagina que Paddle
     // revisa es peor que la ausencia deliberada de la direccion legal.
@@ -657,8 +659,8 @@ console.log("\n  -- las tres politicas legales --");
   // si Paddle exige los tres enlaces directos son tres lineas en el pie. Es plata: se
   // pregunta, no se supone.
   for (const [home, centro, esperadas] of [
-    ["/", "/policies/", ["/terms", "/privacy", "/refunds"]],
-    ["/es/", "/es/politicas/", ["/es/terminos", "/es/privacidad", "/es/reembolsos"]]]) {
+    ["/", "/policies/", ["/terms", "/privacy", "/terms#refunds"]],
+    ["/es/", "/es/politicas/", ["/es/terminos", "/es/privacidad", "/es/terminos#reembolsos"]]]) {
     const rh = await traer(home);
     comprobar(`el footer de ${home} enlaza el centro de politicas`,
       rh.txt.includes(`href="${centro.replace(/\/$/, "")}"`) || rh.txt.includes(`href="${centro}"`),

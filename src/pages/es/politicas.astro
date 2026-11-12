@@ -1,14 +1,15 @@
 ---
 /**
  * /es/politicas — commit 9. Portada de politicas: las tres paginas legales YA existen
- * (/privacy /terms /refunds y sus pares ES) y no se tocan; esta solo las reune, porque
+ * (/privacy /terms y sus pares ES; desde el 12-nov los reembolsos son la seccion
+ * /terms#refunds) y no se tocan; esta solo las reune, porque
  * el pie enlaza "Policies & Conduct" y sin esta ruta ese enlace daba 404.
  *
  * TEXTO EN ESPAÑOL: BORRADOR, sin aprobar.
  */
 import MarcaLayout from '../../layouts/MarcaLayout.astro';
 import css from '../../styles/pages/paginas.css?raw';
-const enlaces = [["/es/privacidad","Privacidad"],["/es/terminos","Términos"],["/es/reembolsos","Reembolsos"],["/es/nosotros#two-layer-rule","La Two-Layer Rule — quién paga, y quién nunca"],["/es/ledger#erratas","Erratas — qué hacemos cuando nos equivocamos"]];
+const enlaces = [["/es/privacidad","Privacidad"],["/es/terminos","Términos"],["/es/terminos#reembolsos","Reembolsos"],["/es/nosotros#two-layer-rule","La Two-Layer Rule — quién paga, y quién nunca"],["/es/ledger#erratas","Erratas — qué hacemos cuando nos equivocamos"]];
 ---
 <MarcaLayout title="Políticas y conducta — Rosetta Quantum" description="Privacidad, términos y reembolsos, más las reglas de conducta a las que esta casa se ata." lang="es" altUrl="/policies" ruta="/es/politicas" pageCss={css} scripts={["/js/frescura.js"]}>
   <section class="pg" style="border-top:none"><div class="wrap">

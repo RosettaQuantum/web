@@ -49,6 +49,9 @@ const R = {
   // 9-sep: las erratas se concentran en el ledger, en su propia ancla.
   "/errata": "/ledger#erratas",
   "/es/erratas": "/es/ledger#erratas",
+  // 12-nov: los reembolsos pasan a ser la seccion final de los terminos.
+  "/refunds": "/terms/#refunds",
+  "/es/reembolsos": "/es/terminos/#reembolsos",
 };
 
 // ...PERO la lista escrita a mano tiene su propio agujero, y se vio el mismo dia que

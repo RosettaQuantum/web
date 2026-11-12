@@ -18,12 +18,13 @@ import { augmentSitemap } from "./lib/sitemap.mjs";
 // accepts lead submissions at POST /api/lead -> D1 `leads`, and serves
 // D1-backed Library posts (table `posts`) that were published WITHOUT a rebuild.
 /**
- * Las dieciseis redirecciones permanentes. Origen sin barra final: la
+ * Las dieciocho redirecciones permanentes. Origen sin barra final: la
  * busqueda normaliza antes de mirar, para que /clases y /clases/ den lo mismo.
  *
  * 10 de /rosettaq* (el archivador se absorbe en la Biblioteca) · 2 de /pricing (los
  * precios viven con los servicios) · 2 de /clases (el catalogo se sirve desde /library).
  * 2 de /errata (las erratas viven en el ledger, no en una pagina propia).
+ * 2 de /refunds (los reembolsos viven como seccion de los terminos).
  * Todas apuntan a una ruta que responde 200 hoy; T-301 lo comprueba en cada deploy,
  * porque un 301 a un 404 es peor que no redirigir: el original ya no existe.
  */
@@ -49,6 +50,12 @@ const REDIRECTS_301 = {
   // dice. Y las paginas de origen SE BORRAN (ver abajo por que).
   "/errata": "/ledger#erratas",
   "/es/erratas": "/es/ledger#erratas",
+  // 12-nov: la politica de reembolsos se une a los terminos (pedido de Nicholas) y pasa
+  // a ser su seccion final. Mismo patron que /errata: destino con ancla, y las paginas
+  // de origen se borran para que este 301 corra. Paddle puede tener /refunds guardada.
+  // Destino CON barra: /terms sin ella da 307 a /terms/ y el salto quedaria en dos.
+  "/refunds": "/terms/#refunds",
+  "/es/reembolsos": "/es/terminos/#reembolsos",
 };
 
 export default {
