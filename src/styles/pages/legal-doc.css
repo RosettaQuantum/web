@@ -1,0 +1,80 @@
+/* Terminos y Condiciones — la forma documento de las paginas legales.
+   Solo tokens de global.css y tokens.css; ningun color ni tamano propio.
+   Los comentarios no viajan (sinComentarios), pero igual no citan texto de la pagina.
+
+   Ojo con home.css, que MarcaLayout carga en toda pagina: trae `section{padding;border}`,
+   `h1{max-width:12ch}` y `nav:not([class]){sticky}`. Por eso aqui no hay <section>, el
+   h1 se libera de su 12ch y el indice es un <nav> CON clase. */
+
+/* `.wrap` se vuelve a declarar en una hoja que llega despues de esta, con su
+   padding:0 22px: a igual especificidad ganaba y la cabecera quedaba pegada a la barra. */
+.wrap.legal-doc{padding-top:56px;padding-bottom:96px}
+
+/* ── cabecera ─────────────────────────────────────────────────────────────── */
+.doc-cabeza{padding-bottom:28px;border-bottom:1px solid var(--ink);margin-bottom:40px}
+.doc-cabeza .eyebrow{margin:0}
+.doc-cabeza h1{
+  font-family:var(--serif);font-weight:400;font-size:var(--t-display);
+  line-height:var(--lh-display);letter-spacing:-.02em;margin:14px 0 18px;max-width:none;
+}
+.doc-meta{display:flex;flex-wrap:wrap;gap:6px 18px;align-items:baseline;
+  font-size:var(--t-small);color:var(--ink-60)}
+.doc-meta strong{color:var(--ink);font-weight:600}
+.doc-fecha{font-family:var(--mono);font-size:var(--t-data);color:var(--ink);
+  background:var(--teal-10);border:1px solid var(--teal-20);border-radius:2px;padding:3px 9px}
+
+/* ── indice + texto ───────────────────────────────────────────────────────── */
+.doc-cuerpo{display:block}
+.doc-indice{border:1px solid var(--line);background:var(--panel);border-radius:2px;
+  padding:16px 18px;margin:0 0 40px;font-size:var(--t-small)}
+.doc-indice-t{font-family:var(--mono);font-size:var(--t-data);letter-spacing:.14em;
+  text-transform:uppercase;color:var(--ink-60);margin:0 0 10px}
+.doc-indice ol{list-style:none;margin:0;padding:0}
+.doc-indice li{margin:0}
+.doc-indice a{display:block;padding:5px 0;color:var(--ink);line-height:1.35;
+  border-bottom:1px solid transparent}
+.doc-indice a:hover{color:var(--verdict)}
+.doc-indice li li a{color:var(--ink-60);padding-left:14px;font-size:var(--t-label)}
+/* En telefono el indice lleva solo el primer nivel: con los subnumerales del anexo
+   eran dieciocho lineas antes de la primera palabra del texto. */
+@media (max-width:999px){ .doc-indice li ol{display:none} }
+
+@media (min-width:1000px){
+  .doc-cuerpo{display:grid;grid-template-columns:230px minmax(0,1fr);gap:64px;align-items:start}
+  .doc-indice{position:sticky;top:96px;max-height:calc(100vh - 120px);overflow:auto;
+    margin:0;padding:0 0 0 16px;border:0;border-left:1px solid var(--line);background:none}
+}
+
+/* ── el texto: ancho de lectura de ~65 caracteres ─────────────────────────── */
+.doc-texto{max-width:65ch;font-size:var(--t-body);line-height:var(--lh-body);overflow-wrap:break-word}
+.doc-texto > *{max-width:65ch}
+.doc-texto h2,.doc-texto h3{scroll-margin-top:104px}
+.doc-texto h2{
+  font-family:var(--serif);font-weight:500;font-size:var(--t-sub);line-height:var(--lh-sub);
+  letter-spacing:-.01em;margin:48px 0 14px;padding-top:20px;border-top:1px solid var(--line);
+}
+.doc-texto > h2:first-child{margin-top:0;padding-top:0;border-top:0}
+.doc-texto h2.doc-parte{
+  font-weight:400;font-size:var(--t-title);line-height:var(--lh-title);
+  margin-top:80px;padding-top:28px;border-top:1px solid var(--ink);
+}
+.doc-texto h3{font-family:var(--serif);font-weight:500;font-size:var(--t-sub);
+  line-height:var(--lh-sub);margin:32px 0 10px}
+.doc-texto p{margin:0 0 16px}
+.doc-texto ul,.doc-texto ol{margin:0 0 18px;padding-left:22px}
+.doc-texto li{margin:0 0 10px}
+.doc-texto li::marker{color:var(--ink-60)}
+.doc-texto strong{font-weight:600}
+.doc-texto a{color:var(--verdict);text-decoration:underline;text-underline-offset:3px}
+.doc-texto code{font-family:var(--mono);font-size:var(--t-data)}
+.doc-texto hr{border:0;border-top:1px solid var(--line);margin:32px 0}
+
+.doc-texto .sello-fuente{margin-top:64px;padding-top:14px;border-top:1px solid var(--line);
+  font-size:var(--t-label);color:var(--ink-60);overflow-wrap:anywhere}
+.doc-texto .sello-fuente code{font-size:var(--t-label)}
+
+@media (max-width:640px){
+  .wrap.legal-doc{padding-top:36px;padding-bottom:64px}
+  .doc-cabeza{margin-bottom:28px}
+  .doc-texto h2.doc-parte{margin-top:64px}
+}
