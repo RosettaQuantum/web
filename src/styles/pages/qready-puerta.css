@@ -156,3 +156,17 @@
 .qr-archivo li{display:flex;justify-content:space-between;flex-wrap:wrap;gap:2px 12px;padding:6px 0;border-bottom:1px dashed var(--line);font-size:var(--t-small)}
 .qr-archivo li a{color:var(--verdict);text-decoration:underline;text-underline-offset:3px}
 .qr-archivo-m{font-family:var(--mono);font-size:var(--t-label);color:var(--ink-60)}
+
+/* 12-nov-2026: con el marco de 1.400 px el panel quedaba alto y angosto y dejaba un hueco bajo el
+   texto del hero. En pantallas anchas el panel se abre en dos columnas (gráfico | correo y ediciones)
+   y el texto se centra en la altura. Bajo 1180 px queda como antes. */
+@media(min-width:1180px){
+  .qr-hero-grid{grid-template-columns:1fr 1.25fr;align-items:center}
+  .qr-informe{display:grid;grid-template-columns:1.1fr 1fr;grid-template-areas:"et et" "h h" "fig form" "fig arch";column-gap:var(--s3);row-gap:var(--s2);align-items:start}
+  .qr-informe>.qr-informe-et{grid-area:et}
+  .qr-informe>.qr-informe-h{grid-area:h}
+  .qr-informe>.qr-qex{grid-area:fig;margin:0}
+  .qr-informe>.qr-informe-form{grid-area:form}
+  .qr-informe>.qr-archivo{grid-area:arch}
+  .qr-dos{align-items:center}
+}
