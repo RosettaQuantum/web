@@ -11,7 +11,7 @@
  *   node scripts/check-ct-registro.mjs --self-test
  */
 import { readFileSync } from "node:fs";
-import { filasDesdeCertSpotter, certSpotter, dominioValido, manejarCT } from "../lib/ct-registro.mjs";
+import { filasDesdeCertSpotter, certSpotter, dominioValido, manejarCT, leerD1, guardarD1 } from "../lib/ct-registro.mjs";
 
 export const CONSUMIDOR = { quien: "sesion web de Rosetta", hace: "repara lib/ct-registro.mjs o la llamada de la medición en vivo antes de desplegar" };
 
@@ -71,6 +71,29 @@ igual([r.fuente, r.vieja], ["crt.sh", true], "copia de crt.sh de 3 días gana a 
 almacen.set("https://rosettaquantum.com/__ct/v2/crtsh/banco.cl", JSON.stringify({ fuente: "crt.sh", consultado_utc: new Date(Date.now() - 3600e3).toISOString(), texto: "[]" }));
 r = await pedir();
 igual([r.fuente, r.desde_copia, !!r.vieja], ["crt.sh", true, false], "copia fresca de crt.sh sin ir a la red");
+
+// COPIA GLOBAL EN D1 (defecto medido el 12-nov en producción): la caché del borde es por centro de
+// datos; en otro colo no había copia de crt.sh y la medición cayó a Cert Spotter (QEX 56 → 58).
+const filas = new Map();
+const DB = { prepare: (sql) => ({ bind: (...a) => ({
+  first: async () => /^SELECT/.test(sql) ? filas.get(a[0]) || null : null,
+  run: async () => { const prev = filas.get(a[0]); if (!prev || a[1] > prev.consultado_utc) filas.set(a[0], { consultado_utc: a[1], ms: a[2], gz: a[3] }); },
+}) }) };
+almacen.clear();
+const pedirD1 = async () => (await manejarCT(new Request("https://rosettaquantum.com/api/ct?d=banco.cl", { headers: { "cf-connecting-ip": "9.9.9." + Math.random() } }), ctx, { DB })).json();
+const TXT = JSON.stringify([{ name_value: "a.banco.cl\nb.banco.cl", id: "7" }]);
+igual(await guardarD1(DB, "banco.cl", { texto: TXT, consultado_utc: new Date(Date.now() - 10 * 86400e3).toISOString(), ms: 9 }), true, "guarda en D1");
+igual((await leerD1(DB, "banco.cl")).texto, TXT, "D1 devuelve el texto exacto (la huella no cambia)");
+r = await pedirD1();
+igual([r.fuente, r.vieja, r.texto === TXT], ["crt.sh", true, true], "colo sin copia, crt.sh caído: la copia de D1 de 10 días gana a Cert Spotter");
+await guardarD1(DB, "banco.cl", { texto: TXT, consultado_utc: new Date(Date.now() - 3600e3).toISOString(), ms: 9 });
+let redTocada = false;
+globalThis.fetch = async () => { redTocada = true; return new Response("", { status: 502 }); };
+almacen.clear();
+r = await pedirD1();
+igual([r.fuente, r.desde_copia, !!r.vieja, redTocada], ["crt.sh", true, false, false], "copia de D1 fresca: sin red, declarada copia");
+await guardarD1(DB, "banco.cl", { texto: "[]", consultado_utc: new Date(Date.now() - 20 * 86400e3).toISOString(), ms: 1 });
+igual((await leerD1(DB, "banco.cl")).texto, TXT, "una copia más vieja no pisa a una más nueva");
 globalThis.fetch = fetchOriginal;
 
 if (fallas.length) { console.error("check-ct-registro: FALLA\n  " + fallas.join("\n  ")); process.exit(1); }
