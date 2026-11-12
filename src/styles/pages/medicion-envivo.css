@@ -89,6 +89,7 @@
 .mv-ficha h2{font-size:var(--t-sub);line-height:var(--lh-sub);margin-bottom:var(--s2)}
 .mv-h3{font-family:var(--mono);font-size:var(--t-label);font-weight:400;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-60);margin:var(--s3) 0 var(--s1)}
 .mv-meta{font-family:var(--mono);font-size:var(--t-data);color:var(--ink-60);margin:0}
+.mv-cab .mv-difer{margin-top:var(--s2);color:var(--verdict);max-width:64ch}
 .mv-texto{font-size:var(--t-body);line-height:var(--lh-body);margin:0 0 var(--s2);max-width:70ch}
 .mv-par{display:grid;grid-template-columns:1fr 1fr;gap:var(--s3)}
 
