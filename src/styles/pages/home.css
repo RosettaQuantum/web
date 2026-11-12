@@ -395,7 +395,3 @@ textarea:focus-visible,[tabindex]:focus-visible{
 .comotabla td + td, .comotabla th + th{text-align:right}
 .comotabla p{font-size:var(--t-label);color:var(--ink-60);padding-bottom:12px}
 
-/* B5 9.1 · la linea de cierre de la pelea. Es la frase que convierte un resultado
-   negativo propio en un argumento comercial, y no estaba escrita. */
-.cierre-pelea{font-family:var(--serif);font-size:var(--t-sub);line-height:var(--lh-sub);
-  color:var(--ink);max-width:44ch;border-top:1px solid var(--line);padding-top:var(--s2)}
