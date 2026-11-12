@@ -395,3 +395,17 @@ textarea:focus-visible,[tabindex]:focus-visible{
 .comotabla td + td, .comotabla th + th{text-align:right}
 .comotabla p{font-size:var(--t-label);color:var(--ink-60);padding-bottom:12px}
 
+
+/* Formulario del Monitor (12-nov-2026). Con el ancho de 1.400 px, el tope de 440 px lo dejaba
+   chico y apretado: el botón largo se comía el campo. Más ancho, más alto, y en pantallas
+   angostas el botón baja debajo del campo en vez de apretarlo. */
+.monitor .mon-form{display:flex;max-width:680px;margin-top:var(--s3,24px);border:1.5px solid var(--ink);border-radius:2px;background:var(--panel,#FFFFFE)}
+.monitor .mon-form input{flex:1;min-width:0;height:60px;border:none;background:transparent;font-family:var(--sans);font-size:1.125rem;padding:0 18px;color:var(--ink);outline:none}
+.monitor .mon-form input:focus-visible{box-shadow:inset 0 0 0 2px var(--accent,var(--ink))}
+.monitor .mon-form .btn{height:60px;display:inline-flex;align-items:center;padding:0 26px;font-size:1.0625rem;white-space:nowrap;border-radius:0}
+.monitor .mon-nota{font-family:var(--mono);font-size:var(--t-data);color:var(--ink-60);margin-top:10px}
+@media(max-width:620px){
+  .monitor .mon-form{flex-direction:column}
+  .monitor .mon-form input{flex:none;height:54px;border-bottom:1.5px solid var(--ink)}
+  .monitor .mon-form .btn{height:54px;justify-content:center;white-space:normal}
+}
