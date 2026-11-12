@@ -289,3 +289,23 @@ export function armarFoto({ dominio, www, vertical, medido, ct, sondas: s, refer
   };
   return { foto, detalle: { cuentas, hosts, endpoints, tls13, dim, q, tipos, ref } };
 }
+
+// ---------------------------------------------------------------- etiquetas en inglés (12-nov-2026)
+// Sólo se AGREGA: la página /q-ready/medicion las usa para pintar. Nada de lo de arriba cambia,
+// ni la foto, ni el cálculo, ni lo que lee el PDF (que sigue en español).
+export const ETIQUETA_DIM_EN = { certificados: "Certificates and PKI", higiene: "Surface hygiene", hndl: "HNDL posture", edge: "PQC at the edge" };
+export const ETIQUETA_CT_EN = { hostnames: "Names in the public log", profundos: "Names three or more levels deep",
+  no_productivo: "Non-production environments", legado: "Legacy names", infra_expuesta: "Sensitive infrastructure", critico: "Critical services" };
+// Etiqueta de cada ítem de comparar(), por su clave `k` (la clave no cambia; la etiqueta sí).
+export const ETIQUETA_ITEM_EN = { score: "QEX", ...ETIQUETA_DIM_EN, ...ETIQUETA_CT_EN,
+  cdn: "Who serves the edge", soporta: "Supports X25519MLKEM768", elige: "Chooses it when free to choose", tls13: "TLS 1.3",
+  algoritmo: "Certificate algorithm", emisor: "Issuer", vence: "Expires", correo: "Email provider (MX)",
+  security_txt: "Security reporting channel (security.txt)" };
+// Valores que comparar() redacta en español (sí/no/publicado) y lo que redacta estadoEndpoint().
+export const VALOR_EN = { "sí": "yes", "no": "no", "publicado": "published", "no publicado": "not published",
+  "presente en el registro público": "present in the public log", "ya no publicado en DNS": "no longer published in DNS",
+  "responde en el puerto 443": "responds on port 443",
+  "publicado en DNS, sin servicio web: es lo normal en un servidor de correo": "published in DNS, no web service: normal for a mail server",
+  "publicado en DNS, no responde en 443": "published in DNS, does not respond on 443", "sin medición": "not measured",
+  "aún no estaba en el registro público": "not yet in the public log", "otro": "other", "sin CNAME": "no CNAME" };
+export const estadoEndpointEn = (e) => { const t = estadoEndpoint(e); return t == null ? null : VALOR_EN[t] ?? t; };

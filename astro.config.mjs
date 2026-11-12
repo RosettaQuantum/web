@@ -58,6 +58,13 @@ for (const v of PAIRS.values()) {
   BY_URL.set(v.en, links);
   BY_URL.set(v.es, links);
 }
+// La medición en vivo: único par EN/ES de /q-ready que se anuncia (12-nov-2026).
+{
+  const en = `${SITE}/q-ready/medicion/`, es = `${SITE}/es/q-ready/medicion/`;
+  const links = [{ url: en, lang: 'en' }, { url: es, lang: 'es' }, { url: en, lang: 'x-default' }];
+  BY_URL.set(en, links);
+  BY_URL.set(es, links);
+}
 
 export default defineConfig({
   site: SITE,
@@ -78,7 +85,8 @@ export default defineConfig({
       // 15-sep-2026: vuelve SÓLO /es/q-ready, portada a la marca como puerta de seguridad.
       // 3-nov-2026: entra también /es/q-ready/medicion (medición en vivo, indexable por decisión de Nicholas).
       // Checkout, portal y la muestra siguen fuera: no se portaron.
-      filter: (page) => !page.includes('/rq-shell-') && (!page.includes('/q-ready') || /\/es\/q-ready(\/medicion)?\/?$/.test(page))
+      // 12-nov-2026: y su par en inglés, /q-ready/medicion (misma página, mismo criterio).
+      filter: (page) => !page.includes('/rq-shell-') && (!page.includes('/q-ready') || /\/(es\/)?q-ready\/medicion\/?$/.test(page) || /\/es\/q-ready\/?$/.test(page))
         && !(INFORME_BORRADOR && page.includes('/informe-pqc')),
       i18n: { defaultLocale: 'en', locales: { en: 'en', es: 'es' } },
       serialize(item) {

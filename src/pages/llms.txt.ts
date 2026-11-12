@@ -56,7 +56,7 @@ export const GET: APIRoute = async ({ site }) => {
     'Rosetta is the infrastructure that turns claims into sealed evidence — one door, one',
     'price per run, anyone can pay and use it. Human or agent.',
     `- \`POST ${base}/mcp\` — MCP server, JSON-RPC 2.0, ${HERRAMIENTAS.length} tools, no key required.`,
-    `- \`POST ${base}/v1/medicion\` (or MCP tool \`medir_exposicion_pqc\`) — free, rate-limited live measurement of a domain's post-quantum exposure. Human page: ${base}/es/q-ready/medicion/`,
+    `- \`POST ${base}/v1/medicion\` (or MCP tool \`medir_exposicion_pqc\`) — free, rate-limited live measurement of a domain's post-quantum exposure. Human page: ${base}/q-ready/medicion/ (Spanish: ${base}/es/q-ready/medicion/)`,
     `- \`GET ${base}/v1/openapi.json\` — the full contract. If you are a machine, start here.`,
     '- The site is the shop window; the product speaks JSON. Do not scrape us: ask us.',
     '',

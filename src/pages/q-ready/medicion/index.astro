@@ -1,0 +1,267 @@
+---
+/**
+ * /q-ready/medicion — versión en inglés de /es/q-ready/medicion (12-nov-2026).
+ * Misma estructura, mismos ids y clases, mismo CSS y los mismos scripts: los .mjs leen
+ * <html lang> una vez y pintan en inglés. Si se toca la estructura de una, se toca la otra.
+ * Las reglas de la página española valen aquí tal cual (fotos sólo en el navegador, «no medido»
+ * nunca es «no protegido», paneles como <div role="region">).
+ * El formulario de envío por correo existe pero no se abre en inglés: el PDF sale en español.
+ */
+import MarcaLayout from '../../../layouts/MarcaLayout.astro';
+import paginas from '../../../styles/pages/paginas.css?raw';
+import propia from '../../../styles/pages/medicion-envivo.css?raw';
+---
+<MarcaLayout
+  title="Your cryptographic exposure, measured today — Rosetta Q-Ready"
+  description="The full QEX, live: certificates, surface, post-quantum edge and HNDL posture, with the sum in plain view and a comparison against your previous measurement."
+  lang="en" altUrl="/es/q-ready/medicion" ruta="/q-ready/medicion"
+  pageCss={paginas + "\n" + propia} noindex={false}
+>
+  <script type="application/ld+json" set:html={JSON.stringify({
+    "@context": "https://schema.org", "@type": "WebApplication",
+    name: "Rosetta Q-Ready · live measurement",
+    url: "https://rosettaquantum.com/q-ready/medicion/",
+    applicationCategory: "SecurityApplication", operatingSystem: "Web", inLanguage: "en",
+    isAccessibleForFree: true,
+    description: "Measures a domain's public post-quantum exposure from outside: website, email, sensitive endpoints and certificate, with the QEX index and a sealed snapshot.",
+    offers: { "@type": "Offer", price: "0", priceCurrency: "USD" },
+    provider: { "@type": "Organization", name: "Rosetta Quantum", url: "https://rosettaquantum.com" },
+    potentialAction: { "@type": "Action", name: "Measure a domain via API", target: "https://rosettaquantum.com/v1/medicion" }
+  })} />
+  <section class="mv">
+    <div class="mv-wrap">
+     <div class="mv-grid">
+      <div class="mv-main">
+
+      <header class="mv-cab">
+        <p class="mv-eyebrow">Rosetta Q-Ready · live measurement · QEX-1.0</p>
+        <h1>Your cryptographic exposure, measured today.</h1>
+        <p class="mv-lede">Enter your domain once. From outside, we measure everything a third party can see: your website, your email, your sensitive servers and your certificate. Then we show you what it means and why it matters now.</p>
+        <p class="mv-meta mv-difer">External and independent · nothing to install · compared with your sector in Chile · sealed with a hash · repeatable every month</p>
+      </header>
+
+      <form class="mv-instrumento" id="mv-form" novalidate>
+        <div class="mv-campo mv-dominio">
+          <label for="mv-dominio">Domain</label>
+          <div class="mv-entrada">
+            <span class="mv-prefijo" aria-hidden="true">https://</span>
+            <input id="mv-dominio" type="text" inputmode="url" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="your-domain.com">
+          </div>
+        </div>
+        <div class="mv-campo mv-sector">
+          <label for="mv-sector">Sector</label>
+          <select id="mv-sector"></select>
+        </div>
+        <button type="submit" id="mv-ir" class="mv-ir">Measure now <span class="mv-ir-flecha" aria-hidden="true">→</span></button>
+        <div class="mv-comparar">
+          <p class="mv-nota" id="mv-previa-estado" role="status">No previous snapshot: measuring without comparison.</p>
+          <button class="mv-link" type="button" id="mv-previa-quitar" hidden>Don’t compare</button>
+        </div>
+        <p class="mv-estado" id="mv-estado" role="status" aria-live="polite" hidden></p>
+      </form>
+
+      <div role="region" class="mv-consola" aria-labelledby="mv-consola-t">
+        <div class="mv-consola-cab">
+          <h2 id="mv-consola-t">Console</h2>
+          <ol class="mv-riel" aria-label="Measurement steps">
+            <li data-paso="ct"><span>Surface</span></li>
+            <li data-paso="end"><span>Endpoints</span></li>
+            <li data-paso="borde"><span>Edge</span></li>
+            <li data-paso="cert"><span>Certificate</span></li>
+            <li data-paso="prov"><span>Email</span></li>
+          </ol>
+          <span class="mv-reloj" id="mv-reloj" aria-hidden="true">0.0 s</span>
+        </div>
+        <ol class="mv-traza" id="mv-traza" aria-live="polite">
+          <li class="mv-t-quieto">Waiting for a domain. Every query and every TLS handshake will appear here, with its timing.</li>
+        </ol>
+        <div class="mv-ct-falla" id="mv-ct-falla" hidden></div>
+      </div>
+
+      <div class="mv-resultado" id="mv-resultado" hidden>
+        <nav class="mv-actos" aria-label="The four steps of the reading">
+          <ol>
+            <li><a href="#mv-acto1" class="mv-acto-on"><b>1</b>What you have today</a></li>
+            <li><a href="#mv-acto2"><b>2</b>What it means</a></li>
+            <li><a href="#mv-acto3"><b>3</b>Why it matters</a></li>
+            <li><a href="#mv-acto4"><b>✓</b>Your sealed snapshot</a></li>
+          </ol>
+        </nav>
+
+        <div class="mv-acto" id="mv-acto1">
+          <div class="mv-acto-cab"><p class="mv-acto-n">1 · The data</p><div><h2>What you have today</h2><p>Each channel your data travels over, measured separately. A channel we could not measure says “not measured”, never “not protected”.</p></div></div>
+          <p class="mv-veredicto" id="mv-veredicto" hidden></p>
+          <div class="mv-canales" id="mv-canales"></div>
+          <div class="mv-puente" id="mv-puente" hidden></div>
+        </div>
+
+
+        <div role="region" class="mv-bloque mv-qex" id="mv-qex" aria-labelledby="mv-qex-t">
+          <div class="mv-bloque-cab">
+            <h2 id="mv-qex-t">Your QEX today</h2>
+            <p class="mv-meta" id="mv-qex-meta"></p>
+          </div>
+          <div class="mv-qex-fila">
+            <p class="mv-score"><span id="mv-score">—</span><span class="mv-de">/ 100</span></p>
+            <p class="mv-ref" id="mv-ref"></p>
+          </div>
+          <div class="mv-escala" id="mv-escala" role="img" aria-labelledby="mv-escala-desc">
+            <div class="mv-escala-pista">
+              <div class="mv-tramos" id="mv-tramos"></div>
+              <div class="mv-techo" id="mv-techo"><span>not observable from outside</span></div>
+              <div class="mv-marcas" id="mv-marcas"></div>
+            </div>
+            <div class="mv-escala-eje" aria-hidden="true"><span style="left:0">0</span><span style="left:50%">50</span><span id="mv-eje-tope" style="left:84%">84</span><span style="left:100%">100</span></div>
+          </div>
+          <p class="mv-sr" id="mv-escala-desc"></p>
+          <div class="mv-formula" id="mv-formula"></div>
+          <div class="mv-dims" id="mv-dims"></div>
+        </div>
+
+        <div role="region" class="mv-bloque" aria-labelledby="mv-sup-t">
+          <div class="mv-bloque-cab">
+            <h2 id="mv-sup-t">Your public surface</h2>
+            <p class="mv-meta" id="mv-sup-meta"></p>
+          </div>
+          <p class="mv-texto" id="mv-sup-lede"></p>
+          <div class="mv-mapa-caja">
+            <div class="mv-mapa" id="mv-mapa" role="img" aria-label="Map of your domain’s names in the public log, by class"></div>
+            <ul class="mv-leyenda" id="mv-leyenda"></ul>
+          </div>
+          <h3 class="mv-h3">Sensitive endpoints</h3>
+          <div class="mv-tabla-caja"><table class="mv-tabla mv-endp"><thead><tr><th scope="col">Name</th><th scope="col">Class</th><th scope="col">DNS</th><th scope="col">Port 443</th><th scope="col">Detail</th></tr></thead><tbody id="mv-endp"></tbody></table></div>
+        </div>
+
+        <div role="region" class="mv-bloque" aria-labelledby="mv-borde-t">
+          <div class="mv-bloque-cab">
+            <h2 id="mv-borde-t">Your edge and the post-quantum key exchange</h2>
+            <p class="mv-meta" id="mv-borde-meta"></p>
+          </div>
+          <div class="mv-tramos-dib" id="mv-dos-tramos"></div>
+          <div class="mv-tabla-caja"><table class="mv-tabla mv-saludos"><thead><tr><th scope="col">TLS handshake</th><th scope="col">What we offered</th><th scope="col">What your edge chose</th><th scope="col" class="num">ms</th></tr></thead><tbody id="mv-saludos"></tbody></table></div>
+          <p class="mv-nota" id="mv-borde-lectura"></p>
+        </div>
+
+        <div class="mv-par">
+          <div role="region" class="mv-bloque mv-ficha" aria-labelledby="mv-cert-t">
+            <h2 id="mv-cert-t">Your certificate</h2>
+            <dl class="mv-dl" id="mv-cert"></dl>
+          </div>
+          <div role="region" class="mv-bloque mv-ficha" aria-labelledby="mv-prov-t">
+            <h2 id="mv-prov-t">Email and reporting channel</h2>
+            <dl class="mv-dl" id="mv-prov"></dl>
+          </div>
+        </div>
+
+        <div role="region" class="mv-bloque mv-comp" id="mv-comp" hidden aria-labelledby="mv-comp-t">
+          <div class="mv-bloque-cab">
+            <h2 id="mv-comp-t"></h2>
+            <p class="mv-meta" id="mv-comp-meta"></p>
+          </div>
+          <ul class="mv-contadores" id="mv-comp-resumen"></ul>
+          <div class="mv-tabla-caja">
+            <table class="mv-tabla mv-delta">
+              <thead><tr><th scope="col">Item</th><th scope="col" id="mv-col-antes">What there was</th><th scope="col" id="mv-col-ahora">What there is</th><th scope="col">Status</th></tr></thead>
+              <tbody id="mv-delta"></tbody>
+            </table>
+          </div>
+          <div class="mv-hosts" id="mv-hosts"></div>
+        </div>
+
+        <div class="mv-acto" id="mv-acto2">
+          <div class="mv-acto-cab"><p class="mv-acto-n">2 · The consequence</p><div><h2>What someone can store today</h2><p>“Harvest now, decrypt later”: traffic encrypted with classical methods can be copied today and read once a sufficiently capable quantum computer exists. This is a real capture, taken by us, of what it looks like.</p></div></div>
+          <div class="mv-canal-sel" id="mv-canal-sel" role="group" aria-label="Channel"></div>
+          <div class="mv-capsulas">
+            <div class="mv-capsula">
+              <h3>Capsule A · classical channel</h3><span class="mv-cap-estado mv-cap-abre">opens in the future</span>
+              <p class="mv-cap-hex" id="mv-cap-hex">loading the capture…</p>
+              <p class="mv-cap-pie" id="mv-cap-pie"></p>
+            </div>
+            <div class="mv-capsula">
+              <h3>Capsule B · hybrid channel</h3><span class="mv-cap-estado mv-cap-cierra">stays closed</span>
+              <p class="mv-cap-hex">The same message, encrypted with X25519MLKEM768. Copying it today is useless: the post-quantum part resists the quantum computer.</p>
+              <p class="mv-cap-pie" id="mv-cap-pie-b"></p>
+            </div>
+          </div>
+          <p class="mv-texto mv-cap-lee" id="mv-cap-lee"></p>
+        </div>
+
+        <div class="mv-acto" id="mv-acto3">
+          <div class="mv-acto-cab"><p class="mv-acto-n">3 · The mechanism</p><div><h2>Why it matters now</h2><p>The capsule is opened with Shor’s algorithm. It is not theory: here it runs, at small scale.</p></div></div>
+          <div class="mv-par">
+            <div class="mv-bloque">
+              <h3 class="mv-h3">Shor finds the period and breaks the key</h3>
+              <div class="mv-picos" id="mv-picos" role="img" aria-label="Peaks measured by the quantum Fourier transform"></div>
+              <p class="mv-shor-res" id="mv-shor-res"></p>
+              <p class="mv-nota" id="mv-shor-nota"></p>
+            </div>
+            <div class="mv-bloque">
+              <h3 class="mv-h3">The risk window is the lifetime of your data</h3>
+              <div class="mv-linea" aria-hidden="true"><div class="mv-vida"></div><div class="mv-hito mv-hito-hoy" style="left:0"><span>today<br>harvesting</span></div><div class="mv-hito" style="left:40%"><span>2030<br>NIST deprecates</span></div><div class="mv-hito mv-hito-fin" style="left:90%"><span>2035<br>NIST disallows</span></div></div>
+              <p class="mv-texto mv-linea-txt">If a piece of data must stay secret beyond the day that machine exists, the risk has already started today. No date is a guaranteed deadline; 2030 is NIST’s firm date.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="mv-acto mv-acto-ultimo" id="mv-acto4">
+          <div class="mv-acto-cab"><p class="mv-acto-n">✓ · The proof</p><div><h2>Your snapshot of today, sealed</h2><p>Everything above is kept in a snapshot with its hash. Your next measurement is compared against this one, item by item.</p></div></div>
+        </div>
+
+        <div role="region" class="mv-bloque mv-recibo" aria-labelledby="mv-foto-t">
+          <div class="mv-bloque-cab">
+            <h2 id="mv-foto-t">Today’s snapshot</h2>
+            <p class="mv-meta">schema rosetta-qex-foto/1</p>
+          </div>
+          <p class="mv-texto">Everything measured, in one file with its hash. It is the baseline for comparing the next measurement: changing a single character changes the hash.</p>
+          <dl class="mv-dl mv-dl-recibo">
+            <div><dt>Measured</dt><dd id="mv-cuando"></dd></div>
+            <div><dt>sha256 hash</dt><dd><code id="mv-huella"></code></dd></div>
+            <div><dt>Integrity</dt><dd id="mv-integra">—</dd></div>
+          </dl>
+          <div class="mv-acciones">
+            <button class="mv-boton" type="button" id="mv-guardar">Download the snapshot (JSON)</button>
+            <button class="mv-boton mv-boton-2" type="button" id="mv-verificar">Verify the hash</button>
+            <button class="mv-boton mv-boton-2" type="button" id="mv-imprimir">Print or save as PDF</button>
+          </div>
+          <p class="mv-nota mv-ok" id="mv-guardada"></p>
+        </div>
+
+        <form class="mv-bloque mv-envio" id="mv-envio" novalidate hidden aria-labelledby="mv-envio-t">
+          <h2 id="mv-envio-t">Get this report by email</h2>
+          <p class="mv-texto">We send you the report for <b id="mv-envio-dom">your domain</b> as a PDF, with the sealed snapshot to compare your next measurement.</p>
+          <div class="mv-envio-fila">
+            <label class="mv-sr" for="mv-envio-email">Email</label>
+            <input id="mv-envio-email" type="email" autocomplete="email" placeholder="name@your-company.com" required>
+            <button type="submit" class="mv-ir" id="mv-envio-ir">Send me the report</button>
+          </div>
+          <label class="mv-envio-acepto"><input type="checkbox" id="mv-envio-acepto"> I agree that Rosetta Quantum may store my email and the measured domain to send me this report and, later, alerts if something changes and the monthly report on large Chilean companies. We do not share them; every email includes an unsubscribe link.</label>
+          <p class="mv-nota" id="mv-envio-estado" role="status" aria-live="polite"></p>
+        </form>
+      </div>
+
+      <details class="mv-como">
+        <summary>What we measure and what we don’t</summary>
+        <p><b>Surface.</b> We query the public certificate log (crt.sh) and classify each name with the same rules as every edition of the index: non-production environments, legacy, sensitive infrastructure and critical services.</p>
+        <p><b>Endpoints.</b> For each sensitive name we ask DNS whether it is still published and, if it is, we send a single TLS handshake to port 443. We complete no connection and send no data.</p>
+        <p><b>Edge and certificate.</b> Three TLS 1.3 handshakes decide whether your edge supports and chooses the hybrid key exchange; a TLS 1.2 handshake shows us the certificate, which travels unencrypted in that version.</p>
+        <p><b>HNDL posture.</b> Not measured: it is a value for your sector (how many years the data must stay protected and how long migration takes). We label it as a model.</p>
+        <p><b>What cannot be seen from outside.</b> The leg from your edge to your origin server, your HSMs, your internal cryptography and your providers’. That is why the index is capped at 84: no external measurement can claim an organization is ready.</p>
+      </details>
+      </div>
+
+      <aside class="mv-bandeja" aria-labelledby="mv-b-t">
+        <h2 id="mv-b-t">Your history</h2>
+        <p class="mv-nota">Snapshots are stored only in this browser; they are never sent to a server. Each measurement is added automatically. Tap one to compare against it.</p>
+        <p class="mv-nota mv-b-vacia" id="mv-b-vacia">No snapshots here yet.</p>
+        <ol class="mv-b-lista" id="mv-b-lista"></ol>
+        <label class="mv-b-agregar">Add from a file
+          <input id="mv-b-archivo" type="file" accept="application/json,.json" multiple>
+        </label>
+        <p class="mv-nota" id="mv-b-estado" role="status"></p>
+      </aside>
+     </div>
+    </div>
+  </section>
+  <script is:inline type="module" src="/js/medicion-envivo.mjs"></script>
+  <script is:inline type="module" src="/js/medicion-historia.mjs"></script>
+</MarcaLayout>
