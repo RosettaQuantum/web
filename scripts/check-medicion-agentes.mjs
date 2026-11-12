@@ -73,6 +73,7 @@ const medirCon = (entrada, { canal = "api", env = { DB: dbFalsa().DB }, ...op } 
   return A.medirParaAgente(env, entrada, { canal, ip: IP, user_agent: UA }, null, h.m).then((r) => ({ r, h }));
 };
 
+const pag0 = leer("public/js/medicion-envivo.mjs");
 // ---------------------------------------------------------------- 1 · QEX del servidor = página
 // Lo que hace la página (public/js/medicion-envivo.mjs), paso por paso, con los mismos insumos.
 async function qexDeLaPagina(entradaDominio, vertical, ctResp) {
@@ -104,7 +105,13 @@ igual(comparar(s1.r.cuerpo, pagina, s1.h.vistos.sondas), [], "silencio: el servi
 igual([s1.r.cuerpo.sector?.clave, s1.r.cuerpo.sector?.mediana, s1.r.cuerpo.sector?.diferencia_con_mediana],
   ["banca", REF.verticales.banca.mediana, pagina.qex - REF.verticales.banca.mediana], "comparación con el sector, de la referencia");
 igual(s1.r.cuerpo.registro_ct?.fuente, CT.fuente, "declara la fuente del registro usada");
-igual(typeof s1.r.cuerpo.siguiente_paso?.texto === "string" && /^https:\/\//.test(s1.r.cuerpo.siguiente_paso.informe_mensual) && /^https:\/\//.test(s1.r.cuerpo.siguiente_paso.piloto), true, "trae siguiente_paso con sus URLs");
+igual(typeof s1.r.cuerpo.siguiente_paso?.texto === "string" && /^https:\/\//.test(s1.r.cuerpo.siguiente_paso.informe_mensual), true, "trae siguiente_paso con sus URLs");
+// el enlace al informe del dominio lleva lo que la página sabe leer, ya normalizado
+const enlace = new URL(s1.r.cuerpo.siguiente_paso?.informe_dominio || "https://x/");
+igual([enlace.pathname, enlace.searchParams.get("dominio"), enlace.searchParams.get("sector")], ["/es/q-ready/medicion/", DOMINIO, "banca"], "informe_dominio abre la página con dominio y sector");
+igual(N.dominioDeEntrada(enlace.searchParams.get("dominio")), DOMINIO, "la página normaliza el dominio del enlace igual");
+igual(N.dominioDeEntrada('x.cl"><img src=x onerror=alert(1)>'), null, "un parámetro con HTML no es un dominio: no se mide");
+if (!/function medirDesdeEnlace[\s\S]*?N\.dominioDeEntrada\(q\.get\("dominio"\)\)[\s\S]*?\$\("mv-dominio"\)\.value = d;/.test(pag0)) fallas.push("la página no lee ?dominio= con la normalización compartida, o no lo pone sólo como valor del campo");
 igual(/QEX completo: los calcula la página/.test(JSON.stringify(s1.r.cuerpo)), false, "ya no dice que el QEX lo calcula sólo la página");
 // GRITO: otro sector → el comparador lo ve
 const s2 = await medirCon({ dominio: DOMINIO, sector: "retail" });

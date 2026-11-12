@@ -194,7 +194,22 @@ $("mv-b-archivo").addEventListener("change", async (e) => {
   $("mv-sector").innerHTML = Object.entries(referencia.verticales)
     .map(([k, v]) => `<option value="${esc(k)}"${k === "banca" ? " selected" : ""}>${esc(sectorNombre(k, v.nombre))}</option>`).join("");
   pintarBandeja();
+  medirDesdeEnlace();
 })();
+
+// ?dominio=<d>&sector=<s> (12-nov-2026): el enlace `siguiente_paso.informe_dominio` que la API para
+// agentes le da al humano. Prellena y mide sola. El dominio pasa por la MISMA normalización que lo
+// escrito a mano y sólo entra como valor del campo (nunca como HTML); el sector sólo si es una de
+// las opciones. Un parámetro inválido no mide nada. El límite por IP del servidor protege igual.
+function medirDesdeEnlace() {
+  const q = new URLSearchParams(location.search);
+  const d = N.dominioDeEntrada(q.get("dominio"));
+  if (!d) return;
+  const sec = q.get("sector");
+  if (sec && referencia.verticales[sec]) $("mv-sector").value = sec;
+  $("mv-dominio").value = d;
+  form.requestSubmit();
+}
 
 // ---------------------------------------------------------------- paso 1: CT
 // El registro se pide a NUESTRO servidor (/api/ct, lib/ct-registro.mjs), que guarda una copia de
