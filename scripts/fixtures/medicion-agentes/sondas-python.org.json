@@ -1,0 +1,144 @@
+{
+  "ok": true,
+  "instrumento": "rosetta-sondas-envivo/1",
+  "dominio": "python.org",
+  "www": "www.python.org",
+  "medido_utc": "2026-11-12T17:34:15.418Z",
+  "borde": {
+    "instrumento": "rosetta-borde-envivo/1 · puerto de probe_soporte.py + rescan_eleccion.py (ago-2026)",
+    "host": "www.python.org",
+    "medido_utc": "2026-11-12T17:34:15.418Z",
+    "dns": {
+      "cadena": [
+        "dualstack.python.map.fastly.net"
+      ],
+      "cdn": "Fastly"
+    },
+    "saludos": {
+      "A_como_navegador": {
+        "grupo": "x25519",
+        "hrr": false,
+        "alerta": null,
+        "error": null,
+        "ms": 104
+      },
+      "B_solo_hibrido": {
+        "grupo": "X25519MLKEM768",
+        "hrr": true,
+        "alerta": null,
+        "error": null,
+        "ms": 103
+      },
+      "C_eleccion_libre": {
+        "grupo": "X25519MLKEM768",
+        "hrr": true,
+        "alerta": null,
+        "error": null,
+        "ms": 82
+      }
+    },
+    "veredicto": {
+      "conectado": true,
+      "soporta": true,
+      "pide_mejora": false,
+      "elige": true
+    },
+    "alcance": "Mide el tramo cliente → borde. El tramo borde → origen no es observable desde fuera.",
+    "sha256": "9ad26e2dec579b65022be98f34d3d613746495ae9e3635edfcce13f9dd2d395b"
+  },
+  "certificado": {
+    "host": "www.python.org",
+    "ok": true,
+    "metodo": "saludo TLS 1.2; se lee la hoja que entrega el servidor",
+    "error": null,
+    "ms": 104,
+    "firma": "sha256WithRSAEncryption",
+    "emisor": "GlobalSign nv-sa",
+    "sujeto": "www.python.org",
+    "not_before": "2026-01-13T13:03:46Z",
+    "not_after": "2027-02-14T13:03:45Z",
+    "algoritmo": "RSA",
+    "curva": null,
+    "bits": 2048
+  },
+  "endpoints": [
+    {
+      "host": "blog-stage.python.org",
+      "medido_utc": "2026-11-12T17:34:15.418Z",
+      "dns_status": "NXDOMAIN",
+      "ip": [],
+      "cname": [],
+      "responde_443": null,
+      "detalle": "el nombre ya no existe en DNS: no se envió saludo"
+    },
+    {
+      "host": "ghsponsors-stage.python.org",
+      "medido_utc": "2026-11-12T17:34:15.418Z",
+      "dns_status": "NXDOMAIN",
+      "ip": [],
+      "cname": [],
+      "responde_443": null,
+      "detalle": "el nombre ya no existe en DNS: no se envió saludo"
+    },
+    {
+      "host": "legacy.python.org",
+      "medido_utc": "2026-11-12T17:34:15.418Z",
+      "dns_status": "NOERROR",
+      "ip": [
+        "167.99.21.118",
+        "159.89.245.108"
+      ],
+      "cname": [
+        "star.map.nyc1.psf.io",
+        "map-lb.nyc1.psf.io"
+      ],
+      "responde_443": true,
+      "detalle": "responde; grupo x25519"
+    },
+    {
+      "host": "mail.python.org",
+      "medido_utc": "2026-11-12T17:34:15.418Z",
+      "dns_status": "NOERROR",
+      "ip": [
+        "188.166.95.178"
+      ],
+      "cname": [],
+      "responde_443": true,
+      "detalle": "responde; grupo x25519"
+    },
+    {
+      "host": "staging.python.org",
+      "medido_utc": "2026-11-12T17:34:15.418Z",
+      "dns_status": "NXDOMAIN",
+      "ip": [],
+      "cname": [],
+      "responde_443": null,
+      "detalle": "el nombre ya no existe en DNS: no se envió saludo"
+    }
+  ],
+  "correo": {
+    "mx": [
+      "mail.python.org"
+    ],
+    "proveedor": "python.org",
+    "error": null
+  },
+  "security_txt": {
+    "publicado": null,
+    "url": null,
+    "intentos": [
+      {
+        "url": "https://python.org/.well-known/security.txt",
+        "status": 403,
+        "contact": false
+      },
+      {
+        "url": "https://www.python.org/.well-known/security.txt",
+        "status": 403,
+        "contact": false
+      }
+    ]
+  },
+  "ssh": null,
+  "descartados": 0
+}

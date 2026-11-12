@@ -252,6 +252,39 @@ export function comparar(antes, ahora) {
     resumen: { cambio: n("cambio"), se_mantiene: n("se_mantiene"), medido_hoy: n("medido_hoy"), sin_dato: n("sin_dato") } };
 }
 
+// ---------------------------------------------------------------- los pasos ANTES de armar la foto
+// (12-nov-2026) Vivían escritos dentro de medicion-envivo.mjs. Ahora también mide el servidor, para
+// los agentes (lib/medicion-agentes.mjs), y dos copias de «qué nombres se sondean» darían dos QEX
+// distintos para el mismo dominio. Una sola definición, la usan los dos.
+
+// Lo que escribe la persona (o manda el agente) → el dominio que se mide, o null si no es un dominio.
+export function dominioDeEntrada(crudo) {
+  const d = String(crudo ?? "").trim().toLowerCase()
+    .replace(/^https?:\/\//, "").replace(/[\/?#].*$/, "").replace(/^www\./, "");
+  return /^([a-z0-9-]+\.)+[a-z]{2,}$/.test(d) ? d : null;
+}
+
+// Tope de nombres sondeados por medición (lib/informe-envivo.mjs acepta hasta 15).
+export const MAX_SONDEADOS = 15;
+
+// Qué nombres se sondean: los sensibles del registro, más (si se compara) los de la foto anterior y
+// los nombres nuevos desde ella. Lo nuevo es justo lo que una comparación tiene que mirar.
+export function nombresASondear(hosts, comparar = null) {
+  const sensibles = hosts.filter((h) => h.clases.some((c) => CLASES_SENSIBLES.includes(c))).map((h) => h.host);
+  const antesCT = new Set((comparar?.ct?.hosts || []).map((h) => h.host));
+  const nuevosCT = antesCT.size ? hosts.map((h) => h.host).filter((h) => !antesCT.has(h)) : [];
+  const todos = [...new Set([...sensibles, ...(comparar ? (comparar.endpoints || []).map((x) => x.host) : []), ...nuevosCT])];
+  return { sensibles, nuevosCT, todos, pedidos: todos.slice(0, MAX_SONDEADOS) };
+}
+
+// La respuesta de /api/ct (lib/ct-registro.mjs) → el `ct` que recibe armarFoto. La huella es del
+// texto crudo recibido, no de lo que se reinterpretó.
+export async function ctDesdeServidor(j, ms) {
+  return { filas: JSON.parse(j.texto), sha256: await sha256Hex(j.texto), ms,
+    fuente: j.desde_copia ? `${j.fuente}, copia del servidor` : j.fuente,
+    consultado_utc: j.desde_copia ? j.consultado_utc : undefined, intentos: 1 };
+}
+
 // ---------------------------------------------------------------- armar la foto
 // Una sola definición de qué es una foto: la usan la página y entregables/…/envivo/foto_envivo.mjs
 // (la que alimenta el PDF). Entradas crudas: filas de crt.sh (o null si no hubo registro) y la

@@ -17,6 +17,9 @@ export const GET: APIRoute = async ({ site }) => {
     .map(([p, m]: any) => ({ slug: p.split('/').pop()!.replace(/\.json$/, ''), d: m.default ?? m }))
     .sort((a, b) => b.slug.localeCompare(a.slug))[0];
   const informe = ult && ult.d.borrador === false ? ult : null;
+  // PROVISORIO (12-nov-2026): la línea de la medición para agentes; la aprueba Nicholas antes de
+  // producción. Desde hoy la respuesta trae el QEX: antes lo calculaba sólo la página.
+  const LINEA_MEDICION = `- \`POST ${base}/v1/medicion\` (or MCP tool \`medir_exposicion_pqc\`) — free, rate-limited live measurement of a domain's post-quantum exposure. Send \`{"dominio": "example.cl", "sector": "banca"}\` and the response includes the QEX index, computed exactly as the human page computes it, with the sector median and quartiles. Human page: ${base}/q-ready/medicion/ (Spanish: ${base}/es/q-ready/medicion/)`;
   const lines = [
     '# Rosetta Quantum',
     '',
@@ -56,7 +59,7 @@ export const GET: APIRoute = async ({ site }) => {
     'Rosetta is the infrastructure that turns claims into sealed evidence — one door, one',
     'price per run, anyone can pay and use it. Human or agent.',
     `- \`POST ${base}/mcp\` — MCP server, JSON-RPC 2.0, ${HERRAMIENTAS.length} tools, no key required.`,
-    `- \`POST ${base}/v1/medicion\` (or MCP tool \`medir_exposicion_pqc\`) — free, rate-limited live measurement of a domain's post-quantum exposure. Human page: ${base}/q-ready/medicion/ (Spanish: ${base}/es/q-ready/medicion/)`,
+    LINEA_MEDICION,
     `- \`GET ${base}/v1/openapi.json\` — the full contract. If you are a machine, start here.`,
     '- The site is the shop window; the product speaks JSON. Do not scrape us: ask us.',
     '',

@@ -10,6 +10,8 @@
 import MarcaLayout from '../../../layouts/MarcaLayout.astro';
 import paginas from '../../../styles/pages/paginas.css?raw';
 import propia from '../../../styles/pages/medicion-envivo.css?raw';
+// PROVISORIO (12-nov-2026): la línea para agentes; la aprueba Nicholas antes de producción.
+const AGENTES = { antes: 'Are you an agent? ', enlace: 'Measure via API or MCP', href: '/api-docs/' };
 ---
 <MarcaLayout
   title="Your cryptographic exposure, measured today — Rosetta Q-Ready"
@@ -38,6 +40,7 @@ import propia from '../../../styles/pages/medicion-envivo.css?raw';
         <h1>Your cryptographic exposure, measured today.</h1>
         <p class="mv-lede">Enter your domain once. From outside, we measure everything a third party can see: your website, your email, your sensitive servers and your certificate. Then we show you what it means and why it matters now.</p>
         <p class="mv-meta mv-difer">External and independent · nothing to install · compared with your sector in Chile · sealed with a hash · repeatable every month</p>
+        <p class="mv-meta mv-agentes">{AGENTES.antes}<a href={AGENTES.href}>{AGENTES.enlace}</a></p>
       </header>
 
       <form class="mv-instrumento" id="mv-form" novalidate>

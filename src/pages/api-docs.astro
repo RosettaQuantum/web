@@ -88,7 +88,7 @@ const ARRANQUE_AGENTES = [
       <table>
         <thead><tr><th>Endpoint</th><th>What it returns</th></tr></thead>
         <tbody>
-          {CATALOGO.map((e) => (<tr><td><code>GET {e.ruta}</code></td><td set:html={e.resumen + ((e.params||[]).length ? " · " + e.params.map(([n,d]) => `<code>?${n}=</code> ${d}`).join(", ") : "")} /></tr>))}
+          {CATALOGO.map((e) => (<tr><td><code>{e.metodo || "GET"} {e.ruta}</code></td><td set:html={e.resumen + ((e.params||[]).length ? " · " + e.params.map(([n,d]) => `<code>?${n}=</code> ${d}`).join(", ") : "")} /></tr>))}
           <tr><td><code>POST /mcp</code></td><td>MCP server (JSON-RPC 2.0) for agents</td></tr>
         </tbody>
       </table>

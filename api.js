@@ -867,11 +867,16 @@ export const HERRAMIENTAS = [
       "Mide EN VIVO, desde afuera, la exposición post-cuántica pública de un dominio: si su " +
       "sitio negocia el intercambio híbrido X25519MLKEM768, qué certificado presenta, sus " +
       "servidores de correo y su security.txt. Envía saludos TLS reales (no es lectura de un " +
-      "archivo). El cifrado del correo llega aparte: la respuesta trae un id para " +
-      "ver_cifrado_correo. null significa «no medido», nunca «no protegido». Límite: pocas " +
-      "mediciones por minuto.",
+      "archivo). Con `sector`, devuelve además el índice QEX (el mismo cálculo que la página " +
+      "/es/q-ready/medicion) y su comparación con el sector. El cifrado del correo llega aparte: " +
+      "la respuesta trae un id para ver_cifrado_correo. null significa «no medido», nunca " +
+      "«no protegido». Límite: pocas mediciones por minuto.",
     inputSchema: { type: "object", required: ["dominio"],
-      properties: { dominio: { type: "string", description: "dominio público, p.ej. ejemplo.cl" } } },
+      properties: {
+        dominio: { type: "string", description: "dominio público, p.ej. ejemplo.cl" },
+        sector: { type: "string", description: "sector para el QEX y la comparación: banca, educacion, energia, fintech, gobierno, mineria, prevision, retail, salud_clinica, salud_isapre, seguros, telecom" },
+        agente: { type: "string", description: "opcional: quién mide (nombre y versión del agente)" },
+      } },
   },
   {
     name: "ver_cifrado_correo",
@@ -996,8 +1001,11 @@ export const HERRAMIENTAS = [
   },
 ];
 
-async function ejecutarHerramienta(env, nombre, args, ip) {
-  if (nombre === "medir_exposicion_pqc") return (MEDICION ? await MEDICION.medirParaAgente(env, args.dominio, ip) : sinMedicion).cuerpo;
+// `quien` = { ip, user_agent, ctx }: lo que la herramienta de medición registra de quien mide.
+async function ejecutarHerramienta(env, nombre, args, quien = {}) {
+  if (nombre === "medir_exposicion_pqc") return (MEDICION ? await MEDICION.medirParaAgente(env,
+    { dominio: args.dominio, sector: args.sector, agente: args.agente },
+    { canal: "mcp", ip: quien.ip, user_agent: quien.user_agent }, quien.ctx) : sinMedicion).cuerpo;
   if (nombre === "ver_cifrado_correo") return (MEDICION ? await MEDICION.correoParaAgente(env, String(args.id || "")) : sinMedicion).cuerpo;
   if (nombre === "estado_del_archivo") return await estado(env);
   if (nombre === "buscar_evidencia") {
@@ -1069,7 +1077,8 @@ async function mcp(request, env, info = {}) {
     if (req.method === "tools/call") {
       const { name, arguments: args = {} } = req.params || {};
       info.tool = name;   // para el contador de uso; no se guarda nada mas del que llama
-      const salida = await ejecutarHerramienta(env, name, args, request.headers.get("cf-connecting-ip"));
+      const salida = await ejecutarHerramienta(env, name, args, { ip: request.headers.get("cf-connecting-ip"),
+        user_agent: request.headers.get("user-agent"), ctx: info.ctx });
       return responder({ content: [{ type: "text", text: JSON.stringify(salida, null, 2) }] }, req.id);
     }
     return fallar(-32601, `método no soportado: ${req.method}`, req.id);
@@ -1215,11 +1224,14 @@ export const CATALOGO = [
       501: { description: "Real execution does not exist yet" },
     } },
   { ruta: "/v1/medicion", metodo: "POST", grupo: "medicion",
-    resumen: "Live, outside-in post-quantum exposure of a domain: hybrid X25519MLKEM768 on the website, certificate, mail servers and security.txt. Same instrument as the Q-Ready live page. Mail encryption arrives separately (id + URL to poll). null means not measured, never not protected.",
-    cuerpo: { type: "object", required: ["dominio"], properties: { dominio: { type: "string", description: "Public domain, e.g. example.cl" } } },
+    resumen: "Live, outside-in post-quantum exposure of a domain: hybrid X25519MLKEM768 on the website, certificate, mail servers and security.txt. Same instrument as the Q-Ready live page. With a sector, it also returns the QEX index, computed exactly as the page does, and the sector median and quartiles. Mail encryption arrives separately (id + URL to poll). null means not measured, never not protected.",
+    cuerpo: { type: "object", required: ["dominio"], properties: {
+      dominio: { type: "string", description: "Public domain, e.g. example.cl" },
+      sector: { type: "string", description: "Sector key for the QEX: banca, educacion, energia, fintech, gobierno, mineria, prevision, retail, salud_clinica, salud_isapre, seguros, telecom" },
+      agente: { type: "string", description: "Optional: who is measuring (agent name and version)" } } },
     respuestas: {
       200: { description: "Measured. correo.cifrado_pq carries the id and URL to poll for the mail result." },
-      400: { description: "Missing or invalid domain" },
+      400: { description: "Missing or invalid domain, or unknown sector" },
       405: { description: "Only POST" },
       429: { description: "Too many measurements in a minute from this address" },
     } },
@@ -1618,7 +1630,7 @@ async function usoPublico(env) {
  * que no tener metrica. Hay un test que fuerza el fallo y comprueba justo eso.
  */
 export async function manejarApi(request, env, url, ctx) {
-  const info = {};
+  const info = { ctx };   // ctx: la medición para agentes lo pasa al registro de certificados (waitUntil)
   const res = await enrutar(request, env, url, info);
   if (!res) return res;                       // no era ruta de API: no se cuenta
 
@@ -1714,7 +1726,8 @@ async function enrutar(request, env, url, info = {}) {
     if (request.method !== "POST")
       return json({ ok: false, error: "Usa POST con {\"dominio\": \"ejemplo.cl\"}." }, 405, { allow: "POST, OPTIONS" });
     const c = await request.json().catch(() => ({}));
-    const r = MEDICION ? await MEDICION.medirParaAgente(env, c.dominio, request.headers.get("cf-connecting-ip")) : sinMedicion;
+    const r = MEDICION ? await MEDICION.medirParaAgente(env, { dominio: c.dominio, sector: c.sector, agente: c.agente },
+      { canal: "api", ip: request.headers.get("cf-connecting-ip"), user_agent: request.headers.get("user-agent") }, info.ctx) : sinMedicion;
     return json(r.cuerpo, r.http);
   }
   if (p === "/v1/jobs" || p === "/v1/jobs/") {

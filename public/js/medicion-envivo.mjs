@@ -210,9 +210,7 @@ async function consultarCT(dominio, aviso) {
     for (const x of j.intentos || []) aviso(t(`${esc(x.fuente)} no respondió (${esc(x.error)}) · ${ms(x.ms)}`, `${esc(fuenteTxt(x.fuente))} did not respond (${esc(traz(x.error))}) · ${ms(x.ms)}`));
     if (!r.ok || !j.ok) throw new Error(j.error || `el servicio respondió ${r.status}`);
     guardarCT(dominio, j.texto);
-    return { filas: JSON.parse(j.texto), sha256: await N.sha256Hex(j.texto), ms: Math.round(performance.now() - tCT),
-      fuente: j.desde_copia ? `${j.fuente}, copia del servidor` : j.fuente,
-      consultado_utc: j.desde_copia ? j.consultado_utc : undefined, intentos: 1 };
+    return await N.ctDesdeServidor(j, Math.round(performance.now() - tCT));
   } finally { clearTimeout(reloj); }
 }
 // Copia local de la última respuesta buena del registro, por dominio: sólo en este navegador, con
@@ -249,9 +247,8 @@ function pedirCTGuardado(motivo, dominio) {
 // ---------------------------------------------------------------- medición
 form.addEventListener("submit", async (e) => {
   e.preventDefault();
-  const crudo = ($("mv-dominio").value.trim() || $("mv-dominio").placeholder).toLowerCase()
-    .replace(/^https?:\/\//, "").replace(/[\/?#].*$/, "").replace(/^www\./, "");
-  if (!/^([a-z0-9-]+\.)+[a-z]{2,}$/.test(crudo)) { decir(t("Escriba un dominio, por ejemplo ejemplo.cl.", "Enter a domain, for example example.com."), true); $("mv-dominio").focus(); return; }
+  const crudo = N.dominioDeEntrada($("mv-dominio").value.trim() || $("mv-dominio").placeholder);
+  if (!crudo) { decir(t("Escriba un dominio, por ejemplo ejemplo.cl.", "Enter a domain, for example example.com."), true); $("mv-dominio").focus(); return; }
   if (!referencia) { decir(t("Falta la referencia por sector. Recargue la página.", "The sector reference is missing. Please reload the page."), true); return; }
   const dominio = crudo, www = "www." + dominio, vertical = $("mv-sector").value;
   const comparar = previa && previa.dominio === dominio ? previa : null;
@@ -286,13 +283,9 @@ form.addEventListener("submit", async (e) => {
   } else { traza(t("sin superficie: la higiene se calcula sólo con TLS", "no surface: hygiene is computed from TLS only"), "mv-t-mal"); riel("ct", "mal"); }
 
   // 2-5 · una sola llamada al servidor
-  const sensibles = hostsCT.filter((h) => h.clases.some((c) => N.CLASES_SENSIBLES.includes(c))).map((h) => h.host);
-  // Además de los sensibles: los nombres que la foto anterior no tenía. Lo nuevo es justo lo que
-  // una comparación tiene que mirar (así apareció openfinance-desa en octubre).
-  const antesCT = new Set((comparar?.ct?.hosts || []).map((h) => h.host));
-  const nuevosCT = antesCT.size ? hostsCT.map((h) => h.host).filter((h) => !antesCT.has(h)) : [];
-  const todos = [...new Set([...sensibles, ...(comparar ? (comparar.endpoints || []).map((x) => x.host) : []), ...nuevosCT])];
-  const pedidos = todos.slice(0, 15);
+  // Además de los sensibles: los nombres que la foto anterior no tenía (así apareció
+  // openfinance-desa en octubre). La regla vive en qex-nucleo.mjs: el servidor la usa igual.
+  const { sensibles, nuevosCT, todos, pedidos } = N.nombresASondear(hostsCT, comparar);
   ["end", "borde", "cert", "prov"].forEach((k) => riel(k, "activo"));
   const correoP = pedirCorreo(dominio).catch((e) => ({ estado: "error", causa: String(e.message || e) }));
   traza(t(`DNS y saludos TLS desde nuestro servidor: ${pedidos.length} nombres (${sensibles.length} sensibles${nuevosCT.length ? `, ${nuevosCT.length} nuevos desde la foto anterior` : ""}), su borde, su certificado y su correo…`,
