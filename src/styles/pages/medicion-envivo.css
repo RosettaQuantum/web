@@ -50,11 +50,14 @@
 .mv-link:focus-visible{outline:2px solid var(--verdict);outline-offset:2px}
 
 /* ---- consola */
+/* El logo (12-nov): el mismo /rosetta-mark.svg del sitio, usado como máscara para pintarlo en
+   claro con un token sobre el fondo oscuro de la consola. Alto ≈ el de la versalita. */
+.mv-consola-cab .mv-logo{display:inline-block;flex:none;height:1.4em;width:calc(1.4em * 34 / 44);background:var(--paper);-webkit-mask:url(/rosetta-mark.svg) center/contain no-repeat;mask:url(/rosetta-mark.svg) center/contain no-repeat}
 /* «.mv » delante: la base de marca pinta «section:not(.pilot){background:var(--paper)}» (0,1,1),
    que le ganaba a una clase sola y dejaba la consola y los bloques del color del papel. */
 .mv .mv-consola{background:var(--ink);color:var(--paper);border-radius:2px;overflow:hidden}
 .mv-consola-cab{display:flex;flex-wrap:wrap;align-items:center;gap:10px var(--s3);padding:14px var(--s3);border-bottom:1px solid var(--ink-60)}
-.mv-consola-cab h2{font-family:var(--mono);font-size:var(--t-label);font-weight:400;text-transform:uppercase;letter-spacing:.1em;color:var(--line) !important;margin:0} /* !important: home.css fuerza h2 a --ink en modo oscuro y el título desaparecía (1,00:1) */
+.mv-consola-cab h2{display:inline-flex;align-items:center;gap:9px;font-family:var(--mono);font-size:var(--t-label);font-weight:400;text-transform:uppercase;letter-spacing:.1em;color:var(--line) !important;margin:0} /* !important: home.css fuerza h2 a --ink en modo oscuro y el título desaparecía (1,00:1) */
 .mv-riel{list-style:none;display:flex;flex-wrap:wrap;gap:6px;margin:0;padding:0;flex:1}
 .mv-riel li{font-family:var(--mono);font-size:var(--t-label);padding:4px 10px;border:1px solid var(--ink-60);border-radius:2px;color:var(--line);transition:color .2s,border-color .2s,background .2s}
 .mv-riel li[data-estado="activo"]{color:var(--paper);border-color:var(--pending-20)}
@@ -362,3 +365,21 @@ i.mv-k-legado{background:var(--ink)}
   .mv-hito-hoy span{left:0}
   .mv-hito-fin span{left:-70px}
 }
+/* ---- «Descargar mi informe» (12-nov-2026): el aviso arriba del resultado y la elección. */
+.mv .mv-listo{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:var(--s2);margin:var(--s3) 0;padding:var(--s2) var(--s3);background:var(--teal-10);border:1px solid var(--teal-20);border-left:4px solid var(--verdict);border-radius:2px}
+.mv-listo p{margin:0;font-size:var(--t-small);color:var(--ink);max-width:56ch}
+.mv-listo .mv-ir{height:48px;text-decoration:none}
+.mv-envio .mv-ir#mv-descargar{margin-top:var(--s2)}
+.mv-envio-pasos{display:flex;flex-direction:column;gap:var(--s2);margin-top:var(--s2)}
+.mv-envio-pasos .mv-envio-fila{margin:0}
+.mv-eleccion{border:0;margin:0;padding:0;display:grid;grid-template-columns:1fr 1fr;gap:var(--s2)}
+@media(max-width:640px){.mv-eleccion{grid-template-columns:1fr}}
+.mv-eleccion label{display:flex;gap:10px;align-items:flex-start;padding:var(--s2);border:1px solid color-mix(in srgb,var(--ink) 25%,transparent);border-radius:2px;background:var(--paper);cursor:pointer;font-size:var(--t-small);color:var(--ink-60)}
+.mv-eleccion label:has(input:checked){border-color:var(--verdict);box-shadow:inset 0 0 0 1px var(--verdict)}
+.mv-eleccion input{margin-top:4px;accent-color:var(--verdict);flex:none}
+.mv-eleccion b{display:block;color:var(--ink);font-weight:600;margin-bottom:2px}
+.mv-eleccion .mv-op-apagada{opacity:.55;cursor:not-allowed}
+.mv-envio-pasos .mv-ir{align-self:flex-start}
+@media print{.mv-listo,.mv-envio{display:none !important}}
+/* Con el título más largo («Consola Cuántica»), el riel va en su propia línea en pantallas angostas. */
+@media(max-width:600px){.mv-consola-cab .mv-riel{flex-basis:100%;order:3}}

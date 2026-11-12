@@ -77,7 +77,7 @@ import propia from '../../../../styles/pages/medicion-envivo.css?raw';
 
       <div role="region" class="mv-consola" aria-labelledby="mv-consola-t">
         <div class="mv-consola-cab">
-          <h2 id="mv-consola-t">Consola</h2>
+          <h2 id="mv-consola-t"><span class="mv-logo" aria-hidden="true"></span>Consola Cuántica</h2>
           <ol class="mv-riel" aria-label="Pasos de la medición">
             <li data-paso="ct"><span>Superficie</span></li>
             <li data-paso="end"><span>Endpoints</span></li>
@@ -108,6 +108,10 @@ import propia from '../../../../styles/pages/medicion-envivo.css?raw';
           <p class="mv-veredicto" id="mv-veredicto" hidden></p>
           <div class="mv-canales" id="mv-canales"></div>
           <div class="mv-puente" id="mv-puente" hidden></div>
+        </div>
+        <div class="mv-listo" id="mv-listo">
+          <p><b>Su informe de <span id="mv-listo-dom">su dominio</span> está listo.</b> Descárguelo ahora o recíbalo en su correo.</p>
+          <a class="mv-ir" id="mv-listo-ir" href="#mv-envio">Descargar mi informe <span class="mv-ir-flecha" aria-hidden="true">↓</span></a>
         </div>
 
 
@@ -241,15 +245,24 @@ import propia from '../../../../styles/pages/medicion-envivo.css?raw';
           <p class="mv-nota mv-ok" id="mv-guardada"></p>
         </div>
 
-        <form class="mv-bloque mv-envio" id="mv-envio" novalidate hidden aria-labelledby="mv-envio-t">
-          <h2 id="mv-envio-t">Reciba este informe en su correo</h2>
-          <p class="mv-texto">Le enviamos el informe de <b id="mv-envio-dom">su dominio</b> en PDF, con la foto sellada para comparar su próxima medición.</p>
-          <div class="mv-envio-fila">
-            <label class="mv-sr" for="mv-envio-email">Correo</label>
-            <input id="mv-envio-email" type="email" autocomplete="email" placeholder="nombre@su-empresa.cl" required>
-            <button type="submit" class="mv-ir" id="mv-envio-ir">Enviarme el informe</button>
+        <form class="mv-bloque mv-envio" id="mv-envio" novalidate aria-labelledby="mv-envio-t">
+          <h2 id="mv-envio-t">Descargue su informe</h2>
+          <p class="mv-texto">El informe de <b id="mv-envio-dom">su dominio</b>, con todo lo medido arriba y su foto sellada para comparar la próxima medición.</p>
+          <button type="button" class="mv-ir" id="mv-descargar">Descargar mi informe <span class="mv-ir-flecha" aria-hidden="true">↓</span></button>
+          <div class="mv-envio-pasos" id="mv-envio-pasos" hidden>
+            <div class="mv-envio-fila">
+              <label class="mv-sr" for="mv-envio-email">Correo</label>
+              <input id="mv-envio-email" type="email" autocomplete="email" placeholder="nombre@su-empresa.cl" required>
+            </div>
+            <fieldset class="mv-eleccion">
+              <legend class="mv-sr">Cómo lo quiere</legend>
+              <label><input type="radio" name="mv-eleccion" value="descargar" checked><span><b>Descargarlo aquí</b>La versión imprimible de esta página: su navegador la guarda como PDF.</span></label>
+              <label id="mv-op-correo"><input type="radio" name="mv-eleccion" value="correo"><span><b>Recibirlo en mi correo</b><span id="mv-op-correo-nota">El PDF que arma nuestro servidor, en unos minutos.</span></span></label>
+            </fieldset>
+            <label class="mv-envio-acepto"><input type="checkbox" id="mv-envio-acepto"> Acepto que Rosetta Quantum guarde mi correo y el dominio medido para enviarme este informe y, más adelante, avisos si algo cambia y el informe mensual de la gran empresa chilena. No los compartimos; cada correo trae un enlace para darse de baja.</label>
+            <div class="mv-ts" id="mv-ts"></div>
+            <button type="submit" class="mv-ir" id="mv-envio-ir">Continuar <span class="mv-ir-flecha" aria-hidden="true">→</span></button>
           </div>
-          <label class="mv-envio-acepto"><input type="checkbox" id="mv-envio-acepto"> Acepto que Rosetta Quantum guarde mi correo y el dominio medido para enviarme este informe y, más adelante, avisos si algo cambia y el informe mensual de la gran empresa chilena. No los compartimos; cada correo trae un enlace para darse de baja.</label>
           <p class="mv-nota" id="mv-envio-estado" role="status" aria-live="polite"></p>
         </form>
       </div>
@@ -279,4 +292,6 @@ import propia from '../../../../styles/pages/medicion-envivo.css?raw';
   </section>
   <script is:inline type="module" src="/js/medicion-envivo.mjs"></script>
   <script is:inline type="module" src="/js/medicion-historia.mjs"></script>
+  <script is:inline src="/js/turnstile.js"></script>
+  <script is:inline type="module" src="/js/medicion-descarga.mjs"></script>
 </MarcaLayout>

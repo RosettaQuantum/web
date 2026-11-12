@@ -10,7 +10,7 @@
 //
 // Regla que no se rompe: un canal que no se pudo medir dice «no medido», nunca «clásico».
 
-import { enPalabras, fraseVeredicto, delServidor } from "./medicion-palabras.mjs";
+import { enPalabras, fraseVeredicto } from "./medicion-palabras.mjs";
 
 // Idioma del documento, leído una vez (12-nov-2026): en español todo queda como estaba.
 const EN = document.documentElement.lang === "en";
@@ -153,40 +153,9 @@ function riel() {
   document.querySelectorAll(".mv-acto").forEach((s) => io.observe(s));
 }
 
-// El informe por correo: lo arma y lo envía nuestro servidor de Contabo (vps/sonda-correo/informe_pdf.py).
-// Aquí sólo se pide; la página consulta si salió, y lo dice con lo que el servidor contestó.
-let medicion = null;
-async function pedirEnvio(e) {
-  e.preventDefault();
-  const est = $("mv-envio-estado"), ir = $("mv-envio-ir"), email = $("mv-envio-email").value.trim();
-  const decir = (t, mal) => { est.textContent = t; est.classList.toggle("mv-mal", !!mal); };
-  if (!medicion?.foto) return decir(t("Primero mida un dominio.", "Measure a domain first."), true);
-  if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) return decir(t("Escriba un correo válido.", "Enter a valid email address."), true);
-  if (!$("mv-envio-acepto").checked) return decir(t("Para enviarle el informe necesitamos que acepte guardar su correo.", "To send you the report we need you to accept that we store your email."), true);
-  ir.disabled = true; decir(t("Enviando…", "Sending…"));
-  try {
-    const r = await fetch("/api/medicion/envio", { method: "POST", headers: { "content-type": "application/json" },
-      body: JSON.stringify({ email, acepta: true, foto: medicion.foto, correo_id: medicion.s?.correo_tls?.id || null }) });
-    const j = await r.json().catch(() => ({}));
-    if (!r.ok || !j.ok) { decir(t(j.error || `No pudimos pedir el envío (el servicio respondió ${r.status}).`, j.error ? delServidor(j.error, "en") + "." : `We could not request the delivery (the service returned ${r.status}).`), true); ir.disabled = false; return; }
-    for (let i = 0; i < 45; i++) {
-      await new Promise((ok) => setTimeout(ok, 2000));
-      const g = await fetch(`/api/medicion/envio/${j.id}`).then((x) => x.json()).catch(() => null);
-      if (g?.estado === "enviado") return decir(t(`Listo: el informe va camino a ${email}.`, `Done: the report is on its way to ${email}.`));
-      if (g?.estado === "fallido") { decir(t("No pudimos enviarlo. Escríbanos a hello@rosettaquantum.com y se lo mandamos.", "We could not send it. Write to hello@rosettaquantum.com and we will send it to you."), true); ir.disabled = false; return; }
-    }
-    decir(t("Su pedido quedó registrado; el informe le llegará en los próximos minutos.", "Your request was recorded; the report will reach you in the next few minutes."));
-  } catch { decir(t("No pudimos pedir el envío. Revise su conexión e intente de nuevo.", "We could not request the delivery. Check your connection and try again."), true); ir.disabled = false; }
-}
-$("mv-envio")?.addEventListener("submit", pedirEnvio);
-// En inglés el formulario no se muestra: el PDF y el correo que envía el servidor están en español
-// (vps/sonda-correo/informe_pdf.py). Se abre cuando exista la versión en inglés del informe.
-fetch("/api/medicion/envio/estado").then((r) => r.json()).then((j) => { if (j?.activo && !EN && $("mv-envio")) $("mv-envio").hidden = false; }).catch(() => {});
+// «Descargar mi informe» (aquí o por correo) vive en /js/medicion-descarga.mjs desde el 12-nov-2026.
 
 window.addEventListener("mv:medido", (ev) => {
-  medicion = ev.detail;
-  $("mv-envio-dom").textContent = ev.detail.dominio;
-  $("mv-envio-ir").disabled = false; $("mv-envio-estado").textContent = "";
   actual = canales(ev.detail);
   const r = pintarCanales(actual);
   pintarSelector(r);

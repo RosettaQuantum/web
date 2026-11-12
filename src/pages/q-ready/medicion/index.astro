@@ -62,7 +62,7 @@ import propia from '../../../styles/pages/medicion-envivo.css?raw';
 
       <div role="region" class="mv-consola" aria-labelledby="mv-consola-t">
         <div class="mv-consola-cab">
-          <h2 id="mv-consola-t">Console</h2>
+          <h2 id="mv-consola-t"><span class="mv-logo" aria-hidden="true"></span>Quantum Console</h2>
           <ol class="mv-riel" aria-label="Measurement steps">
             <li data-paso="ct"><span>Surface</span></li>
             <li data-paso="end"><span>Endpoints</span></li>
@@ -93,6 +93,10 @@ import propia from '../../../styles/pages/medicion-envivo.css?raw';
           <p class="mv-veredicto" id="mv-veredicto" hidden></p>
           <div class="mv-canales" id="mv-canales"></div>
           <div class="mv-puente" id="mv-puente" hidden></div>
+        </div>
+        <div class="mv-listo" id="mv-listo">
+          <p><b>Your report for <span id="mv-listo-dom">your domain</span> is ready.</b> Download it now or get it by email.</p>
+          <a class="mv-ir" id="mv-listo-ir" href="#mv-envio">Download my report <span class="mv-ir-flecha" aria-hidden="true">↓</span></a>
         </div>
 
 
@@ -226,15 +230,24 @@ import propia from '../../../styles/pages/medicion-envivo.css?raw';
           <p class="mv-nota mv-ok" id="mv-guardada"></p>
         </div>
 
-        <form class="mv-bloque mv-envio" id="mv-envio" novalidate hidden aria-labelledby="mv-envio-t">
-          <h2 id="mv-envio-t">Get this report by email</h2>
-          <p class="mv-texto">We send you the report for <b id="mv-envio-dom">your domain</b> as a PDF, with the sealed snapshot to compare your next measurement.</p>
-          <div class="mv-envio-fila">
-            <label class="mv-sr" for="mv-envio-email">Email</label>
-            <input id="mv-envio-email" type="email" autocomplete="email" placeholder="name@your-company.com" required>
-            <button type="submit" class="mv-ir" id="mv-envio-ir">Send me the report</button>
+        <form class="mv-bloque mv-envio" id="mv-envio" novalidate aria-labelledby="mv-envio-t">
+          <h2 id="mv-envio-t">Download your report</h2>
+          <p class="mv-texto">The report for <b id="mv-envio-dom">your domain</b>, with everything measured above and your sealed snapshot to compare your next measurement.</p>
+          <button type="button" class="mv-ir" id="mv-descargar">Download my report <span class="mv-ir-flecha" aria-hidden="true">↓</span></button>
+          <div class="mv-envio-pasos" id="mv-envio-pasos" hidden>
+            <div class="mv-envio-fila">
+              <label class="mv-sr" for="mv-envio-email">Email</label>
+              <input id="mv-envio-email" type="email" autocomplete="email" placeholder="name@your-company.com" required>
+            </div>
+            <fieldset class="mv-eleccion">
+              <legend class="mv-sr">How would you like it</legend>
+              <label><input type="radio" name="mv-eleccion" value="descargar" checked><span><b>Download it here</b>The printable version of this page: your browser saves it as a PDF.</span></label>
+              <label id="mv-op-correo"><input type="radio" name="mv-eleccion" value="correo"><span><b>Get it by email</b><span id="mv-op-correo-nota">The PDF our server builds, within a few minutes.</span></span></label>
+            </fieldset>
+            <label class="mv-envio-acepto"><input type="checkbox" id="mv-envio-acepto"> I agree that Rosetta Quantum may store my email and the measured domain to send me this report and, later, alerts if something changes and the monthly report on large Chilean companies. We do not share them; every email includes an unsubscribe link.</label>
+            <div class="mv-ts" id="mv-ts"></div>
+            <button type="submit" class="mv-ir" id="mv-envio-ir">Continue <span class="mv-ir-flecha" aria-hidden="true">→</span></button>
           </div>
-          <label class="mv-envio-acepto"><input type="checkbox" id="mv-envio-acepto"> I agree that Rosetta Quantum may store my email and the measured domain to send me this report and, later, alerts if something changes and the monthly report on large Chilean companies. We do not share them; every email includes an unsubscribe link.</label>
           <p class="mv-nota" id="mv-envio-estado" role="status" aria-live="polite"></p>
         </form>
       </div>
@@ -264,4 +277,6 @@ import propia from '../../../styles/pages/medicion-envivo.css?raw';
   </section>
   <script is:inline type="module" src="/js/medicion-envivo.mjs"></script>
   <script is:inline type="module" src="/js/medicion-historia.mjs"></script>
+  <script is:inline src="/js/turnstile.js"></script>
+  <script is:inline type="module" src="/js/medicion-descarga.mjs"></script>
 </MarcaLayout>
