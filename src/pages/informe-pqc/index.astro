@@ -38,6 +38,10 @@ for (let i = 0; i < ediciones.length - 1; i++) {
 // contra la anterior. Lo usa `scripts/build-informe-pdf.mjs --borrador` para imprimir el PDF de
 // un borrador; en un build normal la variable no existe y no cambia nada. El borrador sigue
 // saliendo con cartel y `noindex`, porque eso lo decide `borrador` y esto no lo toca.
+// Falla cerrada (revisión 13-nov): en el CI que despliega, la previsualización no existe. Si
+// RQ_INFORME_PREVIEW quedara puesta ahí, producción mostraría el borrador en vez de la publicada.
+if (process.env.RQ_INFORME_PREVIEW && process.env.CI)
+  throw new Error("informe-pqc: RQ_INFORME_PREVIEW está puesta en CI; la previsualización es sólo local.");
 const { actual, anterior } = elegirEdicion(ediciones, {
   previsualizar: process.env.RQ_INFORME_PREVIEW || null,
 });
