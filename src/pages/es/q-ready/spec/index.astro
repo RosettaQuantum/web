@@ -1,0 +1,22 @@
+---
+/**
+ * /es/q-ready/spec (13-nov-2026): el resumen en español de /.well-known/q-ready v0 y el validador.
+ * La especificación técnica vive en inglés en /q-ready/spec y como borrador de Internet-Draft en
+ * docs/ietf/draft-rosetta-q-ready-00.md (no se envía al IETF). Texto: public/js/qready-textos.mjs (PROVISORIO).
+ */
+import MarcaLayout from '../../../../layouts/MarcaLayout.astro';
+import propia from '../../../../styles/pages/qready-verificado.css?raw';
+import Validador from '../../../../components/QreadyValidador.astro';
+import { textos } from '../../../../../public/js/qready-textos.mjs';
+const T = textos('es');
+---
+<MarcaLayout title="/.well-known/q-ready · especificación v0 — Rosetta Q-Ready" description={T.spec_lede} lang="es" altUrl="/q-ready/spec" ruta="/es/q-ready/spec" pageCss={propia} noindex={false}>
+  <section class="qv qv-spec"><div class="qv-wrap">
+    <p class="qv-eyebrow">Q-Ready · estándar abierto · v0</p>
+    <h1 class="qv-h1">{T.spec_titulo}</h1>
+    <p class="qv-lede">{T.spec_lede}</p>
+    <ul>{T.spec_resumen.map((x) => <li>{x}</li>)}</ul>
+    <p><a href="/q-ready/spec">{T.spec_tecnica}</a> · <a href="/.well-known/q-ready">/.well-known/q-ready</a></p>
+    <Validador lang="es" />
+  </div></section>
+</MarcaLayout>

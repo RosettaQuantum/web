@@ -1,0 +1,16 @@
+{
+  "q_ready": "0",
+  "domain": "rosettaquantum.com",
+  "owner": "Rosetta Quantum",
+  "contact": ["mailto:hello@rosettaquantum.com", "https://rosettaquantum.com/contact"],
+  "inventory": { "status": "in_progress", "as_of": "2026-11-13" },
+  "migration": { "target_date": "2027-12-31" },
+  "providers": [
+    { "role": "edge", "status": "pq_hybrid" },
+    { "role": "certificates", "status": "planned", "target_date": "2027-12-31" },
+    { "role": "email", "status": "unknown" },
+    { "role": "payments", "status": "unknown" }
+  ],
+  "expires": "2027-05-13T00:00:00Z",
+  "signature": { "alg": "Ed25519", "kid": "rq-2026-11", "keys": "https://rosettaquantum.com/.well-known/q-ready-keys.json" }
+}

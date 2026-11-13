@@ -1,0 +1,79 @@
+---
+/**
+ * /q-ready/spec (13-nov-2026): the technical specification of /.well-known/q-ready, version 0, and the
+ * public validator. The same text, in Internet-Draft form: docs/ietf/draft-rosetta-q-ready-00.md
+ * (not submitted to the IETF). The verifier is public/js/qready-wellknown.mjs.
+ */
+import MarcaLayout from '../../../layouts/MarcaLayout.astro';
+import propia from '../../../styles/pages/qready-verificado.css?raw';
+import Validador from '../../../components/QreadyValidador.astro';
+import { textos } from '../../../../public/js/qready-textos.mjs';
+import { INVENTARIO, ESTADO_PROVEEDOR, ROLES, MAX_VIGENCIA_DIAS } from '../../../../public/js/qready-wellknown.mjs';
+const T = textos('en');
+const ejemplo = `{
+  "q_ready": "0",
+  "domain": "example.com",
+  "owner": "Example Ltd.",
+  "contact": ["mailto:security@example.com"],
+  "inventory": { "status": "in_progress", "as_of": "2026-11-01" },
+  "migration": { "target_date": "2028-06-30" },
+  "providers": [
+    { "role": "edge", "status": "pq_hybrid" },
+    { "role": "certificates", "status": "planned", "target_date": "2027-12-31" },
+    { "role": "email", "status": "classical" },
+    { "role": "payments", "status": "unknown" }
+  ],
+  "expires": "2027-05-01T00:00:00Z",
+  "signature": {
+    "alg": "Ed25519",
+    "kid": "2026-11",
+    "keys": "https://example.com/.well-known/q-ready-keys.json",
+    "value": "<base64url Ed25519 signature, 86 characters>"
+  }
+}`;
+---
+<MarcaLayout title="/.well-known/q-ready · specification v0 — Rosetta Q-Ready" description={T.spec_lede} lang="en" altUrl="/es/q-ready/spec" ruta="/q-ready/spec" pageCss={propia} noindex={false}>
+  <section class="qv qv-spec"><div class="qv-wrap">
+    <p class="qv-eyebrow">Q-Ready · open standard · version 0</p>
+    <h1 class="qv-h1">{T.spec_titulo}</h1>
+    <p class="qv-lede">{T.spec_lede}</p>
+    <p><a href="#validador">Validator</a> · <a href="/.well-known/q-ready">Our own /.well-known/q-ready</a> · <a href="/.well-known/q-ready-keys.json">Our public key</a></p>
+
+    <h2>1. Location</h2>
+    <p>The document is served at <code>https://&lt;domain&gt;/.well-known/q-ready</code> with media type <code>application/json</code>, over HTTPS, directly (a client MUST NOT follow redirects), and is at most 64 KiB.</p>
+
+    <h2>2. Members</h2>
+    <table>
+      <tr><th>member</th><th>type</th><th>rule</th></tr>
+      <tr><td>q_ready</td><td>string</td><td>REQUIRED. <code>"0"</code> for this version.</td></tr>
+      <tr><td>domain</td><td>string</td><td>REQUIRED. The domain the document speaks for.</td></tr>
+      <tr><td>owner</td><td>string</td><td>OPTIONAL. Who is responsible.</td></tr>
+      <tr><td>contact</td><td>array of URI</td><td>REQUIRED, non-empty. <code>mailto:</code> or <code>https:</code>.</td></tr>
+      <tr><td>inventory.status</td><td>string</td><td>REQUIRED. One of {INVENTARIO.join(', ')}. <code>inventory.as_of</code> (YYYY-MM-DD) OPTIONAL.</td></tr>
+      <tr><td>migration.target_date</td><td>date</td><td>REQUIRED. YYYY-MM-DD: when the organization plans to have migrated.</td></tr>
+      <tr><td>providers[]</td><td>array</td><td>REQUIRED (may be empty). Each item: <code>role</code> (one of {ROLES.join(', ')}), <code>status</code> (one of {ESTADO_PROVEEDOR.join(', ')}), optional <code>target_date</code>. Roles, never vendor names.</td></tr>
+      <tr><td>expires</td><td>timestamp</td><td>REQUIRED. UTC, ISO 8601 with <code>Z</code>. Like the Expires field of security.txt (RFC 9116): a document past it is stale. At most {MAX_VIGENCIA_DIAS} days ahead.</td></tr>
+      <tr><td>signature</td><td>object</td><td>REQUIRED. <code>alg</code> = <code>"Ed25519"</code>, <code>kid</code>, <code>keys</code> (an https URL on the same domain or a subdomain), <code>value</code> (base64url, no padding).</td></tr>
+    </table>
+    <p>Numbers other than integers are not allowed in version 0. Unknown members are allowed and are covered by the signature.</p>
+
+    <h2>3. Signature</h2>
+    <ol>
+      <li>Take the document and remove <code>signature.value</code> (keep <code>alg</code>, <code>kid</code> and <code>keys</code>: they are signed).</li>
+      <li>Serialize it canonically: object members sorted by key, no insignificant whitespace, strings as JSON. For the values allowed in version 0 this is identical to the JSON Canonicalization Scheme (RFC 8785).</li>
+      <li>Sign the UTF-8 bytes with Ed25519 (RFC 8032). Put the 64-byte signature, base64url-encoded without padding, in <code>signature.value</code>.</li>
+    </ol>
+    <p>The public key is published as a JSON Web Key Set (RFC 7517, key type OKP and curve Ed25519 per RFC 8037) at <code>signature.keys</code>. The verifier selects the key whose <code>kid</code> equals <code>signature.kid</code>.</p>
+
+    <h2>4. Verification</h2>
+    <p>A document is valid when every REQUIRED member is present and well formed, <code>expires</code> is in the future, and the signature verifies with a key fetched from <code>signature.keys</code>. A verifier SHOULD cross-check declared provider status against what can be measured from outside (for instance, an edge declared <code>pq_hybrid</code> that does not accept X25519MLKEM768) and report a mismatch rather than trust the declaration.</p>
+
+    <h2>5. Example</h2>
+    <pre class="qv-pre">{ejemplo}</pre>
+
+    <h2>6. Scope and limits</h2>
+    <p>The document is a declaration. A valid signature proves that whoever controls the key published it, not that the declaration is true. That is why it is cross-checked against outside measurement, and why an internal inventory counts as verified only after a review. Version 0 is a draft and may change.</p>
+
+    <Validador lang="en" />
+  </div></section>
+</MarcaLayout>

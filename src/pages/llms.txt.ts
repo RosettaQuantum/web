@@ -20,6 +20,11 @@ export const GET: APIRoute = async ({ site }) => {
   // PROVISORIO (12-nov-2026): la línea de la medición para agentes; la aprueba Nicholas antes de
   // producción. Desde hoy la respuesta trae el QEX: antes lo calculaba sólo la página.
   const LINEA_MEDICION = `- \`POST ${base}/v1/medicion\` (or MCP tool \`medir_exposicion_pqc\`) — free, rate-limited live measurement of a domain's post-quantum exposure. Send \`{"dominio": "example.cl", "sector": "banca"}\` and the response includes the QEX index, computed exactly as the human page computes it, with the sector median and quartiles. Human page: ${base}/q-ready/medicion/ (Spanish: ${base}/es/q-ready/medicion/)`;
+  // PROVISORIO (13-nov-2026): Q-Ready Verified. La aprueba Nicholas antes de producción.
+  const LINEAS_QREADY = [
+    `- [/.well-known/q-ready specification](${base}/q-ready/spec): an open, free standard (version 0) for a short signed JSON file in which an organization declares its post-quantum migration plan — responsible party, internal inventory status, target date, critical providers by role, expiry like security.txt. Ed25519 signature; public validator on the page. Spanish: ${base}/es/q-ready/spec`,
+    `- \`GET ${base}/verificado/{domain}\` (or MCP tool \`get_qready_grade\`, or \`GET ${base}/v1/qready/grade?domain=\`) — the Q-Ready Verified grade (A+ to F) of a domain, published ONLY when its owner verified it through DNS and chose to make it public; measured daily from outside, with the sha256 of every measurement. Any other domain returns 404 / null: no third-party grades are published.`,
+  ];
   const lines = [
     '# Rosetta Quantum',
     '',
@@ -60,6 +65,7 @@ export const GET: APIRoute = async ({ site }) => {
     'price per run, anyone can pay and use it. Human or agent.',
     `- \`POST ${base}/mcp\` — MCP server, JSON-RPC 2.0, ${HERRAMIENTAS.length} tools, no key required.`,
     LINEA_MEDICION,
+    ...LINEAS_QREADY,
     `- \`GET ${base}/v1/openapi.json\` — the full contract. If you are a machine, start here.`,
     '- The site is the shop window; the product speaks JSON. Do not scrape us: ask us.',
     '',

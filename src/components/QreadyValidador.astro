@@ -1,0 +1,17 @@
+---
+/** El validador de /.well-known/q-ready (13-nov-2026), igual en /q-ready/spec y /es/q-ready/spec. */
+import { textos } from '../../public/js/qready-textos.mjs';
+const { lang = 'en' } = Astro.props;
+const T = textos(lang);
+---
+<h2 id="validador">{T.val_titulo}</h2>
+<p>{T.val_lede}</p>
+<form class="qv-form" id="qv-val" novalidate>
+  <div class="qv-campo"><label for="qv-val-url">{T.val_url}</label><input id="qv-val-url" type="text" inputmode="url" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="rosettaquantum.com"></div>
+  <div class="qv-campo"><label for="qv-val-json">{T.val_json}</label><textarea id="qv-val-json" spellcheck="false"></textarea></div>
+  <div><button type="submit" class="qv-ir" id="qv-val-ir">{T.val_ir}</button></div>
+  <p class="qv-estado" id="qv-val-estado" role="status" aria-live="polite"></p>
+  <ul class="qv-res-lista" id="qv-val-errores"></ul>
+  <div id="qv-val-cruce"></div>
+</form>
+<script is:inline type="module" src="/js/qready-spec.mjs"></script>
