@@ -34,6 +34,11 @@ import { legiblesDe } from "./lib/legible.mjs";
 let MEDICION = null;
 export const registrarMedicion = (m) => { MEDICION = m; };
 const sinMedicion = { http: 503, cuerpo: { ok: false, error: "La medición en vivo no está disponible en este servidor." } };
+// Q-Ready Verified (13-nov-2026): lib/qready-verificado.mjs también llega a cloudflare:sockets (vía
+// borde-envivo.mjs), así que se registra igual que la medición. Sin registro, 503.
+let VERIFICADO = null;
+export const registrarVerificado = (m) => { VERIFICADO = m; };
+const sinVerificado = { http: 503, cuerpo: { ok: false, error: "Q-Ready Verified no está disponible en este servidor." } };
 import { evaluarPeticion, RECHAZOS as RECHAZOS_PUERTA, huellaDelCuerpo } from "./lib/puerta.mjs";
 
 const SITE = "https://rosettaquantum.com";
@@ -888,6 +893,17 @@ export const HERRAMIENTAS = [
       properties: { id: { type: "string", description: "el id que devolvió medir_exposicion_pqc" } } },
   },
   {
+    name: "get_qready_grade",
+    description:
+      "La nota Q-Ready Verified (A+ a F) de un dominio, SÓLO si su dueño lo verificó por DNS y eligió " +
+      "publicarla. Devuelve la letra, el QEX, la fecha y la huella sha256 de la última medición diaria, y " +
+      "las URLs de la página pública y del sello. Para cualquier otro dominio devuelve publicado: false y " +
+      "nota: null, sin ningún dato del dominio: Rosetta no publica notas de terceros. Para medir un dominio " +
+      "cualquiera, use medir_exposicion_pqc (la nota viene en su respuesta, sin publicarse).",
+    inputSchema: { type: "object", required: ["domain"],
+      properties: { domain: { type: "string", description: "dominio, p.ej. rosettaquantum.com" } } },
+  },
+  {
     name: "estado_del_archivo",
     description:
       "Estado medido del Evidence Ledger de Rosetta Quantum: cuántas corridas selladas " +
@@ -1007,6 +1023,7 @@ async function ejecutarHerramienta(env, nombre, args, quien = {}) {
     { dominio: args.dominio, sector: args.sector, agente: args.agente },
     { canal: "mcp", ip: quien.ip, user_agent: quien.user_agent }, quien.ctx) : sinMedicion).cuerpo;
   if (nombre === "ver_cifrado_correo") return (MEDICION ? await MEDICION.correoParaAgente(env, String(args.id || "")) : sinMedicion).cuerpo;
+  if (nombre === "get_qready_grade") return (VERIFICADO ? await VERIFICADO.notaParaApi(env, args.domain, quien.url || new URL(SITE)) : sinVerificado).cuerpo;
   if (nombre === "estado_del_archivo") return await estado(env);
   if (nombre === "buscar_evidencia") {
     const r = await buscar(env, args.consulta);
@@ -1078,7 +1095,7 @@ async function mcp(request, env, info = {}) {
       const { name, arguments: args = {} } = req.params || {};
       info.tool = name;   // para el contador de uso; no se guarda nada mas del que llama
       const salida = await ejecutarHerramienta(env, name, args, { ip: request.headers.get("cf-connecting-ip"),
-        user_agent: request.headers.get("user-agent"), ctx: info.ctx });
+        user_agent: request.headers.get("user-agent"), ctx: info.ctx, url: info.url });
       return responder({ content: [{ type: "text", text: JSON.stringify(salida, null, 2) }] }, req.id);
     }
     return fallar(-32601, `método no soportado: ${req.method}`, req.id);
@@ -1235,6 +1252,10 @@ export const CATALOGO = [
       405: { description: "Only POST" },
       429: { description: "Too many measurements in a minute from this address" },
     } },
+  { ruta: "/v1/qready/grade", grupo: "medicion",
+    resumen: "Q-Ready Verified grade (A+ to F) of a domain, ONLY if its owner verified it through DNS and chose to publish it: letter, QEX, date and sha256 of the latest daily measurement, plus the public page and badge URLs. Any other domain returns publicado: false and nota: null, with no data about it. Same as the MCP tool get_qready_grade.",
+    parametros: [{ nombre: "domain", en: "query", tipo: "string", descripcion: "domain, e.g. rosettaquantum.com" }],
+    respuestas: { 200: { description: "publicado true with the grade, or publicado false and nota null" }, 400: { description: "Missing or invalid domain" } } },
   { ruta: "/v1", resumen: "Indice de la API", grupo: "meta" },
   { ruta: "/v1/openapi.json", resumen: "Esta especificacion, en OpenAPI 3.1", grupo: "meta" },
   { ruta: "/v1/usage", resumen: "Cuántas veces se llamó a esta API · público, y declara lo que NO se guarda",
@@ -1630,7 +1651,7 @@ async function usoPublico(env) {
  * que no tener metrica. Hay un test que fuerza el fallo y comprueba justo eso.
  */
 export async function manejarApi(request, env, url, ctx) {
-  const info = { ctx };   // ctx: la medición para agentes lo pasa al registro de certificados (waitUntil)
+  const info = { ctx, url };   // ctx: la medición para agentes lo pasa al registro de certificados (waitUntil)
   const res = await enrutar(request, env, url, info);
   if (!res) return res;                       // no era ruta de API: no se cuenta
 
@@ -1747,6 +1768,10 @@ async function enrutar(request, env, url, info = {}) {
     return r ? new Response(null, { status: r.status, headers: r.headers }) : null;
   }
 
+  if (p === "/v1/qready/grade" || p === "/v1/qready/grade/") {
+    const r = VERIFICADO ? await VERIFICADO.notaParaApi(env, url.searchParams.get("domain") || url.searchParams.get("dominio"), url) : sinVerificado;
+    return json(r.cuerpo, r.http);
+  }
   if (p === "/v1" || p === "/v1/") {
     // El indice sale del MISMO catalogo del que sale la especificacion. Antes era
     // una lista escrita a mano al lado del enrutador: dos listas, que es como se

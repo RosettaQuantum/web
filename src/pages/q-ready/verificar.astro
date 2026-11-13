@@ -1,0 +1,48 @@
+---
+/**
+ * Alta de Q-Ready Verified (13-nov-2026): el dueño pide verificar su dominio, recibe un TXT único,
+ * lo publica en _qready.<dominio> y pulsa «Comprobar». El Worker lo lee por DNS sobre HTTPS
+ * (lib/qready-verificado.mjs). Todo el texto sale de public/js/qready-textos.mjs (PROVISORIO).
+ * Fuera del sitemap (vive bajo /q-ready/), como el resto de Q-Ready salvo la medición.
+ */
+import MarcaLayout from '../../layouts/MarcaLayout.astro';
+import propia from '../../styles/pages/qready-verificado.css?raw';
+import { textos } from '../../../public/js/qready-textos.mjs';
+import REF from '../../../public/data/qex-referencia-2026-08.json';
+const L = 'en';
+const T = textos(L);
+const SECTOR_EN = { banca: "Banking", educacion: "Education", energia: "Energy", fintech: "Fintech", gobierno: "Government", mineria: "Mining",
+  prevision: "Pensions", retail: "Retail", salud_clinica: "Health · clinics", salud_isapre: "Health · private insurers", seguros: "Insurance", telecom: "Telecommunications" };
+const sectores = Object.entries(REF.verticales).map(([k, v]: any) => [k, L === 'en' ? (SECTOR_EN[k] || v.nombre) : v.nombre]);
+---
+<MarcaLayout title={`${T.alta_titulo} · Q-Ready Verified`} description={T.alta_lede} lang={L} altUrl="/es/q-ready/verificar" ruta="/q-ready/verificar" pageCss={propia} noindex={true}>
+  <section class="qv"><div class="qv-wrap">
+    <p class="qv-eyebrow">Q-Ready Verified</p>
+    <h1 class="qv-h1">{T.alta_titulo}</h1>
+    <p class="qv-lede">{T.alta_lede}</p>
+    <form class="qv-form" id="qv-alta" novalidate>
+      <div class="qv-campo"><label for="qv-dominio">{T.alta_dominio}</label><input id="qv-dominio" type="text" inputmode="url" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="ejemplo.cl" required></div>
+      <div class="qv-campo"><label for="qv-sector">{T.alta_sector}</label><select id="qv-sector">{sectores.map(([k, n]) => <option value={k}>{n}</option>)}</select></div>
+      <div class="qv-campo"><label for="qv-contacto">{T.alta_contacto}</label><input id="qv-contacto" type="email" autocomplete="email"></div>
+      <label class="qv-check"><input type="checkbox" id="qv-publico"> <span>{T.alta_publico}</span></label>
+      <div id="qv-ts"></div>
+      <div><button type="submit" class="qv-ir" id="qv-ir">{T.alta_ir}</button></div>
+      <p class="qv-estado" id="qv-estado" role="status" aria-live="polite"></p>
+    </form>
+    <div class="qv-caja" id="qv-txt" hidden>
+      <h2 class="qv-h2">{T.alta_txt_titulo}</h2>
+      <dl><dt>{T.alta_txt_nombre}</dt><dd id="qv-txt-nombre"></dd><dt>{T.alta_txt_tipo}</dt><dd>TXT</dd><dt>{T.alta_txt_valor}</dt><dd id="qv-txt-valor"></dd></dl>
+      <p class="qv-lede">{T.alta_txt_nota}</p>
+      <button type="button" class="qv-ir" id="qv-comprobar">{T.alta_comprobar}</button>
+      <p class="qv-estado" id="qv-comprobar-estado" role="status" aria-live="polite"></p>
+    </div>
+    <div class="qv-caja" id="qv-listo" hidden>
+      <p class="qv-lee" id="qv-listo-txt"></p>
+      <div class="qv-sello-vista" id="qv-sello-vista"></div>
+      <pre class="qv-pre" id="qv-snippet"></pre>
+      <button type="button" class="qv-ir" id="qv-copiar">{T.alta_copiar}</button>
+    </div>
+  </div></section>
+  <script is:inline src="/js/turnstile.js"></script>
+  <script is:inline type="module" src="/js/qready-alta.mjs"></script>
+</MarcaLayout>

@@ -1,8 +1,10 @@
 import { registrarVisita } from "./lib/hits.mjs";
-import { manejarApi, registrarMedicion } from "./api.js";
+import { manejarApi, registrarMedicion, registrarVerificado } from "./api.js";
 import * as medicionAgentes from "./lib/medicion-agentes.mjs";
 import { manejarEnvio, manejarBaja } from "./lib/envio-informe.mjs";
 registrarMedicion(medicionAgentes);
+import { notaParaApi } from "./lib/qready-verificado.mjs";
+registrarVerificado({ notaParaApi });
 import { manejarQreadyLead } from "./lib/qready-lead.mjs";
 import { manejarInformeIndustria, manejarDescarga } from "./lib/captacion.mjs";
 import { manejarOg } from "./lib/og-ruta.mjs";
@@ -10,6 +12,8 @@ import { manejarBorde } from "./lib/borde-envivo.mjs";
 import { manejarCT } from "./lib/ct-registro.mjs";
 import { manejarSondas } from "./lib/informe-envivo.mjs";
 import { manejarCorreo } from "./lib/correo-envivo.mjs";
+// Q-Ready Verified (13-nov-2026): /verificado, /sello, /.well-known/q-ready, el alta y el cron diario.
+import { manejarQready, cronDiario } from "./lib/qready-rutas.mjs";
 // /sitemap-0.xml vive en lib/ para que una guardia de Node pueda ejercerlo: worker.js
 // importa .ttf/.css/.wasm y no se puede cargar fuera del Worker. Ahi esta tambien el
 // bug que devolvia una respuesta ya consumida y daba 500.
@@ -66,6 +70,11 @@ export default {
     const res = await atender(request, env, ctx);
     registrarVisita(request, res, env, ctx);
     return res;
+  },
+  // El cron de Q-Ready Verified (triggers.crons en wrangler.jsonc, sólo producción): re-chequea el
+  // TXT de cada dominio verificado y lo vuelve a medir con el mismo camino que /v1/medicion.
+  async scheduled(event, env, ctx) {
+    ctx.waitUntil(cronDiario(env).catch((e) => console.error("qready cron:", (e && e.message) || e)));
   }
 };
 
@@ -103,6 +112,11 @@ async function atender(request, env, ctx) {
     // que no existen como archivo; si devuelve null, sigue el flujo normal del sitio.
     const api = await manejarApi(request, env, url, ctx);
     if (api) return api;
+
+    // Q-Ready Verified: /verificado/<dominio>, /sello/<dominio>.svg, /.well-known/q-ready y su API.
+    // Devuelve null para cualquier otra ruta. Ver lib/qready-verificado.mjs.
+    const qready = await manejarQready(request, env, url, ctx);
+    if (qready) return qready;
 
     // Re-medición en vivo del borde (demo de la reunión con un banco, 3-nov-2026).
     // Herramienta general: no guarda nada del dominio medido ni escribe en D1.
