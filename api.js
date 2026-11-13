@@ -873,7 +873,8 @@ export const HERRAMIENTAS = [
       "sitio negocia el intercambio híbrido X25519MLKEM768, qué certificado presenta, sus " +
       "servidores de correo y su security.txt. Envía saludos TLS reales (no es lectura de un " +
       "archivo). Con `sector`, devuelve además el índice QEX (el mismo cálculo que la página " +
-      "/es/q-ready/medicion) y su comparación con el sector. El cifrado del correo llega aparte: " +
+      "/es/q-ready/medicion" +
+      ") y su comparación con el sector. El cifrado del correo llega aparte: " +
       "la respuesta trae un id para ver_cifrado_correo. null significa «no medido», nunca " +
       "«no protegido». Límite: pocas mediciones por minuto.",
     inputSchema: { type: "object", required: ["dominio"],
@@ -1245,7 +1246,7 @@ export const CATALOGO = [
     cuerpo: { type: "object", required: ["dominio"], properties: {
       dominio: { type: "string", description: "Public domain, e.g. example.cl" },
       sector: { type: "string", description: "Sector key for the QEX: banca, educacion, energia, fintech, gobierno, mineria, prevision, retail, salud_clinica, salud_isapre, seguros, telecom" },
-      agente: { type: "string", description: "Optional: who is measuring (agent name and version)" } } },
+      agente: { type: "string", description: "Optional: who is measuring (agent name, e.g. my-agent/1.2)" } } },
     respuestas: {
       200: { description: "Measured. correo.cifrado_pq carries the id and URL to poll for the mail result." },
       400: { description: "Missing or invalid domain, or unknown sector" },
