@@ -23,10 +23,6 @@ concurrency:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    # Los chequeos contra producción reintentan un GET cuando la RED se corta (ECONNRESET desde el
-    # runner); un HTTP malo sigue fallando. Ver scripts/lib/fetch-reintento.mjs.
-    env:
-      NODE_OPTIONS: --import ./scripts/lib/fetch-reintento.mjs
     steps:
       # fetch-depth: 0 — el detector de deriva necesita el historial para preguntar
       # `git merge-base --is-ancestor <sello-vivo> origin/main`. Con el clon superficial
@@ -34,6 +30,14 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
+
+      # Los chequeos contra producción reintentan un GET cuando la RED se corta (ECONNRESET desde el
+      # runner); un HTTP malo sigue fallando. Ver scripts/lib/fetch-reintento.mjs. Va DESPUÉS del
+      # checkout y por GITHUB_ENV: como env del job, Node lo cargaba en el propio checkout, antes de
+      # que el archivo existiera, y el deploy murió en el paso 1 (13-nov-2026). Ruta absoluta para
+      # que valga en cualquier working-directory.
+      - name: Reintento de red para los chequeos
+        run: echo "NODE_OPTIONS=--import $GITHUB_WORKSPACE/scripts/lib/fetch-reintento.mjs" >> "$GITHUB_ENV"
 
       # El guardia preventivo, en el unico lugar donde no se puede saltear.
       - name: Solo main publica
