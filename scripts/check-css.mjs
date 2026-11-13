@@ -50,8 +50,11 @@ const MARCA = {
 // Lista, no objeto: como objeto, dos entradas "body" se pisaban y la comprobacion de
 // font-family desaparecia en silencio — un guardia que dice mirar cuatro cosas y mira
 // tres. Lo cazo que el fallo real no aparecia en la salida.
+// 12-nov-2026: Nicholas aprobó ensanchar el sitio a 1.400 px (cajita «A 1.400 px»; commit 6deeb3f).
+// Desde ese día este guardia pedía 1000px y el deploy quedaba rojo DESPUÉS de publicar: nadie
+// actualizó la geometría aprobada junto con la decisión. Sigue exigiendo que venga del token.
 const GEOMETRIA = [
-  [".wrap",  "max-width",   "1000px"],
+  [".wrap",  "max-width",   "1400px"],
   ["body",   "font-family", "var(--sans)"],
   /* B2 · la escala pasa a siete tamanos con nombre. El body deja de ser 16.5px suelto
      y toma --t-body: 18px en desktop, 17px bajo 640px (tokens.css). Se comprueba que
