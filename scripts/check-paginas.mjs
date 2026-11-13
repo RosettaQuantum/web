@@ -20,6 +20,16 @@ export const CONSUMIDOR = {
 };
 
 const PREVIEW = (process.env.PREVIEW_URL || "").replace(/\/+$/, "");
+
+// Reintento SÓLO ante un corte de red (13-nov-2026): desde el runner de GitHub la conexión a
+// Cloudflare se cae al azar (ECONNRESET, «fetch failed»), cada vez en otra página, y el deploy
+// quedaba rojo con el sitio sano. Un HTTP malo NO se reintenta: ese sí es un hallazgo.
+async function pedir(url, opciones, intentos = 3) {
+  for (let k = 1; ; k++) {
+    try { return await fetch(url, opciones); }
+    catch (e) { if (k >= intentos) throw e; await new Promise((r) => setTimeout(r, 1500 * k)); }
+  }
+}
 if (!PREVIEW) { console.error("ABORTA: falta PREVIEW_URL"); process.exit(1); }
 
 // [EN, ES] — los pares del spec §1. Crece con cada commit que crea rutas.
@@ -53,7 +63,7 @@ console.log(`preview: ${PREVIEW}\npares: ${PARES.length}\n`);
 for (const [en, es] of PARES) {
   for (const [ruta, otra] of [[en, es], [es, en]]) {
     let r;
-    try { r = await fetch(PREVIEW + ruta, { headers: { "x-rq-check": "1" } }); }
+    try { r = await pedir(PREVIEW + ruta, { headers: { "x-rq-check": "1" } }); }
     catch (e) { console.log(`  FALLA ${ruta} — ${String(e).slice(0, 50)}`); fallos.push(ruta); continue; }
     if (r.status !== 200) { console.log(`  FALLA ${ruta} -> ${r.status}`); fallos.push(ruta); continue; }
     const t = await r.text();
@@ -72,7 +82,7 @@ for (const [en, es] of PARES) {
     else if (destino.replace(/\/$/, "") !== otra.replace(/\/$/, "")) {
       problemas.push(`el conmutador apunta a ${destino} y el par es ${otra}`);
     } else {
-      const rc = await fetch(PREVIEW + destino, { headers: { "x-rq-check": "1" } });
+      const rc = await pedir(PREVIEW + destino, { headers: { "x-rq-check": "1" } });
       if (rc.status !== 200) problemas.push(`el conmutador lleva a ${destino} -> ${rc.status}`);
     }
     if (cuenta(t, /<footer[\s>]/g) !== 1) problemas.push(`${cuenta(t, /<footer[\s>]/g)} pies`);
@@ -89,7 +99,7 @@ for (const [en, es] of PARES) {
 
 // La decision page de muestra se sirve como ARCHIVO aprobado, byte a byte. Si dejara de
 // estar, /services enlazaria a un 404 desde su propia linea de venta.
-const m = await fetch(PREVIEW + "/services/sample-report", { headers: { "x-rq-check": "1" } });
+const m = await pedir(PREVIEW + "/services/sample-report", { headers: { "x-rq-check": "1" } });
 if (m.status !== 200) { console.log(`  FALLA /services/sample-report -> ${m.status}`); fallos.push("/services/sample-report"); }
 else {
   const t = await m.text();
