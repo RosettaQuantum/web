@@ -23,6 +23,10 @@ concurrency:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    # Los chequeos contra producción reintentan un GET cuando la RED se corta (ECONNRESET desde el
+    # runner); un HTTP malo sigue fallando. Ver scripts/lib/fetch-reintento.mjs.
+    env:
+      NODE_OPTIONS: --import ./scripts/lib/fetch-reintento.mjs
     steps:
       # fetch-depth: 0 — el detector de deriva necesita el historial para preguntar
       # `git merge-base --is-ancestor <sello-vivo> origin/main`. Con el clon superficial
