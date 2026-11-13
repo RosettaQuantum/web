@@ -91,6 +91,14 @@ igual(N.notaQEX(fTodos), "A", "borde: candado nuevo en el principal y en todos l
 igual(N.notaQEX(fTodos, { well_known_valido: true }), "A", "A+ no sale sin inventario verificado");
 igual(N.notaQEX(fTodos, { well_known_valido: true, inventario_verificado: true }), "A+", "A+ con /.well-known/q-ready válido e inventario verificado");
 igual(N.notaQEX(base, { well_known_valido: true, inventario_verificado: true }), "B", "A+ no salta desde B");
+// «desa»/«homolog» (PRUEBA_LOCAL) que responden: ambiente de pruebas expuesto (aprobado el 13-nov)
+const sDesa = clon(SONDAS_PY); sDesa.endpoints.push({ host: "openfinance-desa.python.org", medido_utc: SONDAS_PY.medido_utc, dns_status: "NOERROR", ip: ["192.0.2.20"], cname: [], responde_443: true, detalle: "responde; grupo x25519" });
+igual(N.notaQEX(await foto("python.org", CT_PY, sDesa)), "F", "un nombre «desa» que responde → F (misma señal que la página)");
+// el saludo B por nombre (13-nov): hibrido true en todos los que responden → A; uno en false → B
+let sB = conEndpoint(SONDAS_PY, "legacy.python.org", { hibrido: true }); sB = conEndpoint(sB, "mail.python.org", { hibrido: true });
+igual(N.notaQEX(await foto("python.org", CT_PY, sB)), "A", "saludo B por nombre: todos soportan → A");
+igual(N.notaQEX(await foto("python.org", CT_PY, conEndpoint(sB, "mail.python.org", { hibrido: false }))), "B", "saludo B por nombre: uno no soporta → B");
+igual(xb.no_evaluado, [], "«protocolo antiguo» salió de la tabla: nada queda sin evaluar");
 // sin superficie (registro caído) nunca A
 igual(N.notaQEX(await foto("python.org", null, sTodos)), "B", "sin registro de certificados no hay A (no se sabe qué nombres hay)");
 // TLS 1.3 sin híbrido → C; con infraestructura sensible expuesta → D

@@ -22,3 +22,22 @@ y entrega firmado (`POST /api/sondas/correo/<id>/resultado`). Ver `lib/correo-en
 - A mano en el VPS, sin el sitio: `python3 -I sonda_correo.py --medir ejemplo.cl`.
 
 `rosetta-sonda-correo.service` es la alternativa con systemd; necesita sudo y no está instalada.
+
+## Sonda TLS (13-nov-2026) · `sonda_tls.py`
+
+Saluda en el puerto 443 lo que el Worker no puede saludar (dominios detrás de Cloudflare): los tres
+saludos TLS 1.3 del borde, un saludo TLS 1.2 para leer el certificado, y los saludos A y B por nombre.
+Sin completar sesión. Misma cola firmada y MISMA clave (`SONDA_CORREO_CLAVE`) que la sonda de correo,
+con rutas propias (`/api/sondas/tls/*`, ver `lib/sonda-tls-vps.mjs`): el trabajador de correo no la ve.
+Importa `sonda_correo.py` (ClientHello y firma), así que las dos van en la misma carpeta.
+
+1. `scp vps/sonda-correo/sonda_tls.py nicholas@45.88.191.121:rosetta-sonda-correo/`
+2. Otra línea en el crontab, con su propio candado:
+
+   `* * * * * cd ~/rosetta-sonda-correo && set -a && . ./.env && set +a && flock -n .lock-tls python3 -I sonda_tls.py --trabajar https://rosettaquantum.com >> trabajador-tls.log 2>&1`
+
+3. Probar a mano en el VPS: `python3 -I sonda_tls.py --medir rosettaquantum.com`.
+4. Revertir: borrar esa línea del crontab, `pkill -f "sonda_tls.py --trabajar"`, borrar `sonda_tls.py`.
+   Sin latido, el sitio deja de esperar al VPS en un minuto (el borde vuelve a «no medido»).
+
+Pruebas: `python3 -I vps/sonda-correo/test_sonda_tls.py` y `node scripts/check-sonda-tls.mjs` (en el prebuild).

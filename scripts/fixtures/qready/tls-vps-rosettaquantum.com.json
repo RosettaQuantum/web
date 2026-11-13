@@ -1,0 +1,36 @@
+{
+ "instrumento": "rosetta-sonda-tls/1 · ClientHello de probe_soporte.py (TLS 1.3) y de clientHello12 (TLS 1.2)",
+ "dominio": "rosettaquantum.com",
+ "www": "www.rosettaquantum.com",
+ "medido_utc": "2026-11-13T17:35:18Z",
+ "desde_ip": null,
+ "borde": {
+  "A_como_navegador": {
+   "grupo": "X25519MLKEM768",
+   "hrr": true,
+   "alerta": null,
+   "error": null,
+   "ms": 703
+  },
+  "B_solo_hibrido": {
+   "grupo": "X25519MLKEM768",
+   "hrr": true,
+   "alerta": null,
+   "error": null,
+   "ms": 703
+  },
+  "C_eleccion_libre": {
+   "grupo": "X25519MLKEM768",
+   "hrr": true,
+   "alerta": null,
+   "error": null,
+   "ms": 614
+  }
+ },
+ "certificado": {
+  "der_b64": "MIIDszCCA1mgAwIBAgIQcINc+hbWASoTlT47vabsHTAKBggqhkjOPQQDAjA7MQswCQYDVQQGEwJVUzEeMBwGA1UEChMVR29vZ2xlIFRydXN0IFNlcnZpY2VzMQwwCgYDVQQDEwNXRTEwHhcNMjYxMTA4MTg0MjMzWhcNMjcwMjA2MTk0MjA2WjAdMRswGQYDVQQDExJyb3NldHRhcXVhbnR1bS5jb20wWTATBgcqhkjOPQIBBggqhkjOPQMBBwNCAARFFkEqckYnb7hFxgY7J/njsGwJVu1TJA7iJ/gRY+hzWsqIh++T60YsPQmY4K4o4agKctiIqK3e2I2StdBbx54To4ICWzCCAlcwDgYDVR0PAQH/BAQDAgeAMBMGA1UdJQQMMAoGCCsGAQUFBwMBMAwGA1UdEwEB/wQCMAAwHQYDVR0OBBYEFKGK5I8TIqRFBEwZvAW2R4see+nVMB8GA1UdIwQYMBaAFJB3kjVnxP+ozKnme9mAeXvMk/k4MDUGCCsGAQUFBwEBBCkwJzAlBggrBgEFBQcwAoYZaHR0cDovL2kucGtpLmdvb2cvd2UxLmNydDBPBgNVHREESDBGghJyb3NldHRhcXVhbnR1bS5jb22CFnd3dy5yb3NldHRhcXVhbnR1bS5jb22CGCoud3d3LnJvc2V0dGFxdWFudHVtLmNvbTATBgNVHSAEDDAKMAgGBmeBDAECATA2BgNVHR8ELzAtMCugKaAnhiVodHRwOi8vYy5wa2kuZ29vZy93ZTEvWUxsUzFMX1prS2suY3JsMIIBCwYKKwYBBAHWeQIEAgSB/ASB+QD3AHUARqI5Z8YNtkaHxm89+ZmUdpOmphEghFfVVefj0KHZtkYAAAGhvK8XIgAABAMARjBEAiAgAuajXOyhwAkM+WD0/+p4WxqDPlryIYlyhEniOi5HOQIgVD6eHrFveSoBxDEQHiYS/X/EaDVC++EIL20K2AUduGYAfgBZbmwzhpSyWXKiVsig6N2QSnboCD3ahzsBCDgoFDzuWQAAAaG8rxd0AAgAAAUAH78HqQQDAEcwRQIgWkHJujc3Z351meKUNleTrn8zB5GkdVcxnIk/d+tV3HUCIQD5WA38OlZsFcQLhwAg2e224T/J+YgAqz26kZnZFq+g0zAKBggqhkjOPQQDAgNIADBFAiBQTKhSSs4a6fePlvEhCMtu8qoEQwci59mOU3JBKlhjEgIhAMYZFh5K5MxJq1014qcZfHDMD2KzeKp3Kv+B504bE/7M",
+  "error": null,
+  "ms": 703
+ },
+ "hosts": {}
+}

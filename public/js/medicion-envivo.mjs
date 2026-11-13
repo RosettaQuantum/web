@@ -422,7 +422,7 @@ const SALUDOS = EN ? {
 } : SALUDOS_ES;
 // Señal de lectura, NO regla del índice: nombres que en Chile suelen ser ambientes de prueba y que
 // los patrones de agosto no cuentan (así pasó openfinance-desa). No cambia el puntaje; se marca.
-const PRUEBA_LOCAL = /(^|[.-])(desa|desarrollo|qa|uat|stg|staging|homolog|hml|sandbox)(\d*)([.-]|$)/;
+const PRUEBA_LOCAL = N.PRUEBA_LOCAL;   // una sola definición (qex-nucleo.mjs): la nota la cuenta igual
 const alerta = (x) => x.clases.length > 0 || PRUEBA_LOCAL.test(x.host);
 const CLASE = EN ? { critico: "Critical service", infra_expuesta: "Sensitive infrastructure", no_productivo: "Non-production environment", legado: "Legacy" }
   : { critico: "Servicio crítico", infra_expuesta: "Infraestructura sensible", no_productivo: "Ambiente no productivo", legado: "Legado" };

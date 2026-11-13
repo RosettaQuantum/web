@@ -1,0 +1,36 @@
+{
+ "instrumento": "rosetta-sonda-tls/1 · ClientHello de probe_soporte.py (TLS 1.3) y de clientHello12 (TLS 1.2)",
+ "dominio": "python.org",
+ "www": "www.python.org",
+ "medido_utc": "2026-11-13T17:35:19Z",
+ "desde_ip": null,
+ "borde": {
+  "A_como_navegador": {
+   "grupo": "x25519",
+   "hrr": false,
+   "alerta": null,
+   "error": null,
+   "ms": 159
+  },
+  "B_solo_hibrido": {
+   "grupo": "X25519MLKEM768",
+   "hrr": true,
+   "alerta": null,
+   "error": null,
+   "ms": 159
+  },
+  "C_eleccion_libre": {
+   "grupo": "X25519MLKEM768",
+   "hrr": true,
+   "alerta": null,
+   "error": null,
+   "ms": 159
+  }
+ },
+ "certificado": {
+  "der_b64": "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",
+  "error": null,
+  "ms": 159
+ },
+ "hosts": {}
+}

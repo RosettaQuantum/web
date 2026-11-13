@@ -294,8 +294,11 @@ export function armarFoto({ dominio, www, vertical, medido, ct, sondas: s, refer
   const hosts = mapa ? hostsCT(mapa, dominio) : [];
   const cuentas = mapa ? conteos([...mapa.keys()]) : null;
   const clases = new Map(hosts.map((h) => [h.host, h.clases]));
+  // hibrido y medido_desde (13-nov-2026): el saludo B por nombre y desde dónde se saludó (worker o vps).
+  // Sólo se agregan: una respuesta de sondas anterior, sin esos campos, deja null y "worker".
   const endpoints = s.endpoints.map((x) => ({ host: x.host, clases: clases.get(x.host) || clasesDe(x.host), dns_status: x.dns_status,
-    ip: x.ip, cname: x.cname, responde_443: x.responde_443, detalle: x.detalle, medido_utc: x.medido_utc }));
+    ip: x.ip, cname: x.cname, responde_443: x.responde_443, detalle: x.detalle, medido_utc: x.medido_utc,
+    hibrido: x.hibrido ?? null, medido_desde: x.medido_desde || "worker" }));
   const b = s.borde, v = b.veredicto, A = b.saludos.A_como_navegador;
   // TLS 1.3: el saludo A sólo ofrece 1.3. Respuesta de servidor = sí; alerta 70 (protocol_version) = no; corte = sin dato.
   const tls13 = A.grupo ? true : (A.alerta && /\/70$/.test(A.alerta)) ? false : null;
@@ -311,10 +314,13 @@ export function armarFoto({ dominio, www, vertical, medido, ct, sondas: s, refer
     esquema: ESQUEMA_FOTO, edicion: medido.slice(0, 7), dominio, www, vertical, medido_utc: medido, origen,
     ct: ct ? { fuente: ct.fuente, intentos: ct.intentos ?? null, consultado_utc: ct.consultado_utc || medido, filas: ct.filas.length, sha256_crudo: ct.sha256, conteos: cuentas, hosts } : null,
     endpoints,
-    borde: { cdn: b.dns.cdn, cadena: b.dns.cadena, soporta: v.soporta, elige: v.elige, pide_mejora: v.pide_mejora, sha256_medicion: b.sha256 },
+    borde: { cdn: b.dns.cdn, cadena: b.dns.cadena, soporta: v.soporta, elige: v.elige, pide_mejora: v.pide_mejora, sha256_medicion: b.sha256,
+      medido_desde: b.medido_desde || "worker" },
+    // Qué pasó con la sonda del VPS (lib/sonda-tls-vps.mjs): no_hizo_falta, inactiva, sin_respuesta o hecho.
+    vps: s.vps ? { estado: s.vps.estado, causa: s.vps.causa ?? null, desde_ip: s.vps.desde_ip ?? null } : null,
     tls13,
     certificado: c.ok ? { ok: true, algoritmo: c.algoritmo, curva: c.curva, bits: c.bits, firma: c.firma, emisor: c.emisor, sujeto: c.sujeto,
-      not_before: corta(c.not_before), not_after: corta(c.not_after) } : { ok: false, error: c.error },
+      not_before: corta(c.not_before), not_after: corta(c.not_after), medido_desde: c.medido_desde || "worker" } : { ok: false, error: c.error, medido_desde: c.medido_desde || "worker" },
     proveedores: { correo: s.correo.proveedor, mx: s.correo.mx, security_txt: s.security_txt.publicado },
     qex: { ...q, tipos },
     referencia: { edicion: referencia.edicion, mediana_pais: referencia.mediana_pais, mediana_sector: ref.mediana, n_sector: ref.n },
@@ -353,9 +359,9 @@ export const estadoEndpointEn = (e) => { const t = estadoEndpoint(e); return t =
 // se proponen, no se tocan en silencio.
 //
 // Reglas, en orden (la primera que aplica decide):
-//   F  · falla grave MEDIDA: certificado vencido el día de la medición, o un ambiente no productivo
-//        (clase `no_productivo` de PAT) que responde en 443. «Protocolo antiguo» (TLS 1.0/1.1) NO se
-//        evalúa: el escáner no envía esos saludos y agregarlos cambiaría su método.
+//   F  · falla grave MEDIDA: certificado vencido el día de la medición, o un ambiente de pruebas que
+//        responde en 443 (clase `no_productivo` de PAT, o la señal PRUEBA_LOCAL: desa, homolog, hml…).
+//        «Protocolo antiguo» salió de la tabla (decisión del dueño, 13-nov): el escáner no lo mide.
 //   D  · sin TLS 1.3 medido (sólo 1.2 o anterior). Sin TLS 1.3 no hay candado nuevo posible.
 //   —  · sin nota (null) si el borde no se pudo medir: null es «no medido», nunca «no protegido».
 //   C  · TLS 1.3 sin candado nuevo y sin alertas altas; con alertas altas, D.
@@ -369,20 +375,26 @@ export const estadoEndpointEn = (e) => { const t = estadoEndpoint(e); return t =
 // Alertas MEDIAS (no bajan la letra, se informan): certificado clásico sin plan con fecha,
 // nombres de legado que responden («sin dueño»), servicio de correo que responde en 443.
 // Los certificados post-cuánticos llegan en 2027: hoy no se castiga no tenerlos.
-export const VERSION_NOTA = "QREADY-NOTA-0";
+export const VERSION_NOTA = "QREADY-NOTA-1";
+// Nombres que en Chile suelen ser ambientes de prueba y que los patrones de agosto no cuentan (así pasó
+// openfinance-desa). NO entra al QEX (no toca PAT ni la higiene): la página lo usa como señal de lectura
+// y la nota lo cuenta como ambiente de pruebas expuesto si el nombre responde (aprobado el 13-nov).
+export const PRUEBA_LOCAL = /(^|[.-])(desa|desarrollo|qa|uat|stg|staging|homolog|hml|sandbox)(\d*)([.-]|$)/;
 export const NOTAS = ["A+", "A", "B", "C", "D", "F"];
 const HIBRIDO = "X25519MLKEM768";
 
-// Un nombre que respondió: ¿hay EVIDENCIA de candado nuevo? La sonda de endpoints usa el saludo A
-// (todos los grupos + llave x25519): si el servidor pide el híbrido por HelloRetryRequest, lo
-// soporta. Si acepta x25519 no se sabe (es lo correcto en TLS): eso es «sin evidencia», nunca «no».
+// Un nombre que respondió: ¿tiene el candado nuevo? Desde el 13-nov la sonda le manda también el saludo
+// B (sólo el híbrido, llave vacía): `hibrido` true/false es la respuesta de B, la misma regla del borde.
+// Una foto anterior no trae `hibrido`: entonces sólo cuenta como evidencia que el saludo A haya
+// elegido el híbrido; si eligió x25519 no se sabe (es lo correcto en TLS) y es «sin evidencia».
 export function hibridoEnEndpoint(e) {
   if (!e || e.responde_443 !== true) return null;
+  if (typeof e.hibrido === "boolean") return e.hibrido;
   return new RegExp(`grupo ${HIBRIDO}\\b`).test(String(e.detalle || "")) ? true : null;
 }
 
 export function explicarNota(foto, extras = {}) {
-  const out = { version: VERSION_NOTA, nota: null, graves: [], altas: [], medias: [], no_evaluado: ["protocolo_antiguo"], falta_para_A: [], hechos: {} };
+  const out = { version: VERSION_NOTA, nota: null, graves: [], altas: [], medias: [], no_evaluado: [], falta_para_A: [], hechos: {} };
   if (!foto || foto.esquema !== ESQUEMA_FOTO) { out.motivo = "foto_invalida"; return out; }
   const dia = String(foto.medido_utc || "").slice(0, 10);
   const c = foto.certificado || {};
@@ -391,7 +403,7 @@ export function explicarNota(foto, extras = {}) {
   const tiene = (e, k) => Array.isArray(e.clases) && e.clases.includes(k);
 
   if (c.ok && c.not_after && dia && c.not_after < dia) out.graves.push({ codigo: "certificado_vencido", detalle: c.not_after });
-  for (const e of responde) if (tiene(e, "no_productivo")) out.graves.push({ codigo: "ambiente_pruebas_expuesto", host: e.host });
+  for (const e of responde) if (tiene(e, "no_productivo") || PRUEBA_LOCAL.test(e.host)) out.graves.push({ codigo: "ambiente_pruebas_expuesto", host: e.host });
   for (const e of responde) if (tiene(e, "infra_expuesta") && !esNombreDeCorreo(e.host)) out.altas.push({ codigo: "infraestructura_expuesta", host: e.host });
   if (c.ok && (c.algoritmo === "RSA" || c.algoritmo === "EC") && !extras.plan_con_fecha) out.medias.push({ codigo: "certificado_sin_plan" });
   for (const e of responde) if (tiene(e, "legado")) out.medias.push({ codigo: "nombre_sin_dueno", host: e.host });

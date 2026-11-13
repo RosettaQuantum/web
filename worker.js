@@ -12,6 +12,7 @@ import { manejarBorde } from "./lib/borde-envivo.mjs";
 import { manejarCT } from "./lib/ct-registro.mjs";
 import { manejarSondas } from "./lib/informe-envivo.mjs";
 import { manejarCorreo } from "./lib/correo-envivo.mjs";
+import { manejarTls } from "./lib/sonda-tls-vps.mjs";
 // Q-Ready Verified (13-nov-2026): /verificado, /sello, /.well-known/q-ready, el alta y el cron diario.
 import { manejarQready, cronDiario } from "./lib/qready-rutas.mjs";
 // /sitemap-0.xml vive en lib/ para que una guardia de Node pueda ejercerlo: worker.js
@@ -129,6 +130,8 @@ async function atender(request, env, ctx) {
     if (url.pathname.startsWith("/api/medicion/envio")) return manejarEnvio(request, env, url);
     if (url.pathname === "/baja") return manejarBaja(request, env, url);
     if (url.pathname.startsWith("/api/sondas/correo")) return manejarCorreo(request, env, url);
+    // Saludos TLS desde el VPS para lo que el Worker no puede saludar (lib/sonda-tls-vps.mjs): sólo el VPS, firmado.
+    if (url.pathname.startsWith("/api/sondas/tls")) return manejarTls(request, env, url);
     if (url.pathname === "/api/sondas") return manejarSondas(request, env);
 
     if (url.pathname === "/api/lead" && request.method === "POST") {
