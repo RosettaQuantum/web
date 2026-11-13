@@ -34,7 +34,13 @@ for (let i = 0; i < ediciones.length - 1; i++) {
 }
 
 // CUÁL edición se publica: la publicada más reciente, no el slug más alto (src/lib/informe-elegir.mjs).
-const { actual, anterior } = elegirEdicion(ediciones);
+// `RQ_INFORME_PREVIEW=2026-11 npx astro build` muestra ESE borrador conservando la comparacion
+// contra la anterior. Lo usa `scripts/build-informe-pdf.mjs --borrador` para imprimir el PDF de
+// un borrador; en un build normal la variable no existe y no cambia nada. El borrador sigue
+// saliendo con cartel y `noindex`, porque eso lo decide `borrador` y esto no lo toca.
+const { actual, anterior } = elegirEdicion(ediciones, {
+  previsualizar: process.env.RQ_INFORME_PREVIEW || null,
+});
 const { d } = actual;
 const prev = anterior?.d ?? null;
 
@@ -79,11 +85,17 @@ function pintar(dif: number, polaridad?: string) {
   const mejora = polaridad === 'mayor_mejor' ? dif > 0 : dif < 0;
   return mejora ? 'down' : 'up';   // .down = verde (mejora) · .up = rojo (empeora)
 }
-function delta(id: string, valor: number) {
+function delta(id: string, valor: number | null) {
+  /* Sin valor no hay variación. Con `null` esto daba `null - 0 = 0` y devolvía
+   * «sin cambio», que afirma una medición inexistente: la peor forma de la
+   * ausencia disfrazada de valor, porque suena tranquilizadora. */
+  // La ficha no pinta chip cuando no hay medición, así que este texto no se
+  // llega a ver; existe igual por si otro lugar llama a `delta` con un null.
+  if (!medida(valor)) return { cls: 'flat', txt: SIN_MEDIR };
   if (!prev) return { cls: 'new', txt: 'línea base' };
   const ant = prev.titulares?.find((t: any) => t.id === id);
   if (!ant) return { cls: 'new', txt: 'nuevo' };
-  const dif = +(valor - ant.v).toFixed(1);
+  const dif = +((valor as number) - ant.v).toFixed(1);
   if (dif === 0) return { cls: 'flat', txt: 'sin cambio' };
   return { cls: pintar(dif, ant.polaridad), txt: `${dif > 0 ? '+' : ''}${dif}${ant.u ?? ''}` };
 }
@@ -97,7 +109,19 @@ function deltaVert(id: string, ratio: number) {
   return { cls: pintar(dif, 'mayor_mejor'), txt: `${dif > 0 ? '+' : ''}${dif}` };
 }
 
-const nf = (n: number) => n.toLocaleString('es-CL');
+/* Una cifra SIN MEDIR dice «no medido», que es la convención de la casa y ya se
+ * usa en /informe-cliente y en /es/q-ready/medicion («un canal que no pudimos
+ * medir dice no medido, nunca no protegido»). Acá no estaba, y el 13-nov-2026
+ * eso TUMBÓ EL BUILD: la edición de noviembre trae `titulares[4].v` en null
+ * —«Proveedores de core con fecha», que se revisa a mano y este mes no se
+ * revisó— y `nf` llamaba `.toLocaleString()` sobre null. La compuerta de la
+ * máquina venía diciendo desde agosto «mientras estén en null, la página tiene
+ * que pintarlas como no medido»: era una promesa sin nada detrás, y nadie la
+ * ejerció porque agosto no tenía ninguna cifra sin medir. */
+const SIN_MEDIR = 'no medido';
+const medida = (n: unknown) => n !== null && n !== undefined;
+const nf = (n: number | null | undefined) =>
+  medida(n) ? (n as number).toLocaleString('es-CL') : SIN_MEDIR;
 const cdnPct = (o: any) => o.pct;
 
 /* Las secciones del documento, en una sola lista.
@@ -258,9 +282,9 @@ const nn = (i: number) => String(i + 1).padStart(2, '0');
           return (
             <div class={`tile ${sev}`}>
               <span class="k">{t.k}{t.sev === 'asterisco' ? ' *' : ''}</span>
-              <span class="v">{nf(t.v)}{t.u}</span>
+              <span class={medida(t.v) ? 'v' : 'v sin-medir'}>{nf(t.v)}{medida(t.v) ? t.u : ''}</span>
               <span class="sub">
-                <span class={`delta ${dl.cls}`}>{dl.txt}</span>{' '}{t.sub}
+                {medida(t.v) && <><span class={`delta ${dl.cls}`}>{dl.txt}</span>{' '}</>}{t.sub}
               </span>
             </div>
           );

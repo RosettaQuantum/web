@@ -27,6 +27,35 @@ ok(r.actual.slug === "2026-10" && r.anterior?.slug === "2026-08", "con dos publi
 // silencio: ninguna publicada → la más reciente (sale como borrador por la regla de la página)
 r = elegirEdicion([ed("2026-08", {})]);
 ok(r.actual.slug === "2026-08", "sin publicadas no mostró la única edición");
+// --- previsualizar un borrador (13-nov-2026) ---------------------------------
+// Existe para imprimir el PDF de un borrador SIN perder la comparacion contra la
+// edicion anterior: apartando las publicadas de la carpeta, `anterior` quedaba en
+// null y el PDF salia con los siete chips en «linea base».
+const dosEd = [ed("2026-11", { borrador: true }), ed("2026-08", { borrador: false })];
+// silencio 1: sin pedirlo, no cambia nada. Es la garantia de que esto no mueve
+// lo que se publica.
+r = elegirEdicion(dosEd);
+ok(r.actual.slug === "2026-08" && r.previsualizando === false,
+   "sin previsualizar, dejo de elegir la publicada");
+// lo que vino a arreglar: con el borrador previsualizado, la anterior SIGUE ahi.
+r = elegirEdicion(dosEd, { previsualizar: "2026-11" });
+ok(r.actual.slug === "2026-11" && r.anterior?.slug === "2026-08" && r.previsualizando === true,
+   "previsualizando el borrador se perdio la edicion anterior (los chips saldrian en «linea base»)");
+// y NO toca `borrador`: el cartel y el noindex los decide esa clave, no esta funcion.
+ok(r.actual.d.borrador === true, "previsualizar le cambio el `borrador` al documento");
+// grito: un slug que no esta DETIENE el build, en vez de caer a la publicada en
+// silencio — una caida silenciosa haria que el PDF dijera noviembre mostrando agosto.
+lanzo = false;
+try { elegirEdicion(dosEd, { previsualizar: "2026-12" }); } catch { lanzo = true; }
+ok(lanzo, "previsualizar un slug inexistente cayo de vuelta a la publicada en silencio");
+// grito: previsualizar no salta el chequeo de SIMULADO.
+lanzo = false;
+try {
+  elegirEdicion([ed("2026-09", { SIMULADO: "inventado", borrador: true }), ed("2026-08", { borrador: false })],
+                { previsualizar: "2026-09" });
+} catch { lanzo = true; }
+ok(lanzo, "previsualizar dejo pasar un archivo declarado SIMULADO");
+
 // la carpeta real de hoy
 const dir = new URL("../src/data/informe-pqc/", import.meta.url);
 const reales = readdirSync(dir).filter((f) => /^\d{4}-\d{2}\.json$/.test(f)).sort().reverse()
@@ -35,4 +64,4 @@ try { r = elegirEdicion(reales); ok(r.actual.d.borrador === false || !reales.som
 catch (e) { fallas.push(`la carpeta real: ${e.message}`); }
 
 if (fallas.length) { console.error("check-informe-elige-publicada: FALLA\n  " + fallas.join("\n  ")); process.exit(1); }
-console.log(`check-informe-elige-publicada: ok (borrador nuevo, sin borrador, SIMULADO, dos publicadas, carpeta real → ${r.actual.slug})`);
+console.log(`check-informe-elige-publicada: ok (borrador nuevo, sin borrador, SIMULADO, dos publicadas, previsualizacion con su anterior, slug inexistente, carpeta real → ${r.actual.slug})`);

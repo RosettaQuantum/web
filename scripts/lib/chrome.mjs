@@ -133,6 +133,32 @@ async function abrirChromeUnaVez({ ancho = 1280, alto = 900 } = {}) {
       const { data } = await enviar("Page.captureScreenshot", { format: "png" }, sessionId);
       return Buffer.from(data, "base64");
     },
+    /**
+     * Carga `url` y la IMPRIME a PDF, devolviendo el binario.
+     *
+     * Es el mismo camino por el que salio el PDF nacional de agosto: Chrome sin
+     * ventana imprimiendo la pagina. Se ve en los metadatos de ese archivo
+     * (`HeadlessChrome`, `Skia/PDF`). Hasta hoy ese paso se hacia a mano y
+     * no estaba escrito en ninguna parte, asi que no se podia repetir ni
+     * comprobar: un entregable que depende de que alguien recuerde los pasos no
+     * es un entregable de una maquina.
+     *
+     * `imprimirFondo` va en true porque el informe tiene bloques con fondo
+     * oscuro y sin eso Chrome los imprime en blanco, que es el defecto clasico
+     * de imprimir una pagina web: sale, no falla, y sale mal.
+     */
+    async imprimir(url, { esperaMs = 3500, escala = 1, margen = 0.4,
+                          imprimirFondo = true, apaisado = false } = {}) {
+      await enviar("Page.navigate", { url }, sessionId);
+      await new Promise(r => setTimeout(r, esperaMs));
+      const { data } = await enviar("Page.printToPDF", {
+        printBackground: imprimirFondo, scale: escala, landscape: apaisado,
+        marginTop: margen, marginBottom: margen,
+        marginLeft: margen, marginRight: margen,
+        preferCSSPageSize: false,
+      }, sessionId);
+      return Buffer.from(data, "base64");
+    },
     async cerrar() {
       sock.close();
       proc.kill();

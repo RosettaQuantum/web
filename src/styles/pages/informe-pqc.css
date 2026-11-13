@@ -127,6 +127,14 @@ html{scroll-behavior:smooth}
   font-variant-numeric:tabular-nums;display:block}
 .tile .sub{font-size:var(--t-label);color:var(--ink-60);margin-top:6px;display:block;line-height:1.35}
 .tile.crit .v{color:var(--alert)} .tile.warn .v{color:var(--pending)} .tile.ok .v{color:var(--verdict)}
+/* Una cifra sin medir se pinta como texto, no como número: con el cuerpo de
+   titular «no medido» desborda la ficha de 158 px. Y en gris, DESPUÉS de las tres
+   reglas de severidad: la ficha de proveedores es `crit`, y con la misma
+   especificidad gana la última, así que puesta antes «no medido» salía en rojo
+   de alerta — leyéndose como un hallazgo grave cuando es la ausencia de una
+   medición. */
+.tile .v.sin-medir{font-family:var(--mono);font-size:var(--t-data);letter-spacing:.06em;
+  text-transform:uppercase;color:var(--ink-60);padding-block:6px}
 
 /* ---------- chips ---------- */
 .chip{display:inline-flex;align-items:center;gap:5px;font-family:var(--mono);font-size:var(--t-data);
