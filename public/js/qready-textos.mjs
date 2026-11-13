@@ -223,7 +223,7 @@ export const textos = (lang) => TXT[lang === "en" ? "en" : "es"];
 const escAttr = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 export function snippetSello(dominio, lang = "es", base = "https://rosettaquantum.com") {
   const d = escAttr(dominio), pre = lang === "en" ? "" : "/es";
-  return `<a href="${base}${pre}/verificado/${d}" rel="noopener"><img src="${base}/sello/${d}.svg" width="220" height="64" alt="${FIRMA} · ${d}"></a>`;
+  return `<a href="${base}${pre}/verificado/${d}" rel="noopener"><img src="${base}/sello/${d}.svg" width="300" height="64" alt="${FIRMA} · ${d}"></a>`;
 }
 
 // Los mensajes del validador los escribe el servidor en español (public/js/qready-wellknown.mjs y
