@@ -104,6 +104,17 @@
 .mv-qex-fila{display:flex;flex-wrap:wrap;align-items:baseline;gap:var(--s1) var(--s4)}
 .mv-score{font-family:var(--serif);font-size:calc(var(--t-display) * 1.6);line-height:.9;margin:0;font-variant-numeric:tabular-nums;letter-spacing:-.03em}
 .mv-de{font-size:var(--t-sub);color:var(--ink-60);margin-left:8px;letter-spacing:0}
+/* ---- la nota Q-Ready (13-nov-2026): la letra grande junto al puntaje; la lee qex-nucleo.notaQEX */
+.mv-letra{display:flex;flex-direction:column;align-items:center;margin:0;padding:0 var(--s3) 0 0;border-right:1px solid var(--line)}
+.mv-letra-l{font-family:var(--serif);font-size:calc(var(--t-display) * 1.6);line-height:.9;letter-spacing:-.02em;min-width:1.2em;text-align:center}
+.mv-letra-t{font-family:var(--mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-60);margin-top:6px}
+.mv-letra[data-nota="A+"] .mv-letra-l,.mv-letra[data-nota="A"] .mv-letra-l,.mv-letra[data-nota="B"] .mv-letra-l{color:var(--verdict)}
+.mv-letra[data-nota="C"] .mv-letra-l,.mv-letra[data-nota="D"] .mv-letra-l{color:var(--pending)}
+.mv-letra[data-nota="F"] .mv-letra-l{color:var(--alert)}
+.mv-letra-lee{margin:var(--s2) 0 0;font-size:var(--t-body);line-height:var(--lh-body);max-width:70ch}
+.mv-letra-lee p{margin:0 0 var(--s1)}
+.mv-letra-lee ul{margin:0;padding-left:1.2em}
+.mv-letra-lee .mv-meta{color:var(--ink-60)}
 .mv-ref{margin:0;font-size:var(--t-body);color:var(--ink-60);max-width:48ch}
 .mv-escala{margin:var(--s4) 0 var(--s2);padding-top:30px}
 .mv-escala-pista{position:relative;height:34px;background:var(--paper-2);border:1px solid var(--line)}

@@ -74,8 +74,10 @@ if (form) {
     const token = ts ? await ts.esperarToken() : null;
     if (!token) { decir(t("No pudimos verificar que es una persona. Recargue la página e intente de nuevo.", "We could not verify that you are a person. Reload the page and try again."), true); ir.disabled = false; return; }
     try {
-      const cuerpo = { email, dominio: medicion.dominio, eleccion, acepta: true, turnstile: token, lang: EN ? "en" : "es" };
-      if (eleccion === "correo") Object.assign(cuerpo, { foto: medicion.foto, correo_id: medicion.s?.correo_tls?.id || null });
+      // La foto viaja en los dos casos (13-nov-2026): con el mismo consentimiento, el servidor guarda la
+      // medición (qready_mediciones, origen «pagina»). Con el correo, además, arma el PDF.
+      const cuerpo = { email, dominio: medicion.dominio, eleccion, acepta: true, turnstile: token, lang: EN ? "en" : "es", foto: medicion.foto };
+      if (eleccion === "correo") Object.assign(cuerpo, { correo_id: medicion.s?.correo_tls?.id || null });
       const r = await fetch("/api/medicion/descarga", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(cuerpo) });
       const j = await r.json().catch(() => ({}));
       if (!r.ok || !j.ok) {

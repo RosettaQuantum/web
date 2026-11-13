@@ -1,0 +1,82 @@
+{
+  "ok": true,
+  "instrumento": "rosetta-sondas-envivo/1",
+  "dominio": "rosettaquantum.com",
+  "www": "www.rosettaquantum.com",
+  "medido_utc": "2026-11-13T16:55:45.227Z",
+  "borde": {
+    "instrumento": "rosetta-borde-envivo/1 · puerto de probe_soporte.py + rescan_eleccion.py (ago-2026)",
+    "host": "www.rosettaquantum.com",
+    "medido_utc": "2026-11-13T16:55:45.227Z",
+    "dns": {
+      "cadena": [],
+      "cdn": "sin CNAME"
+    },
+    "saludos": {
+      "A_como_navegador": {
+        "grupo": null,
+        "hrr": null,
+        "alerta": null,
+        "error": "Stream was cancelled.",
+        "ms": 63
+      },
+      "B_solo_hibrido": {
+        "grupo": null,
+        "hrr": null,
+        "alerta": null,
+        "error": "Stream was cancelled.",
+        "ms": 2
+      },
+      "C_eleccion_libre": {
+        "grupo": null,
+        "hrr": null,
+        "alerta": null,
+        "error": "Stream was cancelled.",
+        "ms": 2
+      }
+    },
+    "veredicto": {
+      "conectado": false,
+      "soporta": null,
+      "pide_mejora": null,
+      "elige": null
+    },
+    "alcance": "Mide el tramo cliente → borde. El tramo borde → origen no es observable desde fuera.",
+    "sha256": "50ec19ae9bfd751f428211aa3d94578a70a2a69fdd8e9332ce39174166bb229b"
+  },
+  "certificado": {
+    "host": "www.rosettaquantum.com",
+    "ok": false,
+    "metodo": "saludo TLS 1.2; se lee la hoja que entrega el servidor",
+    "error": "Stream was cancelled.",
+    "ms": 63
+  },
+  "endpoints": [],
+  "correo": {
+    "mx": [
+      "route1.mx.cloudflare.net",
+      "route2.mx.cloudflare.net",
+      "route3.mx.cloudflare.net"
+    ],
+    "proveedor": "cloudflare.net",
+    "error": null
+  },
+  "security_txt": {
+    "publicado": null,
+    "url": null,
+    "intentos": [
+      {
+        "url": "https://rosettaquantum.com/.well-known/security.txt",
+        "status": 522,
+        "contact": false
+      },
+      {
+        "url": "https://www.rosettaquantum.com/.well-known/security.txt",
+        "status": 522,
+        "contact": false
+      }
+    ]
+  },
+  "ssh": null,
+  "descartados": 0
+}

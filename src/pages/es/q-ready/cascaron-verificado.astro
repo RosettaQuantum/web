@@ -1,0 +1,10 @@
+---
+/**
+ * Cascarón de /verificado/<dominio> (Q-Ready Verified, 13-nov-2026). No es una página: el Worker
+ * (lib/qready-verificado.mjs → rellenarCascaron) lo pide a ASSETS y reemplaza los marcadores __QV_*__
+ * con el dominio verificado, o con el 404 «no activado». Fuera del sitemap (vive bajo /q-ready/) y noindex.
+ */
+import MarcaLayout from '../../../layouts/MarcaLayout.astro';
+import propia from '../../../styles/pages/qready-verificado.css?raw';
+---
+<MarcaLayout title="__QV_TITLE__" description="__QV_DESC__" lang="es" altUrl="/__QV_ALT__" ruta="/verificado" pageCss={propia} noindex={true}>__QV_BODY__</MarcaLayout>

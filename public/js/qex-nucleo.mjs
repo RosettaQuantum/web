@@ -342,3 +342,93 @@ export const VALOR_EN = { "sí": "yes", "no": "no", "publicado": "published", "n
   "publicado en DNS, no responde en 443": "published in DNS, does not respond on 443", "sin medición": "not measured",
   "aún no estaba en el registro público": "not yet in the public log", "otro": "other", "sin CNAME": "no CNAME" };
 export const estadoEndpointEn = (e) => { const t = estadoEndpoint(e); return t == null ? null : VALOR_EN[t] ?? t; };
+
+// ---------------------------------------------------------------- la nota Q-Ready Verified (13-nov-2026)
+// Una letra A+…F a partir de la foto rosetta-qex-foto/1 que el escáner YA produce. No mide nada:
+// lee la foto. Una sola definición; la usan la página (medicion-envivo.mjs), el servidor
+// (lib/medicion-agentes.mjs), el cron de los dominios verificados, el sello y la herramienta MCP.
+// scripts/check-qready-nota.mjs grita si alguno de ellos escribe su propia regla.
+//
+// Los umbrales son la PROPUESTA INICIAL del encargo (13-nov). Cambiarlos es decisión del dueño:
+// se proponen, no se tocan en silencio.
+//
+// Reglas, en orden (la primera que aplica decide):
+//   F  · falla grave MEDIDA: certificado vencido el día de la medición, o un ambiente no productivo
+//        (clase `no_productivo` de PAT) que responde en 443. «Protocolo antiguo» (TLS 1.0/1.1) NO se
+//        evalúa: el escáner no envía esos saludos y agregarlos cambiaría su método.
+//   D  · sin TLS 1.3 medido (sólo 1.2 o anterior). Sin TLS 1.3 no hay candado nuevo posible.
+//   —  · sin nota (null) si el borde no se pudo medir: null es «no medido», nunca «no protegido».
+//   C  · TLS 1.3 sin candado nuevo y sin alertas altas; con alertas altas, D.
+//        Con candado nuevo pero alertas altas abiertas, C (el candado no tapa la puerta abierta).
+//   B  · candado nuevo (X25519MLKEM768, leído del saludo B) en el sitio principal, sin alertas altas.
+//   A  · además, evidencia de candado nuevo en TODOS los nombres públicos que respondieron, con la
+//        superficie (registro de certificados) disponible y todos los nombres sensibles sondeados.
+//   A+ · A, más /.well-known/q-ready firmado y vigente, más inventario interno verificado por
+//        Rosetta. Nada de eso se ve desde afuera: desde afuera el máximo es A.
+// Alerta ALTA: un nombre de infraestructura sensible (no de correo) que responde en 443.
+// Alertas MEDIAS (no bajan la letra, se informan): certificado clásico sin plan con fecha,
+// nombres de legado que responden («sin dueño»), servicio de correo que responde en 443.
+// Los certificados post-cuánticos llegan en 2027: hoy no se castiga no tenerlos.
+export const VERSION_NOTA = "QREADY-NOTA-0";
+export const NOTAS = ["A+", "A", "B", "C", "D", "F"];
+const HIBRIDO = "X25519MLKEM768";
+
+// Un nombre que respondió: ¿hay EVIDENCIA de candado nuevo? La sonda de endpoints usa el saludo A
+// (todos los grupos + llave x25519): si el servidor pide el híbrido por HelloRetryRequest, lo
+// soporta. Si acepta x25519 no se sabe (es lo correcto en TLS): eso es «sin evidencia», nunca «no».
+export function hibridoEnEndpoint(e) {
+  if (!e || e.responde_443 !== true) return null;
+  return new RegExp(`grupo ${HIBRIDO}\\b`).test(String(e.detalle || "")) ? true : null;
+}
+
+export function explicarNota(foto, extras = {}) {
+  const out = { version: VERSION_NOTA, nota: null, graves: [], altas: [], medias: [], no_evaluado: ["protocolo_antiguo"], falta_para_A: [], hechos: {} };
+  if (!foto || foto.esquema !== ESQUEMA_FOTO) { out.motivo = "foto_invalida"; return out; }
+  const dia = String(foto.medido_utc || "").slice(0, 10);
+  const c = foto.certificado || {};
+  const eps = Array.isArray(foto.endpoints) ? foto.endpoints : [];
+  const responde = eps.filter((e) => e.responde_443 === true);
+  const tiene = (e, k) => Array.isArray(e.clases) && e.clases.includes(k);
+
+  if (c.ok && c.not_after && dia && c.not_after < dia) out.graves.push({ codigo: "certificado_vencido", detalle: c.not_after });
+  for (const e of responde) if (tiene(e, "no_productivo")) out.graves.push({ codigo: "ambiente_pruebas_expuesto", host: e.host });
+  for (const e of responde) if (tiene(e, "infra_expuesta") && !esNombreDeCorreo(e.host)) out.altas.push({ codigo: "infraestructura_expuesta", host: e.host });
+  if (c.ok && (c.algoritmo === "RSA" || c.algoritmo === "EC") && !extras.plan_con_fecha) out.medias.push({ codigo: "certificado_sin_plan" });
+  for (const e of responde) if (tiene(e, "legado")) out.medias.push({ codigo: "nombre_sin_dueno", host: e.host });
+  for (const e of responde) if (tiene(e, "infra_expuesta") && esNombreDeCorreo(e.host)) out.medias.push({ codigo: "correo_responde_443", host: e.host });
+
+  const principal = foto.borde ? foto.borde.soporta : null;           // true | false | null
+  const tls13 = principal === true ? true : foto.tls13;                // el híbrido sólo existe en TLS 1.3
+  const sinEvidencia = responde.filter((e) => hibridoEnEndpoint(e) !== true).map((e) => e.host);
+  const sensibles = foto.ct ? nombresASondear(foto.ct.hosts || []).todos : [];
+  const sinSondear = foto.ct ? sensibles.filter((h) => !eps.some((e) => e.host === h)) : null;
+  out.hechos = { principal_hibrido: principal, tls13, nombres_que_responden: responde.length, sin_evidencia_hibrido: sinEvidencia,
+    superficie: !!foto.ct, sensibles_sin_sondear: sinSondear };
+
+  if (out.graves.length) { out.nota = "F"; }
+  else if (tls13 === false) out.nota = "D";
+  else if (principal == null || tls13 == null) { out.nota = null; out.motivo = "borde_no_medido"; }
+  else if (principal === false) out.nota = out.altas.length ? "D" : "C";
+  else if (out.altas.length) out.nota = "C";
+  else if (foto.ct && sinSondear.length === 0 && sinEvidencia.length === 0) out.nota = "A";
+  else out.nota = "B";
+
+  if (out.nota === "A" && extras.well_known_valido === true && extras.inventario_verificado === true) out.nota = "A+";
+
+  // Qué le falta para A. Se dice en códigos; el texto lo pone quien pinta (public/js/qready-textos.mjs).
+  if (out.nota !== "A" && out.nota !== "A+") {
+    for (const g of out.graves) out.falta_para_A.push({ codigo: "resolver_" + g.codigo, host: g.host, detalle: g.detalle });
+    if (tls13 === false) out.falta_para_A.push({ codigo: "activar_tls13" });
+    if (principal == null && tls13 !== false) out.falta_para_A.push({ codigo: "medir_borde" });
+    if (principal === false) out.falta_para_A.push({ codigo: "hibrido_en_principal" });
+    for (const a of out.altas) out.falta_para_A.push({ codigo: "cerrar_" + a.codigo, host: a.host });
+    if (principal === true) {
+      for (const h of sinEvidencia) out.falta_para_A.push({ codigo: "hibrido_en_nombre", host: h });
+      if (!foto.ct) out.falta_para_A.push({ codigo: "superficie_no_disponible" });
+      else for (const h of sinSondear) out.falta_para_A.push({ codigo: "nombre_sin_sondear", host: h });
+    }
+  }
+  return out;
+}
+
+export const notaQEX = (foto, extras = {}) => explicarNota(foto, extras).nota;

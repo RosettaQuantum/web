@@ -14,6 +14,7 @@
  */
 import * as N from "./qex-nucleo.mjs";
 import { enPalabras, paraTraza, detalleEndpointEn, fuenteCT } from "./medicion-palabras.mjs";
+import { textos } from "./qready-textos.mjs";
 
 // Una sola página en dos idiomas (12-nov-2026): se lee el idioma del documento una vez. En español
 // todo queda como estaba; cada texto visible lleva su inglés al lado, con t(es, en).
@@ -372,8 +373,11 @@ form.addEventListener("submit", async (e) => {
   pararReloj();
 
   pintarResultado({ d, s, ct, mapa, hostsCT, dominio, www, nuevosCT });
+  // La nota Q-Ready: la MISMA función que usan el servidor, el cron y el sello (qex-nucleo.mjs).
+  const nota = N.explicarNota(fotoHoy);
+  pintarNota(nota);
   // La lectura en cuatro pasos (canales, cápsula, Shor) la pinta /js/medicion-historia.mjs con el mismo dato.
-  window.dispatchEvent(new CustomEvent("mv:medido", { detail: { d, s, dominio, www, foto: fotoHoy } }));
+  window.dispatchEvent(new CustomEvent("mv:medido", { detail: { d, s, dominio, www, foto: fotoHoy, nota } }));
   if (comparar) mostrarComparacion(comparar, fotoHoy);
   $("mv-cuando").textContent = fechaUtc(medido);
   $("mv-huella").textContent = fotoHoy.sha256;
@@ -385,6 +389,25 @@ form.addEventListener("submit", async (e) => {
   $("mv-resultado").hidden = false;
   $("mv-acto1").scrollIntoView({ behavior: quieto ? "auto" : "smooth", block: "start" });
 });
+
+// ---------------------------------------------------------------- la nota Q-Ready (13-nov-2026)
+// La letra sale de N.explicarNota(foto); el texto, de qready-textos.mjs (provisorio, ES/EN).
+// Aquí no hay regla: sólo se pinta. scripts/check-qready-nota.mjs grita si la página calcula su propia letra.
+function pintarNota(x) {
+  const T = textos(IDIOMA);
+  const caja = $("mv-letra-caja"), lee = $("mv-letra-lee");
+  if (!caja || !lee) return;
+  caja.dataset.nota = x.nota || "";
+  $("mv-letra").textContent = x.nota || "—";
+  $("mv-letra-t").textContent = x.nota ? T.nota_titulo : T.nota_sin;
+  const partes = [`<p>${esc(x.nota ? T.nota_lectura[x.nota] : (T.nota_sin_motivo[x.motivo] || T.nota_sin))}</p>`];
+  const alertas = [...x.graves, ...x.altas, ...x.medias].map((a) => `${esc(T.alerta[a.codigo] || a.codigo)}${a.host ? ` · <code>${esc(a.host)}</code>` : ""}`);
+  if (alertas.length) partes.push(`<ul>${alertas.map((a) => `<li>${a}</li>`).join("")}</ul>`);
+  if (x.falta_para_A.length) partes.push(`<p><b>${esc(T.falta_titulo)}</b></p><ul>${x.falta_para_A.map((f) => `<li>${esc(T.falta[f.codigo] ? T.falta[f.codigo](f) : f.codigo)}</li>`).join("")}</ul>`);
+  partes.push(`<p class="mv-meta">${esc(T.nota_escala)} · ${esc(x.version)}</p>`);
+  lee.innerHTML = partes.join("");
+  lee.hidden = false;
+}
 
 // ---------------------------------------------------------------- resultado
 const SALUDOS_ES = {
