@@ -45,7 +45,9 @@ const NO_SE_ANUNCIAN = ["/policies"];
 const RETIRADO = [
   // 3-nov-2026: Nicholas decidió indexar la medición en vivo (gratis, sin precio): ESA ruta
   // sí puede anunciarse. El resto de /q-ready sigue retirado.
-  [/\/q-ready(?!\/medicion\b)/, "la pagina ya no se enlaza desde el sitio ni esta en el sitemap"],
+  // 13-nov-2026: la especificación abierta /q-ready/spec (y el nombre del archivo /.well-known/q-ready)
+  // SÍ van en llms.txt: lo pidió el encargo Q-Ready Verified que Nicholas aprobó. El resto de /q-ready sigue fuera.
+  [/(?<!well-known)\/q-ready(?!\/(medicion|spec)\b)/, "la pagina ya no se enlaza desde el sitio ni esta en el sitemap"],
   [/4,900|4\.900/, "precio de un producto que no esta en la lista decidida"],
 ];
 
