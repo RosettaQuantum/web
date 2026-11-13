@@ -199,6 +199,8 @@ await esperarRutas(BASE, CATALOGO.map(e => {
     if (!v) return null;
     r = r.replace(m[0], encodeURIComponent(v));
   }
+  const q = (e.params || []).filter(([n]) => e.ejemplo && e.ejemplo[n]).map(([n]) => `${n}=${encodeURIComponent(e.ejemplo[n])}`);
+  if (q.length) r += "?" + q.join("&");
   return r === "/v1/search" ? "/v1/search?q=portfolio" : r;
 }).filter(Boolean), ESPERA);
 
@@ -270,6 +272,11 @@ if (doc) {
     }
     if (url === null) continue;
     if (ruta === "/v1/search") url += "?q=portfolio";   // parametro obligatorio
+    // Parámetros de consulta con `example` en la especificación: se ejercen con él (13-nov-2026,
+    // /v1/qready/grade sin domain responde 400 y el deploy quedaba rojo).
+    const qs = (e.parameters || []).filter(p => p.in === "query" && p.example != null)
+      .map(p => `${encodeURIComponent(p.name)}=${encodeURIComponent(p.example)}`);
+    if (qs.length && ruta !== "/v1/search") url += "?" + qs.join("&");
     const rr = await fetch(BASE + url, {
       method: metodo.toUpperCase(), redirect: "manual",
       headers: { "User-Agent": "rosetta openapi check", "x-rq-check": "1",

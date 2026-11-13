@@ -1255,7 +1255,8 @@ export const CATALOGO = [
     } },
   { ruta: "/v1/qready/grade", grupo: "medicion",
     resumen: "Q-Ready Verified grade (A+ to F) of a domain, ONLY if its owner verified it through DNS and chose to publish it: letter, QEX, date and sha256 of the latest daily measurement, plus the public page and badge URLs. Any other domain returns publicado: false and nota: null, with no data about it. Same as the MCP tool get_qready_grade.",
-    parametros: [{ nombre: "domain", en: "query", tipo: "string", descripcion: "domain, e.g. rosettaquantum.com" }],
+    params: [["domain", "required · domain, e.g. rosettaquantum.com"]],
+    ejemplo: { domain: "rosettaquantum.com" },
     respuestas: { 200: { description: "publicado true with the grade, or publicado false and nota null" }, 400: { description: "Missing or invalid domain" } } },
   { ruta: "/v1", resumen: "Indice de la API", grupo: "meta" },
   { ruta: "/v1/openapi.json", resumen: "Esta especificacion, en OpenAPI 3.1", grupo: "meta" },
@@ -1498,7 +1499,8 @@ function openapiDoc() {
         example: e.ejemplo ? e.ejemplo[m[1]] : undefined });
     }
     for (const [nombre, desc] of e.params || []) {
-      parametros.push({ name: nombre, in: "query", required: false, description: desc, schema: { type: "string" } });
+      parametros.push({ name: nombre, in: "query", required: false, description: desc, schema: { type: "string" },
+        example: e.ejemplo ? e.ejemplo[nombre] : undefined });
     }
     // EL METODO SE DECLARA, no se asume. Hasta hoy toda entrada era GET implicito y habia
     // cuatro sitios que lo daban por hecho: aqui, el indice de /v1, el guardia de la

@@ -168,6 +168,11 @@ export const RUTAS_CRITICAS = [
       if (!v) return null;              // sin ejemplo no se puede ejercer
       r = r.replace(m[0], encodeURIComponent(v));
     }
+    // Un parámetro de consulta obligatorio se ejerce con el `ejemplo` que declara el catálogo
+    // (13-nov-2026: /v1/qready/grade sin domain responde 400 y el deploy quedaba rojo).
+    const q = (e.params || []).filter(([n]) => e.ejemplo && e.ejemplo[n])
+      .map(([n]) => `${encodeURIComponent(n)}=${encodeURIComponent(e.ejemplo[n])}`);
+    if (q.length) r += "?" + q.join("&");
     return r === "/v1/search" ? "/v1/search?q=portfolio" : r;
   }).filter(Boolean),
 ];
