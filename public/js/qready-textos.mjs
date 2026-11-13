@@ -225,3 +225,54 @@ export function snippetSello(dominio, lang = "es", base = "https://rosettaquantu
   const d = escAttr(dominio), pre = lang === "en" ? "" : "/es";
   return `<a href="${base}${pre}/verificado/${d}" rel="noopener"><img src="${base}/sello/${d}.svg" width="220" height="64" alt="${FIRMA} · ${d}"></a>`;
 }
+
+// Los mensajes del validador los escribe el servidor en español (public/js/qready-wellknown.mjs y
+// lib/qready-wellknown.mjs). En /q-ready/spec se traducen con esta tabla, en orden, antes de pintarlos:
+// al lector en inglés no le llega español. scripts/check-qready-wellknown.mjs exige que cubra todos.
+export const VALIDADOR_EN = [
+  [/^el documento no es un objeto JSON$/, "the document is not a JSON object"],
+  [/^q_ready debe ser "(.*)"$/, 'q_ready must be "$1"'],
+  [/^domain: falta o no es un dominio$/, "domain: missing or not a domain name"],
+  [/^contact: lista de URIs mailto: o https:$/, "contact: a list of mailto: or https: URIs"],
+  [/^owner: texto$/, "owner: must be text"],
+  [/^(\S+): uno de (.*)$/, "$1: one of $2"],
+  [/^(\S+): fecha AAAA-MM-DD$/, "$1: a YYYY-MM-DD date"],
+  [/^providers: lista$/, "providers: must be a list"],
+  [/^expires: instante UTC ISO 8601 \(…Z\)$/, "expires: a UTC ISO 8601 timestamp (…Z)"],
+  [/^expires: el documento venció$/, "expires: the document has expired"],
+  [/^expires: más de (\d+) días en el futuro$/, "expires: more than $1 days in the future"],
+  [/^signature\.alg debe ser "Ed25519"$/, 'signature.alg must be "Ed25519"'],
+  [/^signature\.kid: falta$/, "signature.kid: missing"],
+  [/^signature\.value: 64 bytes en base64url$/, "signature.value: 64 bytes in base64url"],
+  [/^signature\.keys: falta la URL de las llaves$/, "signature.keys: missing the key URL"],
+  [/^signature\.keys: URL https$/, "signature.keys: must be an https URL"],
+  [/^signature\.keys: tiene que estar en el mismo dominio$/, "signature.keys: must be on the same domain"],
+  [/^el documento no admite números decimales \(v0\)$/, "decimal numbers are not allowed (v0)"],
+  [/^firma: sin firma$/, "signature: missing"],
+  [/^firma: no hay llave Ed25519 con kid «(.*)» en (.*)$/, "signature: no Ed25519 key with kid “$1” at $2"],
+  [/^firma: firma ilegible$/, "signature: unreadable"],
+  [/^firma: la firma no corresponde al documento$/, "signature: does not match the document"],
+  [/^firma: no se pudieron leer las llaves$/, "signature: the keys could not be read"],
+  [/^llaves: (.*)$/, "keys: $1"],
+  [/^no se pudo leer (\S+): (.*)$/, "could not read $1: $2"],
+  [/respondió (\d+) \(redirección\): el documento se sirve directo/, "returned $1 (redirect): the document must be served directly"],
+  [/respondió (\d+)/, "returned $1"],
+  [/este servidor no tiene llave configurada/, "this server has no key configured"],
+  [/sólo https a un nombre público/, "https to a public name only"],
+  [/más de 64 KB/, "more than 64 KB"],
+  [/(^|: )no es JSON$/, "$1not JSON"],
+  [/sin respuesta en (\d+) s/, "no response in $1 s"],
+  [/URL inválida/, "invalid URL"],
+  [/signature\.keys no es una URL/, "signature.keys is not a URL"],
+  [/^El texto pegado no es JSON\.$/, "The pasted text is not JSON."],
+  [/^Escriba un dominio o una URL https\.$/, "Enter a domain or an https URL."],
+  [/^Mande \{url\} o \{json\}\.$/, "Send {url} or {json}."],
+  [/^Demasiadas validaciones seguidas\. Espere un minuto\.$/, "Too many validations in a row. Wait a minute."],
+  [/^Pedido inválido\.$/, "Invalid request."],
+  [/^Pedido demasiado grande\.$/, "Request too large."],
+];
+export function validadorEn(msg) {
+  let s = String(msg ?? "");
+  for (const [rx, en] of VALIDADOR_EN) s = s.replace(rx, en);
+  return s;
+}

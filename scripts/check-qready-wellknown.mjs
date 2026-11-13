@@ -94,6 +94,27 @@ igual(L.cruzar(DOC, { borde: { soporta: false }, certificado: { ok: true, algori
 igual(L.cruzar(DOC, { borde: { soporta: true }, certificado: { ok: true, algoritmo: "EC" } }).estado, "calza_o_sin_dato", "borde declarado y medido con híbrido: calza");
 igual(L.cruzar(DOC, null).estado, "sin_dato", "sin medición: «sin dato», nunca «calza»");
 
+// ---------------------------------------------------------------- 3 bis · el lector en inglés no recibe español
+// Los mensajes se generan de verdad (documentos rotos a propósito y el validador por la ruta) y se
+// traducen con la tabla de qready-textos.mjs; ninguno puede quedar con español.
+{
+  const { validadorEn } = await import("../public/js/qready-textos.mjs");
+  const ES = /[áéíóúñ«»]|\b(falta|debe|uno de|fecha|lista|venció|llaves?|firma|tiene que|no es|respondió|pegado|escriba|mande|pedido|demasiad)/i;
+  const roto = { q_ready: "9", domain: "no dominio", contact: [], owner: 3, inventory: { status: "x", as_of: "ayer" }, migration: {}, providers: [{ role: "x", status: "y", target_date: "z" }],
+    expires: "mañana", signature: { alg: "RSA", value: "x", keys: "http://otro.example/k" }, n: 1.5 };
+  const mensajes = [...W.validarForma(roto, AHORA), ...W.validarForma({ ...firmado, expires: "2020-01-01T00:00:00Z" }, AHORA), ...W.validarForma({ ...firmado, expires: "2030-01-01T00:00:00Z" }, AHORA),
+    ...W.validarForma(null), ...(await W.validar(alterado, jwks(K1), AHORA)).errores, ...(await W.validar(firmado, null, AHORA)).errores,
+    ...(await W.validar({ ...firmado, signature: { ...firmado.signature, kid: "otro" } }, jwks(K1), AHORA)).errores];
+  for (const ruta of [{ json: "{no" }, { url: "no es dominio" }, {}]) {
+    const j = await (await pedir(envCon, "/api/qready/well-known/validar", { method: "POST", body: JSON.stringify(ruta) })).json(); mensajes.push(j.error);
+  }
+  mensajes.push("llaves: este servidor no tiene llave configurada", "no se pudo leer https://x.example/.well-known/q-ready: respondió 302 (redirección): el documento se sirve directo",
+    "no se pudo leer https://x.example/.well-known/q-ready: sin respuesta en 8 s", "no se pudo leer https://x.example/.well-known/q-ready: más de 64 KB");
+  const conEspanol = mensajes.map(validadorEn).filter((m) => ES.test(m));
+  igual(conEspanol, [], `los ${mensajes.length} mensajes del validador llegan en inglés a /q-ready/spec`);
+  igual(ES.test(validadorEn("firma: un mensaje nuevo sin traducir")), true, "GRITO: un mensaje nuevo sin entrada en la tabla queda en español y el detector lo ve");
+}
+
 // ---------------------------------------------------------------- 4 · el documento propio y la llave privada
 const dias = (Date.parse(DOC.expires) - Date.now()) / 864e5;
 if (dias <= 0) fallas.push(`lib/datos/q-ready-rosetta.json venció (${DOC.expires}): renovarlo, con OK de Nicholas`);
