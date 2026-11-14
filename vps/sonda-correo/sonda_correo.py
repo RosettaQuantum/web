@@ -203,10 +203,10 @@ def cabeceras(metodo, ruta, cuerpo=""):
     return {"x-ts": ts, "x-firma": f, "content-type": "application/json", "user-agent": "rosetta-sonda-correo/1"}
 
 
-def llamar(base, metodo, ruta, cuerpo=""):
+def llamar(base, metodo, ruta, cuerpo="", timeout=20):
     r = urllib.request.Request(base + ruta, data=cuerpo.encode() if metodo == "POST" else None,
                                method=metodo, headers=cabeceras(metodo, ruta, cuerpo))
-    with urllib.request.urlopen(r, timeout=20) as resp:
+    with urllib.request.urlopen(r, timeout=timeout) as resp:
         return resp.status, resp.read()
 
 

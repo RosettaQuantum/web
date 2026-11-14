@@ -174,7 +174,10 @@ def medir_pedido(p):
 # ------------------------------------------------------------ trabajador (pregunta; no escucha)
 def una_vuelta(base, medir=None):
     medir = medir or medir_pedido
-    st, b = C.llamar(base, "GET", "/api/sondas/tls/pendiente")
+    # 14-nov-2026: la página espera al VPS 30 s. Con 20 s de timeout aquí más 10 s de pausa tras un
+    # error, UNA pregunta colgada (pasó 3 veces el 14-nov: «read operation timed out», ECONNRESET) se
+    # comía la ventana entera y la medición salía «sin nota». Preguntar es barato: 6 s y otra vez.
+    st, b = C.llamar(base, "GET", "/api/sondas/tls/pendiente", timeout=6)
     if st == 204: return "nada"
     t = json.loads(b); p = t["pedido"]; dominio = str(p.get("dominio", ""))
     ahora = time.time()
@@ -186,7 +189,9 @@ def una_vuelta(base, medir=None):
         try: r = medir(p)
         except Exception as e: r = {"dominio": dominio, "instrumento": INSTRUMENTO, "error": f"{type(e).__name__}: {e}"[:200]}
     cuerpo = json.dumps(r, ensure_ascii=False, separators=(",", ":"))
-    st, _ = C.llamar(base, "POST", f"/api/sondas/tls/{t['id']}/resultado", cuerpo)
+    # Entregar sí se reintenta una vez: el trabajo ya está hecho y perderlo deja a la página sin nota.
+    try: st, _ = C.llamar(base, "POST", f"/api/sondas/tls/{t['id']}/resultado", cuerpo, timeout=10)
+    except Exception: st, _ = C.llamar(base, "POST", f"/api/sondas/tls/{t['id']}/resultado", cuerpo, timeout=10)
     return f"entregado {dominio} {st}"
 
 
@@ -200,7 +205,7 @@ def trabajar(base, una=False):
                 if una: return
         except Exception as e:
             print(time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()), "error", type(e).__name__, str(e)[:200], flush=True)
-            time.sleep(10)
+            time.sleep(2)   # antes 10 s: más que una pausa, era un tercio de la ventana de la página
         time.sleep(C.POLL)
 
 

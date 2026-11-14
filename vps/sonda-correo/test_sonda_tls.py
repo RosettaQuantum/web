@@ -96,7 +96,7 @@ prueba("un sitio que no es del dominio se rechaza", _sitio_ajeno)
 
 # --- 4. el trabajador: toma, mide y entrega firmado (mismo texto firmado que la sonda de correo)
 llamadas = []
-def llamar_falso(base, metodo, ruta, cuerpo=""):
+def llamar_falso(base, metodo, ruta, cuerpo="", timeout=None):
     h = C.cabeceras(metodo, ruta, cuerpo)
     esperado = hmac.new(("k" * 48).encode(), C.texto_firmado(metodo, ruta, h["x-ts"], cuerpo).encode(), hashlib.sha256).hexdigest()
     llamadas.append((metodo, ruta, h["x-firma"] == esperado, cuerpo))
@@ -115,6 +115,19 @@ def _error_entrega():
     T.una_vuelta("https://x.example", medir=lambda p: (_ for _ in ()).throw(OSError("sin red")))
     igual(json.loads(llamadas[-1][3])["error"].startswith("OSError"), True)
 prueba("si la medición lanza, entrega el error (el Worker lo lee como «no medido»)", _error_entrega)
+
+def _ventana():
+    # 14-nov-2026: una pregunta colgada + la pausa tras el error + el ciclo tienen que caber holgados
+    # en la ventana de 30 s que la página espera al VPS (lib/sonda-tls-vps.mjs ESPERA_MS). Con 20+10+2
+    # no cabían y la medición salía «sin nota».
+    import re, pathlib
+    src = pathlib.Path(__file__).with_name("sonda_tls.py").read_text()
+    t = int(re.search(r'"/api/sondas/tls/pendiente", timeout=(\d+)', src).group(1))
+    pausa = int(re.search(r'"error", type\(e\).__name__[^\n]*\n\s*time\.sleep\((\d+)\)', src).group(1))
+    js = pathlib.Path(__file__).parents[2].joinpath("lib", "sonda-tls-vps.mjs").read_text()
+    espera = int(re.search(r'ESPERA_MS = (\d+)_?(\d*)', js).group(0).split("=")[1].strip().replace("_", "").rstrip(";"))
+    assert (t + pausa + C.POLL) * 1000 <= espera / 2, f"peor hueco {t + pausa + C.POLL} s no cabe en la mitad de {espera // 1000} s"
+prueba("una pregunta colgada no se come la ventana de la página", _ventana)
 
 print(f"\ncheck-sonda-tls (python): {pasa} pasaron, {falla} fallaron")
 sys.exit(1 if falla else 0)
