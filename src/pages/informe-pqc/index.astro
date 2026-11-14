@@ -140,11 +140,20 @@ const cdnPct = (o: any) => o.pct;
  * cambio es de estructura, no de texto. Y el orden es el del documento: si se agrega una
  * seccion, entra aqui y aparece sola en los dos lugares. Lo cubre check-informe-indice.mjs,
  * que compara esta lista contra los <section id> del HTML construido. */
-const SECCIONES: { id: string; t: string }[] = [
+/* El índice, la barra fina y los <section id> salen TODOS de esta lista, y
+ * T-informe-indice los compara en los dos sentidos y en orden.
+ *
+ * Por eso una sección condicional tiene que estar condicionada ACÁ también: la
+ * de la serie sólo existe si la edición trae el bloque `serie` —agosto no lo
+ * tiene—, y dejarla fija en la lista hacía que el índice ofreciera un ancla a
+ * ninguna parte. Lo cazó T-informe-indice en el primer build, que es justo para
+ * lo que está. */
+const TODAS: { id: string; t: string; si?: boolean }[] = [
   { id: 'panel',      t: 'Panel de exposición · lectura de 30 segundos' },
   { id: 'ejecutivo',  t: 'Resumen para directorio · dos minutos' },
   { id: 'relojes',    t: 'Los cuatro relojes' },
   { id: 'indice',     t: 'El índice' },
+  { id: 'serie',      t: 'Cómo viene cambiando', si: !!d.serie },
   { id: 'medicion',   t: 'La medición' },
   { id: 'trampa',     t: 'La trampa' },
   { id: 'ruta',       t: 'Lo que sí define su plazo' },
@@ -155,7 +164,38 @@ const SECCIONES: { id: string; t: string }[] = [
   { id: 'glosario',   t: 'Glosario' },
   { id: 'legal',      t: 'Metodología, límites y aviso legal' },
 ];
+const SECCIONES = TODAS.filter((x) => x.si !== false);
 const nn = (i: number) => String(i + 1).padStart(2, '0');
+
+/* LA SERIE EN EL TIEMPO.
+ *
+ * El bloque `serie` de la edición trae SÓLO números y códigos: ni un nombre de
+ * mes, ni la palabra «sube». Las palabras viven acá, que es donde se aprueban
+ * una vez; así una edición nueva no puede publicar una frase que nadie vio.
+ *
+ * Y la frase se arma DESDE EL DATO, no escrita con los números adentro. El
+ * 13-nov-2026 la bajada de superficie decía «mediana 41 por organización» con
+ * el total de noviembre al lado: el 41 era de agosto, porque un número metido
+ * dentro de un texto no lo recalcula nadie. Un párrafo con las cifras escritas
+ * a mano es el mismo defecto, más largo. */
+const MES_ES: Record<string, string> = {
+  '01': 'enero', '02': 'febrero', '03': 'marzo', '04': 'abril', '05': 'mayo',
+  '06': 'junio', '07': 'julio', '08': 'agosto', '09': 'septiembre',
+  '10': 'octubre', '11': 'noviembre', '12': 'diciembre',
+};
+const mesEs = (slug: string) => MES_ES[slug.slice(5, 7)] ?? slug;
+/* La dirección llega como código. Sin código —menos de tres puntos— no se
+ * afirma nada: dos mediciones son una flecha, no una tendencia. */
+const DIRECCION: Record<string, string> = {
+  monotona_sube: 'sube en cada tramo',
+  monotona_baja: 'baja en cada tramo',
+  no_monotona: 'sube y baja',
+};
+const serie = d.serie ?? null;
+const pct = (p: any, k: string) => p?.[k]?.pct;
+const frase = (ps: any[], k: string) =>
+  ps.map((p, i) => `${pct(p, k)} % en ${mesEs(p.mes)}`)
+    .reduce((acc, x, i, a) => i === 0 ? `de ${x}` : i === a.length - 1 ? `${acc} y ${x}` : `${acc} a ${x}`, '');
 ---
 {/* Portado a la marca el 2026-09-09 por instruccion de Nicholas. Antes usaba
     BaseLayout, que le daba el chrome retirado —barra oscura en basalto, pie en
@@ -602,6 +642,53 @@ const nn = (i: number) => String(i + 1).padStart(2, '0');
   </section>
 
   <!-- 05 · MEDICION -->
+  {serie && (
+  <section id="serie">
+    <div class="sechead">
+      <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 17l5-6 4 4 5-7 4 5"/><path d="M3 21h18"/></svg>
+      <span class="snum">{nn(SECCIONES.findIndex((x) => x.id === 'serie'))} · Cómo viene cambiando</span>
+    </div>
+    <h2>Lo que se mueve y lo que no</h2>
+    <div class="measure">
+      <p class="lede">Cada edición mide la misma muestra, así que las cifras se pueden leer como una serie. Esta tabla va más lejos: se restringe a las <strong>{serie.conjunto_fijo} organizaciones medidas en los tres meses</strong>, para que la diferencia entre un mes y otro sea cambio y no muestra.</p>
+    </div>
+
+    <div class="panel">
+      <div class="panel-h">
+        <h3>Tres mediciones, el mismo grupo</h3>
+        <span class="meta">n = {serie.conjunto_fijo} organizaciones</span>
+      </div>
+      <div class="chart-b"><div class="tw">
+        <table>
+          <thead><tr>
+            <th>Mes</th>
+            <th class="num">Soporta el híbrido</th>
+            <th class="num">Certificado sobre el mínimo</th>
+            <th class="num">Mediana del índice</th>
+          </tr></thead>
+          <tbody>
+            {serie.puntos.map((p: any) => (
+              <tr>
+                <td><strong>{mesEs(p.mes)}</strong></td>
+                <td class="num">{p.hibrido.pct}%</td>
+                <td class="num">{p.certificados.pct}%</td>
+                <td class="num">{p.qex_mediana.v ?? <span class="sin-dato">sin índice</span>}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      <p class="src">La mediana del índice tiene dos puntos y no tres: {serie.puntos.filter((p: any) => p.qex_mediana.v === null).map((p: any) => mesEs(p.mes)).join(' y ')} no tiene índice, porque sin descubrimiento no hay higiene ni HNDL, que son la mitad del peso. Dos puntos se dibujan, no se extrapolan.</p>
+      </div>
+    </div>
+
+    <div class="measure">
+      <p>En el grupo de {serie.conjunto_fijo} organizaciones medido los tres meses, el soporte del intercambio híbrido pasó {frase(serie.puntos, 'hibrido')}: {DIRECCION[serie.tendencias.hibrido.direccion] ?? 'no se puede afirmar una dirección'}. Es el único indicador del índice que se mueve por decisión de las organizaciones y no por el calendario de un proveedor.</p>
+      <p>Los certificados no se mueven: {serie.puntos.map((p: any) => `${p.certificados.pct} %`).join(', ')}. Ninguna autoridad certificadora pública emite certificados post-cuánticos, así que esta dimensión —el 40 % del peso— no la mueve nadie este año.</p>
+    </div>
+  </section>
+  )}
+
   <section id="medicion">
     <div class="sechead">
       <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5 21 21"/></svg>

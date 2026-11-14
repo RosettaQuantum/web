@@ -354,3 +354,10 @@ td.num{font-family:var(--mono);font-variant-numeric:tabular-nums;text-align:righ
 /* Informe de cliente (30-oct-2026): sus notas .src son prosa que explica la tabla, no una línea de
    fuente; en mono se leían como código. El informe mensual conserva el mono. */
 .cliente .src{font-family:var(--sans);font-size:var(--t-small)}
+
+/* ---------- la serie: una celda sin dato ---------- */
+/* «sin índice» no es un número y no se pinta como uno: en mono, en gris y sin
+   `tabular-nums`, para que no se lea como un resultado en una columna de
+   cifras. Misma regla que «no medido» en las fichas. */
+.informe-doc td .sin-dato{font-family:var(--mono);font-size:var(--t-data);
+  letter-spacing:.05em;text-transform:uppercase;color:var(--ink-60)}

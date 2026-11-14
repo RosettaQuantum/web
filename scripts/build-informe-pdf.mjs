@@ -99,7 +99,9 @@ function edicionVigente(previsualizar = null) {
     slug: f.replace(/\.json$/, ""),
     d: JSON.parse(readFileSync(join(EDICIONES, f), "utf8")),
   }));
-  const { actual } = elegirEdicion(ediciones, { previsualizar });
+  const { actual } = elegirEdicion(ediciones, {
+    previsualizar: previsualizar || process.env.RQ_INFORME_PREVIEW || null,
+  });
   return { nombre: actual.slug + ".json", doc: actual.d };
 }
 
@@ -283,9 +285,24 @@ async function conElBorrador(ruta, fn) {
     copyFileSync(ruta, destino);
     console.log(`previsualizando ${slug} junto a ${antes.join(", ")} (para que la ` +
                 `comparacion contra la anterior exista)`);
-    execFileSync("npx", ["astro", "build"], {
-      cwd: RAIZ, stdio: "pipe", env: { ...process.env, RQ_INFORME_PREVIEW: slug },
-    });
+    const entorno = { ...process.env, RQ_INFORME_PREVIEW: slug };
+    execFileSync("npx", ["astro", "build"], { cwd: RAIZ, stdio: "pipe", env: entorno });
+    // Las guardias del informe, sobre ESTE build.
+    //
+    // `npx astro build` se salta `postbuild`, asi que sin esto el PDF de un
+    // borrador se imprimia de una pagina que nadie reviso — y el borrador es
+    // justo donde aparecen las cifras sin medir y la prosa recien escrita. Las
+    // dos que miran el informe se corren aqui, con la misma variable, para que
+    // vean la pagina del borrador y no la de la publicada.
+    for (const g of ["check-informe-no-medido.mjs", "check-informe-serie.mjs"]) {
+      try {
+        execFileSync("node", [join(RAIZ, "scripts", g)], { cwd: RAIZ, stdio: "pipe", env: entorno });
+        console.log(`  ${g}: ok`);
+      } catch (e) {
+        const salida = [e.stdout, e.stderr].filter(Boolean).map(String).join("").trim();
+        throw new Error(`${g} falla sobre el borrador, asi que NO imprimo:\n${salida}`);
+      }
+    }
     return await fn(slug);
   } finally {
     rmSync(destino, { force: true });

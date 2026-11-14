@@ -61,7 +61,12 @@ function edicionVigente() {
     slug: f.replace(/\.json$/, ""),
     d: JSON.parse(readFileSync(join(EDICIONES, f), "utf8")),
   }));
-  const { actual } = elegirEdicion(ediciones);
+  // La misma variable que lee la página: sin esto, este chequeo miraba la
+  // edición publicada mientras la página mostraba el borrador, y acusaba a
+  // cada ficha de no calzar. Dos reglas de «cuál edición es» otra vez.
+  const { actual } = elegirEdicion(ediciones, {
+    previsualizar: process.env.RQ_INFORME_PREVIEW || null,
+  });
   return { nombre: actual.slug + ".json", doc: actual.d };
 }
 
