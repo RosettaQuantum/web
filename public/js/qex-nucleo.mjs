@@ -413,6 +413,10 @@ export const NOTAS = ["A+", "A", "B", "C", "D", "F"];
 // (foto anterior, o la sonda no lo obtuvo) se lee como hasta hoy, abierto → F; y cualquier otro código
 // (404, 5xx…) también, porque el servidor está ahí sirviendo. La excepción es estrecha a propósito.
 export const pruebasBloqueado = (e) => !!e && e.http_status === 403;
+// Techo de B (decisión del dueño, 16-nov: «alerta media, nota B»). SÓLO esta alerta media lo pone: un
+// ambiente de pruebas publicado, aunque bloqueado, no es una A. Las demás medias (certificado sin plan,
+// legado, correo en 443) siguen sin bajar la letra; si no, rosettaquantum.com perdería su A.
+export const MEDIAS_CON_TECHO_B = ["ambiente_pruebas_publicado_bloqueado"];
 const HIBRIDO = "X25519MLKEM768";
 
 // Un nombre que respondió: ¿tiene el candado nuevo? Desde el 13-nov la sonda le manda también el saludo
@@ -444,6 +448,7 @@ export function explicarNota(foto, extras = {}) {
   for (const e of responde) if (tiene(e, "legado")) out.medias.push({ codigo: "nombre_sin_dueno", host: e.host });
   for (const e of responde) if (tiene(e, "infra_expuesta") && esNombreDeCorreo(e.host)) out.medias.push({ codigo: "correo_responde_443", host: e.host });
 
+  const techoB = out.medias.some((m) => MEDIAS_CON_TECHO_B.includes(m.codigo));
   const principal = foto.borde ? foto.borde.soporta : null;           // true | false | null
   const tls13 = principal === true ? true : foto.tls13;                // el híbrido sólo existe en TLS 1.3
   const sinEvidencia = responde.filter((e) => hibridoEnEndpoint(e) !== true).map((e) => e.host);
@@ -457,7 +462,7 @@ export function explicarNota(foto, extras = {}) {
   else if (principal == null || tls13 == null) { out.nota = null; out.motivo = "borde_no_medido"; }
   else if (principal === false) out.nota = out.altas.length ? "D" : "C";
   else if (out.altas.length) out.nota = "C";
-  else if (foto.ct && sinSondear.length === 0 && sinEvidencia.length === 0) out.nota = "A";
+  else if (foto.ct && sinSondear.length === 0 && sinEvidencia.length === 0 && !techoB) out.nota = "A";
   else out.nota = "B";
 
   if (out.nota === "A" && extras.well_known_valido === true && extras.inventario_verificado === true) out.nota = "A+";
@@ -470,6 +475,7 @@ export function explicarNota(foto, extras = {}) {
     if (principal === false) out.falta_para_A.push({ codigo: "hibrido_en_principal" });
     for (const a of out.altas) out.falta_para_A.push({ codigo: "cerrar_" + a.codigo, host: a.host });
     if (principal === true) {
+      for (const m of out.medias) if (MEDIAS_CON_TECHO_B.includes(m.codigo)) out.falta_para_A.push({ codigo: "resolver_ambiente_pruebas_expuesto", host: m.host });
       for (const h of sinEvidencia) out.falta_para_A.push({ codigo: "hibrido_en_nombre", host: h });
       if (!foto.ct) out.falta_para_A.push({ codigo: "superficie_no_disponible" });
       else for (const h of sinSondear) out.falta_para_A.push({ codigo: "nombre_sin_sondear", host: h });

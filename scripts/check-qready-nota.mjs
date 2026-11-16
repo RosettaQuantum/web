@@ -213,6 +213,22 @@ const eps = await I.conCodigoHttp([{ host: "a.example", responde_443: true }, { 
   async (u) => { preguntados.push(u); return new Response(null, { status: u.includes("a.") ? 403 : 200 }); });
 igual([preguntados.sort(), eps.map((e) => e.http_status)], [["https://a.example/", "https://c.example/"], [403, null, 200]], "el código se pide sólo a los nombres que respondieron");
 igual(/completarConVps\([\s\S]*?\);\s*const endpoints = await conCodigoHttp\(endpoints1\);/.test(leer("lib/informe-envivo.mjs")), true, "manejarSondas pide el código después de los saludos y del VPS");
+// techo de B (decisión del dueño, 16-nov): con candado nuevo en TODOS los nombres —también en el 403, como
+// el caso real del banco— la alerta «publicado con el acceso bloqueado» deja B, nunca A; las otras medias no.
+const sTecho = (() => { const x = desaCon(403); for (const e of x.endpoints) if (e.responde_443 === true) e.hibrido = true; return x; })();
+async function conTecho(Nm, sondas) {
+  const ct = await Nm.ctDesdeServidor(ctDesa, 0);
+  const { foto: f } = Nm.armarFoto({ dominio: "python.org", www: "www.python.org", vertical: "banca", medido: "2026-11-12T17:34:15.418Z", ct, sondas, referencia: REF, origen: "guardia" });
+  return Nm.explicarNota(f);
+}
+const xTecho = await conTecho(N, sTecho);
+igual([xTecho.nota, xTecho.falta_para_A.map((f) => [f.codigo, f.host])], ["B", [["resolver_ambiente_pruebas_expuesto", "openfinance-desa.python.org"]]],
+  "grito: 403 con candado nuevo en todo → B por el techo, y dice qué falta para A");
+const xSB = N.explicarNota(await foto("python.org", CT_PY, sB));
+igual([xSB.nota, xSB.medias.map((m) => m.codigo).sort()], ["A", ["certificado_sin_plan", "correo_responde_443", "nombre_sin_dueno"]], "silencio del techo: certificado_sin_plan, legado y correo en 443 (medias) NO bajan la A");
+// MUTACIÓN: sin el techo, el banco del caso real vuelve a A
+await conMutante(NUCLEO, "&& sinEvidencia.length === 0 && !techoB) out.nota = \"A\";", "&& sinEvidencia.length === 0) out.nota = \"A\";",
+  async (M) => igual((await conTecho(M, sTecho)).nota, "A", "MUTACIÓN: sin el techo de B, un ambiente de pruebas bloqueado deja A (el guardia lo ve)"));
 // MUTACIONES: la excepción ancha (3xx pasa a media) o ausente (403 da F)
 await conMutante(NUCLEO, "export const pruebasBloqueado = (e) => !!e && e.http_status === 403;", "export const pruebasBloqueado = (e) => !!e && e.http_status >= 300;",
   async (M) => igual((await bloqueo(M, 301)).nota !== "F", true, "MUTACIÓN: con la excepción ancha, un 301 deja de dar F (el guardia lo ve)"));
@@ -324,4 +340,4 @@ await conMutante(new URL("lib/qready-verificado.mjs", raiz), "AND origen = 'serv
   async (M) => { const m = await compuerta(M); igual(m["publico.example"].html.includes(T.pag_sin_medicion), false, "MUTACIÓN: sin «origen = servidor», una foto mandada por el navegador se publica"); });
 
 if (fallas.length) { console.error("check-qready-nota: FALLA\n  " + fallas.join("\n  ")); process.exit(1); }
-console.log(`check-qready-nota: ok (${casos} casos · python.org real = ${xb.nota}, rosettaquantum.com real = sin nota · página = servidor · compuerta verificado+público con SQL real · ambientes de pruebas primero en el sondeo · 403 = media · 9 mutaciones gritan)`);
+console.log(`check-qready-nota: ok (${casos} casos · python.org real = ${xb.nota}, rosettaquantum.com real = sin nota · página = servidor · compuerta verificado+público con SQL real · ambientes de pruebas primero en el sondeo · 403 = media con techo B · 10 mutaciones gritan)`);
