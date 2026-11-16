@@ -1,0 +1,836 @@
+{
+ "foto": {
+  "esquema": "rosetta-qex-foto/1",
+  "edicion": "2026-11",
+  "dominio": "ejemplo.cl",
+  "www": "www.ejemplo.cl",
+  "vertical": "banca",
+  "medido_utc": "2026-11-12T17:34:15.418Z",
+  "origen": "fixture rosetta-ficha/1",
+  "ct": {
+   "fuente": "crt.sh",
+   "intentos": 1,
+   "consultado_utc": "2026-11-12T17:34:15.418Z",
+   "filas": 4022,
+   "sha256_crudo": "9d938f1f9e98170861d8f368af49f4f4e4faaf74f32563c8230f6ec16436d28f",
+   "conteos": {
+    "hostnames": 77,
+    "profundos": 25,
+    "no_productivo": 3,
+    "legado": 1,
+    "infra_expuesta": 1,
+    "critico": 2
+   },
+   "hosts": [
+    {
+     "host": "africa.ejemplo.cl",
+     "clases": [],
+     "profundo": false,
+     "etiqueta_estricta": true,
+     "ultimo_not_before": "2026-09-26T17:48:50",
+     "ultimo_not_after": "2026-12-25T17:48:49"
+    },
+    {
+     "host": "analytics.ejemplo.cl",
+     "clases": [],
+     "profundo": false,
+     "etiqueta_estricta": true,
+     "ultimo_not_before": "2026-09-04T09:46:47",
+     "ultimo_not_after": "2026-12-03T09:46:46"
+    },
+    {
+     "host": "api.wiki.ejemplo.cl",
+     "clases": [
+      "critico"
+     ],
+     "profundo": true,
+     "etiqueta_estricta": true,
+     "ultimo_not_before": "2026-09-06T22:36:12",
+     "ultimo_not_after": "2026-12-05T22:36:11"
+    },
+    {
+     "host": "blog-stage.ejemplo.cl",
+     "clases": [
+      "no_productivo"
+     ],
+     "profundo": false,
+     "etiqueta_estricta": true,
+     "ultimo_not_before": "2026-02-19T03:14:57",
+     "ultimo_not_after": "2026-05-20T03:14:56"
+    },
+    {
+     "host": "blog.ejemplo.cl",
+     "clases": [],
+     "profundo": false,
+     "etiqueta_estricta": true,
+     "ultimo_not_before": "2026-08-27T08:12:49",
+     "ultimo_not_after": "2026-11-25T08:12:48"
+    },
+    {
+     "host": "bugs.ejemplo.cl",
+     "clases": [],
+     "profundo": false,
+     "etiqueta_estricta": true,
+     "ultimo_not_before": "2026-08-20T23:02:22",
+     "ultimo_not_after": "2026-11-18T23:02:21"
+    },
+    {
+     "host": "buildbot.ejemplo.cl",
+     "clases": [],
+     "profundo": false,
+     "etiqueta_estricta": true,
+     "ultimo_not_before": "2026-08-20T23:02:43",
+     "ultimo_not_after": "2026-11-18T23:02:42"
+    },
+    {
+     "host": "calendario.es.ejemplo.cl",
+     "clases": [],
+     "profundo": true,
+     "etiqueta_estricta": true,
+     "ultimo_not_before": "2026-08-15T00:30:56",
+     "ultimo_not_after": "2026-11-13T00:30:55"
+    },
+    {
+     "host": "chat.uk.ejemplo.cl",
+     "clases": [],
+     "profundo": true,
+     "etiqueta_estricta": true,
+     "ultimo_not_before": "2024-02-06T00:17:13",
+     "ultimo_not_after": "2024-05-06T00:17:12"
+    },
+    {
+     "host": "cheeseshop.ejemplo.cl",
+     "clases": [],
+     "profundo": false,
+     "etiqueta_estricta": true,
+     "ultimo_not_before": "2026-09-01T06:01:51",
+     "ultimo_not_after": "2026-11-30T06:01:50"
+    },
+    {
+     "host": "cla.ejemplo.cl",
+     "clases": [],
+     "profundo": false,
+     "etiqueta_estricta": true,
+     "ultimo_not_before": "2026-09-04T09:36:23",
+     "ultimo_not_after": "2026-12-03T09:36:22"
+    },
+    {
+     "host": "clabot.ejemplo.cl",
+     "clases": [],
+     "profundo": false,
+     "etiqueta_estricta": true,
+     "ultimo_not_before": "2025-04-03T15:20:46",
+     "ultimo_not_after": "2025-07-02T15:20:45"
+    },
+    {
+     "host": "community.uk.ejemplo.cl",
+     "clases": [],
+     "profundo": true,
+     "etiqueta_estricta": true,
+     "ultimo_not_before": "2026-08-27T00:44:20",
+     "ultimo_not_after": "2026-11-25T00:44:19"
+    },
+    {
+     "host": "comunidad.es.ejemplo.cl",
+     "clases": [],
+     "profundo": true,
+     "etiqueta_estricta": true,
+     "ultimo_not_before": "2026-09-26T12:52:11",
+     "ultimo_not_after": "2026-12-25T12:52:10"
+    },
+    {
+     "host": "comunidades.es.ejemplo.cl",
+     "clases": [],
+     "profundo": true,
+     "etiqueta_estricta": true,
+     "ultimo_not_before": "2026-08-19T20:36:50",
+     "ultimo_not_after": "2026-11-17T20:36:49"
+    },
+    {
+     "host": "console.ejemplo.cl",
+     "clases": [],
+     "profundo": false,
+     "etiqueta_estricta": true,
+     "ultimo_not_before": "2026-08-20T23:02:49",
+     "ultimo_not_after": "2026-11-18T23:02:48"
+    },
+    {
+     "host": "devguide.ejemplo.cl",
+     "clases": [],
+     "profundo": false,
+     "etiqueta_estricta": true,
+     "ultimo_not_before": "2026-07-27T14:25:24",
+     "ultimo_not_after": "2026-10-25T14:25:23"
+    },
+    {
+     "host": "didactica-pyladies.es.ejemplo.cl",
+     "clases": [],
+     "profundo": true,
+     "etiqueta_estricta": true,
+     "ultimo_not_before": "2023-08-02T16:27:03",
+     "ultimo_not_after": "2023-10-31T16:27:02"
+    },
+    {
+     "host": "discuss.ejemplo.cl",
+     "clases": [],
+     "profundo": false,
+     "etiqueta_estricta": true,
+     "ultimo_not_before": "2026-08-18T00:01:39",
+     "ultimo_not_after": "2026-11-16T00:01:38"
+    },
+    {
+     "host": "diversity.ejemplo.cl",
+     "clases": [],
+     "profundo": false,
+     "etiqueta_estricta": true,
+     "ultimo_not_before": "2026-09-29T16:20:17",
+     "ultimo_not_after": "2026-12-28T16:20:16"
+    },
+    {
+     "host": "docs.ejemplo.cl",
+     "clases": [],
+     "profundo": false,
+     "etiqueta_estricta": true,
+     "ultimo_not_before": "2023-06-29T16:48:43",
+     "ultimo_not_after": "2024-07-30T16:48:42"
+    },
+    {
+     "host": "documentos-asociacion.es.ejemplo.cl",
+     "clases": [],
+     "profundo": true,
+     "etiqueta_estricta": true,
+     "ultimo_not_before": "2026-08-15T00:30:56",
+     "ultimo_not_after": "2026-11-13T00:30:55"
+    },
+    {
+     "host": "donate-preview.ejemplo.cl",
+     "clases": [],
+     "profundo": false,
+     "etiqueta_estricta": true,
+     "ultimo_not_before": "2026-10-08T21:11:55",
+     "ultimo_not_after": "2027-01-06T21:11:54"
+    },
+    {
+     "host": "donate.ejemplo.cl",
+     "clases": [],
+     "profundo": false,
+     "etiqueta_estricta": true,
+     "ultimo_not_before": "2026-09-03T20:14:11",
+     "ultimo_not_after": "2026-12-02T20:14:10"
+    },
+    {
+     "host": "downloads.ejemplo.cl",
+     "clases": [],
+     "profundo": false,
+     "etiqueta_estricta": true,
+     "ultimo_not_before": "2023-06-29T16:48:43",
+     "ultimo_not_after": "2024-07-30T16:48:42"
+    },
+    {
+     "host": "education.ejemplo.cl",
+     "clases": [],
+     "profundo": false,
+     "etiqueta_estricta": true,
+     "ultimo_not_before": "2026-09-11T01:16:36",
+     "ultimo_not_after": "2026-12-10T01:16:35"
+    },
+    {
+     "host": "ejemplo.cl",
+     "clases": [],
+     "profundo": false,
+     "etiqueta_estricta": true,
+     "ultimo_not_before": "2026-01-13T13:03:46",
+     "ultimo_not_after": "2027-02-14T13:03:45"
+    },
+    {
+     "host": "es.ejemplo.cl",
+     "clases": [],
+     "profundo": false,
+     "etiqueta_estricta": true,
+     "ultimo_not_before": "2026-08-25T10:31:52",
+     "ultimo_not_after": "2026-11-23T10:31:51"
+    },
+    {
+     "host": "ghsponsors-stage.ejemplo.cl",
+     "clases": [
+      "no_productivo"
+     ],
+     "profundo": false,
+     "etiqueta_estricta": true,
+     "ultimo_not_before": "2025-08-12T17:11:10",
+     "ultimo_not_after": "2025-11-10T17:11:09"
+    },
+    {
+     "host": "hacktoberfest.es.ejemplo.cl",
+     "clases": [],
+     "profundo": true,
+     "etiqueta_estricta": true,
+     "ultimo_not_before": "2026-08-25T14:43:49",
+     "ultimo_not_after": "2026-11-23T14:43:48"
+    },
+    {
+     "host": "hg.ejemplo.cl",
+     "clases": [],
+     "profundo": false,
+     "etiqueta_estricta": true,
+     "ultimo_not_before": "2026-08-20T23:03:17",
+     "ultimo_not_after": "2026-11-18T23:03:16"
+    },
+    {
+     "host": "hg.es.ejemplo.cl",
+     "clases": [],
+     "profundo": true,
+     "etiqueta_estricta": true,
+     "ultimo_not_before": "2026-08-15T00:30:56",
+     "ultimo_not_after": "2026-11-13T00:30:55"
+    },
+    {
+     "host": "id.ejemplo.cl",
+     "clases": [],
+     "profundo": false,
+     "etiqueta_estricta": true,
+     "ultimo_not_before": "2014-09-05T00:00:00",
+     "ultimo_not_after": "2016-09-09T12:00:00"
+    },
+    {
+     "host": "jobs.ejemplo.cl",
+     "clases": [],
+     "profundo": false,
+     "etiqueta_estricta": true,
+     "ultimo_not_before": "2026-09-01T06:02:01",
+     "ultimo_not_after": "2026-11-30T06:02:00"
+    },
+    {
+     "host": "legacy.ejemplo.cl",
+     "clases": [
+      "legado"
+     ],
+     "profundo": false,
+     "etiqueta_estricta": true,
+     "ultimo_not_before": "2026-08-20T23:03:17",
+     "ultimo_not_after": "2026-11-18T23:03:16"
+    },
+    {
+     "host": "lists.es.ejemplo.cl",
+     "clases": [],
+     "profundo": true,
+     "etiqueta_estricta": true,
+     "ultimo_not_before": "2026-08-15T00:30:56",
+     "ultimo_not_after": "2026-11-13T00:30:55"
+    },
+    {
+     "host": "login.ejemplo.cl",
+     "clases": [
+      "critico"
+     ],
+     "profundo": false,
+     "etiqueta_estricta": true,
+     "ultimo_not_before": "2020-09-29T00:00:00",
+     "ultimo_not_after": "2021-10-31T00:00:00"
+    },
+    {
+     "host": "mail.ejemplo.cl",
+     "clases": [
+      "infra_expuesta"
+     ],
+     "profundo": false,
+     "etiqueta_estricta": true,
+     "ultimo_not_before": "2026-09-13T05:17:34",
+     "ultimo_not_after": "2026-12-12T05:17:33"
+    },
+    {
+     "host": "membership.uk.ejemplo.cl",
+     "clases": [],
+     "profundo": true,
+     "etiqueta_estricta": true,
+     "ultimo_not_before": "2026-08-14T02:31:10",
+     "ultimo_not_after": "2026-11-12T02:31:09"
+    },
+    {
+     "host": "memory.ejemplo.cl",
+     "clases": [],
+     "profundo": false,
+     "etiqueta_estricta": true,
+     "ultimo_not_before": "2026-08-18T12:48:16",
+     "ultimo_not_after": "2026-11-16T12:48:15"
+    },
+    {
+     "host": "openbadges.es.ejemplo.cl",
+     "clases": [],
+     "profundo": true,
+     "etiqueta_estricta": true,
+     "ultimo_not_before": "2026-08-15T00:30:56",
+     "ultimo_not_after": "2026-11-13T00:30:55"
+    },
+    {
+     "host": "packages.ejemplo.cl",
+     "clases": [],
+     "profundo": false,
+     "etiqueta_estricta": true,
+     "ultimo_not_before": "2026-09-01T06:02:10",
+     "ultimo_not_after": "2026-11-30T06:02:09"
+    },
+    {
+     "host": "packaging.ejemplo.cl",
+     "clases": [],
+     "profundo": false,
+     "etiqueta_estricta": true,
+     "ultimo_not_before": "2026-09-26T09:59:26",
+     "ultimo_not_after": "2026-12-25T09:59:25"
+    },
+    {
+     "host": "peps.ejemplo.cl",
+     "clases": [],
+     "profundo": false,
+     "etiqueta_estricta": true,
+     "ultimo_not_before": "2026-09-19T17:58:00",
+     "ultimo_not_after": "2026-12-18T17:57:59"
+    },
+    {
+     "host": "pl.ejemplo.cl",
+     "clases": [],
+     "profundo": false,
+     "etiqueta_estricta": true,
+     "ultimo_not_before": "2026-08-27T17:37:50",
+     "ultimo_not_after": "2026-11-25T17:37:49"
+    },
+    {
+     "host": "planet.ejemplo.cl",
+     "clases": [],
+     "profundo": false,
+     "etiqueta_estricta": true,
+     "ultimo_not_before": "2026-09-01T06:02:14",
+     "ultimo_not_after": "2026-11-30T06:02:13"
+    },
+    {
+     "host": "planetejemplo.cl",
+     "clases": [],
+     "profundo": false,
+     "etiqueta_estricta": false,
+     "ultimo_not_before": "2026-08-20T23:03:24",
+     "ultimo_not_after": "2026-11-18T23:03:23"
+    },
+    {
+     "host": "policies.ejemplo.cl",
+     "clases": [],
+     "profundo": false,
+     "etiqueta_estricta": true,
+     "ultimo_not_before": "2026-09-05T19:21:39",
+     "ultimo_not_after": "2026-12-04T19:21:38"
+    },
+    {
+     "host": "psf@ejemplo.cl",
+     "clases": [],
+     "profundo": false,
+     "etiqueta_estricta": false,
+     "ultimo_not_before": "2013-02-18T16:16:37",
+     "ultimo_not_after": "2015-02-20T01:57:47"
+    },
+    {
+     "host": "pycon-archive.ejemplo.cl",
+     "clases": [],
+     "profundo": false,
+     "etiqueta_estricta": true,
+     "ultimo_not_before": "2026-08-23T14:56:19",
+     "ultimo_not_after": "2026-11-21T14:56:18"
+    },
+    {
+     "host": "pycon-archives.ejemplo.cl",
+     "clases": [],
+     "profundo": false,
+     "etiqueta_estricta": true,
+     "ultimo_not_before": "2019-02-22T08:51:02",
+     "ultimo_not_after": "2019-05-23T08:51:02"
+    },
+    {
+     "host": "pypi.ejemplo.cl",
+     "clases": [],
+     "profundo": false,
+     "etiqueta_estricta": true,
+     "ultimo_not_before": "2023-06-29T16:48:43",
+     "ultimo_not_after": "2024-07-30T16:48:42"
+    },
+    {
+     "host": "socios.es.ejemplo.cl",
+     "clases": [],
+     "profundo": true,
+     "etiqueta_estricta": true,
+     "ultimo_not_before": "2023-09-25T22:47:23",
+     "ultimo_not_after": "2023-12-24T22:47:22"
+    },
+    {
+     "host": "speed.ejemplo.cl",
+     "clases": [],
+     "profundo": false,
+     "etiqueta_estricta": true,
+     "ultimo_not_before": "2026-08-20T23:03:57",
+     "ultimo_not_after": "2026-11-18T23:03:56"
+    },
+    {
+     "host": "staging.ejemplo.cl",
+     "clases": [
+      "no_productivo"
+     ],
+     "profundo": false,
+     "etiqueta_estricta": true,
+     "ultimo_not_before": "2024-01-20T23:11:55",
+     "ultimo_not_after": "2024-04-19T23:11:54"
+    },
+    {
+     "host": "status.ejemplo.cl",
+     "clases": [],
+     "profundo": false,
+     "etiqueta_estricta": true,
+     "ultimo_not_before": "2026-10-05T05:22:37",
+     "ultimo_not_after": "2027-01-03T05:22:36"
+    },
+    {
+     "host": "svn.ejemplo.cl",
+     "clases": [],
+     "profundo": false,
+     "etiqueta_estricta": true,
+     "ultimo_not_before": "2026-08-20T23:03:17",
+     "ultimo_not_after": "2026-11-18T23:03:16"
+    },
+    {
+     "host": "testpypi.ejemplo.cl",
+     "clases": [],
+     "profundo": false,
+     "etiqueta_estricta": true,
+     "ultimo_not_before": "2014-09-05T00:00:00",
+     "ultimo_not_after": "2016-09-09T12:00:00"
+    },
+    {
+     "host": "translations.ejemplo.cl",
+     "clases": [],
+     "profundo": false,
+     "etiqueta_estricta": true,
+     "ultimo_not_before": "2026-09-10T12:05:49",
+     "ultimo_not_after": "2026-12-09T12:05:48"
+    },
+    {
+     "host": "typing.ejemplo.cl",
+     "clases": [],
+     "profundo": false,
+     "etiqueta_estricta": true,
+     "ultimo_not_before": "2026-08-19T17:30:31",
+     "ultimo_not_after": "2026-11-17T17:30:30"
+    },
+    {
+     "host": "tzdata.ejemplo.cl",
+     "clases": [],
+     "profundo": false,
+     "etiqueta_estricta": true,
+     "ultimo_not_before": "2026-07-27T04:27:36",
+     "ultimo_not_after": "2026-10-25T04:27:35"
+    },
+    {
+     "host": "uk.ejemplo.cl",
+     "clases": [],
+     "profundo": false,
+     "etiqueta_estricta": true,
+     "ultimo_not_before": "2026-09-22T18:03:41",
+     "ultimo_not_after": "2026-12-21T18:03:40"
+    },
+    {
+     "host": "ukpatl.uk.ejemplo.cl",
+     "clases": [],
+     "profundo": true,
+     "etiqueta_estricta": true,
+     "ultimo_not_before": "2026-08-20T00:03:46",
+     "ultimo_not_after": "2026-11-18T00:03:45"
+    },
+    {
+     "host": "vote.ejemplo.cl",
+     "clases": [],
+     "profundo": false,
+     "etiqueta_estricta": true,
+     "ultimo_not_before": "2014-02-12T00:00:00",
+     "ultimo_not_after": "2015-02-12T23:59:59"
+    },
+    {
+     "host": "web-ng.es.ejemplo.cl",
+     "clases": [],
+     "profundo": true,
+     "etiqueta_estricta": true,
+     "ultimo_not_before": "2021-11-06T13:26:50",
+     "ultimo_not_after": "2022-02-04T13:26:49"
+    },
+    {
+     "host": "web.es.ejemplo.cl",
+     "clases": [],
+     "profundo": true,
+     "etiqueta_estricta": true,
+     "ultimo_not_before": "2021-04-08T13:58:02",
+     "ultimo_not_after": "2021-07-07T13:58:02"
+    },
+    {
+     "host": "wiki.ejemplo.cl",
+     "clases": [],
+     "profundo": false,
+     "etiqueta_estricta": true,
+     "ultimo_not_before": "2026-08-20T23:04:24",
+     "ultimo_not_after": "2026-11-18T23:04:23"
+    },
+    {
+     "host": "www.bugs.ejemplo.cl",
+     "clases": [],
+     "profundo": true,
+     "etiqueta_estricta": true,
+     "ultimo_not_before": "2020-09-29T00:00:00",
+     "ultimo_not_after": "2021-10-31T00:00:00"
+    },
+    {
+     "host": "www.ejemplo.cl",
+     "clases": [],
+     "profundo": false,
+     "etiqueta_estricta": true,
+     "ultimo_not_before": "2026-01-13T13:03:46",
+     "ultimo_not_after": "2027-02-14T13:03:45"
+    },
+    {
+     "host": "www.es.ejemplo.cl",
+     "clases": [],
+     "profundo": true,
+     "etiqueta_estricta": true,
+     "ultimo_not_before": "2021-11-13T22:35:21",
+     "ultimo_not_after": "2022-02-11T22:35:20"
+    },
+    {
+     "host": "www.hg.es.ejemplo.cl",
+     "clases": [],
+     "profundo": true,
+     "etiqueta_estricta": true,
+     "ultimo_not_before": "2016-08-25T00:00:00",
+     "ultimo_not_after": "2017-11-30T23:59:59"
+    },
+    {
+     "host": "www.lists.es.ejemplo.cl",
+     "clases": [],
+     "profundo": true,
+     "etiqueta_estricta": true,
+     "ultimo_not_before": "2016-08-25T00:00:00",
+     "ultimo_not_after": "2017-11-30T23:59:59"
+    },
+    {
+     "host": "www.openbadges.es.ejemplo.cl",
+     "clases": [],
+     "profundo": true,
+     "etiqueta_estricta": true,
+     "ultimo_not_before": "2015-10-06T00:00:00",
+     "ultimo_not_after": "2017-01-18T23:59:59"
+    },
+    {
+     "host": "www.pl.ejemplo.cl",
+     "clases": [],
+     "profundo": true,
+     "etiqueta_estricta": true,
+     "ultimo_not_before": "2017-04-16T08:25:00",
+     "ultimo_not_after": "2017-07-15T08:25:00"
+    },
+    {
+     "host": "www.planetejemplo.cl",
+     "clases": [],
+     "profundo": false,
+     "etiqueta_estricta": false,
+     "ultimo_not_before": "2026-08-20T23:03:24",
+     "ultimo_not_after": "2026-11-18T23:03:23"
+    },
+    {
+     "host": "www.status.ejemplo.cl",
+     "clases": [],
+     "profundo": true,
+     "etiqueta_estricta": true,
+     "ultimo_not_before": "2014-11-05T00:00:00",
+     "ultimo_not_after": "2015-11-05T23:59:59"
+    },
+    {
+     "host": "www.vote.ejemplo.cl",
+     "clases": [],
+     "profundo": true,
+     "etiqueta_estricta": true,
+     "ultimo_not_before": "2014-02-12T00:00:00",
+     "ultimo_not_after": "2015-02-12T23:59:59"
+    }
+   ]
+  },
+  "endpoints": [
+   {
+    "host": "blog-stage.ejemplo.cl",
+    "clases": [
+     "no_productivo"
+    ],
+    "dns_status": "NXDOMAIN",
+    "ip": [],
+    "cname": [],
+    "responde_443": null,
+    "detalle": "el nombre ya no existe en DNS: no se envió saludo",
+    "medido_utc": "2026-11-12T17:34:15.418Z",
+    "hibrido": null,
+    "http_status": null,
+    "medido_desde": "worker"
+   },
+   {
+    "host": "ghsponsors-stage.ejemplo.cl",
+    "clases": [
+     "no_productivo"
+    ],
+    "dns_status": "NXDOMAIN",
+    "ip": [],
+    "cname": [],
+    "responde_443": null,
+    "detalle": "el nombre ya no existe en DNS: no se envió saludo",
+    "medido_utc": "2026-11-12T17:34:15.418Z",
+    "hibrido": null,
+    "http_status": null,
+    "medido_desde": "worker"
+   },
+   {
+    "host": "legacy.ejemplo.cl",
+    "clases": [
+     "legado"
+    ],
+    "dns_status": "NOERROR",
+    "ip": [
+     "167.99.21.118",
+     "159.89.245.108"
+    ],
+    "cname": [
+     "star.map.nyc1.psf.io",
+     "map-lb.nyc1.psf.io"
+    ],
+    "responde_443": true,
+    "detalle": "responde; grupo x25519",
+    "medido_utc": "2026-11-12T17:34:15.418Z",
+    "hibrido": true,
+    "http_status": null,
+    "medido_desde": "worker"
+   },
+   {
+    "host": "mail.ejemplo.cl",
+    "clases": [
+     "infra_expuesta"
+    ],
+    "dns_status": "NOERROR",
+    "ip": [
+     "188.166.95.178"
+    ],
+    "cname": [],
+    "responde_443": true,
+    "detalle": "responde; grupo x25519",
+    "medido_utc": "2026-11-12T17:34:15.418Z",
+    "hibrido": true,
+    "http_status": null,
+    "medido_desde": "worker"
+   },
+   {
+    "host": "staging.ejemplo.cl",
+    "clases": [
+     "no_productivo"
+    ],
+    "dns_status": "NXDOMAIN",
+    "ip": [],
+    "cname": [],
+    "responde_443": null,
+    "detalle": "el nombre ya no existe en DNS: no se envió saludo",
+    "medido_utc": "2026-11-12T17:34:15.418Z",
+    "hibrido": null,
+    "http_status": null,
+    "medido_desde": "worker"
+   }
+  ],
+  "borde": {
+   "cdn": "Fastly",
+   "cadena": [
+    "dualstack.python.map.fastly.net"
+   ],
+   "soporta": true,
+   "elige": true,
+   "pide_mejora": false,
+   "sha256_medicion": "9ad26e2dec579b65022be98f34d3d613746495ae9e3635edfcce13f9dd2d395b",
+   "medido_desde": "worker"
+  },
+  "vps": null,
+  "tls13": true,
+  "certificado": {
+   "ok": true,
+   "algoritmo": "RSA",
+   "curva": null,
+   "bits": 2048,
+   "firma": "sha256WithRSAEncryption",
+   "emisor": "GlobalSign nv-sa",
+   "sujeto": "www.ejemplo.cl",
+   "not_before": "2026-01-13",
+   "not_after": "2027-02-14",
+   "medido_desde": "worker"
+  },
+  "proveedores": {
+   "correo": "ejemplo.cl",
+   "mx": [
+    "mail.ejemplo.cl"
+   ],
+   "security_txt": true
+  },
+  "qex": {
+   "version": "QEX-1.0",
+   "dimensiones": {
+    "certificados": 75,
+    "higiene": 50,
+    "hndl": 12,
+    "edge": 100
+   },
+   "pesos": {
+    "certificados": 0.4,
+    "higiene": 0.25,
+    "hndl": 0.25,
+    "edge": 0.1
+   },
+   "aportes": {
+    "certificados": 30,
+    "higiene": 12.5,
+    "hndl": 3,
+    "edge": 10
+   },
+   "suma": 55.5,
+   "peso_usado": 1,
+   "score": 56,
+   "tope": 84,
+   "tipos": {
+    "certificados": "medido",
+    "higiene": "medido",
+    "hndl": "modelo de sector",
+    "edge": "medido"
+   }
+  },
+  "referencia": {
+   "edicion": "2026-08",
+   "mediana_pais": 57,
+   "mediana_sector": 57,
+   "n_sector": 12
+  },
+  "instrumentos": {
+   "pagina": "qex-nucleo.mjs",
+   "servidor": "rosetta-sondas-envivo/1"
+  },
+  "sha256": "f0c711129562efd639f27e8bf58619343d560ba6d778fa090fad4fe37303acdd"
+ },
+ "ctx": {
+  "verificado": true,
+  "publico": true,
+  "fuentes_que_fallaron": [],
+  "correo": {
+   "estado": "hecho",
+   "resultado": {
+    "servidores": [
+     {
+      "mx": "mx1.correo.example",
+      "veredicto": {
+       "estado": "medido",
+       "soporta": true
+      }
+     }
+    ]
+   }
+  }
+ }
+}

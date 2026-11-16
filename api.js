@@ -28,6 +28,11 @@ const CORS = {
   "Access-Control-Allow-Headers": "content-type",
 };
 import { legiblesDe } from "./lib/legible.mjs";
+// La línea de rosetta-ficha/1 que va en la descripción de cada herramienta que trae `presentacion`
+// (encargo del 13-nov: muchos agentes sólo leen la descripción). Texto provisorio, en qready-textos.mjs.
+import { FICHA } from "./public/js/qready-textos.mjs";
+const LINEA_FICHA = " " + FICHA.es.linea_mcp;
+const IDIOMA_FICHA = { type: "string", enum: ["es", "en"], description: "opcional: idioma de presentacion (rosetta-ficha/1), es por defecto" };
 // La medición en vivo usa sockets TCP (cloudflare:sockets), que el build de Astro no puede
 // resolver, y este archivo también lo importa Astro (llms.txt, /api-docs). Por eso no se
 // importa aquí: worker.js la registra al arrancar. Sin registro, responde 503 y lo dice.
@@ -876,12 +881,13 @@ export const HERRAMIENTAS = [
       "/es/q-ready/medicion" +
       ") y su comparación con el sector. El cifrado del correo llega aparte: " +
       "la respuesta trae un id para ver_cifrado_correo. null significa «no medido», nunca " +
-      "«no protegido». Límite: pocas mediciones por minuto.",
+      "«no protegido». Límite: pocas mediciones por minuto." + LINEA_FICHA,
     inputSchema: { type: "object", required: ["dominio"],
       properties: {
         dominio: { type: "string", description: "dominio público, p.ej. ejemplo.cl" },
         sector: { type: "string", description: "sector para el QEX y la comparación: banca, educacion, energia, fintech, gobierno, mineria, prevision, retail, salud_clinica, salud_isapre, seguros, telecom" },
         agente: { type: "string", description: "opcional: quién mide (nombre y versión del agente)" },
+        idioma: IDIOMA_FICHA,
       } },
   },
   {
@@ -900,9 +906,9 @@ export const HERRAMIENTAS = [
       "publicarla. Devuelve la letra, el QEX, la fecha y la huella sha256 de la última medición diaria, y " +
       "las URLs de la página pública y del sello. Para cualquier otro dominio devuelve publicado: false y " +
       "nota: null, sin ningún dato del dominio: Rosetta no publica notas de terceros. Para medir un dominio " +
-      "cualquiera, use medir_exposicion_pqc (la nota viene en su respuesta, sin publicarse).",
+      "cualquiera, use medir_exposicion_pqc (la nota viene en su respuesta, sin publicarse)." + LINEA_FICHA,
     inputSchema: { type: "object", required: ["domain"],
-      properties: { domain: { type: "string", description: "dominio, p.ej. rosettaquantum.com" } } },
+      properties: { domain: { type: "string", description: "dominio, p.ej. rosettaquantum.com" }, idioma: IDIOMA_FICHA } },
   },
   {
     name: "estado_del_archivo",
@@ -1021,10 +1027,10 @@ export const HERRAMIENTAS = [
 // `quien` = { ip, user_agent, ctx }: lo que la herramienta de medición registra de quien mide.
 async function ejecutarHerramienta(env, nombre, args, quien = {}) {
   if (nombre === "medir_exposicion_pqc") return (MEDICION ? await MEDICION.medirParaAgente(env,
-    { dominio: args.dominio, sector: args.sector, agente: args.agente },
+    { dominio: args.dominio, sector: args.sector, agente: args.agente, idioma: args.idioma },
     { canal: "mcp", ip: quien.ip, user_agent: quien.user_agent }, quien.ctx) : sinMedicion).cuerpo;
   if (nombre === "ver_cifrado_correo") return (MEDICION ? await MEDICION.correoParaAgente(env, String(args.id || "")) : sinMedicion).cuerpo;
-  if (nombre === "get_qready_grade") return (VERIFICADO ? await VERIFICADO.notaParaApi(env, args.domain, quien.url || new URL(SITE)) : sinVerificado).cuerpo;
+  if (nombre === "get_qready_grade") return (VERIFICADO ? await VERIFICADO.notaParaApi(env, args.domain, quien.url || new URL(SITE), args.idioma === "en" ? "en" : "es") : sinVerificado).cuerpo;
   if (nombre === "estado_del_archivo") return await estado(env);
   if (nombre === "buscar_evidencia") {
     const r = await buscar(env, args.consulta);
@@ -1242,11 +1248,12 @@ export const CATALOGO = [
       501: { description: "Real execution does not exist yet" },
     } },
   { ruta: "/v1/medicion", metodo: "POST", grupo: "medicion",
-    resumen: "Live, outside-in post-quantum exposure of a domain: hybrid X25519MLKEM768 on the website, certificate, mail servers and security.txt. Same instrument as the Q-Ready live page. With a sector, it also returns the QEX index, computed exactly as the page does, and the sector median and quartiles. Mail encryption arrives separately (id + URL to poll). null means not measured, never not protected.",
+    resumen: "Live, outside-in post-quantum exposure of a domain: hybrid X25519MLKEM768 on the website, certificate, mail servers and security.txt. Same instrument as the Q-Ready live page. With a sector, it also returns the QEX index, computed exactly as the page does, and the sector median and quartiles (compared only for domains of the reference country, Chile). Names are masked unless the owner verified the domain through DNS. Includes presentacion (protocol rosetta-ficha/1): when showing the result to a person, print presentacion.markdown. Mail encryption arrives separately (id + URL to poll). null means not measured, never not protected.",
     cuerpo: { type: "object", required: ["dominio"], properties: {
       dominio: { type: "string", description: "Public domain, e.g. example.cl" },
       sector: { type: "string", description: "Sector key for the QEX: banca, educacion, energia, fintech, gobierno, mineria, prevision, retail, salud_clinica, salud_isapre, seguros, telecom" },
-      agente: { type: "string", description: "Optional: who is measuring (agent name, e.g. my-agent/1.2)" } } },
+      agente: { type: "string", description: "Optional: who is measuring (agent name, e.g. my-agent/1.2)" },
+      idioma: { type: "string", enum: ["es", "en"], description: "Optional: language of presentacion (rosetta-ficha/1); es by default" } } },
     respuestas: {
       200: { description: "Measured. correo.cifrado_pq carries the id and URL to poll for the mail result." },
       400: { description: "Missing or invalid domain, or unknown sector" },
@@ -1254,8 +1261,8 @@ export const CATALOGO = [
       429: { description: "Too many measurements in a minute from this address" },
     } },
   { ruta: "/v1/qready/grade", grupo: "medicion",
-    resumen: "Q-Ready Verified grade (A+ to F) of a domain, ONLY if its owner verified it through DNS and chose to publish it: letter, QEX, date and sha256 of the latest daily measurement, plus the public page and badge URLs. Any other domain returns publicado: false and nota: null, with no data about it. Same as the MCP tool get_qready_grade.",
-    params: [["domain", "required · domain, e.g. rosettaquantum.com"]],
+    resumen: "Q-Ready Verified grade (A+ to F) of a domain, ONLY if its owner verified it through DNS and chose to publish it: letter, QEX, date and sha256 of the latest daily measurement, plus the public page and badge URLs, and presentacion (protocol rosetta-ficha/1). Any other domain returns publicado: false and nota: null, with no data about it. Same as the MCP tool get_qready_grade.",
+    params: [["domain", "required · domain, e.g. rosettaquantum.com"], ["idioma", "optional · es (default) or en: language of presentacion"]],
     ejemplo: { domain: "rosettaquantum.com" },
     respuestas: { 200: { description: "publicado true with the grade, or publicado false and nota null" }, 400: { description: "Missing or invalid domain" } } },
   { ruta: "/v1", resumen: "Indice de la API", grupo: "meta" },
@@ -1750,7 +1757,7 @@ async function enrutar(request, env, url, info = {}) {
     if (request.method !== "POST")
       return json({ ok: false, error: "Usa POST con {\"dominio\": \"ejemplo.cl\"}." }, 405, { allow: "POST, OPTIONS" });
     const c = await request.json().catch(() => ({}));
-    const r = MEDICION ? await MEDICION.medirParaAgente(env, { dominio: c.dominio, sector: c.sector, agente: c.agente },
+    const r = MEDICION ? await MEDICION.medirParaAgente(env, { dominio: c.dominio, sector: c.sector, agente: c.agente, idioma: c.idioma },
       { canal: "api", ip: request.headers.get("cf-connecting-ip"), user_agent: request.headers.get("user-agent") }, info.ctx) : sinMedicion;
     return json(r.cuerpo, r.http);
   }
@@ -1772,7 +1779,8 @@ async function enrutar(request, env, url, info = {}) {
   }
 
   if (p === "/v1/qready/grade" || p === "/v1/qready/grade/") {
-    const r = VERIFICADO ? await VERIFICADO.notaParaApi(env, url.searchParams.get("domain") || url.searchParams.get("dominio"), url) : sinVerificado;
+    const r = VERIFICADO ? await VERIFICADO.notaParaApi(env, url.searchParams.get("domain") || url.searchParams.get("dominio"), url,
+      url.searchParams.get("idioma") === "en" ? "en" : "es") : sinVerificado;
     return json(r.cuerpo, r.http);
   }
   if (p === "/v1" || p === "/v1/") {
