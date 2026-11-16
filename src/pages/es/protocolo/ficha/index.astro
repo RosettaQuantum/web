@@ -1,0 +1,13 @@
+---
+/**
+ * /es/protocolo/ficha (16-nov-2026): la especificación de rosetta-ficha/1. Contenido: src/components/FichaSpec.astro.
+ */
+import MarcaLayout from '../../../../layouts/MarcaLayout.astro';
+import propia from '../../../../styles/pages/qready-verificado.css?raw';
+import FichaSpec from '../../../../components/FichaSpec.astro';
+import { FICHA_SPEC } from '../../../../../public/js/qready-textos.mjs';
+const T = FICHA_SPEC.es;
+---
+<MarcaLayout title={T.titulo_pagina} description={T.lede} lang="es" altUrl="/protocolo/ficha" ruta="/es/protocolo/ficha" pageCss={propia} noindex={false}>
+  <FichaSpec lang="es" />
+</MarcaLayout>
