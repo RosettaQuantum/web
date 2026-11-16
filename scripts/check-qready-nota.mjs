@@ -25,6 +25,11 @@
  *     sondeaba. Los casos son los nombres reales con el dominio enmascarado. Ambientes de pruebas en
  *     español o inglés entran al sondeo PRIMERO; certificados.*, api.*, preferencias.* no. MUTACIONES:
  *     sin la señal, sin la prioridad (orden alfabético con el tope de 15) o sin «desa» → grita.
+ *  6. (16-nov-2026, decisión del dueño) Un ambiente de pruebas que responde 403 en la raíz está
+ *     «publicado con el acceso bloqueado»: alerta MEDIA, no F. 2xx, 3xx y 401 son abiertos → F; sin
+ *     código HTTP, F como hasta hoy (precisión). Casos reales: openfinance-desa da 403 (el banco queda
+ *     B); staging da 301 (F) y serverless-staging 403 (media). MUTACIONES: la excepción ancha (≥ 300)
+ *     o ausente → grita.
  *   node scripts/check-qready-nota.mjs
  */
 import { registerHooks } from "node:module";
@@ -128,7 +133,7 @@ for (const lang of ["es", "en"]) {
   for (const n of N.NOTAS) if (!T.nota_lectura[n]) fallas.push(`${lang}: falta la lectura de la nota ${n}`);
   for (const c of ["resolver_certificado_vencido", "resolver_ambiente_pruebas_expuesto", "activar_tls13", "medir_borde", "hibrido_en_principal", "cerrar_infraestructura_expuesta", "hibrido_en_nombre", "superficie_no_disponible", "nombre_sin_sondear"])
     if (typeof T.falta[c] !== "function") fallas.push(`${lang}: falta el texto de «${c}»`);
-  for (const c of ["certificado_vencido", "ambiente_pruebas_expuesto", "infraestructura_expuesta", "certificado_sin_plan", "nombre_sin_dueno", "correo_responde_443"])
+  for (const c of ["certificado_vencido", "ambiente_pruebas_expuesto", "ambiente_pruebas_publicado_bloqueado", "infraestructura_expuesta", "certificado_sin_plan", "nombre_sin_dueno", "correo_responde_443"])
     if (!T.alerta[c]) fallas.push(`${lang}: falta el texto de la alerta «${c}»`);
 }
 // la regla de los saludos: soporta se lee SÓLO de B. Un endpoint que contestó x25519 en el saludo A es «sin evidencia».
@@ -174,6 +179,45 @@ await conMutante(NUCLEO, "pedidos: todos.slice(0, MAX_SONDEADOS) };", "pedidos: 
   async (M) => igual((await sondeoBanco(M)).includes("openfinance-desa.banco.cl"), false, "MUTACIÓN: sin prioridad (orden alfabético con el tope), openfinance-desa queda fuera"));
 await conMutante(NUCLEO, "(desa|desarrollo|", "(desarrollo|",
   async (M) => igual(M.esAmbientePruebas("openfinance-desa.banco.cl"), false, "MUTACIÓN: sin «desa» en la señal, el caso real no se marca"));
+
+// ---------------------------------------------------------------- 6 · 403 = publicado con el acceso bloqueado
+const desaCon = (http_status) => { const x = clon(sDesa); const e = x.endpoints.find((y) => y.host === "openfinance-desa.python.org");
+  if (http_status !== undefined) e.http_status = http_status; return x; };
+async function bloqueo(Nm, http_status) {
+  const ct = await Nm.ctDesdeServidor(ctDesa, 0);
+  const { foto: f } = Nm.armarFoto({ dominio: "python.org", www: "www.python.org", vertical: "banca", medido: "2026-11-12T17:34:15.418Z", ct, sondas: desaCon(http_status), referencia: REF, origen: "guardia" });
+  const x = Nm.explicarNota(f);
+  return { nota: x.nota, graves: x.graves.map((g) => g.codigo), medias: x.medias.filter((m) => m.host === "openfinance-desa.python.org").map((m) => m.codigo) };
+}
+// caso real del banco: openfinance-desa responde 403 → media, el banco queda B (no tiene híbrido en ese nombre)
+igual(await bloqueo(N, 403), { nota: "B", graves: [], medias: ["ambiente_pruebas_publicado_bloqueado"] }, "silencio de la F: 403 → alerta media «publicado con el acceso bloqueado», nota B");
+for (const c of [200, 301, 302, 401])
+  igual(await bloqueo(N, c), { nota: "F", graves: ["ambiente_pruebas_expuesto"], medias: [] }, `grito: ${c} es un ambiente de pruebas abierto → F`);
+igual((await bloqueo(N, undefined)).nota, "F", "sin código HTTP (foto anterior o sonda sin código): F como hasta hoy");
+igual((await bloqueo(N, 404)).nota, "F", "404 en la raíz: el servidor está ahí sirviendo → F (la excepción es sólo 403)");
+// caso real del dominio de rastreo: staging 301 → F aunque serverless-staging dé 403
+igual(N.explicarNota({ esquema: N.ESQUEMA_FOTO, medido_utc: "2026-11-16T00:00:00Z", certificado: {}, borde: { soporta: true }, tls13: true, ct: null,
+  endpoints: [{ host: "staging.rastreo.example", clases: ["no_productivo"], responde_443: true, http_status: 301 },
+    { host: "serverless-staging.rastreo.example", clases: ["no_productivo"], responde_443: true, http_status: 403 }] }).graves.map((g) => g.host),
+  ["staging.rastreo.example"], "caso real: staging (301) es grave y serverless-staging (403) no");
+// la sonda pide el código sin seguir redirecciones, y sin código devuelve null (nunca inventa 403)
+const I = await import("../lib/informe-envivo.mjs");
+let pedido = null;
+igual(await I.codigoHttp("x.example", async (u, o) => { pedido = { u, redirect: o.redirect, method: o.method }; return new Response(null, { status: 301, headers: { location: "https://y/" } }); }),
+  { http_status: 301, http_error: null }, "la sonda devuelve el 301 tal cual");
+igual(pedido, { u: "https://x.example/", redirect: "manual", method: "GET" }, "GET a la raíz sin seguir redirecciones");
+igual((await I.codigoHttp("x.example", async () => { throw new Error("handshake"); })).http_status, null, "sin respuesta HTTP: null, no un código inventado");
+// sólo a los que respondieron, y DESPUÉS de los saludos (en paralelo se quedaba en cola sin código: 16-nov)
+const preguntados = [];
+const eps = await I.conCodigoHttp([{ host: "a.example", responde_443: true }, { host: "b.example", responde_443: false }, { host: "c.example", responde_443: true }],
+  async (u) => { preguntados.push(u); return new Response(null, { status: u.includes("a.") ? 403 : 200 }); });
+igual([preguntados.sort(), eps.map((e) => e.http_status)], [["https://a.example/", "https://c.example/"], [403, null, 200]], "el código se pide sólo a los nombres que respondieron");
+igual(/completarConVps\([\s\S]*?\);\s*const endpoints = await conCodigoHttp\(endpoints1\);/.test(leer("lib/informe-envivo.mjs")), true, "manejarSondas pide el código después de los saludos y del VPS");
+// MUTACIONES: la excepción ancha (3xx pasa a media) o ausente (403 da F)
+await conMutante(NUCLEO, "export const pruebasBloqueado = (e) => !!e && e.http_status === 403;", "export const pruebasBloqueado = (e) => !!e && e.http_status >= 300;",
+  async (M) => igual((await bloqueo(M, 301)).nota !== "F", true, "MUTACIÓN: con la excepción ancha, un 301 deja de dar F (el guardia lo ve)"));
+await conMutante(NUCLEO, "export const pruebasBloqueado = (e) => !!e && e.http_status === 403;", "export const pruebasBloqueado = (e) => false;",
+  async (M) => igual((await bloqueo(M, 403)).nota, "F", "MUTACIÓN: sin la excepción, el 403 vuelve a dar F (el guardia lo ve)"));
 
 // ---------------------------------------------------------------- 2 · página y servidor: una sola función
 const pag = sinComentarios(leer("public/js/medicion-envivo.mjs"));
@@ -280,4 +324,4 @@ await conMutante(new URL("lib/qready-verificado.mjs", raiz), "AND origen = 'serv
   async (M) => { const m = await compuerta(M); igual(m["publico.example"].html.includes(T.pag_sin_medicion), false, "MUTACIÓN: sin «origen = servidor», una foto mandada por el navegador se publica"); });
 
 if (fallas.length) { console.error("check-qready-nota: FALLA\n  " + fallas.join("\n  ")); process.exit(1); }
-console.log(`check-qready-nota: ok (${casos} casos · python.org real = ${xb.nota}, rosettaquantum.com real = sin nota · página = servidor · compuerta verificado+público con SQL real · ambientes de pruebas primero en el sondeo · 7 mutaciones gritan)`);
+console.log(`check-qready-nota: ok (${casos} casos · python.org real = ${xb.nota}, rosettaquantum.com real = sin nota · página = servidor · compuerta verificado+público con SQL real · ambientes de pruebas primero en el sondeo · 403 = media · 9 mutaciones gritan)`);

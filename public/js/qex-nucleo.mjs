@@ -321,7 +321,7 @@ export function armarFoto({ dominio, www, vertical, medido, ct, sondas: s, refer
   // Sólo se agregan: una respuesta de sondas anterior, sin esos campos, deja null y "worker".
   const endpoints = s.endpoints.map((x) => ({ host: x.host, clases: clases.get(x.host) || clasesDe(x.host), dns_status: x.dns_status,
     ip: x.ip, cname: x.cname, responde_443: x.responde_443, detalle: x.detalle, medido_utc: x.medido_utc,
-    hibrido: x.hibrido ?? null, medido_desde: x.medido_desde || "worker" }));
+    hibrido: x.hibrido ?? null, http_status: x.http_status ?? null, medido_desde: x.medido_desde || "worker" }));
   const b = s.borde, v = b.veredicto, A = b.saludos.A_como_navegador;
   // TLS 1.3: el saludo A sólo ofrece 1.3. Respuesta de servidor = sí; alerta 70 (protocol_version) = no; corte = sin dato.
   const tls13 = A.grupo ? true : (A.alerta && /\/70$/.test(A.alerta)) ? false : null;
@@ -383,7 +383,8 @@ export const estadoEndpointEn = (e) => { const t = estadoEndpoint(e); return t =
 //
 // Reglas, en orden (la primera que aplica decide):
 //   F  · falla grave MEDIDA: certificado vencido el día de la medición, o un ambiente de pruebas que
-//        responde en 443 (esAmbientePruebas: clase `no_productivo` de PAT, o SENAL_PRUEBA: desa, homolog…).
+//        responde ABIERTO en 443 (esAmbientePruebas: clase `no_productivo` de PAT, o SENAL_PRUEBA: desa,
+//        homolog…). Con 403 en la raíz es alerta media, no F (pruebasBloqueado, abajo).
 //        «Protocolo antiguo» salió de la tabla (decisión del dueño, 13-nov): el escáner no lo mide.
 //   D  · sin TLS 1.3 medido (sólo 1.2 o anterior). Sin TLS 1.3 no hay candado nuevo posible.
 //   —  · sin nota (null) si el borde no se pudo medir: null es «no medido», nunca «no protegido».
@@ -396,7 +397,8 @@ export const estadoEndpointEn = (e) => { const t = estadoEndpoint(e); return t =
 //        Rosetta. Nada de eso se ve desde afuera: desde afuera el máximo es A.
 // Alerta ALTA: un nombre de infraestructura sensible (no de correo) que responde en 443.
 // Alertas MEDIAS (no bajan la letra, se informan): certificado clásico sin plan con fecha,
-// nombres de legado que responden («sin dueño»), servicio de correo que responde en 443.
+// nombres de legado que responden («sin dueño»), servicio de correo que responde en 443, y (NOTA-2)
+// ambiente de pruebas que responde 403 en la raíz: publicado con el acceso bloqueado (pruebasBloqueado).
 // Los certificados post-cuánticos llegan en 2027: hoy no se castiga no tenerlos.
 // QREADY-NOTA-2 (16-nov-2026): cambia resultados, por eso sube la versión. Los ambientes de pruebas
 // (esAmbientePruebas, arriba) entran al sondeo con prioridad, y la señal suma desarrollo, development,
@@ -405,6 +407,12 @@ export const estadoEndpointEn = (e) => { const t = estadoEndpoint(e); return t =
 // Además el registro une crt.sh y Cert Spotter (lib/ct-registro.mjs) en vez de elegir uno.
 export const VERSION_NOTA = "QREADY-NOTA-2";
 export const NOTAS = ["A+", "A", "B", "C", "D", "F"];
+// Ambiente de pruebas que responde: ¿abierto o bloqueado? (16-nov-2026, decisión del dueño, dentro de la
+// NOTA-2). Sólo un 403 en la raíz es «publicado con el acceso bloqueado» (alerta media, no F). 2xx, 3xx
+// y 401 (pide clave: está expuesto) son abiertos → F. Precisión antes que cobertura: SIN código HTTP
+// (foto anterior, o la sonda no lo obtuvo) se lee como hasta hoy, abierto → F; y cualquier otro código
+// (404, 5xx…) también, porque el servidor está ahí sirviendo. La excepción es estrecha a propósito.
+export const pruebasBloqueado = (e) => !!e && e.http_status === 403;
 const HIBRIDO = "X25519MLKEM768";
 
 // Un nombre que respondió: ¿tiene el candado nuevo? Desde el 13-nov la sonda le manda también el saludo
@@ -427,7 +435,10 @@ export function explicarNota(foto, extras = {}) {
   const tiene = (e, k) => Array.isArray(e.clases) && e.clases.includes(k);
 
   if (c.ok && c.not_after && dia && c.not_after < dia) out.graves.push({ codigo: "certificado_vencido", detalle: c.not_after });
-  for (const e of responde) if (tiene(e, "no_productivo") || esAmbientePruebas(e.host)) out.graves.push({ codigo: "ambiente_pruebas_expuesto", host: e.host });
+  for (const e of responde) if (tiene(e, "no_productivo") || esAmbientePruebas(e.host)) {
+    if (pruebasBloqueado(e)) out.medias.push({ codigo: "ambiente_pruebas_publicado_bloqueado", host: e.host, http_status: e.http_status });
+    else out.graves.push({ codigo: "ambiente_pruebas_expuesto", host: e.host, http_status: e.http_status ?? null });
+  }
   for (const e of responde) if (tiene(e, "infra_expuesta") && !esNombreDeCorreo(e.host)) out.altas.push({ codigo: "infraestructura_expuesta", host: e.host });
   if (c.ok && (c.algoritmo === "RSA" || c.algoritmo === "EC") && !extras.plan_con_fecha) out.medias.push({ codigo: "certificado_sin_plan" });
   for (const e of responde) if (tiene(e, "legado")) out.medias.push({ codigo: "nombre_sin_dueno", host: e.host });

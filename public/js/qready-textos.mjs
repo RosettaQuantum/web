@@ -44,6 +44,7 @@ export const TXT = {
     alerta: {
       certificado_vencido: "Certificado vencido",
       ambiente_pruebas_expuesto: "Ambiente de pruebas expuesto",
+      ambiente_pruebas_publicado_bloqueado: "Ambiente de pruebas publicado con el acceso bloqueado",
       infraestructura_expuesta: "Infraestructura sensible que responde",
       certificado_sin_plan: "Certificado clásico sin plan con fecha",
       nombre_sin_dueno: "Nombre de legado que responde",
@@ -150,6 +151,7 @@ export const TXT = {
     alerta: {
       certificado_vencido: "Expired certificate",
       ambiente_pruebas_expuesto: "Exposed test environment",
+      ambiente_pruebas_publicado_bloqueado: "Test environment published with access blocked",
       infraestructura_expuesta: "Sensitive infrastructure answering",
       certificado_sin_plan: "Classical certificate without a dated plan",
       nombre_sin_dueno: "Legacy name answering",
