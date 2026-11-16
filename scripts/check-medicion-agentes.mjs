@@ -61,6 +61,7 @@ function dbFalsa(modo = "bien") {
   const filas = [];
   return { filas, DB: { prepare: (sql) => ({ bind: (...a) => ({ first: async () => {
     if (modo === "lanza") throw new Error("D1_ERROR: no such table: mediciones_agentes");
+    if (!/^INSERT/.test(sql)) return null;          // la lectura de qready_dominios (nombres enmascarados): no es una fila
     filas.push({ sql, a });
     if (modo === "muda") return null;
     return /RETURNING id/.test(sql) ? { id: a[0] } : null;
@@ -102,8 +103,11 @@ igual(pagina.pedidos.length > 0 && pagina.dims.higiene < 70, true, "los insumos 
 const s1 = await medirCon({ dominio: "https://www." + DOMINIO + "/", sector: "Banca" }, { env: { DB: dbFalsa().DB } });
 igual(s1.r.http, 200, "medición con insumos grabados responde 200");
 igual(comparar(s1.r.cuerpo, pagina, s1.h.vistos.sondas), [], "silencio: el servidor y la página dan el mismo QEX, dimensiones y nombres");
-igual([s1.r.cuerpo.sector?.clave, s1.r.cuerpo.sector?.mediana, s1.r.cuerpo.sector?.diferencia_con_mediana],
-  ["banca", REF.verticales.banca.mediana, pagina.qex - REF.verticales.banca.mediana], "comparación con el sector, de la referencia");
+// AJUSTE 2 (13-nov-2026): python.org no es de Chile (el país de la referencia): no se compara, y se dice.
+// La regla del país se ejerce entera en scripts/check-ficha.mjs.
+igual([s1.r.cuerpo.sector?.clave, s1.r.cuerpo.sector?.mediana, s1.r.cuerpo.sector?.diferencia_con_mediana, s1.r.cuerpo.sector?.pais_referencia],
+  ["banca", REF.verticales.banca.mediana, null, "CL"], "comparación con el sector: la referencia es de Chile y un .org no se compara");
+igual(/no se compara/.test(s1.r.cuerpo.sector?.nota || ""), true, "sector.nota dice que no se compara");
 igual(s1.r.cuerpo.registro_ct?.fuente, CT.fuente, "declara la fuente del registro usada");
 igual(typeof s1.r.cuerpo.siguiente_paso?.texto === "string" && /^https:\/\//.test(s1.r.cuerpo.siguiente_paso.informe_mensual), true, "trae siguiente_paso con sus URLs");
 // el enlace al informe del dominio lleva lo que la página sabe leer, ya normalizado
@@ -164,7 +168,9 @@ const sinBase = await medirCon({ dominio: DOMINIO, sector: "banca" }, { env: {} 
 igual(sinBase.r.http, 200, "sin binding DB: la medición responde igual");
 igual(await A.registrar(dbFalsa("muda").DB, { id: "x" }).catch(() => "lanzó"), false, "registrar() sin RETURNING devuelve false, no true");
 console.error = errorOriginal;
-igual(errores.length === 4 && errores.every((e) => /mediciones_agentes/.test(e)), true, `cada escritura fallida queda en consola (${errores.length} de 4)`);
+const deRegistro = errores.filter((e) => !/^dominioVerificado:/.test(e) && /mediciones_agentes/.test(e));
+igual(deRegistro.length, 4, `cada escritura fallida queda en consola (${deRegistro.length} de 4)`);
+igual(errores.filter((e) => !deRegistro.includes(e)).every((e) => /^dominioVerificado:/.test(e)), true, "la única otra queja es la lectura de la verificación, que falla cerrado");
 const b4 = dbFalsa();
 const r4 = await medirCon({ dominio: "esto no es un dominio", sector: "banca" }, { env: { DB: b4.DB } });
 const r5 = await medirCon({ dominio: DOMINIO, sector: "astrología" }, { env: { DB: b4.DB } });
