@@ -1,0 +1,56 @@
+---
+/**
+ * La especificación de rosetta-ficha/1 (16-nov-2026), en /protocolo/ficha y /es/protocolo/ficha.
+ * El texto vive en public/js/qready-textos.mjs (FICHA_SPEC, PROVISORIO). Los títulos de las 7
+ * secciones y el ejemplo NO se escriben aquí: salen de public/js/ficha.mjs con la foto fija F de
+ * scripts/fixtures/ficha/, la misma que fija el snapshot de scripts/check-ficha.mjs.
+ */
+import { FICHA_SPEC, textosFicha } from '../../public/js/qready-textos.mjs';
+import { armarFicha, markdownDe } from '../../public/js/ficha.mjs';
+import fx from '../../scripts/fixtures/ficha/f.json';
+const { lang = 'es' } = Astro.props;
+const T = FICHA_SPEC[lang === 'en' ? 'en' : 'es'];
+const F = textosFicha(lang);
+const ejemplo = markdownDe(armarFicha(fx.foto, { ...fx.ctx, idioma: lang === 'en' ? 'en' : 'es' }));
+const forma = `"presentacion": {
+  "protocolo": "rosetta-ficha/1",
+  "spec": "https://rosettaquantum.com/protocolo/ficha",
+  "instruccion_agente": "…",
+  "idioma": "es" | "en",
+  "markdown": "…",
+  "encabezado": { … },
+  "secciones": [ { "n": 1, "clave": "veredicto", … }, … ],
+  "pie": "…"
+}`;
+---
+<section class="qv qv-spec"><div class="qv-wrap">
+  <p class="qv-eyebrow">{T.eyebrow}</p>
+  <h1 class="qv-h1">{T.titulo}</h1>
+  <p class="qv-lede">{T.lede}</p>
+
+  <h2>{T.h_bloque}</h2>
+  <p>{T.bloque}</p>
+  <pre class="qv-pre">{forma}</pre>
+  <p><code>instruccion_agente</code>: {F.instruccion_agente}</p>
+
+  <h2>{T.h_secciones}</h2>
+  <ol>{F.secciones.map((s) => <li>{s}</li>)}</ol>
+  <p>{T.secciones_nota}</p>
+
+  <h2>{T.h_catalogo}</h2>
+  <table>
+    <tr><th>{T.col_id}</th><th>{T.col_indicador}</th><th>{T.col_valor}</th><th>{T.col_tipo}</th></tr>
+    {T.catalogo.map((f) => <tr><td><code>{f[0]}</code></td><td>{f[1]}</td><td>{f[2]}</td><td>{f[3]}</td></tr>)}
+  </table>
+  <p>{T.catalogo_nota}</p>
+
+  <h2>{T.h_reglas}</h2>
+  <ul>{T.reglas.map((r) => <li>{r}</li>)}</ul>
+
+  <h2>{T.h_ejemplo}</h2>
+  <p>{T.ejemplo_nota}</p>
+  <pre class="qv-pre">{ejemplo}</pre>
+
+  <h2>{T.h_validar}</h2>
+  <p>{T.validar}</p>
+</div></section>

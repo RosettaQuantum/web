@@ -25,6 +25,8 @@ export const GET: APIRoute = async ({ site }) => {
     `- [/.well-known/q-ready specification](${base}/q-ready/spec): an open, free standard (version 0) for a short signed JSON file in which an organization declares its post-quantum migration plan — responsible party, internal inventory status, target date, critical providers by role, expiry like security.txt. Ed25519 signature; public validator on the page. Spanish: ${base}/es/q-ready/spec`,
     `- \`GET ${base}/verificado/{domain}\` (or MCP tool \`get_qready_grade\`, or \`GET ${base}/v1/qready/grade?domain=\`) — the Q-Ready Verified grade (A+ to F) of a domain, published ONLY when its owner verified it through DNS and chose to make it public; measured daily from outside, with the sha256 of every measurement. Any other domain returns 404 / null: no third-party grades are published.`,
   ];
+  // PROVISORIO (16-nov-2026): rosetta-ficha/1. La aprueba Nicholas antes de producción.
+  const LINEA_FICHA = `- [rosetta-ficha/1 specification](${base}/protocolo/ficha): how to show a Rosetta measurement to a person. \`medir_exposicion_pqc\`, \`get_qready_grade\`, \`POST /v1/medicion\` and \`GET /v1/qready/grade\` return a \`presentacion\` block; print \`presentacion.markdown\` as is: always the same 7 sections, in the same order, with stable IDs (RQ.S.00-RQ.S.09). Optional \`idioma\`: es or en. Spanish: ${base}/es/protocolo/ficha`;
   const lines = [
     '# Rosetta Quantum',
     '',
@@ -66,6 +68,7 @@ export const GET: APIRoute = async ({ site }) => {
     `- \`POST ${base}/mcp\` — MCP server, JSON-RPC 2.0, ${HERRAMIENTAS.length} tools, no key required.`,
     LINEA_MEDICION,
     ...LINEAS_QREADY,
+    LINEA_FICHA,
     `- \`GET ${base}/v1/openapi.json\` — the full contract. If you are a machine, start here.`,
     '- The site is the shop window; the product speaks JSON. Do not scrape us: ask us.',
     '',
