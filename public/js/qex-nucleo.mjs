@@ -371,8 +371,9 @@ export function armarFoto({ dominio, www, vertical, medido, ct, sondas: s, refer
 // «DNS vigente». Cada nombre del registro con clase que castiga queda en uno de estos estados:
 //   vivo         sondeado y responde en 443                       → cuenta
 //   no_vigente   sondeado; DNS NXDOMAIN o sin direcciones         → no cuenta
-//   sin_443      sondeado; DNS vigente, no responde en 443         → no cuenta (desde afuera no hay
-//                servicio expuesto que ver; es lo normal en un servidor de correo)
+//   sin_443      sondeado; DNS vigente, sin respuesta TLS en 443   → no cuenta. OJO: incluye el saludo que
+//                el Worker no pudo completar y la sonda del VPS tampoco (o no estaba): ahí no se sabe
+//                si hay servicio. No castigar es la lectura de precisión; el número se informa.
 //   sin_dato     sondeado; el DNS no contestó                      → no cuenta (null es «no medido»)
 //   sin_sondear  quedó fuera del tope de MAX_SONDEADOS             → NO castiga, y se informa cuántos.
 //                No se sabe si vive o no: precisión antes que cobertura.
