@@ -39,6 +39,11 @@ jobs:
       - name: Reintento de red para los chequeos
         run: echo "NODE_OPTIONS=--import $GITHUB_WORKSPACE/scripts/lib/fetch-reintento.mjs" >> "$GITHUB_ENV"
 
+      # Que el reintento ESTÉ activo se comprueba, no se supone: el 16-nov un ECONNRESET tumbó un
+      # chequeo sin ningún reintento visible. Si no carga, el deploy lo dice aquí y no en un rojo raro.
+      - name: El reintento de red está activo
+        run: node -e "if (!globalThis.fetch.__reintento) { console.error('fetch-reintento NO cargó'); process.exit(1) } console.log('fetch-reintento activo')"
+
       # El guardia preventivo, en el unico lugar donde no se puede saltear.
       - name: Solo main publica
         env:
