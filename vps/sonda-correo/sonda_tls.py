@@ -23,7 +23,7 @@ Reglas que este archivo no rompe:
   · No abre puertos: pregunta al sitio y entrega firmado (HMAC, la misma clave y el mismo texto
     firmado que la sonda de correo). Sin clave no arranca.
 """
-import base64, ipaddress, json, os, socket, struct, sys, time
+import base64, ipaddress, json, os, socket, ssl, struct, sys, time
 from concurrent.futures import ThreadPoolExecutor
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
@@ -121,8 +121,24 @@ def saludo(host, grupos, con_share):
     return out
 
 
+def certificado13(host):
+    """B1 (16-nov-2026): la hoja por TLS 1.3, SÓLO si el saludo 1.2 recibió una alerta (servidor sólo 1.3).
+    Con el ssl de Python: completa el saludo (ssl no entrega la hoja antes), no envía datos y cierra. No
+    valida la cadena: mide lo que el servidor presenta, igual que el saludo 1.2. Mismas reglas de destino."""
+    ctx = ssl.SSLContext(ssl.PROTOCOL_TLS_CLIENT)
+    ctx.check_hostname = False
+    ctx.verify_mode = ssl.CERT_NONE
+    ctx.minimum_version = ssl.TLSVersion.TLSv1_3
+    fam, addr = ip_publica(host)
+    with socket.socket(fam, socket.SOCK_STREAM) as s:
+        s.settimeout(ESPERA); s.connect(addr)
+        with ctx.wrap_socket(s, server_hostname=host) as t:
+            return t.getpeercert(binary_form=True)
+
+
 def certificado(host):
-    """UN ClientHello TLS 1.2; devuelve la hoja en DER (base64). No se completa la sesión."""
+    """UN ClientHello TLS 1.2; devuelve la hoja en DER (base64). No se completa la sesión.
+    Si el servidor responde con una alerta (no acepta 1.2), se lee por TLS 1.3 (certificado13) y se marca tls 1.3."""
     t0 = time.time()
     out = {"der_b64": None, "error": None, "ms": None}
     s = None
@@ -155,6 +171,12 @@ def certificado(host):
     finally:
         try: s and s.close()
         except Exception: pass
+        out["ms"] = int((time.time() - t0) * 1000)
+    if out["der_b64"] is None and "alerta TLS" in (out["error"] or ""):
+        try:
+            out.update({"der_b64": base64.b64encode(certificado13(host)).decode(), "error": None, "tls": "1.3", "tls12": out["error"]})
+        except Exception as e:
+            out["error"] = f"{out['error']}; por TLS 1.3: {type(e).__name__}: {e}"[:300]
         out["ms"] = int((time.time() - t0) * 1000)
     return out
 

@@ -130,7 +130,8 @@ igual([xCorte.nota, xCorte.motivo], [null, "borde_no_medido"], "borde sin respue
 // rosettaquantum.com REAL: está detrás de Cloudflare y el Worker no puede abrirle sockets
 const fRq = await foto("rosettaquantum.com", CT_RQ, SONDAS_RQ, SONDAS_RQ.medido_utc);
 const xRq = N.explicarNota(fRq);
-igual([xRq.nota, xRq.motivo, xRq.falta_para_A.map((f) => f.codigo)], [null, "borde_no_medido", ["medir_borde"]], "rosettaquantum.com real: sin nota, y lo que falta lo dice");
+// (QREADY-NOTA-2.1) el certificado tampoco se leyó: «Certificados y PKI» sin medir también falta para A
+igual([xRq.nota, xRq.motivo, xRq.falta_para_A.map((f) => f.codigo)], [null, "borde_no_medido", ["medir_borde", "dimension_sin_medir"]], "rosettaquantum.com real: sin nota, y lo que falta lo dice");
 // cada código que puede salir tiene su texto en los dos idiomas
 for (const lang of ["es", "en"]) {
   const T = textos(lang);
@@ -145,7 +146,7 @@ igual([N.hibridoEnEndpoint({ responde_443: true, detalle: "responde; grupo x2551
   [null, true, null], "un endpoint sin el híbrido elegido es «sin evidencia», nunca «no»");
 
 // ---------------------------------------------------------------- 5 · qué se sondea (QREADY-NOTA-2)
-igual(N.VERSION_NOTA, "QREADY-NOTA-2", "la nota cambió resultados el 16-nov: versión 2");
+igual(N.VERSION_NOTA, "QREADY-NOTA-2.1", "la nota cambió resultados el 16-nov: versión 2, y 2.1 con B1 (pendiente de aprobación)");
 // grito: los nombres reales (dominio enmascarado) y la lista aprobada, como segmento o con guion
 const PRUEBAS = ["openfinance-desa.banco.cl", "staging.rastreo.example", "test.rastreo.example", "serverless-staging.rastreo.example",
   "api-desarrollo.x.cl", "app-development.x.cl", "dev2.x.cl", "homologacion.x.cl", "homolog.x.cl", "hml.x.cl", "certificacion.x.cl",

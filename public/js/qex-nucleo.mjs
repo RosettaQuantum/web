@@ -405,7 +405,13 @@ export const estadoEndpointEn = (e) => { const t = estadoEndpoint(e); return t =
 // certificacion, homologacion, testing, preprod y demo. Con la NOTA-1, openfinance-desa.<banco>.cl no se
 // sondeaba nunca y el banco salía A con un ambiente de pruebas respondiendo; con la NOTA-2 sale F.
 // Además el registro une crt.sh y Cert Spotter (lib/ct-registro.mjs) en vez de elegir uno.
-export const VERSION_NOTA = "QREADY-NOTA-2";
+// QREADY-NOTA-2.1 (16-nov-2026, PENDIENTE DE APROBACIÓN DEL DUEÑO). EL DEFECTO (B1): yutrack.com salió A
+// con «Certificados y PKI» (40 % del índice) en null, porque el servidor no aceptó el saludo TLS 1.2 con
+// que se leía el certificado; el QEX se renormalizó a peso 0,6 y no_evaluado vino vacío. Regla nueva:
+// si falta una dimensión de peso ≥ 0,25 (NOTA_DIMENSION_MINIMA), la nota no puede ser A (máximo B), y
+// la dimensión va en no_evaluado y en falta_para_A. null sigue siendo «no medido», nunca «no protegido».
+export const VERSION_NOTA = "QREADY-NOTA-2.1";
+export const NOTA_DIMENSION_MINIMA = 0.25;
 export const NOTAS = ["A+", "A", "B", "C", "D", "F"];
 // Ambiente de pruebas que responde: ¿abierto o bloqueado? (16-nov-2026, decisión del dueño, dentro de la
 // NOTA-2). Sólo un 403 en la raíz es «publicado con el acceso bloqueado» (alerta media, no F). 2xx, 3xx
@@ -471,6 +477,12 @@ export function explicarNota(foto, extras = {}) {
   else if (foto.ct && sinSondear.length === 0 && sinEvidencia.length === 0 && !techoB) out.nota = "A";
   else out.nota = "B";
 
+  // QREADY-NOTA-2.1: una dimensión pesada sin medir no deja dar A (ver VERSION_NOTA)
+  const dimsQ = (foto.qex && foto.qex.dimensiones) || {};
+  const sinDim = Object.keys(PESOS).filter((k) => PESOS[k] >= NOTA_DIMENSION_MINIMA && dimsQ[k] == null);
+  for (const k of sinDim) out.no_evaluado.push({ dimension: k, peso: PESOS[k] });
+  if (out.nota === "A" && sinDim.length) out.nota = "B";
+
   if (out.nota === "A" && extras.well_known_valido === true && extras.inventario_verificado === true) out.nota = "A+";
 
   // Qué le falta para A. Se dice en códigos; el texto lo pone quien pinta (public/js/qready-textos.mjs).
@@ -486,6 +498,7 @@ export function explicarNota(foto, extras = {}) {
       if (!foto.ct) out.falta_para_A.push({ codigo: "superficie_no_disponible" });
       else for (const h of sinSondear) out.falta_para_A.push({ codigo: "nombre_sin_sondear", host: h });
     }
+    for (const k of sinDim) out.falta_para_A.push({ codigo: "dimension_sin_medir", detalle: k });
   }
   return out;
 }

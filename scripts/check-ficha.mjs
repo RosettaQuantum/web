@@ -48,7 +48,9 @@ const leer = (r) => readFileSync(new URL(r, raiz), "utf8");
 const clon = (x) => JSON.parse(JSON.stringify(x));
 const sinComentarios = (t) => t.replace(/\/\*[\s\S]*?\*\//g, "").replace(/^\s*\/\/.*$/gm, "");
 const FX = "scripts/fixtures/ficha/";
-const CASOS = ["a", "f", "sin-correo"];
+// a, f, sin-correo: fotos de ejemplo; rastreo y rastreob: desde las respuestas crudas del MCP de producción
+// del 16-nov (la ficha aprobada y el defecto B1), con el dominio enmascarado (ver generar-rastreo.mjs).
+const CASOS = ["a", "f", "sin-correo", "rastreo", "rastreob"];
 const fixture = (c) => JSON.parse(leer(`${FX}${c}.json`));
 
 // ---------------------------------------------------------------- 1 · snapshot y sintaxis
@@ -68,31 +70,34 @@ for (const c of CASOS) for (const idioma of ["es", "en"]) {
   igual(Fi.validarMarkdown(md, idioma), [], `silencio: ${ruta} cumple la sintaxis rosetta-ficha/1`);
   letras[c] = N.explicarNota(fixture(c).foto).nota;
 }
-igual(letras, { a: "A", f: "F", "sin-correo": "B" }, "las tres fotos fijas: una A, una F y una sin correo (B)");
+igual(letras, { a: "A", f: "F", "sin-correo": "B", rastreo: "F", rastreob: "B" }, "las fotos fijas: una A, dos F (una con ALTA), una sin correo (B) y la de B1 (B)");
 // el caso F ejerce lo que tiene que ejercer: alertas GRAVE y MEDIA, acciones con y sin efecto, no medido
 const mdF = render(Fi, "f", "es");
-igual(["| A1 | GRAVE |", "| MEDIA |", "| -> ", "| no cambia la nota |", "| RQ.S.06 | no cambia la nota |", "| Publicar security.txt | — | no cambia la nota |", "crt.sh no respondió; se usó Cert Spotter", "sin índice para Paraguay"].filter((t) => !mdF.includes(t)), [],
-  "el caso F ejerce GRAVE, MEDIA, efecto, «no cambia la nota», el correo medido, la fuente caída y el país sin índice");
+igual(["| A1 | GRAVE |", "| MEDIA |", "| -> ", "| no cambia |", "| RQ.S.06 | no cambia |", "| Publicar security.txt | — | no cambia |", "crt.sh no respondió; se usó Cert Spotter", "sin índice para Paraguay",
+  "## 01 Veredicto", "· desde afuera, sin instalar nada", "4022 cert.", "Versiones: QEX-1.0 · QREADY-NOTA-2.1", "Con H1 a H3 hechos"].filter((t) => !mdF.includes(t)), [],
+  "el caso F ejerce GRAVE, MEDIA, efecto, «no cambia», el correo medido, la fuente caída, el país sin índice y el formato de la ficha aprobada");
 igual(/staging\.|staging \|/.test(mdF), false, "el caso F (no verificado) no imprime el nombre de pruebas completo");
-igual(render(Fi, "a", "es").includes("| legacy |"), true, "el caso A (verificado) imprime los nombres completos");
+igual(render(Fi, "a", "es").includes("| legacy.ejemplo.cl |"), true, "el caso A (verificado) imprime los nombres completos");
+igual(render(Fi, "rastreo", "es").includes("| A2 | ALTA | Infraestructura sensible que responde |"), true, "el caso real de la ficha aprobada trae su ALTA");
 igual(render(Fi, "sin-correo", "es").includes("| RQ.S.06 | Correo post-cuántico | sin MX publicado | medido |"), true, "sin MX publicado es una medición, no un «sin dato»");
 
 // GRITO: cada mutación del texto la ve el validador
 const base = render(Fi, "f", "es");
 const cambiar = (de, a) => { if (!base.includes(de)) throw new Error(`mutación de texto que no entra: ${de}`); return base.replace(de, a); };
 const MUT = {
-  "secciones 3 y 4 cambiadas de lugar": base.replace("## 3. Alertas", "## 3. TMP").replace("## 4. Qué hacer", "## 3. Alertas").replace("## 3. TMP", "## 4. Qué hacer"),
+  "secciones 3 y 4 cambiadas de lugar": base.replace("## 03 Alertas", "## 03 TMP").replace("## 04 Qué hacer", "## 03 Alertas").replace("## 03 TMP", "## 04 Qué hacer"),
+  "sección sin el cero": cambiar("## 03 Alertas", "## 3 Alertas"),
   "un ID con otro formato": cambiar("| RQ.S.03 |", "| RQ.S.3 |"),
   "un ID que salta": cambiar("| RQ.S.08 |", "| RQ.S.10 |"),
-  "sin la sección No medido": base.replace(/## 5\. No medido\n[\s\S]*?\n\n/, ""),
+  "sin la sección No medido": base.replace(/## 05 No medido\n[\s\S]*?\n\n/, ""),
   "alertas fuera de orden": cambiar("| A4 | MEDIA |", "| A4 | GRAVE |"),
   "alerta mal numerada": cambiar("| A2 |", "| A3 |"),
   "nivel inventado": cambiar("| A1 | GRAVE |", "| A1 | URGENTE |"),
   "acción mal numerada": cambiar("| H2 |", "| H7 |"),
   "efecto con flecha unicode": cambiar("| -> ", "| → "),
   "huella completa": cambiar("Huella CT: ", "Huella CT: " + "a".repeat(64) + " "),
-  "pie sin la URL": base.replace(/ · https:\/\/rosettaquantum\.com\/\S+\n$/, "\n"),
-  "un emoji": cambiar("## 1. Veredicto", "## 1. Veredicto \u{1F512}"),
+  "pie distinto": base.replace(/medición independiente\n$/, "medición propia\n"),
+  "un emoji": cambiar("## 01 Veredicto", "## 01 Veredicto \u{1F512}"),
   "decimales": cambiar("75/100", "75.5/100"),
   "tipo inventado": cambiar("| modelo |", "| estimado |"),
   "encabezado distinto": cambiar("# Ficha Rosetta", "# Ficha"),
@@ -100,10 +105,10 @@ const MUT = {
 for (const [q, md] of Object.entries(MUT)) igual(Fi.validarMarkdown(md).length > 0, true, `MUTACIÓN de texto: ${q} → el validador grita`);
 
 // MUTACIÓN en el código: el título de sección sin el punto
-await conMutante(new URL("public/js/ficha.mjs", raiz), 'out.push("", `## ${s.n}. ${s.titulo}`);', 'out.push("", `## ${s.n} ${s.titulo}`);', async (M) => {
+await conMutante(new URL("public/js/ficha.mjs", raiz), "const titulo = (i) => `## ${num2(i + 1)} ${F.secciones[i]}`;", "const titulo = (i) => `## ${i + 1}. ${F.secciones[i]}`;", async (M) => {
   const md = render(M, "f", "es");
-  igual(primeraDiferencia(md, leer(`${FX}f.es.md`)) !== null, true, "MUTACIÓN: «## 3 Alertas» → el snapshot grita");
-  igual(M.validarMarkdown(md).length > 0, true, "MUTACIÓN: «## 3 Alertas» → el validador grita");
+  igual(primeraDiferencia(md, leer(`${FX}f.es.md`)) !== null, true, "MUTACIÓN: «## 3. Alertas» → el snapshot grita");
+  igual(M.validarMarkdown(md).length > 0, true, "MUTACIÓN: «## 3. Alertas» → el validador grita");
 });
 // MUTACIÓN: las alertas MEDIA antes que las GRAVE
 await conMutante(new URL("public/js/ficha.mjs", raiz), '...x.graves.map((a) => ({ ...a, nivel_nota: "grave" })),', "",
@@ -131,6 +136,35 @@ await conMutante(new URL("public/js/ficha.mjs", raiz), '...x.graves.map((a) => (
   // un dominio en A no tiene falta_para_A
   const a = fixture("a").foto, xa = N.explicarNota(a);
   igual(Fi.notaParaJson(xa, Fi.analizar(a, xa), { dominio: a.dominio, verificado: true }).falta_para_A, [], "en A no falta nada para A");
+}
+
+// ---------------------------------------------------------------- 2a · B1: una dimensión pesada sin medir no deja A (QREADY-NOTA-2.1)
+{
+  const fx = fixture("rastreob");
+  const x = N.explicarNota(fx.foto);
+  igual([fx.nota_en_produccion, x.nota, x.no_evaluado, x.falta_para_A.map((f) => f.codigo)],
+    ["A", "B", [{ dimension: "certificados", peso: 0.4 }], ["dimension_sin_medir"]],
+    "B1 (respuesta real de producción): salía A con «Certificados y PKI» en null; ahora B, y la dimensión va en no_evaluado");
+  igual(Fi.lecturaDe(x, fx.foto), "Su sitio ya usa el candado post-cuántico, pero no se pudo leer su certificado.", "B1: la lectura dice la causa");
+  const md = render(Fi, "rastreob", "es");
+  igual([md.includes("Certificados y PKI no se pudo medir"), md.includes("| RQ.S.02 | Certificados y PKI | sin dato | no medido |")], [true, true], "B1: la ficha lo declara en 02 y en 05");
+  igual(N.explicarNota(fixture("a").foto).nota, "A", "silencio: sin dimensiones faltantes, la A no se toca");
+  const f10 = clon(fixture("a").foto); f10.qex.dimensiones.edge = null;
+  igual(N.explicarNota(f10).nota, "A", "silencio: falta sólo el borde (peso 0,10): la regla no aplica");
+  await conMutante(new URL("public/js/qex-nucleo.mjs", raiz), 'if (out.nota === "A" && sinDim.length) out.nota = "B";', "",
+    async (M) => igual(M.explicarNota(fx.foto).nota, "A", "MUTACIÓN: sin la regla 2.1, el caso real vuelve a salir A (el guardia lo ve)"));
+}
+
+// ---------------------------------------------------------------- 2a' · RQ.S.13, reservados y la versión de método de cada valor
+{
+  const fx = fixture("f"), fi = Fi.armarFicha(fx.foto, fx.ctx);
+  igual([Object.keys(fi.indicadores), Fi.RESERVADOS.some((id) => id in fi.indicadores)], [Fi.CATALOGO_COMPLETO, false], "el bloque trae RQ.S.00-09 y 13, nunca los reservados 10-12");
+  igual([fi.indicadores["RQ.S.13"].valor, fi.indicadores["RQ.S.13"].tipo, fi.indicadores["RQ.S.13"].valor === fx.foto.ct.conteos.hostnames], [77, "medido", true], "RQ.S.13 = nombres en el registro (no cuántos responden)");
+  igual(render(Fi, "f", "es").includes("RQ.S.13"), false, "la ficha impresa no muestra RQ.S.13");
+  igual(Fi.CATALOGO_COMPLETO.map((id) => [id, typeof fi.indicadores[id].metodo === "string" && fi.indicadores[id].metodo.length > 0]).filter(([, ok]) => !ok), [],
+    "cada valor declara su versión de método");
+  igual(["RQ.S.01", "RQ.S.02", "RQ.S.03", "RQ.S.04", "RQ.S.05"].map((id) => fi.indicadores[id].metodo), Array(5).fill("QEX-1.0"), "RQ.S.01 a 05: metodo QEX-1.0");
+  igual(fi.indicadores["RQ.S.00"].metodo, N.VERSION_NOTA, "RQ.S.00: metodo = versión de la nota");
 }
 
 // ---------------------------------------------------------------- 2b · nivel ALTA y la lectura por motivo
@@ -162,7 +196,7 @@ await conMutante(new URL("public/js/ficha.mjs", raiz), '...x.graves.map((a) => (
   igual(sueltos, 0, "la página no pinta ningún nombre sin pasar por nombre()");
   igual(/esc\(x\.host\)/.test("`<code>${esc(x.host)}</code>`"), true, "el detector de nombre suelto grita con el patrón viejo");
   const sondas = sinComentarios(leer("lib/informe-envivo.mjs"));
-  igual(/const \{ verificado: nombres_completos \} = await dominioVerificado\(env\.DB, dominio\);/.test(sondas) && /nombres_completos,/.test(sondas), true, "/api/sondas dice si el dominio está verificado (la misma consulta que la API)");
+  igual(/const \{ verificado: nombres_completos, publico: pagina_publica \} = await dominioVerificado\(env\.DB, dominio\);/.test(sondas) && /nombres_completos,/.test(sondas), true, "/api/sondas dice si el dominio está verificado (la misma consulta que la API)");
 }
 
 // ---------------------------------------------------------------- 3 · ajuste 2: el país
@@ -258,10 +292,12 @@ await conMutante(new URL("lib/medicion-agentes.mjs", raiz), "if (verificado || !
 
 // ---------------------------------------------------------------- 5 · una sola definición y el MCP
 const p = sinVerif.presentacion;
-igual([p.protocolo, p.spec, p.idioma, p.instruccion_agente, Array.isArray(p.secciones) && p.secciones.map((s) => s.clave)],
-  ["rosetta-ficha/1", "https://rosettaquantum.com/protocolo/ficha", "es", FICHA.es.instruccion_agente, Fi.SECCIONES], "presentacion trae protocolo, spec, instrucción, idioma, markdown y secciones");
+igual([p.protocolo, p.spec, p.idioma, p.instruccion_agente, Object.keys(p.ficha || {})],
+  ["rosetta-ficha/1", "https://rosettaquantum.com/protocolo/ficha", "es", FICHA.es.instruccion_agente,
+    ["protocolo", "idioma", "dominio", "encabezado", "veredicto", "indicadores", "alertas", "acciones", "no_medido", "evidencia", "limites", "pie", "url_dominio"]],
+  "presentacion trae protocolo, spec, instrucción, idioma, markdown y el bloque ficha");
 igual(Fi.validarMarkdown(p.markdown), [], "la ficha de /v1/medicion cumple la sintaxis");
-igual(p.markdown.includes(`| A1 | GRAVE | Ambiente de pruebas expuesto | ${sStaging.replace(".python.org", "")} |`), true, "la alerta A1 de la ficha es la misma que nota.alertas[0], enmascarada");
+igual(p.markdown.includes(`| A1 | GRAVE | Ambiente de pruebas expuesto | ${sStaging} |`), true, "la alerta A1 de la ficha es la misma que nota.alertas[0], enmascarada");
 igual(sinVerif.nota.alertas[0], { id: "A1", nivel: "grave", codigo: "ambiente_pruebas_expuesto", texto: "Ambiente de pruebas expuesto", host: sStaging }, "nota.alertas lleva el mismo ID");
 const en = await medirCon(A, [], "en");
 igual([en.presentacion.idioma, Fi.validarMarkdown(en.presentacion.markdown, "en")], ["en", []], "idioma en: la ficha en inglés cumple la sintaxis");
@@ -277,12 +313,52 @@ igual(/Fi\.presentacion\(r\.foto/.test(leer("lib/medicion-agentes.mjs")) && /pre
   await V.guardarMedicion(db, { foto, origen: "servidor" });
   const g = (await V.notaParaApi({ DB: db }, "ejemplo.cl", new URL("https://rosettaquantum.com/"))).cuerpo;
   igual([g.publicado, g.nota, g.presentacion?.protocolo, Fi.validarMarkdown(g.presentacion?.markdown || "")], [true, "A", "rosetta-ficha/1", []], "get_qready_grade: la ficha de la última medición publicada");
-  igual([g.presentacion.markdown.includes("| legacy |"), g.presentacion.markdown.includes("Publicación: pública en https://rosettaquantum.com/es/verificado/ejemplo.cl"),
+  igual([g.presentacion.markdown.includes("| legacy.ejemplo.cl |"), g.presentacion.markdown.includes("Publicación: pública en https://rosettaquantum.com/es/verificado/ejemplo.cl"),
     g.presentacion.markdown.includes(`Huella de la foto: ${foto.sha256.slice(0, 8)}…${foto.sha256.slice(-4)}`)], [true, true, true],
     "get_qready_grade: nombres completos, enlace a la página pública y la huella de la foto publicada");
   const g3 = (await V.notaParaApi({ DB: db }, "tercero.example", new URL("https://rosettaquantum.com/"))).cuerpo;
   igual(Object.keys(g3).sort(), ["dominio", "mensaje", "nota", "ok", "publicado"], "get_qready_grade de un tercero: sin ficha, sin nada");
 }
+// ---------------------------------------------------------------- 6 · las superficies: web, sello y PDF salen de la misma ficha
+{
+  const fx = fixture("rastreo"), ficha = Fi.armarFicha(fx.foto, fx.ctx);
+  const h = Fi.htmlDe(ficha);
+  igual([...h.matchAll(/<span class="rf-num">(\d\d)<\/span>/g)].map((m) => m[1]), ["01", "02", "03", "04", "05", "06", "07"], "htmlDe: las 7 secciones 01..07, en orden");
+  igual(Fi.CATALOGO.every((id) => h.includes(`>${id}<`) || h.includes(`${id} · `)), true, "htmlDe: los IDs RQ.S.00 a 09");
+  igual([h.includes("staging."), h.includes("s•••.rastreo.example")], [false, true], "htmlDe: no verificado → enmascarado");
+  const sello = Fi.htmlDe(ficha, { secciones: ["veredicto", "indicadores"] });
+  igual([...sello.matchAll(/<span class="rf-num">(\d\d)<\/span>/g)].map((m) => m[1]), ["01", "02"], "htmlDe para el sello: sólo 01 y 02");
+  const mala = { ...ficha, veredicto: { ...ficha.veredicto, lectura: "<script>alert(1)</script>" } };
+  igual([Fi.htmlDe(mala).includes("<script>"), Fi.htmlDe(mala).includes("&lt;script&gt;")], [false, true], "htmlDe escapa todo el texto");
+  const doc = Fi.htmlDe(ficha, { documento: true, marca: "<svg></svg>" });
+  igual([doc.startsWith("<!doctype html>"), /@page\{size:A4/.test(doc), (doc.match(/class="rf-top"/g) || []).length, doc.includes('data-protocolo="rosetta-ficha/1"')], [true, true, 2, true],
+    "documento A4 (PDF): página, dos cabeceras (una por página) y la marca del protocolo");
+  // la página de medición pinta ESA ficha (y nada propio)
+  const pag = sinComentarios(leer("public/js/medicion-envivo.mjs"));
+  igual(/caja\.innerHTML = htmlDe\(armarFicha\(foto, \{ idioma: IDIOMA, verificado: s\.nombres_completos === true,/.test(pag) && /pintarFicha\(fotoHoy, s, co\);/.test(pag), true,
+    "la página de medición pinta la ficha con armarFicha + htmlDe, con la foto sellada");
+  for (const r of ["src/pages/es/q-ready/medicion/index.astro", "src/pages/q-ready/medicion/index.astro"])
+    igual(leer(r).includes('id="mv-ficha"'), true, `${r}: tiene la caja de la ficha`);
+  // /verificado/<dominio>: 01 y 02 de la ficha, con el esquema real
+  const cuerpo = V.cuerpoVerificado({ lang: "es", dominio: "ejemplo.cl", fila: { verificado_en: "2026-11-13T00:00:00Z", inventario_verificado_en: null },
+    mediciones: [{ fecha: fixture("a").foto.medido_utc, nota: "A", qex: 56, sha256: fixture("a").foto.sha256, foto_json: JSON.stringify(fixture("a").foto) }] });
+  igual([[...cuerpo.matchAll(/<span class="rf-num">(\d\d)<\/span>/g)].map((m) => m[1]), cuerpo.includes(">RQ.S.09<"), cuerpo.includes(`class="rf-lvl`)],
+    [["01", "02"], true, false], "/verificado: muestra 01 y 02 de la ficha (sin alertas ni acciones)");
+  // el PDF: el Worker arma la ficha del trabajo (con el correo medido y la verificación) y el VPS sólo la convierte
+  const E = await import("../lib/envio-informe.mjs");
+  const dbE = (verificado) => ({ prepare: (sql) => ({ bind: () => ({ first: async () => /qready_dominios/.test(sql) ? { publico: verificado ? 1 : null }
+    : /sondas_correo/.test(sql) ? { estado: "hecho", resultado: JSON.stringify(fixture("f").ctx.correo.resultado) } : null }) }) });
+  const ff = fixture("f").foto;
+  const t1 = await E.fichaDelTrabajo({ DB: dbE(false) }, { dominio: ff.dominio, foto: ff, correo_id: "c" }, "<svg></svg>");
+  igual([t1.ficha_html.includes('data-protocolo="rosetta-ficha/1"'), t1.ficha_html.includes("0/4 MX"), t1.ficha_html.includes("staging."), t1.lectura === Fi.lecturaDe(N.explicarNota(ff), ff)],
+    [true, true, false, true], "PDF: la ficha del trabajo lleva el correo medido, enmascara sin verificar y la lectura es la de la ficha");
+  const t2 = await E.fichaDelTrabajo({ DB: dbE(true) }, { dominio: ff.dominio, foto: ff, correo_id: null });
+  igual(t2.ficha_html.includes("staging.ejemplo.com.py"), true, "PDF: dueño verificado → nombres completos");
+  igual(/const \{ ficha_html, lectura \} = await fichaDelTrabajo\(env, /.test(sinComentarios(leer("lib/envio-informe.mjs"))), true, "la cola del informe entrega ficha_html al VPS");
+  igual(/def html_de_trabajo|PROTOCOLO = 'data-protocolo="rosetta-ficha\/1"'/.test(leer("vps/sonda-correo/informe_pdf.py")) && !/def html_informe/.test(leer("vps/sonda-correo/informe_pdf.py")), true,
+    "el VPS convierte la ficha y ya no arma su propio informe");
+}
+
 const { HERRAMIENTAS } = await import("../api.js");
 for (const n of ["medir_exposicion_pqc", "get_qready_grade"]) {
   const h = HERRAMIENTAS.find((x) => x.name === n);
@@ -290,4 +366,4 @@ for (const n of ["medir_exposicion_pqc", "get_qready_grade"]) {
 }
 
 if (fallas.length) { console.error("check-ficha: FALLA\n  " + fallas.join("\n  ")); process.exit(1); }
-console.log(`check-ficha: ok (${casos} casos · snapshot de 3 fotos × 2 idiomas · ${Object.keys(MUT).length} mutaciones de texto y 5 de código gritan · ajustes 1, 2 y 3 contra el camino real)${ACTUALIZAR ? " · SNAPSHOTS REESCRITOS: revise el diff" : ""}`);
+console.log(`check-ficha: ok (${casos} casos · snapshot de ${CASOS.length} fotos × 2 idiomas · ${Object.keys(MUT).length + 1} mutaciones de texto y 6 de código gritan · web, sello y PDF de la misma ficha · ajustes 1, 2 y 3 contra el camino real)${ACTUALIZAR ? " · SNAPSHOTS REESCRITOS: revise el diff" : ""}`);

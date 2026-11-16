@@ -129,5 +129,45 @@ def _ventana():
     assert (t + pausa + C.POLL) * 1000 <= espera / 2, f"peor hueco {t + pausa + C.POLL} s no cabe en la mitad de {espera // 1000} s"
 prueba("una pregunta colgada no se come la ventana de la página", _ventana)
 
-print(f"\ncheck-sonda-tls (python): {pasa} pasaron, {falla} fallaron")
+# --- 5. B1 (16-nov-2026): un servidor que sólo acepta TLS 1.3 entrega igual su hoja (servidores reales, locales)
+import importlib, ssl, subprocess, tempfile, threading  # noqa: E402
+socket.socket = real_sock
+socket.getaddrinfo = real_gai
+T = importlib.reload(T)   # las pruebas de arriba sustituyeron T.certificado: aquí va el de verdad
+def _servidor(version):
+    d = tempfile.mkdtemp()
+    subprocess.run(["openssl", "req", "-x509", "-newkey", "rsa:2048", "-nodes", "-keyout", f"{d}/k.pem",
+                    "-out", f"{d}/c.pem", "-days", "2", "-subj", "/CN=prueba13.example"], check=True, capture_output=True)
+    ctx = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER); ctx.load_cert_chain(f"{d}/c.pem", f"{d}/k.pem")
+    ctx.minimum_version = ctx.maximum_version = version
+    srv = socket.socket(); srv.bind(("127.0.0.1", 0)); srv.listen(4)
+    def atender():
+        for _ in range(4):
+            try:
+                c, _a = srv.accept()
+                try: ctx.wrap_socket(c, server_side=True).close()
+                except Exception: c.close()
+            except Exception: return
+    threading.Thread(target=atender, daemon=True).start()
+    der = ssl.PEM_cert_to_DER_cert(open(f"{d}/c.pem").read())
+    return srv.getsockname()[1], der
+real_ip = T.ip_publica
+saltados = []
+# El caso 1.3 necesita un Python con TLS 1.3 (el de la imagen del VPS lo tiene). Si éste no lo tiene (macOS
+# trae LibreSSL 2.8), NO se da por bueno: se cuenta como saltado en la línea final, con la causa.
+casos = [(ssl.TLSVersion.TLSv1_2, "sólo TLS 1.2")]
+if getattr(ssl, "HAS_TLSv1_3", False): casos.insert(0, (ssl.TLSVersion.TLSv1_3, "sólo TLS 1.3"))
+else: saltados.append(f"B1 por TLS 1.3: este Python ({ssl.OPENSSL_VERSION}) no tiene TLS 1.3; correr en la imagen del VPS")
+for version, nombre in casos:
+    def _b1(version=version, nombre=nombre):
+        puerto, der = _servidor(version)
+        T.ip_publica = lambda h, p=puerto: (socket.AF_INET, ("127.0.0.1", p))
+        r = T.certificado("prueba13.example")
+        igual((r["error"], r["der_b64"] == __import__("base64").b64encode(der).decode(), r.get("tls")),
+              (None, True, "1.3" if version == ssl.TLSVersion.TLSv1_3 else None), nombre)
+    prueba(f"B1: un servidor {'que sólo acepta TLS 1.3' if version == ssl.TLSVersion.TLSv1_3 else 'TLS 1.2'} entrega su hoja (la misma del servidor)", _b1)
+T.ip_publica = real_ip
+
+for x in saltados: print(f"  SALTADO {x}")
+print(f"\ncheck-sonda-tls (python): {pasa} pasaron, {falla} fallaron, {len(saltados)} saltados")
 sys.exit(1 if falla else 0)

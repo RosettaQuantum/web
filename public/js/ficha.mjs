@@ -30,7 +30,14 @@ export const PAIS_REFERENCIA = "CL";
 
 // ---------------------------------------------------------------- el protocolo, en datos
 // IDs estables: no se reutilizan nunca. RQ.S = seguridad; RQ.L queda reservado para el laboratorio.
+// El ID nombra el CONCEPTO; cada valor declara además su versión de método (`metodo`), así el día que
+// entre QEX-1.1 el mismo ID no tiene dos definiciones sin decirlo.
+// CATALOGO = lo que imprimen las tablas de la ficha, en orden. RQ.S.13 (nombres en el registro público,
+// NO afirma que respondan) va en el bloque estructurado y en la spec; RQ.S.10-12 están RESERVADOS
+// (inventario, proveedores, gobierno) y no se usan.
 export const CATALOGO = ["RQ.S.00", "RQ.S.01", "RQ.S.02", "RQ.S.03", "RQ.S.04", "RQ.S.05", "RQ.S.06", "RQ.S.07", "RQ.S.08", "RQ.S.09"];
+export const CATALOGO_COMPLETO = [...CATALOGO, "RQ.S.13"];
+export const RESERVADOS = ["RQ.S.10", "RQ.S.11", "RQ.S.12"];
 export const SECCIONES = ["veredicto", "indicadores", "alertas", "que_hacer", "no_medido", "evidencia", "limites"];
 export const TIPOS = ["medido", "modelo", "no medido"];
 // Cuatro niveles, en este orden (decisión del 16-nov: ALTA entra al protocolo). En inglés se imprimen
@@ -124,8 +131,6 @@ export function nombrador(dominio, verificado, hosts = []) {
 export const nombradorDeFoto = (foto, verificado) => nombrador(foto.dominio, verificado,
   [...(foto.ct?.hosts || []).map((h) => h.host), ...(foto.endpoints || []).map((e) => e.host)]);
 export const vistaHost = (dominio, verificado) => nombrador(dominio, verificado);
-// En la ficha, «Dónde» va sin el dominio registrable (ya está en el encabezado).
-const etiqueta = (h, dominio) => (h === dominio ? h : String(h).endsWith("." + dominio) ? String(h).slice(0, -(dominio.length + 1)) : String(h));
 
 // ---------------------------------------------------------------- ajuste 1 · alertas, acciones y no medido
 const clon = (x) => JSON.parse(JSON.stringify(x));
@@ -240,6 +245,8 @@ export function lecturaDe(x, foto, idioma = "es") {
       if (!foto.ct) causas.push(L.sin_superficie());
       else if (h.sensibles_sin_sondear?.length) causas.push(L.sin_sondear(h.sensibles_sin_sondear.length));
     }
+    // QREADY-NOTA-2.1: la dimensión pesada que no se pudo medir es la causa de la B
+    if (x.nota === "B") for (const nd of x.no_evaluado || []) if (nd && nd.dimension) causas.push(L.sin_dimension[nd.dimension] || nd.dimension);
   }
   const lista = causas.length < 2 ? causas.join("") : `${causas.slice(0, -1).join(", ")}${L.y}${causas[causas.length - 1]}`;
   if (h.principal_hibrido === true) return L.con_candado(lista || L.sin_causa());
@@ -253,17 +260,23 @@ const huella = (h) => (typeof h === "string" && h.length >= 12 ? `${h.slice(0, 8
 const sinMs = (iso) => String(iso || "").replace(/\.\d+Z$/, "Z");
 const entero = (v) => (v == null ? null : N.redondearPar(v));
 function rangos(ids) {
-  // A1, A2, A3 → A1-A3 ; A1, A3 → A1, A3. RQ.S.xx se listan tal cual.
+  // A1, A2, A3 → A1-A3 ; A3, A5 → A3 · A5 (como en la ficha aprobada). RQ.S.xx se listan tal cual.
   const nums = ids.map((i) => /^A(\d+)$/.exec(i)).filter(Boolean).map((m) => +m[1]);
-  if (nums.length !== ids.length || !nums.length) return ids.join(", ");
+  if (nums.length !== ids.length || !nums.length) return ids.join(" · ");
   const out = []; let ini = nums[0], fin = nums[0];
   for (const n of [...nums.slice(1), null]) {
     if (n === fin + 1) { fin = n; continue; }
     out.push(ini === fin ? `A${ini}` : `A${ini}-A${fin}`); ini = fin = n;
   }
-  return out.join(", ");
+  return out.join(" · ");
 }
 
+
+// ---------------------------------------------------------------- armarFicha: la ficha en datos
+// La forma es la de la ficha aprobada (yu-track, 16-nov): encabezado, veredicto, indicadores POR ID
+// (valor, unidad, texto, tipo), alertas A#, acciones H# (resuelve, efecto), no medido, evidencia,
+// límites y pie. El markdown, el HTML de la página y el PDF salen de ESTE objeto; nadie lo rearma.
+//
 // contexto:
 //   idioma            "es" | "en"
 //   verificado        el dueño verificó el dominio por DNS → nombres completos
@@ -285,143 +298,278 @@ export function armarFicha(foto, ctx = {}) {
   const pre = idioma === "en" ? "" : "/es";
   const urlDominio = ctx.publico ? `${SITE}${pre}/verificado/${dominio}`
     : `${SITE}${pre}/q-ready/medicion/?${new URLSearchParams({ dominio, ...(foto.vertical ? { sector: foto.vertical } : {}) })}`;
+  const sector = F.sector[foto.vertical] || foto.vertical || "";
 
-  // 1 · veredicto
+  // 01 · veredicto
   const cmp = comparacion(dominio, q.score, foto.referencia?.mediana_sector);
-  const sectorNombre = F.sector[foto.vertical] || foto.vertical;
   const referencia = q.score == null ? F.referencia_sin_qex
-    : cmp.compara ? F.referencia(sectorNombre, entero(foto.referencia.mediana_sector), foto.referencia.n_sector, foto.referencia.edicion, cmp.diferencia)
+    : cmp.compara ? F.referencia(sector.toLowerCase(), entero(foto.referencia.mediana_sector), foto.referencia.n_sector, foto.referencia.edicion, dominio, cmp.diferencia)
     : pais ? F.referencia_otro_pais(nombrePais(pais, idioma)) : F.referencia_sin_pais(tldDe(dominio));
-  const veredicto = {
-    filas: [
-      { id: "RQ.S.00", valor: x.nota ?? F.sin_nota, tipo: x.nota ? "medido" : "no medido", resaltar: !!x.nota },
-      { id: "RQ.S.01", valor: q.score == null ? F.sin_dato : F.qex(q.score), tipo: q.score == null ? "no medido" : "medido" },
-    ],
-    lineas: [
-      F.lectura(lecturaDe(x, foto, idioma)),
-      referencia,
-      ctx.publico ? F.publicacion_publica(urlDominio) : F.publicacion_privada,
-    ],
-  };
+  const ind = {};
+  const pon = (id, o) => { ind[id] = { nombre: F.indicador[id], ...o }; };
+  // metodo: con qué versión se midió cada valor (regla del protocolo: el ID es el concepto, metodo el cómo)
+  const mSondas = foto.instrumentos?.servidor || null;
+  pon("RQ.S.00", { valor: x.nota ?? null, unidad: null, texto: x.nota ?? F.sin_nota, tipo: x.nota ? "medido" : "no medido", barra: null, metodo: x.version });
+  pon("RQ.S.01", { valor: q.score ?? null, unidad: "/100", tope: q.tope ?? N.TOPE, texto: q.score == null ? F.sin_dato : F.qex(q.score),
+    tipo: q.score == null ? "no medido" : "medido", barra: q.score ?? null, metodo: q.version || null });
 
-  // 2 · indicadores
-  const ind = [];
+  // 02 · indicadores
   for (const id of ["RQ.S.02", "RQ.S.03", "RQ.S.04", "RQ.S.05"]) {
     const v = entero(dims[DIM[id]]);
-    ind.push({ id, valor: v == null ? F.sin_dato : F.sobre_100(v), tipo: v == null ? "no medido" : DIM[id] === "hndl" ? "modelo" : "medido" });
+    pon(id, { valor: v, unidad: "/100", texto: v == null ? F.sin_dato : F.sobre_100(v), tipo: v == null ? "no medido" : DIM[id] === "hndl" ? "modelo" : "medido", barra: v,
+      metodo: q.version || null });
   }
   const mx = foto.proveedores?.mx, cm = correoMedido(ctx.correo);
-  ind.push(Array.isArray(mx) && mx.length === 0 ? { id: "RQ.S.06", valor: F.correo_sin_mx, tipo: "medido" }
-    : cm && cm.total > 0 ? { id: "RQ.S.06", valor: F.correo(cm.aceptan, cm.total), tipo: "medido" }
-    : { id: "RQ.S.06", valor: ctx.correo && ["pendiente", "tomado"].includes(ctx.correo.estado) ? F.correo_pendiente : F.sin_dato, tipo: "no medido" });
+  const pendiente = !!ctx.correo && ["pendiente", "tomado"].includes(ctx.correo.estado);
+  pon("RQ.S.06", Array.isArray(mx) && mx.length === 0 ? { valor: 0, de: 0, unidad: "MX", texto: F.correo_sin_mx, tipo: "medido", barra: null }
+    : cm && cm.total > 0 ? { valor: cm.aceptan, de: cm.total, unidad: "MX", texto: F.correo(cm.aceptan, cm.total), tipo: "medido", barra: Math.round((100 * cm.aceptan) / cm.total) }
+    : { valor: null, unidad: "MX", texto: pendiente ? F.correo_pendiente : F.sin_dato, tipo: "no medido", barra: null });
   const c = foto.certificado || {}, dia = medido.slice(0, 10);
   if (c.ok && c.not_after) {
-    const dias = Math.floor((Date.parse(c.not_after.slice(0, 10)) - Date.parse(dia)) / 86400000);
-    ind.push({ id: "RQ.S.07", valor: dias < 0 ? F.vigencia_vencido(c.not_after.slice(0, 10)) : F.vigencia(dias, c.not_after.slice(0, 10)), tipo: "medido" });
-  } else ind.push({ id: "RQ.S.07", valor: F.sin_dato, tipo: "no medido" });
+    const fecha = c.not_after.slice(0, 10), dias = Math.floor((Date.parse(fecha) - Date.parse(dia)) / 86400000);
+    pon("RQ.S.07", { valor: dias, unidad: "días", fecha, texto: dias < 0 ? F.vigencia_vencido(fecha) : F.vigencia(dias, fecha), tipo: "medido", barra: null });
+  } else pon("RQ.S.07", { valor: null, unidad: "días", texto: F.sin_dato, tipo: "no medido", barra: null });
   const st = foto.proveedores?.security_txt;
-  ind.push({ id: "RQ.S.08", valor: st === true ? F.security_si : st === false ? F.security_no : F.sin_dato, tipo: typeof st === "boolean" ? "medido" : "no medido" });
+  pon("RQ.S.08", { valor: typeof st === "boolean" ? st : null, unidad: null, texto: st === true ? F.security_si : st === false ? F.security_no : F.sin_dato,
+    tipo: typeof st === "boolean" ? "medido" : "no medido", barra: null });
   const eps = Array.isArray(foto.endpoints) ? foto.endpoints : [];
-  ind.push(foto.ct || eps.length
-    ? { id: "RQ.S.09", valor: eps.length ? F.superficie(eps.filter((e) => e.responde_443 === true).length, eps.length) : F.superficie_sin, tipo: "medido" }
-    : { id: "RQ.S.09", valor: F.sin_dato, tipo: "no medido" });
+  const responden = eps.filter((e) => e.responde_443 === true).length;
+  pon("RQ.S.09", foto.ct || eps.length
+    ? { valor: responden, de: eps.length, unidad: "nombres", texto: eps.length ? F.superficie(responden, eps.length) : F.superficie_sin, tipo: "medido", barra: null }
+    : { valor: null, unidad: "nombres", texto: F.sin_dato, tipo: "no medido", barra: null });
+  for (const id of ["RQ.S.06", "RQ.S.07", "RQ.S.08", "RQ.S.09"]) ind[id].metodo = mSondas;
+  // RQ.S.13: cuántos nombres hay en el registro público. NO dice cuántos responden (eso es RQ.S.09).
+  const nCT = foto.ct?.conteos?.hostnames;
+  pon("RQ.S.13", foto.ct && nCT != null ? { valor: nCT, unidad: "nombres", texto: F.nombres_ct(nCT), tipo: "medido", barra: null, metodo: `registro CT: ${foto.ct.fuente}` }
+    : { valor: null, unidad: "nombres", texto: F.sin_dato, tipo: "no medido", barra: null, metodo: null });
 
-  // 3 · alertas (ya en orden: GRAVE, luego MEDIA; INFO no lo emite la NOTA-2)
+  // 03 · alertas (GRAVE, ALTA, MEDIA; INFO no lo emite la NOTA-2.1). «Dónde» es el nombre completo,
+  // enmascarado si el dueño no verificó el dominio; sin nombre, el sitio medido.
   const alertas = a.alertas.map((al) => ({ id: al.id, nivel: al.nivel, codigo: al.codigo, hallazgo: T.alerta[al.codigo] || al.codigo,
-    donde: etiqueta(ver(al.host ?? foto.www ?? dominio), dominio) }));
+    donde: ver(al.host ?? foto.www ?? dominio) }));
 
-  // 4 · qué hacer
-  const que = acciones.map((ac, i) => ({ id: `H${i + 1}`, codigo: ac.codigo, accion: F.accion[ac.codigo](ac.n), resuelve: ac.resuelve,
-    efecto: ac.sube_a, hosts: ac.hosts.map((h) => etiqueta(ver(h), dominio)) }));
+  // 04 · qué hacer (efecto acumulado y calculado: ver analizar)
+  const que = acciones.map((ac, i) => {
+    const h1 = ac.hosts.length === 1 ? ver(ac.hosts[0]) : ac.codigo === "hibrido_en_principal" ? foto.www : null;
+    return { id: `H${i + 1}`, codigo: ac.codigo, accion: F.accion[ac.codigo](ac.n, h1), resuelve: ac.resuelve, efecto: ac.sube_a,
+      hosts: ac.hosts.map(ver) };
+  });
 
-  // 5 · no medido
+  // 05 · no medido
   const nm = [];
   if (a.sin_sondear && a.sin_sondear.length) nm.push(F.no_medido.tope(a.sin_sondear.length, a.sensibles_total));
+  for (const nd of x.no_evaluado || []) if (nd && nd.dimension) nm.push(F.no_medido.dimension(F.indicador[Object.keys(DIM).find((k) => DIM[k] === nd.dimension)] || nd.dimension));
   const fallaron = [...new Set((ctx.fuentes_que_fallaron || []).map((f) => f.fuente).filter(Boolean))];
   if (!foto.ct) nm.push(F.no_medido.sin_registro);
   else if (fallaron.length) nm.push(F.no_medido.fuentes(fallaron.join(", "), foto.ct.fuente, foto.ct.filas, foto.ct.conteos?.hostnames ?? 0));
   if (x.motivo === "borde_no_medido") nm.push(F.no_medido.borde);
   const sinEvid = eps.filter((e) => e.responde_443 === true && N.hibridoEnEndpoint(e) == null).length;
   if (sinEvid) nm.push(F.no_medido.sin_evidencia(sinEvid));
-  if (!(Array.isArray(mx) && mx.length === 0) && !(cm && cm.total > 0))
-    nm.push(ctx.correo && ["pendiente", "tomado"].includes(ctx.correo.estado) ? F.no_medido.correo_pendiente : F.no_medido.correo_sin_dato);
+  if (cm) {
+    const publicados = Array.isArray(ctx.correo?.resultado?.mx_publicados) ? ctx.correo.resultado.mx_publicados.length : ctx.correo.resultado.servidores.length;
+    if (publicados > cm.total) nm.push(F.no_medido.correo_mx(publicados - cm.total, publicados));
+  } else if (!(Array.isArray(mx) && mx.length === 0)) nm.push(pendiente ? F.no_medido.correo_pendiente : F.no_medido.correo_sin_dato);
+  if (dims.hndl != null) nm.push(F.no_medido.hndl(sector.toLowerCase()));
   nm.push(F.no_medido.interno, F.no_medido.nunca);
 
-  // 6 · evidencia
-  const ev = [
-    F.evidencia.instrumento([foto.instrumentos?.servidor, q.version, x.version].filter(Boolean).join(" · ")),
-    F.evidencia.medido(medido),
-    foto.ct?.sha256_crudo ? F.evidencia.huella_ct(huella(foto.ct.sha256_crudo)) : F.evidencia.huella_ct_sin,
-    ...(foto.sha256 ? [F.evidencia.huella_foto(huella(foto.sha256))] : []),
-    F.evidencia.metodo,
-  ];
-
-  // 7 · límites y siguiente paso
-  const lim = [F.limites.foto, ctx.publico ? F.limites.pagina(urlDominio) : F.limites.informe(urlDominio)];
-
-  const ficha = {
-    protocolo: PROTOCOLO, idioma, dominio,
-    encabezado: { titulo: F.titulo, dominio, sector: sectorNombre, pais: pais || null, medido_utc: medido },
-    secciones: [
-      { n: 1, clave: "veredicto", titulo: F.secciones[0], filas: veredicto.filas.map((f) => ({ ...f, indicador: F.indicador[f.id] })), lineas: veredicto.lineas },
-      { n: 2, clave: "indicadores", titulo: F.secciones[1], filas: ind.map((f) => ({ ...f, indicador: F.indicador[f.id] })) },
-      { n: 3, clave: "alertas", titulo: F.secciones[2], filas: alertas },
-      { n: 4, clave: "que_hacer", titulo: F.secciones[3], filas: que },
-      { n: 5, clave: "no_medido", titulo: F.secciones[4], lineas: nm },
-      { n: 6, clave: "evidencia", titulo: F.secciones[5], lineas: ev },
-      { n: 7, clave: "limites", titulo: F.secciones[6], lineas: lim },
-    ],
-    pie: F.pie(urlDominio),
-    url_dominio: urlDominio,
+  // 06 · evidencia
+  const evidencia = {
+    instrumento: foto.instrumentos?.servidor || null,
+    versiones: [q.version, x.version].filter(Boolean).join(" · "),
+    medido,
+    huella_ct: foto.ct?.sha256_crudo ? huella(foto.ct.sha256_crudo) : null,
+    certificados: foto.ct ? foto.ct.filas : null,
+    huella_foto: foto.sha256 ? huella(foto.sha256) : null,
+    metodo: F.evidencia.metodo.replace(/^[^:]+: /, ""),
   };
-  return ficha;
+
+  // 07 · límites y siguiente paso
+  const aA = que.findIndex((h) => h.efecto === "A");
+  const lim = [F.limites.foto, ctx.publico ? F.limites.pagina(urlDominio) : F.limites.informe(urlDominio), ...(aA >= 0 ? [F.limites.hacia_a(aA + 1)] : [])];
+
+  return {
+    protocolo: PROTOCOLO, idioma, dominio,
+    encabezado: { titulo: F.titulo, kicker: F.kicker, dominio, sector, pais: pais || null, pais_nombre: pais ? nombrePais(pais, idioma) : F.pais_sin,
+      medido_utc: medido, desde_afuera: F.desde_afuera },
+    veredicto: { lectura: lecturaDe(x, foto, idioma), referencia, publicacion: ctx.publico ? F.publicacion_publica(urlDominio) : F.publicacion_privada },
+    indicadores: ind, alertas, acciones: que, no_medido: nm, evidencia, limites: lim,
+    pie: F.pie, url_dominio: urlDominio,
+  };
 }
 
-// La ficha → markdown canónico. Sólo formato: todo el contenido viene de armarFicha.
+// Las líneas de evidencia, en el orden de la ficha aprobada.
+function lineasEvidencia(F, e) {
+  return [
+    F.evidencia.instrumento(e.instrumento || "—"),
+    F.evidencia.versiones(e.versiones),
+    F.evidencia.medido(e.medido),
+    e.huella_ct ? F.evidencia.huella_ct(e.huella_ct, e.certificados) : F.evidencia.huella_ct_sin,
+    ...(e.huella_foto ? [F.evidencia.huella_foto(e.huella_foto)] : []),
+    F.evidencia.metodo,
+  ];
+}
+const num2 = (n) => String(n).padStart(2, "0");
+const efectoMd = (F, e) => (e ? F.efecto_sube(e) : F.efecto_no);
+
+// ---------------------------------------------------------------- markdownDe: la ficha → markdown canónico
 export function markdownDe(ficha) {
   const F = textosFicha(ficha.idioma), e = ficha.encabezado, C = F.col;
-  const tipo = (t) => F.tipo[t];
   const tabla = (cab, filas) => [`| ${cab.join(" | ")} |`, `|${cab.map(() => "---").join("|")}|`, ...filas.map((f) => `| ${f.join(" | ")} |`)];
-  const out = [`# ${e.titulo}`, `**${e.dominio}** · ${e.sector} · ${e.pais || F.pais_sin} · ${F.medido(e.medido_utc.slice(0, 16).replace("T", " "))}`];
-  for (const s of ficha.secciones) {
-    out.push("", `## ${s.n}. ${s.titulo}`);
-    if (s.clave === "veredicto") {
-      out.push(...tabla([C.id, C.indicador, C.valor], s.filas.map((f) => [f.id, f.indicador, f.resaltar ? `**${f.valor}**` : f.valor])), "");
-      out.push(...s.lineas);
-    } else if (s.clave === "indicadores") {
-      out.push(...tabla([C.id, C.indicador, C.valor, C.tipo], s.filas.map((f) => [f.id, f.indicador, f.valor, tipo(f.tipo)])));
-    } else if (s.clave === "alertas") {
-      out.push(...(s.filas.length ? tabla([C.n, C.nivel, C.hallazgo, C.donde], s.filas.map((f) => [f.id, F.nivel[f.nivel], f.hallazgo, f.donde])) : [F.vacio]));
-    } else if (s.clave === "que_hacer") {
-      out.push(...(s.filas.length ? tabla([C.n, C.accion, C.resuelve, C.efecto],
-        s.filas.map((f) => [f.id, f.accion, f.resuelve.length ? rangos(f.resuelve) : "—", f.efecto ? F.efecto_sube(f.efecto) : F.efecto_no])) : [F.vacio]));
-    } else {
-      out.push(...s.lineas.map((l) => `- ${l}`));
-    }
-  }
+  const titulo = (i) => `## ${num2(i + 1)} ${F.secciones[i]}`;
+  const I = ficha.indicadores;
+  const out = [`# ${e.titulo}`, `**${e.dominio}** · ${e.sector} · ${e.pais_nombre} · ${F.medido(e.medido_utc.slice(0, 16).replace("T", " "))} · ${e.desde_afuera}`];
+  out.push("", titulo(0), ...tabla([C.id, C.indicador, C.valor], ["RQ.S.00", "RQ.S.01"].map((id) => [id, I[id].nombre, id === "RQ.S.00" && I[id].valor ? `**${I[id].texto}**` : I[id].texto])), "",
+    F.lectura(ficha.veredicto.lectura), ficha.veredicto.referencia, ficha.veredicto.publicacion);
+  out.push("", titulo(1), ...tabla([C.id, C.indicador, C.valor, C.tipo], CATALOGO.slice(2).map((id) => [id, I[id].nombre, I[id].texto, F.tipo[I[id].tipo]])), "", F.leyenda);
+  out.push("", titulo(2), ...(ficha.alertas.length ? tabla([C.n, C.nivel, C.hallazgo, C.donde], ficha.alertas.map((a) => [a.id, F.nivel[a.nivel], a.hallazgo, a.donde])) : [F.vacio]));
+  out.push("", titulo(3), ...(ficha.acciones.length ? tabla([C.n, C.accion, C.resuelve, C.efecto],
+    ficha.acciones.map((h) => [h.id, h.accion, h.resuelve.length ? rangos(h.resuelve) : "—", efectoMd(F, h.efecto)])) : [F.vacio]));
+  out.push("", titulo(4), ...ficha.no_medido.map((l) => `- ${l}`));
+  out.push("", titulo(5), ...lineasEvidencia(F, ficha.evidencia).map((l) => `- ${l}`));
+  out.push("", titulo(6), ...ficha.limites.map((l) => `- ${l}`));
   out.push("", ficha.pie, "");
   return out.join("\n");
 }
 
-// El bloque `presentacion` de la respuesta (encargo del 13-nov, literal en la forma).
+// ---------------------------------------------------------------- htmlDe: la ficha → HTML (página y PDF)
+// El diseño de la ficha aprobada (ficha-yu-track.html): paleta del sitio, Newsreader e IBM Plex. Todo
+// queda bajo .rf para no tocar el resto de la página. documento: true arma el A4 completo que el VPS
+// convierte en PDF (lib/envio-informe.mjs → vps/sonda-correo/informe_pdf.py): misma fuente que la web.
+// secciones: las claves de SECCIONES a mostrar (la página del sello muestra sólo 01 y 02).
+const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+const conEtiqueta = (l) => { const i = l.indexOf(": "); return i > 0 && i < 30 ? `<b>${esc(l.slice(0, i + 1))}</b> ${esc(l.slice(i + 2))}` : esc(l); };
+export const CSS_FICHA = `
+.rf{--rf-teal:#0F8B7E;--rf-ink:#12302C;--rf-och:#B8892E;--rf-red:#B4432F;--rf-grey:#8A8F8A;--rf-sub:#5E6A67;--rf-line:#DCE6E3;--rf-paper:#FBFAF7;
+ color:var(--rf-ink);font-family:var(--sans,'IBM Plex Sans',system-ui,sans-serif);font-size:15px;line-height:1.5}
+.rf *{box-sizing:border-box}
+.rf .rf-kick{font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--rf-teal);font-weight:600;margin:0}
+.rf .rf-h1{font-family:var(--serif,'Newsreader',Georgia,serif);font-weight:600;font-size:40px;line-height:1.1;margin:2px 0;letter-spacing:-.01em;overflow-wrap:anywhere}
+.rf .rf-meta{color:var(--rf-sub);font-size:14px;margin:0}
+.rf .rf-meta b{color:var(--rf-ink);font-weight:500}
+.rf .rf-h2{font-family:var(--serif,'Newsreader',Georgia,serif);font-weight:600;font-size:21px;margin:22px 0 8px;display:flex;align-items:baseline;gap:8px}
+.rf .rf-num{font-family:var(--mono,'IBM Plex Mono',ui-monospace,monospace);font-size:12px;color:var(--rf-teal);font-weight:500}
+.rf .rf-hero{display:flex;gap:14px;flex-wrap:wrap}
+.rf .rf-grade{flex:0 0 170px;border-radius:10px;padding:12px 14px;display:flex;flex-direction:column;justify-content:space-between;border:1px solid}
+.rf .rf-grade .rf-l{font-family:var(--serif,'Newsreader',Georgia,serif);font-size:84px;line-height:1;font-weight:600}
+.rf .rf-g-a{background:#E3F1EE;border-color:#A9D3CB;color:var(--rf-teal)}
+.rf .rf-g-b{background:#F7EFDD;border-color:#E2CF9F;color:#8C6618}
+.rf .rf-g-f{background:#F6E6E2;border-color:#E2B3A9;color:var(--rf-red)}
+.rf .rf-g-n{background:#F1F3F2;border-color:var(--rf-line);color:var(--rf-grey)}
+.rf .rf-lab{font-family:var(--mono,'IBM Plex Mono',ui-monospace,monospace);font-size:11px;color:var(--rf-sub);text-transform:uppercase}
+.rf .rf-lab.rf-min{text-transform:none}
+.rf .rf-qex{flex:1 1 280px;border-radius:10px;background:#fff;border:1px solid var(--rf-line);padding:12px 16px}
+.rf .rf-qex .rf-n{font-family:var(--serif,'Newsreader',Georgia,serif);font-size:46px;line-height:1;font-weight:600}
+.rf .rf-qex .rf-n small{font-size:18px;color:var(--rf-sub)}
+.rf .rf-scale{position:relative;height:10px;background:#EEF2F1;border-radius:5px;margin:12px 0 4px}
+.rf .rf-scale .rf-f{position:absolute;left:0;top:0;bottom:0;background:var(--rf-teal);border-radius:5px}
+.rf .rf-scale .rf-t{position:absolute;left:84%;top:-4px;bottom:-4px;border-left:2px dashed var(--rf-ink)}
+.rf .rf-sl{display:flex;justify-content:space-between;font-family:var(--mono,'IBM Plex Mono',ui-monospace,monospace);font-size:11px;color:var(--rf-sub)}
+.rf .rf-read{margin:8px 0 0}
+.rf .rf-notes{display:flex;gap:10px;margin-top:10px;flex-wrap:wrap}
+.rf .rf-note{flex:1 1 240px;border-left:3px solid var(--rf-grey);background:#fff;padding:7px 11px;font-size:13px}
+.rf .rf-table{width:100%;border-collapse:collapse;background:#fff;border:1px solid var(--rf-line)}
+.rf .rf-table th{text-align:left;font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--rf-sub);font-weight:600;padding:7px 10px;background:#F1F5F4;border-bottom:1px solid var(--rf-line)}
+.rf .rf-table td{padding:6px 10px;border-bottom:1px solid #EDF1F0;vertical-align:middle}
+.rf .rf-id{font-family:var(--mono,'IBM Plex Mono',ui-monospace,monospace);font-size:12px;color:var(--rf-teal);white-space:nowrap}
+.rf .rf-val{font-weight:500}
+.rf .rf-mono{font-family:var(--mono,'IBM Plex Mono',ui-monospace,monospace);font-size:12px;overflow-wrap:anywhere}
+.rf .rf-b{width:22%}
+.rf .rf-bar{display:block;position:relative;height:6px;background:#EEF2F1;border-radius:3px}
+.rf .rf-fill{position:absolute;left:0;top:0;bottom:0;border-radius:3px}
+.rf .rf-pill{border:1px solid;border-radius:20px;padding:0 7px;font-size:11px;white-space:nowrap}
+.rf .rf-lvl{font-family:var(--mono,'IBM Plex Mono',ui-monospace,monospace);font-size:11px;font-weight:500;padding:1px 7px;border-radius:4px;white-space:nowrap}
+.rf .rf-lvl-grave{background:#F6E6E2;color:var(--rf-red)}
+.rf .rf-lvl-alta{background:#F8E9E5;color:#9A3B28}
+.rf .rf-lvl-media{background:#F7EFDD;color:#8C6618}
+.rf .rf-lvl-info{background:#F1F3F2;color:var(--rf-sub)}
+.rf .rf-eff{font-family:var(--mono,'IBM Plex Mono',ui-monospace,monospace);font-size:12px;color:var(--rf-sub);white-space:nowrap}
+.rf .rf-eff-up{color:var(--rf-teal);font-weight:500}
+.rf .rf-legend{font-size:12px;color:var(--rf-sub);margin-top:6px}
+.rf .rf-ul{margin:4px 0 0;padding-left:18px}
+.rf .rf-ul li{margin-bottom:3px}
+.rf .rf-ev{background:#fff;border:1px solid var(--rf-line);border-radius:8px;padding:8px 12px;font-family:var(--mono,'IBM Plex Mono',ui-monospace,monospace);font-size:12px;line-height:1.7;overflow-wrap:anywhere}
+.rf .rf-ev span{color:var(--rf-sub)}
+.rf .rf-two{display:flex;gap:14px;flex-wrap:wrap}
+.rf .rf-two>div{flex:1 1 260px}
+.rf .rf-pie{margin-top:18px;border-top:1px solid var(--rf-line);padding-top:6px;font-family:var(--mono,'IBM Plex Mono',ui-monospace,monospace);font-size:11px;color:var(--rf-sub)}
+.rf .rf-top{display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--rf-line);padding-bottom:8px;margin-bottom:12px}
+.rf .rf-brand{display:flex;align-items:center;gap:8px;font-family:var(--serif,'Newsreader',Georgia,serif);font-weight:600;font-size:17px}
+.rf .rf-brand svg{height:26px;width:auto}
+.rf .rf-proto{font-family:var(--mono,'IBM Plex Mono',ui-monospace,monospace);font-size:10px;color:var(--rf-sub);text-align:right}
+@media (max-width:600px){.rf .rf-h1{font-size:30px}.rf .rf-grade{flex-basis:100%}.rf .rf-b{display:none}}
+`;
+// El A4 del PDF: el pie va en el margen de cada página (el texto del pie es el de la ficha, ver htmlDe).
+const cssPdf = (pie) => `@page{size:A4;margin:12mm 15mm 14mm;background:#FBFAF7;@bottom-left{content:"${pie.replace(/["\\]/g, "")}";font:7pt 'IBM Plex Mono',monospace;color:#5E6A67}
+ @bottom-right{content:counter(page) " / " counter(pages);font:7pt 'IBM Plex Mono',monospace;color:#5E6A67}}
+body{margin:0;background:#FBFAF7}.rf{font-size:9pt;line-height:1.4}.rf .rf-h1{font-size:28pt}.rf .rf-h2{font-size:13pt;margin:10px 0 5px}
+.rf .rf-grade{flex-basis:44mm}.rf .rf-grade .rf-l{font-size:58pt}.rf .rf-qex .rf-n{font-size:32pt}.rf .rf-lab{font-size:7pt}
+.rf .rf-table th{font-size:7pt;padding:5px 9px}.rf .rf-table td{padding:3.5px 9px}.rf .rf-mono,.rf .rf-id,.rf .rf-eff{font-size:7.8pt}
+.rf .rf-note{font-size:8.2pt;padding:5px 10px}.rf .rf-legend{font-size:7.2pt}.rf .rf-pag2{break-before:page}.rf .rf-table tr{break-inside:avoid}`;
+const FUENTES = "https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,500;6..72,600&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap";
+
+export function htmlDe(ficha, { documento = false, secciones = SECCIONES, marca = null } = {}) {
+  const F = textosFicha(ficha.idioma), e = ficha.encabezado, C = F.col, I = ficha.indicadores;
+  const ver = new Set(secciones);
+  const h2 = (i) => `<h2 class="rf-h2"><span class="rf-num">${num2(i + 1)}</span>${esc(F.secciones[i])}</h2>`;
+  const tabla = (cab, filas) => `<table class="rf-table"><tr>${cab.map((c) => `<th>${esc(c)}</th>`).join("")}</tr>${filas.join("")}</table>`;
+  const color = (t) => (t === "modelo" ? "var(--rf-och)" : t === "medido" ? "var(--rf-teal)" : "var(--rf-grey)");
+  const pill = (t) => `<span class="rf-pill" style="color:${color(t)};border-color:${color(t)}">${esc(F.tipo[t])}</span>`;
+  const barra = (v, t) => (v == null ? "" : `<span class="rf-bar"><span class="rf-fill" style="width:${Math.max(0, Math.min(100, v))}%;background:${color(t)}"></span></span>`);
+  const nota = I["RQ.S.00"].valor, qx = I["RQ.S.01"];
+  const gcls = !nota ? "rf-g-n" : /^A/.test(nota) ? "rf-g-a" : nota === "B" || nota === "C" ? "rf-g-b" : "rf-g-f";
+  const partes = [];
+  if (documento) partes.push(`<div class="rf-top"><div class="rf-brand">${marca || ""}Rosetta Quantum</div><div class="rf-proto">FICHA ROSETTA · ${esc(PROTOCOLO)}</div></div>`);
+  partes.push(`<p class="rf-kick">${esc(e.kicker)}</p><h1 class="rf-h1">${esc(e.dominio)}</h1>`,
+    `<p class="rf-meta"><b>${esc(e.sector)}</b> · ${esc(e.pais_nombre)} · ${esc(F.medido("").replace(/ UTC$/, "").trim())} <b>${esc(e.medido_utc.slice(0, 16).replace("T", " "))} UTC</b> · ${esc(e.desde_afuera)}</p>`);
+  if (ver.has("veredicto")) partes.push(h2(0),
+    `<div class="rf-hero"><div class="rf-grade ${gcls}"><div class="rf-lab">RQ.S.00 · ${esc(I["RQ.S.00"].nombre)}</div><div class="rf-l">${esc(nota || "—")}</div><div class="rf-lab rf-min">${esc(nota ? F.escala : F.sin_nota)}</div></div>`
+    + `<div class="rf-qex"><div class="rf-lab">RQ.S.01 · ${esc(qx.nombre)}</div><div class="rf-n">${esc(qx.valor ?? "—")}<small> /100</small></div>`
+    + `<div class="rf-scale"><div class="rf-f" style="width:${qx.valor ?? 0}%"></div><div class="rf-t"></div></div>`
+    + `<div class="rf-sl"><span>0</span><span style="margin-left:auto;margin-right:14%">${esc(F.tope_externo)}</span><span>100</span></div>`
+    + `<p class="rf-read">${esc(ficha.veredicto.lectura)}</p></div></div>`,
+    `<div class="rf-notes"><div class="rf-note">${conEtiqueta(ficha.veredicto.referencia)}</div><div class="rf-note">${conEtiqueta(ficha.veredicto.publicacion)}</div></div>`);
+  if (ver.has("indicadores")) partes.push(h2(1), tabla([C.id, C.indicador, C.valor, "", C.tipo], CATALOGO.slice(2).map((id) => {
+    const r = I[id]; return `<tr><td class="rf-id">${id}</td><td>${esc(r.nombre)}</td><td class="rf-val">${esc(r.texto)}</td><td class="rf-b">${barra(r.barra, r.tipo)}</td><td>${pill(r.tipo)}</td></tr>`;
+  })), `<p class="rf-legend">${esc(F.leyenda)}</p>`);
+  if (ver.has("alertas")) partes.push(h2(2), ficha.alertas.length ? tabla([C.n, C.nivel, C.hallazgo, C.donde], ficha.alertas.map((a) =>
+    `<tr><td class="rf-id">${a.id}</td><td><span class="rf-lvl rf-lvl-${a.nivel.toLowerCase()}">${esc(F.nivel[a.nivel])}</span></td><td>${esc(a.hallazgo)}</td><td class="rf-mono">${esc(a.donde)}</td></tr>`)) : `<p>${esc(F.vacio)}</p>`);
+  const pag2 = [];
+  if (ver.has("que_hacer")) pag2.push(h2(3), ficha.acciones.length ? tabla([C.n, C.accion, C.resuelve, C.efecto], ficha.acciones.map((h) =>
+    `<tr><td class="rf-id">${h.id}</td><td>${esc(h.accion)}</td><td class="rf-mono">${esc(h.resuelve.length ? rangos(h.resuelve) : "—")}</td><td><span class="rf-eff${h.efecto ? " rf-eff-up" : ""}">${esc(h.efecto ? `→ ${h.efecto}` : F.efecto_no)}</span></td></tr>`)) : `<p>${esc(F.vacio)}</p>`);
+  const dos = [];
+  if (ver.has("no_medido")) dos.push(`<div>${h2(4)}<ul class="rf-ul">${ficha.no_medido.map((l) => `<li>${l === F.no_medido.nunca ? `<b>${esc(l)}</b>` : esc(l)}</li>`).join("")}</ul></div>`);
+  if (ver.has("evidencia")) dos.push(`<div>${h2(5)}<div class="rf-ev">${lineasEvidencia(F, ficha.evidencia).map((l) => { const i = l.indexOf(": "); return `<span>${esc(l.slice(0, i))}</span> ${esc(l.slice(i + 2))}`; }).join("<br>")}</div></div>`);
+  if (dos.length) pag2.push(`<div class="rf-two">${dos.join("")}</div>`);
+  if (ver.has("limites")) pag2.push(h2(6), `<ul class="rf-ul">${ficha.limites.map((l) => `<li>${esc(l)}</li>`).join("")}</ul>`);
+  if (documento && pag2.length) pag2.unshift(`<div class="rf-top"><div class="rf-brand">${marca || ""}Rosetta Quantum</div><div class="rf-proto">${esc(e.dominio)} · ${esc(e.medido_utc.slice(0, 10))}</div></div>`);
+  if (pag2.length) partes.push(`<div class="rf-pag2">${pag2.join("")}</div>`);
+  if (!documento && ver.has("limites")) partes.push(`<p class="rf-pie">${esc(ficha.pie)}</p>`);
+  const cuerpo = `<div class="rf${documento ? " rf-pdf" : ""}" data-protocolo="${esc(PROTOCOLO)}">${partes.join("")}</div>`;
+  if (!documento) return cuerpo;
+  return `<!doctype html><html lang="${ficha.idioma}"><head><meta charset="utf-8"><title>${esc(`${F.titulo} · ${e.dominio}`)}</title>`
+    + `<link href="${FUENTES}" rel="stylesheet"><style>${CSS_FICHA}${cssPdf(ficha.pie)}</style></head><body>${cuerpo}</body></html>`;
+}
+
+// El bloque `presentacion` de la respuesta: el markdown canónico y la ficha en datos.
 export function presentacion(foto, ctx = {}) {
   const ficha = armarFicha(foto, ctx);
   const F = textosFicha(ficha.idioma);
   return { protocolo: PROTOCOLO, spec: SPEC, instruccion_agente: F.instruccion_agente, idioma: ficha.idioma,
-    markdown: markdownDe(ficha), encabezado: ficha.encabezado, secciones: ficha.secciones, pie: ficha.pie };
+    markdown: markdownDe(ficha), ficha };
 }
 
 // ---------------------------------------------------------------- el validador de la sintaxis
-// Lo que cualquiera puede comprobar sobre un markdown rosetta-ficha/1 sin la foto: las 7 secciones en
-// orden, los IDs del catálogo en orden, alertas A1..An con nivel válido y ordenadas, acciones H1..Hn
-// con su efecto, huellas abreviadas y el pie. Devuelve la lista de fallas ([] = válido).
+// Lo que cualquiera puede comprobar sobre un markdown rosetta-ficha/1 sin la foto: las 7 secciones
+// (01..07) en orden, los IDs del catálogo en orden, alertas A1..An con nivel válido y ordenadas,
+// acciones H1..Hn con su efecto, huellas abreviadas y el pie. Devuelve la lista de fallas ([] = válido).
 export function validarMarkdown(md, idioma = "es") {
   const F = textosFicha(idioma), fallas = [];
   const L = String(md).split("\n");
   if (L[0] !== `# ${F.titulo}`) fallas.push("encabezado: la primera línea no es el título fijo");
-  if (!/^\*\*[a-z0-9.-]+\*\* · .+ · .+ · .+ \d{4}-\d{2}-\d{2} \d{2}:\d{2} UTC$/.test(L[1] || "")) fallas.push("encabezado: la segunda línea no es «**dominio** · sector · país · medido AAAA-MM-DD HH:MM UTC»");
+  const fin = ` UTC · ${F.desde_afuera}`;
+  if (!/^\*\*[a-z0-9.-]+\*\* · .+ · .+ · .+ \d{4}-\d{2}-\d{2} \d{2}:\d{2}/.test(L[1] || "") || !(L[1] || "").endsWith(fin)) fallas.push("encabezado: la segunda línea no es «**dominio** · sector · país · medido AAAA-MM-DD HH:MM UTC · …»");
   const h2 = L.filter((l) => l.startsWith("## "));
-  const esperadas = F.secciones.map((t, i) => `## ${i + 1}. ${t}`);
+  const esperadas = F.secciones.map((t, i) => `## ${num2(i + 1)} ${t}`);
   if (JSON.stringify(h2) !== JSON.stringify(esperadas)) fallas.push(`secciones: ${JSON.stringify(h2)} ≠ las 7 fijas en orden`);
   const seccion = (n) => { const i = L.indexOf(esperadas[n - 1]); const j = n < 7 ? L.indexOf(esperadas[n]) : L.length; return i < 0 ? [] : L.slice(i + 1, j < 0 ? L.length : j); };
   const celdas = (l) => l.split("|").slice(1, -1).map((c) => c.trim());
@@ -441,14 +589,14 @@ export function validarMarkdown(md, idioma = "es") {
   if (!ac.length && !seccion(4).includes(F.vacio)) fallas.push("qué hacer: ni tabla ni «" + F.vacio + "»");
   ac.forEach((c, i) => {
     if (c[0] !== `H${i + 1}`) fallas.push(`acciones: ${c[0]} en la posición ${i + 1}`);
-    if (!/^(—|(A\d+(-A\d+)?|RQ\.S\.\d\d)(, (A\d+(-A\d+)?|RQ\.S\.\d\d))*)$/.test(c[2])) fallas.push(`acciones: «Resuelve» inválido en ${c[0]}: «${c[2]}»`);
+    if (!/^(—|(A\d+(-A\d+)?|RQ\.S\.\d\d)( · (A\d+(-A\d+)?|RQ\.S\.\d\d))*)$/.test(c[2])) fallas.push(`acciones: «Resuelve» inválido en ${c[0]}: «${c[2]}»`);
     if (!(c[3] === F.efecto_no || /^-> (A\+|[ABCDF])$/.test(c[3]))) fallas.push(`acciones: efecto inválido en ${c[0]}: «${c[3]}»`);
   });
   for (const n of [5, 6, 7]) if (!seccion(n).some((l) => l.startsWith("- "))) fallas.push(`sección ${n}: vacía`);
   for (const l of seccion(6)) if (/[0-9a-f]{13,}/.test(l)) fallas.push(`evidencia: huella sin abreviar: ${l}`);
   if (!seccion(6).some((l) => /[0-9a-f]{8}…[0-9a-f]{4}|: (sin registro|no log)$/.test(l))) fallas.push("evidencia: sin huella CT abreviada (8…4)");
   const pie = L.filter((l) => l.trim()).pop() || "";
-  if (!pie.startsWith(`${PROTOCOLO} · Rosetta Quantum · `) || !/ · https:\/\/rosettaquantum\.com\/\S+$/.test(pie)) fallas.push("pie: no es el pie fijo con la URL del dominio");
+  if (pie !== F.pie) fallas.push("pie: no es el pie fijo");
   if (/\p{Extended_Pictographic}/u.test(md)) fallas.push("tiene emojis");
   return fallas;
 }

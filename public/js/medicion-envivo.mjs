@@ -18,8 +18,20 @@ import { textos } from "./qready-textos.mjs";
 // Los nombres se PINTAN enmascarados salvo que el dueño haya verificado el dominio (16-nov-2026): la
 // misma regla y el mismo sufijo #xx que la API y la ficha (public/js/ficha.mjs → nombrador). La foto, su
 // huella y lo que se descarga no cambian: es sólo cómo se escribe cada nombre en pantalla.
-import { nombrador } from "./ficha.mjs";
+import { nombrador, armarFicha, htmlDe, CSS_FICHA } from "./ficha.mjs";
 let nombre = (h) => h;
+let ctIntentos = [];
+// La ficha rosetta-ficha/1 (16-nov-2026): el resultado empieza con la MISMA ficha que reciben los agentes
+// y el PDF (ficha.mjs → armarFicha + htmlDe): mismas secciones 01..07, mismos IDs, mismo orden. Lo que
+// sigue debajo (canales, QEX, superficie, borde…) es el detalle de esa misma foto.
+function pintarFicha(foto, s, co) {
+  const caja = $("mv-ficha");
+  if (!caja) return;
+  if (!document.getElementById("rf-css")) { const st = document.createElement("style"); st.id = "rf-css"; st.textContent = CSS_FICHA; document.head.append(st); }
+  caja.innerHTML = htmlDe(armarFicha(foto, { idioma: IDIOMA, verificado: s.nombres_completos === true, publico: s.pagina_publica === true,
+    correo: co, fuentes_que_fallaron: ctIntentos }));
+  caja.hidden = false;
+}
 
 // Una sola página en dos idiomas (12-nov-2026): se lee el idioma del documento una vez. En español
 // todo queda como estaba; cada texto visible lleva su inglés al lado, con t(es, en).
@@ -229,6 +241,7 @@ async function consultarCT(dominio, aviso) {
   try {
     const r = await fetch(`/api/ct?d=${encodeURIComponent(dominio)}`, { signal: ctl.signal });
     const j = await r.json().catch(() => ({}));
+    ctIntentos = j.intentos || [];
     for (const x of j.intentos || []) aviso(t(`${esc(x.fuente)} no respondió (${esc(x.error)}) · ${ms(x.ms)}`, `${esc(fuenteTxt(x.fuente))} did not respond (${esc(traz(x.error))}) · ${ms(x.ms)}`));
     if (!r.ok || !j.ok) throw new Error(j.error || `el servicio respondió ${r.status}`);
     guardarCT(dominio, j.texto);
@@ -384,6 +397,7 @@ form.addEventListener("submit", async (e) => {
   // La nota Q-Ready: la MISMA función que usan el servidor, el cron y el sello (qex-nucleo.mjs).
   const nota = N.explicarNota(fotoHoy);
   pintarNota(nota);
+  pintarFicha(fotoHoy, s, co);
   // La lectura en cuatro pasos (canales, cápsula, Shor) la pinta /js/medicion-historia.mjs con el mismo dato.
   window.dispatchEvent(new CustomEvent("mv:medido", { detail: { d, s, dominio, www, foto: fotoHoy, nota } }));
   if (comparar) mostrarComparacion(comparar, fotoHoy);

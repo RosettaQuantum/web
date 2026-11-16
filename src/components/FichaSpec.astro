@@ -6,21 +6,30 @@
  * scripts/fixtures/ficha/, la misma que fija el snapshot de scripts/check-ficha.mjs.
  */
 import { FICHA_SPEC, textosFicha } from '../../public/js/qready-textos.mjs';
-import { armarFicha, markdownDe } from '../../public/js/ficha.mjs';
+import { armarFicha, markdownDe, htmlDe, CSS_FICHA } from '../../public/js/ficha.mjs';
 import fx from '../../scripts/fixtures/ficha/f.json';
 const { lang = 'es' } = Astro.props;
 const T = FICHA_SPEC[lang === 'en' ? 'en' : 'es'];
 const F = textosFicha(lang);
-const ejemplo = markdownDe(armarFicha(fx.foto, { ...fx.ctx, idioma: lang === 'en' ? 'en' : 'es' }));
+const fichaEj = armarFicha(fx.foto, { ...fx.ctx, idioma: lang === 'en' ? 'en' : 'es' });
+const ejemplo = markdownDe(fichaEj);
+// la misma ficha, como la pinta la web y el PDF (htmlDe): una sola fuente
+const ejemploHtml = htmlDe(fichaEj);
 const forma = `"presentacion": {
   "protocolo": "rosetta-ficha/1",
   "spec": "https://rosettaquantum.com/protocolo/ficha",
   "instruccion_agente": "…",
   "idioma": "es" | "en",
   "markdown": "…",
-  "encabezado": { … },
-  "secciones": [ { "n": 1, "clave": "veredicto", … }, … ],
-  "pie": "…"
+  "ficha": {
+    "encabezado": { "dominio": "…", "sector": "…", "pais": "CL" | null, "medido_utc": "…" },
+    "veredicto": { "lectura": "…", "referencia": "…", "publicacion": "…" },
+    "indicadores": { "RQ.S.00": { "valor": "B", "unidad": null, "texto": "B", "tipo": "medido", "metodo": "QREADY-NOTA-2.1" },
+                     "RQ.S.01": { "valor": 56, "unidad": "/100", "tope": 84, "tipo": "medido", "metodo": "QEX-1.0" }, … },
+    "alertas": [ { "id": "A1", "nivel": "GRAVE", "codigo": "…", "hallazgo": "…", "donde": "…" } ],
+    "acciones": [ { "id": "H1", "accion": "…", "resuelve": ["A1"], "efecto": "B" | null } ],
+    "no_medido": [ "…" ], "evidencia": { … }, "limites": [ "…" ], "pie": "…"
+  }
 }`;
 ---
 <section class="qv qv-spec"><div class="qv-wrap">
@@ -34,7 +43,7 @@ const forma = `"presentacion": {
   <p><code>instruccion_agente</code>: {F.instruccion_agente}</p>
 
   <h2>{T.h_secciones}</h2>
-  <ol>{F.secciones.map((s) => <li>{s}</li>)}</ol>
+  <ul>{F.secciones.map((s, i) => <li><code>{String(i + 1).padStart(2, '0')}</code> {s}</li>)}</ul>
   <p>{T.secciones_nota}</p>
 
   <h2>{T.h_catalogo}</h2>
@@ -50,6 +59,8 @@ const forma = `"presentacion": {
   <h2>{T.h_ejemplo}</h2>
   <p>{T.ejemplo_nota}</p>
   <pre class="qv-pre">{ejemplo}</pre>
+  <style set:html={CSS_FICHA}></style>
+  <div class="qv-ficha-ej" set:html={ejemploHtml}></div>
 
   <h2>{T.h_validar}</h2>
   <p>{T.validar}</p>
