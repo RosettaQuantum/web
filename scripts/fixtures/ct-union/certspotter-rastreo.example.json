@@ -1,0 +1,243 @@
+[
+	{
+		"id": "12826897948",
+		"tbs_sha256": "8ba0a5657f4fb33ee86678ba16e64ba85ad2986eb143b51d88632912745ab95a",
+		"cert_sha256": "02dce66bde684d64588a776bdbbb7fb9da3f4be7a3aa27aa681fd44d67fd0806",
+		"dns_names": [
+			"serverless.rastreo.example"
+		],
+		"pubkey_sha256": "9f1a9d5538a249eae56dda61e1b297f21cca47d757161132377b4cff9c3b8cba",
+		"not_before": "2025-11-22T00:00:00Z",
+		"not_after": "2026-12-20T23:59:59Z",
+		"revoked": false
+	},
+	{
+		"id": "13060917406",
+		"tbs_sha256": "50f5ad0281c7180859403259fc52cfb100702343b9bbd87b4702744d808e0ece",
+		"cert_sha256": "dd4a4256672e276b3ebad2fc96e4fee08ba19f92e17ca99bfd88cecd4762ceca",
+		"dns_names": [
+			"serverless-staging.rastreo.example"
+		],
+		"pubkey_sha256": "3f5e153b357bc9fcab434d84d9295f9cfe750fa132bed61163037f718349d72b",
+		"not_before": "2025-12-13T00:00:00Z",
+		"not_after": "2027-01-10T23:59:59Z",
+		"revoked": false
+	},
+	{
+		"id": "13671090855",
+		"tbs_sha256": "972aefa6a80457ec7fd0c0813b3e4fc4c031c2e45605f48e2713b7556c74adcf",
+		"cert_sha256": "3bb0bf1916b69df545f7f6e8ae43ffb2a0cae3046a57fb5078cf152286a5c8b1",
+		"dns_names": [
+			"*.rastreo.example"
+		],
+		"pubkey_sha256": "4ddd3dee97e6999f12b5ba9713de8fbcf3050ed260988ce39d1fcc94306491be",
+		"not_before": "2026-02-04T00:00:00Z",
+		"not_after": "2027-03-04T23:59:59Z",
+		"revoked": false
+	},
+	{
+		"id": "16008805210",
+		"tbs_sha256": "5056188f3b2069e717f1e4f073676c48d03dc81534f6a911e1431adebd4724e8",
+		"cert_sha256": "63423551ed1fac6e0c05758087384d93c82e29f198214da9fc2529192ebd9fc0",
+		"dns_names": [
+			"staging.rastreo.example"
+		],
+		"pubkey_sha256": "82695b8cb1fd17feaf283354f6e83d722cf441c72d452e294a70bc52bb3baea5",
+		"not_before": "2026-07-22T00:00:00Z",
+		"not_after": "2027-02-04T23:59:59Z",
+		"revoked": false
+	},
+	{
+		"id": "16492785091",
+		"tbs_sha256": "c9b5ecfeee4319a04cb3774e00e7391067313293603b04163e4c6a74f8af98e5",
+		"cert_sha256": "ecc34e49444c3747807e6c3800f2ec83aa56dbc3ceb1baf9d920a713270df43e",
+		"dns_names": [
+			"*.rastreo.example"
+		],
+		"pubkey_sha256": "5c4150d78a67a03bd7897c567f41a72d249378522024285713051fa7c4dcf5ff",
+		"not_before": "2026-08-14T00:00:00Z",
+		"not_after": "2027-02-27T23:59:59Z",
+		"revoked": false
+	},
+	{
+		"id": "16715646993",
+		"tbs_sha256": "2fd1f19b3eee7a961ff1b3420c7bd291d852193eb8f06be74aa6f8b855a747d4",
+		"cert_sha256": "4f998840f592981f7f79c1347f000e4925b126391e406c10031d6a9a2bd7071a",
+		"dns_names": [
+			"assets.rastreo.example"
+		],
+		"pubkey_sha256": "00e0454107ae2fc2b70cd6febcda1eb6750eeaf1d4de30ae729ed0492a54e45b",
+		"not_before": "2026-08-23T00:00:00Z",
+		"not_after": "2027-03-08T23:59:59Z",
+		"revoked": false
+	},
+	{
+		"id": "16931531638",
+		"tbs_sha256": "fdc10253d04f5191652dac5646dbdef6502ebe60d134caf6936857855a995c0a",
+		"cert_sha256": "e5f4dce11f6cb60a7d517b00ef8a3a23ddccee9421c8bfec6330f952553b058b",
+		"dns_names": [
+			"autodiscover.rastreo.example",
+			"cpanel.rastreo.example",
+			"cpcalendars.rastreo.example",
+			"webmail.rastreo.example",
+			"www.rastreo.example",
+			"rastreo.example"
+		],
+		"pubkey_sha256": "7ca1e377eee52495758151cf479c1ac7afae1f88b752def092e557318243843d",
+		"not_before": "2026-09-01T21:09:16Z",
+		"not_after": "2026-11-30T21:09:15Z",
+		"revoked": false
+	},
+	{
+		"id": "16993583122",
+		"tbs_sha256": "2d1ea4380a2a19ab31b467c07c756a039e8e6ad54cf77da54e841012135b01c2",
+		"cert_sha256": "34e611bd1df93eb5253884a5801338cc996cdc462084af23a802811469113612",
+		"dns_names": [
+			"onboarding.v4.rastreo.example"
+		],
+		"pubkey_sha256": "3ea0737d763175ac3add228d4fa69217ec633b9cc42bc735b9e7b05e7ec0d560",
+		"not_before": "2026-09-05T00:00:00Z",
+		"not_after": "2027-03-21T23:59:59Z",
+		"revoked": false
+	},
+	{
+		"id": "16997321053",
+		"tbs_sha256": "d3bf615f01301d566bf7fc417ee74c44d4bc56017cfa001cbf5eacd062cf0a68",
+		"cert_sha256": "1a23485e3111bffab054e3832e70e14e124942c20e9061ed8359523c571b5780",
+		"dns_names": [
+			"rastreo.v4.rastreo.example"
+		],
+		"pubkey_sha256": "591f8c26f786ebc466bcb412c7dfa498a727908e4fd1a4a18655bdf17a6f8e4e",
+		"not_before": "2026-09-05T00:00:00Z",
+		"not_after": "2027-03-21T23:59:59Z",
+		"revoked": false
+	},
+	{
+		"id": "17046031190",
+		"tbs_sha256": "407035da339b78939fb7e4169f2e8ad1a3dcfb1fc73fb9f3d0161304fe786955",
+		"cert_sha256": "04b57e0ad8ab0c19841cdd08bcc5a677651c341c58e969789744eedf505bc617",
+		"dns_names": [
+			"autodiscover.rastreo.example",
+			"cpanel.rastreo.example",
+			"cpcalendars.rastreo.example",
+			"cpcontacts.rastreo.example",
+			"webmail.rastreo.example",
+			"www.rastreo.example",
+			"rastreo.example"
+		],
+		"pubkey_sha256": "f5c78a1de913a9140c5e2081653a50b23d7eaf95bcac40a9303ac83b4c2cffda",
+		"not_before": "2026-09-07T20:11:28Z",
+		"not_after": "2026-12-06T20:11:27Z",
+		"revoked": false
+	},
+	{
+		"id": "17050715962",
+		"tbs_sha256": "9c9a3e593d056bdd9b1a9793352a2173e7bc69385c062385b91ddbe1032b92a3",
+		"cert_sha256": "7c8bfc2ae38dd4768940560c65e0e291e6d1dd9c1b384f8cc68002fde0a55c8d",
+		"dns_names": [
+			"autodiscover.rastreo.example",
+			"cpanel.rastreo.example",
+			"cpcalendars.rastreo.example",
+			"cpcontacts.rastreo.example",
+			"webdisk.rastreo.example",
+			"webmail.rastreo.example",
+			"www.rastreo.example",
+			"rastreo.example"
+		],
+		"pubkey_sha256": "dd95bd3045e82275aa3a6821ae124791aca1b313b952d82f565efa6cf62fa8ca",
+		"not_before": "2026-09-08T02:09:32Z",
+		"not_after": "2026-12-07T02:09:31Z",
+		"revoked": false
+	},
+	{
+		"id": "17088110896",
+		"tbs_sha256": "91abd350ffaa2c7b11c447717d29b1bf3376752c5dd77a122cd7c86c91d83494",
+		"cert_sha256": "ad78cb560cfe49e4e83347c617338f00ee1522d24073fa37afbdd33cb9267044",
+		"dns_names": [
+			"*.v4.rastreo.example"
+		],
+		"pubkey_sha256": "a4d5288ea49d09e6c1b3e10c022a99bdd9c3ef7fb251cd5084a801e941473d82",
+		"not_before": "2026-09-10T00:00:00Z",
+		"not_after": "2027-03-26T23:59:59Z",
+		"revoked": false
+	},
+	{
+		"id": "17089794269",
+		"tbs_sha256": "4dcc31b13af447d45fef4f35cb4c5f26ac29716d1c95e700f649c735eba19aac",
+		"cert_sha256": "91ef1189d528945ac3777a704b5d24596ee4843f480227ba52a04fbbdbb38ecf",
+		"dns_names": [
+			"*.v4.rastreo.example"
+		],
+		"pubkey_sha256": "25697be4336e079a2e28be53c3e73c1848b529b6a45925813f1a39f0c1d29508",
+		"not_before": "2026-09-10T00:00:00Z",
+		"not_after": "2027-03-26T23:59:59Z",
+		"revoked": false
+	},
+	{
+		"id": "17179440498",
+		"tbs_sha256": "f225d9813a513fb587eee10b31f9ad52b23c875e79d267d42c75845f944506c1",
+		"cert_sha256": "9e213dc7f501fc4a37400122237a1fdcd336dda404fb2d779c1fc588bee705ee",
+		"dns_names": [
+			"sharepoint.rastreo.example"
+		],
+		"pubkey_sha256": "636e96e8e1b6d031d37c21d8ab09e3082c85d3b98c982beb3351baca2ae1652a",
+		"not_before": "2026-09-14T19:49:40Z",
+		"not_after": "2026-12-13T20:39:31Z",
+		"revoked": false
+	},
+	{
+		"id": "17925594366",
+		"tbs_sha256": "ff307969b95509ddc2dadd331b4b2aee9e8aa919e957070dffb29edf408ff908",
+		"cert_sha256": "7498c47398322e2c95b1a34d75ff71089e992774b93f487609da3f8cbe3593f9",
+		"dns_names": [
+			"serverless.rastreo.example"
+		],
+		"pubkey_sha256": "6827194bbbe078a27edb1a6de517d4def8ac1e35096732b0f7d1f4e8e3ab6793",
+		"not_before": "2026-10-22T00:00:00Z",
+		"not_after": "2027-05-07T23:59:59Z",
+		"revoked": false
+	},
+	{
+		"id": "18189825290",
+		"tbs_sha256": "f3f3f3edcb019133c6fd63fda1983c8b9e289a1fb7f370653f1e100bca27aa48",
+		"cert_sha256": "989ce02c43310e1c3716d9b938c3f25db636f1e980fe76a635a51cb9f22b916f",
+		"dns_names": [
+			"sharepoint.rastreo.example"
+		],
+		"pubkey_sha256": "fbf43913ac16649d5b2499a32e9f79ae67b437f8edf684a884fedb66e7126841",
+		"not_before": "2026-11-05T12:59:46Z",
+		"not_after": "2027-02-03T13:48:56Z",
+		"revoked": false
+	},
+	{
+		"id": "18254198829",
+		"tbs_sha256": "530db1737165e1d79ceb4726730d98f6cf55e8e2cee32ebf553fa4662e5c4ef8",
+		"cert_sha256": "4eff7c7f701c0e12db2c13fd1b648f292c20400f1df932ba2889b631a1e748a7",
+		"dns_names": [
+			"autodiscover.rastreo.example",
+			"cpanel.rastreo.example",
+			"cpcalendars.rastreo.example",
+			"cpcontacts.rastreo.example",
+			"webdisk.rastreo.example",
+			"webmail.rastreo.example",
+			"www.rastreo.example",
+			"rastreo.example"
+		],
+		"pubkey_sha256": "721d95ac9949d00d9f743edcf38eb9fb937850a7cb1db02e67af6c1ade19da22",
+		"not_before": "2026-11-08T20:17:39Z",
+		"not_after": "2027-02-06T20:17:38Z",
+		"revoked": false
+	},
+	{
+		"id": "18326436234",
+		"tbs_sha256": "3d7945b137405b78272fd44a598295caafd0a5218ce72073ee583d72df3519fb",
+		"cert_sha256": "010d27b586b5db109d325583a799011c6b00cba6d24c8a93850972f9ad080bc6",
+		"dns_names": [
+			"serverless-staging.rastreo.example"
+		],
+		"pubkey_sha256": "de0a6edb07510a82c8e24be037dd3f12070b8703c09f6c20b1ce6ddc8a297a81",
+		"not_before": "2026-11-12T05:54:10Z",
+		"not_after": "2027-05-29T06:54:10Z",
+		"revoked": false
+	}
+]

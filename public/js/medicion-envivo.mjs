@@ -41,7 +41,7 @@ const edicionLarga = (f) => { const m = /^(\d{4})-(\d{2})/.exec(f.edicion || f.m
 const capital = (s) => s[0].toUpperCase() + s.slice(1);
 const espera = (ms) => new Promise((r) => setTimeout(r, ms));
 const quieto = matchMedia("(prefers-reduced-motion: reduce)").matches;
-const CT_ESPERA_MS = 60000;   // el servidor tarda como máximo ~45 s (25 crt.sh + 20 Cert Spotter)
+const CT_ESPERA_MS = 60000;   // el servidor tarda como máximo ~25 s (crt.sh y Cert Spotter en paralelo)
 const ms = (x) => x == null ? "" : x >= 1000 ? `${num(x / 1000, 1)} s` : `${x} ms`;
 
 const form = $("mv-form"); if (!form) throw new Error("sin formulario");
@@ -214,7 +214,8 @@ function medirDesdeEnlace() {
 
 // ---------------------------------------------------------------- paso 1: CT
 // El registro se pide a NUESTRO servidor (/api/ct, lib/ct-registro.mjs), que guarda una copia de
-// 24 h por dominio, le da 25 s a crt.sh y, si no responde, pregunta a Cert Spotter. Antes el
+// 24 h por dominio y une crt.sh y Cert Spotter (16-nov-2026: antes elegía una y la nota dependía
+// de cuál respondió). Antes el
 // navegador esperaba a crt.sh hasta 120 s antes de medir nada más (medido el 11-nov: >60 s, 41 s,
 // 13 s y 17 s para un mismo dominio): la página parecía rota. La respuesta declara su fuente.
 async function consultarCT(dominio, aviso) {
@@ -420,10 +421,10 @@ const SALUDOS = EN ? {
   B_solo_hibrido: { corto: "B · hybrid only", ofrece: "Offers only X25519MLKEM768.", lee: (sa) => sa.grupo === "X25519MLKEM768" ? "Accepts it: your edge supports the post-quantum key exchange." : "Does not accept it." },
   C_eleccion_libre: { corto: "C · free choice", ofrece: "Offers every group without sending a key share: the server chooses.", lee: (sa) => sa.grupo === "X25519MLKEM768" ? "Chooses the hybrid when free to choose." : `Chooses ${sa.grupo || "another group"}.` },
 } : SALUDOS_ES;
-// Señal de lectura, NO regla del índice: nombres que en Chile suelen ser ambientes de prueba y que
-// los patrones de agosto no cuentan (así pasó openfinance-desa). No cambia el puntaje; se marca.
-const PRUEBA_LOCAL = N.PRUEBA_LOCAL;   // una sola definición (qex-nucleo.mjs): la nota la cuenta igual
-const alerta = (x) => x.clases.length > 0 || PRUEBA_LOCAL.test(x.host);
+// Ambientes de pruebas por su nombre, también los que los patrones de agosto no cuentan (así pasó
+// openfinance-desa). No cambia el QEX; se marca, se sondea primero y la nota lo cuenta si responde.
+const esPrueba = N.esAmbientePruebas;   // una sola definición (qex-nucleo.mjs): el sondeo y la nota la usan igual
+const alerta = (x) => x.clases.length > 0 || esPrueba(x.host);
 const CLASE = EN ? { critico: "Critical service", infra_expuesta: "Sensitive infrastructure", no_productivo: "Non-production environment", legado: "Legacy" }
   : { critico: "Servicio crítico", infra_expuesta: "Infraestructura sensible", no_productivo: "Ambiente no productivo", legado: "Legado" };
 const DIM_CLASE = { certificados: "mv-d-certificados", higiene: "mv-d-higiene", hndl: "mv-d-hndl", edge: "mv-d-edge" };
@@ -504,7 +505,7 @@ function pintarResultado({ d, s, ct, mapa, hostsCT, dominio, www, nuevosCT = [] 
     const dns = x.dns_status === "NXDOMAIN" ? `<span class="mv-chip mv-si">${t("no publicado", "not published")}</span>` : x.dns_status === "NOERROR" ? `<span class="mv-chip mv-neutro">${t("publicado", "published")}</span>` : `<span class="mv-chip mv-neutro">${esc(x.dns_status || t("sin dato", "no data"))}</span>`;
     const p443 = x.dns_status === "NXDOMAIN" ? '<span class="mv-neutro">—</span>' : x.responde_443 === true ? `<span class="mv-chip ${alerta(x) ? "mv-no" : "mv-neutro"}">${t("responde", "responds")}</span>` : x.responde_443 === false ? `<span class="mv-chip mv-si">${N.esNombreDeCorreo(x.host) ? t("sin servicio web", "no web service") : t("no responde", "no response")}</span>` : `<span class="mv-chip mv-neutro">${t("sin dato", "no data")}</span>`;
     const detalleE = x.responde_443 === false && N.esNombreDeCorreo(x.host) ? N.detalleCorreoSinWeb(crudoE.detalle) : crudoE.detalle || "";
-    return `<tr><td><code>${esc(x.host)}</code></td><td>${esc(x.clases.length ? x.clases.map((c) => CLASE[c] || c).join(", ") : PRUEBA_LOCAL.test(x.host) ? t("Posible ambiente de prueba por su nombre (fuera de la regla del índice)", "Possible test environment, judging by its name (outside the index rule)") : nuevosVistos.has(x.host) ? t("Nuevo desde la foto anterior", "New since the previous snapshot") : t("Sin clase", "No class"))}</td><td>${dns}</td><td>${p443}</td>
+    return `<tr><td><code>${esc(x.host)}</code></td><td>${esc(x.clases.length ? x.clases.map((c) => CLASE[c] || c).join(", ") : esPrueba(x.host) ? t("Posible ambiente de prueba por su nombre (fuera de la regla del índice)", "Possible test environment, judging by its name (outside the index rule)") : nuevosVistos.has(x.host) ? t("Nuevo desde la foto anterior", "New since the previous snapshot") : t("Sin clase", "No class"))}</td><td>${dns}</td><td>${p443}</td>
       <td class="mv-neutro">${esc([crudoE.cname?.length ? `CNAME ${crudoE.cname[crudoE.cname.length - 1]}` : "", EN ? detalleEndpointEn(detalleE) : detalleE].filter(Boolean).join(" · ") || "—")}</td></tr>`;
   }).join("") : `<tr><td colspan="5" class="mv-neutro">${ct ? t("Ningún nombre sensible en su superficie.", "No sensitive names in your surface.") : t("Sin superficie, no hay endpoints que medir.", "No surface, so no endpoints to measure.")}</td></tr>`;
 

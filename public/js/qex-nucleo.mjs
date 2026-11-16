@@ -267,22 +267,45 @@ export function dominioDeEntrada(crudo) {
 // Tope de nombres sondeados por medición (lib/informe-envivo.mjs acepta hasta 15).
 export const MAX_SONDEADOS = 15;
 
-// Qué nombres se sondean: los sensibles del registro, más (si se compara) los de la foto anterior y
-// los nombres nuevos desde ella. Lo nuevo es justo lo que una comparación tiene que mirar.
+// Nombres que delatan un ambiente NO productivo, en español o en inglés (16-nov-2026, QREADY-NOTA-2).
+// EL DEFECTO: openfinance-desa.<banco>.cl existe y responde 403 desde internet, pero la nota del banco
+// salía A, porque «desa» no está en PAT.no_productivo y entonces el nombre NUNCA se sondeaba: la señal
+// vieja (PRUEBA_LOCAL) sólo se miraba sobre nombres ya sondeados. Lo mismo con desarrollo,
+// certificacion, homologacion, hml y development.
+// NO es parte de PAT ni toca la higiene: PAT reproduce la medición de agosto y alimenta el QEX-1.0.
+// Esto decide SÓLO qué se sondea primero y la nota.
+// Calza como segmento DNS o como prefijo/sufijo con guion (openfinance-desa, api-desarrollo,
+// rygo-development), con dígitos opcionales (dev2, qa1). Precisión antes que cobertura: «cert» sola
+// no cuenta (choca con certificados.*) ni «pre» sola (choca con preferencias.*); «pre» sólo cuenta
+// como segmento exacto, por la regla de agosto (PAT.no_productivo), que esto no cambia.
+export const SENAL_PRUEBA = /(^|[.-])(desa|desarrollo|development|dev|test|testing|qa|uat|stg|stage|staging|homolog|homologacion|hml|certificacion|prueba|pruebas|preprod|sandbox|demo)(\d*)([.-]|$)/;
+// Una sola definición de «este nombre es un ambiente de pruebas»: la usan qué se sondea, la nota y la
+// página. Suma la clase de agosto (dev, lab, pre…) y la señal de arriba.
+export const esAmbientePruebas = (host) => {
+  const h = String(host || "").toLowerCase();
+  return PAT.no_productivo.test(h) || SENAL_PRUEBA.test(h);
+};
+
+// Qué nombres se sondean, en este orden: PRIMERO los ambientes de pruebas (deciden la F, y con el tope
+// de 15 no pueden quedar fuera por orden alfabético), luego los sensibles del registro, y (si se
+// compara) los de la foto anterior y los nombres nuevos desde ella. Lo nuevo es justo lo que una
+// comparación tiene que mirar.
 export function nombresASondear(hosts, comparar = null) {
-  const sensibles = hosts.filter((h) => h.clases.some((c) => CLASES_SENSIBLES.includes(c))).map((h) => h.host);
+  const pruebas = hosts.filter((h) => esAmbientePruebas(h.host)).map((h) => h.host);
+  const sensibles = [...new Set([...pruebas, ...hosts.filter((h) => h.clases.some((c) => CLASES_SENSIBLES.includes(c))).map((h) => h.host)])];
   const antesCT = new Set((comparar?.ct?.hosts || []).map((h) => h.host));
   const nuevosCT = antesCT.size ? hosts.map((h) => h.host).filter((h) => !antesCT.has(h)) : [];
   const todos = [...new Set([...sensibles, ...(comparar ? (comparar.endpoints || []).map((x) => x.host) : []), ...nuevosCT])];
-  return { sensibles, nuevosCT, todos, pedidos: todos.slice(0, MAX_SONDEADOS) };
+  return { pruebas, sensibles, nuevosCT, todos, pedidos: todos.slice(0, MAX_SONDEADOS) };
 }
 
 // La respuesta de /api/ct (lib/ct-registro.mjs) → el `ct` que recibe armarFoto. La huella es del
 // texto crudo recibido, no de lo que se reinterpretó.
+// `fuentes` (16-nov-2026): qué fuentes del registro se unieron, cada una con su fecha; no entra a la foto.
 export async function ctDesdeServidor(j, ms) {
   return { filas: JSON.parse(j.texto), sha256: await sha256Hex(j.texto), ms,
     fuente: j.desde_copia ? `${j.fuente}, copia del servidor` : j.fuente,
-    consultado_utc: j.desde_copia ? j.consultado_utc : undefined, intentos: 1 };
+    consultado_utc: j.desde_copia ? j.consultado_utc : undefined, intentos: 1, fuentes: j.fuentes || null };
 }
 
 // ---------------------------------------------------------------- armar la foto
@@ -360,7 +383,7 @@ export const estadoEndpointEn = (e) => { const t = estadoEndpoint(e); return t =
 //
 // Reglas, en orden (la primera que aplica decide):
 //   F  · falla grave MEDIDA: certificado vencido el día de la medición, o un ambiente de pruebas que
-//        responde en 443 (clase `no_productivo` de PAT, o la señal PRUEBA_LOCAL: desa, homolog, hml…).
+//        responde en 443 (esAmbientePruebas: clase `no_productivo` de PAT, o SENAL_PRUEBA: desa, homolog…).
 //        «Protocolo antiguo» salió de la tabla (decisión del dueño, 13-nov): el escáner no lo mide.
 //   D  · sin TLS 1.3 medido (sólo 1.2 o anterior). Sin TLS 1.3 no hay candado nuevo posible.
 //   —  · sin nota (null) si el borde no se pudo medir: null es «no medido», nunca «no protegido».
@@ -375,11 +398,12 @@ export const estadoEndpointEn = (e) => { const t = estadoEndpoint(e); return t =
 // Alertas MEDIAS (no bajan la letra, se informan): certificado clásico sin plan con fecha,
 // nombres de legado que responden («sin dueño»), servicio de correo que responde en 443.
 // Los certificados post-cuánticos llegan en 2027: hoy no se castiga no tenerlos.
-export const VERSION_NOTA = "QREADY-NOTA-1";
-// Nombres que en Chile suelen ser ambientes de prueba y que los patrones de agosto no cuentan (así pasó
-// openfinance-desa). NO entra al QEX (no toca PAT ni la higiene): la página lo usa como señal de lectura
-// y la nota lo cuenta como ambiente de pruebas expuesto si el nombre responde (aprobado el 13-nov).
-export const PRUEBA_LOCAL = /(^|[.-])(desa|desarrollo|qa|uat|stg|staging|homolog|hml|sandbox)(\d*)([.-]|$)/;
+// QREADY-NOTA-2 (16-nov-2026): cambia resultados, por eso sube la versión. Los ambientes de pruebas
+// (esAmbientePruebas, arriba) entran al sondeo con prioridad, y la señal suma desarrollo, development,
+// certificacion, homologacion, testing, preprod y demo. Con la NOTA-1, openfinance-desa.<banco>.cl no se
+// sondeaba nunca y el banco salía A con un ambiente de pruebas respondiendo; con la NOTA-2 sale F.
+// Además el registro une crt.sh y Cert Spotter (lib/ct-registro.mjs) en vez de elegir uno.
+export const VERSION_NOTA = "QREADY-NOTA-2";
 export const NOTAS = ["A+", "A", "B", "C", "D", "F"];
 const HIBRIDO = "X25519MLKEM768";
 
@@ -403,7 +427,7 @@ export function explicarNota(foto, extras = {}) {
   const tiene = (e, k) => Array.isArray(e.clases) && e.clases.includes(k);
 
   if (c.ok && c.not_after && dia && c.not_after < dia) out.graves.push({ codigo: "certificado_vencido", detalle: c.not_after });
-  for (const e of responde) if (tiene(e, "no_productivo") || PRUEBA_LOCAL.test(e.host)) out.graves.push({ codigo: "ambiente_pruebas_expuesto", host: e.host });
+  for (const e of responde) if (tiene(e, "no_productivo") || esAmbientePruebas(e.host)) out.graves.push({ codigo: "ambiente_pruebas_expuesto", host: e.host });
   for (const e of responde) if (tiene(e, "infra_expuesta") && !esNombreDeCorreo(e.host)) out.altas.push({ codigo: "infraestructura_expuesta", host: e.host });
   if (c.ok && (c.algoritmo === "RSA" || c.algoritmo === "EC") && !extras.plan_con_fecha) out.medias.push({ codigo: "certificado_sin_plan" });
   for (const e of responde) if (tiene(e, "legado")) out.medias.push({ codigo: "nombre_sin_dueno", host: e.host });

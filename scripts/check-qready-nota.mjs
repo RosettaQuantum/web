@@ -20,6 +20,11 @@
  *  4. La compuerta de /verificado, con el esquema REAL en SQLite: sin verificar o sin «público» → 404 con
  *     el texto pedido; una medición de la página nunca se muestra. MUTACIÓN: la consulta sin «publico = 1»
  *     → la nota de un tercero sale publicada → grita.
+ *  5. (16-nov-2026, QREADY-NOTA-2) Qué se sondea. EL DEFECTO REAL: openfinance-desa.<banco>.cl existe y
+ *     responde 403 desde internet, y el banco salía A: «desa» no está en PAT y el nombre NUNCA se
+ *     sondeaba. Los casos son los nombres reales con el dominio enmascarado. Ambientes de pruebas en
+ *     español o inglés entran al sondeo PRIMERO; certificados.*, api.*, preferencias.* no. MUTACIONES:
+ *     sin la señal, sin la prioridad (orden alfabético con el tope de 15) o sin «desa» → grita.
  *   node scripts/check-qready-nota.mjs
  */
 import { registerHooks } from "node:module";
@@ -91,7 +96,7 @@ igual(N.notaQEX(fTodos), "A", "borde: candado nuevo en el principal y en todos l
 igual(N.notaQEX(fTodos, { well_known_valido: true }), "A", "A+ no sale sin inventario verificado");
 igual(N.notaQEX(fTodos, { well_known_valido: true, inventario_verificado: true }), "A+", "A+ con /.well-known/q-ready válido e inventario verificado");
 igual(N.notaQEX(base, { well_known_valido: true, inventario_verificado: true }), "B", "A+ no salta desde B");
-// «desa»/«homolog» (PRUEBA_LOCAL) que responden: ambiente de pruebas expuesto (aprobado el 13-nov)
+// «desa»/«homolog» (SENAL_PRUEBA) que responden: ambiente de pruebas expuesto (aprobado el 13-nov)
 const sDesa = clon(SONDAS_PY); sDesa.endpoints.push({ host: "openfinance-desa.python.org", medido_utc: SONDAS_PY.medido_utc, dns_status: "NOERROR", ip: ["192.0.2.20"], cname: [], responde_443: true, detalle: "responde; grupo x25519" });
 igual(N.notaQEX(await foto("python.org", CT_PY, sDesa)), "F", "un nombre «desa» que responde → F (misma señal que la página)");
 // el saludo B por nombre (13-nov): hibrido true en todos los que responden → A; uno en false → B
@@ -130,12 +135,58 @@ for (const lang of ["es", "en"]) {
 igual([N.hibridoEnEndpoint({ responde_443: true, detalle: "responde; grupo x25519" }), N.hibridoEnEndpoint({ responde_443: true, detalle: "responde; grupo X25519MLKEM768" }), N.hibridoEnEndpoint({ responde_443: null })],
   [null, true, null], "un endpoint sin el híbrido elegido es «sin evidencia», nunca «no»");
 
+// ---------------------------------------------------------------- 5 · qué se sondea (QREADY-NOTA-2)
+igual(N.VERSION_NOTA, "QREADY-NOTA-2", "la nota cambió resultados el 16-nov: versión 2");
+// grito: los nombres reales (dominio enmascarado) y la lista aprobada, como segmento o con guion
+const PRUEBAS = ["openfinance-desa.banco.cl", "staging.rastreo.example", "test.rastreo.example", "serverless-staging.rastreo.example",
+  "api-desarrollo.x.cl", "app-development.x.cl", "dev2.x.cl", "homologacion.x.cl", "homolog.x.cl", "hml.x.cl", "certificacion.x.cl",
+  "qa.x.cl", "uat1.x.cl", "stg.x.cl", "stage.x.cl", "testing.x.cl", "prueba.x.cl", "pruebas.x.cl", "preprod.x.cl", "sandbox.x.cl",
+  "demo.x.cl", "desarrollo.x.cl", "pre.fx.banco.cl"];
+for (const h of PRUEBAS) igual(N.esAmbientePruebas(h), true, `grito: ${h} es un ambiente de pruebas`);
+// silencio: precisión antes que cobertura («cert» sola y «pre» sola no cuentan)
+const NO_PRUEBAS = ["certificados.banco.cl", "api.banco.cl", "preferencias.x.cl", "www.banco.cl", "latest.x.cl", "devops.x.cl",
+  "contest.x.cl", "desarrollos.x.cl", "testimonios.x.cl", "cert.x.cl", "demostracion.x.cl", "presente.x.cl"];
+for (const h of NO_PRUEBAS) igual(N.esAmbientePruebas(h), false, `silencio: ${h} no es un ambiente de pruebas`);
+// PAT y la higiene NO cambian: openfinance-desa sigue sin clase de agosto (el QEX-1.0 es el de agosto)
+igual(N.clasesDe("openfinance-desa.banco.cl"), [], "PAT no cambió: «desa» no entra a las clases del QEX");
+igual(N.higiene(false, N.conteos(["openfinance-desa.banco.cl", "www.banco.cl"])), 70, "la higiene no cuenta la señal nueva");
+// el sondeo: los nombres de pruebas entran PRIMERO, aunque 16 nombres sensibles vayan antes en el alfabeto
+const hostsDe = (hs, d) => N.hostsCT(N.nombresCT([{ name_value: hs.join("\n"), not_before: "2026-01-01", not_after: "2027-01-01" }], d), d);
+const muchos = Array.from({ length: 16 }, (_, i) => `mail.zona${String(i).padStart(2, "0")}.banco.cl`);
+const hBanco = hostsDe([...muchos, "openfinance-desa.banco.cl", "certificados.banco.cl", "api.banco.cl", "www.banco.cl"], "banco.cl");
+async function sondeoBanco(Nm) { return Nm.nombresASondear(hBanco).pedidos; }
+const pBanco = await sondeoBanco(N);
+igual([pBanco.length, pBanco[0]], [N.MAX_SONDEADOS, "openfinance-desa.banco.cl"], "caso real: openfinance-desa entra primero al sondeo, aunque haya 16 sensibles antes en el alfabeto");
+igual(pBanco.some((h) => /^(certificados|api|www)\./.test(h)), false, "silencio: certificados.*, api.* y www.* no entran como pruebas");
+const hRastreo = hostsDe(["rastreo.example", "www.rastreo.example", "assets.rastreo.example", "staging.rastreo.example", "test.rastreo.example", "serverless-staging.rastreo.example", "serverless.rastreo.example"], "rastreo.example");
+igual(N.nombresASondear(hRastreo).pedidos.sort(), ["serverless-staging.rastreo.example", "staging.rastreo.example", "test.rastreo.example"], "caso real: staging, test y serverless-staging se sondean; serverless y assets no");
+// la nota: el nombre de pruebas en el registro y SIN sondear no deja dar A; sondeado y respondiendo, F
+const ctDesa = { ...CT_PY, texto: JSON.stringify([...JSON.parse(CT_PY.texto), { name_value: "openfinance-desa.python.org", not_before: "2026-01-01T00:00:00", not_after: "2027-01-01T00:00:00" }]) };
+const fSinSondear = N.explicarNota(await foto("python.org", ctDesa, sTodos));
+igual([fSinSondear.nota, fSinSondear.hechos.sensibles_sin_sondear], ["B", ["openfinance-desa.python.org"]], "nombre de pruebas en el registro y sin sondear: no hay A, y se dice cuál falta");
+const fDesa = N.explicarNota(await foto("python.org", ctDesa, sDesa));
+igual([fDesa.nota, fDesa.graves.map((g) => g.host)], ["F", ["openfinance-desa.python.org"]], "sondeado y respondiendo: F, con el nombre en las alertas graves");
+// MUTACIONES en qex-nucleo.mjs
+const NUCLEO = new URL("public/js/qex-nucleo.mjs", raiz);
+await conMutante(NUCLEO, "const pruebas = hosts.filter((h) => esAmbientePruebas(h.host)).map((h) => h.host);", "const pruebas = [];",
+  async (M) => igual((await sondeoBanco(M)).includes("openfinance-desa.banco.cl"), false, "MUTACIÓN: sin la señal en el sondeo, openfinance-desa no se sondea (el defecto del 16-nov)"));
+await conMutante(NUCLEO, "pedidos: todos.slice(0, MAX_SONDEADOS) };", "pedidos: [...todos].sort().slice(0, MAX_SONDEADOS) };",
+  async (M) => igual((await sondeoBanco(M)).includes("openfinance-desa.banco.cl"), false, "MUTACIÓN: sin prioridad (orden alfabético con el tope), openfinance-desa queda fuera"));
+await conMutante(NUCLEO, "(desa|desarrollo|", "(desarrollo|",
+  async (M) => igual(M.esAmbientePruebas("openfinance-desa.banco.cl"), false, "MUTACIÓN: sin «desa» en la señal, el caso real no se marca"));
+
 // ---------------------------------------------------------------- 2 · página y servidor: una sola función
 const pag = sinComentarios(leer("public/js/medicion-envivo.mjs"));
 igual(/N\.explicarNota\(fotoHoy\)/.test(pag), true, "la página calcula la nota con N.explicarNota(fotoHoy)");
 const letraPropia = (t) => /=\s*["'](A\+|[ABCDF])["']/.test(t) || /\?\s*["'](A\+|[ABCDF])["']\s*:/.test(t);
 igual(letraPropia(pag), false, "la página no asigna letras por su cuenta");
 igual(letraPropia('const nota = tls13 ? "C" : "D";'), true, "el detector de letra propia grita con una regla escrita en la página");
+// la señal de pruebas también es una sola: ninguna copia de la lista fuera de qex-nucleo.mjs
+const listaPropia = (t) => /\b(desa|staging|homolog)\|/.test(t);
+for (const ruta of ["public/js/medicion-envivo.mjs", "lib/medicion-agentes.mjs", "lib/qready-verificado.mjs", "lib/ct-registro.mjs"])
+  igual(listaPropia(sinComentarios(leer(ruta))), false, `${ruta}: no escribe su propia lista de ambientes de pruebas`);
+igual(listaPropia("const P = /(desa|qa)/;"), true, "el detector de lista propia grita con una copia de la señal");
+igual(/N\.esAmbientePruebas\b/.test(pag), true, "la página marca los ambientes de pruebas con N.esAmbientePruebas");
 for (const ruta of ["src/pages/q-ready/medicion/index.astro", "src/pages/es/q-ready/medicion/index.astro"])
   igual(["mv-letra", "mv-letra-t", "mv-letra-lee", "mv-letra-caja"].every((id) => leer(ruta).includes(`id="${id}"`)), true, `${ruta}: tiene los ids de la letra`);
 
@@ -229,4 +280,4 @@ await conMutante(new URL("lib/qready-verificado.mjs", raiz), "AND origen = 'serv
   async (M) => { const m = await compuerta(M); igual(m["publico.example"].html.includes(T.pag_sin_medicion), false, "MUTACIÓN: sin «origen = servidor», una foto mandada por el navegador se publica"); });
 
 if (fallas.length) { console.error("check-qready-nota: FALLA\n  " + fallas.join("\n  ")); process.exit(1); }
-console.log(`check-qready-nota: ok (${casos} casos · python.org real = ${xb.nota}, rosettaquantum.com real = sin nota · página = servidor · compuerta verificado+público con SQL real · 4 mutaciones gritan)`);
+console.log(`check-qready-nota: ok (${casos} casos · python.org real = ${xb.nota}, rosettaquantum.com real = sin nota · página = servidor · compuerta verificado+público con SQL real · ambientes de pruebas primero en el sondeo · 7 mutaciones gritan)`);
