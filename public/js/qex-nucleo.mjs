@@ -121,13 +121,15 @@ export function irec(dim, tope = TOPE) {
   return Math.min(tope, redondearPar(num / den));
 }
 
-export function qex(dim) {
+// `version` (16-nov-2026): la misma cuenta sirve a QEX-1.0 y a QEX-1.1, que sólo difieren en qué
+// higiene reciben. Sin argumento declara QEX-1.0, como siempre.
+export function qex(dim, version = VERSION_QEX) {
   const aportes = {}; let suma = 0, pesoUsado = 0;
   for (const [k, p] of Object.entries(PESOS)) {
     aportes[k] = dim[k] == null ? null : Math.round(dim[k] * p * 100) / 100;
     if (dim[k] != null) { suma += dim[k] * p; pesoUsado += p; }
   }
-  return { version: VERSION_QEX, dimensiones: dim, pesos: PESOS, aportes,
+  return { version, dimensiones: dim, pesos: PESOS, aportes,
     suma: Math.round(suma * 100) / 100, peso_usado: Math.round(pesoUsado * 100) / 100,
     score: irec(dim), tope: TOPE };
 }
@@ -328,9 +330,13 @@ export function armarFoto({ dominio, www, vertical, medido, ct, sondas: s, refer
   const c = s.certificado;
   const ref = referencia.verticales[vertical];
   if (!ref) throw new Error(`sector desconocido: ${vertical}`);
-  const dim = { certificados: certificadosValor(c), higiene: higiene(tls13 === false ? true : tls13 === true ? false : null, cuentas),
+  const sinTls13 = tls13 === false ? true : tls13 === true ? false : null;
+  const dim = { certificados: certificadosValor(c), higiene: higiene(sinTls13, cuentas),
     hndl: ref.hndl, edge: edgeValor(v.soporta) };
   const q = qex(dim);
+  // QEX-1.1 (16-nov-2026) viaja sólo en el detalle: NO entra a la foto (ni a su huella), ni a la página,
+  // ni al PDF. La cifra que se publica sigue siendo `q` (QEX-1.0).
+  const q11 = qex11({ dim10: dim, sinTls13, ct: !!ct, endpoints, hosts, cuentas });
   const tipos = { certificados: "medido", higiene: ct ? "medido" : "medido, sin superficie", hndl: "modelo de sector", edge: "medido" };
   const corta = (iso) => (iso ? iso.slice(0, 10) : null);
   const foto = {
@@ -349,7 +355,74 @@ export function armarFoto({ dominio, www, vertical, medido, ct, sondas: s, refer
     referencia: { edicion: referencia.edicion, mediana_pais: referencia.mediana_pais, mediana_sector: ref.mediana, n_sector: ref.n },
     instrumentos: { pagina: "qex-nucleo.mjs", servidor: s.instrumento },
   };
-  return { foto, detalle: { cuentas, hosts, endpoints, tls13, dim, q, tipos, ref } };
+  return { foto, detalle: { cuentas, hosts, endpoints, tls13, dim, q, tipos, ref, q11 } };
+}
+
+// ---------------------------------------------------------------- QEX-1.1: la higiene se mueve (16-nov-2026)
+// EL DEFECTO. En QEX-1.0 la higiene descuenta por los nombres ACUMULADOS en el registro público de
+// certificados: un certificado viejo para staging.<dominio> queda ahí para siempre. Si la organización
+// apaga sus ambientes de prueba, su higiene no sube: nada de lo que haga la mueve.
+//
+// QEX-1.1 cambia SÓLO de qué conteos se alimenta la regla de higiene. La regla (higiene(): base 70,
+// −30 sin TLS 1.3, −10 por ambiente no productivo, −10 por legado, −10 con 3 o más de infraestructura
+// sensible), los pesos 40/25/25/10, el tope y las clases (PAT, agosto) son los mismos.
+// En 1.1 un nombre cuenta sólo si existe y responde HOY: se sondeó, su DNS está vigente y contesta en
+// 443. La sonda sólo saluda si el DNS dio direcciones (sondaEndpoint), así que «responde» ya implica
+// «DNS vigente». Cada nombre del registro con clase que castiga queda en uno de estos estados:
+//   vivo         sondeado y responde en 443                       → cuenta
+//   no_vigente   sondeado; DNS NXDOMAIN o sin direcciones         → no cuenta
+//   sin_443      sondeado; DNS vigente, no responde en 443         → no cuenta (desde afuera no hay
+//                servicio expuesto que ver; es lo normal en un servidor de correo)
+//   sin_dato     sondeado; el DNS no contestó                      → no cuenta (null es «no medido»)
+//   sin_sondear  quedó fuera del tope de MAX_SONDEADOS             → NO castiga, y se informa cuántos.
+//                No se sabe si vive o no: precisión antes que cobertura.
+// Los conteos del registro (los que usa 1.0) viajan como dato informativo: `historico`.
+// Consecuencia, y el guardia la exige: con la misma medición, la higiene 1.1 nunca es menor que la 1.0
+// (los vivos son un subconjunto de los nombres del registro, con las mismas clases).
+// La señal de ambientes de prueba en español (esAmbientePruebas, QREADY-NOTA-2) decide qué se sondea
+// primero (nombresASondear), pero NO cambia la clase: un nombre «desa» que PAT no marca no descuenta.
+// Sin registro (ct null) la higiene es la misma de 1.0: sólo TLS.
+// scripts/check-qex-11.mjs: grito, silencio y mutaciones.
+export const VERSION_QEX_11 = "QEX-1.1";
+
+export function estadoVivo(e) {
+  if (!e) return "sin_sondear";
+  if (e.responde_443 === true) return "vivo";
+  if (e.dns_status === "NXDOMAIN") return "no_vigente";
+  if (e.dns_status == null) return "sin_dato";
+  if (e.responde_443 === false) return "sin_443";
+  return "no_vigente";                                // DNS contestó sin direcciones: no se saludó
+}
+
+// Las clases de PAT que descuentan higiene. Una sola definición: candidatos y conteos la leen igual.
+export const clasesQueCastigan = (host) => clasesDe(host).filter((k) => CLASES_SENSIBLES.includes(k));
+
+// endpoints: los que devolvió la sonda. hosts: los del registro (hostsCT). Devuelve los conteos por
+// clase de los nombres VIVOS (la forma de conteos(), para que higiene() los lea igual) y cuántos nombres
+// con clase que castiga cayeron en cada estado.
+export function superficieViva(endpoints, hosts) {
+  const porHost = new Map((endpoints || []).map((e) => [e.host, e]));
+  const candidatos = (hosts || []).map((h) => h.host).filter((h) => clasesQueCastigan(h).length > 0);
+  const estados = { vivo: 0, no_vigente: 0, sin_443: 0, sin_dato: 0, sin_sondear: 0 };
+  const conteosVivos = { no_productivo: 0, legado: 0, infra_expuesta: 0 };
+  const sinSondear = { no_productivo: 0, legado: 0, infra_expuesta: 0 };
+  for (const h of candidatos) {
+    const est = estadoVivo(porHost.get(h));
+    estados[est]++;
+    for (const k of clasesQueCastigan(h)) {
+      if (est === "vivo") conteosVivos[k]++;
+      if (est === "sin_sondear") sinSondear[k]++;
+    }
+  }
+  return { conteos: conteosVivos, nombres: candidatos.length, ...estados, sin_sondear_por_clase: sinSondear };
+}
+
+// El QEX-1.1 de una medición. dim10: las dimensiones de 1.0 (certificados, hndl y edge no cambian).
+export function qex11({ dim10, sinTls13, ct, endpoints, hosts, cuentas = null }) {
+  const viva = ct ? superficieViva(endpoints, hosts) : null;
+  const dim = { ...dim10, higiene: higiene(sinTls13, viva ? viva.conteos : null) };
+  const historico = cuentas ? { no_productivo: cuentas.no_productivo, legado: cuentas.legado, infra_expuesta: cuentas.infra_expuesta } : null;
+  return { ...qex(dim, VERSION_QEX_11), superficie: viva, historico };
 }
 
 // ---------------------------------------------------------------- etiquetas en inglés (12-nov-2026)
