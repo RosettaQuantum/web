@@ -2,6 +2,8 @@ import { registrarVisita } from "./lib/hits.mjs";
 import { manejarApi, registrarMedicion, registrarVerificado } from "./api.js";
 import * as medicionAgentes from "./lib/medicion-agentes.mjs";
 import { manejarEnvio, manejarBaja } from "./lib/envio-informe.mjs";
+// El logo del PDF de la ficha (wrangler.jsonc: **/rosetta-mark.svg como texto, igual que og-ruta).
+import marcaSvg from "./public/rosetta-mark.svg";
 registrarMedicion(medicionAgentes);
 import { notaParaApi } from "./lib/qready-verificado.mjs";
 registrarVerificado({ notaParaApi });
@@ -127,7 +129,7 @@ async function atender(request, env, ctx) {
     // Los formularios con correo y Turnstile (lib/captacion.mjs): sin token válido no escriben en D1.
     if (url.pathname === "/api/medicion/descarga") return manejarDescarga(request, env);
     if (url.pathname === "/api/qready/informe-industria") return manejarInformeIndustria(request, env);
-    if (url.pathname.startsWith("/api/medicion/envio")) return manejarEnvio(request, env, url);
+    if (url.pathname.startsWith("/api/medicion/envio")) return manejarEnvio(request, env, url, { marca: marcaSvg });
     if (url.pathname === "/baja") return manejarBaja(request, env, url);
     if (url.pathname.startsWith("/api/sondas/correo")) return manejarCorreo(request, env, url);
     // Saludos TLS desde el VPS para lo que el Worker no puede saludar (lib/sonda-tls-vps.mjs): sólo el VPS, firmado.

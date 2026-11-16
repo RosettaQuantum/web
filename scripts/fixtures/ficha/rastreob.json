@@ -1,0 +1,117 @@
+{
+ "origen_sha256": "5d71d2cb97d262a429c1a4d02005ca3edf4d003ff9ff2cb1a63fa4770371fdfa",
+ "nota_en_produccion": "A",
+ "version_en_produccion": "QREADY-NOTA-2",
+ "foto": {
+  "esquema": "rosetta-qex-foto/1",
+  "edicion": "2026-11",
+  "dominio": "rastreob.example",
+  "www": "www.rastreob.example",
+  "vertical": "fintech",
+  "medido_utc": "2026-11-16T18:56:39.152Z",
+  "origen": "fixture rosetta-ficha/1 desde la respuesta del MCP de producción",
+  "ct": {
+   "fuente": "crt.sh + Cert Spotter (SSLMate)",
+   "intentos": 1,
+   "consultado_utc": "2026-11-16T18:56:26.606Z",
+   "filas": 1,
+   "sha256_crudo": "a4f6c0d7aee5d3ba5fedd27f6ff98796db985f8b26e19c606bee7860e81a713e",
+   "conteos": {
+    "hostnames": 2,
+    "profundos": 0,
+    "no_productivo": 0,
+    "legado": 0,
+    "infra_expuesta": 0,
+    "critico": 0
+   },
+   "hosts": [
+    {
+     "host": "rastreob.example",
+     "clases": [],
+     "profundo": false,
+     "etiqueta_estricta": true,
+     "ultimo_not_before": "2026-11-08T00:00:00",
+     "ultimo_not_after": "2027-02-06T00:00:00"
+    },
+    {
+     "host": "www.rastreob.example",
+     "clases": [],
+     "profundo": false,
+     "etiqueta_estricta": true,
+     "ultimo_not_before": "2026-11-08T00:00:00",
+     "ultimo_not_after": "2027-02-06T00:00:00"
+    }
+   ]
+  },
+  "endpoints": [],
+  "borde": {
+   "cdn": "sin CNAME",
+   "cadena": [],
+   "soporta": true,
+   "elige": true,
+   "pide_mejora": null,
+   "sha256_medicion": "0000000000000000000000000000000000000000000000000000000000000000",
+   "medido_desde": "worker"
+  },
+  "vps": null,
+  "tls13": true,
+  "certificado": {
+   "ok": false,
+   "error": "alerta TLS 2/70 (el servidor no aceptó TLS 1.2)",
+   "medido_desde": "worker"
+  },
+  "proveedores": {
+   "correo": null,
+   "mx": [],
+   "security_txt": false
+  },
+  "qex": {
+   "version": "QEX-1.0",
+   "dimensiones": {
+    "certificados": null,
+    "higiene": 70,
+    "hndl": 65,
+    "edge": 100
+   },
+   "pesos": {
+    "certificados": 0.4,
+    "higiene": 0.25,
+    "hndl": 0.25,
+    "edge": 0.1
+   },
+   "aportes": {
+    "certificados": null,
+    "higiene": 17.5,
+    "hndl": 16.25,
+    "edge": 10
+   },
+   "suma": 43.75,
+   "peso_usado": 0.6,
+   "score": 73,
+   "tope": 84,
+   "tipos": {
+    "certificados": "medido",
+    "higiene": "medido",
+    "hndl": "modelo de sector",
+    "edge": "medido"
+   }
+  },
+  "referencia": {
+   "edicion": "2026-08",
+   "mediana_pais": 57,
+   "mediana_sector": 71,
+   "n_sector": 15
+  },
+  "instrumentos": {
+   "pagina": "qex-nucleo.mjs",
+   "servidor": "rosetta-sondas-envivo/1"
+  },
+  "sha256": "d716bd487afcccfac14e59e7932899e7d6fb845bee8ceeedfa18db70b5cdd06b"
+ },
+ "ctx": {
+  "verificado": false,
+  "publico": false,
+  "fuentes_que_fallaron": [],
+  "correo": null
+ }
+}

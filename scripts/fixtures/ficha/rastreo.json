@@ -1,0 +1,245 @@
+{
+ "origen_sha256": "b2220a16dfde2a8f736dfea2b508986c75c60b631c3978eac0ce607db2b0b97c",
+ "nota_en_produccion": "F",
+ "version_en_produccion": "QREADY-NOTA-2",
+ "foto": {
+  "esquema": "rosetta-qex-foto/1",
+  "edicion": "2026-11",
+  "dominio": "rastreo.example",
+  "www": "www.rastreo.example",
+  "vertical": "fintech",
+  "medido_utc": "2026-11-16T18:55:47.117Z",
+  "origen": "fixture rosetta-ficha/1 desde la respuesta del MCP de producción",
+  "ct": {
+   "fuente": "crt.sh + Cert Spotter (SSLMate), copia del servidor",
+   "intentos": 1,
+   "consultado_utc": "2026-11-16T16:20:09.888Z",
+   "filas": 1,
+   "sha256_crudo": "e5b89749ec93ae4e1e03bb2f6d39f458df8e57ae4136e699a6fd6745833d3a86",
+   "conteos": {
+    "hostnames": 6,
+    "profundos": 0,
+    "no_productivo": 2,
+    "legado": 0,
+    "infra_expuesta": 2,
+    "critico": 0
+   },
+   "hosts": [
+    {
+     "host": "cpanel.rastreo.example",
+     "clases": [
+      "infra_expuesta"
+     ],
+     "profundo": false,
+     "etiqueta_estricta": true,
+     "ultimo_not_before": "2026-11-08T00:00:00",
+     "ultimo_not_after": "2027-02-06T00:00:00"
+    },
+    {
+     "host": "rastreo.example",
+     "clases": [],
+     "profundo": false,
+     "etiqueta_estricta": true,
+     "ultimo_not_before": "2026-11-08T00:00:00",
+     "ultimo_not_after": "2027-02-06T00:00:00"
+    },
+    {
+     "host": "serverless-staging.rastreo.example",
+     "clases": [
+      "no_productivo"
+     ],
+     "profundo": false,
+     "etiqueta_estricta": true,
+     "ultimo_not_before": "2026-11-08T00:00:00",
+     "ultimo_not_after": "2027-02-06T00:00:00"
+    },
+    {
+     "host": "staging.rastreo.example",
+     "clases": [
+      "no_productivo"
+     ],
+     "profundo": false,
+     "etiqueta_estricta": true,
+     "ultimo_not_before": "2026-11-08T00:00:00",
+     "ultimo_not_after": "2027-02-06T00:00:00"
+    },
+    {
+     "host": "webmail.rastreo.example",
+     "clases": [
+      "infra_expuesta"
+     ],
+     "profundo": false,
+     "etiqueta_estricta": true,
+     "ultimo_not_before": "2026-11-08T00:00:00",
+     "ultimo_not_after": "2027-02-06T00:00:00"
+    },
+    {
+     "host": "www.rastreo.example",
+     "clases": [],
+     "profundo": false,
+     "etiqueta_estricta": true,
+     "ultimo_not_before": "2026-11-08T00:00:00",
+     "ultimo_not_after": "2027-02-06T00:00:00"
+    }
+   ]
+  },
+  "endpoints": [
+   {
+    "host": "serverless-staging.rastreo.example",
+    "clases": [
+     "no_productivo"
+    ],
+    "dns_status": "NOERROR",
+    "ip": [
+     "99.86.109.104",
+     "99.86.109.75",
+     "99.86.109.124",
+     "99.86.109.76"
+    ],
+    "cname": [],
+    "responde_443": true,
+    "detalle": "responde; grupo X25519MLKEM768",
+    "medido_utc": "2026-11-16T18:55:47.117Z",
+    "hibrido": true,
+    "http_status": 403,
+    "medido_desde": "worker"
+   },
+   {
+    "host": "staging.rastreo.example",
+    "clases": [
+     "no_productivo"
+    ],
+    "dns_status": "NOERROR",
+    "ip": [
+     "44.229.1.161",
+     "32.190.67.167",
+     "34.218.133.206",
+     "52.24.145.62"
+    ],
+    "cname": [],
+    "responde_443": true,
+    "detalle": "responde con alert 1/0",
+    "medido_utc": "2026-11-16T18:55:47.117Z",
+    "hibrido": false,
+    "http_status": 301,
+    "medido_desde": "worker"
+   },
+   {
+    "host": "cpanel.rastreo.example",
+    "clases": [
+     "infra_expuesta"
+    ],
+    "dns_status": "NOERROR",
+    "ip": [
+     "186.64.114.60"
+    ],
+    "cname": [],
+    "responde_443": true,
+    "detalle": "responde; grupo x25519",
+    "medido_utc": "2026-11-16T18:55:47.117Z",
+    "hibrido": false,
+    "http_status": null,
+    "medido_desde": "vps"
+   },
+   {
+    "host": "webmail.rastreo.example",
+    "clases": [
+     "infra_expuesta"
+    ],
+    "dns_status": "NOERROR",
+    "ip": [
+     "186.64.114.60"
+    ],
+    "cname": [],
+    "responde_443": true,
+    "detalle": "responde; grupo x25519",
+    "medido_utc": "2026-11-16T18:55:47.117Z",
+    "hibrido": false,
+    "http_status": 200,
+    "medido_desde": "vps"
+   }
+  ],
+  "borde": {
+   "cdn": "otro",
+   "cadena": [],
+   "soporta": false,
+   "elige": false,
+   "pide_mejora": null,
+   "sha256_medicion": "0000000000000000000000000000000000000000000000000000000000000000",
+   "medido_desde": "worker"
+  },
+  "vps": null,
+  "tls13": true,
+  "certificado": {
+   "ok": true,
+   "algoritmo": "RSA",
+   "curva": null,
+   "bits": 2048,
+   "firma": "sha256WithRSAEncryption",
+   "emisor": "Let's Encrypt",
+   "sujeto": "webdisk.rastreo.example",
+   "not_before": "2026-11-08",
+   "not_after": "2027-02-06",
+   "medido_desde": "vps"
+  },
+  "proveedores": {
+   "correo": "Google Workspace",
+   "mx": [
+    "alt1.aspmx.l.google.com",
+    "alt2.aspmx.l.google.com",
+    "alt3.aspmx.l.google.com",
+    "alt4.aspmx.l.google.com",
+    "aspmx.l.google.com"
+   ],
+   "security_txt": false
+  },
+  "qex": {
+   "version": "QEX-1.0",
+   "dimensiones": {
+    "certificados": 75,
+    "higiene": 60,
+    "hndl": 65,
+    "edge": 0
+   },
+   "pesos": {
+    "certificados": 0.4,
+    "higiene": 0.25,
+    "hndl": 0.25,
+    "edge": 0.1
+   },
+   "aportes": {
+    "certificados": 30,
+    "higiene": 15,
+    "hndl": 16.25,
+    "edge": 0
+   },
+   "suma": 61.25,
+   "peso_usado": 1,
+   "score": 61,
+   "tope": 84,
+   "tipos": {
+    "certificados": "medido",
+    "higiene": "medido",
+    "hndl": "modelo de sector",
+    "edge": "medido"
+   }
+  },
+  "referencia": {
+   "edicion": "2026-08",
+   "mediana_pais": 57,
+   "mediana_sector": 71,
+   "n_sector": 15
+  },
+  "instrumentos": {
+   "pagina": "qex-nucleo.mjs",
+   "servidor": "rosetta-sondas-envivo/1"
+  },
+  "sha256": "6886b0502747cbd2ed48770ad6722a754b123e0fe0e75f425156876aa7a29447"
+ },
+ "ctx": {
+  "verificado": false,
+  "publico": false,
+  "fuentes_que_fallaron": [],
+  "correo": null
+ }
+}
