@@ -28,6 +28,21 @@ from concurrent.futures import ThreadPoolExecutor
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import sonda_correo as C  # noqa: E402  (hello, leer, NOMBRE, grupos, HOST_OK, llamar, CLAVE)
+import urllib.request  # noqa: E402
+
+
+def llamar(base, metodo, ruta, cuerpo="", timeout=20):
+    """Como C.llamar, pero con timeout propio (14-nov-2026). Vive aquí para no tocar sonda_correo.py,
+    que corre en producción para el correo: la sonda TLS cambia sola. Firma con las MISMAS cabeceras."""
+    if C.llamar is not _LLAMAR_ORIGINAL:          # las pruebas reemplazan C.llamar: respetarlo
+        return C.llamar(base, metodo, ruta, cuerpo)
+    r = urllib.request.Request(base + ruta, data=cuerpo.encode() if metodo == "POST" else None,
+                               method=metodo, headers=C.cabeceras(metodo, ruta, cuerpo))
+    with urllib.request.urlopen(r, timeout=timeout) as resp:
+        return resp.status, resp.read()
+
+
+_LLAMAR_ORIGINAL = C.llamar
 
 INSTRUMENTO = "rosetta-sonda-tls/1 · ClientHello de probe_soporte.py (TLS 1.3) y de clientHello12 (TLS 1.2)"
 ESPERA = 8
@@ -177,7 +192,7 @@ def una_vuelta(base, medir=None):
     # 14-nov-2026: la página espera al VPS 30 s. Con 20 s de timeout aquí más 10 s de pausa tras un
     # error, UNA pregunta colgada (pasó 3 veces el 14-nov: «read operation timed out», ECONNRESET) se
     # comía la ventana entera y la medición salía «sin nota». Preguntar es barato: 6 s y otra vez.
-    st, b = C.llamar(base, "GET", "/api/sondas/tls/pendiente", timeout=6)
+    st, b = llamar(base, "GET", "/api/sondas/tls/pendiente", timeout=6)
     if st == 204: return "nada"
     t = json.loads(b); p = t["pedido"]; dominio = str(p.get("dominio", ""))
     ahora = time.time()
@@ -190,8 +205,8 @@ def una_vuelta(base, medir=None):
         except Exception as e: r = {"dominio": dominio, "instrumento": INSTRUMENTO, "error": f"{type(e).__name__}: {e}"[:200]}
     cuerpo = json.dumps(r, ensure_ascii=False, separators=(",", ":"))
     # Entregar sí se reintenta una vez: el trabajo ya está hecho y perderlo deja a la página sin nota.
-    try: st, _ = C.llamar(base, "POST", f"/api/sondas/tls/{t['id']}/resultado", cuerpo, timeout=10)
-    except Exception: st, _ = C.llamar(base, "POST", f"/api/sondas/tls/{t['id']}/resultado", cuerpo, timeout=10)
+    try: st, _ = llamar(base, "POST", f"/api/sondas/tls/{t['id']}/resultado", cuerpo, timeout=10)
+    except Exception: st, _ = llamar(base, "POST", f"/api/sondas/tls/{t['id']}/resultado", cuerpo, timeout=10)
     return f"entregado {dominio} {st}"
 
 
