@@ -19,6 +19,9 @@ if (typeof original === "function" && !original.__reintento) {
       try { return await original(entrada, opciones); }
       catch (e) {
         if (k >= 3 || e?.name === "AbortError") throw e;
+        // Visible a propósito: un reintento que nadie ve no se puede contar (16-nov-2026).
+        const url = typeof entrada === "string" ? entrada : entrada?.url;
+        console.error(`fetch-reintento: intento ${k} falló (${e?.cause?.code || e?.message}) en ${url}; reintento`);
         await new Promise((r) => setTimeout(r, 1500 * k));
       }
     }
