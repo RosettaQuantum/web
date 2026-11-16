@@ -294,7 +294,8 @@ async function conElBorrador(ruta, fn) {
     // justo donde aparecen las cifras sin medir y la prosa recien escrita. Las
     // dos que miran el informe se corren aqui, con la misma variable, para que
     // vean la pagina del borrador y no la de la publicada.
-    for (const g of ["check-informe-no-medido.mjs", "check-informe-serie.mjs"]) {
+    for (const g of ["check-informe-no-medido.mjs", "check-informe-serie.mjs",
+                     "check-informe-panel.mjs"]) {
       try {
         execFileSync("node", [join(RAIZ, "scripts", g)], { cwd: RAIZ, stdio: "pipe", env: entorno });
         console.log(`  ${g}: ok`);
