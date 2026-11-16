@@ -7,7 +7,7 @@
 | RQ.S.00 | Q-Ready grade | **F** |
 | RQ.S.01 | QEX index | 56/100 (external cap 84) |
 
-Reading: A serious failure was measured: an expired certificate or an exposed test environment.
+Reading: Your site already uses the post-quantum lock, but it has a test environment exposed to the internet.
 Reference: no index for Paraguay; no comparison.
 Publication: private. The owner has not activated its public page.
 
@@ -26,7 +26,7 @@ Publication: private. The owner has not activated its public page.
 ## 3. Alerts
 | # | Level | Finding | Where |
 |---|---|---|---|
-| A1 | SERIOUS | Exposed test environment | s••• |
+| A1 | SERIOUS | Exposed test environment | s•••#a2 |
 | A2 | MEDIUM | Classical certificate without a dated plan | www |
 | A3 | MEDIUM | Legacy name answering | l••• |
 | A4 | MEDIUM | Mail service answering on port 443 | m••• |
@@ -38,7 +38,7 @@ Publication: private. The owner has not activated its public page.
 | H2 | Retire the legacy name or assign it an owner | A3 | grade does not change |
 | H3 | Close port 443 on the mail service | A4 | -> A |
 | H4 | Dated plan for a post-quantum certificate | A2 | grade does not change |
-| H5 | Publish security.txt | RQ.S.08 | grade does not change |
+| H5 | Publish security.txt | — | grade does not change |
 | H6 | Ask the email provider for a date for the hybrid key exchange | RQ.S.06 | grade does not change |
 
 ## 5. Not measured

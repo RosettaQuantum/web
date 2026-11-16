@@ -71,7 +71,7 @@ for (const c of CASOS) for (const idioma of ["es", "en"]) {
 igual(letras, { a: "A", f: "F", "sin-correo": "B" }, "las tres fotos fijas: una A, una F y una sin correo (B)");
 // el caso F ejerce lo que tiene que ejercer: alertas GRAVE y MEDIA, acciones con y sin efecto, no medido
 const mdF = render(Fi, "f", "es");
-igual(["| A1 | GRAVE |", "| MEDIA |", "| -> ", "| no cambia la nota |", "| RQ.S.06 | no cambia la nota |", "crt.sh no respondió; se usó Cert Spotter", "sin índice para Paraguay"].filter((t) => !mdF.includes(t)), [],
+igual(["| A1 | GRAVE |", "| MEDIA |", "| -> ", "| no cambia la nota |", "| RQ.S.06 | no cambia la nota |", "| Publicar security.txt | — | no cambia la nota |", "crt.sh no respondió; se usó Cert Spotter", "sin índice para Paraguay"].filter((t) => !mdF.includes(t)), [],
   "el caso F ejerce GRAVE, MEDIA, efecto, «no cambia la nota», el correo medido, la fuente caída y el país sin índice");
 igual(/staging\.|staging \|/.test(mdF), false, "el caso F (no verificado) no imprime el nombre de pruebas completo");
 igual(render(Fi, "a", "es").includes("| legacy |"), true, "el caso A (verificado) imprime los nombres completos");
@@ -87,7 +87,7 @@ const MUT = {
   "sin la sección No medido": base.replace(/## 5\. No medido\n[\s\S]*?\n\n/, ""),
   "alertas fuera de orden": cambiar("| A4 | MEDIA |", "| A4 | GRAVE |"),
   "alerta mal numerada": cambiar("| A2 |", "| A3 |"),
-  "nivel inventado": cambiar("| A1 | GRAVE |", "| A1 | ALTA |"),
+  "nivel inventado": cambiar("| A1 | GRAVE |", "| A1 | URGENTE |"),
   "acción mal numerada": cambiar("| H2 |", "| H7 |"),
   "efecto con flecha unicode": cambiar("| -> ", "| → "),
   "huella completa": cambiar("Huella CT: ", "Huella CT: " + "a".repeat(64) + " "),
@@ -133,6 +133,38 @@ await conMutante(new URL("public/js/ficha.mjs", raiz), '...x.graves.map((a) => (
   igual(Fi.notaParaJson(xa, Fi.analizar(a, xa), { dominio: a.dominio, verificado: true }).falta_para_A, [], "en A no falta nada para A");
 }
 
+// ---------------------------------------------------------------- 2b · nivel ALTA y la lectura por motivo
+{
+  const { foto, ctx } = fixture("f");
+  const fA = clon(foto); fA.endpoints.push({ host: "vpn." + foto.dominio, clases: ["infra_expuesta"], dns_status: "NOERROR", responde_443: true, hibrido: false });
+  for (const idioma of ["es", "en"]) {
+    const md = Fi.markdownDe(Fi.armarFicha(fA, { ...ctx, idioma }));
+    igual([Fi.validarMarkdown(md, idioma), md.includes(`| A2 | ${idioma === "en" ? "HIGH" : "ALTA"} |`)], [[], true], `ALTA (${idioma}): entre GRAVE y MEDIA, y la ficha es válida`);
+  }
+  igual(Fi.validarMarkdown(base.replace("| A4 | MEDIA |", "| A4 | ALTA |")).length > 0, true, "MUTACIÓN de texto: ALTA después de MEDIA → el validador grita");
+  igual(Fi.NIVELES, ["GRAVE", "ALTA", "MEDIA", "INFO"], "los cuatro niveles, en orden");
+  const lee = (f) => Fi.lecturaDe(N.explicarNota(f), f);
+  igual(lee(foto), "Su sitio ya usa el candado post-cuántico, pero tiene un ambiente de pruebas expuesto a internet.", "lectura F: la causa real");
+  const fB = clon(foto); Object.assign(fB.endpoints.find((e) => e.host.startsWith("staging.")), { http_status: 403 });
+  igual(lee(fB), "Su sitio ya usa el candado post-cuántico, pero tiene un ambiente de pruebas publicado y 2 nombres que responden no muestran el candado nuevo.",
+    "lectura B por techo: el ambiente bloqueado, y el mismo nombre no se cuenta dos veces");
+  const fC = clon(fA); fC.borde.soporta = false; fC.endpoints = fC.endpoints.filter((e) => !e.host.startsWith("staging."));
+  igual(lee(fC), "Su sitio todavía no usa el candado post-cuántico y tiene un nombre de infraestructura sensible que responde.", "lectura D: sin candado y con infraestructura");
+  igual(lee(fixture("a").foto), FICHA.es.lectura_motivo ? (await import("../public/js/qready-textos.mjs")).textos("es").nota_lectura.A : null, "lectura A: el texto aprobado");
+  igual(sinComentarios(leer("lib/medicion-agentes.mjs")).includes("lectura: Fi.lecturaDe(x, foto, lang)"), true, "el JSON (nota.lectura) dice la misma lectura que la ficha");
+}
+
+// ---------------------------------------------------------------- 2c · la página pinta con el mismo nombrador
+{
+  const pag = sinComentarios(leer("public/js/medicion-envivo.mjs"));
+  igual(/nombre = nombrador\(dominio, s\.nombres_completos === true,/.test(pag), true, "la página arma el nombrador con la respuesta del servidor (verificado → completos)");
+  const sueltos = [...pag.matchAll(/esc\((?:x|e|a|h|f)\.host\)/g)].length;
+  igual(sueltos, 0, "la página no pinta ningún nombre sin pasar por nombre()");
+  igual(/esc\(x\.host\)/.test("`<code>${esc(x.host)}</code>`"), true, "el detector de nombre suelto grita con el patrón viejo");
+  const sondas = sinComentarios(leer("lib/informe-envivo.mjs"));
+  igual(/const \{ verificado: nombres_completos \} = await dominioVerificado\(env\.DB, dominio\);/.test(sondas) && /nombres_completos,/.test(sondas), true, "/api/sondas dice si el dominio está verificado (la misma consulta que la API)");
+}
+
 // ---------------------------------------------------------------- 3 · ajuste 2: el país
 igual(["x.cl", "banco.com.py", "x.com", "x.io", "x.co.uk", "x.example", "x.org"].map(Fi.paisDeDominio), ["CL", "PY", null, null, "GB", null, null], "el país sale del TLD; .com, .io y .org no dicen país");
 igual([Fi.comparacion("x.cl", 56, 57), Fi.comparacion("banco.com.py", 53, 57).diferencia, Fi.comparacion("x.com", 53, 57).diferencia],
@@ -146,11 +178,26 @@ await conMutante(new URL("public/js/ficha.mjs", raiz), "const compara = pais ===
 const ENC = {
   "biometrics-dev.ueno.com.py": "biometrics-d•••.ueno.com.py", "apigw-legacy.ueno.com.py": "apigw-l•••.ueno.com.py",
   "cdn-dev.ueno.com.py": "cdn-d•••.ueno.com.py", "cdn-statements-api-files-ind-dev.ueno.com.py": "cdn-statements-api-files-ind-d•••.ueno.com.py",
-  "checks-cdn.ind-dev.ueno.com.py": "checks-cdn.ind-d•••.ueno.com.py", "cloud-websocket-test.ueno.com.py": "cloud-websocket-t•••.ueno.com.py",
+  "checks-cdn.ind-dev.ueno.com.py": "check•••.ueno.com.py", "cloud-websocket-test.ueno.com.py": "cloud-websocket-t•••.ueno.com.py",
+  "2a57j78hsrstljvqlux8inqlkmoufug.proxy.shs-dev.ueno.com.py": "2a57j78hsrstljv•••.ueno.com.py",
+  "argocd.pruebadelivery.data-legacy.ueno.com.py": "arg•••.ueno.com.py",
   "openfinance-desa.banco.cl": "openfinance-d•••.banco.cl", "portal-clientes.banco.cl": "portal-•••.banco.cl",
   "banco.cl": "banco.cl", "www.banco.cl": "www.banco.cl",
 };
 for (const [h, esperado] of Object.entries(ENC)) igual(Fi.enmascarar(h, h.endsWith("banco.cl") ? "banco.cl" : "ueno.com.py"), esperado, `enmascarar ${h}`);
+// sólo el primer label: nada del resto del subdominio queda a la vista
+igual(Object.entries(ENC).filter(([h, m]) => m !== h && m.split(Fi.MASCARA)[0].includes(".")).map(([h]) => h), [], "lo visible es sólo (parte de) el primer label");
+// nombres distintos que quedan iguales: sufijo corto y estable; uno solo, sin sufijo; verificado, completos
+{
+  const hs = ["all-dev.x.com.py", "all-dev2.x.com.py", "all-desa.x.com.py", "biometrics-dev.x.com.py"];
+  const v = Fi.nombrador("x.com.py", false, hs), w = Fi.nombrador("x.com.py", false, [...hs].reverse());
+  const m = hs.map(v);
+  igual([new Set(m.slice(0, 3)).size, m.slice(0, 3).every((x) => /^all-d•••#[0-9a-f]{2,8}\.x\.com\.py$/.test(x)), m[3]], [3, true, "biometrics-d•••.x.com.py"],
+    "tres nombres que chocan llevan sufijos distintos (all-d•••#xx); el que no choca, ninguno");
+  igual(hs.map(w), m, "el sufijo es estable: no depende del orden");
+  igual(Fi.nombrador("x.com.py", true, hs)("all-dev.x.com.py"), "all-dev.x.com.py", "verificado: el nombre completo");
+  igual(m.some((x) => hs.some((h) => x.includes(h.split(".")[0]) && h.split(".")[0].length > 6)), false, "el sufijo no revela el nombre");
+}
 
 // El camino real de /v1/medicion con respuestas grabadas (python.org, 12-nov) y una F inyectada.
 const CT = JSON.parse(gunzipSync(readFileSync(new URL("scripts/fixtures/medicion-agentes/ct-python.org.json.gz", raiz))).toString("utf8"));
@@ -169,6 +216,11 @@ async function baseCon(filas) {
 // Los nombres sondeados (salen del registro de certificados). Un MX NO se enmascara: es la respuesta
 // pública del DNS a «¿quién recibe el correo de este dominio?» y de ella sale el proveedor; por eso
 // el guardia busca el MX sólo fuera de correo.mx.
+// la foto de python.org que arma el servidor (registro + sondeados), para saber qué nombre le toca
+function fixtureFotoPy() {
+  const mapa = N.nombresCT(JSON.parse(CT.texto), "python.org");
+  return { dominio: "python.org", ct: { hosts: N.hostsCT(mapa, "python.org") }, endpoints: sF.endpoints };
+}
 const SENSIBLES = sF.endpoints.map((e) => e.host).filter((h) => h !== "python.org" && h !== "www.python.org");
 const filtrado = (cuerpo) => { const c = { ...cuerpo, correo: { ...cuerpo.correo, mx: [] } }; return SENSIBLES.filter((h) => JSON.stringify(c).includes(h)); };
 async function medirCon(Mod, filas, idioma = "es") {
@@ -178,7 +230,10 @@ async function medirCon(Mod, filas, idioma = "es") {
 const sinVerif = await medirCon(A, []);
 igual([sinVerif.ok, sinVerif.nota?.letra, sinVerif.nombres_enmascarados], [true, "F", true], "no verificado: mide, F, y declara que enmascara");
 igual(filtrado(sinVerif), [], "grito de la fuga: ningún nombre sensible completo en TODO el JSON (endpoints, alertas, falta_para_A, no_medido, CNAME, ficha)");
-igual(sinVerif.endpoints.find((e) => e.host.startsWith("s"))?.cname, ["s•••.python.org.cdn.example"], "el CNAME que repite el nombre también se enmascara");
+// staging y stage chocan en «s•••»: cada uno lleva su sufijo (el mismo en endpoints, alertas y ficha)
+const sStaging = Fi.nombradorDeFoto(fixtureFotoPy(), false)("staging.python.org");
+igual(/^s•••#[0-9a-f]{2,8}\.python\.org$/.test(sStaging), true, `staging.python.org → ${sStaging}`);
+igual(sinVerif.endpoints.find((e) => e.host === sStaging)?.cname, [`${sStaging}.cdn.example`], "el CNAME que repite el nombre también se enmascara, con el mismo sufijo");
 const verif = await medirCon(A, [["python.org", "produccion", 0]]);
 igual([verif.nombres_enmascarados, filtrado(verif).length], [false, SENSIBLES.length], "verificado en producción: todos los nombres completos");
 igual(verif.presentacion.markdown.includes("Publicación: privada"), true, "verificado pero no público: la ficha dice privada");
@@ -206,8 +261,8 @@ const p = sinVerif.presentacion;
 igual([p.protocolo, p.spec, p.idioma, p.instruccion_agente, Array.isArray(p.secciones) && p.secciones.map((s) => s.clave)],
   ["rosetta-ficha/1", "https://rosettaquantum.com/protocolo/ficha", "es", FICHA.es.instruccion_agente, Fi.SECCIONES], "presentacion trae protocolo, spec, instrucción, idioma, markdown y secciones");
 igual(Fi.validarMarkdown(p.markdown), [], "la ficha de /v1/medicion cumple la sintaxis");
-igual(p.markdown.includes("| A1 | GRAVE | Ambiente de pruebas expuesto | s••• |"), true, "la alerta A1 de la ficha es la misma que nota.alertas[0], enmascarada");
-igual(sinVerif.nota.alertas[0], { id: "A1", nivel: "grave", codigo: "ambiente_pruebas_expuesto", texto: "Ambiente de pruebas expuesto", host: "s•••.python.org" }, "nota.alertas lleva el mismo ID");
+igual(p.markdown.includes(`| A1 | GRAVE | Ambiente de pruebas expuesto | ${sStaging.replace(".python.org", "")} |`), true, "la alerta A1 de la ficha es la misma que nota.alertas[0], enmascarada");
+igual(sinVerif.nota.alertas[0], { id: "A1", nivel: "grave", codigo: "ambiente_pruebas_expuesto", texto: "Ambiente de pruebas expuesto", host: sStaging }, "nota.alertas lleva el mismo ID");
 const en = await medirCon(A, [], "en");
 igual([en.presentacion.idioma, Fi.validarMarkdown(en.presentacion.markdown, "en")], ["en", []], "idioma en: la ficha en inglés cumple la sintaxis");
 for (const ruta of ["lib/medicion-agentes.mjs", "lib/qready-verificado.mjs", "api.js"]) {
