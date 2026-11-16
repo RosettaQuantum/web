@@ -157,11 +157,13 @@ if (process.argv.includes("--self-test")) {
   // tabla de 900 px pero el boton caia en x=110, o sea DENTRO, y el chequeo se callaba con
   // razon. El defecto de verdad tenia columnas anchas por delante que empujaban la ultima
   // celda a x=771 de una ventana de 375. Sin esa celda ancha el caso no reproduce nada.
-  const roto = `<!doctype html><html><head><meta charset=utf-8><style>
+  const roto = `<!doctype html><html><head><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1"><style>
     main{width:375px;overflow-x:hidden} table{width:900px} td.ancha{width:760px}</style></head>
     <body><main><table><tr><td class=ancha>resultado largo</td><td><button>ver el sello</button></td></tr></table></main></body></html>`;
   // El MISMO html con el arreglo que se aplico: el contenedor se desplaza.
   const sano = roto.replace("overflow-x:hidden", "overflow-x:auto");
+  // 16-nov-2026: sin <meta viewport>, Chrome en modo celular dibuja a 980 px y el botón cabe: el
+  // autotest dio verde con el defecto vivo en CI. Las páginas reales la traen; la fija también.
   writeFileSync(join(dir, "roto.html"), roto);
   writeFileSync(join(dir, "sano.html"), sano);
 

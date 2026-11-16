@@ -104,6 +104,23 @@ async function abrirChromeUnaVez({ ancho = 1280, alto = 900 } = {}) {
     async evaluar(url, fn, esperaMs = 3500) {
       await enviar("Page.navigate", { url }, sessionId);
       await new Promise(r => setTimeout(r, esperaMs));   // la consola pinta despues de fetch
+      // 16-nov-2026: en CI la emulación no siempre sobrevive a la navegación. El autotest de
+      // alcance midió a 981 px pidiendo 375 y dio «no hay botones recortados» con el defecto vivo.
+      // El instrumento declara lo que ocurrió: se pregunta el ancho real, se reaplica una vez, y si
+      // sigue sin cuadrar se falla — nunca se mide a otro ancho en silencio.
+      // Sólo se falla en el caso que miente: una página SIN <meta viewport> en modo celular, que
+      // Chrome dibuja a ~980 px. Una página CON meta que desborda (p. ej. 383 en vez de 375) mide
+      // bien: el desborde es justo lo que el chequeo busca, no un error del instrumento.
+      const estado = async () => (await enviar("Runtime.evaluate", { returnByValue: true,
+        expression: "({w: window.innerWidth, meta: !!document.querySelector('meta[name=viewport]')})" }, sessionId)).result.value;
+      let e = await estado();
+      if (ancho < 768 && !e.meta && e.w !== ancho) {
+        await enviar("Emulation.setDeviceMetricsOverride",
+          { width: ancho, height: alto, deviceScaleFactor: 1, mobile: true }, sessionId);
+        await new Promise(r => setTimeout(r, 300));
+        e = await estado();
+        if (e.w !== ancho) throw new Error(`la página no trae <meta viewport>: Chrome midió a ${e.w} px y se pidió ${ancho}; el chequeo no mediría lo que declara`);
+      }
       const r = await enviar("Runtime.evaluate", {
         expression: `(${fn.toString()})()`, returnByValue: true, awaitPromise: true,
       }, sessionId);
