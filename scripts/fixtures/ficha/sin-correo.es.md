@@ -7,7 +7,7 @@
 | RQ.S.00 | Nota Q-Ready | **B** |
 | RQ.S.01 | Índice QEX | 69/100 (tope externo 84) |
 
-Lectura: Candado nuevo en el sitio principal. Quedan nombres públicos sin evidencia del candado nuevo.
+Lectura: Su sitio ya usa el candado post-cuántico, pero un nombre que responde no muestra el candado nuevo.
 Referencia: el dominio .com no indica país; no se compara.
 Publicación: privada. El dueño no ha activado su página pública.
 
@@ -34,7 +34,7 @@ Publicación: privada. El dueño no ha activado su página pública.
 |---|---|---|---|
 | H1 | Dar de baja o asignar dueño al nombre de legado | A2 | -> A |
 | H2 | Plan con fecha para certificado post-cuántico | A1 | no cambia la nota |
-| H3 | Publicar security.txt | RQ.S.08 | no cambia la nota |
+| H3 | Publicar security.txt | — | no cambia la nota |
 
 ## 5. No medido
 - 1 nombres respondieron sin evidencia del candado nuevo.

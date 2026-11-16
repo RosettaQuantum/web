@@ -7,7 +7,7 @@
 | RQ.S.00 | Q-Ready grade | **B** |
 | RQ.S.01 | QEX index | 69/100 (external cap 84) |
 
-Reading: New lock on the main site. Some public names show no evidence of the new lock yet.
+Reading: Your site already uses the post-quantum lock, but one name that answers does not show the new lock.
 Reference: a .com domain does not indicate a country; no comparison.
 Publication: private. The owner has not activated its public page.
 
@@ -34,7 +34,7 @@ Publication: private. The owner has not activated its public page.
 |---|---|---|---|
 | H1 | Retire the legacy name or assign it an owner | A2 | -> A |
 | H2 | Dated plan for a post-quantum certificate | A1 | grade does not change |
-| H3 | Publish security.txt | RQ.S.08 | grade does not change |
+| H3 | Publish security.txt | — | grade does not change |
 
 ## 5. Not measured
 - 1 names answered without evidence of the new lock.

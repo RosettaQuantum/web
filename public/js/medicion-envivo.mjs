@@ -15,6 +15,11 @@
 import * as N from "./qex-nucleo.mjs";
 import { enPalabras, paraTraza, detalleEndpointEn, fuenteCT } from "./medicion-palabras.mjs";
 import { textos } from "./qready-textos.mjs";
+// Los nombres se PINTAN enmascarados salvo que el dueño haya verificado el dominio (16-nov-2026): la
+// misma regla y el mismo sufijo #xx que la API y la ficha (public/js/ficha.mjs → nombrador). La foto, su
+// huella y lo que se descarga no cambian: es sólo cómo se escribe cada nombre en pantalla.
+import { nombrador } from "./ficha.mjs";
+let nombre = (h) => h;
 
 // Una sola página en dos idiomas (12-nov-2026): se lee el idioma del documento una vez. En español
 // todo queda como estaba; cada texto visible lleva su inglés al lado, con t(es, en).
@@ -318,6 +323,7 @@ form.addEventListener("submit", async (e) => {
     terminar(); return;
   }
 
+  nombre = nombrador(dominio, s.nombres_completos === true, [...hostsCT.map((h) => h.host), ...(s.endpoints || []).map((e) => e.host)]);
   const { foto, detalle: d } = N.armarFoto({ dominio, www, vertical, medido, ct, sondas: s, referencia,
     origen: t("Medición en vivo desde rosettaquantum.com/es/q-ready/medicion.", "Live measurement from rosettaquantum.com/q-ready/medicion.") });
   const pausa = () => espera(quieto ? 0 : 260);
@@ -326,7 +332,8 @@ form.addEventListener("submit", async (e) => {
   for (const x of d.endpoints) {
     const crudoE = (s.endpoints || []).find((y) => y.host === x.host) || {};
     const cls = x.responde_443 === true && alerta(x) ? "mv-t-mal" : "mv-t-ok";
-    traza(`<code>${esc(x.host)}</code> · DNS ${esc(x.dns_status || t("sin respuesta", "no response"))}${crudoE.cname?.length ? ` → ${esc(crudoE.cname[crudoE.cname.length - 1])}` : ""} · ${esc(EN ? N.estadoEndpointEn(x) : N.estadoEndpoint(x))}${x.responde_443 === true && crudoE.detalle ? ` (${esc(EN ? detalleEndpointEn(crudoE.detalle) : crudoE.detalle)})` : ""}`, cls);
+    const cnameV = crudoE.cname?.length ? String(crudoE.cname[crudoE.cname.length - 1]).toLowerCase().split(x.host).join(nombre(x.host)) : null;
+    traza(`<code>${esc(nombre(x.host))}</code> · DNS ${esc(x.dns_status || t("sin respuesta", "no response"))}${cnameV ? ` → ${esc(cnameV)}` : ""} · ${esc(EN ? N.estadoEndpointEn(x) : N.estadoEndpoint(x))}${x.responde_443 === true && crudoE.detalle ? ` (${esc(EN ? detalleEndpointEn(crudoE.detalle) : crudoE.detalle)})` : ""}`, cls);
     await pausa();
   }
   if (!d.endpoints.length) traza(ct ? t("ningún nombre sensible en su superficie", "no sensitive names in your surface") : t("sin superficie, no hay endpoints que medir", "no surface, so no endpoints to measure"));
@@ -402,9 +409,9 @@ function pintarNota(x) {
   $("mv-letra").textContent = x.nota || "—";
   $("mv-letra-t").textContent = x.nota ? T.nota_titulo : T.nota_sin;
   const partes = [`<p>${esc(x.nota ? T.nota_lectura[x.nota] : (T.nota_sin_motivo[x.motivo] || T.nota_sin))}</p>`];
-  const alertas = [...x.graves, ...x.altas, ...x.medias].map((a) => `${esc(T.alerta[a.codigo] || a.codigo)}${a.host ? ` · <code>${esc(a.host)}</code>` : ""}`);
+  const alertas = [...x.graves, ...x.altas, ...x.medias].map((a) => `${esc(T.alerta[a.codigo] || a.codigo)}${a.host ? ` · <code>${esc(nombre(a.host))}</code>` : ""}`);
   if (alertas.length) partes.push(`<ul>${alertas.map((a) => `<li>${a}</li>`).join("")}</ul>`);
-  if (x.falta_para_A.length) partes.push(`<p><b>${esc(T.falta_titulo)}</b></p><ul>${x.falta_para_A.map((f) => `<li>${esc(T.falta[f.codigo] ? T.falta[f.codigo](f) : f.codigo)}</li>`).join("")}</ul>`);
+  if (x.falta_para_A.length) partes.push(`<p><b>${esc(T.falta_titulo)}</b></p><ul>${x.falta_para_A.map((f) => `<li>${esc(T.falta[f.codigo] ? T.falta[f.codigo]({ ...f, host: nombre(f.host) }) : f.codigo)}</li>`).join("")}</ul>`);
   partes.push(`<p class="mv-meta">${esc(T.nota_escala)} · ${esc(x.version)}</p>`);
   lee.innerHTML = partes.join("");
   lee.hidden = false;
@@ -485,7 +492,7 @@ function pintarResultado({ d, s, ct, mapa, hostsCT, dominio, www, nuevosCT = [] 
     const clase = (h) => ["legado", "infra_expuesta", "no_productivo", "critico"].find((c) => h.clases.includes(c)) || (h.profundo ? "profundo" : "");
     const orden = { legado: 0, infra_expuesta: 1, no_productivo: 2, critico: 3, profundo: 4, "": 5 };
     const lista = [...hostsCT].sort((a, b) => orden[clase(a)] - orden[clase(b)] || a.host.localeCompare(b.host));
-    $("mv-mapa").innerHTML = lista.map((h, i) => `<i class="mv-k-${clase(h) || "otro"}${vivos.has(h.host) ? " mv-vivo" : ""}" title="${esc(h.host)}" style="animation-delay:${quieto ? 0 : Math.min(i * 3, 600)}ms"></i>`).join("");
+    $("mv-mapa").innerHTML = lista.map((h, i) => `<i class="mv-k-${clase(h) || "otro"}${vivos.has(h.host) ? " mv-vivo" : ""}" title="${esc(nombre(h.host))}" style="animation-delay:${quieto ? 0 : Math.min(i * 3, 600)}ms"></i>`).join("");
     $("mv-sup-meta").textContent = t(`registro público · ${num(ct.filas.length)} certificados`, `public log · ${num(ct.filas.length)} certificates`);
     $("mv-sup-lede").textContent = t(`${num(k.hostnames)} nombres de host que su dominio ha certificado. Cada cuadro es uno; pase el cursor para ver su nombre. ${vivos.size ? `Los cuadros con borde responden hoy en el puerto 443.` : ""}`,
       `${num(k.hostnames)} hostnames your domain has certified. Each square is one; hover to see its name. ${vivos.size ? `Squares with a border respond on port 443 today.` : ""}`);
@@ -505,7 +512,7 @@ function pintarResultado({ d, s, ct, mapa, hostsCT, dominio, www, nuevosCT = [] 
     const dns = x.dns_status === "NXDOMAIN" ? `<span class="mv-chip mv-si">${t("no publicado", "not published")}</span>` : x.dns_status === "NOERROR" ? `<span class="mv-chip mv-neutro">${t("publicado", "published")}</span>` : `<span class="mv-chip mv-neutro">${esc(x.dns_status || t("sin dato", "no data"))}</span>`;
     const p443 = x.dns_status === "NXDOMAIN" ? '<span class="mv-neutro">—</span>' : x.responde_443 === true ? `<span class="mv-chip ${alerta(x) ? "mv-no" : "mv-neutro"}">${t("responde", "responds")}</span>` : x.responde_443 === false ? `<span class="mv-chip mv-si">${N.esNombreDeCorreo(x.host) ? t("sin servicio web", "no web service") : t("no responde", "no response")}</span>` : `<span class="mv-chip mv-neutro">${t("sin dato", "no data")}</span>`;
     const detalleE = x.responde_443 === false && N.esNombreDeCorreo(x.host) ? N.detalleCorreoSinWeb(crudoE.detalle) : crudoE.detalle || "";
-    return `<tr><td><code>${esc(x.host)}</code></td><td>${esc(x.clases.length ? x.clases.map((c) => CLASE[c] || c).join(", ") : esPrueba(x.host) ? t("Posible ambiente de prueba por su nombre (fuera de la regla del índice)", "Possible test environment, judging by its name (outside the index rule)") : nuevosVistos.has(x.host) ? t("Nuevo desde la foto anterior", "New since the previous snapshot") : t("Sin clase", "No class"))}</td><td>${dns}</td><td>${p443}</td>
+    return `<tr><td><code>${esc(nombre(x.host))}</code></td><td>${esc(x.clases.length ? x.clases.map((c) => CLASE[c] || c).join(", ") : esPrueba(x.host) ? t("Posible ambiente de prueba por su nombre (fuera de la regla del índice)", "Possible test environment, judging by its name (outside the index rule)") : nuevosVistos.has(x.host) ? t("Nuevo desde la foto anterior", "New since the previous snapshot") : t("Sin clase", "No class"))}</td><td>${dns}</td><td>${p443}</td>
       <td class="mv-neutro">${esc([crudoE.cname?.length ? `CNAME ${crudoE.cname[crudoE.cname.length - 1]}` : "", EN ? detalleEndpointEn(detalleE) : detalleE].filter(Boolean).join(" · ") || "—")}</td></tr>`;
   }).join("") : `<tr><td colspan="5" class="mv-neutro">${ct ? t("Ningún nombre sensible en su superficie.", "No sensitive names in your surface.") : t("Sin superficie, no hay endpoints que medir.", "No surface, so no endpoints to measure.")}</td></tr>`;
 
@@ -571,11 +578,11 @@ function mostrarComparacion(antes, ahora) {
   }
   if (c.endpoints.length) {
     html += `<tr class="mv-grupo"><th colspan="4" scope="rowgroup">${t("Endpoints sensibles", "Sensitive endpoints")}</th></tr>`;
-    for (const e of c.endpoints) html += `<tr><th scope="row"><code>${esc(e.host)}</code></th><td>${celda(e.antes)}</td><td>${celda(e.ahora)}</td><td><span class="mv-chip ${ESTADO[e.estado][1]}">${ESTADO[e.estado][0]}</span></td></tr>`;
+    for (const e of c.endpoints) html += `<tr><th scope="row"><code>${esc(nombre(e.host))}</code></th><td>${celda(e.antes)}</td><td>${celda(e.ahora)}</td><td><span class="mv-chip ${ESTADO[e.estado][1]}">${ESTADO[e.estado][0]}</span></td></tr>`;
   }
   $("mv-delta").innerHTML = html;
   const h = c.hosts;
-  const lista = (xs) => `<ul>${xs.map((x) => `<li><code>${esc(x)}</code></li>`).join("")}</ul>`;
+  const lista = (xs) => `<ul>${xs.map((x) => `<li><code>${esc(nombre(x))}</code></li>`).join("")}</ul>`;
   $("mv-hosts").innerHTML = h.nuevos == null ? t('<p class="mv-nota">Una de las dos fotos no trae la lista de nombres: no se comparan uno por uno.</p>', '<p class="mv-nota">One of the two snapshots does not include the list of names: they are not compared one by one.</p>')
     : t(`<p><b>${num(h.siguen)}</b> nombres siguen en el registro, <b>${num(h.nuevos.length)}</b> son nuevos y <b>${num(h.retirados.length)}</b> ya no aparecen.</p>`,
       `<p><b>${num(h.siguen)}</b> names remain in the log, <b>${num(h.nuevos.length)}</b> are new and <b>${num(h.retirados.length)}</b> no longer appear.</p>`)

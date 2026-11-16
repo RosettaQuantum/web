@@ -7,7 +7,7 @@
 | RQ.S.00 | Nota Q-Ready | **F** |
 | RQ.S.01 | Índice QEX | 56/100 (tope externo 84) |
 
-Lectura: Hay una falla grave medida: certificado vencido o un ambiente de pruebas expuesto.
+Lectura: Su sitio ya usa el candado post-cuántico, pero tiene un ambiente de pruebas expuesto a internet.
 Referencia: sin índice para Paraguay; no se compara.
 Publicación: privada. El dueño no ha activado su página pública.
 
@@ -26,7 +26,7 @@ Publicación: privada. El dueño no ha activado su página pública.
 ## 3. Alertas
 | # | Nivel | Hallazgo | Dónde |
 |---|---|---|---|
-| A1 | GRAVE | Ambiente de pruebas expuesto | s••• |
+| A1 | GRAVE | Ambiente de pruebas expuesto | s•••#a2 |
 | A2 | MEDIA | Certificado clásico sin plan con fecha | www |
 | A3 | MEDIA | Nombre de legado que responde | l••• |
 | A4 | MEDIA | Servicio de correo que responde en el puerto 443 | m••• |
@@ -38,7 +38,7 @@ Publicación: privada. El dueño no ha activado su página pública.
 | H2 | Dar de baja o asignar dueño al nombre de legado | A3 | no cambia la nota |
 | H3 | Cerrar el puerto 443 en el servicio de correo | A4 | -> A |
 | H4 | Plan con fecha para certificado post-cuántico | A2 | no cambia la nota |
-| H5 | Publicar security.txt | RQ.S.08 | no cambia la nota |
+| H5 | Publicar security.txt | — | no cambia la nota |
 | H6 | Pedir al proveedor de correo fecha para el intercambio híbrido | RQ.S.06 | no cambia la nota |
 
 ## 5. No medido

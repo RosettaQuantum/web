@@ -33,10 +33,11 @@ export const PAIS_REFERENCIA = "CL";
 export const CATALOGO = ["RQ.S.00", "RQ.S.01", "RQ.S.02", "RQ.S.03", "RQ.S.04", "RQ.S.05", "RQ.S.06", "RQ.S.07", "RQ.S.08", "RQ.S.09"];
 export const SECCIONES = ["veredicto", "indicadores", "alertas", "que_hacer", "no_medido", "evidencia", "limites"];
 export const TIPOS = ["medido", "modelo", "no medido"];
-export const NIVELES = ["GRAVE", "MEDIA", "INFO"];
-// Las alertas de la nota (QREADY-NOTA-2) → nivel de la ficha. La nota tiene tres niveles (grave, alta,
-// media) y el protocolo tres (GRAVE, MEDIA, INFO): «alta» baja la letra (a C o D), así que va con GRAVE.
-const NIVEL_DE = { grave: "GRAVE", alta: "GRAVE", media: "MEDIA" };
+// Cuatro niveles, en este orden (decisión del 16-nov: ALTA entra al protocolo). En inglés se imprimen
+// SERIOUS, HIGH, MEDIUM e INFO; en `secciones` va siempre el código.
+export const NIVELES = ["GRAVE", "ALTA", "MEDIA", "INFO"];
+// Las alertas de la nota (QREADY-NOTA-2) → nivel de la ficha, uno a uno. INFO no lo emite la NOTA-2.
+const NIVEL_DE = { grave: "GRAVE", alta: "ALTA", media: "MEDIA" };
 const DIM = { "RQ.S.02": "certificados", "RQ.S.03": "higiene", "RQ.S.04": "hndl", "RQ.S.05": "edge" };
 const RANGO = { "A+": 0, A: 1, B: 2, C: 3, D: 4, F: 5 };
 
@@ -67,9 +68,12 @@ export function notaSector(dominio, idioma = "es") {
 }
 
 // ---------------------------------------------------------------- ajuste 3 · enmascarar nombres
-// Regla del encargo (la misma del deck): desde el 2º carácter del segmento que delata el ambiente o,
-// si no hay, desde la mitad del primer label. El dominio registrable se muestra completo.
+// Regla del encargo (la del deck), con el ajuste del 16-nov: se muestra SÓLO el primer label, hasta el
+// 2º carácter del segmento que delata el ambiente si ese segmento está en el primer label; si no hay
+// segmento, o está más adentro, hasta la mitad del primer label. Lo demás del subdominio se tapa.
+// El dominio registrable se muestra completo.
 //   biometrics-dev.x.com.py → biometrics-d•••.x.com.py ; apigw-legacy.x → apigw-l•••.x
+//   checks-cdn.ind-dev.x → check•••.x (antes del 16-nov salía checks-cdn.ind-d•••: dejaba ver el resto)
 // «Delata el ambiente» = la señal de pruebas o una clase sensible de PAT (pruebas, legado,
 // infraestructura): las mismas definiciones de qex-nucleo, sin copia propia.
 export const MASCARA = "•••";
@@ -84,11 +88,42 @@ export function enmascarar(host, dominio) {
     const m = rx.exec(sub);
     if (m) { const ini = m.index + m[1].length; if (corte == null || ini < corte) corte = ini; }
   }
-  const deja = corte != null ? corte + 1 : Math.max(1, Math.floor(sub.split(".")[0].length / 2));
-  return sub.slice(0, deja) + MASCARA + sufijo;
+  const primero = sub.split(".")[0];
+  const deja = corte != null && corte < primero.length ? corte + 1 : Math.max(1, Math.floor(primero.length / 2));
+  return primero.slice(0, deja) + MASCARA + sufijo;
+}
+// Nombres distintos que quedan iguales al enmascararlos (all-dev, all-dev2…) se distinguen con un sufijo
+// corto y estable: «#» y los primeros caracteres hex del FNV-1a de 32 bits del nombre completo (2, o más
+// sólo si dos del mismo grupo empatan). all-d•••#3f.x.com.py. No revela el nombre; sí deja contarlos.
+export function huellaCorta(h) {
+  let x = 0x811c9dc5;
+  for (const ch of String(h).toLowerCase()) { x ^= ch.codePointAt(0); x = Math.imul(x, 0x01000193) >>> 0; }
+  return x.toString(16).padStart(8, "0");
 }
 // verificado = el dueño verificó el dominio por DNS (qready_dominios, entorno producción): nombres completos.
-export const vistaHost = (dominio, verificado) => (h) => (h == null ? h : verificado ? String(h) : enmascarar(h, dominio));
+// `hosts` = todos los nombres que pueden aparecer juntos (para saber cuáles chocan).
+export function nombrador(dominio, verificado, hosts = []) {
+  if (verificado) return (h) => (h == null ? h : String(h));
+  const grupos = new Map();
+  for (const h of new Set(hosts.filter(Boolean).map((y) => String(y).toLowerCase()))) {
+    const m = enmascarar(h, dominio);
+    if (m === h) continue;
+    if (!grupos.has(m)) grupos.set(m, []);
+    grupos.get(m).push(h);
+  }
+  const mapa = new Map();
+  for (const [m, hs] of grupos) {
+    if (hs.length === 1) { mapa.set(hs[0], m); continue; }
+    let n = 2, suf = [];
+    for (; n <= 8; n++) { suf = hs.map((h) => huellaCorta(h).slice(0, n)); if (new Set(suf).size === hs.length) break; }
+    hs.forEach((h, i) => mapa.set(h, m.replace(MASCARA, `${MASCARA}#${suf[i]}`)));
+  }
+  return (h) => (h == null ? h : mapa.get(String(h).toLowerCase()) ?? enmascarar(h, dominio));
+}
+// Los nombres de una foto: los del registro y los sondeados, todos juntos (la página usa los mismos).
+export const nombradorDeFoto = (foto, verificado) => nombrador(foto.dominio, verificado,
+  [...(foto.ct?.hosts || []).map((h) => h.host), ...(foto.endpoints || []).map((e) => e.host)]);
+export const vistaHost = (dominio, verificado) => nombrador(dominio, verificado);
 // En la ficha, «Dónde» va sin el dominio registrable (ya está en el encabezado).
 const etiqueta = (h, dominio) => (h === dominio ? h : String(h).endsWith("." + dominio) ? String(h).slice(0, -(dominio.length + 1)) : String(h));
 
@@ -154,7 +189,7 @@ export function analizar(foto, x, extras = {}) {
 // Acciones sobre indicadores que no mueven la letra (sólo la ficha las lista: «no cambia la nota»).
 function accionesInformativas(foto, correo) {
   const out = [];
-  if (foto.proveedores?.security_txt === false) out.push({ codigo: "publicar_security_txt", n: 1, hosts: [], resuelve: ["RQ.S.08"], sube_a: null, cambia_nota: false });
+  if (foto.proveedores?.security_txt === false) out.push({ codigo: "publicar_security_txt", n: 1, hosts: [], resuelve: [], sube_a: null, cambia_nota: false });
   const c = correoMedido(correo);
   if (c && c.total > 0 && c.aceptan < c.total) out.push({ codigo: "correo_hibrido", n: 1, hosts: [], resuelve: ["RQ.S.06"], sube_a: null, cambia_nota: false });
   return out;
@@ -170,8 +205,8 @@ export function correoMedido(correo) {
 
 // Ajuste 1 en el JSON: falta_para_A y no_medido, con los nombres ya enmascarados si corresponde.
 // Las acciones de falta_para_A son las de la ficha (mismo orden y mismos IDs H), sin las informativas.
-export function notaParaJson(x, a, { dominio, verificado = false, fuentes_que_fallaron = [], idioma = "es" } = {}) {
-  const F = textosFicha(idioma), ver = vistaHost(dominio, verificado);
+export function notaParaJson(x, a, { dominio, verificado = false, fuentes_que_fallaron = [], idioma = "es", nom = null } = {}) {
+  const F = textosFicha(idioma), ver = nom || vistaHost(dominio, verificado);
   const enA = x.nota === "A" || x.nota === "A+";
   return {
     alertas: a.alertas.map((al) => ({ id: al.id, nivel: al.nivel_nota, codigo: al.codigo, texto: textos(idioma).alerta[al.codigo] || al.codigo, host: ver(al.host ?? null) })),
@@ -181,6 +216,37 @@ export function notaParaJson(x, a, { dominio, verificado = false, fuentes_que_fa
       ejemplos: (a.sin_sondear || []).slice(0, 5).map(ver), fuentes_que_fallaron },
   };
 }
+
+// ---------------------------------------------------------------- la lectura, por motivo (16-nov-2026)
+// La lectura dice la causa REAL de la letra, sacada de lo mismo que la decide (N.explicarNota). A y A+
+// y «sin nota» conservan el texto aprobado (ya dicen su causa). Texto NUEVO, provisorio: FICHA.lectura_*.
+export function lecturaDe(x, foto, idioma = "es") {
+  const F = textosFicha(idioma), T = textos(idioma), L = F.lectura_motivo;
+  if (!x.nota) return T.nota_sin_motivo[x.motivo] || T.nota_sin;
+  if (x.nota === "A" || x.nota === "A+") return T.nota_lectura[x.nota];
+  const h = x.hechos || {}, cuenta = (arr, c) => arr.filter((a) => a.codigo === c).length;
+  const causas = [];
+  if (x.nota === "F") {
+    if (cuenta(x.graves, "certificado_vencido")) causas.push(L.certificado_vencido());
+    const n = cuenta(x.graves, "ambiente_pruebas_expuesto"); if (n) causas.push(L.pruebas_expuestas(n));
+  } else if (h.tls13 === false) return L.sin_tls13;
+  else {
+    if (x.altas.length) causas.push(L.infraestructura(x.altas.length));
+    if (h.principal_hibrido === true && x.nota === "B") {
+      const n = x.medias.filter((m) => MEDIAS_TECHO.includes(m.codigo)).length; if (n) causas.push(L.pruebas_publicadas(n));
+      // un ambiente de pruebas publicado ya está dicho arriba: no se cuenta dos veces como «sin evidencia»
+      const conAlerta = new Set(x.medias.filter((m) => MEDIAS_TECHO.includes(m.codigo)).map((m) => m.host).filter(Boolean));
+      const sinEv = (h.sin_evidencia_hibrido || []).filter((y) => !conAlerta.has(y)).length; if (sinEv) causas.push(L.sin_evidencia(sinEv));
+      if (!foto.ct) causas.push(L.sin_superficie());
+      else if (h.sensibles_sin_sondear?.length) causas.push(L.sin_sondear(h.sensibles_sin_sondear.length));
+    }
+  }
+  const lista = causas.length < 2 ? causas.join("") : `${causas.slice(0, -1).join(", ")}${L.y}${causas[causas.length - 1]}`;
+  if (h.principal_hibrido === true) return L.con_candado(lista || L.sin_causa());
+  if (h.principal_hibrido === false) return lista ? L.sin_candado_y(lista) : L.sin_candado;
+  return L.solo(lista || L.sin_causa());
+}
+const MEDIAS_TECHO = N.MEDIAS_CON_TECHO_B;
 
 // ---------------------------------------------------------------- la ficha
 const huella = (h) => (typeof h === "string" && h.length >= 12 ? `${h.slice(0, 8)}…${h.slice(-4)}` : null);
@@ -209,7 +275,7 @@ function rangos(ids) {
 export function armarFicha(foto, ctx = {}) {
   const idioma = ctx.idioma === "en" ? "en" : "es";
   const F = textosFicha(idioma), T = textos(idioma);
-  const dominio = foto.dominio, ver = vistaHost(dominio, !!ctx.verificado);
+  const dominio = foto.dominio, ver = nombradorDeFoto(foto, !!ctx.verificado);
   const x = ctx.x || N.explicarNota(foto, ctx.extras || {});
   const a = analizar(foto, x, ctx.extras || {});
   const acciones = [...a.acciones, ...accionesInformativas(foto, ctx.correo)];
@@ -232,7 +298,7 @@ export function armarFicha(foto, ctx = {}) {
       { id: "RQ.S.01", valor: q.score == null ? F.sin_dato : F.qex(q.score), tipo: q.score == null ? "no medido" : "medido" },
     ],
     lineas: [
-      F.lectura(x.nota ? T.nota_lectura[x.nota] : (T.nota_sin_motivo[x.motivo] || T.nota_sin)),
+      F.lectura(lecturaDe(x, foto, idioma)),
       referencia,
       ctx.publico ? F.publicacion_publica(urlDominio) : F.publicacion_privada,
     ],
@@ -257,7 +323,7 @@ export function armarFicha(foto, ctx = {}) {
   ind.push({ id: "RQ.S.08", valor: st === true ? F.security_si : st === false ? F.security_no : F.sin_dato, tipo: typeof st === "boolean" ? "medido" : "no medido" });
   const eps = Array.isArray(foto.endpoints) ? foto.endpoints : [];
   ind.push(foto.ct || eps.length
-    ? { id: "RQ.S.09", valor: F.superficie(eps.filter((e) => e.responde_443 === true).length, eps.length), tipo: "medido" }
+    ? { id: "RQ.S.09", valor: eps.length ? F.superficie(eps.filter((e) => e.responde_443 === true).length, eps.length) : F.superficie_sin, tipo: "medido" }
     : { id: "RQ.S.09", valor: F.sin_dato, tipo: "no medido" });
 
   // 3 · alertas (ya en orden: GRAVE, luego MEDIA; INFO no lo emite la NOTA-2)

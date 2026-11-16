@@ -1,6 +1,9 @@
 # rosetta-ficha/1 · textos provisorios para aprobar
 
 Generado por `node scripts/textos-ficha.mjs` desde el código (public/js/qready-textos.mjs, src/pages/llms.txt.ts). Lo que se apruebe aquí es literalmente lo que se sirve.
+
+**Segunda vuelta (16-nov).** Marcado **NUEVO** o **CAMBIA** abajo. Además, sin texto nuevo: (1) el nivel ALTA (HIGH) entra al protocolo; (2) en las acciones, security.txt pasa a «Resuelve: —»; (3) RQ.S.09 sin nombres sondeados dice «sin nombres sondeados» en vez de «0/0 responden»; (4) la página /es/q-ready/medicion y /q-ready/medicion pintan los nombres enmascarados (consola, mapa al pasar el cursor, tabla de endpoints, alertas, «Qué falta para A» y comparación) salvo que el dominio esté verificado, con la misma regla y sufijo #xx que la API; (5) nota.lectura del JSON pasa a ser la misma lectura por motivo de la ficha.
+
 Reusados sin cambio (ya aprobados): los nombres de las alertas (`TXT.alerta`) y la lectura de cada letra (`TXT.nota_lectura`). El encabezado, el pie y las líneas fijas de «No medido», «Evidencia» y «Límites» vienen del ejemplo canónico del encargo del 13-nov.
 
 ## Ficha · es
@@ -40,6 +43,7 @@ Reusados sin cambio (ya aprobados): los nombres de las alertas (`TXT.alerta`) y 
 - `tipo.modelo`: modelo
 - `tipo.no medido`: no medido
 - `nivel.GRAVE`: GRAVE
+- **NUEVO** `nivel.ALTA`: ALTA
 - `nivel.MEDIA`: MEDIA
 - `nivel.INFO`: INFO
 - `sector.banca`: banca
@@ -66,7 +70,22 @@ Reusados sin cambio (ya aprobados): los nombres de las alertas (`TXT.alerta`) y 
 - `security_si`: publicado
 - `security_no`: no publicado
 - `superficie`: ‹1›/‹2› responden
+- **NUEVO** `superficie_sin`: sin nombres sondeados
 - `lectura`: Lectura: ‹1›
+- **NUEVO** `lectura_motivo.con_candado`: Su sitio ya usa el candado post-cuántico, pero ‹1›.
+- **NUEVO** `lectura_motivo.sin_candado_y`: Su sitio todavía no usa el candado post-cuántico y ‹1›.
+- **NUEVO** `lectura_motivo.sin_candado`: Su sitio usa TLS 1.3, pero todavía no usa el candado post-cuántico.
+- **NUEVO** `lectura_motivo.sin_tls13`: Su sitio principal no usa TLS 1.3, y sin TLS 1.3 no hay candado post-cuántico.
+- **NUEVO** `lectura_motivo.solo`: ‹1›.
+- **NUEVO** `lectura_motivo.y`:  y 
+- **NUEVO** `lectura_motivo.certificado_vencido`: tiene el certificado vencido
+- **NUEVO** `lectura_motivo.pruebas_expuestas`: tiene un ambiente de pruebas expuesto a internet / tiene ‹1› ambientes de prueba expuestos a internet
+- **NUEVO** `lectura_motivo.infraestructura`: tiene un nombre de infraestructura sensible que responde / tiene ‹1› nombres de infraestructura sensible que responden
+- **NUEVO** `lectura_motivo.pruebas_publicadas`: tiene un ambiente de pruebas publicado / tiene ‹1› ambientes de prueba publicados
+- **NUEVO** `lectura_motivo.sin_evidencia`: un nombre que responde no muestra el candado nuevo / ‹1› nombres que responden no muestran el candado nuevo
+- **NUEVO** `lectura_motivo.sin_superficie`: el registro público de certificados no respondió
+- **NUEVO** `lectura_motivo.sin_sondear`: un nombre sensible quedó sin medir / ‹1› nombres sensibles quedaron sin medir
+- **NUEVO** `lectura_motivo.sin_causa`: no todo lo que respondió muestra el candado nuevo
 - `referencia`: Referencia: mediana de ‹1› en Chile ‹2›/100 (‹3› organizaciones, edición ‹4›); diferencia ‹5›.
 - `referencia_sin_qex`: Referencia: sin QEX, no se compara.
 - `referencia_otro_pais`: Referencia: sin índice para ‹1›; no se compara.
@@ -77,14 +96,14 @@ Reusados sin cambio (ya aprobados): los nombres de las alertas (`TXT.alerta`) y 
 - `efecto_sube`: -> ‹1›
 - `efecto_no`: no cambia la nota
 - `accion.renovar_certificado`: Renovar el certificado vencido
-- `accion.sacar_ambientes_pruebas`: Sacar de internet los ‹1› ambientes de prueba
+- `accion.sacar_ambientes_pruebas`: Sacar de internet el ambiente de pruebas / Sacar de internet los ‹1› ambientes de prueba
 - `accion.activar_tls13`: Activar TLS 1.3 en el sitio principal
 - `accion.hibrido_en_principal`: Activar el intercambio híbrido X25519MLKEM768 en el sitio principal
-- `accion.cerrar_infraestructura`: Cerrar o restringir los ‹1› nombres de infraestructura que responden
-- `accion.retirar_ambientes_bloqueados`: Retirar de internet los ‹1› ambientes de prueba publicados
-- `accion.baja_legado`: Dar de baja o asignar dueño a los ‹1› nombres de legado
-- `accion.correo_fuera_de_443`: Cerrar el puerto 443 en los ‹1› servicios de correo
-- `accion.hibrido_en_nombres`: Activar X25519MLKEM768 en los ‹1› nombres que responden sin él
+- `accion.cerrar_infraestructura`: Cerrar o restringir el nombre de infraestructura que responde / Cerrar o restringir los ‹1› nombres de infraestructura que responden
+- `accion.retirar_ambientes_bloqueados`: Retirar de internet el ambiente de pruebas publicado / Retirar de internet los ‹1› ambientes de prueba publicados
+- `accion.baja_legado`: Dar de baja o asignar dueño al nombre de legado / Dar de baja o asignar dueño a los ‹1› nombres de legado
+- `accion.correo_fuera_de_443`: Cerrar el puerto 443 en el servicio de correo / Cerrar el puerto 443 en los ‹1› servicios de correo
+- `accion.hibrido_en_nombres`: Activar X25519MLKEM768 en el nombre que responde sin él / Activar X25519MLKEM768 en los ‹1› nombres que responden sin él
 - `accion.plan_certificado_pq`: Plan con fecha para certificado post-cuántico
 - `accion.publicar_security_txt`: Publicar security.txt
 - `accion.correo_hibrido`: Pedir al proveedor de correo fecha para el intercambio híbrido
@@ -149,6 +168,7 @@ Reusados sin cambio (ya aprobados): los nombres de las alertas (`TXT.alerta`) y 
 - `tipo.modelo`: model
 - `tipo.no medido`: not measured
 - `nivel.GRAVE`: SERIOUS
+- **NUEVO** `nivel.ALTA`: HIGH
 - `nivel.MEDIA`: MEDIUM
 - `nivel.INFO`: INFO
 - `sector.banca`: banking
@@ -175,7 +195,22 @@ Reusados sin cambio (ya aprobados): los nombres de las alertas (`TXT.alerta`) y 
 - `security_si`: published
 - `security_no`: not published
 - `superficie`: ‹1›/‹2› respond
+- **NUEVO** `superficie_sin`: no names probed
 - `lectura`: Reading: ‹1›
+- **NUEVO** `lectura_motivo.con_candado`: Your site already uses the post-quantum lock, but ‹1›.
+- **NUEVO** `lectura_motivo.sin_candado_y`: Your site does not use the post-quantum lock yet, and ‹1›.
+- **NUEVO** `lectura_motivo.sin_candado`: Your site uses TLS 1.3, but does not use the post-quantum lock yet.
+- **NUEVO** `lectura_motivo.sin_tls13`: Your main site does not use TLS 1.3, and without TLS 1.3 there is no post-quantum lock.
+- **NUEVO** `lectura_motivo.solo`: ‹1›.
+- **NUEVO** `lectura_motivo.y`:  and 
+- **NUEVO** `lectura_motivo.certificado_vencido`: it has an expired certificate
+- **NUEVO** `lectura_motivo.pruebas_expuestas`: it has a test environment exposed to the internet / it has ‹1› test environments exposed to the internet
+- **NUEVO** `lectura_motivo.infraestructura`: it has a sensitive infrastructure name that answers / it has ‹1› sensitive infrastructure names that answer
+- **NUEVO** `lectura_motivo.pruebas_publicadas`: it has a published test environment / it has ‹1› published test environments
+- **NUEVO** `lectura_motivo.sin_evidencia`: one name that answers does not show the new lock / ‹1› names that answer do not show the new lock
+- **NUEVO** `lectura_motivo.sin_superficie`: the public certificate log did not respond
+- **NUEVO** `lectura_motivo.sin_sondear`: one sensitive name was left unmeasured / ‹1› sensitive names were left unmeasured
+- **NUEVO** `lectura_motivo.sin_causa`: not everything that answered shows the new lock
 - `referencia`: Reference: ‹1› median in Chile ‹2›/100 (‹3› organizations, edition ‹4›); difference ‹5›.
 - `referencia_sin_qex`: Reference: no QEX, no comparison.
 - `referencia_otro_pais`: Reference: no index for ‹1›; no comparison.
@@ -186,14 +221,14 @@ Reusados sin cambio (ya aprobados): los nombres de las alertas (`TXT.alerta`) y 
 - `efecto_sube`: -> ‹1›
 - `efecto_no`: grade does not change
 - `accion.renovar_certificado`: Renew the expired certificate
-- `accion.sacar_ambientes_pruebas`: Take the ‹1› test environments off the internet
+- `accion.sacar_ambientes_pruebas`: Take the test environment off the internet / Take the ‹1› test environments off the internet
 - `accion.activar_tls13`: Enable TLS 1.3 on the main site
 - `accion.hibrido_en_principal`: Enable the X25519MLKEM768 hybrid key exchange on the main site
-- `accion.cerrar_infraestructura`: Close or restrict the ‹1› infrastructure names that answer
-- `accion.retirar_ambientes_bloqueados`: Take the ‹1› published test environments off the internet
-- `accion.baja_legado`: Retire the ‹1› legacy names or assign them an owner
-- `accion.correo_fuera_de_443`: Close port 443 on the ‹1› mail services
-- `accion.hibrido_en_nombres`: Enable X25519MLKEM768 on the ‹1› names that answer without it
+- `accion.cerrar_infraestructura`: Close or restrict the infrastructure name that answers / Close or restrict the ‹1› infrastructure names that answer
+- `accion.retirar_ambientes_bloqueados`: Take the published test environment off the internet / Take the ‹1› published test environments off the internet
+- `accion.baja_legado`: Retire the legacy name or assign it an owner / Retire the ‹1› legacy names or assign them an owner
+- `accion.correo_fuera_de_443`: Close port 443 on the mail service / Close port 443 on the ‹1› mail services
+- `accion.hibrido_en_nombres`: Enable X25519MLKEM768 on the name that answers without it / Enable X25519MLKEM768 on the ‹1› names that answer without it
 - `accion.plan_certificado_pq`: Dated plan for a post-quantum certificate
 - `accion.publicar_security_txt`: Publish security.txt
 - `accion.correo_hibrido`: Ask the email provider for a date for the hybrid key exchange
@@ -249,14 +284,15 @@ Reusados sin cambio (ya aprobados): los nombres de las alertas (`TXT.alerta`) y 
 - `catalogo[9]`: RQ.S.09 · Superficie expuesta · nombres que responden / sondeados · medido
 - `h_reglas`: 4. Reglas
 - `reglas[0]`: Tipo de cada valor: medido, modelo o no medido. null y «sin dato» significan no medido, nunca no protegido.
-- `reglas[1]`: Alertas numeradas A1…An, con nivel GRAVE, MEDIA o INFO, ordenadas por nivel. Los nombres de las alertas son los de la nota Q-Ready.
+- **CAMBIA** `reglas[1]`: Alertas numeradas A1…An, con nivel GRAVE, ALTA, MEDIA o INFO, ordenadas por nivel en ese orden. Los nombres de las alertas son los de la nota Q-Ready.
 - `reglas[2]`: Acciones numeradas H1…Hn. Cada una cita lo que resuelve (A1-A5, o el ID de un indicador) y dice a qué nota sube («-> B») o «no cambia la nota». El efecto es acumulado: resueltas esa acción y las anteriores.
 - `reglas[3]`: Valores como valor/escala (53/100); fechas AAAA-MM-DD; horas en UTC; números sin decimales.
 - `reglas[4]`: Sin emojis, sin colores obligatorios, sin adjetivos de miedo, sin marcas salvo el proveedor medido.
 - `reglas[5]`: Huellas abreviadas a 8…4 caracteres en la ficha; completas en el JSON.
 - `reglas[6]`: Pie fijo: rosetta-ficha/1 · Rosetta Quantum · medición independiente · la dirección de la página del dominio.
 - `reglas[7]`: Comparación con el sector sólo dentro del país del índice de referencia (hoy Chile). El país se deduce del dominio; si no es el de la referencia, o no se puede deducir, no se compara y se dice.
-- `reglas[8]`: Nombres de terceros enmascarados si el dueño no verificó el dominio por DNS: desde el segundo carácter del segmento que delata el ambiente o, si no hay, desde la mitad del primer nombre (biometrics-d•••.ejemplo.com.py). El dominio se muestra completo y los conteos no cambian.
+- **CAMBIA** `reglas[8]`: Nombres de terceros enmascarados si el dueño no verificó el dominio por DNS: se muestra sólo el primer nombre del subdominio, hasta el segundo carácter del segmento que delata el ambiente o, si no hay ese segmento en el primer nombre, hasta su mitad (biometrics-d•••.ejemplo.com.py). Si dos nombres distintos quedan iguales, se distinguen con «#» y los primeros caracteres de una huella del nombre (all-d•••#3f.ejemplo.com.py), sin revelarlo. El dominio se muestra completo y los conteos no cambian.
+- **NUEVO** `reglas[9]`: La lectura del veredicto dice la causa de la letra.
 - `h_ejemplo`: 5. Ejemplo
 - `ejemplo_nota`: Una foto fija de ejemplo (dominio de ejemplo, no verificado: nombres enmascarados). Es la misma que fija la prueba del repositorio.
 - `h_validar`: 6. Validar
@@ -290,14 +326,15 @@ Reusados sin cambio (ya aprobados): los nombres de las alertas (`TXT.alerta`) y 
 - `catalogo[9]`: RQ.S.09 · Exposed surface · names that respond / probed · measured
 - `h_reglas`: 4. Rules
 - `reglas[0]`: Type of every value: measured, model or not measured (medido, modelo, no medido). null and “no data” mean not measured, never not protected.
-- `reglas[1]`: Alerts numbered A1…An, with level GRAVE, MEDIA or INFO (printed SERIOUS, MEDIUM, INFO in English), ordered by level. Alert names are those of the Q-Ready grade.
+- **CAMBIA** `reglas[1]`: Alerts numbered A1…An, with level GRAVE, ALTA, MEDIA or INFO (printed SERIOUS, HIGH, MEDIUM, INFO in English), ordered by level in that order. Alert names are those of the Q-Ready grade.
 - `reglas[2]`: Actions numbered H1…Hn. Each cites what it resolves (A1-A5, or an indicator ID) and states the grade it rises to (“-> B”) or “grade does not change”. The effect is cumulative: that action and the ones before it resolved.
 - `reglas[3]`: Values as value/scale (53/100); dates YYYY-MM-DD; times in UTC; numbers without decimals.
 - `reglas[4]`: No emojis, no mandatory colours, no fear adjectives, no brands except the measured provider.
 - `reglas[5]`: Fingerprints shortened to 8…4 characters in the sheet; full in the JSON.
 - `reglas[6]`: Fixed footer: rosetta-ficha/1 · Rosetta Quantum · independent measurement · the URL of the domain's page.
 - `reglas[7]`: Sector comparison only within the country of the reference index (Chile today). The country is deduced from the domain; if it is not the reference country, or cannot be deduced, there is no comparison, and the sheet says so.
-- `reglas[8]`: Third-party names are masked unless the owner verified the domain through DNS: from the second character of the segment that reveals the environment or, if there is none, from the middle of the first label (biometrics-d•••.ejemplo.com.py). The domain is shown in full and counts do not change.
+- **CAMBIA** `reglas[8]`: Third-party names are masked unless the owner verified the domain through DNS: only the first label of the subdomain is shown, up to the second character of the segment that reveals the environment or, if that segment is not in the first label, up to its middle (biometrics-d•••.ejemplo.com.py). When two different names end up identical, they are told apart with “#” and the first characters of a fingerprint of the name (all-d•••#3f.ejemplo.com.py), without revealing it. The domain is shown in full and counts do not change.
+- **NUEVO** `reglas[9]`: The verdict reading states the cause of the grade.
 - `h_ejemplo`: 5. Example
 - `ejemplo_nota`: A fixed example snapshot (example domain, not verified: names masked). It is the same one the repository test pins.
 - `h_validar`: 6. Validate
@@ -451,7 +488,7 @@ rosetta-ficha/1 · Rosetta Quantum · independent measurement · https://rosetta
 | RQ.S.00 | Nota Q-Ready | **F** |
 | RQ.S.01 | Índice QEX | 56/100 (tope externo 84) |
 
-Lectura: Hay una falla grave medida: certificado vencido o un ambiente de pruebas expuesto.
+Lectura: Su sitio ya usa el candado post-cuántico, pero tiene un ambiente de pruebas expuesto a internet.
 Referencia: sin índice para Paraguay; no se compara.
 Publicación: privada. El dueño no ha activado su página pública.
 
@@ -470,7 +507,7 @@ Publicación: privada. El dueño no ha activado su página pública.
 ## 3. Alertas
 | # | Nivel | Hallazgo | Dónde |
 |---|---|---|---|
-| A1 | GRAVE | Ambiente de pruebas expuesto | s••• |
+| A1 | GRAVE | Ambiente de pruebas expuesto | s•••#a2 |
 | A2 | MEDIA | Certificado clásico sin plan con fecha | www |
 | A3 | MEDIA | Nombre de legado que responde | l••• |
 | A4 | MEDIA | Servicio de correo que responde en el puerto 443 | m••• |
@@ -482,7 +519,7 @@ Publicación: privada. El dueño no ha activado su página pública.
 | H2 | Dar de baja o asignar dueño al nombre de legado | A3 | no cambia la nota |
 | H3 | Cerrar el puerto 443 en el servicio de correo | A4 | -> A |
 | H4 | Plan con fecha para certificado post-cuántico | A2 | no cambia la nota |
-| H5 | Publicar security.txt | RQ.S.08 | no cambia la nota |
+| H5 | Publicar security.txt | — | no cambia la nota |
 | H6 | Pedir al proveedor de correo fecha para el intercambio híbrido | RQ.S.06 | no cambia la nota |
 
 ## 5. No medido
@@ -517,7 +554,7 @@ rosetta-ficha/1 · Rosetta Quantum · medición independiente · https://rosetta
 | RQ.S.00 | Q-Ready grade | **F** |
 | RQ.S.01 | QEX index | 56/100 (external cap 84) |
 
-Reading: A serious failure was measured: an expired certificate or an exposed test environment.
+Reading: Your site already uses the post-quantum lock, but it has a test environment exposed to the internet.
 Reference: no index for Paraguay; no comparison.
 Publication: private. The owner has not activated its public page.
 
@@ -536,7 +573,7 @@ Publication: private. The owner has not activated its public page.
 ## 3. Alerts
 | # | Level | Finding | Where |
 |---|---|---|---|
-| A1 | SERIOUS | Exposed test environment | s••• |
+| A1 | SERIOUS | Exposed test environment | s•••#a2 |
 | A2 | MEDIUM | Classical certificate without a dated plan | www |
 | A3 | MEDIUM | Legacy name answering | l••• |
 | A4 | MEDIUM | Mail service answering on port 443 | m••• |
@@ -548,7 +585,7 @@ Publication: private. The owner has not activated its public page.
 | H2 | Retire the legacy name or assign it an owner | A3 | grade does not change |
 | H3 | Close port 443 on the mail service | A4 | -> A |
 | H4 | Dated plan for a post-quantum certificate | A2 | grade does not change |
-| H5 | Publish security.txt | RQ.S.08 | grade does not change |
+| H5 | Publish security.txt | — | grade does not change |
 | H6 | Ask the email provider for a date for the hybrid key exchange | RQ.S.06 | grade does not change |
 
 ## 5. Not measured
@@ -583,7 +620,7 @@ rosetta-ficha/1 · Rosetta Quantum · independent measurement · https://rosetta
 | RQ.S.00 | Nota Q-Ready | **B** |
 | RQ.S.01 | Índice QEX | 69/100 (tope externo 84) |
 
-Lectura: Candado nuevo en el sitio principal. Quedan nombres públicos sin evidencia del candado nuevo.
+Lectura: Su sitio ya usa el candado post-cuántico, pero un nombre que responde no muestra el candado nuevo.
 Referencia: el dominio .com no indica país; no se compara.
 Publicación: privada. El dueño no ha activado su página pública.
 
@@ -610,7 +647,7 @@ Publicación: privada. El dueño no ha activado su página pública.
 |---|---|---|---|
 | H1 | Dar de baja o asignar dueño al nombre de legado | A2 | -> A |
 | H2 | Plan con fecha para certificado post-cuántico | A1 | no cambia la nota |
-| H3 | Publicar security.txt | RQ.S.08 | no cambia la nota |
+| H3 | Publicar security.txt | — | no cambia la nota |
 
 ## 5. No medido
 - 1 nombres respondieron sin evidencia del candado nuevo.
@@ -643,7 +680,7 @@ rosetta-ficha/1 · Rosetta Quantum · medición independiente · https://rosetta
 | RQ.S.00 | Q-Ready grade | **B** |
 | RQ.S.01 | QEX index | 69/100 (external cap 84) |
 
-Reading: New lock on the main site. Some public names show no evidence of the new lock yet.
+Reading: Your site already uses the post-quantum lock, but one name that answers does not show the new lock.
 Reference: a .com domain does not indicate a country; no comparison.
 Publication: private. The owner has not activated its public page.
 
@@ -670,7 +707,7 @@ Publication: private. The owner has not activated its public page.
 |---|---|---|---|
 | H1 | Retire the legacy name or assign it an owner | A2 | -> A |
 | H2 | Dated plan for a post-quantum certificate | A1 | grade does not change |
-| H3 | Publish security.txt | RQ.S.08 | grade does not change |
+| H3 | Publish security.txt | — | grade does not change |
 
 ## 5. Not measured
 - 1 names answered without evidence of the new lock.
