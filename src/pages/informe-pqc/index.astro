@@ -127,6 +127,10 @@ const medida = (n: unknown) => n !== null && n !== undefined;
 const nf = (n: number | null | undefined) =>
   medida(n) ? (n as number).toLocaleString('es-CL') : SIN_MEDIR;
 const cdnPct = (o: any) => o.pct;
+// El panel «Banco tipo». `null` cuando la edición no trae el bloque —agosto, que
+// es anterior a que existiera—; en ese caso el panel cae a los literales, que
+// para ESA edición son sus propias medianas. Ver el comentario del panel.
+const vt: any = (d as any).vertical_tipo ?? null;
 
 /* Las secciones del documento, en una sola lista.
  *
@@ -1064,16 +1068,29 @@ const frase = (ps: any[], k: string) =>
       <p>El panel siguiente es una <strong>organización tipo del sector banca</strong>, construida con las medianas reales de las medidas en esta edición. No es una empresa concreta.</p>
     </div>
 
+    {/* 16-nov-2026: las seis cifras de este panel eran literales escritos aquí, y
+        la frase de arriba dice «las medianas reales de las medidas en ESTA
+        edición». En noviembre decía 76 hosts contra 212 medidos y n = 12 cuando
+        la vertical trae 17: ciertas en agosto, falsas al mes siguiente. Ahora
+        salen de `d.vertical_tipo`, que el paso 7 deriva del dato sellado.
+
+        Los literales quedan SÓLO como respaldo de la edición que no trae el
+        bloque —agosto, que está publicada y cuyo JSON no se toca—, y para ESA
+        edición son sus propias medianas. Ninguna edición posterior los alcanza.
+
+        `proveedores_sin_fecha` viaja en null a propósito: nunca se midió qué
+        proveedores usa una organización, así que sale «no medido». El 3 que
+        decía esta tile no salía de ningún dato. */}
     <div class="panel">
-      <div class="panel-h"><h3>Banco tipo · perfil de exposición</h3><span class="meta">medianas reales · n = 12</span></div>
+      <div class="panel-h"><h3>Banco tipo · perfil de exposición</h3><span class="meta">medianas reales · n = {vt ? vt.n : 12}</span></div>
       <div class="tiles">
         <div class="tile warn"><span class="k">Índice QEX</span><span class="v">{d.indice.verticales.find((v:any)=>v.id==='banca')?.indice ?? '—'}</span><span class="sub">mediana nacional {d.indice.mediana} · tope {d.indice.tope}</span></div>
-        <div class="tile"><span class="k">Hosts descubiertos</span><span class="v">76</span><span class="sub">máximo del sector: 378</span></div>
-        <div class="tile warn"><span class="k">Subdominios profundos</span><span class="v">14</span><span class="sub">sin dueño identificable</span></div>
-        <div class="tile crit"><span class="k">Ambientes no productivos</span><span class="v">4</span><span class="sub">respondiendo en internet</span></div>
-        <div class="tile crit"><span class="k">Infra sensible expuesta</span><span class="v">2</span><span class="sub">VPN, admin o webmail</span></div>
-        <div class="tile"><span class="k">Posición en su sector</span><span class="v">6/12</span><span class="sub">mediana exacta de banca</span></div>
-        <div class="tile crit"><span class="k">Proveedores sin fecha</span><span class="v">3</span><span class="sub">definen su ruta crítica</span></div>
+        <div class="tile"><span class="k">Hosts descubiertos</span><span class="v">{vt ? nf(vt.hostnames) : 76}</span><span class="sub">máximo del sector: {vt ? nf(vt.hostnames_max) : 378}</span></div>
+        <div class="tile warn"><span class="k">Subdominios profundos</span><span class="v">{vt ? nf(vt.profundos) : 14}</span><span class="sub">sin dueño identificable</span></div>
+        <div class="tile crit"><span class="k">Ambientes no productivos</span><span class="v">{vt ? nf(vt.no_productivo) : 4}</span><span class="sub">{vt ? 'con certificado público emitido' : 'respondiendo en internet'}</span></div>
+        <div class="tile crit"><span class="k">Infra sensible {vt ? 'publicada' : 'expuesta'}</span><span class="v">{vt ? nf(vt.infra_expuesta) : 2}</span><span class="sub">VPN, admin o webmail</span></div>
+        <div class="tile"><span class="k">Posición en su sector</span><span class="v">{vt ? `${vt.posicion}/${vt.n}` : '6/12'}</span><span class="sub">mediana exacta de banca</span></div>
+        <div class={`tile ${vt && !medida(vt.proveedores_sin_fecha) ? '' : 'crit'}`}><span class="k">Proveedores sin fecha</span><span class={vt && !medida(vt.proveedores_sin_fecha) ? 'v sin-medir' : 'v'}>{vt ? nf(vt.proveedores_sin_fecha) : 3}</span><span class="sub">definen su ruta crítica</span></div>
       </div>
     </div>
 
