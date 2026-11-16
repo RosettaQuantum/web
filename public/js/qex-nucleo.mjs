@@ -365,7 +365,8 @@ export function armarFoto({ dominio, www, vertical, medido, ct, sondas: s, refer
 //
 // QEX-1.1 cambia SÓLO de qué conteos se alimenta la regla de higiene. La regla (higiene(): base 70,
 // −30 sin TLS 1.3, −10 por ambiente no productivo, −10 por legado, −10 con 3 o más de infraestructura
-// sensible), los pesos 40/25/25/10, el tope y las clases (PAT, agosto) son los mismos.
+// sensible), los pesos 40/25/25/10 y el tope son los mismos. Las clases son las de PAT (agosto), con UNA
+// excepción, abajo: el ambiente de pruebas se reconoce con la señal de la nota.
 // En 1.1 un nombre cuenta sólo si existe y responde HOY: se sondeó, su DNS está vigente y contesta en
 // 443. La sonda sólo saluda si el DNS dio direcciones (sondaEndpoint), así que «responde» ya implica
 // «DNS vigente». Cada nombre del registro con clase que castiga queda en uno de estos estados:
@@ -378,10 +379,15 @@ export function armarFoto({ dominio, www, vertical, medido, ct, sondas: s, refer
 //   sin_sondear  quedó fuera del tope de MAX_SONDEADOS             → NO castiga, y se informa cuántos.
 //                No se sabe si vive o no: precisión antes que cobertura.
 // Los conteos del registro (los que usa 1.0) viajan como dato informativo: `historico`.
-// Consecuencia, y el guardia la exige: con la misma medición, la higiene 1.1 nunca es menor que la 1.0
-// (los vivos son un subconjunto de los nombres del registro, con las mismas clases).
-// La señal de ambientes de prueba en español (esAmbientePruebas, QREADY-NOTA-2) decide qué se sondea
-// primero (nombresASondear), pero NO cambia la clase: un nombre «desa» que PAT no marca no descuenta.
+// AMBIENTE DE PRUEBAS (corrección del 16-nov-2026). En 1.1 un nombre es «no productivo» si lo dice
+// esAmbientePruebas (la señal de QREADY-NOTA-2, que ya incluye la clase de agosto): desa, desarrollo,
+// homologacion, hml… EL DEFECTO: con la clase de agosto sola, openfinance-desa.<banco>.cl respondía 403
+// desde internet, la nota lo veía y la higiene 1.1 quedaba en 70. Índice y nota no pueden contradecirse
+// en una versión nueva. Un ambiente de pruebas que responde descuenta aunque responda 403: en el índice,
+// «publicado» es superficie (en la nota, 403 baja la gravedad; en la higiene, no). QEX-1.0 y PAT no
+// cambian: `historico` y la higiene 1.0 siguen con las clases de agosto.
+// Consecuencia: 1.1 sube cuando lo apagado deja de contar, y puede BAJAR respecto de 1.0 cuando hay un
+// ambiente de pruebas vivo que PAT no reconocía.
 // Sin registro (ct null) la higiene es la misma de 1.0: sólo TLS.
 // scripts/check-qex-11.mjs: grito, silencio y mutaciones.
 export const VERSION_QEX_11 = "QEX-1.1";
@@ -395,8 +401,13 @@ export function estadoVivo(e) {
   return "no_vigente";                                // DNS contestó sin direcciones: no se saludó
 }
 
-// Las clases de PAT que descuentan higiene. Una sola definición: candidatos y conteos la leen igual.
-export const clasesQueCastigan = (host) => clasesDe(host).filter((k) => CLASES_SENSIBLES.includes(k));
+// Las clases que descuentan higiene en 1.1: las de PAT, y «no_productivo» también si esAmbientePruebas lo
+// dice. Una sola definición: candidatos y conteos la leen igual. SÓLO la usa 1.1.
+export const clasesQueCastigan = (host) => {
+  const k = clasesDe(host).filter((c) => CLASES_SENSIBLES.includes(c));
+  if (esAmbientePruebas(host) && !k.includes("no_productivo")) k.push("no_productivo");
+  return k;
+};
 
 // endpoints: los que devolvió la sonda. hosts: los del registro (hostsCT). Devuelve los conteos por
 // clase de los nombres VIVOS (la forma de conteos(), para que higiene() los lea igual) y cuántos nombres
