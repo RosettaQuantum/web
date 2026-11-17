@@ -16,8 +16,8 @@
  *  2. Grito: la misma organización con sus ambientes de prueba vivos y después apagados SUBE en 1.1 y
  *     NO en 1.0.
  *  3. Grito: un nombre que no se alcanzó a sondear no castiga, y se informa cuántos quedaron.
- *  3b. Grito (corrección del 16-nov): un ambiente de pruebas «-desa» que responde, aunque sea 403,
- *     descuenta en 1.1 y NO en 1.0. Defecto real: openfinance-desa.<banco>.cl respondía 403, la nota
+ *  3b. Grito (corrección del 16-nov): un ambiente de pruebas «-desa» que responde, con 403 o sin
+ *     código HTTP (sin dueño verificado no se pide la página), descuenta en 1.1 y NO en 1.0. Defecto real: openfinance-desa.<banco>.cl respondía 403, la nota
  *     QREADY-NOTA-2 lo veía y la higiene 1.1 no; índice y nota se contradecían.
  *  4. Silencio: ambientes que siguen vivos no suben; el mismo «-desa» ya apagado no descuenta; un correo
  *     sin 443 no cuenta; DNS sin respuesta no cuenta; sin registro 1.1 = 1.0; y sin ambientes de pruebas
@@ -123,6 +123,9 @@ const apiA = async (M) => {
   igual([c.qex?.version, c.qex?.valor, c.qex?.dimensiones?.higiene?.valor], ["QEX-1.0", 56, 50], "API: `qex` es QEX-1.0 y no cambió");
   igual([c.qex_1_1?.version, c.qex_1_1?.publicado, c.qex_1_1?.valor, c.qex_1_1?.dimensiones?.higiene, c.qex_1_1?.diferencia_con_1_0],
     ["QEX-1.1", false, 58, 60, 2], "API: `qex_1_1` aparte, no publicado, con su versión y dimensiones");
+  // La ficha rosetta-ficha/1 (bloque estructurado y markdown) declara QEX-1.0 y no trae 1.1.
+  const ficha = JSON.stringify(c.presentacion ?? null);
+  igual([c.presentacion != null, /QEX-1\.1|qex_1_1|q11/.test(ficha), /QEX-1\.0/.test(ficha)], [true, false, true], "la ficha sigue en QEX-1.0 y no trae 1.1");
 };
 await apiA(A);
 
@@ -176,6 +179,14 @@ const gritoDesa = async (M) => {
   const { foto } = await armar(M, "rosettaquantum.com", ct, conEndpointNuevo(SONDAS_RQ, { host: DESA, ...VIVO, http_status: 403 }));
   const x = M.explicarNota(foto);
   igual([[...x.graves, ...x.medias].some((a) => a.host === DESA), vivo.q11.superficie.conteos.no_productivo > 0], [true, true], "nota e índice 1.1 ven el mismo ambiente de pruebas");
+  // Sin dueño verificado no se pide la página (main, 17-nov): no hay código HTTP. Responder en TLS basta
+  // para contar como vivo en 1.1, igual que la nota lo lee como «ambiente_pruebas_publicado».
+  const sinPagina = { host: DESA, ...VIVO, http_status: null, http_consultado: false };
+  const sp = (await armar(M, "rosettaquantum.com", ct, conEndpointNuevo(SONDAS_RQ, sinPagina))).detalle;
+  const fsp = (await armar(M, "rosettaquantum.com", ct, conEndpointNuevo(SONDAS_RQ, sinPagina))).foto;
+  igual([sp.q.dimensiones.higiene, sp.q11.dimensiones.higiene, sp.q11.superficie.conteos.no_productivo,
+    [...M.explicarNota(fsp).graves, ...M.explicarNota(fsp).medias].some((a) => a.host === DESA)], [70, 60, 1, true],
+    "sin código HTTP (página no consultada): el «-desa» que responde en TLS descuenta en 1.1, no en 1.0, y la nota lo ve");
 };
 await gritoDesa(N);
 
@@ -214,6 +225,7 @@ await grita("no sondeado castiga", NUC, 'if (est === "vivo") conteosVivos[k]++;'
 await grita("vivo = DNS vigente, sin mirar el 443", NUC, 'if (e.responde_443 === true) return "vivo";', 'if (e.responde_443 === true || e.dns_status === "NOERROR") return "vivo";', silencio);
 await grita("1.1 vuelve a la clase de agosto", NUC, '  if (esAmbientePruebas(host) && !k.includes("no_productivo")) k.push("no_productivo");', "", gritoDesa);
 await grita("un 403 no cuenta como vivo", NUC, 'if (e.responde_443 === true) return "vivo";', 'if (e.responde_443 === true && e.http_status !== 403) return "vivo";', gritoDesa);
+await grita("sin código HTTP no cuenta como vivo", NUC, 'if (e.responde_443 === true) return "vivo";', 'if (e.responde_443 === true && e.http_status != null) return "vivo";', gritoDesa);
 await grita("el 1.0 adopta la señal en español", NUC, "for (const k of Object.keys(PAT)) o[k] = hosts.filter((h) => PAT[k].test(h)).length;",
   'for (const k of Object.keys(PAT)) o[k] = hosts.filter((h) => PAT[k].test(h) || (k === "no_productivo" && esAmbientePruebas(h))).length;', gritoDesa);
 await grita("el 1.0 pasa a contar lo vivo", NUC, "higiene: higiene(sinTls13, cuentas),", "higiene: higiene(sinTls13, ct ? superficieViva(endpoints, hosts).conteos : null),", unoCero);
@@ -231,4 +243,4 @@ if (i > 0 && existsSync(process.argv[i + 1])) {
 } else sinVerificar = " · índice de agosto SIN VERIFICAR (vive fuera del repo; pase --indice)";
 
 if (fallas.length) { console.log(`check-qex-11: ${fallas.length} falla(s) de ${casos}`); for (const f of fallas) console.log("  ✗ " + f); process.exit(1); }
-console.log(`check-qex-11: ok (${casos} casos: 1.0 sin cambios, apagar sube en 1.1, no sondeado no castiga, «-desa» vivo descuenta sólo en 1.1, silencios y 9 mutaciones que gritan)${sinVerificar}`);
+console.log(`check-qex-11: ok (${casos} casos: 1.0 sin cambios, apagar sube en 1.1, no sondeado no castiga, «-desa» vivo descuenta sólo en 1.1, silencios y 10 mutaciones que gritan)${sinVerificar}`);
