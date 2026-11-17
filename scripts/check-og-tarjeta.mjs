@@ -173,8 +173,8 @@ for (const fila of filas) {
   const forma = formaDe(spec);
   if (!forma) { mal(`${etiqueta} forma desconocida: la ruta caeria a posts`); continue; }
   formasVistas.add(forma);
-  // La forma B es bilingue: se dibujan sus DOS idiomas.
-  for (const lang of forma === "B" ? ["en", "es"] : ["en"]) {
+  // Las formas B y C son bilingues: se dibujan sus DOS idiomas.
+  for (const lang of forma === "B" || forma === "C" ? ["en", "es"] : ["en"]) {
     const r = construirTarjeta({ forma, spec, lang, tokens, ...marca }, { Resvg, fontBuffers: buffers });
     if (r.error) { mal(`${etiqueta} forma ${forma}/${lang}: ${r.error}`); continue; }
     const im = leerPng(r.png, (b) => inflateSync(b));
@@ -191,11 +191,18 @@ for (const fila of filas) {
     if (pideAcento && !hayColor(im, r.meta.caja, hexARgb(tokens.verdict))) {
       problemas.push("el <accent> del titular no pinto ni un pixel de --verdict");
     }
+    // Forma C (la guia): ninguna parte se omite. Sus barras y su cifra son el dato de la
+    // tarjeta; una tarjeta de la guia sin ellas se publicaria «bien» y diria menos.
+    if (forma === "C" && r.meta.omitidos.length) problemas.push(`omitio ${r.meta.omitidos.join("+")}`);
+    if (forma === "C" && Array.isArray(spec.motif) && spec.motif.some((b) => b.sem === "measured")
+        && !hayColor(im, { x: LIENZO.xDer, y: LIENZO.yCuerpo, w: LIENZO.anchoDer, h: LIENZO.limiteCuerpo - LIENZO.yCuerpo }, hexARgb(tokens.verdict))) {
+      problemas.push("las barras medidas no pintaron ni un pixel de --verdict");
+    }
     if (problemas.length) mal(`${etiqueta} ${forma}/${lang} — ${problemas.join(" · ")}`);
     else ok(`${etiqueta} ${forma}/${lang} ${im.ancho}x${im.alto} - fondo papel - titular ${t.toFixed(1)}% - omitidos: ${r.meta.omitidos.length ? r.meta.omitidos.join("+") : "ninguno"}`);
   }
 }
-for (const f of ["A", "B"]) if (!formasVistas.has(f)) mal(`la semilla real no ejerce la forma ${f}`);
+for (const f of ["A", "B", "C"]) if (!formasVistas.has(f)) mal(`la semilla real no ejerce la forma ${f}`);
 
 
 
@@ -280,7 +287,8 @@ console.log("");
   else mal("silencio spec_json esta declarada y el guardia la marco: falso positivo");
 
   // Un spec de forma desconocida NO puede pasar por A ni por B.
-  if (formaDe({ cualquier: "cosa" }) === null && formaDe({ title_html: "x" }) === "A" && formaDe({ headline_es: "x" }) === "B") {
+  if (formaDe({ cualquier: "cosa" }) === null && formaDe({ title_html: "x" }) === "A" && formaDe({ headline_es: "x" }) === "B"
+      && formaDe({ title_es: ["x"] }) === "C" && formaDe({ title_es: "x" }) === null) {
     ok("silencio un spec de forma desconocida cae a posts en vez de dibujarse a medias");
   } else mal("la deteccion de forma no distingue A, B y desconocida");
 
