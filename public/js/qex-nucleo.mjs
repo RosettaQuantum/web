@@ -321,7 +321,7 @@ export function armarFoto({ dominio, www, vertical, medido, ct, sondas: s, refer
   // Sólo se agregan: una respuesta de sondas anterior, sin esos campos, deja null y "worker".
   const endpoints = s.endpoints.map((x) => ({ host: x.host, clases: clases.get(x.host) || clasesDe(x.host), dns_status: x.dns_status,
     ip: x.ip, cname: x.cname, responde_443: x.responde_443, detalle: x.detalle, medido_utc: x.medido_utc,
-    hibrido: x.hibrido ?? null, http_status: x.http_status ?? null, medido_desde: x.medido_desde || "worker" }));
+    hibrido: x.hibrido ?? null, http_status: x.http_status ?? null, http_consultado: x.http_consultado ?? null, medido_desde: x.medido_desde || "worker" }));
   const b = s.borde, v = b.veredicto, A = b.saludos.A_como_navegador;
   // TLS 1.3: el saludo A sólo ofrece 1.3. Respuesta de servidor = sí; alerta 70 (protocol_version) = no; corte = sin dato.
   const tls13 = A.grupo ? true : (A.alerta && /\/70$/.test(A.alerta)) ? false : null;
@@ -416,7 +416,12 @@ export const pruebasBloqueado = (e) => !!e && e.http_status === 403;
 // Techo de B (decisión del dueño, 16-nov: «alerta media, nota B»). SÓLO esta alerta media lo pone: un
 // ambiente de pruebas publicado, aunque bloqueado, no es una A. Las demás medias (certificado sin plan,
 // legado, correo en 443) siguen sin bajar la letra; si no, rosettaquantum.com perdería su A.
-export const MEDIAS_CON_TECHO_B = ["ambiente_pruebas_publicado_bloqueado"];
+// (17-nov-2026, decisión del dueño) El GET a la raíz sólo se hace con el dueño verificado. Sin él,
+// `http_consultado` es false y un ambiente de pruebas que completa el saludo TLS es «publicado» (media,
+// techo B): no se sabe si está abierto o bloqueado, y no se pregunta. Una foto anterior sin el campo
+// (null) se lee como hasta ahora.
+export const pruebasSinConsultar = (e) => !!e && e.http_consultado === false;
+export const MEDIAS_CON_TECHO_B = ["ambiente_pruebas_publicado_bloqueado", "ambiente_pruebas_publicado"];
 const HIBRIDO = "X25519MLKEM768";
 
 // Un nombre que respondió: ¿tiene el candado nuevo? Desde el 13-nov la sonda le manda también el saludo
@@ -440,7 +445,8 @@ export function explicarNota(foto, extras = {}) {
 
   if (c.ok && c.not_after && dia && c.not_after < dia) out.graves.push({ codigo: "certificado_vencido", detalle: c.not_after });
   for (const e of responde) if (tiene(e, "no_productivo") || esAmbientePruebas(e.host)) {
-    if (pruebasBloqueado(e)) out.medias.push({ codigo: "ambiente_pruebas_publicado_bloqueado", host: e.host, http_status: e.http_status });
+    if (pruebasSinConsultar(e)) out.medias.push({ codigo: "ambiente_pruebas_publicado", host: e.host });
+    else if (pruebasBloqueado(e)) out.medias.push({ codigo: "ambiente_pruebas_publicado_bloqueado", host: e.host, http_status: e.http_status });
     else out.graves.push({ codigo: "ambiente_pruebas_expuesto", host: e.host, http_status: e.http_status ?? null });
   }
   for (const e of responde) if (tiene(e, "infra_expuesta") && !esNombreDeCorreo(e.host)) out.altas.push({ codigo: "infraestructura_expuesta", host: e.host });
