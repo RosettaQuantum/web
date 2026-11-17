@@ -242,6 +242,84 @@ export function notaParaJson(x, a, { dominio, verificado = false, fuentes_que_fa
   };
 }
 
+// ---------------------------------------------------------------- subíndices QEX v1 (17-nov-2026)
+// Spec: entregables/ficha-rosetta-2026-11/QEX-subindices-v1.md, aprobada por el dueño. NO cambia pesos,
+// reglas ni tope: abre la aritmética que YA corre en qex-nucleo.mjs (certificadosValor, higiene,
+// edgeValor, irec) para que cada número se explique solo. Cada subíndice dice cuánto pone o quita en la
+// dimensión y cuánto es en puntos QEX (puntos × peso), y declara su método.
+// CUADRA: el árbol se recalcula desde lo crudo de la foto con las MISMAS funciones del núcleo y se compara
+// con lo que la foto trae (dimensiones, suma y QEX). Si no cuadra, `cuadra` es false y la ficha no lo
+// pinta; scripts/check-qex-subindices.mjs falla el build si pasa en una foto fija.
+// RQ.S.04: el modelo HNDL de la referencia publica SÓLO el valor por sector (heredado del índice de agosto
+// sellado); los años de secreto, de migración y el margen de Mosca no existen como datos: van «sin dato».
+// La exporta también el informe mensual (otra sesión).
+const r2 = (v) => Math.round(v * 100) / 100;
+export function arbolQex(foto, { idioma = "es", x = null } = {}) {
+  const F = textosFicha(idioma), A = F.arbol, P = N.PESOS;
+  const q = foto.qex || {}, d = q.dimensiones || {}, metodo = q.version || N.VERSION_QEX;
+  const xx = x || N.explicarNota(foto);
+  const fila = (id, regla, dimension, peso, { informativo = false, tipo = "medido" } = {}) => ({ id, regla: informativo ? A.informativo(regla) : regla,
+    dimension: informativo ? null : dimension, qex: informativo || dimension == null ? null : r2(dimension * peso), informativo, tipo, metodo });
+  const dims = {};
+  // RQ.S.02 · certificados y PKI (certificadosValor)
+  const c = foto.certificado || {}, vC = N.certificadosValor(c);
+  const alg = c.algoritmo === "RSA" ? `RSA-${c.bits ?? "?"}` : c.algoritmo === "EC" ? (c.curva || `EC${c.bits ? "-" + c.bits : ""}`) : (c.algoritmo || "");
+  const dia = String(foto.medido_utc || "").slice(0, 10);
+  const dias = c.ok && c.not_after ? Math.floor((Date.parse(c.not_after.slice(0, 10)) - Date.parse(dia)) / 86400000) : null;
+  dims["RQ.S.02"] = { clave: "certificados", peso: P.certificados, base: null, maximo: 100, valor: d.certificados ?? null, recompuesto: vC, subindices: [
+    fila("RQ.S.02.1", vC == null ? A.sin_certificado : vC === 100 ? A.llave_supera(alg) : A.llave_minimo(alg), vC, P.certificados, { tipo: vC == null ? "no medido" : "medido" }),
+    fila("RQ.S.02.2", dias == null ? A.sin_certificado : A.vigencia(dias, c.not_after.slice(0, 10)), null, P.certificados, { informativo: true }),
+    ...(xx.medias.some((m) => m.codigo === "certificado_sin_plan") ? [fila("RQ.S.02.3", A.plan_sin, null, P.certificados, { informativo: true })] : []),
+  ] };
+  // RQ.S.03 · higiene, base 70 (higiene(): las mismas cuatro reglas, en el mismo orden)
+  const ct = foto.ct ? foto.ct.conteos || {} : null, t13 = foto.tls13;
+  const dT = t13 === false ? -30 : 0, dN = ct && (ct.no_productivo || 0) > 0 ? -10 : 0, dI = ct && (ct.infra_expuesta || 0) >= 3 ? -10 : 0, dL = ct && (ct.legado || 0) > 0 ? -10 : 0;
+  const st = foto.proveedores?.security_txt;
+  dims["RQ.S.03"] = { clave: "higiene", peso: P.higiene, base: 70, maximo: 70, valor: d.higiene ?? null,
+    recompuesto: Math.max(0, Math.min(100, 70 + dT + dN + dI + dL)), subindices: [
+    fila("RQ.S.03.1", t13 === true ? A.tls13_si : t13 === false ? A.tls13_no : A.tls13_nm, dT, P.higiene, { tipo: t13 == null ? "no medido" : "medido" }),
+    fila("RQ.S.03.2", ct ? A.no_productivos(ct.no_productivo || 0) : A.sin_registro, dN, P.higiene, { tipo: ct ? "medido" : "no medido" }),
+    fila("RQ.S.03.3", ct ? A.infraestructura(ct.infra_expuesta || 0) : A.sin_registro, dI, P.higiene, { tipo: ct ? "medido" : "no medido" }),
+    fila("RQ.S.03.4", ct ? A.legado(ct.legado || 0) : A.sin_registro, dL, P.higiene, { tipo: ct ? "medido" : "no medido" }),
+    fila("RQ.S.03.5", st === true ? A.security_si : st === false ? A.security_no : A.security_nm, null, P.higiene, { informativo: true }),
+  ] };
+  // RQ.S.04 · HNDL: modelo del sector; los tres números del modelo no existen como datos
+  const sector = (F.sector[foto.vertical] || foto.vertical || "").toLowerCase();
+  dims["RQ.S.04"] = { clave: "hndl", peso: P.hndl, base: null, maximo: 100, valor: d.hndl ?? null, recompuesto: d.hndl ?? null, modelo: A.hndl_modelo(sector), subindices: [
+    fila("RQ.S.04.1", A.hndl_secreto, null, P.hndl, { tipo: "modelo" }),
+    fila("RQ.S.04.2", A.hndl_migrar, null, P.hndl, { tipo: "modelo" }),
+    fila("RQ.S.04.3", A.hndl_mosca, null, P.hndl, { tipo: "modelo" }),
+  ] };
+  // RQ.S.05 · PQC en el borde (edgeValor)
+  const so = foto.borde ? foto.borde.soporta : null, vE = N.edgeValor(so);
+  const todos = xx.hechos?.principal_hibrido === true && (xx.hechos.sin_evidencia_hibrido || []).length === 0;
+  dims["RQ.S.05"] = { clave: "edge", peso: P.edge, base: null, maximo: 100, valor: d.edge ?? null, recompuesto: vE, subindices: [
+    fila("RQ.S.05.1", so === true ? A.borde_si : so === false ? A.borde_no : A.borde_nm, vE, P.edge, { tipo: vE == null ? "no medido" : "medido" }),
+    ...(so === true ? [fila("RQ.S.05.2", foto.borde.elige ? A.elige_si : A.elige_no, null, P.edge, { informativo: true }),
+      fila("RQ.S.05.3", todos ? A.todos_si : A.todos_no, null, P.edge, { informativo: true })] : []),
+  ] };
+  // aportes y QEX: la suma de los aportes de las dimensiones medidas, sobre el peso usado (irec)
+  let suma = 0, peso = 0;
+  for (const k of Object.keys(dims)) { const D = dims[k]; D.aporte = D.valor == null ? null : r2(D.valor * D.peso); if (D.valor != null) { suma += D.valor * D.peso; peso += D.peso; } }
+  const score = N.irec(d);
+  const max = { certificados: 100, higiene: 70, hndl: d.hndl ?? null, edge: 100 };
+  const maxSuma = Object.keys(P).reduce((t, k) => t + (max[k] == null ? 0 : max[k] * P[k]), 0);
+  const ganancias = [];
+  if (vC != null && vC < 100) ganancias.push(["acc_llave", r2((100 - vC) * P.certificados)]);
+  if (dT) ganancias.push(["acc_tls13", r2(-dT * P.higiene)]);
+  // No productivos, infraestructura y legado NO se listan: en QEX-1.0 cuentan el historial del registro,
+  // así que apagar un nombre hoy no devuelve puntos (sólo lo haría QEX-1.1, que no se publica ni se
+  // nombra en la ficha: scripts/check-qex-11.mjs).
+  if (vE === 0) ganancias.push(["acc_hibrido", r2(100 * P.edge)]);
+  // ¿cuadra? las dimensiones recompuestas con el núcleo, la suma de los aportes y el QEX
+  const cuadra = Object.values(dims).every((D) => D.recompuesto === D.valor)
+    && (q.suma == null || r2(suma) === q.suma) && (q.score == null ? score == null : score === q.score)
+    && dims["RQ.S.03"].recompuesto === N.higiene(t13 === false ? true : t13 === true ? false : null, ct)
+    && dims["RQ.S.03"].base + dims["RQ.S.03"].subindices.reduce((t, s) => t + (s.dimension || 0), 0) === dims["RQ.S.03"].recompuesto;
+  return { metodo, dimensiones: dims, suma: r2(suma), peso_usado: r2(peso), score, tope: q.tope ?? N.TOPE,
+    maximo: { suma: r2(maxSuma), score: N.irec(max) }, ganancias, cuadra };
+}
+
 // ---------------------------------------------------------------- la lectura, por motivo (16-nov-2026)
 // La lectura dice la causa REAL de la letra, sacada de lo mismo que la decide (N.explicarNota). A y A+
 // y «sin nota» conservan el texto aprobado (ya dicen su causa). Texto NUEVO, provisorio: FICHA.lectura_*.
@@ -334,10 +412,13 @@ export function armarFicha(foto, ctx = {}) {
     tipo: q.score == null ? "no medido" : "medido", barra: q.score ?? null, metodo: q.version || null });
 
   // 02 · indicadores
+  // subíndices QEX v1: el mismo árbol en el JSON, el markdown, la web, /verificado y el PDF
+  const arbol = arbolQex(foto, { idioma, x });
   for (const id of ["RQ.S.02", "RQ.S.03", "RQ.S.04", "RQ.S.05"]) {
-    const v = entero(dims[DIM[id]]);
-    pon(id, { valor: v, unidad: "/100", texto: v == null ? F.sin_dato : F.sobre_100(v), tipo: v == null ? "no medido" : DIM[id] === "hndl" ? "modelo" : "medido", barra: v,
-      metodo: q.version || null });
+    const v = entero(dims[DIM[id]]), max = arbol.dimensiones[id].maximo;
+    // la higiene tiene base 70: se escribe 60/70, para que nadie busque los 30 que faltan (spec)
+    pon(id, { valor: v, unidad: `/${max}`, maximo: max, texto: v == null ? F.sin_dato : F.sobre(v, max), tipo: v == null ? "no medido" : DIM[id] === "hndl" ? "modelo" : "medido",
+      barra: v == null ? null : Math.round((100 * v) / max), metodo: q.version || null, aporte: arbol.dimensiones[id].aporte, subindices: arbol.dimensiones[id].subindices });
   }
   const mx = foto.proveedores?.mx, cm = correoMedido(ctx.correo);
   const pendiente = !!ctx.correo && ["pendiente", "tomado"].includes(ctx.correo.estado);
@@ -412,7 +493,7 @@ export function armarFicha(foto, ctx = {}) {
     encabezado: { titulo: F.titulo, kicker: F.kicker, dominio, sector, pais: pais || null, pais_nombre: pais ? nombrePais(pais, idioma) : F.pais_sin,
       medido_utc: medido, desde_afuera: F.desde_afuera },
     veredicto: { lectura: lecturaDe(x, foto, idioma), referencia, publicacion: ctx.publico ? F.publicacion_publica(urlDominio) : F.publicacion_privada },
-    indicadores: ind, alertas, acciones: que, no_medido: nm, evidencia, limites: lim,
+    indicadores: ind, puntos_qex: arbol, alertas, acciones: que, no_medido: nm, evidencia, limites: lim,
     pie: F.pie, url_dominio: urlDominio,
   };
 }
@@ -431,6 +512,29 @@ function lineasEvidencia(F, e) {
 const num2 = (n) => String(n).padStart(2, "0");
 const efectoMd = (F, e) => (e ? F.efecto_sube(e) : F.efecto_no);
 
+// Las filas del árbol de puntos (sección 02): [id, regla, dimensión, qex, clase]. Una sola definición
+// para el markdown y el HTML. clase: "sub" (subíndice), "base", "total" (= RQ.S.0x) o "qex" (= RQ.S.01).
+const dec = (v, idioma) => { const t = Math.abs(v).toFixed(2); return `${v < 0 ? "−" : ""}${idioma === "en" ? t : t.replace(".", ",")}`; };
+const ent = (v) => (v < 0 ? `−${Math.abs(v)}` : String(v));
+export function filasArbol(arbol, idioma = "es") {
+  const F = textosFicha(idioma), A = F.arbol, filas = [];
+  for (const [id, D] of Object.entries(arbol.dimensiones)) {
+    if (D.base != null) filas.push([id, A.base, String(D.base), dec(D.base * D.peso, idioma), "base"]);
+    if (D.modelo) filas.push([id, D.modelo, D.valor == null ? F.sin_dato : String(D.valor), D.aporte == null ? "—" : dec(D.aporte, idioma), "base"]);
+    for (const x of D.subindices) filas.push([x.id, x.regla, x.informativo ? "—" : x.dimension == null ? (x.tipo === "modelo" ? A.hndl_sin_dato : F.sin_dato) : ent(x.dimension),
+      x.qex == null ? "—" : dec(x.qex, idioma), "sub"]);
+    filas.push([`= ${id}`, A.peso(dec(D.peso, idioma)), D.valor == null ? F.sin_dato : F.sobre(D.valor, D.maximo), D.aporte == null ? "—" : dec(D.aporte, idioma), "total"]);
+  }
+  const p = dec(arbol.peso_usado, idioma);
+  filas.push(["= RQ.S.01", A.total(dec(arbol.suma, idioma), p), "", arbol.score == null ? F.sin_dato
+    : `${dec(arbol.suma, idioma)}${p === dec(1, idioma) ? "" : ` / ${p}`} → ${arbol.score}`, "qex"]);
+  return filas;
+}
+const lineasArbol = (arbol, idioma) => {
+  const A = textosFicha(idioma).arbol;
+  return [A.maximo(dec(arbol.maximo.suma, idioma), arbol.maximo.score), ...(arbol.ganancias.length ? [A.acciones(arbol.ganancias.map(([k, p]) => A[k](dec(p, idioma))).join("; "))] : [])];
+};
+
 // ---------------------------------------------------------------- markdownDe: la ficha → markdown canónico
 export function markdownDe(ficha) {
   const F = textosFicha(ficha.idioma), e = ficha.encabezado, C = F.col;
@@ -441,6 +545,10 @@ export function markdownDe(ficha) {
   out.push("", titulo(0), ...tabla([C.id, C.indicador, C.valor], ["RQ.S.00", "RQ.S.01"].map((id) => [id, I[id].nombre, id === "RQ.S.00" && I[id].valor ? `**${I[id].texto}**` : I[id].texto])), "",
     F.lectura(ficha.veredicto.lectura), ficha.veredicto.referencia, ficha.veredicto.publicacion);
   out.push("", titulo(1), ...tabla([C.id, C.indicador, C.valor, C.tipo], CATALOGO.slice(2).map((id) => [id, I[id].nombre, I[id].texto, F.tipo[I[id].tipo]])), "", F.leyenda);
+  if (ficha.puntos_qex?.cuadra) {
+    const A = F.arbol.col;
+    out.push("", ...tabla([A.id, A.regla, A.dimension, A.qex], filasArbol(ficha.puntos_qex, ficha.idioma).map((f) => f.slice(0, 4))), "", ...lineasArbol(ficha.puntos_qex, ficha.idioma));
+  } else if (ficha.puntos_qex) out.push("", F.arbol.no_cuadra);
   out.push("", titulo(2), ...(ficha.alertas.length ? tabla([C.n, C.nivel, C.hallazgo, C.donde], ficha.alertas.map((a) => [a.id, F.nivel[a.nivel], a.hallazgo, a.donde])) : [F.vacio]));
   out.push("", titulo(3), ...(ficha.acciones.length ? tabla([C.n, C.accion, C.resuelve, C.efecto],
     ficha.acciones.map((h) => [h.id, h.accion, h.resuelve.length ? rangos(h.resuelve) : "—", efectoMd(F, h.efecto)])) : [F.vacio]));
@@ -505,6 +613,9 @@ export const CSS_FICHA = `
 .rf .rf-eff{font-family:var(--mono,'IBM Plex Mono',ui-monospace,monospace);font-size:12px;color:var(--rf-sub);white-space:nowrap}
 .rf .rf-eff-up{color:var(--rf-teal);font-weight:500}
 .rf .rf-legend{font-size:12px;color:var(--rf-sub);margin-top:6px}
+.rf .rf-ar-sub td:nth-child(2){padding-left:22px}
+.rf .rf-ar-total td,.rf .rf-ar-qex td{font-weight:600;background:#F7FAF9}
+.rf .rf-table+.rf-legend+.rf-table{margin-top:10px}
 .rf .rf-ul{margin:4px 0 0;padding-left:18px}
 .rf .rf-ul li{margin-bottom:3px}
 .rf .rf-ev{background:#fff;border:1px solid var(--rf-line);border-radius:8px;padding:8px 12px;font-family:var(--mono,'IBM Plex Mono',ui-monospace,monospace);font-size:12px;line-height:1.7;overflow-wrap:anywhere}
@@ -550,7 +661,12 @@ export function htmlDe(ficha, { documento = false, secciones = SECCIONES, marca 
     `<div class="rf-notes"><div class="rf-note">${conEtiqueta(ficha.veredicto.referencia)}</div><div class="rf-note">${conEtiqueta(ficha.veredicto.publicacion)}</div></div>`);
   if (ver.has("indicadores")) partes.push(h2(1), tabla([C.id, C.indicador, C.valor, "", C.tipo], CATALOGO.slice(2).map((id) => {
     const r = I[id]; return `<tr><td class="rf-id">${id}</td><td>${esc(r.nombre)}</td><td class="rf-val">${esc(r.texto)}</td><td class="rf-b">${barra(r.barra, r.tipo)}</td><td>${pill(r.tipo)}</td></tr>`;
-  })), `<p class="rf-legend">${esc(F.leyenda)}</p>`);
+  })), `<p class="rf-legend">${esc(F.leyenda)}</p>`,
+  ficha.puntos_qex?.cuadra
+    ? tabla([F.arbol.col.id, F.arbol.col.regla, F.arbol.col.dimension, F.arbol.col.qex], filasArbol(ficha.puntos_qex, ficha.idioma).map(([id, regla, dim, qx, cl]) =>
+      `<tr class="rf-ar-${cl}"><td class="rf-id">${esc(id)}</td><td>${esc(regla)}</td><td class="rf-mono">${esc(dim)}</td><td class="rf-mono">${esc(qx)}</td></tr>`))
+      + lineasArbol(ficha.puntos_qex, ficha.idioma).map((l) => `<p class="rf-legend">${esc(l)}</p>`).join("")
+    : ficha.puntos_qex ? `<p class="rf-legend">${esc(F.arbol.no_cuadra)}</p>` : "");
   if (ver.has("alertas")) partes.push(h2(2), ficha.alertas.length ? tabla([C.n, C.nivel, C.hallazgo, C.donde], ficha.alertas.map((a) =>
     `<tr><td class="rf-id">${a.id}</td><td><span class="rf-lvl rf-lvl-${a.nivel.toLowerCase()}">${esc(F.nivel[a.nivel])}</span></td><td>${esc(a.hallazgo)}</td><td class="rf-mono">${esc(a.donde)}</td></tr>`)) : `<p>${esc(F.vacio)}</p>`);
   const pag2 = [];
@@ -593,11 +709,29 @@ export function validarMarkdown(md, idioma = "es") {
   if (JSON.stringify(h2) !== JSON.stringify(esperadas)) fallas.push(`secciones: ${JSON.stringify(h2)} ≠ las 7 fijas en orden`);
   const seccion = (n) => { const i = L.indexOf(esperadas[n - 1]); const j = n < 7 ? L.indexOf(esperadas[n]) : L.length; return i < 0 ? [] : L.slice(i + 1, j < 0 ? L.length : j); };
   const celdas = (l) => l.split("|").slice(1, -1).map((c) => c.trim());
-  const filasDe = (n) => seccion(n).filter((l) => l.startsWith("| ") && !/^\|( ?-+ ?\|)+$/.test(l)).slice(1).map(celdas);
+  // las tablas de una sección (separadas por líneas que no son tabla), sin cabecera ni separador
+  const tablas = (n) => { const out = []; let cur = null;
+    for (const l of seccion(n)) { if (l.startsWith("|")) { if (!cur) out.push(cur = []); cur.push(l); } else cur = null; }
+    return out.map((t) => t.filter((l) => !/^\|( ?-+ ?\|)+$/.test(l)).slice(1).map(celdas)); };
+  const filasDe = (n) => tablas(n)[0] || [];
   const ids = [...filasDe(1), ...filasDe(2)].map((c) => c[0]);
   if (JSON.stringify(ids) !== JSON.stringify(CATALOGO)) fallas.push(`IDs: ${ids.join(",")} ≠ ${CATALOGO.join(",")}`);
   for (const c of filasDe(2)) if (!Object.values(F.tipo).includes(c[3])) fallas.push(`tipo inválido en ${c[0]}: «${c[3]}»`);
   for (const c of [...filasDe(1), ...filasDe(2)]) if (/\d[.,]\d/.test(c[2])) fallas.push(`decimales en ${c[0]}: «${c[2]}»`);
+  // 02, segunda tabla: el árbol de puntos QEX (subíndices v1), si está
+  const ar = tablas(2)[1];
+  if (ar) {
+    let previo = 0;
+    ar.forEach((c) => {
+      const m = /^(= )?RQ\.S\.0([1-5])(\.\d)?$/.exec(c[0]);
+      if (!m) { fallas.push(`árbol QEX: ID inválido «${c[0]}»`); return; }
+      const dim = m[2] === "1" ? 6 : +m[2];
+      if (dim < previo) fallas.push(`árbol QEX: ${c[0]} fuera de orden`);
+      previo = dim;
+      if (!/^(—|−?\d+[.,]\d{2}|\d+[.,]\d{2}( \/ \d[.,]\d{2})? → \d+|sin dato|no data)$/.test(c[3])) fallas.push(`árbol QEX: puntos inválidos en ${c[0]}: «${c[3]}»`);
+    });
+    if ((ar[ar.length - 1] || [])[0] !== "= RQ.S.01") fallas.push("árbol QEX: no termina en «= RQ.S.01»");
+  }
   const al = filasDe(3), niveles = Object.values(F.nivel);
   if (!al.length && !seccion(3).includes(F.vacio)) fallas.push("alertas: ni tabla ni «" + F.vacio + "»");
   al.forEach((c, i) => {

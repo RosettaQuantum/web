@@ -2,7 +2,9 @@
 
 Generado por `node scripts/textos-ficha.mjs` desde el código (public/js/qready-textos.mjs, src/pages/llms.txt.ts). Lo que se apruebe aquí es literalmente lo que se sirve.
 
-**Estado (17-nov): APROBADO por Nicholas** (textos y QREADY-NOTA-2.1), con tres arreglos: (1) este documento mostraba «undefined» y «NaN» en `referencia` y `no_medido.correo_mx` (defecto del generador, no de la ficha: ahora se muestran con datos de ejemplo); (2) `accion.baja_legado` decía «a el nombre» (**CAMBIA**); (3) un guardia falla si una ficha renderizada (es/en, markdown y HTML) o este documento dicen «undefined», «NaN» o «null».
+**Quinta vuelta (17-nov): subíndices QEX v1.** Marcado **NUEVO**: el árbol de puntos de la sección 02 (`arbol.*`), la higiene escrita sobre 70 (`sobre`), las filas nuevas del catálogo y la regla 12 de la spec. RQ.S.04.1 a .3 van «sin dato»: el modelo HNDL publica sólo el valor del sector, no los años ni el margen de Mosca.
+
+**Estado anterior (17-nov): APROBADO por Nicholas** (textos y QREADY-NOTA-2.1), con tres arreglos: (1) este documento mostraba «undefined» y «NaN» en `referencia` y `no_medido.correo_mx` (defecto del generador, no de la ficha: ahora se muestran con datos de ejemplo); (2) `accion.baja_legado` decía «a el nombre» (**CAMBIA**); (3) un guardia falla si una ficha renderizada (es/en, markdown y HTML) o este documento dicen «undefined», «NaN» o «null».
 
 **Integrado de main (7786413, PROVISORIO allá):** la alerta `ambiente_pruebas_publicado` («Ambiente de pruebas publicado en internet» / «Test environment published on the internet»), media con techo B, y su acción `retirar_ambientes_publicados` (**NUEVO**, mismo texto que la del ambiente bloqueado).
 
@@ -70,8 +72,50 @@ Reusados sin cambio (ya aprobados): los nombres de las alertas (`TXT.alerta`) y 
 - `sin_dato`: sin dato
 - `qex`: ‹1›/100 (tope externo 84)
 - `sobre_100`: ‹1›/100
+- **NUEVO** `sobre`: ‹1›/‹2›
 - `correo`: ‹1›/‹2› MX
 - `correo_sin_mx`: sin MX publicado
+- **NUEVO** `arbol.col.id`: ID
+- **NUEVO** `arbol.col.regla`: Regla
+- **NUEVO** `arbol.col.dimension`: Dimensión
+- **NUEVO** `arbol.col.qex`: QEX
+- **NUEVO** `arbol.informativo`: ‹1› (informativo)
+- **NUEVO** `arbol.llave_minimo`: ‹1› = mínimo vigente
+- **NUEVO** `arbol.llave_supera`: ‹1› supera el mínimo vigente
+- **NUEVO** `arbol.sin_certificado`: certificado no leído
+- **NUEVO** `arbol.vigencia`: vigencia: ‹1› días, hasta ‹2›
+- **NUEVO** `arbol.plan_sin`: sin plan con fecha para certificado post-cuántico
+- **NUEVO** `arbol.base`: base de la higiene (máximo 70)
+- **NUEVO** `arbol.tls13_si`: TLS 1.3 en el sitio principal
+- **NUEVO** `arbol.tls13_no`: sin TLS 1.3 en el sitio principal
+- **NUEVO** `arbol.tls13_nm`: TLS 1.3 sin dato (no descuenta)
+- **NUEVO** `arbol.no_productivos`: 1 nombre no productivo en el registro / ‹1› nombres no productivos en el registro
+- **NUEVO** `arbol.infraestructura`: 1 nombre de infraestructura en el registro (resta desde 3) / ‹1› nombres de infraestructura en el registro (resta desde 3)
+- **NUEVO** `arbol.legado`: 1 nombre de legado en el registro / ‹1› nombres de legado en el registro
+- **NUEVO** `arbol.sin_registro`: sin registro de certificados (no descuenta)
+- **NUEVO** `arbol.security_si`: security.txt publicado
+- **NUEVO** `arbol.security_no`: security.txt no publicado
+- **NUEVO** `arbol.security_nm`: security.txt sin dato
+- **NUEVO** `arbol.hndl_modelo`: modelo del sector ‹1›
+- **NUEVO** `arbol.hndl_secreto`: años que el dato del sector debe seguir secreto
+- **NUEVO** `arbol.hndl_migrar`: años que toma migrar en el sector
+- **NUEVO** `arbol.hndl_mosca`: margen de Mosca
+- **NUEVO** `arbol.hndl_sin_dato`: sin dato
+- **NUEVO** `arbol.borde_si`: soporta X25519MLKEM768
+- **NUEVO** `arbol.borde_no`: no soporta X25519MLKEM768
+- **NUEVO** `arbol.borde_nm`: borde sin medir
+- **NUEVO** `arbol.elige_si`: lo elige por defecto
+- **NUEVO** `arbol.elige_no`: no lo elige por defecto
+- **NUEVO** `arbol.todos_si`: lo tiene en todos los nombres que responden
+- **NUEVO** `arbol.todos_no`: no lo tiene en todos los nombres que responden
+- **NUEVO** `arbol.peso`: peso ‹1›
+- **NUEVO** `arbol.total`: suma de los aportes sobre peso ‹2›
+- **NUEVO** `arbol.maximo`: Máximo alcanzable desde afuera: ‹1› → ‹2›.
+- **NUEVO** `arbol.acciones`: Puntos por acción: ‹1›.
+- **NUEVO** `arbol.acc_llave`: llave RSA-4096 o P-384 +‹1›
+- **NUEVO** `arbol.acc_tls13`: activar TLS 1.3 +‹1›
+- **NUEVO** `arbol.acc_hibrido`: activar el híbrido +‹1›
+- **NUEVO** `arbol.no_cuadra`: El desglose de puntos no cuadra con esta foto: se omite.
 - `correo_pendiente`: pendiente
 - `vigencia`: ‹1› días · ‹2›
 - `vigencia_vencido`: vencido · ‹1›
@@ -114,8 +158,8 @@ Reusados sin cambio (ya aprobados): los nombres de las alertas (`TXT.alerta`) y 
 - `accion.hibrido_en_principal`: Activar X25519MLKEM768 en ‹2›
 - `accion.cerrar_infraestructura`: Cerrar o restringir por IP ‹2› / Cerrar o restringir por IP el nombre de infraestructura que responde / Cerrar o restringir por IP los ‹1› nombres de infraestructura que responden
 - `accion.retirar_ambientes_bloqueados`: Retirar de internet ‹2› / Retirar de internet el ambiente de pruebas publicado / Retirar de internet los ‹1› ambientes de prueba publicados
-- **NUEVO** `accion.retirar_ambientes_publicados`: Retirar de internet ‹2› / Retirar de internet el ambiente de pruebas publicado / Retirar de internet los ‹1› ambientes de prueba publicados
-- **CAMBIA** `accion.baja_legado`: Dar de baja o asignar dueño a ‹2› / Dar de baja o asignar dueño al nombre de legado / Dar de baja o asignar dueño a los ‹1› nombres de legado
+- `accion.retirar_ambientes_publicados`: Retirar de internet ‹2› / Retirar de internet el ambiente de pruebas publicado / Retirar de internet los ‹1› ambientes de prueba publicados
+- `accion.baja_legado`: Dar de baja o asignar dueño a ‹2› / Dar de baja o asignar dueño al nombre de legado / Dar de baja o asignar dueño a los ‹1› nombres de legado
 - `accion.correo_fuera_de_443`: Cerrar el puerto 443 en ‹2› / Cerrar el puerto 443 en el servicio de correo / Cerrar el puerto 443 en los ‹1› servicios de correo
 - `accion.hibrido_en_nombres`: Activar X25519MLKEM768 en ‹2› / Activar X25519MLKEM768 en el nombre que responde sin él / Activar X25519MLKEM768 en los ‹1› nombres que responden sin él
 - `accion.plan_certificado_pq`: Plan con fecha para certificado post-cuántico
@@ -212,8 +256,50 @@ Reusados sin cambio (ya aprobados): los nombres de las alertas (`TXT.alerta`) y 
 - `sin_dato`: no data
 - `qex`: ‹1›/100 (external cap 84)
 - `sobre_100`: ‹1›/100
+- **NUEVO** `sobre`: ‹1›/‹2›
 - `correo`: ‹1›/‹2› MX
 - `correo_sin_mx`: no MX published
+- **NUEVO** `arbol.col.id`: ID
+- **NUEVO** `arbol.col.regla`: Rule
+- **NUEVO** `arbol.col.dimension`: Dimension
+- **NUEVO** `arbol.col.qex`: QEX
+- **NUEVO** `arbol.informativo`: ‹1› (for information)
+- **NUEVO** `arbol.llave_minimo`: ‹1› = current minimum
+- **NUEVO** `arbol.llave_supera`: ‹1› above the current minimum
+- **NUEVO** `arbol.sin_certificado`: certificate not read
+- **NUEVO** `arbol.vigencia`: validity: ‹1› days, until ‹2›
+- **NUEVO** `arbol.plan_sin`: no dated plan for a post-quantum certificate
+- **NUEVO** `arbol.base`: hygiene base (maximum 70)
+- **NUEVO** `arbol.tls13_si`: TLS 1.3 on the main site
+- **NUEVO** `arbol.tls13_no`: no TLS 1.3 on the main site
+- **NUEVO** `arbol.tls13_nm`: TLS 1.3 no data (no deduction)
+- **NUEVO** `arbol.no_productivos`: 1 non-production name in the log / ‹1› non-production names in the log
+- **NUEVO** `arbol.infraestructura`: 1 infrastructure name in the log (deducts from 3) / ‹1› infrastructure names in the log (deducts from 3)
+- **NUEVO** `arbol.legado`: 1 legacy name in the log / ‹1› legacy names in the log
+- **NUEVO** `arbol.sin_registro`: no certificate log (no deduction)
+- **NUEVO** `arbol.security_si`: security.txt published
+- **NUEVO** `arbol.security_no`: security.txt not published
+- **NUEVO** `arbol.security_nm`: security.txt no data
+- **NUEVO** `arbol.hndl_modelo`: ‹1› sector model
+- **NUEVO** `arbol.hndl_secreto`: years the sector's data must stay secret
+- **NUEVO** `arbol.hndl_migrar`: years the sector takes to migrate
+- **NUEVO** `arbol.hndl_mosca`: Mosca margin
+- **NUEVO** `arbol.hndl_sin_dato`: no data
+- **NUEVO** `arbol.borde_si`: supports X25519MLKEM768
+- **NUEVO** `arbol.borde_no`: does not support X25519MLKEM768
+- **NUEVO** `arbol.borde_nm`: edge not measured
+- **NUEVO** `arbol.elige_si`: chooses it by default
+- **NUEVO** `arbol.elige_no`: does not choose it by default
+- **NUEVO** `arbol.todos_si`: has it on every name that answers
+- **NUEVO** `arbol.todos_no`: does not have it on every name that answers
+- **NUEVO** `arbol.peso`: weight ‹1›
+- **NUEVO** `arbol.total`: sum of contributions over weight ‹2›
+- **NUEVO** `arbol.maximo`: Highest reachable from outside: ‹1› → ‹2›.
+- **NUEVO** `arbol.acciones`: Points per action: ‹1›.
+- **NUEVO** `arbol.acc_llave`: RSA-4096 or P-384 key +‹1›
+- **NUEVO** `arbol.acc_tls13`: enable TLS 1.3 +‹1›
+- **NUEVO** `arbol.acc_hibrido`: enable the hybrid +‹1›
+- **NUEVO** `arbol.no_cuadra`: The points breakdown does not add up for this snapshot: it is left out.
 - `correo_pendiente`: pending
 - `vigencia`: ‹1› days · ‹2›
 - `vigencia_vencido`: expired · ‹1›
@@ -256,8 +342,8 @@ Reusados sin cambio (ya aprobados): los nombres de las alertas (`TXT.alerta`) y 
 - `accion.hibrido_en_principal`: Enable X25519MLKEM768 on ‹2›
 - `accion.cerrar_infraestructura`: Close or IP-restrict ‹2› / Close or IP-restrict the infrastructure name that answers / Close or IP-restrict the ‹1› infrastructure names that answer
 - `accion.retirar_ambientes_bloqueados`: Take ‹2› off the internet / Take the published test environment off the internet / Take the ‹1› published test environments off the internet
-- **NUEVO** `accion.retirar_ambientes_publicados`: Take ‹2› off the internet / Take the published test environment off the internet / Take the ‹1› published test environments off the internet
-- **CAMBIA** `accion.baja_legado`: Retire ‹2› or assign it an owner / Retire the legacy name or assign it an owner / Retire the ‹1› legacy names or assign them an owner
+- `accion.retirar_ambientes_publicados`: Take ‹2› off the internet / Take the published test environment off the internet / Take the ‹1› published test environments off the internet
+- `accion.baja_legado`: Retire ‹2› or assign it an owner / Retire the legacy name or assign it an owner / Retire the ‹1› legacy names or assign them an owner
 - `accion.correo_fuera_de_443`: Close port 443 on ‹2› / Close port 443 on the mail service / Close port 443 on the ‹1› mail services
 - `accion.hibrido_en_nombres`: Enable X25519MLKEM768 on ‹2› / Enable X25519MLKEM768 on the name that answers without it / Enable X25519MLKEM768 on the ‹1› names that answer without it
 - `accion.plan_certificado_pq`: Dated plan for a post-quantum certificate
@@ -327,6 +413,13 @@ Reusados sin cambio (ya aprobados): los nombres de las alertas (`TXT.alerta`) y 
 - `catalogo[11]`: RQ.S.11 · Reservado (proveedores) · — · —
 - `catalogo[12]`: RQ.S.12 · Reservado (gobierno) · — · —
 - `catalogo[13]`: RQ.S.13 · Nombres observados en el registro público · conteo de nombres; no afirma que respondan · medido
+- **NUEVO** `catalogo[14]`: RQ.S.02.1 · Fuerza de la llave · 100 si RSA ≥ 4096 o curva ≥ 384; 75 en el mínimo · medido
+- **NUEVO** `catalogo[15]`: RQ.S.02.2 / .3 · Vigencia; plan con fecha para certificado post-cuántico · informativos, 0 puntos · medido
+- **NUEVO** `catalogo[16]`: RQ.S.03.1 a .4 · TLS 1.3 (−30); no productivos (−10); infraestructura, 3 o más (−10); legado (−10) · sobre una base de 70 · medido
+- **NUEVO** `catalogo[17]`: RQ.S.03.5 · security.txt · informativo, 0 puntos · medido
+- **NUEVO** `catalogo[18]`: RQ.S.04.1 a .3 · Años de secreto del sector; años de migración; margen de Mosca · sin dato: el modelo publica sólo el valor del sector · modelo
+- **NUEVO** `catalogo[19]`: RQ.S.05.1 · Soporta el híbrido · 100 o 0 · medido
+- **NUEVO** `catalogo[20]`: RQ.S.05.2 / .3 · Lo elige por defecto; lo tiene en todos los nombres · informativos, 0 puntos · medido
 - `h_reglas`: 4. Reglas
 - `reglas[0]`: Tipo de cada valor: medido, modelo o no medido. null y «sin dato» significan no medido, nunca no protegido.
 - `reglas[1]`: Alertas numeradas A1…An, con nivel GRAVE, ALTA, MEDIA o INFO, ordenadas por nivel en ese orden. Los nombres de las alertas son los de la nota Q-Ready.
@@ -339,6 +432,7 @@ Reusados sin cambio (ya aprobados): los nombres de las alertas (`TXT.alerta`) y 
 - `reglas[8]`: Nombres de terceros enmascarados si el dueño no verificó el dominio por DNS: se muestra sólo el primer nombre del subdominio, hasta el segundo carácter del segmento que delata el ambiente o, si no hay ese segmento en el primer nombre, hasta su mitad (biometrics-d•••.ejemplo.com.py). Si dos nombres distintos quedan iguales, se distinguen con «#» y los primeros caracteres de una huella del nombre (all-d•••#3f.ejemplo.com.py), sin revelarlo. El dominio se muestra completo y los conteos no cambian.
 - `reglas[9]`: La lectura del veredicto dice la causa de la letra.
 - `reglas[10]`: El ID nombra el concepto; la versión dice cómo se midió. En el bloque estructurado cada valor declara su versión de método (metodo: por ejemplo QEX-1.0 en RQ.S.01 a RQ.S.05), para que un mismo ID nunca tenga dos definiciones sin decirlo.
+- **NUEVO** `reglas[11]`: Subíndices QEX (RQ.S.0x.n): la sección 02 abre la aritmética del índice. Cada subíndice dice cuántos puntos pone o quita en su dimensión y cuántos puntos QEX son (puntos × peso). La base más los subíndices dan la dimensión, y la suma de los aportes da el QEX. La higiene se escribe sobre 70, su máximo. El correo (RQ.S.06) se muestra pero no suma al QEX.
 - `h_ejemplo`: 5. Ejemplo
 - `ejemplo_nota`: Una foto fija de ejemplo (dominio de ejemplo, no verificado: nombres enmascarados). Es la misma que fija la prueba del repositorio.
 - `h_validar`: 6. Validar
@@ -374,6 +468,13 @@ Reusados sin cambio (ya aprobados): los nombres de las alertas (`TXT.alerta`) y 
 - `catalogo[11]`: RQ.S.11 · Reserved (providers) · — · —
 - `catalogo[12]`: RQ.S.12 · Reserved (governance) · — · —
 - `catalogo[13]`: RQ.S.13 · Names observed in the public log · count of names; does not claim they respond · measured
+- **NUEVO** `catalogo[14]`: RQ.S.02.1 · Key strength · 100 if RSA ≥ 4096 or curve ≥ 384; 75 at the minimum · measured
+- **NUEVO** `catalogo[15]`: RQ.S.02.2 / .3 · Validity; dated plan for a post-quantum certificate · for information, 0 points · measured
+- **NUEVO** `catalogo[16]`: RQ.S.03.1 to .4 · TLS 1.3 (−30); non-production (−10); infrastructure, 3 or more (−10); legacy (−10) · on a base of 70 · measured
+- **NUEVO** `catalogo[17]`: RQ.S.03.5 · security.txt · for information, 0 points · measured
+- **NUEVO** `catalogo[18]`: RQ.S.04.1 to .3 · Years of secrecy for the sector; years to migrate; Mosca margin · no data: the model publishes only the sector value · model
+- **NUEVO** `catalogo[19]`: RQ.S.05.1 · Supports the hybrid · 100 or 0 · measured
+- **NUEVO** `catalogo[20]`: RQ.S.05.2 / .3 · Chooses it by default; has it on every name · for information, 0 points · measured
 - `h_reglas`: 4. Rules
 - `reglas[0]`: Type of every value: measured, model or not measured (medido, modelo, no medido). null and “no data” mean not measured, never not protected.
 - `reglas[1]`: Alerts numbered A1…An, with level GRAVE, ALTA, MEDIA or INFO (printed SERIOUS, HIGH, MEDIUM, INFO in English), ordered by level in that order. Alert names are those of the Q-Ready grade.
@@ -386,6 +487,7 @@ Reusados sin cambio (ya aprobados): los nombres de las alertas (`TXT.alerta`) y 
 - `reglas[8]`: Third-party names are masked unless the owner verified the domain through DNS: only the first label of the subdomain is shown, up to the second character of the segment that reveals the environment or, if that segment is not in the first label, up to its middle (biometrics-d•••.ejemplo.com.py). When two different names end up identical, they are told apart with “#” and the first characters of a fingerprint of the name (all-d•••#3f.ejemplo.com.py), without revealing it. The domain is shown in full and counts do not change.
 - `reglas[9]`: The verdict reading states the cause of the grade.
 - `reglas[10]`: The ID names the concept; the version says how it was measured. In the structured block every value declares its method version (metodo: for example QEX-1.0 in RQ.S.01 to RQ.S.05), so the same ID never carries two definitions without saying so.
+- **NUEVO** `reglas[11]`: QEX sub-indices (RQ.S.0x.n): section 02 opens up the index arithmetic. Each sub-index states how many points it adds to or takes from its dimension and how many QEX points that is (points × weight). The base plus the sub-indices give the dimension, and the sum of contributions gives the QEX. Hygiene is written over 70, its maximum. Email (RQ.S.06) is shown but does not add to the QEX.
 - `h_ejemplo`: 5. Example
 - `ejemplo_nota`: A fixed example snapshot (example domain, not verified: names masked). It is the same one the repository test pins.
 - `h_validar`: 6. Validate
@@ -427,7 +529,7 @@ Publicación: pública en https://rosettaquantum.com/es/verificado/ejemplo.cl
 | ID | Indicador | Valor | Tipo |
 |---|---|---|---|
 | RQ.S.02 | Certificados y PKI | 75/100 | medido |
-| RQ.S.03 | Higiene de superficie | 50/100 | medido |
+| RQ.S.03 | Higiene de superficie | 50/70 | medido |
 | RQ.S.04 | Postura HNDL | 12/100 | modelo |
 | RQ.S.05 | PQC en el borde | 100/100 | medido |
 | RQ.S.06 | Correo post-cuántico | 1/1 MX | medido |
@@ -436,6 +538,33 @@ Publicación: pública en https://rosettaquantum.com/es/verificado/ejemplo.cl
 | RQ.S.09 | Superficie expuesta | 2/5 sensibles responden | medido |
 
 medido: observado hoy por la sonda · modelo: valor del sector, no medido en el dominio · no medido nunca significa no protegido
+
+| ID | Regla | Dimensión | QEX |
+|---|---|---|---|
+| RQ.S.02.1 | RSA-2048 = mínimo vigente | 75 | 30,00 |
+| RQ.S.02.2 | vigencia: 94 días, hasta 2027-02-14 (informativo) | — | — |
+| RQ.S.02.3 | sin plan con fecha para certificado post-cuántico (informativo) | — | — |
+| = RQ.S.02 | peso 0,40 | 75/100 | 30,00 |
+| RQ.S.03 | base de la higiene (máximo 70) | 70 | 17,50 |
+| RQ.S.03.1 | TLS 1.3 en el sitio principal | 0 | 0,00 |
+| RQ.S.03.2 | 3 nombres no productivos en el registro | −10 | −2,50 |
+| RQ.S.03.3 | 1 nombre de infraestructura en el registro (resta desde 3) | 0 | 0,00 |
+| RQ.S.03.4 | 1 nombre de legado en el registro | −10 | −2,50 |
+| RQ.S.03.5 | security.txt publicado (informativo) | — | — |
+| = RQ.S.03 | peso 0,25 | 50/70 | 12,50 |
+| RQ.S.04 | modelo del sector banca | 12 | 3,00 |
+| RQ.S.04.1 | años que el dato del sector debe seguir secreto | sin dato | — |
+| RQ.S.04.2 | años que toma migrar en el sector | sin dato | — |
+| RQ.S.04.3 | margen de Mosca | sin dato | — |
+| = RQ.S.04 | peso 0,25 | 12/100 | 3,00 |
+| RQ.S.05.1 | soporta X25519MLKEM768 | 100 | 10,00 |
+| RQ.S.05.2 | lo elige por defecto (informativo) | — | — |
+| RQ.S.05.3 | lo tiene en todos los nombres que responden (informativo) | — | — |
+| = RQ.S.05 | peso 0,10 | 100/100 | 10,00 |
+| = RQ.S.01 | suma de los aportes |  | 55,50 → 56 |
+
+Máximo alcanzable desde afuera: 70,50 → 70.
+Puntos por acción: llave RSA-4096 o P-384 +10,00.
 
 ## 03 Alertas
 | # | Nivel | Hallazgo | Dónde |
@@ -491,7 +620,7 @@ Publication: public at https://rosettaquantum.com/verificado/ejemplo.cl
 | ID | Indicator | Value | Type |
 |---|---|---|---|
 | RQ.S.02 | Certificates and PKI | 75/100 | measured |
-| RQ.S.03 | Surface hygiene | 50/100 | measured |
+| RQ.S.03 | Surface hygiene | 50/70 | measured |
 | RQ.S.04 | HNDL posture | 12/100 | model |
 | RQ.S.05 | PQC at the edge | 100/100 | measured |
 | RQ.S.06 | Post-quantum email | 1/1 MX | measured |
@@ -500,6 +629,33 @@ Publication: public at https://rosettaquantum.com/verificado/ejemplo.cl
 | RQ.S.09 | Exposed surface | 2/5 sensitive respond | measured |
 
 measured: observed today by the probe · model: sector value, not measured on the domain · not measured never means not protected
+
+| ID | Rule | Dimension | QEX |
+|---|---|---|---|
+| RQ.S.02.1 | RSA-2048 = current minimum | 75 | 30.00 |
+| RQ.S.02.2 | validity: 94 days, until 2027-02-14 (for information) | — | — |
+| RQ.S.02.3 | no dated plan for a post-quantum certificate (for information) | — | — |
+| = RQ.S.02 | weight 0.40 | 75/100 | 30.00 |
+| RQ.S.03 | hygiene base (maximum 70) | 70 | 17.50 |
+| RQ.S.03.1 | TLS 1.3 on the main site | 0 | 0.00 |
+| RQ.S.03.2 | 3 non-production names in the log | −10 | −2.50 |
+| RQ.S.03.3 | 1 infrastructure name in the log (deducts from 3) | 0 | 0.00 |
+| RQ.S.03.4 | 1 legacy name in the log | −10 | −2.50 |
+| RQ.S.03.5 | security.txt published (for information) | — | — |
+| = RQ.S.03 | weight 0.25 | 50/70 | 12.50 |
+| RQ.S.04 | banking sector model | 12 | 3.00 |
+| RQ.S.04.1 | years the sector's data must stay secret | no data | — |
+| RQ.S.04.2 | years the sector takes to migrate | no data | — |
+| RQ.S.04.3 | Mosca margin | no data | — |
+| = RQ.S.04 | weight 0.25 | 12/100 | 3.00 |
+| RQ.S.05.1 | supports X25519MLKEM768 | 100 | 10.00 |
+| RQ.S.05.2 | chooses it by default (for information) | — | — |
+| RQ.S.05.3 | has it on every name that answers (for information) | — | — |
+| = RQ.S.05 | weight 0.10 | 100/100 | 10.00 |
+| = RQ.S.01 | sum of contributions |  | 55.50 → 56 |
+
+Highest reachable from outside: 70.50 → 70.
+Points per action: RSA-4096 or P-384 key +10.00.
 
 ## 03 Alerts
 | # | Level | Finding | Where |
@@ -555,7 +711,7 @@ Publicación: privada. El dueño no ha activado su página pública.
 | ID | Indicador | Valor | Tipo |
 |---|---|---|---|
 | RQ.S.02 | Certificados y PKI | 75/100 | medido |
-| RQ.S.03 | Higiene de superficie | 50/100 | medido |
+| RQ.S.03 | Higiene de superficie | 50/70 | medido |
 | RQ.S.04 | Postura HNDL | 12/100 | modelo |
 | RQ.S.05 | PQC en el borde | 100/100 | medido |
 | RQ.S.06 | Correo post-cuántico | 0/4 MX | medido |
@@ -564,6 +720,33 @@ Publicación: privada. El dueño no ha activado su página pública.
 | RQ.S.09 | Superficie expuesta | 3/5 sensibles responden | medido |
 
 medido: observado hoy por la sonda · modelo: valor del sector, no medido en el dominio · no medido nunca significa no protegido
+
+| ID | Regla | Dimensión | QEX |
+|---|---|---|---|
+| RQ.S.02.1 | RSA-2048 = mínimo vigente | 75 | 30,00 |
+| RQ.S.02.2 | vigencia: 94 días, hasta 2027-02-14 (informativo) | — | — |
+| RQ.S.02.3 | sin plan con fecha para certificado post-cuántico (informativo) | — | — |
+| = RQ.S.02 | peso 0,40 | 75/100 | 30,00 |
+| RQ.S.03 | base de la higiene (máximo 70) | 70 | 17,50 |
+| RQ.S.03.1 | TLS 1.3 en el sitio principal | 0 | 0,00 |
+| RQ.S.03.2 | 3 nombres no productivos en el registro | −10 | −2,50 |
+| RQ.S.03.3 | 1 nombre de infraestructura en el registro (resta desde 3) | 0 | 0,00 |
+| RQ.S.03.4 | 1 nombre de legado en el registro | −10 | −2,50 |
+| RQ.S.03.5 | security.txt no publicado (informativo) | — | — |
+| = RQ.S.03 | peso 0,25 | 50/70 | 12,50 |
+| RQ.S.04 | modelo del sector banca | 12 | 3,00 |
+| RQ.S.04.1 | años que el dato del sector debe seguir secreto | sin dato | — |
+| RQ.S.04.2 | años que toma migrar en el sector | sin dato | — |
+| RQ.S.04.3 | margen de Mosca | sin dato | — |
+| = RQ.S.04 | peso 0,25 | 12/100 | 3,00 |
+| RQ.S.05.1 | soporta X25519MLKEM768 | 100 | 10,00 |
+| RQ.S.05.2 | lo elige por defecto (informativo) | — | — |
+| RQ.S.05.3 | no lo tiene en todos los nombres que responden (informativo) | — | — |
+| = RQ.S.05 | peso 0,10 | 100/100 | 10,00 |
+| = RQ.S.01 | suma de los aportes |  | 55,50 → 56 |
+
+Máximo alcanzable desde afuera: 70,50 → 70.
+Puntos por acción: llave RSA-4096 o P-384 +10,00.
 
 ## 03 Alertas
 | # | Nivel | Hallazgo | Dónde |
@@ -626,7 +809,7 @@ Publication: private. The owner has not activated its public page.
 | ID | Indicator | Value | Type |
 |---|---|---|---|
 | RQ.S.02 | Certificates and PKI | 75/100 | measured |
-| RQ.S.03 | Surface hygiene | 50/100 | measured |
+| RQ.S.03 | Surface hygiene | 50/70 | measured |
 | RQ.S.04 | HNDL posture | 12/100 | model |
 | RQ.S.05 | PQC at the edge | 100/100 | measured |
 | RQ.S.06 | Post-quantum email | 0/4 MX | measured |
@@ -635,6 +818,33 @@ Publication: private. The owner has not activated its public page.
 | RQ.S.09 | Exposed surface | 3/5 sensitive respond | measured |
 
 measured: observed today by the probe · model: sector value, not measured on the domain · not measured never means not protected
+
+| ID | Rule | Dimension | QEX |
+|---|---|---|---|
+| RQ.S.02.1 | RSA-2048 = current minimum | 75 | 30.00 |
+| RQ.S.02.2 | validity: 94 days, until 2027-02-14 (for information) | — | — |
+| RQ.S.02.3 | no dated plan for a post-quantum certificate (for information) | — | — |
+| = RQ.S.02 | weight 0.40 | 75/100 | 30.00 |
+| RQ.S.03 | hygiene base (maximum 70) | 70 | 17.50 |
+| RQ.S.03.1 | TLS 1.3 on the main site | 0 | 0.00 |
+| RQ.S.03.2 | 3 non-production names in the log | −10 | −2.50 |
+| RQ.S.03.3 | 1 infrastructure name in the log (deducts from 3) | 0 | 0.00 |
+| RQ.S.03.4 | 1 legacy name in the log | −10 | −2.50 |
+| RQ.S.03.5 | security.txt not published (for information) | — | — |
+| = RQ.S.03 | weight 0.25 | 50/70 | 12.50 |
+| RQ.S.04 | banking sector model | 12 | 3.00 |
+| RQ.S.04.1 | years the sector's data must stay secret | no data | — |
+| RQ.S.04.2 | years the sector takes to migrate | no data | — |
+| RQ.S.04.3 | Mosca margin | no data | — |
+| = RQ.S.04 | weight 0.25 | 12/100 | 3.00 |
+| RQ.S.05.1 | supports X25519MLKEM768 | 100 | 10.00 |
+| RQ.S.05.2 | chooses it by default (for information) | — | — |
+| RQ.S.05.3 | does not have it on every name that answers (for information) | — | — |
+| = RQ.S.05 | weight 0.10 | 100/100 | 10.00 |
+| = RQ.S.01 | sum of contributions |  | 55.50 → 56 |
+
+Highest reachable from outside: 70.50 → 70.
+Points per action: RSA-4096 or P-384 key +10.00.
 
 ## 03 Alerts
 | # | Level | Finding | Where |
@@ -697,7 +907,7 @@ Publicación: privada. El dueño no ha activado su página pública.
 | ID | Indicador | Valor | Tipo |
 |---|---|---|---|
 | RQ.S.02 | Certificados y PKI | 75/100 | medido |
-| RQ.S.03 | Higiene de superficie | 50/100 | medido |
+| RQ.S.03 | Higiene de superficie | 50/70 | medido |
 | RQ.S.04 | Postura HNDL | 65/100 | modelo |
 | RQ.S.05 | PQC en el borde | 100/100 | medido |
 | RQ.S.06 | Correo post-cuántico | sin MX publicado | medido |
@@ -706,6 +916,33 @@ Publicación: privada. El dueño no ha activado su página pública.
 | RQ.S.09 | Superficie expuesta | 1/5 sensibles responden | medido |
 
 medido: observado hoy por la sonda · modelo: valor del sector, no medido en el dominio · no medido nunca significa no protegido
+
+| ID | Regla | Dimensión | QEX |
+|---|---|---|---|
+| RQ.S.02.1 | RSA-2048 = mínimo vigente | 75 | 30,00 |
+| RQ.S.02.2 | vigencia: 94 días, hasta 2027-02-14 (informativo) | — | — |
+| RQ.S.02.3 | sin plan con fecha para certificado post-cuántico (informativo) | — | — |
+| = RQ.S.02 | peso 0,40 | 75/100 | 30,00 |
+| RQ.S.03 | base de la higiene (máximo 70) | 70 | 17,50 |
+| RQ.S.03.1 | TLS 1.3 en el sitio principal | 0 | 0,00 |
+| RQ.S.03.2 | 3 nombres no productivos en el registro | −10 | −2,50 |
+| RQ.S.03.3 | 1 nombre de infraestructura en el registro (resta desde 3) | 0 | 0,00 |
+| RQ.S.03.4 | 1 nombre de legado en el registro | −10 | −2,50 |
+| RQ.S.03.5 | security.txt no publicado (informativo) | — | — |
+| = RQ.S.03 | peso 0,25 | 50/70 | 12,50 |
+| RQ.S.04 | modelo del sector retail | 65 | 16,25 |
+| RQ.S.04.1 | años que el dato del sector debe seguir secreto | sin dato | — |
+| RQ.S.04.2 | años que toma migrar en el sector | sin dato | — |
+| RQ.S.04.3 | margen de Mosca | sin dato | — |
+| = RQ.S.04 | peso 0,25 | 65/100 | 16,25 |
+| RQ.S.05.1 | soporta X25519MLKEM768 | 100 | 10,00 |
+| RQ.S.05.2 | lo elige por defecto (informativo) | — | — |
+| RQ.S.05.3 | no lo tiene en todos los nombres que responden (informativo) | — | — |
+| = RQ.S.05 | peso 0,10 | 100/100 | 10,00 |
+| = RQ.S.01 | suma de los aportes |  | 68,75 → 69 |
+
+Máximo alcanzable desde afuera: 83,75 → 84.
+Puntos por acción: llave RSA-4096 o P-384 +10,00.
 
 ## 03 Alertas
 | # | Nivel | Hallazgo | Dónde |
@@ -762,7 +999,7 @@ Publication: private. The owner has not activated its public page.
 | ID | Indicator | Value | Type |
 |---|---|---|---|
 | RQ.S.02 | Certificates and PKI | 75/100 | measured |
-| RQ.S.03 | Surface hygiene | 50/100 | measured |
+| RQ.S.03 | Surface hygiene | 50/70 | measured |
 | RQ.S.04 | HNDL posture | 65/100 | model |
 | RQ.S.05 | PQC at the edge | 100/100 | measured |
 | RQ.S.06 | Post-quantum email | no MX published | measured |
@@ -771,6 +1008,33 @@ Publication: private. The owner has not activated its public page.
 | RQ.S.09 | Exposed surface | 1/5 sensitive respond | measured |
 
 measured: observed today by the probe · model: sector value, not measured on the domain · not measured never means not protected
+
+| ID | Rule | Dimension | QEX |
+|---|---|---|---|
+| RQ.S.02.1 | RSA-2048 = current minimum | 75 | 30.00 |
+| RQ.S.02.2 | validity: 94 days, until 2027-02-14 (for information) | — | — |
+| RQ.S.02.3 | no dated plan for a post-quantum certificate (for information) | — | — |
+| = RQ.S.02 | weight 0.40 | 75/100 | 30.00 |
+| RQ.S.03 | hygiene base (maximum 70) | 70 | 17.50 |
+| RQ.S.03.1 | TLS 1.3 on the main site | 0 | 0.00 |
+| RQ.S.03.2 | 3 non-production names in the log | −10 | −2.50 |
+| RQ.S.03.3 | 1 infrastructure name in the log (deducts from 3) | 0 | 0.00 |
+| RQ.S.03.4 | 1 legacy name in the log | −10 | −2.50 |
+| RQ.S.03.5 | security.txt not published (for information) | — | — |
+| = RQ.S.03 | weight 0.25 | 50/70 | 12.50 |
+| RQ.S.04 | retail sector model | 65 | 16.25 |
+| RQ.S.04.1 | years the sector's data must stay secret | no data | — |
+| RQ.S.04.2 | years the sector takes to migrate | no data | — |
+| RQ.S.04.3 | Mosca margin | no data | — |
+| = RQ.S.04 | weight 0.25 | 65/100 | 16.25 |
+| RQ.S.05.1 | supports X25519MLKEM768 | 100 | 10.00 |
+| RQ.S.05.2 | chooses it by default (for information) | — | — |
+| RQ.S.05.3 | does not have it on every name that answers (for information) | — | — |
+| = RQ.S.05 | weight 0.10 | 100/100 | 10.00 |
+| = RQ.S.01 | sum of contributions |  | 68.75 → 69 |
+
+Highest reachable from outside: 83.75 → 84.
+Points per action: RSA-4096 or P-384 key +10.00.
 
 ## 03 Alerts
 | # | Level | Finding | Where |
@@ -827,7 +1091,7 @@ Publicación: privada. El dueño no ha activado su página pública.
 | ID | Indicador | Valor | Tipo |
 |---|---|---|---|
 | RQ.S.02 | Certificados y PKI | 75/100 | medido |
-| RQ.S.03 | Higiene de superficie | 60/100 | medido |
+| RQ.S.03 | Higiene de superficie | 60/70 | medido |
 | RQ.S.04 | Postura HNDL | 65/100 | modelo |
 | RQ.S.05 | PQC en el borde | 0/100 | medido |
 | RQ.S.06 | Correo post-cuántico | sin dato | no medido |
@@ -836,6 +1100,31 @@ Publicación: privada. El dueño no ha activado su página pública.
 | RQ.S.09 | Superficie expuesta | 4/4 sensibles responden | medido |
 
 medido: observado hoy por la sonda · modelo: valor del sector, no medido en el dominio · no medido nunca significa no protegido
+
+| ID | Regla | Dimensión | QEX |
+|---|---|---|---|
+| RQ.S.02.1 | RSA-2048 = mínimo vigente | 75 | 30,00 |
+| RQ.S.02.2 | vigencia: 82 días, hasta 2027-02-06 (informativo) | — | — |
+| RQ.S.02.3 | sin plan con fecha para certificado post-cuántico (informativo) | — | — |
+| = RQ.S.02 | peso 0,40 | 75/100 | 30,00 |
+| RQ.S.03 | base de la higiene (máximo 70) | 70 | 17,50 |
+| RQ.S.03.1 | TLS 1.3 en el sitio principal | 0 | 0,00 |
+| RQ.S.03.2 | 2 nombres no productivos en el registro | −10 | −2,50 |
+| RQ.S.03.3 | 2 nombres de infraestructura en el registro (resta desde 3) | 0 | 0,00 |
+| RQ.S.03.4 | sin nombres de legado en el registro | 0 | 0,00 |
+| RQ.S.03.5 | security.txt no publicado (informativo) | — | — |
+| = RQ.S.03 | peso 0,25 | 60/70 | 15,00 |
+| RQ.S.04 | modelo del sector fintech | 65 | 16,25 |
+| RQ.S.04.1 | años que el dato del sector debe seguir secreto | sin dato | — |
+| RQ.S.04.2 | años que toma migrar en el sector | sin dato | — |
+| RQ.S.04.3 | margen de Mosca | sin dato | — |
+| = RQ.S.04 | peso 0,25 | 65/100 | 16,25 |
+| RQ.S.05.1 | no soporta X25519MLKEM768 | 0 | 0,00 |
+| = RQ.S.05 | peso 0,10 | 0/100 | 0,00 |
+| = RQ.S.01 | suma de los aportes |  | 61,25 → 61 |
+
+Máximo alcanzable desde afuera: 83,75 → 84.
+Puntos por acción: llave RSA-4096 o P-384 +10,00; activar el híbrido +10,00.
 
 ## 03 Alertas
 | # | Nivel | Hallazgo | Dónde |
@@ -899,7 +1188,7 @@ Publication: private. The owner has not activated its public page.
 | ID | Indicator | Value | Type |
 |---|---|---|---|
 | RQ.S.02 | Certificates and PKI | 75/100 | measured |
-| RQ.S.03 | Surface hygiene | 60/100 | measured |
+| RQ.S.03 | Surface hygiene | 60/70 | measured |
 | RQ.S.04 | HNDL posture | 65/100 | model |
 | RQ.S.05 | PQC at the edge | 0/100 | measured |
 | RQ.S.06 | Post-quantum email | no data | not measured |
@@ -908,6 +1197,31 @@ Publication: private. The owner has not activated its public page.
 | RQ.S.09 | Exposed surface | 4/4 sensitive respond | measured |
 
 measured: observed today by the probe · model: sector value, not measured on the domain · not measured never means not protected
+
+| ID | Rule | Dimension | QEX |
+|---|---|---|---|
+| RQ.S.02.1 | RSA-2048 = current minimum | 75 | 30.00 |
+| RQ.S.02.2 | validity: 82 days, until 2027-02-06 (for information) | — | — |
+| RQ.S.02.3 | no dated plan for a post-quantum certificate (for information) | — | — |
+| = RQ.S.02 | weight 0.40 | 75/100 | 30.00 |
+| RQ.S.03 | hygiene base (maximum 70) | 70 | 17.50 |
+| RQ.S.03.1 | TLS 1.3 on the main site | 0 | 0.00 |
+| RQ.S.03.2 | 2 non-production names in the log | −10 | −2.50 |
+| RQ.S.03.3 | 2 infrastructure names in the log (deducts from 3) | 0 | 0.00 |
+| RQ.S.03.4 | no legacy names in the log | 0 | 0.00 |
+| RQ.S.03.5 | security.txt not published (for information) | — | — |
+| = RQ.S.03 | weight 0.25 | 60/70 | 15.00 |
+| RQ.S.04 | fintech sector model | 65 | 16.25 |
+| RQ.S.04.1 | years the sector's data must stay secret | no data | — |
+| RQ.S.04.2 | years the sector takes to migrate | no data | — |
+| RQ.S.04.3 | Mosca margin | no data | — |
+| = RQ.S.04 | weight 0.25 | 65/100 | 16.25 |
+| RQ.S.05.1 | does not support X25519MLKEM768 | 0 | 0.00 |
+| = RQ.S.05 | weight 0.10 | 0/100 | 0.00 |
+| = RQ.S.01 | sum of contributions |  | 61.25 → 61 |
+
+Highest reachable from outside: 83.75 → 84.
+Points per action: RSA-4096 or P-384 key +10.00; enable the hybrid +10.00.
 
 ## 03 Alerts
 | # | Level | Finding | Where |
@@ -971,7 +1285,7 @@ Publicación: privada. El dueño no ha activado su página pública.
 | ID | Indicador | Valor | Tipo |
 |---|---|---|---|
 | RQ.S.02 | Certificados y PKI | sin dato | no medido |
-| RQ.S.03 | Higiene de superficie | 70/100 | medido |
+| RQ.S.03 | Higiene de superficie | 70/70 | medido |
 | RQ.S.04 | Postura HNDL | 65/100 | modelo |
 | RQ.S.05 | PQC en el borde | 100/100 | medido |
 | RQ.S.06 | Correo post-cuántico | sin MX publicado | medido |
@@ -980,6 +1294,31 @@ Publicación: privada. El dueño no ha activado su página pública.
 | RQ.S.09 | Superficie expuesta | sin nombres sondeados | medido |
 
 medido: observado hoy por la sonda · modelo: valor del sector, no medido en el dominio · no medido nunca significa no protegido
+
+| ID | Regla | Dimensión | QEX |
+|---|---|---|---|
+| RQ.S.02.1 | certificado no leído | sin dato | — |
+| RQ.S.02.2 | certificado no leído (informativo) | — | — |
+| = RQ.S.02 | peso 0,40 | sin dato | — |
+| RQ.S.03 | base de la higiene (máximo 70) | 70 | 17,50 |
+| RQ.S.03.1 | TLS 1.3 en el sitio principal | 0 | 0,00 |
+| RQ.S.03.2 | sin nombres no productivos en el registro | 0 | 0,00 |
+| RQ.S.03.3 | 0 nombres de infraestructura en el registro (resta desde 3) | 0 | 0,00 |
+| RQ.S.03.4 | sin nombres de legado en el registro | 0 | 0,00 |
+| RQ.S.03.5 | security.txt no publicado (informativo) | — | — |
+| = RQ.S.03 | peso 0,25 | 70/70 | 17,50 |
+| RQ.S.04 | modelo del sector fintech | 65 | 16,25 |
+| RQ.S.04.1 | años que el dato del sector debe seguir secreto | sin dato | — |
+| RQ.S.04.2 | años que toma migrar en el sector | sin dato | — |
+| RQ.S.04.3 | margen de Mosca | sin dato | — |
+| = RQ.S.04 | peso 0,25 | 65/100 | 16,25 |
+| RQ.S.05.1 | soporta X25519MLKEM768 | 100 | 10,00 |
+| RQ.S.05.2 | lo elige por defecto (informativo) | — | — |
+| RQ.S.05.3 | lo tiene en todos los nombres que responden (informativo) | — | — |
+| = RQ.S.05 | peso 0,10 | 100/100 | 10,00 |
+| = RQ.S.01 | suma de los aportes sobre peso 0,60 |  | 43,75 / 0,60 → 73 |
+
+Máximo alcanzable desde afuera: 83,75 → 84.
 
 ## 03 Alertas
 Sin hallazgos.
@@ -1030,7 +1369,7 @@ Publication: private. The owner has not activated its public page.
 | ID | Indicator | Value | Type |
 |---|---|---|---|
 | RQ.S.02 | Certificates and PKI | no data | not measured |
-| RQ.S.03 | Surface hygiene | 70/100 | measured |
+| RQ.S.03 | Surface hygiene | 70/70 | measured |
 | RQ.S.04 | HNDL posture | 65/100 | model |
 | RQ.S.05 | PQC at the edge | 100/100 | measured |
 | RQ.S.06 | Post-quantum email | no MX published | measured |
@@ -1039,6 +1378,31 @@ Publication: private. The owner has not activated its public page.
 | RQ.S.09 | Exposed surface | no names probed | measured |
 
 measured: observed today by the probe · model: sector value, not measured on the domain · not measured never means not protected
+
+| ID | Rule | Dimension | QEX |
+|---|---|---|---|
+| RQ.S.02.1 | certificate not read | no data | — |
+| RQ.S.02.2 | certificate not read (for information) | — | — |
+| = RQ.S.02 | weight 0.40 | no data | — |
+| RQ.S.03 | hygiene base (maximum 70) | 70 | 17.50 |
+| RQ.S.03.1 | TLS 1.3 on the main site | 0 | 0.00 |
+| RQ.S.03.2 | no non-production names in the log | 0 | 0.00 |
+| RQ.S.03.3 | 0 infrastructure names in the log (deducts from 3) | 0 | 0.00 |
+| RQ.S.03.4 | no legacy names in the log | 0 | 0.00 |
+| RQ.S.03.5 | security.txt not published (for information) | — | — |
+| = RQ.S.03 | weight 0.25 | 70/70 | 17.50 |
+| RQ.S.04 | fintech sector model | 65 | 16.25 |
+| RQ.S.04.1 | years the sector's data must stay secret | no data | — |
+| RQ.S.04.2 | years the sector takes to migrate | no data | — |
+| RQ.S.04.3 | Mosca margin | no data | — |
+| = RQ.S.04 | weight 0.25 | 65/100 | 16.25 |
+| RQ.S.05.1 | supports X25519MLKEM768 | 100 | 10.00 |
+| RQ.S.05.2 | chooses it by default (for information) | — | — |
+| RQ.S.05.3 | has it on every name that answers (for information) | — | — |
+| = RQ.S.05 | weight 0.10 | 100/100 | 10.00 |
+| = RQ.S.01 | sum of contributions over weight 0.60 |  | 43.75 / 0.60 → 73 |
+
+Highest reachable from outside: 83.75 → 84.
 
 ## 03 Alerts
 No findings.

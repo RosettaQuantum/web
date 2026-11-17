@@ -15,7 +15,7 @@ Publication: public at https://rosettaquantum.com/verificado/ejemplo.cl
 | ID | Indicator | Value | Type |
 |---|---|---|---|
 | RQ.S.02 | Certificates and PKI | 75/100 | measured |
-| RQ.S.03 | Surface hygiene | 50/100 | measured |
+| RQ.S.03 | Surface hygiene | 50/70 | measured |
 | RQ.S.04 | HNDL posture | 12/100 | model |
 | RQ.S.05 | PQC at the edge | 100/100 | measured |
 | RQ.S.06 | Post-quantum email | 1/1 MX | measured |
@@ -24,6 +24,33 @@ Publication: public at https://rosettaquantum.com/verificado/ejemplo.cl
 | RQ.S.09 | Exposed surface | 2/5 sensitive respond | measured |
 
 measured: observed today by the probe · model: sector value, not measured on the domain · not measured never means not protected
+
+| ID | Rule | Dimension | QEX |
+|---|---|---|---|
+| RQ.S.02.1 | RSA-2048 = current minimum | 75 | 30.00 |
+| RQ.S.02.2 | validity: 94 days, until 2027-02-14 (for information) | — | — |
+| RQ.S.02.3 | no dated plan for a post-quantum certificate (for information) | — | — |
+| = RQ.S.02 | weight 0.40 | 75/100 | 30.00 |
+| RQ.S.03 | hygiene base (maximum 70) | 70 | 17.50 |
+| RQ.S.03.1 | TLS 1.3 on the main site | 0 | 0.00 |
+| RQ.S.03.2 | 3 non-production names in the log | −10 | −2.50 |
+| RQ.S.03.3 | 1 infrastructure name in the log (deducts from 3) | 0 | 0.00 |
+| RQ.S.03.4 | 1 legacy name in the log | −10 | −2.50 |
+| RQ.S.03.5 | security.txt published (for information) | — | — |
+| = RQ.S.03 | weight 0.25 | 50/70 | 12.50 |
+| RQ.S.04 | banking sector model | 12 | 3.00 |
+| RQ.S.04.1 | years the sector's data must stay secret | no data | — |
+| RQ.S.04.2 | years the sector takes to migrate | no data | — |
+| RQ.S.04.3 | Mosca margin | no data | — |
+| = RQ.S.04 | weight 0.25 | 12/100 | 3.00 |
+| RQ.S.05.1 | supports X25519MLKEM768 | 100 | 10.00 |
+| RQ.S.05.2 | chooses it by default (for information) | — | — |
+| RQ.S.05.3 | has it on every name that answers (for information) | — | — |
+| = RQ.S.05 | weight 0.10 | 100/100 | 10.00 |
+| = RQ.S.01 | sum of contributions |  | 55.50 → 56 |
+
+Highest reachable from outside: 70.50 → 70.
+Points per action: RSA-4096 or P-384 key +10.00.
 
 ## 03 Alerts
 | # | Level | Finding | Where |

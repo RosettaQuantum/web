@@ -373,7 +373,7 @@ await conMutante(new URL("lib/medicion-agentes.mjs", raiz), "if (verificado || !
 const p = sinVerif.presentacion;
 igual([p.protocolo, p.spec, p.idioma, p.instruccion_agente, Object.keys(p.ficha || {})],
   ["rosetta-ficha/1", "https://rosettaquantum.com/protocolo/ficha", "es", FICHA.es.instruccion_agente,
-    ["protocolo", "idioma", "dominio", "encabezado", "veredicto", "indicadores", "alertas", "acciones", "no_medido", "evidencia", "limites", "pie", "url_dominio"]],
+    ["protocolo", "idioma", "dominio", "encabezado", "veredicto", "indicadores", "puntos_qex", "alertas", "acciones", "no_medido", "evidencia", "limites", "pie", "url_dominio"]],
   "presentacion trae protocolo, spec, instrucción, idioma, markdown y el bloque ficha");
 igual(Fi.validarMarkdown(p.markdown), [], "la ficha de /v1/medicion cumple la sintaxis");
 igual(p.markdown.includes(`| A1 | GRAVE | Ambiente de pruebas expuesto | ${sStaging} |`), true, "la alerta A1 de la ficha es la misma que nota.alertas[0], enmascarada");

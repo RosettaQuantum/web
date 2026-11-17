@@ -15,7 +15,7 @@ Publicación: privada. El dueño no ha activado su página pública.
 | ID | Indicador | Valor | Tipo |
 |---|---|---|---|
 | RQ.S.02 | Certificados y PKI | sin dato | no medido |
-| RQ.S.03 | Higiene de superficie | 70/100 | medido |
+| RQ.S.03 | Higiene de superficie | 70/70 | medido |
 | RQ.S.04 | Postura HNDL | 65/100 | modelo |
 | RQ.S.05 | PQC en el borde | 100/100 | medido |
 | RQ.S.06 | Correo post-cuántico | sin MX publicado | medido |
@@ -24,6 +24,31 @@ Publicación: privada. El dueño no ha activado su página pública.
 | RQ.S.09 | Superficie expuesta | sin nombres sondeados | medido |
 
 medido: observado hoy por la sonda · modelo: valor del sector, no medido en el dominio · no medido nunca significa no protegido
+
+| ID | Regla | Dimensión | QEX |
+|---|---|---|---|
+| RQ.S.02.1 | certificado no leído | sin dato | — |
+| RQ.S.02.2 | certificado no leído (informativo) | — | — |
+| = RQ.S.02 | peso 0,40 | sin dato | — |
+| RQ.S.03 | base de la higiene (máximo 70) | 70 | 17,50 |
+| RQ.S.03.1 | TLS 1.3 en el sitio principal | 0 | 0,00 |
+| RQ.S.03.2 | sin nombres no productivos en el registro | 0 | 0,00 |
+| RQ.S.03.3 | 0 nombres de infraestructura en el registro (resta desde 3) | 0 | 0,00 |
+| RQ.S.03.4 | sin nombres de legado en el registro | 0 | 0,00 |
+| RQ.S.03.5 | security.txt no publicado (informativo) | — | — |
+| = RQ.S.03 | peso 0,25 | 70/70 | 17,50 |
+| RQ.S.04 | modelo del sector fintech | 65 | 16,25 |
+| RQ.S.04.1 | años que el dato del sector debe seguir secreto | sin dato | — |
+| RQ.S.04.2 | años que toma migrar en el sector | sin dato | — |
+| RQ.S.04.3 | margen de Mosca | sin dato | — |
+| = RQ.S.04 | peso 0,25 | 65/100 | 16,25 |
+| RQ.S.05.1 | soporta X25519MLKEM768 | 100 | 10,00 |
+| RQ.S.05.2 | lo elige por defecto (informativo) | — | — |
+| RQ.S.05.3 | lo tiene en todos los nombres que responden (informativo) | — | — |
+| = RQ.S.05 | peso 0,10 | 100/100 | 10,00 |
+| = RQ.S.01 | suma de los aportes sobre peso 0,60 |  | 43,75 / 0,60 → 73 |
+
+Máximo alcanzable desde afuera: 83,75 → 84.
 
 ## 03 Alertas
 Sin hallazgos.

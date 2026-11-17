@@ -15,7 +15,7 @@ Publicación: privada. El dueño no ha activado su página pública.
 | ID | Indicador | Valor | Tipo |
 |---|---|---|---|
 | RQ.S.02 | Certificados y PKI | 75/100 | medido |
-| RQ.S.03 | Higiene de superficie | 60/100 | medido |
+| RQ.S.03 | Higiene de superficie | 60/70 | medido |
 | RQ.S.04 | Postura HNDL | 65/100 | modelo |
 | RQ.S.05 | PQC en el borde | 0/100 | medido |
 | RQ.S.06 | Correo post-cuántico | sin dato | no medido |
@@ -24,6 +24,31 @@ Publicación: privada. El dueño no ha activado su página pública.
 | RQ.S.09 | Superficie expuesta | 4/4 sensibles responden | medido |
 
 medido: observado hoy por la sonda · modelo: valor del sector, no medido en el dominio · no medido nunca significa no protegido
+
+| ID | Regla | Dimensión | QEX |
+|---|---|---|---|
+| RQ.S.02.1 | RSA-2048 = mínimo vigente | 75 | 30,00 |
+| RQ.S.02.2 | vigencia: 82 días, hasta 2027-02-06 (informativo) | — | — |
+| RQ.S.02.3 | sin plan con fecha para certificado post-cuántico (informativo) | — | — |
+| = RQ.S.02 | peso 0,40 | 75/100 | 30,00 |
+| RQ.S.03 | base de la higiene (máximo 70) | 70 | 17,50 |
+| RQ.S.03.1 | TLS 1.3 en el sitio principal | 0 | 0,00 |
+| RQ.S.03.2 | 2 nombres no productivos en el registro | −10 | −2,50 |
+| RQ.S.03.3 | 2 nombres de infraestructura en el registro (resta desde 3) | 0 | 0,00 |
+| RQ.S.03.4 | sin nombres de legado en el registro | 0 | 0,00 |
+| RQ.S.03.5 | security.txt no publicado (informativo) | — | — |
+| = RQ.S.03 | peso 0,25 | 60/70 | 15,00 |
+| RQ.S.04 | modelo del sector fintech | 65 | 16,25 |
+| RQ.S.04.1 | años que el dato del sector debe seguir secreto | sin dato | — |
+| RQ.S.04.2 | años que toma migrar en el sector | sin dato | — |
+| RQ.S.04.3 | margen de Mosca | sin dato | — |
+| = RQ.S.04 | peso 0,25 | 65/100 | 16,25 |
+| RQ.S.05.1 | no soporta X25519MLKEM768 | 0 | 0,00 |
+| = RQ.S.05 | peso 0,10 | 0/100 | 0,00 |
+| = RQ.S.01 | suma de los aportes |  | 61,25 → 61 |
+
+Máximo alcanzable desde afuera: 83,75 → 84.
+Puntos por acción: llave RSA-4096 o P-384 +10,00; activar el híbrido +10,00.
 
 ## 03 Alertas
 | # | Nivel | Hallazgo | Dónde |

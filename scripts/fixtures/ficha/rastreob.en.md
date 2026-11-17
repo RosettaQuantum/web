@@ -15,7 +15,7 @@ Publication: private. The owner has not activated its public page.
 | ID | Indicator | Value | Type |
 |---|---|---|---|
 | RQ.S.02 | Certificates and PKI | no data | not measured |
-| RQ.S.03 | Surface hygiene | 70/100 | measured |
+| RQ.S.03 | Surface hygiene | 70/70 | measured |
 | RQ.S.04 | HNDL posture | 65/100 | model |
 | RQ.S.05 | PQC at the edge | 100/100 | measured |
 | RQ.S.06 | Post-quantum email | no MX published | measured |
@@ -24,6 +24,31 @@ Publication: private. The owner has not activated its public page.
 | RQ.S.09 | Exposed surface | no names probed | measured |
 
 measured: observed today by the probe · model: sector value, not measured on the domain · not measured never means not protected
+
+| ID | Rule | Dimension | QEX |
+|---|---|---|---|
+| RQ.S.02.1 | certificate not read | no data | — |
+| RQ.S.02.2 | certificate not read (for information) | — | — |
+| = RQ.S.02 | weight 0.40 | no data | — |
+| RQ.S.03 | hygiene base (maximum 70) | 70 | 17.50 |
+| RQ.S.03.1 | TLS 1.3 on the main site | 0 | 0.00 |
+| RQ.S.03.2 | no non-production names in the log | 0 | 0.00 |
+| RQ.S.03.3 | 0 infrastructure names in the log (deducts from 3) | 0 | 0.00 |
+| RQ.S.03.4 | no legacy names in the log | 0 | 0.00 |
+| RQ.S.03.5 | security.txt not published (for information) | — | — |
+| = RQ.S.03 | weight 0.25 | 70/70 | 17.50 |
+| RQ.S.04 | fintech sector model | 65 | 16.25 |
+| RQ.S.04.1 | years the sector's data must stay secret | no data | — |
+| RQ.S.04.2 | years the sector takes to migrate | no data | — |
+| RQ.S.04.3 | Mosca margin | no data | — |
+| = RQ.S.04 | weight 0.25 | 65/100 | 16.25 |
+| RQ.S.05.1 | supports X25519MLKEM768 | 100 | 10.00 |
+| RQ.S.05.2 | chooses it by default (for information) | — | — |
+| RQ.S.05.3 | has it on every name that answers (for information) | — | — |
+| = RQ.S.05 | weight 0.10 | 100/100 | 10.00 |
+| = RQ.S.01 | sum of contributions over weight 0.60 |  | 43.75 / 0.60 → 73 |
+
+Highest reachable from outside: 83.75 → 84.
 
 ## 03 Alerts
 No findings.
