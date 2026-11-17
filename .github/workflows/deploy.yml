@@ -31,19 +31,6 @@ jobs:
         with:
           fetch-depth: 0
 
-      # Los chequeos contra producción reintentan un GET cuando la RED se corta (ECONNRESET desde el
-      # runner); un HTTP malo sigue fallando. Ver scripts/lib/fetch-reintento.mjs. Va DESPUÉS del
-      # checkout y por GITHUB_ENV: como env del job, Node lo cargaba en el propio checkout, antes de
-      # que el archivo existiera, y el deploy murió en el paso 1 (13-nov-2026). Ruta absoluta para
-      # que valga en cualquier working-directory.
-      - name: Reintento de red para los chequeos
-        run: echo "NODE_OPTIONS=--import $GITHUB_WORKSPACE/scripts/lib/fetch-reintento.mjs" >> "$GITHUB_ENV"
-
-      # Que el reintento ESTÉ activo se comprueba, no se supone: el 16-nov un ECONNRESET tumbó un
-      # chequeo sin ningún reintento visible. Si no carga, el deploy lo dice aquí y no en un rojo raro.
-      - name: El reintento de red está activo
-        run: node -e "if (!globalThis.fetch.__reintento) { console.error('fetch-reintento NO cargó'); process.exit(1) } console.log('fetch-reintento activo')"
-
       # El guardia preventivo, en el unico lugar donde no se puede saltear.
       - name: Solo main publica
         env:
@@ -57,6 +44,25 @@ jobs:
         with:
           node-version: 22
           cache: npm
+
+      # Los chequeos contra producción reintentan un GET cuando la RED se corta (ECONNRESET desde el
+      # runner); un HTTP malo sigue fallando. Ver scripts/lib/fetch-reintento.mjs.
+      # 17-nov-2026: GitHub NO deja fijar NODE_OPTIONS por GITHUB_ENV («Can't store NODE_OPTIONS»),
+      # así que el reintento nunca estuvo activo y el paso que lo «activaba» daba verde igual. Ahora
+      # un `node` envoltorio va primero en el PATH (después de setup-node, que también lo antepone):
+      # todo `node`, `npm` y `npx` de los pasos siguientes carga el reintento. Una sola definición.
+      - name: Reintento de red para los chequeos
+        run: |
+          mkdir -p "$RUNNER_TEMP/rq-bin"
+          REAL="$(command -v node)"
+          printf '#!/bin/sh\nexec "%s" --import "%s/scripts/lib/fetch-reintento.mjs" "$@"\n' "$REAL" "$GITHUB_WORKSPACE" > "$RUNNER_TEMP/rq-bin/node"
+          chmod +x "$RUNNER_TEMP/rq-bin/node"
+          echo "$RUNNER_TEMP/rq-bin" >> "$GITHUB_PATH"
+
+      # Que el reintento ESTÉ activo se comprueba, no se supone: si no carga, el deploy lo dice aquí y
+      # no en un rojo raro más abajo.
+      - name: El reintento de red está activo
+        run: node -e "if (!globalThis.fetch.__reintento) { console.error('fetch-reintento NO cargó'); process.exit(1) } console.log('fetch-reintento activo')"
 
       - name: Install
         run: npm ci
