@@ -17,6 +17,7 @@ const raiz = new URL("../", import.meta.url);
 // («a el» → «al»). Lo demás de esta vuelta no es texto: el generador mostraba «undefined» y «NaN».
 const NUEVO = [];
 const CAMBIA = [/^accion\.baja_legado$/];
+NUEVO.push(/^accion\.retirar_ambientes_publicados$/);
 // Los datos de ejemplo con que se muestra cada función. EL DEFECTO (17-nov): este generador llamaba a
 // cada función con marcadores de texto, y a las que llevan singular/plural con un solo argumento; así
 // `referencia` salía «mediana 1 undefined (undefined orgs…) undefined está NaN puntos» y `correo_mx`
@@ -52,7 +53,8 @@ function volcar(obj, pre = "") {
 }
 p("# rosetta-ficha/1 · textos provisorios para aprobar", "",
   "Generado por `node scripts/textos-ficha.mjs` desde el código (public/js/qready-textos.mjs, src/pages/llms.txt.ts). Lo que se apruebe aquí es literalmente lo que se sirve.",
-  "", "**Estado (17-nov): APROBADO por Nicholas** (textos y QREADY-NOTA-2.1), con tres arreglos: (1) este documento mostraba «undefined» y «NaN» en `referencia` y `no_medido.correo_mx` (defecto del generador, no de la ficha: ahora se muestran con datos de ejemplo); (2) `accion.baja_legado` decía «a el nombre» (**CAMBIA**); (3) un guardia falla si una ficha renderizada (es/en, markdown y HTML) o este documento dicen «undefined», «NaN» o «null».", "",
+  "", "**Estado (17-nov): APROBADO por Nicholas** (textos y QREADY-NOTA-2.1), con tres arreglos: (1) este documento mostraba «undefined» y «NaN» en `referencia` y `no_medido.correo_mx` (defecto del generador, no de la ficha: ahora se muestran con datos de ejemplo); (2) `accion.baja_legado` decía «a el nombre» (**CAMBIA**); (3) un guardia falla si una ficha renderizada (es/en, markdown y HTML) o este documento dicen «undefined», «NaN» o «null».",
+  "", `**Integrado de main (7786413, PROVISORIO allá):** la alerta \`ambiente_pruebas_publicado\` («${textos("es").alerta.ambiente_pruebas_publicado}» / «${textos("en").alerta.ambiente_pruebas_publicado}»), media con techo B, y su acción \`retirar_ambientes_publicados\` (**NUEVO**, mismo texto que la del ambiente bloqueado).`, "",
   "Reusados sin cambio (ya aprobados): los nombres de las alertas (`TXT.alerta`) y la lectura de cada letra (`TXT.nota_lectura`). El encabezado, el pie y las líneas fijas de «No medido», «Evidencia» y «Límites» vienen del ejemplo canónico del encargo del 13-nov.", "");
 for (const lang of ["es", "en"]) { p(`## Ficha · ${lang}`, ""); volcar(FICHA[lang]); p(""); }
 p("## Nota Q-Ready · texto nuevo de QREADY-NOTA-2.1 (pendiente)", "");

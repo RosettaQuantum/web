@@ -200,6 +200,18 @@ await conMutante(new URL("public/js/ficha.mjs", raiz), '...x.graves.map((a) => (
   igual(fi.indicadores["RQ.S.00"].metodo, N.VERSION_NOTA, "RQ.S.00: metodo = versión de la nota");
 }
 
+// ---------------------------------------------------------------- 2a'' · «publicado» sin GET (main 7786413): alerta MEDIA, acción y lectura
+{
+  const fx = fixture("f"), fP = clon(fx.foto);
+  Object.assign(fP.endpoints.find((e) => e.host.startsWith("staging.")), { http_status: null, http_consultado: false });
+  const x = N.explicarNota(fP), fi = Fi.armarFicha(fP, fx.ctx);
+  igual([x.nota, fi.alertas.filter((a) => a.codigo === "ambiente_pruebas_publicado").map((a) => a.nivel)], ["B", ["MEDIA"]], "sin GET: el ambiente de pruebas que saluda es MEDIA (techo B), no F");
+  const h = fi.acciones.find((a) => a.codigo === "retirar_ambientes_publicados");
+  igual([!!h, h && /^Retirar de internet s•••#?[0-9a-f]*\.ejemplo\.com\.py$/.test(h.accion)], [true, true], "tiene su acción, con el nombre enmascarado");
+  igual(fi.veredicto.lectura.includes("tiene un ambiente de pruebas publicado"), true, "la lectura dice la causa del techo");
+  igual([vacios(Fi.markdownDe(fi)), Fi.validarMarkdown(Fi.markdownDe(fi))], [[], []], "la ficha es válida y sin vacíos");
+}
+
 // ---------------------------------------------------------------- 2b · nivel ALTA y la lectura por motivo
 {
   const { foto, ctx } = fixture("f");

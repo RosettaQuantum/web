@@ -4,6 +4,8 @@ Generado por `node scripts/textos-ficha.mjs` desde el código (public/js/qready-
 
 **Estado (17-nov): APROBADO por Nicholas** (textos y QREADY-NOTA-2.1), con tres arreglos: (1) este documento mostraba «undefined» y «NaN» en `referencia` y `no_medido.correo_mx` (defecto del generador, no de la ficha: ahora se muestran con datos de ejemplo); (2) `accion.baja_legado` decía «a el nombre» (**CAMBIA**); (3) un guardia falla si una ficha renderizada (es/en, markdown y HTML) o este documento dicen «undefined», «NaN» o «null».
 
+**Integrado de main (7786413, PROVISORIO allá):** la alerta `ambiente_pruebas_publicado` («Ambiente de pruebas publicado en internet» / «Test environment published on the internet»), media con techo B, y su acción `retirar_ambientes_publicados` (**NUEVO**, mismo texto que la del ambiente bloqueado).
+
 Reusados sin cambio (ya aprobados): los nombres de las alertas (`TXT.alerta`) y la lectura de cada letra (`TXT.nota_lectura`). El encabezado, el pie y las líneas fijas de «No medido», «Evidencia» y «Límites» vienen del ejemplo canónico del encargo del 13-nov.
 
 ## Ficha · es
@@ -112,6 +114,7 @@ Reusados sin cambio (ya aprobados): los nombres de las alertas (`TXT.alerta`) y 
 - `accion.hibrido_en_principal`: Activar X25519MLKEM768 en ‹2›
 - `accion.cerrar_infraestructura`: Cerrar o restringir por IP ‹2› / Cerrar o restringir por IP el nombre de infraestructura que responde / Cerrar o restringir por IP los ‹1› nombres de infraestructura que responden
 - `accion.retirar_ambientes_bloqueados`: Retirar de internet ‹2› / Retirar de internet el ambiente de pruebas publicado / Retirar de internet los ‹1› ambientes de prueba publicados
+- **NUEVO** `accion.retirar_ambientes_publicados`: Retirar de internet ‹2› / Retirar de internet el ambiente de pruebas publicado / Retirar de internet los ‹1› ambientes de prueba publicados
 - **CAMBIA** `accion.baja_legado`: Dar de baja o asignar dueño a ‹2› / Dar de baja o asignar dueño al nombre de legado / Dar de baja o asignar dueño a los ‹1› nombres de legado
 - `accion.correo_fuera_de_443`: Cerrar el puerto 443 en ‹2› / Cerrar el puerto 443 en el servicio de correo / Cerrar el puerto 443 en los ‹1› servicios de correo
 - `accion.hibrido_en_nombres`: Activar X25519MLKEM768 en ‹2› / Activar X25519MLKEM768 en el nombre que responde sin él / Activar X25519MLKEM768 en los ‹1› nombres que responden sin él
@@ -253,6 +256,7 @@ Reusados sin cambio (ya aprobados): los nombres de las alertas (`TXT.alerta`) y 
 - `accion.hibrido_en_principal`: Enable X25519MLKEM768 on ‹2›
 - `accion.cerrar_infraestructura`: Close or IP-restrict ‹2› / Close or IP-restrict the infrastructure name that answers / Close or IP-restrict the ‹1› infrastructure names that answer
 - `accion.retirar_ambientes_bloqueados`: Take ‹2› off the internet / Take the published test environment off the internet / Take the ‹1› published test environments off the internet
+- **NUEVO** `accion.retirar_ambientes_publicados`: Take ‹2› off the internet / Take the published test environment off the internet / Take the ‹1› published test environments off the internet
 - **CAMBIA** `accion.baja_legado`: Retire ‹2› or assign it an owner / Retire the legacy name or assign it an owner / Retire the ‹1› legacy names or assign them an owner
 - `accion.correo_fuera_de_443`: Close port 443 on ‹2› / Close port 443 on the mail service / Close port 443 on the ‹1› mail services
 - `accion.hibrido_en_nombres`: Enable X25519MLKEM768 on ‹2› / Enable X25519MLKEM768 on the name that answers without it / Enable X25519MLKEM768 on the ‹1› names that answer without it

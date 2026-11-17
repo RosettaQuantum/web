@@ -162,6 +162,9 @@ const PASOS = [
   { codigo: "hibrido_en_principal", si: (x) => x.hechos.principal_hibrido === false, resuelve: ["RQ.S.05"], arreglar: (f) => { f.borde.soporta = true; } },
   { codigo: "cerrar_infraestructura", alerta: "infraestructura_expuesta", arreglar: apagar },
   { codigo: "retirar_ambientes_bloqueados", alerta: "ambiente_pruebas_publicado_bloqueado", arreglar: apagar },
+  // (17-nov, main 7786413) sin dueño verificado no se pide la raíz: el ambiente de pruebas que saluda es
+  // «publicado» (media, techo B). La acción es la misma: sacarlo de internet.
+  { codigo: "retirar_ambientes_publicados", alerta: "ambiente_pruebas_publicado", arreglar: apagar },
   { codigo: "baja_legado", alerta: "nombre_sin_dueno", arreglar: apagar },
   { codigo: "correo_fuera_de_443", alerta: "correo_responde_443", arreglar: apagar },
   // los nombres que SIGUEN respondiendo sin evidencia del candado nuevo, después de los pasos de arriba
