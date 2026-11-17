@@ -21,7 +21,12 @@
     // lista Cloudflare los sirve tal cual y el codigo que inyecta el archivador
     // desde D1 no llega a ejecutarse nunca. Misma trampa que costo dos deploys
     // con el indice de la Biblioteca.
-    "run_worker_first": ["/", "/blog", "/blog/*", "/es/blog", "/es/blog/", "/llms.txt", "/rss.xml", "/sitemap-0.xml", "/v1", "/v1/*", "/mcp", "/og/*", "/sello/*", "/verificado/*", "/es/verificado/*", "/.well-known/q-ready", "/.well-known/q-ready-keys.json"]
+    //
+    // /guia/* y /guide/* (17-nov-2026): la pagina de la guia PQC no existe como archivo y
+    // caeria al Worker igual, pero sus PDF SI van a existir en public/ — y un PDF de una guia
+    // con published=0 no se sirve. Sin estas dos entradas, el dia que lleguen los archivos
+    // Cloudflare los serviria directo y la compuerta de lib/guia.mjs no correria nunca.
+    "run_worker_first": ["/", "/blog", "/blog/*", "/es/blog", "/es/blog/", "/llms.txt", "/rss.xml", "/sitemap-0.xml", "/v1", "/v1/*", "/mcp", "/og/*", "/sello/*", "/verificado/*", "/es/verificado/*", "/.well-known/q-ready", "/.well-known/q-ready-keys.json", "/guia/*", "/guide/*"]
   },
   // La tarjeta social por nota (/og/<id>.png) se rasteriza DENTRO del Worker con
   // resvg-wasm, porque aqui no hay Chrome y las notas se publican por INSERT sin
@@ -77,7 +82,7 @@
       "assets": {
         "binding": "ASSETS",
         "directory": "./dist",
-        "run_worker_first": ["/", "/blog", "/blog/*", "/es/blog", "/es/blog/", "/llms.txt", "/rss.xml", "/sitemap-0.xml", "/v1", "/v1/*", "/mcp", "/og/*", "/sello/*", "/verificado/*", "/es/verificado/*", "/.well-known/q-ready", "/.well-known/q-ready-keys.json"]
+        "run_worker_first": ["/", "/blog", "/blog/*", "/es/blog", "/es/blog/", "/llms.txt", "/rss.xml", "/sitemap-0.xml", "/v1", "/v1/*", "/mcp", "/og/*", "/sello/*", "/verificado/*", "/es/verificado/*", "/.well-known/q-ready", "/.well-known/q-ready-keys.json", "/guia/*", "/guide/*"]
       },
       "d1_databases": [
         { "binding": "DB", "database_name": "rosettaq-ledger", "database_id": "f0919403-5bd0-4842-a1d3-0954fdd47633" }
@@ -90,7 +95,12 @@
       // Modo de prueba del DNS de Q-Ready Verified: SÓLO aquí. Simula el TXT con una columna y escribe
       // con entorno 'preview-prueba', que producción no lee (lib/qready-verificado.mjs → modoPrueba).
       // scripts/check-qready-verificado.mjs grita si esta variable aparece fuera de env.preview.
-      "vars": { "QREADY_PRUEBA_DNS": "1" }
+      //
+      // Modo de prueba de la guia PQC: SOLO aqui. Sirve el borrador de `pages` aunque published=0
+      // (con no-store y noindex) y enciende el pop-up sin tocar el flag de D1 (lib/guia.mjs →
+      // modoPruebaGuia, que ademas exige host *.workers.dev). scripts/check-guia.mjs grita si
+      // esta variable aparece fuera de env.preview.
+      "vars": { "QREADY_PRUEBA_DNS": "1", "GUIA_PRUEBA": "1" }
     }
   }
 }
