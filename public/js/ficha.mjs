@@ -131,6 +131,23 @@ export function nombrador(dominio, verificado, hosts = []) {
 export const nombradorDeFoto = (foto, verificado) => nombrador(foto.dominio, verificado,
   [...(foto.ct?.hosts || []).map((h) => h.host), ...(foto.endpoints || []).map((e) => e.host)]);
 export const vistaHost = (dominio, verificado) => nombrador(dominio, verificado);
+// Los endpoints con cada nombre escrito por `ver` (el nombrador): el host y, si lo repite, el CNAME.
+export const enmascararEndpoints = (endpoints, ver) => endpoints.map((e) => ({ ...e, host: ver(e.host),
+  cname: Array.isArray(e.cname) ? e.cname.map((c) => (e.host && String(c).toLowerCase().includes(e.host) ? String(c).toLowerCase().split(e.host).join(ver(e.host)) : c)) : e.cname }));
+
+// /api/sondas CERRADO (17-nov-2026): a quien no es dueño verificado le devuelve cada nombre enmascarado
+// y su posición `i` en la lista que pidió. La página pidió esos nombres (salen del registro público) y
+// los vuelve a poner con reasociar(), así su foto, su huella, la comparación y el PDF siguen con los
+// nombres completos que ella ya tenía. FALLA CERRADO: si la respuesta viene enmascarada y algún nombre
+// no trae su posición, se lanza; una foto con nombres enmascarados daría otra nota sin avisar.
+export function reasociar(endpoints, pedidos, enmascarados) {
+  return (endpoints || []).map((e) => {
+    if (!enmascarados) return e;
+    if (!Number.isInteger(e.i) || typeof pedidos[e.i] !== "string") throw new Error("la respuesta de las sondas no trae la posición de un nombre");
+    const { i, ...resto } = e;
+    return { ...resto, host: pedidos[i] };
+  });
+}
 
 // ---------------------------------------------------------------- ajuste 1 · alertas, acciones y no medido
 const clon = (x) => JSON.parse(JSON.stringify(x));

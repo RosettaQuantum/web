@@ -365,7 +365,7 @@ export const FICHA = {
       hibrido_en_principal: (n, h) => `Activar X25519MLKEM768 en ${h || "el sitio principal"}`,
       cerrar_infraestructura: (n, h) => (n === 1 ? `Cerrar o restringir por IP ${h || "el nombre de infraestructura que responde"}` : `Cerrar o restringir por IP los ${n} nombres de infraestructura que responden`),
       retirar_ambientes_bloqueados: (n, h) => (n === 1 ? `Retirar de internet ${h || "el ambiente de pruebas publicado"}` : `Retirar de internet los ${n} ambientes de prueba publicados`),
-      baja_legado: (n, h) => (n === 1 ? `Dar de baja o asignar dueño a ${h || "el nombre de legado"}` : `Dar de baja o asignar dueño a los ${n} nombres de legado`),
+      baja_legado: (n, h) => (n === 1 ? (h ? `Dar de baja o asignar dueño a ${h}` : "Dar de baja o asignar dueño al nombre de legado") : `Dar de baja o asignar dueño a los ${n} nombres de legado`),
       correo_fuera_de_443: (n, h) => (n === 1 ? `Cerrar el puerto 443 en ${h || "el servicio de correo"}` : `Cerrar el puerto 443 en los ${n} servicios de correo`),
       hibrido_en_nombres: (n, h) => (n === 1 ? `Activar X25519MLKEM768 en ${h || "el nombre que responde sin él"}` : `Activar X25519MLKEM768 en los ${n} nombres que responden sin él`),
       plan_certificado_pq: () => "Plan con fecha para certificado post-cuántico",

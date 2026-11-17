@@ -8,33 +8,51 @@
  * Las funciones se muestran con marcadores ‹1›, ‹2›… donde va el dato.
  */
 import { readFileSync } from "node:fs";
+import { pathToFileURL } from "node:url";
 import { FICHA, FICHA_SPEC, textos } from "../public/js/qready-textos.mjs";
 import { armarFicha, markdownDe } from "../public/js/ficha.mjs";
 
 const raiz = new URL("../", import.meta.url);
-// Lo de la TERCERA vuelta (16-nov: homologar con la ficha aprobada de yu-track, B1/QREADY-NOTA-2.1,
-// RQ.S.13 y la versión de método): **NUEVO** lo que no existía, **CAMBIA** lo que se reescribió.
-const NUEVO = [/^kicker$/, /^desde_afuera$/, /^escala$/, /^tope_externo$/, /^leyenda$/, /^nombres_ct$/, /^no_medido\.(hndl|dimension|correo_mx)$/,
-  /^evidencia\.versiones$/, /^limites\.hacia_a$/, /^lectura_motivo\.sin_dimension\./, /^indicador\.RQ\.S\.13$/, /^catalogo\[1[0-3]\]$/, /^reglas\[10\]$/];
-const CAMBIA = [/^sector\./, /^col\.efecto$/, /^vigencia/, /^superficie$/, /^referencia$/, /^efecto_no$/, /^accion\./, /^no_medido\.nunca$/,
-  /^evidencia\.(huella_ct|metodo)$/, /^pie$/, /^bloque$/, /^catalogo_nota$/, /^catalogo\[9\]$/];
+// CUARTA vuelta (17-nov): aprobado por Nicholas con tres arreglos. Sólo cambia `accion.baja_legado`
+// («a el» → «al»). Lo demás de esta vuelta no es texto: el generador mostraba «undefined» y «NaN».
+const NUEVO = [];
+const CAMBIA = [/^accion\.baja_legado$/];
+// Los datos de ejemplo con que se muestra cada función. EL DEFECTO (17-nov): este generador llamaba a
+// cada función con marcadores de texto, y a las que llevan singular/plural con un solo argumento; así
+// `referencia` salía «mediana 1 undefined (undefined orgs…) undefined está NaN puntos» y `correo_mx`
+// «de los undefined servidores». No pasaba en ninguna ficha real (las 5 fotos fijas y las mediciones del
+// preview salen limpias), pero el documento que se aprueba tiene que mostrar lo que se sirve.
+// Con argumentos de ejemplo explícitos donde hay aritmética, y el resto: singular (1) y plural (‹1›),
+// con TODOS sus argumentos.
+const EJEMPLOS = {
+  referencia: [["fintech", 71, 15, "2026-08", "ejemplo.cl", -10], ["fintech", 71, 15, "2026-08", "ejemplo.cl", 0], ["fintech", 71, 15, "2026-08", "ejemplo.cl", 1]],
+  correo_mx: [[1, 5], [2, 5]],
+};
+const marcadores = (n, desde = 1) => Array.from({ length: n }, (_, i) => `‹${i + desde}›`);
+function val(v, clave) {
+  if (typeof v !== "function") return v;
+  const corta = clave.split(".").pop();
+  if (EJEMPLOS[corta]) return EJEMPLOS[corta].map((a) => v(...a)).join(" / ");
+  const n = Math.max(v.length, 1);
+  if (!/=== 1/.test(String(v))) return v(...marcadores(n));
+  // singular con el dato, singular sin él (p. ej. una acción sin nombre) y plural
+  const formas = [v(1, ...marcadores(n - 1, 2)), ...(n > 1 ? [v(1)] : []), v(...marcadores(n))];
+  return [...new Set(formas)].join(" / ");
+}
+const marca = (clave) => (NUEVO.some((r) => r.test(clave)) ? "**NUEVO** " : CAMBIA.some((r) => r.test(clave)) ? "**CAMBIA** " : "");
+export function generarTextos() {
 const out = [];
 const p = (...l) => out.push(...l);
-// Una función con singular y plural se muestra con las dos formas: «uno / ‹1› varios».
-const val = (v) => (typeof v !== "function" ? v
-  : /=== 1/.test(String(v)) ? `${v(1)} / ${v("‹1›")}` : v(...Array.from({ length: v.length || 1 }, (_, i) => `‹${i + 1}›`)));
-const marca = (clave) => (NUEVO.some((r) => r.test(clave)) ? "**NUEVO** " : CAMBIA.some((r) => r.test(clave)) ? "**CAMBIA** " : "");
 function volcar(obj, pre = "") {
   for (const [k, v] of Object.entries(obj)) {
     if (v && typeof v === "object" && !Array.isArray(v)) volcar(v, `${pre}${k}.`);
-    else if (Array.isArray(v)) v.forEach((x, i) => p(`- ${marca(`${pre}${k}[${i}]`)}\`${pre}${k}[${i}]\`: ${Array.isArray(x) ? x.join(" · ") : val(x)}`));
-    else p(`- ${marca(pre + k)}\`${pre}${k}\`: ${val(v)}`);
+    else if (Array.isArray(v)) v.forEach((x, i) => p(`- ${marca(`${pre}${k}[${i}]`)}\`${pre}${k}[${i}]\`: ${Array.isArray(x) ? x.join(" · ") : val(x, `${pre}${k}`)}`));
+    else p(`- ${marca(pre + k)}\`${pre}${k}\`: ${val(v, pre + k)}`);
   }
 }
 p("# rosetta-ficha/1 · textos provisorios para aprobar", "",
   "Generado por `node scripts/textos-ficha.mjs` desde el código (public/js/qready-textos.mjs, src/pages/llms.txt.ts). Lo que se apruebe aquí es literalmente lo que se sirve.",
-  "", "**Tercera vuelta (16-nov): homologación con la ficha aprobada (yu-track).** Marcado **NUEVO** o **CAMBIA** abajo (sólo lo de esta vuelta). Además, visible sin texto nuevo: (1) las secciones se numeran 01..07; (2) la web de medición abre con la ficha completa, la página /verificado muestra 01 y 02, y el PDF del informe ES la ficha (mismo HTML); (3) «Dónde» y las acciones de un solo nombre muestran el nombre completo (enmascarado si no está verificado); (4) el pie ya no lleva la URL (va en 07); (5) en HTML y PDF el efecto se pinta «→ B», en el markdown sigue «-> B».",
-  "", "**PENDIENTE DE APROBACIÓN (regla, no texto): QREADY-NOTA-2.1.** Si falta una dimensión de peso ≥ 0,25 (Certificados y PKI 0,40; Higiene 0,25; HNDL 0,25), la nota no puede ser A: máximo B, con la causa en la lectura, y la dimensión va en no_evaluado y en «qué falta para A». Caso real: yutrack.com salía A con Certificados y PKI sin medir. Texto nuevo de la regla: `falta.dimension_sin_medir` (abajo) y `no_medido.dimension` / `lectura_motivo.sin_dimension`.", "",
+  "", "**Estado (17-nov): APROBADO por Nicholas** (textos y QREADY-NOTA-2.1), con tres arreglos: (1) este documento mostraba «undefined» y «NaN» en `referencia` y `no_medido.correo_mx` (defecto del generador, no de la ficha: ahora se muestran con datos de ejemplo); (2) `accion.baja_legado` decía «a el nombre» (**CAMBIA**); (3) un guardia falla si una ficha renderizada (es/en, markdown y HTML) o este documento dicen «undefined», «NaN» o «null».", "",
   "Reusados sin cambio (ya aprobados): los nombres de las alertas (`TXT.alerta`) y la lectura de cada letra (`TXT.nota_lectura`). El encabezado, el pie y las líneas fijas de «No medido», «Evidencia» y «Límites» vienen del ejemplo canónico del encargo del 13-nov.", "");
 for (const lang of ["es", "en"]) { p(`## Ficha · ${lang}`, ""); volcar(FICHA[lang]); p(""); }
 p("## Nota Q-Ready · texto nuevo de QREADY-NOTA-2.1 (pendiente)", "");
@@ -52,4 +70,6 @@ for (const c of ["a", "f", "sin-correo", "rastreo", "rastreob"]) for (const lang
   const fx = JSON.parse(readFileSync(new URL(`scripts/fixtures/ficha/${c}.json`, raiz), "utf8"));
   p(`## Ejemplo · ${c} · ${lang}`, "", "```markdown", markdownDe(armarFicha(fx.foto, { ...fx.ctx, idioma: lang })).trimEnd(), "```", "");
 }
-process.stdout.write(out.join("\n") + "\n");
+return out.join("\n") + "\n";
+}
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) process.stdout.write(generarTextos());

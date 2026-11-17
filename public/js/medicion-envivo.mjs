@@ -18,7 +18,7 @@ import { textos } from "./qready-textos.mjs";
 // Los nombres se PINTAN enmascarados salvo que el dueño haya verificado el dominio (16-nov-2026): la
 // misma regla y el mismo sufijo #xx que la API y la ficha (public/js/ficha.mjs → nombrador). La foto, su
 // huella y lo que se descarga no cambian: es sólo cómo se escribe cada nombre en pantalla.
-import { nombrador, armarFicha, htmlDe, CSS_FICHA } from "./ficha.mjs";
+import { nombrador, armarFicha, htmlDe, CSS_FICHA, reasociar } from "./ficha.mjs";
 let nombre = (h) => h;
 let ctIntentos = [];
 // La ficha rosetta-ficha/1 (16-nov-2026): el resultado empieza con la MISMA ficha que reciben los agentes
@@ -330,6 +330,9 @@ form.addEventListener("submit", async (e) => {
     const r = await fetch("/api/sondas", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ dominio, www, sensibles: pedidos }) });
     s = await r.json().catch(() => ({}));
     if (!r.ok || !s.ok) throw new Error(s.error || `el servicio respondió ${r.status}`);
+    // /api/sondas enmascara los nombres a quien no es dueño verificado; la página pidió esos nombres
+    // (del registro público) y los vuelve a poner por posición para SU foto. Lo que pinta va enmascarado.
+    s.endpoints = reasociar(s.endpoints, pedidos, s.nombres_enmascarados === true);
   } catch (err) {
     traza(t(`no pudimos medir: ${esc(err.message)}`, `we could not measure: ${esc(traz(err.message))}`), "mv-t-mal");
     ["end", "borde", "cert", "prov"].forEach((k) => riel(k, "mal"));

@@ -81,6 +81,39 @@ igual(render(Fi, "a", "es").includes("| legacy.ejemplo.cl |"), true, "el caso A 
 igual(render(Fi, "rastreo", "es").includes("| A2 | ALTA | Infraestructura sensible que responde |"), true, "el caso real de la ficha aprobada trae su ALTA");
 igual(render(Fi, "sin-correo", "es").includes("| RQ.S.06 | Correo post-cuántico | sin MX publicado | medido |"), true, "sin MX publicado es una medición, no un «sin dato»");
 
+// Ningún texto renderizado dice «undefined», «NaN» ni «null» (17-nov-2026). EL DEFECTO: el documento que
+// aprobó el dueño mostraba «mediana 1 undefined (undefined orgs…) undefined está NaN puntos» y «de los
+// undefined servidores»: una función de texto llamada con argumentos de menos. Se revisa cada ficha
+// (es/en; markdown, HTML de la página y HTML del PDF) y el documento de textos.
+const VACIO = /\b(undefined|NaN|null)\b/;
+const vacios = (t) => (String(t).match(new RegExp(VACIO.source, "g")) || []);
+// un correo con 4 de 5 MX medidos: ejerce `no_medido.correo_mx` (el texto del defecto)
+const fParcial = (() => { const fx = fixture("f"); return { foto: fx.foto, ctx: { ...fx.ctx, correo: { estado: "hecho",
+  resultado: { ...fx.ctx.correo.resultado, mx_publicados: ["a", "b", "c", "d", "e"] } } } }; })();
+function rendersDe(M) {
+  const out = [];
+  for (const [c, fx] of [...CASOS.map((c) => [c, fixture(c)]), ["f-mx-parcial", fParcial]]) for (const idioma of ["es", "en"]) {
+    const fi = M.armarFicha(fx.foto, { ...fx.ctx, idioma });
+    out.push([`${c}.${idioma}.md`, M.markdownDe(fi)], [`${c}.${idioma}.html`, M.htmlDe(fi)], [`${c}.${idioma}.pdf.html`, M.htmlDe(fi, { documento: true })]);
+  }
+  return out;
+}
+const sucios = (M) => rendersDe(M).filter(([, t]) => vacios(t).length).map(([n, t]) => `${n}: ${vacios(t).join(",")}`);
+igual(sucios(Fi), [], "silencio: ninguna ficha renderizada (5 fotos + correo parcial, es/en, markdown/HTML/PDF) dice undefined, NaN ni null");
+igual(rendersDe(Fi).find(([n]) => n === "f-mx-parcial.es.md")[1].includes("Uno de los 5 servidores de correo no se midió."), true, "el caso del correo parcial ejerce correo_mx con su total");
+igual(rendersDe(Fi).find(([n]) => n === "a.es.md")[1].includes("Referencia: mediana banca 57 (12 orgs, edición 2026-08). ejemplo.cl está 1 punto abajo."), true,
+  "referencia de un .cl: «mediana banca 57 (12 orgs, edición 2026-08). ejemplo.cl está 1 punto abajo.»");
+await conMutante(new URL("public/js/ficha.mjs", raiz), "foto.referencia.n_sector, foto.referencia.edicion, dominio, cmp.diferencia)", "foto.referencia.n_sector, foto.referencia.edicion, cmp.diferencia)",
+  async (M) => igual(sucios(M).length > 0, true, "MUTACIÓN: `referencia` con un argumento de menos → «undefined está NaN puntos» → el guardia grita"));
+await conMutante(new URL("public/js/ficha.mjs", raiz), "F.no_medido.correo_mx(publicados - cm.total, publicados)", "F.no_medido.correo_mx(publicados - cm.total)",
+  async (M) => igual(sucios(M).some((x) => x.startsWith("f-mx-parcial")), true, "MUTACIÓN: `correo_mx` sin el total → «de los undefined» → el guardia grita"));
+// el documento de textos que se aprueba: desde «## Ficha · es» (lo de arriba es prosa que nombra el defecto)
+const { generarTextos } = await import("./textos-ficha.mjs");
+const docVacios = (t) => vacios(t.slice(t.indexOf("## Ficha · es")).replace(/\bnull (significa|means|y «sin dato»|and “no data”)/g, ""));
+igual(docVacios(generarTextos()), [], "silencio: el documento de textos no dice undefined, NaN ni null (fuera de las frases aprobadas que explican null)");
+await conMutante(new URL("scripts/textos-ficha.mjs", raiz), '  correo_mx: [[1, 5], [2, 5]],\n', "",
+  async (M) => igual(docVacios(M.generarTextos()).length > 0, true, "MUTACIÓN: el generador sin los datos de ejemplo de correo_mx → «undefined» → el guardia grita"));
+
 // GRITO: cada mutación del texto la ve el validador
 const base = render(Fi, "f", "es");
 const cambiar = (de, a) => { if (!base.includes(de)) throw new Error(`mutación de texto que no entra: ${de}`); return base.replace(de, a); };
@@ -290,6 +323,40 @@ await conMutante(new URL("lib/qready-verificado.mjs", raiz), "WHERE dominio = ?1
 await conMutante(new URL("lib/medicion-agentes.mjs", raiz), "if (verificado || !Array.isArray(endpoints)) return endpoints;", "return endpoints;",
   async (A2) => igual(filtrado(await medirCon(A2, [])).length > 0, true, "MUTACIÓN: sin enmascarar los endpoints → la fuga se ve"));
 
+// ---------------------------------------------------------------- 4b · /api/sondas cerrado (17-nov-2026)
+// A quien no es dueño verificado, /api/sondas le devuelve los nombres enmascarados y su posición; la página
+// los reasocia con los nombres que ella pidió. La foto, su huella y su nota tienen que salir IGUALES.
+{
+  const I = await import("../lib/informe-envivo.mjs");
+  const pedidosPy = sF.endpoints.map((e) => e.host);
+  const pedidosConRuido = ["OTRO.AJENO.CL", ...pedidosPy];             // un nombre ajeno que el servidor descarta
+  const tercero = I.sondasParaTercero(sF.endpoints, pedidosConRuido, "python.org", "www.python.org");
+  igual(SENSIBLES.filter((h) => JSON.stringify(tercero).includes(h)), [], "grito de la fuga: /api/sondas a un tercero no trae ningún nombre sensible completo");
+  igual(tercero.map((e) => e.i), pedidosPy.map((_, k) => k + 1), "cada nombre trae su posición en la lista TAL COMO SE PIDIÓ (con el ajeno descartado)");
+  const devueltos = Fi.reasociar(tercero, pedidosConRuido, true);
+  igual(devueltos.map((e) => e.host), pedidosPy, "la página reasocia cada nombre por su posición");
+  const REFp = JSON.parse(leer("public/data/qex-referencia-2026-08.json"));
+  const fotoDe = async (endpoints) => { const ct = await N.ctDesdeServidor(CT, 0);
+    return await N.sellarFoto(N.armarFoto({ dominio: "python.org", www: "www.python.org", vertical: "banca", medido: "2026-11-12T17:34:15.418Z", ct,
+      sondas: { ...sF, endpoints }, referencia: REFp, origen: "guardia" }).foto); };
+  const fCompleta = await fotoDe(sF.endpoints), fReasociada = await fotoDe(devueltos);
+  // el CNAME queda enmascarado (la página no lo pidió): fuera de eso, la foto es la misma
+  const sinCname = (f) => ({ ...f, sha256: null, endpoints: f.endpoints.map((e) => ({ ...e, cname: null })) });
+  igual([JSON.stringify(sinCname(fReasociada)) === JSON.stringify(sinCname(fCompleta)), N.explicarNota(fReasociada).nota, N.explicarNota(fReasociada).graves.map((g) => g.host)],
+    [true, N.explicarNota(fCompleta).nota, N.explicarNota(fCompleta).graves.map((g) => g.host)], "la foto reasociada da la misma nota, las mismas alertas y los mismos nombres");
+  igual(Fi.reasociar(sF.endpoints, pedidosPy, false), sF.endpoints, "silencio: al dueño verificado no se le toca nada");
+  let lanzo = false; try { Fi.reasociar(tercero.map(({ i, ...e }) => e), pedidosPy, true); } catch { lanzo = true; }
+  igual(lanzo, true, "falla cerrado: una respuesta enmascarada sin posiciones no arma una foto con nombres enmascarados");
+  const src = sinComentarios(leer("lib/informe-envivo.mjs"));
+  igual([/const enmascarados = !interno && !nombres_completos;/.test(src), /endpoints: enmascarados \? sondasParaTercero\(endpoints, pedidos, dominio, www\) : endpoints/.test(src)], [true, true],
+    "/api/sondas enmascara salvo dueño verificado o llamada interna");
+  igual(/env, \{ interno: true \}\)\);/.test(sinComentarios(leer("lib/medicion-agentes.mjs"))), true, "la medición del servidor (agentes y cron) pide los nombres completos (interno)");
+  igual(/s\.endpoints = reasociar\(s\.endpoints, pedidos, s\.nombres_enmascarados === true\);/.test(sinComentarios(leer("public/js/medicion-envivo.mjs"))), true, "la página reasocia antes de armar su foto");
+  await conMutante(new URL("lib/informe-envivo.mjs", raiz), "return enmascararEndpoints(endpoints, ver).map(", "return endpoints.map(",
+    async (M) => igual(SENSIBLES.some((h) => JSON.stringify(M.sondasParaTercero(sF.endpoints, pedidosConRuido, "python.org", "www.python.org")).includes(h)), true,
+      "MUTACIÓN: /api/sondas sin enmascarar → la fuga se ve"));
+}
+
 // ---------------------------------------------------------------- 5 · una sola definición y el MCP
 const p = sinVerif.presentacion;
 igual([p.protocolo, p.spec, p.idioma, p.instruccion_agente, Object.keys(p.ficha || {})],
@@ -366,4 +433,4 @@ for (const n of ["medir_exposicion_pqc", "get_qready_grade"]) {
 }
 
 if (fallas.length) { console.error("check-ficha: FALLA\n  " + fallas.join("\n  ")); process.exit(1); }
-console.log(`check-ficha: ok (${casos} casos · snapshot de ${CASOS.length} fotos × 2 idiomas · ${Object.keys(MUT).length + 1} mutaciones de texto y 6 de código gritan · web, sello y PDF de la misma ficha · ajustes 1, 2 y 3 contra el camino real)${ACTUALIZAR ? " · SNAPSHOTS REESCRITOS: revise el diff" : ""}`);
+console.log(`check-ficha: ok (${casos} casos · snapshot de ${CASOS.length} fotos × 2 idiomas · ${Object.keys(MUT).length + 1} mutaciones de texto y 10 de código gritan · sin undefined, NaN ni null · web, sello y PDF de la misma ficha · ajustes 1, 2 y 3 contra el camino real)${ACTUALIZAR ? " · SNAPSHOTS REESCRITOS: revise el diff" : ""}`);
