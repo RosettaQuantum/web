@@ -21,6 +21,9 @@ import { manejarQready, cronDiario } from "./lib/qready-rutas.mjs";
 // importa .ttf/.css/.wasm y no se puede cargar fuera del Worker. Ahi esta tambien el
 // bug que devolvia una respuesta ya consumida y daba 500.
 import { augmentSitemap } from "./lib/sitemap.mjs";
+// La guia PQC servida desde la tabla `pages` (17-nov-2026), su PDF, y el pop-up que la
+// anuncia. Todo vive en lib/guia.mjs para que check-guia pueda ejercerlo en Node.
+import { manejarGuia, paginasPublicadas, lineasLlmsGuia } from "./lib/guia.mjs";
 
 // Serves the static Astro build (dist/), redirects to the canonical host,
 // accepts lead submissions at POST /api/lead -> D1 `leads`, and serves
@@ -110,6 +113,11 @@ async function atender(request, env, ctx) {
     if (destino) {
       return Response.redirect(new URL(destino, url.origin).toString(), 301);
     }
+
+    // La guia PQC: /guia/*, /guide/*, sus PDF, /api/promo/guia y POST /_promo/guia/*.
+    // Devuelve null para cualquier otra ruta. 404 si la pagina no esta publicada.
+    const guia = await manejarGuia(request, env, url, ctx);
+    if (guia) return guia;
 
     // API de lectura del ledger + servidor MCP. Va primero porque son rutas propias
     // que no existen como archivo; si devuelve null, sigue el flujo normal del sitio.
@@ -663,6 +671,9 @@ async function augmentLlms(env, request) {
     ).join("\n");
     text = text.replace(/\n*$/, "\n" + extra + "\n");
   }
+  // La guia PQC: una linea, y SOLO si esta publicada (lib/guia.mjs → paginasPublicadas).
+  const guia = lineasLlmsGuia(await paginasPublicadas(env), text);
+  if (guia.length) text = text.replace(/\n*$/, "\n" + guia.join("\n") + "\n");
   return new Response(text, { headers: { "Content-Type": "text/plain; charset=utf-8", "Cache-Control": "public, s-maxage=60" } });
 }
 

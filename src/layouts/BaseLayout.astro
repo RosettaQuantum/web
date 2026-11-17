@@ -9,6 +9,7 @@ import { sinComentarios } from '../lib/css-sin-comentarios.js';
 import Nav from '../components/Nav.astro';
 import Footer from '../components/Footer.astro';
 import LeadModal from '../components/LeadModal.astro';
+import PromoGuia from '../components/PromoGuia.astro';
 import { abs } from '../lib/urls.js';
 // `nav` por omision TRUE: las 38 paginas que aun usan la barra vieja no cambian.
 // La home v20 pasa nav={false} y monta NavV2, que es la barra nueva con rutas reales.
@@ -113,5 +114,8 @@ const ogImagen = abs('/og/' + ((OG.find(([re]) => re.test(rutaOg)) || [null, 'de
   {pie && <Footer lang={lang} />}
   {scripts.map((s) => <script is:inline src={s}></script>)}
   <LeadModal lang={lang} />
+  {/* Aviso de la guía PQC: va DESPUÉS del modal a propósito, así `.lead-ov.open ~ .rq-promo`
+      lo esconde mientras el modal está abierto. */}
+  <PromoGuia lang={lang} />
 </body>
 </html>
