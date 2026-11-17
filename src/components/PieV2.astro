@@ -55,14 +55,14 @@ const COLS = es
 // La segunda y el lema NO estan aprobados en ES: quedan en ingles a proposito y estan
 // listados en handoff/web/ES-FALTANTES-home-v20.md §9.
 const LEGAL1 = es
-  ? "Rosetta Quantum es una marca de Blue Tuna SpA. · Informes en inglés y español."
+  ? "Rosetta Quantum · una unidad de Sumeria · Informes en inglés y español."
   : "Rosetta Quantum is an independent evaluation firm for quantum computing. Reports in English and Spanish.";
 // UNA linea legal por idioma. La version anterior ponia la ES y ademas la EN, asi que
 // en /es/* salia la firma dos veces — en ingles la segunda. Lo cazo la QA de Cowork
 // leyendo el pie del preview, no el borrador.
 const LEGAL2 = es
   ? null
-  : "hello@rosettaquantum.com · Rosetta Quantum is a brand of Blue Tuna SpA (Chile) · Every verdict is signed and hash-anchored; authorship is stated on each report and on the About page.";
+  : "hello@rosettaquantum.com · Rosetta Quantum · a unit of Sumeria · Every verdict is signed and hash-anchored; authorship is stated on each report and on the About page.";
 // El lema tambien es prosa que lee el usuario. Quedaba en ingles en /es/ y no lo vio
 // ninguna de las dos revisiones a mano: lo caza T-es. La forma española es la que ya usa
 // la linea del ledger ("cada número enlaza a su fuente"), para no inventar una segunda.
