@@ -160,6 +160,11 @@ jobs:
           ESPERA_MAX: "240"
         run: npm run check:preview
 
+      - name: Ninguna URL del sitemap SERVIDO pide noindex
+        # El build ve ~70 de ~336 URLs; el resto lo agrega el Worker desde D1 (notas, guía).
+        # Aquí se mira lo que ve un buscador: cada <loc> servido, meta robots y X-Robots-Tag.
+        run: node scripts/check-sitemap-noindex.mjs --servido https://rosettaquantum.com
+
       - name: Self-test de los validadores del archivador
         run: node scripts/check-quantum-catalog.mjs --self-test
 
