@@ -240,6 +240,37 @@ igual(readFileSync(new URL("docs/fuentes/regla-llave-2026-11-18.md", raiz), "utf
   igual([he.algoritmo, N.certificadosValor({ ok: true, ...he }), N.certificadosValor({ ok: true, ...he }, "QEX-1.0")], ["Ed25519", N.REGLA_CERTIFICADOS.aprobada, null],
     "Ed25519: con QEX-1.2 vale como toda llave clásica aprobada (antes, sin dato)");
 }
+// ---- EL CASO CRUZADO (18-nov-2026): la ÚNICA definición compartida entre el Python del informe
+// (armar_indice.dim_certificados) y este JS. Copia byte a byte de
+// Projects/Rosetta Quantum/caso-cruzado-regla-llave-2026-11-18.json en docs/fuentes/, con este sha256:
+export const CASO_CRUZADO = "docs/fuentes/caso-cruzado-regla-llave-2026-11-18.json";
+export const CASO_CRUZADO_SHA256 = "b9ecb4762fc32d80a006a1138304add89923606c13bad5bf2c419ebc74a3aecb";
+// Sus llaves vienen con el nombre de OpenSSL que usa el Python (key_type); el adaptador las pasa a la forma de
+// la foto. Un key_type que no conoce LANZA: la familia desconocida queda fuera, como declara el propio archivo
+// (el informe se detiene; la herramienta da «sin dato»: dos políticas de fallo para la misma regla).
+// P-224 no está en el archivo compartido: es un caso NUESTRO (SP 800-57, tabla 2: f = 224-255 → 112 bits → 75).
+function adaptar(c) {
+  if (c.ok === false) return { ok: false };
+  const t = String(c.key_type);
+  if (t === "rsaEncryption") return { ok: true, algoritmo: "RSA", bits: c.key_bits };
+  if (/^EC\//.test(t)) return { ok: true, algoritmo: "EC", bits: c.key_bits };
+  if (t === "ED25519") return { ok: true, algoritmo: "Ed25519", bits: c.key_bits };
+  const pq = /^(ML-DSA|SLH-DSA)-/.exec(t);
+  if (pq) return { ok: true, algoritmo: pq[1], curva: t, bits: null };
+  throw new Error(`caso cruzado: key_type desconocido «${t}» (la familia desconocida no entra al caso cruzado)`);
+}
+export function casoCruzado(M, casos) {
+  return casos.map((c) => { const v = M.certificadosValor(adaptar(c), "QEX-1.2"); return v === c.puntaje ? null : `${c.llave}: esperado ${c.puntaje}, dio ${v}`; }).filter(Boolean);
+}
+const CC_TEXTO = readFileSync(new URL(CASO_CRUZADO, raiz));
+const CC = JSON.parse(CC_TEXTO.toString("utf8"));
+const CASOS_NUESTROS = [{ llave: "P-224 (caso nuestro, no está en el archivo compartido)", key_type: "EC/secp224r1", key_bits: 224, puntaje: 75 }];
+igual(sha(CC_TEXTO), CASO_CRUZADO_SHA256, "el caso cruzado es la copia exacta del archivo compartido (sha256)");
+igual([CC.version, CC.casos.length], ["QEX-1.2", 9], "el caso cruzado declara QEX-1.2 y trae sus 9 casos");
+igual((() => { try { adaptar({ key_type: "brainpoolP256r1", key_bits: 256 }); return "no lanzó"; } catch { return "lanzó"; } })(), "lanzó",
+  "una familia desconocida no entra al caso cruzado: el adaptador falla cerrado");
+igual(casoCruzado(N, [...CC.casos, ...CASOS_NUESTROS]), [], `certificadosValor(…, "QEX-1.2") reproduce el caso cruzado, caso por caso (${CC.casos.length} compartidos + ${CASOS_NUESTROS.length} nuestro)`);
+
 // una foto guardada QEX-1.0 con RSA-4096 contra una nueva QEX-1.2 con la MISMA llave: la comparación no marca «cambió»
 {
   const base = { esquema: N.ESQUEMA_FOTO, dominio: "ejemplo.cl", certificado: { ok: true, algoritmo: "RSA", bits: 4096 }, endpoints: [], borde: {}, proveedores: {} };
@@ -259,6 +290,11 @@ await conMutante(new URL("lib/informe-envivo.mjs", raiz), "const MAX_SENSIBLES =
 });
 await conMutante(NUCLEO, 'export const VERSION_QEX = "QEX-1.2";', 'export const VERSION_QEX = "QEX-1.0";', async (M) => {
   igual(reglaLlave(M).iguales, false, "MUTACIÓN: volver a la regla de agosto (RSA-4096 y P-384 = 100) → IR 8547 grita");
+});
+await conMutante(NUCLEO, "  return f >= minimo ? R.aprobada : R.bajo;", "  return R.aprobada;", async (M) => {
+  const r = casoCruzado(M, CC.casos);
+  console.log(`  mutación «sin la rama de < 112 bits» → el caso cruzado dice: ${r.join(" · ")}`);
+  igual(r, ["RSA-1024: esperado 0, dio 75"], "MUTACIÓN: borrar la rama de < 112 bits → el caso cruzado grita «RSA-1024: esperado 0, dio 75»");
 });
 await conMutante(NUCLEO, "  return f >= minimo ? R.aprobada : R.bajo;", "  return f >= minimo ? (f >= 192 ? R.pq : R.aprobada) : R.bajo;", async (M) => {
   igual(reglaLlave(M).iguales, false, "MUTACIÓN: premiar una llave clásica más grande (P-384) → IR 8547 grita");
@@ -290,5 +326,5 @@ await conMutante(NUCLEO, "export const NOTA_DIMENSION_MINIMA = 0.25;", "export c
 
 for (const f of fallas) console.log("  FALLA " + f);
 console.log(fallas.length ? `check-rubrica-qex: ${fallas.length} falla(s) de ${casos} casos` :
-  `check-rubrica-qex: ok (${casos} casos · publicado = generado · funciones = constantes · escala = explicarNota en ${cmp.n} combinaciones · tope de nombres una sola definición · la llave según IR 8547 · 11 mutaciones gritan)`);
+  `check-rubrica-qex: ok (${casos} casos · publicado = generado · funciones = constantes · escala = explicarNota en ${cmp.n} combinaciones · tope de nombres una sola definición · la llave según IR 8547 · caso cruzado con el informe · 12 mutaciones gritan)`);
 process.exit(fallas.length ? 1 : 0);

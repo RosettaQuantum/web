@@ -1,0 +1,22 @@
+{
+  "_": "CASO CRUZADO de la regla de la llave, QEX-1.2. Existe porque la regla vive implementada dos veces y en dos lenguajes: `armar_indice.dim_certificados` (Python, el informe) y `qex-nucleo.REGLA_CERTIFICADOS` (JS, la herramienta en vivo). No se pueden importar entre si, asi que la UNICA definicion compartida es este archivo: los dos lados lo leen y los dos tienen que reproducirlo. Si alguien cambia una regla sin cambiar este archivo, su suite se pone roja. Propuesto por Rosetta Q Main el 18-nov-2026; los valores son los que acordamos.",
+  "version": "QEX-1.2",
+  "norma": "NIST IR 8547, version final de octubre de 2026, tabla 2 (pagina 15). Mapa de fuerza: SP 800-57 pt.1 rev.5, tabla 2.",
+  "pdf_norma": "https://nvlpubs.nist.gov/nistpubs/ir/2026/NIST.IR.8547.pdf",
+  "acordado_por": "Nicholas, 18-nov-2026, por delegacion: «cambia todos segun tu mejor criterio»",
+  "no_cubre": [
+    "La familia de llave DESCONOCIDA queda fuera a proposito, y los dos lados la tratan distinto por una razon declarada: el informe DETIENE el paso (puede esperar a un humano) y la herramienta en vivo devuelve «sin dato» (no puede no contestar). No es una divergencia de la regla: es la misma regla con dos politicas de fallo. Cuando los dos CONTESTAN, el numero es el mismo.",
+    "El certificado compuesto o «hibrido» no esta aqui porque no tiene hoy un OID estable que reconocer. Entra el dia que lo tenga, con su OID citado."
+  ],
+  "casos": [
+    {"llave": "RSA-1024",  "key_type": "rsaEncryption",  "key_bits": 1024, "puntaje": 0,    "porque": "80 bits de fuerza: bajo el umbral de 112, y SP 800-131A ya la prohibe desde antes del problema cuantico"},
+    {"llave": "RSA-2048",  "key_type": "rsaEncryption",  "key_bits": 2048, "puntaje": 75,   "porque": "112 bits justos: el umbral de la fila de RSA"},
+    {"llave": "RSA-3072",  "key_type": "rsaEncryption",  "key_bits": 3072, "puntaje": 75,   "porque": "128 bits, y la norma no distingue por tamano"},
+    {"llave": "RSA-4096",  "key_type": "rsaEncryption",  "key_bits": 4096, "puntaje": 75,   "porque": "152 bits; valia 100 bajo QEX-1.0 y ya no"},
+    {"llave": "P-256",     "key_type": "EC/prime256v1",  "key_bits": 256,  "puntaje": 75,   "porque": "128 bits"},
+    {"llave": "P-384",     "key_type": "EC/secp384r1",   "key_bits": 384,  "puntaje": 75,   "porque": "192 bits; valia 100 bajo QEX-1.0 y ya no"},
+    {"llave": "Ed25519",   "key_type": "ED25519",        "key_bits": 256,  "puntaje": 75,   "porque": "128 bits de fuerza con 256 de llave: se decide por nombre, no por tamano"},
+    {"llave": "ML-DSA-65", "key_type": "ML-DSA-65",      "key_bits": 0,    "puntaje": 100,  "porque": "tabla 3: la unica salida que NIST reconoce"},
+    {"llave": "sin certificado", "key_type": null, "key_bits": null, "ok": false, "puntaje": null, "porque": "no se pudo leer: ausencia, NO el minimo"}
+  ]
+}
