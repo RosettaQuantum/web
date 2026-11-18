@@ -1,7 +1,7 @@
 /* La rúbrica del QEX (18-nov-2026): una grilla ancha que se desliza dentro de su caja, nunca la página. */
 .rq-grilla{min-width:1900px}
 .rq-grilla td{min-width:8em}
-.rq-grilla td.rq-id{min-width:6em;white-space:nowrap}
+.rq-grilla td.rq-id{min-width:7em;max-width:11em}
 .rq-aviso{font-family:var(--mono);font-size:var(--t-data);color:var(--alert);margin:0 0 var(--s2)}
 .rq-h{word-break:break-all}
 .rq-rx{word-break:break-word}
