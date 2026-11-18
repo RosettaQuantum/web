@@ -1,0 +1,14 @@
+[
+ {
+  "archivo": "TEXTO-lectura-notas-A-B-2026-11-18.md",
+  "sha256": "4271740e4c4b16a6ccf395ae5cdf4cf2c3c7392ee6d1d1e8225490b12df6fd27",
+  "aprobado_por": "Nicholas, 18-nov-2026: \"Sí, el reemplazo\"",
+  "usa": "public/js/qready-textos.mjs · TXT.es.nota_lectura.A/B y TXT.en.nota_lectura.A/B"
+ },
+ {
+  "archivo": "TEXTO-rubrica-hndl-origen-2026-11-18.md",
+  "sha256": "1d32d1542203397ff483f0ab02713d115e593c5b8e2b1826becfd36f15dd9f94",
+  "aprobado_por": "Nicholas, 18-nov-2026: \"Sí, así queda\"",
+  "usa": "public/js/rubrica-textos.mjs · RUBRICA.es.filas[\"RQ.S.04\"].metodo (al final)"
+ }
+]

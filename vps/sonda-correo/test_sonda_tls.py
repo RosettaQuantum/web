@@ -129,6 +129,16 @@ def _ventana():
     assert (t + pausa + C.POLL) * 1000 <= espera / 2, f"peor hueco {t + pausa + C.POLL} s no cabe en la mitad de {espera // 1000} s"
 prueba("una pregunta colgada no se come la ventana de la página", _ventana)
 
+def _tope():
+    # 18-nov-2026: el tope de nombres por medición es UNO (MAX_SONDEADOS de public/js/qex-nucleo.mjs). El VPS
+    # no puede importarlo: lo repite como MAX_NOMBRES = tope + 2 (el sitio y su certificado). Si el tope sube
+    # en el núcleo y aquí no, el VPS recorta en silencio lo que el Worker le pide.
+    import re, pathlib
+    js = pathlib.Path(__file__).parents[2].joinpath("public", "js", "qex-nucleo.mjs").read_text()
+    tope = int(re.search(r"export const MAX_SONDEADOS = (\d+);", js).group(1))
+    assert T.MAX_NOMBRES == tope + 2, f"sonda_tls.py MAX_NOMBRES = {T.MAX_NOMBRES}; el núcleo dice tope {tope} (+2 = {tope + 2})"
+prueba("el tope de nombres del VPS es el del núcleo + 2", _tope)
+
 # --- 5. B1 (16-nov-2026): un servidor que sólo acepta TLS 1.3 entrega igual su hoja (servidores reales, locales)
 import importlib, ssl, subprocess, tempfile, threading  # noqa: E402
 socket.socket = real_sock

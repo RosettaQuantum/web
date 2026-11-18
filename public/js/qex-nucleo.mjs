@@ -286,7 +286,9 @@ export function dominioDeEntrada(crudo) {
   return /^([a-z0-9-]+\.)+[a-z]{2,}$/.test(d) ? d : null;
 }
 
-// Tope de nombres sondeados por medición (lib/informe-envivo.mjs acepta hasta 15).
+// Tope de nombres sondeados por medición. UNA definición: la leen nombresASondear, /api/sondas
+// (lib/informe-envivo.mjs), el pedido al VPS (lib/sonda-tls-vps.mjs) y la rúbrica; el VPS (sonda_tls.py)
+// lo repite como tope + 2 y vps/sonda-correo/test_sonda_tls.py exige que coincidan.
 export const MAX_SONDEADOS = 15;
 
 // Nombres que delatan un ambiente NO productivo, en español o en inglés (16-nov-2026, QREADY-NOTA-2).

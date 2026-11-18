@@ -22,8 +22,8 @@ export const TXT = {
     },
     nota_lectura: {
       "A+": "Candado nuevo en todo lo visible y un plan interno firmado y verificado.",
-      A: "Candado nuevo en el sitio y en todos los nombres públicos que respondieron. Es la nota máxima que se puede dar desde afuera.",
-      B: "Candado nuevo en el sitio principal. Quedan nombres públicos sin evidencia del candado nuevo.",
+      A: "Candado nuevo en el sitio y en todos los nombres públicos que respondieron, sin alertas graves ni altas, sin ambientes de prueba publicados y con todo lo sensible medido. Es la nota máxima que se puede dar desde afuera.",
+      B: "Candado nuevo en el sitio principal y sin alertas graves ni altas, pero falta algo para A: nombres sin evidencia del candado nuevo, un ambiente de pruebas publicado, nombres sensibles sin medir o una dimensión sin medir.",
       C: "TLS 1.3, pero sin candado nuevo en el sitio principal (o con una alerta alta abierta).",
       D: "Sin TLS 1.3 medido, o sin candado nuevo y con una alerta alta abierta.",
       F: "Hay una falla grave medida: certificado vencido o un ambiente de pruebas expuesto.",
@@ -132,8 +132,8 @@ export const TXT = {
     },
     nota_lectura: {
       "A+": "New lock on everything visible, plus a signed internal plan verified by us.",
-      A: "New lock on the site and on every public name that responded. The highest grade that can be given from outside.",
-      B: "New lock on the main site. Some public names show no evidence of the new lock yet.",
+      A: "New lock on the site and on every public name that responded, no serious or high alerts, no published test environments, and everything sensitive measured. The highest grade that can be given from outside.",
+      B: "New lock on the main site and no serious or high alerts, but something is missing for A: names without evidence of the new lock, a published test environment, sensitive names left unmeasured, or a dimension not measured.",
       C: "TLS 1.3, but no new lock on the main site (or a high alert left open).",
       D: "No TLS 1.3 measured, or no new lock and a high alert left open.",
       F: "A serious failure was measured: an expired certificate or an exposed test environment.",

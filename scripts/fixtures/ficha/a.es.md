@@ -7,7 +7,7 @@
 | RQ.S.00 | Nota Q-Ready | **A** |
 | RQ.S.01 | Índice QEX | 56/100 (tope externo 84) |
 
-Lectura: Candado nuevo en el sitio y en todos los nombres públicos que respondieron. Es la nota máxima que se puede dar desde afuera.
+Lectura: Candado nuevo en el sitio y en todos los nombres públicos que respondieron, sin alertas graves ni altas, sin ambientes de prueba publicados y con todo lo sensible medido. Es la nota máxima que se puede dar desde afuera.
 Referencia: mediana banca 57 (12 orgs, edición 2026-08). ejemplo.cl está 1 punto abajo.
 Publicación: pública en https://rosettaquantum.com/es/verificado/ejemplo.cl
 
