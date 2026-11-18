@@ -2,6 +2,9 @@
 import { banda } from '../../lib/qex.js';
 import { elegirEdicion } from '../../lib/informe-elegir.mjs';
 import { PENDIENTES_LEGALES, pendientePorDefecto, ventanaTexto } from '../../lib/informe-portada.mjs';
+import { textosDeEdicion } from '../../lib/informe-textos.mjs';
+import APROBADOS from '../../data/informe-pqc/textos/APROBADOS.json';
+const mdAprobados = import.meta.glob('../../data/informe-pqc/textos/**/*.md', { query: '?raw', import: 'default', eager: true }) as Record<string, string>;
 import MarcaLayout from '../../layouts/MarcaLayout.astro';
 import css from '../../styles/pages/informe-pqc.css?raw';
 
@@ -48,6 +51,8 @@ const { actual, anterior } = elegirEdicion(ediciones, {
 });
 const { d } = actual;
 const prev = anterior?.d ?? null;
+// Párrafos aprobados que entran SÓLO a esta edición (src/lib/informe-textos.mjs). Sha distinto = build caído.
+const textoLegal = textosDeEdicion(d.edicion, APROBADOS, (f: string) => mdAprobados[`../../data/informe-pqc/textos/${f}`]);
 
 /**
  * ¿Esta edicion es un borrador?
@@ -1316,8 +1321,10 @@ const frase = (ps: any[], k: string) =>
         <h3>Qué hicimos</h3>
         <p>Consultamos <strong>registros públicos de Certificate Transparency</strong> para descubrir los nombres de host de cada dominio. Sobre los hosts críticos abrimos <strong>una única conexión TCP y enviamos un solo saludo inicial de TLS</strong> que ofrece explícitamente grupos post-cuánticos, y observamos la respuesta.</p>
         <p>El saludo <strong>no se completa</strong>. No se establece sesión, no se transmiten datos de aplicación, no se envían credenciales y no se ejecuta ninguna prueba de intrusión. La carga equivale a abrir el sitio una vez.</p>
+        {textoLegal && <p data-texto-aprobado="hicimos" set:html={textoLegal.hicimos} />}
         <h3>Qué NO hicimos</h3>
         <p>No accedimos a ningún sistema. No intentamos autenticarnos. No exploramos rutas ni directorios. No escaneamos rangos de direcciones. No recopilamos datos personales.</p>
+        {textoLegal && <p data-texto-aprobado="no_hicimos" set:html={textoLegal.no_hicimos} />}
       </div>
       <div>
         <h3>Sobre el índice</h3>
