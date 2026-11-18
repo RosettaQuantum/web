@@ -244,32 +244,23 @@ igual(readFileSync(new URL("docs/fuentes/regla-llave-2026-11-18.md", raiz), "utf
 // (armar_indice.dim_certificados) y este JS. Copia byte a byte de
 // Projects/Rosetta Quantum/caso-cruzado-regla-llave-2026-11-18.json en docs/fuentes/, con este sha256:
 export const CASO_CRUZADO = "docs/fuentes/caso-cruzado-regla-llave-2026-11-18.json";
-export const CASO_CRUZADO_SHA256 = "b9ecb4762fc32d80a006a1138304add89923606c13bad5bf2c419ebc74a3aecb";
-// Sus llaves vienen con el nombre de OpenSSL que usa el Python (key_type); el adaptador las pasa a la forma de
-// la foto. Un key_type que no conoce LANZA: la familia desconocida queda fuera, como declara el propio archivo
-// (el informe se detiene; la herramienta da «sin dato»: dos políticas de fallo para la misma regla).
-// P-224 no está en el archivo compartido: es un caso NUESTRO (SP 800-57, tabla 2: f = 224-255 → 112 bits → 75).
-function adaptar(c) {
-  if (c.ok === false) return { ok: false };
-  const t = String(c.key_type);
-  if (t === "rsaEncryption") return { ok: true, algoritmo: "RSA", bits: c.key_bits };
-  if (/^EC\//.test(t)) return { ok: true, algoritmo: "EC", bits: c.key_bits };
-  if (t === "ED25519") return { ok: true, algoritmo: "Ed25519", bits: c.key_bits };
-  const pq = /^(ML-DSA|SLH-DSA)-/.exec(t);
-  if (pq) return { ok: true, algoritmo: pq[1], curva: t, bits: null };
-  throw new Error(`caso cruzado: key_type desconocido «${t}» (la familia desconocida no entra al caso cruzado)`);
-}
+export const CASO_CRUZADO_SHA256 = "29bdb761cf4e7fde5bd8c67e8d28601c323ba7f8ba901333f284cf278a500a7a";
+// (18-nov-2026, 2ª versión) Cada caso trae LAS DOS representaciones: la nuestra (algoritmo + parametros + bits)
+// y la del Python (key_type + key_bits). Ninguno de los dos lados infiere la del otro: aquí se usa sólo la
+// nuestra, sin adaptador. La familia desconocida no está en el archivo (lo declara su «no_cubre»).
+const certDe = (c) => (c.ok === false ? { ok: false } : { ok: true, algoritmo: c.algoritmo, curva: c.parametros, bits: c.bits });
 export function casoCruzado(M, casos) {
-  return casos.map((c) => { const v = M.certificadosValor(adaptar(c), "QEX-1.2"); return v === c.puntaje ? null : `${c.llave}: esperado ${c.puntaje}, dio ${v}`; }).filter(Boolean);
+  return casos.map((c) => { const v = M.certificadosValor(certDe(c), "QEX-1.2"); return v === c.puntaje ? null : `${c.llave}: esperado ${c.puntaje}, dio ${v}`; }).filter(Boolean);
 }
 const CC_TEXTO = readFileSync(new URL(CASO_CRUZADO, raiz));
 const CC = JSON.parse(CC_TEXTO.toString("utf8"));
-const CASOS_NUESTROS = [{ llave: "P-224 (caso nuestro, no está en el archivo compartido)", key_type: "EC/secp224r1", key_bits: 224, puntaje: 75 }];
 igual(sha(CC_TEXTO), CASO_CRUZADO_SHA256, "el caso cruzado es la copia exacta del archivo compartido (sha256)");
-igual([CC.version, CC.casos.length], ["QEX-1.2", 9], "el caso cruzado declara QEX-1.2 y trae sus 9 casos");
-igual((() => { try { adaptar({ key_type: "brainpoolP256r1", key_bits: 256 }); return "no lanzó"; } catch { return "lanzó"; } })(), "lanzó",
-  "una familia desconocida no entra al caso cruzado: el adaptador falla cerrado");
-igual(casoCruzado(N, [...CC.casos, ...CASOS_NUESTROS]), [], `certificadosValor(…, "QEX-1.2") reproduce el caso cruzado, caso por caso (${CC.casos.length} compartidos + ${CASOS_NUESTROS.length} nuestro)`);
+igual([CC.version, CC.casos.length], ["QEX-1.2", 14], "el caso cruzado declara QEX-1.2 y trae sus 14 casos");
+igual(CC.casos.find((c) => c.llave === "P-224") && N.certificadosValor(certDe(CC.casos.find((c) => c.llave === "P-224")), "QEX-1.2"), 75, "P-224 (el borde del umbral, ahora en el archivo compartido) da 75");
+igual(casoCruzado(N, CC.casos), [], `certificadosValor(…, "QEX-1.2") reproduce el caso cruzado, caso por caso (${CC.casos.length})`);
+// lo demás que el archivo declara de nuestro lado: la fuerza clásica y la regla de agosto
+igual(CC.casos.filter((c) => N.fuerzaClasica(certDe(c)) !== c.fuerza_clasica || N.certificadosValor(certDe(c), "QEX-1.0") !== c.puntaje_qex_1_0).map((c) => c.llave), [],
+  "fuerzaClasica y la regla QEX-1.0 dan lo que declara cada caso");
 
 // una foto guardada QEX-1.0 con RSA-4096 contra una nueva QEX-1.2 con la MISMA llave: la comparación no marca «cambió»
 {
