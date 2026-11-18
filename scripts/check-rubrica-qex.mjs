@@ -210,7 +210,10 @@ igual(readFileSync(new URL("docs/fuentes/regla-llave-2026-11-18.md", raiz), "utf
   const hoja = (spki, firmaOid) => { const alg = tlvB(0x30, oidB(firmaOid));
     const tbs = tlvB(0x30, tlvB(0xa0, tlvB(0x02, [2])), tlvB(0x02, [1]), alg, nombre("prueba"), tlvB(0x30, tlvB(0x17, Buffer.from("261101000000Z")), tlvB(0x17, Buffer.from("271101000000Z"))), nombre("prueba.example"), spki);
     return new Uint8Array(tlvB(0x30, tbs, alg, tlvB(0x03, [0, 1, 2, 3]))); };
-  const ml = generateKeyPairSync("ml-dsa-65").publicKey.export({ type: "spki", format: "der" });
+  // Llaves post-cuánticas REALES, generadas una vez con Node 24 (OpenSSL 3.5) y guardadas como fixture: el Node
+  // del CI (22.x) no sabe generarlas y el guardia se caía (19-nov, corrida del deploy de 189f523). Se leen del archivo.
+  const fixturePQ = (n) => readFileSync(new URL(`scripts/fixtures/llaves-pq/${n}.spki.der`, raiz));
+  const ml = fixturePQ("ml-dsa-65");
   const h = IE.leerHoja(hoja(ml, "2.16.840.1.101.3.4.3.18"));
   igual([h.algoritmo, h.curva, h.bits, h.firma, N.certificadosValor({ ok: true, ...h })], ["ML-DSA", "ML-DSA-65", 192, "ml-dsa-65", N.REGLA_CERTIFICADOS.pq],
     "una hoja con llave ML-DSA-65 real se lee ML-DSA (OID 2.16.840.1.101.3.4.3.18 del CSOR) y vale lo de un certificado post-cuántico");
@@ -219,8 +222,8 @@ igual(readFileSync(new URL("docs/fuentes/regla-llave-2026-11-18.md", raiz), "utf
   // OpenSSL generan esas llaves): prueba el OID, no el formato de la llave.
   const spkiOid = (o) => tlvB(0x30, tlvB(0x30, oidB(o)), tlvB(0x03, [0, 0, 0, 0, 1]));
   const familias = [
-    ["ML-DSA", generateKeyPairSync("ml-dsa-65").publicKey.export({ type: "spki", format: "der" }), "2.16.840.1.101.3.4.3.18"],
-    ["SLH-DSA", generateKeyPairSync("slh-dsa-sha2-128s").publicKey.export({ type: "spki", format: "der" }), "2.16.840.1.101.3.4.3.20"],
+    ["ML-DSA", fixturePQ("ml-dsa-65"), "2.16.840.1.101.3.4.3.18"],
+    ["SLH-DSA", fixturePQ("slh-dsa-sha2-128s"), "2.16.840.1.101.3.4.3.20"],
     ["HSS/LMS", spkiOid("1.2.840.113549.1.9.16.3.17"), "1.2.840.113549.1.9.16.3.17"],
     ["XMSS", spkiOid("1.3.6.1.5.5.7.6.34"), "1.3.6.1.5.5.7.6.34"],
     ["XMSS^MT", spkiOid("1.3.6.1.5.5.7.6.35"), "1.3.6.1.5.5.7.6.35"],

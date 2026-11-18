@@ -77,6 +77,10 @@ jobs:
           # esperan a que el edge sirva ESTE build antes de mirar nada
           GITHUB_SHA: ${{ github.sha }}
         run: |
+          # 19-nov-2026: SIN pipefail, `npm run build | tee` devolvía el código de `tee` (0). Un guardia que se
+          # caía en el prebuild dejaba este paso en VERDE y el error aparecía recién en Deploy Worker («assets
+          # directory does not exist»); uno que fallara en el postbuild, con dist/ ya armado, habría DESPLEGADO.
+          set -o pipefail
           npm run build 2>&1 | tee build.log
           # ANTES ERA UN WARNING, Y ESO ESTABA MAL. Si sync-ledger cae al snapshot, este
           # deploy publica el ledger COMMITEADO como si fuera el vivo — y el snapshot en
