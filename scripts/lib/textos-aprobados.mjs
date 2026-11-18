@@ -35,3 +35,25 @@ export function fraseHndl(md) {
   if (!m) throw new Error("falta «## La frase»");
   return m[1];
 }
+
+// TEXTOS-para-aprobar-2026-11-18.md (aprobados los textos 2, 3 y 4): la celda de la fila «| **etiqueta** | … |»
+// dentro de la sección «### n · …». Una etiqueta que no aparece EXACTA en su sección lanza.
+export function celda(md, seccion, etiqueta) {
+  const i = md.indexOf(`\n### ${seccion} ·`);
+  if (i < 0) throw new Error(`falta la sección «### ${seccion} ·»`);
+  const j = md.indexOf("\n### ", i + 1);
+  const sec = md.slice(i, j < 0 ? md.length : j);
+  const filas = sec.split("\n").filter((l) => l.startsWith(`| **${etiqueta}** | `));
+  if (filas.length !== 1) throw new Error(`sección ${seccion}: la fila «${etiqueta}» aparece ${filas.length} veces`);
+  const m = /^\| \*\*[^*]+\*\* \| (.+) \|$/.exec(filas[0]);
+  if (!m) throw new Error(`sección ${seccion}: la fila «${etiqueta}» no tiene la forma | **etiqueta** | texto |`);
+  return m[1];
+}
+export function textos234(md) {
+  return {
+    hndl_en: celda(md, 2, "Inglés (nuevo)"),
+    tope: { es: celda(md, 3, "Español"), en: celda(md, 3, "Inglés") },
+    llave: { metodo: { es: celda(md, 4, "Método, diría"), en: celda(md, 4, "Method, would read") },
+      regla: { es: celda(md, 4, "Regla, diría"), en: celda(md, 4, "Rule, would read") } },
+  };
+}

@@ -34,7 +34,7 @@ const fallas = [];
 let casos = 0;
 const igual = (a, b, q) => { casos++; if (JSON.stringify(a) !== JSON.stringify(b)) fallas.push(`${q}: esperaba ${JSON.stringify(b)}, dio ${JSON.stringify(a)}`); };
 
-const LECTURA = "TEXTO-lectura-notas-A-B-2026-11-18.md", HNDL = "TEXTO-rubrica-hndl-origen-2026-11-18.md";
+const LECTURA = "TEXTO-lectura-notas-A-B-2026-11-18.md", HNDL = "TEXTO-rubrica-hndl-origen-2026-11-18.md", T234 = "TEXTOS-para-aprobar-2026-11-18.md";
 // Las lecturas que NO se tocan (A+, C, D, F), como estaban el 18-nov: cambiarlas no está aprobado.
 const SIN_CAMBIO = {
   es: { "A+": "Candado nuevo en todo lo visible y un plan interno firmado y verificado.",
@@ -49,8 +49,9 @@ const SIN_CAMBIO = {
 
 // ---------------------------------------------------------------- 1 · el sello
 const AP = TA.aprobados();
-igual(AP.map((a) => a.archivo).sort(), [LECTURA, HNDL].sort(), "APROBADOS.json declara los dos documentos, ni más ni menos");
-for (const a of AP) igual([TA.sha256(TA.leerBytes(a.archivo)), /^Nicholas, 18-nov-2026: "Sí, /.test(a.aprobado_por)], [a.sha256, true], `${a.archivo}: sha256 y aprobado_por iguales a APROBADOS.json`);
+igual(AP.map((a) => a.archivo).sort(), [LECTURA, HNDL, T234].sort(), "APROBADOS.json declara los tres documentos, ni más ni menos");
+for (const a of AP) igual([TA.sha256(TA.leerBytes(a.archivo)), /^Nicholas, 18-nov-2026(: "Sí, | \(textos 2, 3 y 4\)$)/.test(a.aprobado_por)], [a.sha256, true], `${a.archivo}: sha256 y aprobado_por iguales a APROBADOS.json`);
+igual(AP.find((a) => a.archivo === T234).sha256, "a31d2c1c3215d7f05b3568dc8e7468cf607615301177c2801c9de2dbb706aaa3", "TEXTOS-para-aprobar: el sha256 con que se aprobó");
 
 // ---------------------------------------------------------------- 2 · el código dice lo aprobado
 function revisar(TX, RT, docLectura, docHndl, rubricaCsv, rubricaJson) {
@@ -70,6 +71,25 @@ const DOC_L = TA.leerBytes(LECTURA).toString("utf8"), DOC_H = TA.leerBytes(HNDL)
 const CSV = leer("public/data/rubrica-qex.es.csv"), JSN = leer("public/data/rubrica-qex.json");
 igual(revisar(TX, RT, DOC_L, DOC_H, CSV, JSN), [], "el código y la rúbrica publicada dicen exactamente lo aprobado");
 
+// ---------------------------------------------------------------- 2 bis · los textos 2, 3 y 4 (18-nov-2026)
+// Las cifras NO se copian: el tope sale de MAX_SONDEADOS y la regla de la llave de REGLA_CERTIFICADOS. El chequeo
+// exige que lo construido con esos valores (15; 75/112/0/100) sea byte a byte la frase aprobada.
+const N = await import("../public/js/qex-nucleo.mjs");
+const DOC_234 = TA.leerBytes(T234).toString("utf8");
+function revisar234(RT, M = N, csv = CSV) {
+  const out = [], A = TA.textos234(DOC_234), F = { es: RT.RUBRICA.es.filas, en: RT.RUBRICA.en.filas };
+  if (!F.en["RQ.S.04"].metodo.endsWith(" " + A.hndl_en)) out.push("texto 2: RQ.S.04 (en) no termina con la frase HNDL aprobada");
+  for (const l of ["es", "en"]) {
+    if (F[l]["RQ.S.09.7"].metodo(M.MAX_SONDEADOS) !== A.tope[l]) out.push(`texto 3 (${l}): el método de RQ.S.09.7 armado con MAX_SONDEADOS = ${M.MAX_SONDEADOS} no es la frase aprobada`);
+    if (F[l]["RQ.S.02.1"].metodo(M.REGLA_CERTIFICADOS) !== A.llave.metodo[l]) out.push(`texto 4 (${l}): el método de RQ.S.02.1 no es el aprobado`);
+    if (F[l]["RQ.S.02.1"].regla(M.REGLA_CERTIFICADOS) !== A.llave.regla[l]) out.push(`texto 4 (${l}): la regla de RQ.S.02.1 armada con REGLA_CERTIFICADOS no es la aprobada`);
+  }
+  for (const f of [A.tope.es, A.llave.metodo.es, A.llave.regla.es]) if (!csv.includes(f)) out.push(`la rúbrica publicada (CSV es) no lleva: ${f.slice(0, 50)}…`);
+  return out;
+}
+igual(revisar234(RT), [], "textos 2, 3 y 4: la rúbrica (y su CSV publicado) dice exactamente lo aprobado, con las cifras de las constantes");
+igual(N.MAX_SONDEADOS, 15, "el tope vigente es el de la frase aprobada (15)");
+
 // ---------------------------------------------------------------- 3 · mutaciones
 await conMutante(new URL("public/js/qready-textos.mjs", raiz), "pero falta algo para A:", "pero falta algo para  A:",
   async (M) => igual(revisar(M, RT, DOC_L, DOC_H, CSV, JSN).length > 0, true, "MUTACIÓN: un espacio de más en la B del código → grita"));
@@ -80,8 +100,19 @@ igual(TA.sha256(Buffer.from(DOC_L.replace("cuatro causas", "cuatro  causas"), "u
 await conMutante(new URL("public/js/rubrica-textos.mjs", raiz), " Estos valores son un modelo propio de Rosetta", " Estos valores son un modelo de Rosetta",
   async (M) => igual(revisar(TX, M, DOC_L, DOC_H, CSV, JSN).length > 0, true, "MUTACIÓN: la frase HNDL con una palabra menos → grita"));
 igual(revisar(TX, RT, DOC_L, DOC_H, CSV.replace(TA.fraseHndl(DOC_H), ""), JSN).length > 0, true, "MUTACIÓN: la rúbrica publicada sin regenerar (CSV sin la frase) → grita");
+// una mutación por texto aprobado (2, 3 y 4)
+const RTX = new URL("public/js/rubrica-textos.mjs", raiz);
+await conMutante(RTX, "fixed in the August 2026 edition.", "fixed in the August 2026 edition .",
+  async (M) => igual(revisar234(M).some((x) => x.startsWith("texto 2")), true, "MUTACIÓN texto 2: un espacio de más en la frase HNDL en inglés → grita"));
+await conMutante(RTX, "nombres por organización. La nota A exige", "nombres por organización.  La nota A exige",
+  async (M) => igual(revisar234(M).some((x) => x.startsWith("texto 3 (es)")), true, "MUTACIÓN texto 3: un espacio de más en el tope (es) → grita"));
+igual(revisar234(RT, { ...N, MAX_SONDEADOS: 16 }).some((x) => x.startsWith("texto 3")), true, "MUTACIÓN texto 3: con otro tope, la frase armada ya no es la aprobada → grita");
+await conMutante(RTX, "depreca después de 2030 todo ECDSA y RSA", "depreca después de 2030 todo RSA y ECDSA",
+  async (M) => igual(revisar234(M).some((x) => x.startsWith("texto 4 (es): el método")), true, "MUTACIÓN texto 4: el método de la llave reordenado → grita"));
+await conMutante(RTX, "sólo si es post-cuántica;", "sólo si es postcuántica;",
+  async (M) => igual(revisar234(M).some((x) => x.startsWith("texto 4 (es): la regla")), true, "MUTACIÓN texto 4: la regla de la llave con un guion menos → grita"));
 
 for (const f of fallas) console.log("  FALLA " + f);
 console.log(fallas.length ? `check-textos-aprobados: ${fallas.length} falla(s) de ${casos} casos`
-  : `check-textos-aprobados: ok (${casos} casos · 2 documentos sellados · lectura A/B es/en y frase HNDL = lo aprobado · 4 mutaciones gritan)`);
+  : `check-textos-aprobados: ok (${casos} casos · 3 documentos sellados · lectura A/B, frase HNDL es/en, tope y llave = lo aprobado · 9 mutaciones gritan)`);
 process.exit(fallas.length ? 1 : 0);

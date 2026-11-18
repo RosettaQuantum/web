@@ -92,9 +92,9 @@ export const RUBRICA = {
       "RQ.S.02.1": {
         variable: "Fuerza de la llave del certificado",
         observa: "Algoritmo y tamaño de la llave del certificado del sitio principal.",
-        // CAMBIA (18-nov, PROVISORIO: se aprobó la regla, no la redacción): la regla de NIST IR 8547 (QEX-1.2)
-        metodo: "Se lee la hoja que entrega el servidor. Fuerza clásica por tamaño (NIST SP 800-57, tabla 2): RSA-2048 = 112 bits, RSA-3072 = 128, P-256 = 128, Ed25519 = 128, P-384 = 192. Límite: la sonda reconoce RSA, las curvas P-256, P-384 y P-521, Ed25519 y las firmas post-cuánticas de NIST IR 8547 (tabla 3); otro algoritmo sale sin dato.",
-        regla: (R, pq) => `${R.aprobada} con cualquier llave clásica de al menos ${R.fuerza_min} bits de fuerza (EdDSA: ${R.fuerza_min_eddsa}), sea RSA-2048, RSA-4096, P-256 o P-384: NIST IR 8547 las depreca después de 2030 y las prohíbe después de 2035, todas por igual. ${R.bajo} bajo esa fuerza (por ejemplo RSA-1024): no está entre lo aprobado. ${R.pq} con una firma post-cuántica (${pq}). Sin certificado leído: sin dato, nunca 0.`,
+        // APROBADO (18-nov-2026, textos 2, 3 y 4): copiado del documento sellado en src/data/q-ready/textos-aprobados/ (check-textos-aprobados)
+        metodo: (R) => `Se lee la hoja que entrega el servidor. Toda llave clásica vale lo mismo, cualquiera sea su tamaño: NIST IR 8547 —final, octubre de 2026, tabla 2— depreca después de 2030 todo ECDSA y RSA de ${R.fuerza_min} bits o más, sin distinguir entre ellos. El puntaje máximo queda reservado a una llave post-cuántica, la única salida que la norma reconoce.`,
+        regla: (R) => `${R.aprobada} si la llave es clásica y da ${R.fuerza_min} bits de fuerza o más; ${R.bajo} si da menos; ${R.pq} sólo si es post-cuántica; sin certificado leído, sin dato (nunca 0).`,
         efecto: () => "Ninguno directo (ver RQ.S.02).",
       },
       "RQ.S.02.2": {
@@ -245,7 +245,8 @@ export const RUBRICA = {
       "RQ.S.09.7": {
         variable: "Nombres sensibles sin sondear",
         observa: "Nombres sensibles del registro que quedaron fuera del tope de la medición.",
-        metodo: (max) => `Se sondean hasta ${max} nombres, los ambientes de pruebas primero. Lo que queda fuera no se sabe si responde.`,
+        // APROBADO (18-nov-2026, textos 2, 3 y 4): copiado del documento sellado en src/data/q-ready/textos-aprobados/ (check-textos-aprobados)
+        metodo: (max) => `Se sondean hasta ${max} nombres por organización. La nota A exige que todo nombre sensible haya sido sondeado, así que una organización con más nombres sensibles que el tope no puede alcanzarla. La ficha dice cuántos quedaron sin sondear.`,
         regla: () => "No suma al QEX.",
         efecto: () => "Mientras quede alguno: no hay A.",
       },
@@ -407,8 +408,9 @@ export const RUBRICA = {
       "RQ.S.02.1": {
         variable: "Certificate key strength",
         observa: "Algorithm and key size of the main site's certificate.",
-        metodo: "The leaf the server presents is read. Classical strength by size (NIST SP 800-57, table 2): RSA-2048 = 112 bits, RSA-3072 = 128, P-256 = 128, Ed25519 = 128, P-384 = 192. Limit: the probe recognizes RSA, the P-256, P-384 and P-521 curves, Ed25519 and the post-quantum signatures of NIST IR 8547 (table 3); any other algorithm comes out as no data.",
-        regla: (R, pq) => `${R.aprobada} for any classical key of at least ${R.fuerza_min} bits of strength (EdDSA: ${R.fuerza_min_eddsa}), be it RSA-2048, RSA-4096, P-256 or P-384: NIST IR 8547 deprecates them after 2030 and disallows them after 2035, all alike. ${R.bajo} below that strength (for example RSA-1024): it is not among the approved. ${R.pq} with a post-quantum signature (${pq}). No certificate read: no data, never 0.`,
+        // APROBADO (18-nov-2026, textos 2, 3 y 4): copiado del documento sellado en src/data/q-ready/textos-aprobados/ (check-textos-aprobados)
+        metodo: (R) => `The leaf the server presents is read. Every classical key counts the same, whatever its size: NIST IR 8547 —final, October 2026, table 2— deprecates all ECDSA and RSA of ${R.fuerza_min} bits or more after 2030, drawing no distinction between them. The top score is reserved for a post-quantum key, the only exit the standard recognizes.`,
+        regla: (R) => `${R.aprobada} if the key is classical and gives ${R.fuerza_min} bits of strength or more; ${R.bajo} if less; ${R.pq} only if post-quantum; with no certificate read, no data (never 0).`,
         efecto: () => "None directly (see RQ.S.02).",
       },
       "RQ.S.02.2": {
@@ -470,7 +472,8 @@ export const RUBRICA = {
       "RQ.S.04": {
         variable: "HNDL posture (dimension)",
         observa: "Nothing about the domain: it is the value of the sector declared when measuring.",
-        metodo: "Read from the reference table. Limit: the same for every organization in the sector; nothing the organization does moves it.",
+        // APROBADO (18-nov-2026, textos 2, 3 y 4): copiado del documento sellado en src/data/q-ready/textos-aprobados/ (check-textos-aprobados)
+        metodo: "Read from the reference table. Limit: the same for every organization in the sector; nothing the organization does moves it. These values are Rosetta's own model, fixed in the August 2026 edition. The derivation is not published: what is published is the value used, not how it was arrived at.",
         regla: (lista) => `Sector value: ${lista}.`,
         efecto: (min) => `No sector, no index. Not measured, with weight ≥ ${min}: the grade cannot be A.`,
       },
@@ -559,7 +562,8 @@ export const RUBRICA = {
       "RQ.S.09.7": {
         variable: "Sensitive names left unprobed",
         observa: "Sensitive names in the log left out by the per-measurement cap.",
-        metodo: (max) => `Up to ${max} names are probed, test environments first. Whatever is left out is unknown.`,
+        // APROBADO (18-nov-2026, textos 2, 3 y 4): copiado del documento sellado en src/data/q-ready/textos-aprobados/ (check-textos-aprobados)
+        metodo: (max) => `Up to ${max} names per organization are probed. Grade A requires every sensitive name to have been probed, so an organization with more sensitive names than the cap cannot reach it. The fact sheet states how many were left unprobed.`,
         regla: () => "Does not add to the QEX.",
         efecto: () => "While any remains: no A.",
       },

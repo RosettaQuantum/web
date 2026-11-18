@@ -10,5 +10,11 @@
   "sha256": "1d32d1542203397ff483f0ab02713d115e593c5b8e2b1826becfd36f15dd9f94",
   "aprobado_por": "Nicholas, 18-nov-2026: \"Sí, así queda\"",
   "usa": "public/js/rubrica-textos.mjs · RUBRICA.es.filas[\"RQ.S.04\"].metodo (al final)"
+ },
+ {
+  "archivo": "TEXTOS-para-aprobar-2026-11-18.md",
+  "sha256": "a31d2c1c3215d7f05b3568dc8e7468cf607615301177c2801c9de2dbb706aaa3",
+  "aprobado_por": "Nicholas, 18-nov-2026 (textos 2, 3 y 4)",
+  "usa": "public/js/rubrica-textos.mjs · RUBRICA.en.filas[\"RQ.S.04\"].metodo (texto 2, al final); RUBRICA.es/en.filas[\"RQ.S.09.7\"].metodo (texto 3, con MAX_SONDEADOS); RUBRICA.es/en.filas[\"RQ.S.02.1\"].metodo y .regla (texto 4, con REGLA_CERTIFICADOS). Los textos 1, 5 y 6 del documento NO se usan aquí."
  }
 ]

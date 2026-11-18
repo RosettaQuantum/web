@@ -54,7 +54,7 @@ export function generar({ N: nucleo = N } = {}) {
 function textosParaAprobar(es, en, json) {
   const L = ["# Textos provisorios · rúbrica del QEX y de la nota (18-nov-2026)", "",
     "Generado por `node scripts/build-rubrica-qex.mjs` desde `public/js/rubrica-textos.mjs`. **Nada de esto se publica en producción sin aprobación.**",
-    "Todo es NUEVO salvo los nombres de las alertas, que repiten los aprobados (`TXT.alerta` de qready-textos.mjs), y la frase sobre el origen de la tabla HNDL en RQ.S.04 (es), aprobada el 18-nov y sellada en `src/data/q-ready/textos-aprobados/`.",
+    "Todo es NUEVO salvo los nombres de las alertas, que repiten los aprobados (`TXT.alerta` de qready-textos.mjs), la frase sobre el origen de la tabla HNDL en RQ.S.04 (es, «Sí, así queda»), y los textos 2, 3 y 4 del 18-nov: RQ.S.04 en inglés, el método de RQ.S.09.7 (el tope de sondeo) y el método y la regla de RQ.S.02.1 (la llave), aprobados y sellados en `src/data/q-ready/textos-aprobados/`.",
     `Versión: ${json.version} · sha256 del JSON: \`${json.sha256}\``,
     "Del mismo encargo, en otro documento: los textos nuevos o cambiados de la ficha (país declarado, enlace a la rúbrica en la sección 06, la línea HNDL de «No medido», la escala en /protocolo/ficha) están en `docs/textos-provisorios-ficha.md` (marcados NUEVO o CAMBIA). También es nueva la descripción del parámetro `pais` en api.js (herramienta MCP y OpenAPI).", ""];
   for (const [lang, r] of [["es", es], ["en", en]]) {
