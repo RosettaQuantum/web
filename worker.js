@@ -1,4 +1,5 @@
 import { registrarVisita } from "./lib/hits.mjs";
+import { manejarEvento, manejarStats } from "./lib/q-eventos.mjs";
 import { manejarApi, registrarMedicion, registrarVerificado } from "./api.js";
 import * as medicionAgentes from "./lib/medicion-agentes.mjs";
 import { manejarEnvio, manejarBaja } from "./lib/envio-informe.mjs";
@@ -144,16 +145,27 @@ async function atender(request, env, ctx) {
     if (url.pathname.startsWith("/api/sondas/tls")) return manejarTls(request, env, url);
     if (url.pathname === "/api/sondas") return manejarSondas(request, env);
 
+    // Embudo de la landing pagada /es/q (lib/q-eventos.mjs): el evento entra por sendBeacon y
+    // la lectura agregada exige clave en la cabecera. T3 y T4 del encargo del 6-nov.
+    if (url.pathname === "/api/q/event" && request.method === "POST") return manejarEvento(request, env, ctx);
+    if (url.pathname === "/api/q/stats" && request.method === "GET") return manejarStats(request, env);
+
     if (url.pathname === "/api/lead" && request.method === "POST") {
       try {
         const b = await request.json();
         if (!b.email || !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(b.email))
           return json({ ok: false, error: "valid email required" }, 400);
+        // T2 — `source` por LISTA BLANCA, no libre. El formulario de /es/q necesita
+        // distinguirse del modal del sitio para poder atribuir la campana, pero un `source`
+        // que acepta cualquier texto deja que un tercero escriba lo que quiera en la columna
+        // por la que despues se mide de donde vino un cliente. Lo que no esta, cae al defecto.
+        const FUENTES = ["site-modal", "q-landing"];
+        const source = FUENTES.includes(b.source) ? b.source : "site-modal";
         await env.DB.prepare(
           "INSERT INTO leads (name,email,role,org,problem_class,note,lang,source) VALUES (?,?,?,?,?,?,?,?)"
         ).bind(
           b.name || null, b.email, b.role || null, b.org || null,
-          b.problem_class || null, b.note || null, b.lang || "en", "site-modal"
+          b.problem_class || null, b.note || null, b.lang || "en", source
         ).run();
         return json({ ok: true });
       } catch (e) {
