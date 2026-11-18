@@ -63,6 +63,9 @@ igual([N.notaQEX(FOTO, {}), N.notaQEX(FOTO, { well_known_valido: true, inventari
 const par = await crypto.subtle.generateKey({ name: "Ed25519" }, true, ["sign", "verify"]);
 const JWK = JSON.stringify({ ...(await crypto.subtle.exportKey("jwk", par.privateKey)), kid: "rq-guardia-prueba" });
 const ASSETS = { fetch: async () => new Response("", { status: 404 }) };
+// La página de rosettaquantum.com en A+ exige la nota de autoverificación (lib/qready-autoverificacion.mjs):
+// se le pasan los .md aprobados como se los pasa lib/qready-rutas.mjs en el Worker.
+const AUTOVERIFICACION = { es: leer("src/data/q-ready/autoverificacion/es.md"), en: leer("src/data/q-ready/autoverificacion/en.md") };
 
 // El caso, con el esquema REAL en memoria: dominio verificado y público, inventario marcado o no.
 async function caso(Vx, { inventario, conLlave = true }) {
@@ -78,10 +81,10 @@ async function caso(Vx, { inventario, conLlave = true }) {
   try {
     cron = await Vx.cronVerificados(env, { tomarFoto, resolver, ahora: "2026-11-18T09:17:00.000Z" });
     const url = new URL(`https://${DOMINIO}/es/verificado/${DOMINIO}`);
-    html = await (await Vx.manejarVerificado(new Request(url), env, url, null, { tokens: TOKENS })).text();
+    html = await (await Vx.manejarVerificado(new Request(url), env, url, null, { tokens: TOKENS, autoverificacion: AUTOVERIFICACION })).text();
     api = (await Vx.notaParaApi(env, DOMINIO, new URL(`https://${DOMINIO}/`))).cuerpo;
     const us = new URL(`https://${DOMINIO}/sello/${DOMINIO}.svg`);
-    sello = await (await Vx.manejarVerificado(new Request(us), env, us, null, { tokens: TOKENS })).text();
+    sello = await (await Vx.manejarVerificado(new Request(us), env, us, null, { tokens: TOKENS, autoverificacion: AUTOVERIFICACION })).text();
   } finally { restaurar(); }
   const tabla = (html.match(/<td class="qv-n">([^<]*)<\/td>/) || [])[1] ?? null;
   const fichaPag = (html.match(/>RQ\.S\.00 · [^<]*<\/div><div class="rf-l">([^<]*)</) || [])[1] ?? null;

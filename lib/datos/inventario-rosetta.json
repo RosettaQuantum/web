@@ -1,0 +1,17 @@
+{
+  "_que": "Las cifras del inventario interno de criptografía de rosettaquantum.com que cita la nota de autoverificación de /verificado/rosettaquantum.com. Salen del documento aprobado (fuera del repositorio: describe infraestructura); scripts/check-qready-autoverificacion.mjs las compara contra él si se le pasa INVENTARIO_DOC.",
+  "documento": "Projects/Rosetta Quantum/entregables/inventario-cripto-rosetta/INVENTARIO-para-aprobar.md",
+  "documento_sha256": "9fef63cef3fc88af7b5159fff9dda28ae7451183b3a8de2a65b551e43970d02e",
+  "filas": 38,
+  "medidas": 31,
+  "no_medidas": 7,
+  "no_medidas_filas": [
+    8,
+    9,
+    26,
+    29,
+    30,
+    36,
+    38
+  ]
+}

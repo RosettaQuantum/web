@@ -41,7 +41,7 @@
   // El .wasm no necesita regla: CompiledWasm es el tipo por defecto de **/*.wasm.
   "rules": [
     { "type": "Data", "globs": ["**/*.ttf"], "fallthrough": true },
-    { "type": "Text", "globs": ["**/global.css", "**/rosetta-mark.svg"], "fallthrough": true }
+    { "type": "Text", "globs": ["**/global.css", "**/rosetta-mark.svg", "**/q-ready/autoverificacion/*.md"], "fallthrough": true }
   ],
   "d1_databases": [
     { "binding": "DB", "database_name": "rosettaq-ledger", "database_id": "f0919403-5bd0-4842-a1d3-0954fdd47633" }
