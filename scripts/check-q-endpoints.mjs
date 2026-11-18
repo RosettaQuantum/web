@@ -7,7 +7,7 @@ export const CONSUMIDOR = {
 // Los dos endpoints ejercidos de verdad, con una base simulada que GUARDA lo que se le pasa.
 // Esto prueba lo que las funciones puras no pueden: la ruta completa del handler, la aridad real
 // del bind, los codigos de estado, y que un fallo de la base no se vea desde afuera.
-const { manejarEvento, manejarStats } = await import(
+const { manejarEvento, manejarStats, ipHash } = await import(
   "../lib/q-eventos.mjs"
 );
 
@@ -63,11 +63,35 @@ const ok = (c, m) => { if (!c) { console.error("   FALLA:", m); fallos++; } };
   ok(r.status === 204, `con la base caida deberia dar 204 y dio ${r.status}`);
 }
 
-// 4. sin sal: se escribe igual, pero sin ip_hash (nunca una sal fija)
+// 4. sin NINGUNA semilla: se escribe igual, pero sin ip_hash (nunca una sal fija)
 {
   escrito.length = 0;
   await manejarEvento(pedir({ ev: "view" }, { "cf-connecting-ip": "1.2.3.4" }), { DB: baseFalsa() }, ctx);
-  ok(escrito[0]?.v.at(-1) === null, `sin Q_IP_SALT el ip_hash deberia ir vacio y fue ${escrito[0]?.v.at(-1)}`);
+  ok(escrito[0]?.v.at(-1) === null, `sin semilla el ip_hash deberia ir vacio y fue ${escrito[0]?.v.at(-1)}`);
+}
+
+// 4b. con la semilla que YA existe (MEDICION_SAL_IP) y sin Q_IP_SALT: se mide igual. Sin esto,
+// el embudo queda colgado de un secreto que alguien tiene que acordarse de poner, y mientras
+// tanto dice "visitantes: 0" sin que nada avise de que es un cero falso.
+{
+  escrito.length = 0;
+  await manejarEvento(pedir({ ev: "view" }, { "cf-connecting-ip": "1.2.3.4" }), { DB: baseFalsa(), MEDICION_SAL_IP: "la-que-ya-estaba" }, ctx);
+  ok(/^[0-9a-f]{16}$/.test(String(escrito[0]?.v.at(-1))), "con MEDICION_SAL_IP sola tendria que haber ip_hash");
+}
+
+// 4c. y reusar la semilla NO reusa el hash. `mediciones_agentes` hashea con la semilla CRUDA
+// (sal fija, o sea un identificador permanente por persona); aqui se hashea con la semilla MAS el
+// dia. Lo que se mide es que el dia entre de verdad: si alguien quita el `:${dia}`, el hash del
+// embudo cae sobre la semilla cruda y hereda ese identificador permanente, ademas de volverse
+// cruzable con la otra tabla. No se importa `medicion-agentes.mjs` porque arrastra `cloudflare:`
+// y no carga en Node; se compara contra la misma funcion de este modulo, que es lo que importa.
+{
+  const SEM = "la-que-ya-estaba";
+  escrito.length = 0;
+  await manejarEvento(pedir({ ev: "view" }, { "cf-connecting-ip": "1.2.3.4" }), { DB: baseFalsa(), MEDICION_SAL_IP: SEM }, ctx);
+  const delEmbudo = String(escrito[0]?.v.at(-1));
+  ok(delEmbudo !== String(await ipHash("1.2.3.4", SEM)), "el ip_hash se calculo con la semilla CRUDA: no rota, y es un identificador permanente");
+  ok(delEmbudo === String(await ipHash("1.2.3.4", `${SEM}:${new Date().toISOString().slice(0, 10)}`)), "el ip_hash no se calculo con semilla + dia");
 }
 
 // 5. stats: 401 sin clave, 401 con la equivocada, 503 sin configurar, 200 con la correcta
