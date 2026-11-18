@@ -89,13 +89,19 @@ function pintar(dif: number, polaridad?: string) {
   const mejora = polaridad === 'mayor_mejor' ? dif > 0 : dif < 0;
   return mejora ? 'down' : 'up';   // .down = verde (mejora) · .up = rojo (empeora)
 }
-function delta(id: string, valor: number | null) {
+function delta(id: string, valor: number | null, sinComparacion?: string | null) {
   /* Sin valor no hay variación. Con `null` esto daba `null - 0 = 0` y devolvía
    * «sin cambio», que afirma una medición inexistente: la peor forma de la
    * ausencia disfrazada de valor, porque suena tranquilizadora. */
   // La ficha no pinta chip cuando no hay medición, así que este texto no se
   // llega a ver; existe igual por si otro lugar llama a `delta` con un null.
   if (!medida(valor)) return { cls: 'flat', txt: SIN_MEDIR };
+  /* El motor marca `_sin_comparacion` (con su causa) cuando la cifra anterior medía otra
+   * cosa: restarlas publica una variación entre dos conjuntos distintos. Caso real
+   * (17-nov-2026): «Sin security.txt publicado», 96 % de agosto sobre base 140 con otro
+   * rótulo y sin crudo → «+1 %». Decisión de Nicholas: quitarle la comparación. Se mira
+   * ANTES de `prev`: la página no lee `d.variacion`, calcula el delta aquí. */
+  if (sinComparacion) return { cls: 'new', txt: 'línea base' };
   if (!prev) return { cls: 'new', txt: 'línea base' };
   const ant = prev.titulares?.find((t: any) => t.id === id);
   if (!ant) return { cls: 'new', txt: 'nuevo' };
@@ -214,7 +220,7 @@ const frase = (ps: any[], k: string) =>
   description={`${d.subtitulo}. Edición ${d.numero}, ${mesLargo}. Medición técnica sobre endpoints reales, no encuesta.`}
   lang="es" altUrl="/" ruta="/informe-pqc" pageCss={css} scripts={["/js/frescura.js", "/js/informe-indice.js"]} noindex={esBorrador}>
 
-<div class="informe-doc">
+<div class="informe-doc" data-edicion={d.edicion}>
 <div class="informe">
 
   <header class="mast">
@@ -327,7 +333,7 @@ const frase = (ps: any[], k: string) =>
       </div>
       <div class="tiles">
         {d.titulares.map((t: any) => {
-          const dl = delta(t.id, t.v);
+          const dl = delta(t.id, t.v, t._sin_comparacion);
           const sev = t.sev === 'asterisco' ? '' : t.sev === 'info' ? '' : t.sev;
           return (
             <div class={`tile ${sev}`}>

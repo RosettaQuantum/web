@@ -30,7 +30,29 @@ export function revisarHtml(html) {
   return mal;
 }
 
-let pasa = 0, falla = 0;
+/**
+ * Fichas marcadas `_sin_comparacion` (17-nov-2026): la cifra anterior medía otra cosa, así que
+ * la ficha no puede llevar una píldora con signo ni una flecha. Recibe el HTML y los titulares
+ * de la edición que ese HTML muestra. Devuelve [problemas, fichas_miradas].
+ * Mira la ficha por su rótulo (`<span class="k">`), que es lo que el lector ve.
+ */
+export function revisarFichas(html, titulares) {
+  const h = sinComentarios(html), mal = [];
+  const fichas = [...h.matchAll(/<div class="tile[^"]*">([\s\S]*?)<\/div>/g)].map((m) => m[1]);
+  const rotulo = (f) => (/<span class="k"[^>]*>([\s\S]*?)<\/span>/.exec(f)?.[1] ?? "").replace(/<[^>]+>/g, "").replace(/\s*\*$/, "").trim();
+  let miradas = 0;
+  for (const t of titulares ?? []) {
+    if (!t._sin_comparacion) continue;
+    const f = fichas.find((x) => rotulo(x) === t.k);
+    if (!f) { mal.push(`la ficha «${t.k}» está marcada sin comparación y no aparece en la página`); continue; }
+    miradas++;
+    const chip = /<span class="delta [^"]*"[^>]*>([^<]*)<\/span>/.exec(f)?.[1] ?? "";
+    if (/^[+\-−]/.test(chip.trim()) || /→/.test(f)) mal.push(`la ficha «${t.k}» no admite comparación y publica «${chip.trim() || "→"}»`);
+  }
+  return [mal, miradas];
+}
+
+let pasa = 0, falla = 0, saltadas = 0;
 const prueba = (n, ok) => { ok ? pasa++ : falla++; console.log(`  ${ok ? "ok   " : "FALLA"} ${n}`); };
 const pagina = ({ ventana, frase, lis = 6, secciones = 14, comentario = "" }) =>
   `${comentario}<span>${ventana}</span><p>Pendiente antes de publicar: ${frase}.</p>` +
@@ -52,12 +74,31 @@ prueba("silencio: ventana de dos días con flecha", revisarHtml(pagina({ ventana
 prueba("silencio paradójico: «sección 11» y «cuatro puntos» sólo en un comentario",
   revisarHtml(`<!-- revisión legal de los cuatro puntos marcados en la sección 11 · Medición 2026-11-06 → 2026-11-06 -->` +
     pagina({ ventana: ventanaTexto({ desde: "2026-07-31", hasta: "2026-08-02" }), frase: pendientePorDefecto(6, 14) })).length === 0);
+// 6 · fichas sin comparación. Grito, silencio de la vecina y silencio paradójico.
+const ficha = (k, chip) => `<div class="tile "><span class="k">${k}</span><span class="v">97%</span><span class="sub"><span class="delta up">${chip}</span> x</span></div>`;
+const TIT = [{ k: "Sin security.txt publicado", _sin_comparacion: "otra base" }, { k: "Con híbrido post-cuántico" }];
+prueba("MUTACIÓN delta() sin la condición: «+1%» en la ficha marcada grita",
+  revisarFichas(ficha(TIT[0].k, "+1%") + ficha(TIT[1].k, "+4%"), TIT)[0].length === 1);
+prueba("silencio: marcada en «línea base» y la vecina conserva su «+4%»",
+  revisarFichas(ficha(TIT[0].k, "línea base") + ficha(TIT[1].k, "+4%"), TIT)[0].length === 0);
+prueba("silencio paradójico: «+1%» sólo dentro de un comentario",
+  revisarFichas(`<!-- ${ficha(TIT[0].k, "+1%")} -->` + ficha(TIT[0].k, "línea base"), TIT)[0].length === 0);
+prueba("grito: la ficha marcada desapareció de la página", revisarFichas(ficha(TIT[1].k, "+4%"), TIT)[0].length === 1);
+
 // 5 · la página construida de verdad
 const ruta = new URL("../dist/informe-pqc/index.html", import.meta.url);
 if (existsSync(ruta)) {
   const mal = revisarHtml(readFileSync(ruta, "utf8"));
   prueba(`dist/informe-pqc: ${mal.length ? mal.join(" · ") : "sin números clavados ni fecha repetida"}`, mal.length === 0);
-} else { console.log("  SALTADA dist/informe-pqc (no hay build)"); }
+  // La edición que muestra el build: la que diga RQ_INFORME_PREVIEW, o la publicada (declarada aquí, no adivinada).
+  const html = readFileSync(ruta, "utf8");
+  const ed = /data-edicion="([\d-]+)"/.exec(html)?.[1] ?? process.env.RQ_INFORME_PREVIEW ?? null;
+  const fuente = ed && [new URL(`../src/data/informe-pqc/${ed}.json`, import.meta.url)].find(existsSync);
+  if (fuente) {
+    const [malF, n] = revisarFichas(html, JSON.parse(readFileSync(fuente, "utf8")).titulares);
+    prueba(`dist/informe-pqc fichas sin comparación (${ed}, ${n} marcadas): ${malF.length ? malF.join(" · ") : "ninguna con variación"}`, malF.length === 0);
+  } else { saltadas++; console.log(`  SALTADA fichas sin comparación: no sé qué edición muestra el build (${ed ?? "sin marca"})`); }
+} else { saltadas++; console.log("  SALTADA dist/informe-pqc (no hay build)"); }
 
-console.log(`\ncheck-informe-portada: ${pasa} pasaron, ${falla} fallaron`);
+console.log(`\ncheck-informe-portada: ${pasa} pasaron, ${falla} fallaron, ${saltadas} saltadas`);
 if (falla) process.exit(1);
