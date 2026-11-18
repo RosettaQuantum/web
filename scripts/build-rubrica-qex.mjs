@@ -17,9 +17,26 @@ const raiz = new URL("../", import.meta.url);
 const leer = (r) => readFileSync(new URL(r, raiz), "utf8");
 const R = await import("../public/js/rubrica-qex.mjs");
 const N = await import("../public/js/qex-nucleo.mjs");
-const { RUBRICA, PROPUESTA_LECTURA } = await import("../public/js/rubrica-textos.mjs");
+const { RUBRICA } = await import("../public/js/rubrica-textos.mjs");
 
 export const REFERENCIA_ARCHIVO = "public/data/qex-referencia-2026-08.json";
+
+// PROPUESTA, NO APLICADA (18-nov-2026). La lectura de la A y de la B (TXT.nota_lectura de
+// qready-textos.mjs, aprobada el 13-nov) describe sólo una de sus causas: una B que sale por un ambiente
+// de pruebas publicado se lee «quedan nombres públicos sin evidencia del candado nuevo», que puede ser
+// falso. Esta es la propuesta para aprobar; ningún código la usa hasta entonces. Vive aquí y no en
+// public/js: no se sirve un texto sin aprobar.
+const PROPUESTA_LECTURA = {
+  es: {
+    A: "Candado nuevo en el sitio y en todos los nombres públicos que respondieron, sin alertas graves ni altas, sin ambientes de prueba publicados y con todo lo sensible medido. Es la nota máxima que se puede dar desde afuera.",
+    B: "Candado nuevo en el sitio principal y sin alertas graves ni altas, pero falta algo para A: nombres sin evidencia del candado nuevo, un ambiente de pruebas publicado, nombres sensibles sin medir o una dimensión sin medir.",
+  },
+  en: {
+    A: "New lock on the site and on every public name that responded, no serious or high alerts, no published test environments, and everything sensitive measured. The highest grade that can be given from outside.",
+    B: "New lock on the main site and no serious or high alerts, but something is missing for A: names without evidence of the new lock, a published test environment, sensitive names left unmeasured, or a dimension not measured.",
+  },
+};
+
 const sha = (t) => createHash("sha256").update(t).digest("hex");
 
 // El cron sale de wrangler.jsonc (la única definición). JSONC: se quitan los comentarios de línea.
