@@ -92,7 +92,7 @@ export function armarRubrica({ referencia, cron, idioma = "es", N = NUCLEO }) {
     puntos_dimension: `0–${RC.pq}`, puntos_qex: fmt(RC.pq * P.certificados, idioma), efecto_nota: F["RQ.S.02"].efecto(minDim),
     desde: desde(Q10, condA("dimensiones_medidas").desde) }));
   filas.push(fila({ id: "RQ.S.02.1", dimension: T.dim.certificados, variable: F["RQ.S.02.1"].variable, observa: F["RQ.S.02.1"].observa, fuente: T.fuente.tls_hoja,
-    metodo: F["RQ.S.02.1"].metodo, tipo: tipo("medido"), regla: F["RQ.S.02.1"].regla(RC, N.FIRMAS_PQ.join(", ")), puntos_dimension: `${RC.pq} / ${RC.aprobada} / ${RC.bajo}`, peso: P.certificados,
+    metodo: F["RQ.S.02.1"].metodo(RC), tipo: tipo("medido"), regla: F["RQ.S.02.1"].regla(RC), puntos_dimension: `${RC.pq} / ${RC.aprobada} / ${RC.bajo}`, peso: P.certificados,
     puntos_qex: `${fmt(RC.pq * P.certificados, idioma)} / ${fmt(RC.aprobada * P.certificados, idioma)} / ${fmt(RC.bajo * P.certificados, idioma)}`, efecto_nota: F["RQ.S.02.1"].efecto(),
     desde: N.VERSION_QEX, norma: norma("ir8547", "sp80057", "fips204") }));
   filas.push(fila({ id: "RQ.S.02.2", dimension: T.dim.certificados, variable: F["RQ.S.02.2"].variable, observa: F["RQ.S.02.2"].observa, fuente: T.fuente.tls_hoja,

@@ -34,7 +34,10 @@ export const CONSUMIDOR = { quien: "sesion web de Rosetta, antes de desplegar", 
 const RAIZ = new URL("..", import.meta.url).pathname;
 const RAICES = ["src", "public", "lib", "mcp", "api.js", "worker.js", "vps/sonda-correo", "docs/ietf"];
 const EXT = /\.(astro|md|mdx|ts|js|mjs|json|html|txt|py|svg)$/;
-const FUERA = /(^|\/)(node_modules|dist)(\/|$)|^public\/data\/rubrica-qex\.|^public\/consola\/|^src\/data\/ledger\.json$/;
+// src/data/q-ready/textos-aprobados/ (18-nov-2026): las copias SELLADAS de los documentos de aprobación. No se
+// sirven (sólo las leen los guardias) y citan a propósito lo que «decía» el texto viejo; su integridad la vigila
+// check-textos-aprobados por sha256. Escanearlas pediría registrar como revisada cada cita de lo que se corrigió.
+const FUERA = /(^|\/)(node_modules|dist)(\/|$)|^public\/data\/rubrica-qex\.|^public\/consola\/|^src\/data\/ledger\.json$|^src\/data\/q-ready\/textos-aprobados\//;
 const sha = (t) => createHash("sha256").update(t).digest("hex");
 
 // Letra suelta (A+, A, B, C, D, F) en MAYÚSCULA, comilla opcional y un separador; antes de la letra sólo
@@ -57,12 +60,6 @@ export const REVISADAS = {
     "d55cfc602dcfd37e40578bda812406cf7061ae0bd558b9501a10e288c28107cd", "c10bb846712f21bdb95f4bac8e1245a162c66d6e5a0f39cfad54bb1da207a61a",
     "0ec5d66964be9ee42bb500fbff84ecc672a2d86f40b08e0dd4880afb4b27a869", "26d9e45c91fa48eaca6841ac829f256de5d3e5d9985721038463e5c5cb80559d",
     "5c656da75e3ba27a2cbeb6728005c972c7880e826c0227263666e77689d94d5b", "90aaff0bed03a3601d0ac2cda7e277acbac7f61e5d651f8602a5b8ec72a577b8",
-  ],
-  // La copia sellada del documento que aprobó ese reemplazo (src/data/q-ready/textos-aprobados/): las mismas
-  // lecturas A y B, en la forma «- **A:** …» del documento.
-  "documento aprobado de la lectura A/B (sellado), 18-nov": [
-    "02465be26894ed4d2af95f65adf0ad514656fbe2f47cc8c9e02e8dd94461f9be", "2c27a7af7487469eb29dbaf5dc370cff6ffaad3494958f521e3b5d0279f97c10",
-    "4ba443e867a72bbadf406197fb4b1e97793f92b92db3594af7fea5984013bdfd", "c57454e859cd2cd7d44e96c900b1b65d829e463030cb82d82ee320e87cd3fcec",
   ],
   // lib/borde-envivo.mjs: los saludos TLS A, B y C al sitio principal. Son letras de los saludos, no la nota.
   "saludos A/B/C del borde (no son la nota)": [
