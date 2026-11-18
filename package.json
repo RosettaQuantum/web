@@ -76,7 +76,7 @@
     "compilador:servir": "node scripts/servir-compilador.mjs",
     "compilador:mcp": "node mcp/servidor.mjs",
     "check:compilador-copia": "node scripts/check-compilador-copia.mjs",
-    "check:no-medido": "node scripts/check-informe-no-medido.mjs",
+    "check:no-medido": "node scripts/check-informe-no-medido.mjs && node scripts/check-informe-portada.mjs",
     "check:no-medido-autoprueba": "node scripts/check-informe-no-medido.mjs --autoprueba",
     "check:serie": "node scripts/check-informe-serie.mjs",
     "check:serie-autoprueba": "node scripts/check-informe-serie.mjs --autoprueba"

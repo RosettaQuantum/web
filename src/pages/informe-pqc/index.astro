@@ -1,6 +1,7 @@
 ---
 import { banda } from '../../lib/qex.js';
 import { elegirEdicion } from '../../lib/informe-elegir.mjs';
+import { PENDIENTES_LEGALES, pendientePorDefecto, ventanaTexto } from '../../lib/informe-portada.mjs';
 import MarcaLayout from '../../layouts/MarcaLayout.astro';
 import css from '../../styles/pages/informe-pqc.css?raw';
 
@@ -63,10 +64,9 @@ const prev = anterior?.d ?? null;
  * `borrador` acepta true (borrador sin detalle), false (publicada) o un texto con lo
  * que falta, que es lo que se muestra.
  */
-const PENDIENTE_POR_DEFECTO =
-  "revisión legal de los cuatro puntos marcados en la sección 11, y aviso previo a las organizaciones con hallazgos";
 const esBorrador = d.borrador !== false;
-const pendiente = typeof d.borrador === "string" ? d.borrador : PENDIENTE_POR_DEFECTO;
+// La frase de pendientes se arma DESPUÉS de SECCIONES (más abajo): su número de sección y su conteo
+// de puntos se derivan, no se escriben (src/lib/informe-portada.mjs).
 
 /* La nota al pie de la tabla de normas dice DOS cosas: que lo marcado «por
  * verificar» no se publica, y que se muestra porque esto es un borrador. Las dos
@@ -170,6 +170,8 @@ const TODAS: { id: string; t: string; si?: boolean }[] = [
 ];
 const SECCIONES = TODAS.filter((x) => x.si !== false);
 const nn = (i: number) => String(i + 1).padStart(2, '0');
+const pendiente = typeof d.borrador === "string" ? d.borrador
+  : pendientePorDefecto(PENDIENTES_LEGALES.length, SECCIONES.findIndex((x) => x.id === 'legal') + 1);
 
 /* LA SERIE EN EL TIEMPO.
  *
@@ -219,7 +221,7 @@ const frase = (ps: any[], k: string) =>
     <div class="edicion">
       <span class="num">Edición {String(d.numero).padStart(2,'0')}</span>
       <span>{mesLargo}</span>
-      <span>Medición {d.ventana.desde} → {d.ventana.hasta}</span>
+      <span>{ventanaTexto(d.ventana)}</span>
       <span>{d.muestra.organizaciones} organizaciones · {d.muestra.verticales} verticales</span>
       <span>{prev ? `Compara contra edición ${String(prev.numero).padStart(2,'0')}` : 'Primera edición · línea base'}</span>
     </div>
@@ -1329,14 +1331,7 @@ const frase = (ps: any[], k: string) =>
         T-llms lo vigila sobre la página servida. */}
     {esBorrador && (<div class="rev">
       <h4>Pendiente de revisión legal antes de publicar</h4>
-      <ol>
-        <li>Redacción del método frente a la legislación chilena sobre acceso no autorizado.</li>
-        <li>Publicación de agregados sectoriales sin nombrar organizaciones.</li>
-        <li>Umbral de anonimato: ninguna cifra sobre bases menores a ocho organizaciones.</li>
-        <li>Texto del aviso previo: que la entrega del hallazgo sea incondicional.</li>
-        <li>Menciones a proveedores como ausencia de declaración pública, no afirmación sobre el producto.</li>
-        <li>Suficiencia de los descargos de este apartado.</li>
-      </ol>
+      <ol>{PENDIENTES_LEGALES.map((p) => <li>{p}</li>)}</ol>
     </div>)}
 
     <div class="note"><strong>Derecho de exclusión y de acceso.</strong> Cualquier organización puede pedir su exclusión de futuras ediciones, o el detalle completo de lo observado en su superficie, sin costo y sin condiciones. Ambas dentro de 72 horas hábiles y sin justificación. <strong>Escriba a <a href="mailto:hello@rosettaquantum.com?subject=Informe%20PQC">hello@rosettaquantum.com</a>.</strong></div>
