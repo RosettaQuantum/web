@@ -52,6 +52,25 @@ export function revisarFichas(html, titulares) {
   return [mal, miradas];
 }
 
+/**
+ * Bandas del índice (18-nov-2026, «Sí, 0·0%»): una banda con conteo 0 se pinta «0 · 0%», nunca «—».
+ * El «—» queda sólo para la banda SIN conteo, que desde 2026-11 tumba el build (index.astro) y en
+ * 2026-08 es la ausencia publicada. Devuelve [problemas, filas_miradas].
+ */
+export function revisarBandas(html, conteo) {
+  const h = sinComentarios(html), mal = [];
+  let miradas = 0;
+  for (const m of h.matchAll(/<tr[^>]*>\s*<td><strong>([^<]+)<\/strong><\/td>\s*<td class="mono">[^<]*<\/td>\s*<td>[\s\S]*?<\/td>\s*<td class="num">([^<]*)<\/td>/g)) {
+    const [, banda, celda] = m;
+    if (!(banda in (conteo ?? {})) && celda.trim() !== "—") { mal.push(`«${banda}» no tiene conteo y la página dice «${celda.trim()}»`); continue; }
+    if (!(banda in (conteo ?? {}))) { miradas++; continue; }
+    miradas++;
+    const n = conteo[banda];
+    if (!celda.trim().startsWith(`${n} · `)) mal.push(`«${banda}» tiene conteo ${n} y la página dice «${celda.trim()}»`);
+  }
+  return [mal, miradas];
+}
+
 let pasa = 0, falla = 0, saltadas = 0;
 const prueba = (n, ok) => { ok ? pasa++ : falla++; console.log(`  ${ok ? "ok   " : "FALLA"} ${n}`); };
 const pagina = ({ ventana, frase, lis = 6, secciones = 14, comentario = "" }) =>
@@ -85,6 +104,17 @@ prueba("silencio paradójico: «+1%» sólo dentro de un comentario",
   revisarFichas(`<!-- ${ficha(TIT[0].k, "+1%")} -->` + ficha(TIT[0].k, "línea base"), TIT)[0].length === 0);
 prueba("grito: la ficha marcada desapareció de la página", revisarFichas(ficha(TIT[1].k, "+4%"), TIT)[0].length === 1);
 
+// 7 · bandas con cero
+const fila = (b, c) => `<tr><td><strong>${b}</strong></td><td class="mono">0–20</td><td>x</td><td class="num">${c}</td></tr>`;
+prueba("MUTACIÓN plantilla vieja: el 0 medido pintado «—» grita",
+  revisarBandas(fila("Expuesto", "—") + fila("Consciente", "33 · 15%"), { Expuesto: 0, Consciente: 33 })[0].length === 1);
+prueba("silencio: el 0 se pinta «0 · 0%» y la vecina «33 · 15%»",
+  revisarBandas(fila("Expuesto", "0 · 0%") + fila("Consciente", "33 · 15%"), { Expuesto: 0, Consciente: 33 })[0].length === 0);
+prueba("silencio (agosto): banda sin conteo publicada como «—»",
+  revisarBandas(fila("Expuesto", "—"), { Consciente: 28 })[0].length === 0);
+prueba("grito: banda sin conteo pintada como «0 · 0%» (un cero inventado)",
+  revisarBandas(fila("Expuesto", "0 · 0%"), { Consciente: 28 })[0].length === 1);
+
 // 5 · la página construida de verdad
 const ruta = new URL("../dist/informe-pqc/index.html", import.meta.url);
 if (existsSync(ruta)) {
@@ -95,7 +125,10 @@ if (existsSync(ruta)) {
   const ed = /data-edicion="([\d-]+)"/.exec(html)?.[1] ?? process.env.RQ_INFORME_PREVIEW ?? null;
   const fuente = ed && [new URL(`../src/data/informe-pqc/${ed}.json`, import.meta.url)].find(existsSync);
   if (fuente) {
-    const [malF, n] = revisarFichas(html, JSON.parse(readFileSync(fuente, "utf8")).titulares);
+    const datos = JSON.parse(readFileSync(fuente, "utf8"));
+    const [malB, nb] = revisarBandas(html, datos.indice?.bandas_conteo);
+    prueba(`dist/informe-pqc bandas (${ed}, ${nb} filas): ${malB.length ? malB.join(" · ") : "cada cero como 0 y cada ausencia como —"}`, malB.length === 0 && nb === (datos.indice?.bandas?.length ?? -1));
+    const [malF, n] = revisarFichas(html, datos.titulares);
     prueba(`dist/informe-pqc fichas sin comparación (${ed}, ${n} marcadas): ${malF.length ? malF.join(" · ") : "ninguna con variación"}`, malF.length === 0);
   } else { saltadas++; console.log(`  SALTADA fichas sin comparación: no sé qué edición muestra el build (${ed ?? "sin marca"})`); }
 } else { saltadas++; console.log("  SALTADA dist/informe-pqc (no hay build)"); }

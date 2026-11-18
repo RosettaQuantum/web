@@ -51,6 +51,21 @@ const { actual, anterior } = elegirEdicion(ediciones, {
 });
 const { d } = actual;
 const prev = anterior?.d ?? null;
+// Bandas del índice (18-nov-2026, Nicholas: «Sí, 0·0%»). Un conteo 0 es una medición y se pinta
+// «0 · 0 %»; una banda SIN conteo es ausencia y antes se pintaba igual («—», por el `?? 0`), que es la
+// ausencia disfrazada de cero. FRONTERA: desde la edición 2026-11 el motor publica las cinco bandas
+// (CLAVES_NUEVAS, sesión Q-Ready medición), así que una banda declarada sin conteo tumba el build.
+// 2026-08 está publicada con tres conteos (Expuesto y Cripto-ágil no venían) y publicado es
+// publicado: ahí la ausencia se sigue pintando «—», nunca «0».
+const BANDAS_COMPLETAS_DESDE = '2026-11';
+const conteoBanda = (nombre: string): number | null => {
+  const v = (d.indice.bandas_conteo as Record<string, number>)?.[nombre];
+  return typeof v === 'number' ? v : null;
+};
+if (d.edicion >= BANDAS_COMPLETAS_DESDE) {
+  const faltan = d.indice.bandas.map((b: any) => b.n).filter((n: string) => conteoBanda(n) === null);
+  if (faltan.length) throw new Error(`informe-pqc ${d.edicion}: bandas declaradas sin conteo: ${faltan.join(', ')}. Desde ${BANDAS_COMPLETAS_DESDE} el motor publica las cinco; un hueco es un dato perdido, no un cero.`);
+}
 // El párrafo de certificados nombra distribucion[0] y distribucion[1] (18-nov-2026): asume DOS valores.
 // Un tercero se caería en silencio, así que el build se niega y dice cuántos trajo.
 {
@@ -559,13 +574,13 @@ const frase = (ps: any[], k: string) =>
           <thead><tr><th>Nivel</th><th>Rango</th><th>Qué significa</th><th class="num">Organizaciones</th></tr></thead>
           <tbody>
             {d.indice.bandas.map((b: any) => {
-              const n = (d.indice.bandas_conteo as Record<string, number>)[b.n] ?? 0;
+              const n = conteoBanda(b.n);
               return (
-                <tr style={n === 0 ? 'opacity:.55' : ''}>
+                <tr style={!n ? 'opacity:.55' : ''}>
                   <td><strong>{b.n}</strong></td>
                   <td class="mono">{b.rango}</td>
                   <td>{b.sig}</td>
-                  <td class="num">{n === 0 ? '—' : `${n} · ${Math.round(n / d.indice.n * 100)}%`}</td>
+                  <td class="num">{n === null ? '—' : `${n} · ${Math.round(n / d.indice.n * 100)}%`}</td>
                 </tr>
               );
             })}
