@@ -12,7 +12,7 @@ import fx from '../../scripts/fixtures/ficha/f.json';
 import { escalaPublicada, RUBRICA_URL } from '../../public/js/rubrica-qex.mjs';
 import REFERENCIA from '../../public/data/qex-referencia-2026-08.json';
 import { textosRubrica } from '../../public/js/rubrica-textos.mjs';
-import { REGLA_CERTIFICADOS } from '../../public/js/qex-nucleo.mjs';
+import { REGLA_CERTIFICADOS, FIRMAS_PQ } from '../../public/js/qex-nucleo.mjs';
 const { lang = 'es' } = Astro.props;
 const T = FICHA_SPEC[lang === 'en' ? 'en' : 'es'];
 const F = textosFicha(lang);
@@ -24,7 +24,7 @@ const escala = escalaPublicada(lang === 'en' ? 'en' : 'es');
 const rubrica = RUBRICA_URL[lang === 'en' ? 'en' : 'es'].replace('https://rosettaquantum.com', '');
 // la edición de la tabla HNDL sale de la referencia publicada, no se escribe a mano
 // (18-nov-2026) la regla de la llave tampoco se escribe aquí: es la de la rúbrica, con las constantes del núcleo
-const reglaLlave = textosRubrica(lang === 'en' ? 'en' : 'es').filas['RQ.S.02.1'].regla(REGLA_CERTIFICADOS);
+const reglaLlave = textosRubrica(lang === 'en' ? 'en' : 'es').filas['RQ.S.02.1'].regla(REGLA_CERTIFICADOS, FIRMAS_PQ.join(', '));
 const catalogo = T.catalogo.map((f) => f.map((c) => c.replace('{edicion}', REFERENCIA.edicion).replace('{regla_llave}', reglaLlave)));
 const forma = `"presentacion": {
   "protocolo": "rosetta-ficha/1",

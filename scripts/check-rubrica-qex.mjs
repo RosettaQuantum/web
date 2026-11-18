@@ -214,6 +214,27 @@ igual(readFileSync(new URL("docs/fuentes/regla-llave-2026-11-18.md", raiz), "utf
   const h = IE.leerHoja(hoja(ml, "2.16.840.1.101.3.4.3.18"));
   igual([h.algoritmo, h.curva, h.bits, h.firma, N.certificadosValor({ ok: true, ...h })], ["ML-DSA", "ML-DSA-65", 192, "ml-dsa-65", N.REGLA_CERTIFICADOS.pq],
     "una hoja con llave ML-DSA-65 real se lee ML-DSA (OID 2.16.840.1.101.3.4.3.18 del CSOR) y vale lo de un certificado post-cuántico");
+  // Una por familia de IR 8547 tabla 3, todas a `pq` (18-nov-2026). ML-DSA y SLH-DSA con llaves REALES de Node.js
+  // (OpenSSL 3.5); HSS/LMS, XMSS y XMSS^MT con una llave CONSTRUIDA con el OID de RFC 9802/9708 (ni Node ni
+  // OpenSSL generan esas llaves): prueba el OID, no el formato de la llave.
+  const spkiOid = (o) => tlvB(0x30, tlvB(0x30, oidB(o)), tlvB(0x03, [0, 0, 0, 0, 1]));
+  const familias = [
+    ["ML-DSA", generateKeyPairSync("ml-dsa-65").publicKey.export({ type: "spki", format: "der" }), "2.16.840.1.101.3.4.3.18"],
+    ["SLH-DSA", generateKeyPairSync("slh-dsa-sha2-128s").publicKey.export({ type: "spki", format: "der" }), "2.16.840.1.101.3.4.3.20"],
+    ["HSS/LMS", spkiOid("1.2.840.113549.1.9.16.3.17"), "1.2.840.113549.1.9.16.3.17"],
+    ["XMSS", spkiOid("1.3.6.1.5.5.7.6.34"), "1.3.6.1.5.5.7.6.34"],
+    ["XMSS^MT", spkiOid("1.3.6.1.5.5.7.6.35"), "1.3.6.1.5.5.7.6.35"],
+  ];
+  const porFamilia = (M) => familias.map(([fam, spki, o]) => { const x = IE.leerHoja(hoja(spki, o)); return [fam, x.algoritmo, M.certificadosValor({ ok: true, ...x })]; });
+  igual(porFamilia(N), familias.map(([fam]) => [fam, fam, N.REGLA_CERTIFICADOS.pq]), "cada familia post-cuántica de IR 8547 tabla 3 se reconoce y vale lo de un certificado post-cuántico");
+  igual([...new Set(Object.values(IE.FIRMAS_PQ_OID).map((x) => x[0]))].sort(), [...N.FIRMAS_PQ].sort(), "las familias del lector (OID) son las del núcleo, ni más ni menos");
+  igual(Object.values(IE.FIRMAS_PQ_OID).filter((x) => x[0] === "SLH-DSA").map((x) => x[2]).every((f) => [128, 192, 256].includes(f)), true, "SLH-DSA: fuerza 128/192/256 según su juego (IR 8547 tabla 3)");
+  const fuente = readFileSync(new URL("docs/fuentes/regla-llave-2026-11-18.md", raiz), "utf8");
+  igual(["id-ml-dsa-65 OBJECT IDENTIFIER ::= { sigAlgs 18 }", "id-slh-dsa-sha2-128s OBJECT IDENTIFIER ::= { sigAlgs 20 }", "smime(16) alg(3) 17 }", "security(5) mechanisms(5) pkix(7) algorithms(6) 34 }", "security(5) mechanisms(5) pkix(7) algorithms(6) 35 }"].every((x) => fuente.includes(x)), true,
+    "cada OID de prueba está en la fuente copiada (CSOR, RFC 9802, RFC 9708)");
+  await conMutante(NUCLEO, 'export const FIRMAS_PQ = Object.freeze(["ML-DSA", "SLH-DSA", "HSS/LMS", "XMSS", "XMSS^MT"]);', 'export const FIRMAS_PQ = Object.freeze(["ML-DSA"]);', async (M) => {
+    igual(porFamilia(M).every(([, , v]) => v === M.REGLA_CERTIFICADOS.pq), false, "MUTACIÓN: reconocer sólo ML-DSA → SLH-DSA, LMS y XMSS dejan de valer 100 (grita)");
+  });
   const ed = generateKeyPairSync("ed25519").publicKey.export({ type: "spki", format: "der" });
   const he = IE.leerHoja(hoja(ed, "1.3.101.112"));
   igual([he.algoritmo, N.certificadosValor({ ok: true, ...he }), N.certificadosValor({ ok: true, ...he }, "QEX-1.0")], ["Ed25519", N.REGLA_CERTIFICADOS.aprobada, null],
@@ -269,5 +290,5 @@ await conMutante(NUCLEO, "export const NOTA_DIMENSION_MINIMA = 0.25;", "export c
 
 for (const f of fallas) console.log("  FALLA " + f);
 console.log(fallas.length ? `check-rubrica-qex: ${fallas.length} falla(s) de ${casos} casos` :
-  `check-rubrica-qex: ok (${casos} casos · publicado = generado · funciones = constantes · escala = explicarNota en ${cmp.n} combinaciones · tope de nombres una sola definición · la llave según IR 8547 · 10 mutaciones gritan)`);
+  `check-rubrica-qex: ok (${casos} casos · publicado = generado · funciones = constantes · escala = explicarNota en ${cmp.n} combinaciones · tope de nombres una sola definición · la llave según IR 8547 · 11 mutaciones gritan)`);
 process.exit(fallas.length ? 1 : 0);

@@ -116,7 +116,7 @@ Reusados sin cambio (ya aprobados): los nombres de las alertas (`TXT.alerta`) y 
 - **NUEVO** `arbol.total`: suma de los aportes sobre peso ‹2›
 - **NUEVO** `arbol.maximo`: Máximo alcanzable desde afuera: ‹1› → ‹2›.
 - **NUEVO** `arbol.acciones`: Puntos por acción: ‹1›.
-- **NUEVO** `arbol.acc_mldsa`: certificado ML-DSA +‹1›
+- **NUEVO** `arbol.acc_mldsa`: firma post-cuántica en el certificado +‹1›
 - **NUEVO** `arbol.acc_tls13`: activar TLS 1.3 +‹1›
 - **NUEVO** `arbol.acc_hibrido`: activar el híbrido +‹1›
 - **NUEVO** `arbol.no_cuadra`: El desglose de puntos no cuadra con esta foto: se omite.
@@ -305,7 +305,7 @@ Reusados sin cambio (ya aprobados): los nombres de las alertas (`TXT.alerta`) y 
 - **NUEVO** `arbol.total`: sum of contributions over weight ‹2›
 - **NUEVO** `arbol.maximo`: Highest reachable from outside: ‹1› → ‹2›.
 - **NUEVO** `arbol.acciones`: Points per action: ‹1›.
-- **NUEVO** `arbol.acc_mldsa`: ML-DSA certificate +‹1›
+- **NUEVO** `arbol.acc_mldsa`: post-quantum signature on the certificate +‹1›
 - **NUEVO** `arbol.acc_tls13`: enable TLS 1.3 +‹1›
 - **NUEVO** `arbol.acc_hibrido`: enable the hybrid +‹1›
 - **NUEVO** `arbol.no_cuadra`: The points breakdown does not add up for this snapshot: it is left out.

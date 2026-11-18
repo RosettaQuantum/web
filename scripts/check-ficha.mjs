@@ -460,7 +460,7 @@ for (const n of ["medir_exposicion_pqc", "get_qready_grade"]) {
   igual([A12.cuadra, s12.dimension, A12.ganancias.map((g) => g[0]).includes("acc_mldsa"), A12.ganancias.map((g) => g[0]).includes("acc_llave")], [true, 75, true, false],
     "QEX-1.2: RSA-4096 vale 75, el desglose cuadra y la acción es «certificado ML-DSA», no una llave más grande");
   const md = Fi.markdownDe(Fi.armarFicha(f12, { idioma: "es" }));
-  igual([/RSA-4096 o P-384/.test(md), /certificado ML-DSA \+10,00/.test(md), /RSA-4096 = llave clásica aprobada hasta 2030 \(152 bits\)|RSA-4096 = llave clásica aprobada hasta 2030 \(128 bits\)/.test(md)], [false, true, true],
+  igual([/RSA-4096 o P-384/.test(md), /firma post-cuántica en el certificado \+10,00/.test(md), /RSA-4096 = llave clásica aprobada hasta 2030 \(152 bits\)|RSA-4096 = llave clásica aprobada hasta 2030 \(128 bits\)/.test(md)], [false, true, true],
     "la ficha QEX-1.2 no recomienda RSA-4096 o P-384 y nombra la ruta a ML-DSA");
   igual([A10.cuadra, s10.dimension, A10.ganancias.map((g) => g[0]).includes("acc_mldsa")], [true, 100, false], "una foto guardada QEX-1.0 con RSA-4096 se lee con su regla (100) y cuadra");
   await conMutante(new URL("public/js/ficha.mjs", raiz), "vC = N.certificadosValor(c, metodo)", "vC = N.certificadosValor(c)",

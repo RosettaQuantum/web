@@ -93,8 +93,8 @@ export const RUBRICA = {
         variable: "Fuerza de la llave del certificado",
         observa: "Algoritmo y tamaño de la llave del certificado del sitio principal.",
         // CAMBIA (18-nov, PROVISORIO: se aprobó la regla, no la redacción): la regla de NIST IR 8547 (QEX-1.2)
-        metodo: "Se lee la hoja que entrega el servidor. Fuerza clásica por tamaño (NIST SP 800-57, tabla 2): RSA-2048 = 112 bits, RSA-3072 = 128, P-256 = 128, Ed25519 = 128, P-384 = 192. Límite: la sonda reconoce RSA, las curvas P-256, P-384 y P-521, Ed25519 y ML-DSA; otro algoritmo sale sin dato.",
-        regla: (R) => `${R.aprobada} con cualquier llave clásica de al menos ${R.fuerza_min} bits de fuerza (EdDSA: ${R.fuerza_min_eddsa}), sea RSA-2048, RSA-4096, P-256 o P-384: NIST IR 8547 las depreca después de 2030 y las prohíbe después de 2035, todas por igual. ${R.bajo} bajo esa fuerza (por ejemplo RSA-1024): no está entre lo aprobado. ${R.pq} con un certificado post-cuántico ML-DSA. Sin certificado leído: sin dato, nunca 0.`,
+        metodo: "Se lee la hoja que entrega el servidor. Fuerza clásica por tamaño (NIST SP 800-57, tabla 2): RSA-2048 = 112 bits, RSA-3072 = 128, P-256 = 128, Ed25519 = 128, P-384 = 192. Límite: la sonda reconoce RSA, las curvas P-256, P-384 y P-521, Ed25519 y las firmas post-cuánticas de NIST IR 8547 (tabla 3); otro algoritmo sale sin dato.",
+        regla: (R, pq) => `${R.aprobada} con cualquier llave clásica de al menos ${R.fuerza_min} bits de fuerza (EdDSA: ${R.fuerza_min_eddsa}), sea RSA-2048, RSA-4096, P-256 o P-384: NIST IR 8547 las depreca después de 2030 y las prohíbe después de 2035, todas por igual. ${R.bajo} bajo esa fuerza (por ejemplo RSA-1024): no está entre lo aprobado. ${R.pq} con una firma post-cuántica (${pq}). Sin certificado leído: sin dato, nunca 0.`,
         efecto: () => "Ninguno directo (ver RQ.S.02).",
       },
       "RQ.S.02.2": {
@@ -407,8 +407,8 @@ export const RUBRICA = {
       "RQ.S.02.1": {
         variable: "Certificate key strength",
         observa: "Algorithm and key size of the main site's certificate.",
-        metodo: "The leaf the server presents is read. Classical strength by size (NIST SP 800-57, table 2): RSA-2048 = 112 bits, RSA-3072 = 128, P-256 = 128, Ed25519 = 128, P-384 = 192. Limit: the probe recognizes RSA, the P-256, P-384 and P-521 curves, Ed25519 and ML-DSA; any other algorithm comes out as no data.",
-        regla: (R) => `${R.aprobada} for any classical key of at least ${R.fuerza_min} bits of strength (EdDSA: ${R.fuerza_min_eddsa}), be it RSA-2048, RSA-4096, P-256 or P-384: NIST IR 8547 deprecates them after 2030 and disallows them after 2035, all alike. ${R.bajo} below that strength (for example RSA-1024): it is not among the approved. ${R.pq} with a post-quantum ML-DSA certificate. No certificate read: no data, never 0.`,
+        metodo: "The leaf the server presents is read. Classical strength by size (NIST SP 800-57, table 2): RSA-2048 = 112 bits, RSA-3072 = 128, P-256 = 128, Ed25519 = 128, P-384 = 192. Limit: the probe recognizes RSA, the P-256, P-384 and P-521 curves, Ed25519 and the post-quantum signatures of NIST IR 8547 (table 3); any other algorithm comes out as no data.",
+        regla: (R, pq) => `${R.aprobada} for any classical key of at least ${R.fuerza_min} bits of strength (EdDSA: ${R.fuerza_min_eddsa}), be it RSA-2048, RSA-4096, P-256 or P-384: NIST IR 8547 deprecates them after 2030 and disallows them after 2035, all alike. ${R.bajo} below that strength (for example RSA-1024): it is not among the approved. ${R.pq} with a post-quantum signature (${pq}). No certificate read: no data, never 0.`,
         efecto: () => "None directly (see RQ.S.02).",
       },
       "RQ.S.02.2": {

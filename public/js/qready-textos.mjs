@@ -362,7 +362,7 @@ export const FICHA = {
       total: (suma, peso) => `suma de los aportes${peso === "1,00" ? "" : ` sobre peso ${peso}`}`,
       maximo: (suma, n) => `Máximo alcanzable desde afuera: ${suma} → ${n}.`,
       acciones: (lista) => `Puntos por acción: ${lista}.`,
-      acc_mldsa: (p) => `certificado ML-DSA +${p}`,   // NUEVO (18-nov, PROVISORIO); reemplaza a la llave clásica más grande
+      acc_mldsa: (p) => `firma post-cuántica en el certificado +${p}`,   // NUEVO (18-nov, PROVISORIO); reemplaza a la llave clásica más grande
       acc_tls13: (p) => `activar TLS 1.3 +${p}`,
       acc_hibrido: (p) => `activar el híbrido +${p}`,
       no_cuadra: "El desglose de puntos no cuadra con esta foto: se omite.",
@@ -523,7 +523,7 @@ export const FICHA = {
       total: (suma, peso) => `sum of contributions${peso === "1.00" ? "" : ` over weight ${peso}`}`,
       maximo: (suma, n) => `Highest reachable from outside: ${suma} → ${n}.`,
       acciones: (lista) => `Points per action: ${lista}.`,
-      acc_mldsa: (p) => `ML-DSA certificate +${p}`,
+      acc_mldsa: (p) => `post-quantum signature on the certificate +${p}`,
       acc_tls13: (p) => `enable TLS 1.3 +${p}`,
       acc_hibrido: (p) => `enable the hybrid +${p}`,
       no_cuadra: "The points breakdown does not add up for this snapshot: it is left out.",

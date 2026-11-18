@@ -18,11 +18,11 @@
  "csv": {
   "es": {
    "archivo": "/data/rubrica-qex.es.csv",
-   "sha256": "a73a63e4bad3925e778e95b28d101efffaeab4158416beae12f712326c7a8df7"
+   "sha256": "82d86b1c7cf8d90c2461b0c8cce80f06630e0bfd5df6ebf571c01369e5663c0f"
   },
   "en": {
    "archivo": "/data/rubrica-qex.en.csv",
-   "sha256": "25ee68a095c56e3fd897d777fdb2038df08731b27db1c5a40cd3e8f8c183c1c2"
+   "sha256": "fbafacb04b46d3779c225ed95bb951a731057c8562fe7ee500a7aa755c9750a0"
   }
  },
  "columnas": [
@@ -125,9 +125,9 @@
     "variable": "Fuerza de la llave del certificado",
     "observa": "Algoritmo y tamaño de la llave del certificado del sitio principal.",
     "fuente": "saludo TLS (TLS 1.2; si el servidor no lo acepta, TLS 1.3)",
-    "metodo": "Se lee la hoja que entrega el servidor. Fuerza clásica por tamaño (NIST SP 800-57, tabla 2): RSA-2048 = 112 bits, RSA-3072 = 128, P-256 = 128, Ed25519 = 128, P-384 = 192. Límite: la sonda reconoce RSA, las curvas P-256, P-384 y P-521, Ed25519 y ML-DSA; otro algoritmo sale sin dato.",
+    "metodo": "Se lee la hoja que entrega el servidor. Fuerza clásica por tamaño (NIST SP 800-57, tabla 2): RSA-2048 = 112 bits, RSA-3072 = 128, P-256 = 128, Ed25519 = 128, P-384 = 192. Límite: la sonda reconoce RSA, las curvas P-256, P-384 y P-521, Ed25519 y las firmas post-cuánticas de NIST IR 8547 (tabla 3); otro algoritmo sale sin dato.",
     "tipo": "medido",
-    "regla": "75 con cualquier llave clásica de al menos 112 bits de fuerza (EdDSA: 128), sea RSA-2048, RSA-4096, P-256 o P-384: NIST IR 8547 las depreca después de 2030 y las prohíbe después de 2035, todas por igual. 0 bajo esa fuerza (por ejemplo RSA-1024): no está entre lo aprobado. 100 con un certificado post-cuántico ML-DSA. Sin certificado leído: sin dato, nunca 0.",
+    "regla": "75 con cualquier llave clásica de al menos 112 bits de fuerza (EdDSA: 128), sea RSA-2048, RSA-4096, P-256 o P-384: NIST IR 8547 las depreca después de 2030 y las prohíbe después de 2035, todas por igual. 0 bajo esa fuerza (por ejemplo RSA-1024): no está entre lo aprobado. 100 con una firma post-cuántica (ML-DSA, SLH-DSA, HSS/LMS, XMSS, XMSS^MT). Sin certificado leído: sin dato, nunca 0.",
     "efecto_nota": "Ninguno directo (ver RQ.S.02).",
     "desde": "QEX-1.2"
    },
@@ -1440,9 +1440,9 @@
     "variable": "Certificate key strength",
     "observa": "Algorithm and key size of the main site's certificate.",
     "fuente": "TLS handshake (TLS 1.2; if the server refuses it, TLS 1.3)",
-    "metodo": "The leaf the server presents is read. Classical strength by size (NIST SP 800-57, table 2): RSA-2048 = 112 bits, RSA-3072 = 128, P-256 = 128, Ed25519 = 128, P-384 = 192. Limit: the probe recognizes RSA, the P-256, P-384 and P-521 curves, Ed25519 and ML-DSA; any other algorithm comes out as no data.",
+    "metodo": "The leaf the server presents is read. Classical strength by size (NIST SP 800-57, table 2): RSA-2048 = 112 bits, RSA-3072 = 128, P-256 = 128, Ed25519 = 128, P-384 = 192. Limit: the probe recognizes RSA, the P-256, P-384 and P-521 curves, Ed25519 and the post-quantum signatures of NIST IR 8547 (table 3); any other algorithm comes out as no data.",
     "tipo": "measured",
-    "regla": "75 for any classical key of at least 112 bits of strength (EdDSA: 128), be it RSA-2048, RSA-4096, P-256 or P-384: NIST IR 8547 deprecates them after 2030 and disallows them after 2035, all alike. 0 below that strength (for example RSA-1024): it is not among the approved. 100 with a post-quantum ML-DSA certificate. No certificate read: no data, never 0.",
+    "regla": "75 for any classical key of at least 112 bits of strength (EdDSA: 128), be it RSA-2048, RSA-4096, P-256 or P-384: NIST IR 8547 deprecates them after 2030 and disallows them after 2035, all alike. 0 below that strength (for example RSA-1024): it is not among the approved. 100 with a post-quantum signature (ML-DSA, SLH-DSA, HSS/LMS, XMSS, XMSS^MT). No certificate read: no data, never 0.",
     "efecto_nota": "None directly (see RQ.S.02).",
     "desde": "QEX-1.2"
    },
@@ -2674,5 +2674,5 @@
    }
   ]
  },
- "sha256": "71e608943ab5fc80d42d44168252d5897e0b39f528bb8876e83944dd6c164f1c"
+ "sha256": "5d4d670861ca1cbc3e932ff803bef65f1952c7bd640a8bf64f6087b51263f86e"
 }

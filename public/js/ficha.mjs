@@ -287,7 +287,7 @@ export function arbolQex(foto, { idioma = "es", x = null } = {}) {
   // foto QEX-1.0 guardada se lee con la regla de agosto y su desglose sigue cuadrando)
   const c = foto.certificado || {}, vC = N.certificadosValor(c, metodo), RC = N.reglaCertificados(metodo);
   const alg = c.algoritmo === "RSA" ? `RSA-${c.bits ?? "?"}` : c.algoritmo === "EC" ? (c.curva || `EC${c.bits ? "-" + c.bits : ""}`)
-    : c.algoritmo === "ML-DSA" ? (c.curva || "ML-DSA") : (c.algoritmo || "");
+    : N.FIRMAS_PQ.includes(c.algoritmo) ? (c.curva || c.algoritmo) : (c.algoritmo || "");
   const reglaLlave = vC == null ? A.sin_certificado : RC.tipo === "tamaño" ? (vC === RC.supera ? A.llave_supera(alg) : A.llave_minimo(alg))
     : vC === RC.pq ? A.llave_pq(alg) : vC === RC.aprobada ? A.llave_aprobada(alg, N.fuerzaClasica(c)) : A.llave_bajo(alg, N.fuerzaClasica(c));
   const maxCert = RC.tipo === "tamaño" ? RC.supera : RC.pq;

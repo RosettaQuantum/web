@@ -1,12 +1,12 @@
 # Fuentes de la regla de la llave (RQ.S.02.1, QEX-1.2) · 18-nov-2026
 
 Extractos copiados POR SCRIPT del texto de cada fuente (nunca tipeados). Las huellas son de los archivos de
-los que se extrajeron. Los usa `public/js/qex-nucleo.mjs` (REGLAS_CERTIFICADOS, fuerzaClasica) y
-`lib/informe-envivo.mjs` (ML_DSA). `scripts/check-rubrica-qex.mjs` exige que cada norma citada siga aquí.
+los que se extrajeron. Los usan `public/js/qex-nucleo.mjs` (REGLAS_CERTIFICADOS, fuerzaClasica, FIRMAS_PQ) y
+`lib/informe-envivo.mjs` (FIRMAS_PQ_OID). `scripts/check-rubrica-qex.mjs` exige que cada norma citada siga aquí.
 
 ## 1. NIST IR 8547, versión final (octubre de 2026), tabla 2 y tabla 3
 
-PDF `ir8547.pdf`, sha256 `3049cdfdd7c20417cf588a3d55ace6e8813982d1499502b7ef69e9593b2dc280`; texto extraído `ir8547.txt`, sha256 `9e8e714e3fbda0a2d0cc10b310db5b2f3f2269093075262c5c73e69a0109013f`, líneas 680-722:
+PDF `ir8547.pdf`, sha256 `3049cdfdd7c20417cf588a3d55ace6e8813982d1499502b7ef69e9593b2dc280`; texto extraído `ir8547.txt`, sha256 `9e8e714e3fbda0a2d0cc10b310db5b2f3f2269093075262c5c73e69a0109013f`, líneas 680-740:
 
 ```
 Table 2 lists currently approved quantum-vulnerable digital signature algorithm standards and 
@@ -52,6 +52,24 @@ ML-DSA-87 256 bits 5
 SLH-DSA 
 [FIPS205] 
 SLH-DSA-SHA2-128[s/f] 
+SLH-DSA-SHAKE-128[s/f] 128 bits 1 
+SLH-DSA-SHA2-192[s/f] 
+SLH-DSA-SHAKE-192[s/f] 192 bits 3 
+SLH-DSA-SHA2-256[s/f] 
+SLH-DSA-SHAKE-256[s/f] 256 bits 5 
+LMS, HSS 
+[SP800208] 
+With SHA-256/192 
+With SHAKE256/192 192 bits 3 
+With SHA-256 
+With SHAKE256 256 bits 5 
+XMSS, XMSSMT
+[SP800208] 
+With SHA-256/192 
+With SHAKE256/192 192 bits 3 
+With SHA-256 
+With SHAKE256 256 bits 5 
+FIPS 204 and FIPS 205 specify pre-hash versions of ML-DSA and SLH-DSA. As explained in these 
 ```
 
 ## 2. NIST SP 800-57 parte 1 rev. 5, tabla 2 (fuerza clásica por tamaño de llave)
@@ -121,7 +139,7 @@ N = 512
 k = 15360 f = 512+ 
 ```
 
-## 3. NIST CSOR, «Digital Signature Algorithms Registered Objects»: los OID de ML-DSA
+## 3. NIST CSOR, «Digital Signature Algorithms Registered Objects»: los OID de ML-DSA y SLH-DSA
 
 https://csrc.nist.gov/projects/computer-security-objects-register/algorithm-registration, consultada el 18-nov-2026, HTML sha256 `b61e08e04b37fe9b208e34cabb20bb637f1fcbbf661111138cb53683c30c711f`. Líneas del texto de la página:
 
@@ -135,6 +153,107 @@ id-ml-dsa-87 OBJECT IDENTIFIER ::= { sigAlgs 19 }
 id-hash-ml-dsa-44-with-sha512 OBJECT IDENTIFIER ::= { sigAlgs 32 }
 id-hash-ml-dsa-65-with-sha512 OBJECT IDENTIFIER ::= { sigAlgs 33 }
 id-hash-ml-dsa-87-with-sha512 OBJECT IDENTIFIER ::= { sigAlgs 34 }
+The following objects are for use with "pure" SLH-DSA signatures and the corresponding public keys:
+id-slh-dsa-sha2-128s OBJECT IDENTIFIER ::= { sigAlgs 20 }
+id-slh-dsa-sha2-128f OBJECT IDENTIFIER ::= { sigAlgs 21 }
+id-slh-dsa-sha2-192s OBJECT IDENTIFIER ::= { sigAlgs 22 }
+id-slh-dsa-sha2-192f OBJECT IDENTIFIER ::= { sigAlgs 23 }
+id-slh-dsa-sha2-256s OBJECT IDENTIFIER ::= { sigAlgs 24 }
+id-slh-dsa-sha2-256f OBJECT IDENTIFIER ::= { sigAlgs 25 }
+id-slh-dsa-shake-128s OBJECT IDENTIFIER ::= { sigAlgs 26 }
+id-slh-dsa-shake-128f OBJECT IDENTIFIER ::= { sigAlgs 27 }
+id-slh-dsa-shake-192s OBJECT IDENTIFIER ::= { sigAlgs 28 }
+id-slh-dsa-shake-192f OBJECT IDENTIFIER ::= { sigAlgs 29 }
+id-slh-dsa-shake-256s OBJECT IDENTIFIER ::= { sigAlgs 30 }
+id-slh-dsa-shake-256f OBJECT IDENTIFIER ::= { sigAlgs 31 }
+The following objects are for use with "pre-hash" SLH-DSA signatures and the corresponding public keys:
+id-hash-slh-dsa-sha2-128s-with-sha256 OBJECT IDENTIFIER ::= { sigAlgs 35 }
+id-hash-slh-dsa-sha2-128f-with-sha256 OBJECT IDENTIFIER ::= { sigAlgs 36 }
+id-hash-slh-dsa-sha2-192s-with-sha512 OBJECT IDENTIFIER ::= { sigAlgs 37 }
+id-hash-slh-dsa-sha2-192f-with-sha512 OBJECT IDENTIFIER ::= { sigAlgs 38 }
+id-hash-slh-dsa-sha2-256s-with-sha512 OBJECT IDENTIFIER ::= { sigAlgs 39 }
+id-hash-slh-dsa-sha2-256f-with-sha512 OBJECT IDENTIFIER ::= { sigAlgs 40 }
+id-hash-slh-dsa-shake-128s-with-shake128 OBJECT IDENTIFIER ::= { sigAlgs 41 }
+id-hash-slh-dsa-shake-128f-with-shake128 OBJECT IDENTIFIER ::= { sigAlgs 42 }
+id-hash-slh-dsa-shake-192s-with-shake256 OBJECT IDENTIFIER ::= { sigAlgs 43 }
+id-hash-slh-dsa-shake-192f-with-shake256 OBJECT IDENTIFIER ::= { sigAlgs 44 }
+id-hash-slh-dsa-shake-256s-with-shake256  OBJECT IDENTIFIER ::= { sigAlgs 45 }
+id-hash-slh-dsa-shake-256f-with-shake256 OBJECT IDENTIFIER ::= { sigAlgs 46 }
 ```
 
-De ahí: nistAlgorithms = 2.16.840.1.101.3.4; sigAlgs = 2.16.840.1.101.3.4.3; id-ml-dsa-44/65/87 = 2.16.840.1.101.3.4.3.17/18/19; id-hash-ml-dsa-*-with-sha512 = .32/.33/.34. Comprobación independiente: una llave ML-DSA-65 generada con Node.js (OpenSSL 3.5) exporta su SPKI con el OID 2.16.840.1.101.3.4.3.18 (`scripts/check-rubrica-qex.mjs`).
+De ahí: nistAlgorithms = 2.16.840.1.101.3.4; sigAlgs = 2.16.840.1.101.3.4.3; ML-DSA = .17-.19 (pre-hash .32-.34); SLH-DSA = .20-.31 (pre-hash .35-.46). Comprobación independiente: Node.js (OpenSSL 3.5) exporta una llave ML-DSA-65 con el OID .18 y una SLH-DSA-SHA2-128s con el .20 (`scripts/check-rubrica-qex.mjs`).
+
+## 4. RFC 9802 (HSS y XMSS en X.509) y RFC 9708 (HSS/LMS): los OID de LMS/HSS, XMSS y XMSS^MT
+
+https://www.rfc-editor.org/rfc/rfc9802.txt, sha256 `6c38403a3c6c14149a9f44c979320d7d26451e13148c5d760e604d002ba23d2a`, líneas 218-262 y 600-612:
+
+```
+   [RFC9708].  The definitions are repeated here for reference.
+
+   The AlgorithmIdentifier for an HSS public key MUST use the id-alg-
+   hss-lms-hashsig OID.
+
+      id-alg-hss-lms-hashsig  OBJECT IDENTIFIER ::= {
+         iso(1) member-body(2) us(840) rsadsi(113549) pkcs(1) pkcs9(9)
+         smime(16) alg(3) 17 }
+
+   Note that the id-alg-hss-lms-hashsig algorithm identifier is also
+   referred to as id-alg-mts-hashsig.  This synonym is based on the
+   terminology used in an early draft of the document that became
+   [RFC8554].
+
+   The public key and signature values identify the hash function and
+   the height used in the HSS tree.  [RFC8554] and [SP800208] define
+   these values, and additional identifiers can be registered in the
+   "Leighton-Micali Signatures (LMS)" registry [IANA-LMS].
+
+4.2.  XMSS Algorithm Identifier
+
+   The AlgorithmIdentifier for an XMSS public key MUST use the id-alg-
+   xmss-hashsig OID.
+
+      id-alg-xmss-hashsig  OBJECT IDENTIFIER ::= {
+         iso(1) identified-organization(3) dod(6) internet(1)
+         security(5) mechanisms(5) pkix(7) algorithms(6) 34 }
+
+   The public key and signature values identify the hash function and
+   the height used in the XMSS tree.  [RFC8391] and [SP800208] define
+   these values, and additional identifiers can be registered in the
+   "Leighton-Micali Signatures (LMS)" registry [IANA-XMSS].
+
+4.3.  XMSS^MT Algorithm Identifier
+
+   The AlgorithmIdentifier for an XMSS^MT public key MUST use the id-
+   alg-xmssmt-hashsig OID.
+
+      id-alg-xmssmt-hashsig  OBJECT IDENTIFIER ::= {
+         iso(1) identified-organization(3) dod(6) internet(1)
+         security(5) mechanisms(5) pkix(7) algorithms(6) 35 }
+
+   The public key and signature values identify the hash function and
+   the height used in the XMSS^MT tree.  [RFC8391] and [SP800208] define
+   these values, and additional identifiers can be registered in the
+
+                                  Table 1
+
+   IANA has registered the following entries in the "SMI Security for
+   PKIX Algorithms" (1.3.6.1.5.5.7.6) registry [SMI-PKIX]:
+
+             +=========+=======================+============+
+             | Decimal | Description           | References |
+             +=========+=======================+============+
+             | 34      | id-alg-xmss-hashsig   | RFC 9802   |
+             +---------+-----------------------+------------+
+             | 35      | id-alg-xmssmt-hashsig | RFC 9802   |
+             +---------+-----------------------+------------+
+```
+
+https://www.rfc-editor.org/rfc/rfc9708.txt, sha256 `d8d1b140f19d83ade4cfd9aee448abaf01ab32ec6413b429af3011472befeffb`, líneas 306-308:
+
+```
+      id-alg-hss-lms-hashsig OBJECT IDENTIFIER ::= { iso(1)
+          member-body(2) us(840) rsadsi(113549) pkcs(1) pkcs-9(9)
+          smime(16) alg(3) 17 }
+```
+
+De ahí: HSS/LMS = 1.2.840.113549.1.9.16.3.17; XMSS = 1.3.6.1.5.5.7.6.34; XMSS^MT = 1.3.6.1.5.5.7.6.35. Ni Node.js ni OpenSSL 3.5 generan llaves LMS o XMSS: esas tres se prueban con una llave construida con el OID de la fuente, no con una llave real.

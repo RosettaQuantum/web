@@ -100,14 +100,17 @@ export const REGLA_HIGIENE = Object.freeze({
 //  · QEX-1.0 (agosto, reproduce 149/149): 100 si RSA ≥ 4096 o curva ≥ 384 bits, 75 si no.
 //  · QEX-1.2 (18-nov-2026): NIST IR 8547 final (oct-2026), tabla 2: ECDSA y RSA con ≥ 112 bits de fuerza
 //    clásica, y EdDSA con ≥ 128, están TODAS «Deprecated after 2030 / Disallowed after 2035»: valen lo mismo
-//    (75). Bajo esa fuerza no están entre lo aprobado (0). Un certificado post-cuántico ML-DSA (FIPS 204;
-//    IR 8547, tabla 3) vale 100. La fuerza sale de SP 800-57 pt. 1 rev. 5, tabla 2 (fuerzaClasica).
+//    (75). Bajo esa fuerza no están entre lo aprobado (0). Un certificado con firma post-cuántica de IR 8547,
+//    tabla 3 (ML-DSA, SLH-DSA, HSS/LMS, XMSS/XMSS^MT) vale 100. La fuerza sale de SP 800-57 pt. 1 rev. 5, tabla 2 (fuerzaClasica).
 //    Fuentes copiadas en docs/fuentes/regla-llave-2026-11-18.md.
 export const REGLAS_CERTIFICADOS = Object.freeze({
   "QEX-1.0": Object.freeze({ tipo: "tamaño", rsa_bits: 4096, curva_bits: 384, supera: 100, minimo: 75 }),
   "QEX-1.2": Object.freeze({ tipo: "fuerza", fuerza_min: 112, fuerza_min_eddsa: 128, aprobada: 75, bajo: 0, pq: 100 }),
 });
 export const REGLA_CERTIFICADOS = REGLAS_CERTIFICADOS[VERSION_QEX];
+// Las familias de firma post-cuántica de NIST IR 8547 final, tabla 3: todas valen `pq` en QEX-1.2. Los OID que
+// las reconocen viven en lib/informe-envivo.mjs (FIRMAS_PQ_OID), con su fuente; un guardia exige que coincidan.
+export const FIRMAS_PQ = Object.freeze(["ML-DSA", "SLH-DSA", "HSS/LMS", "XMSS", "XMSS^MT"]);
 // La regla de una versión. La interna (QEX-1.2-hv) usa la de su base; una versión desconocida lanza.
 export function reglaCertificados(version = VERSION_QEX) {
   const R = REGLAS_CERTIFICADOS[String(version || "").replace(/-hv$/, "")];
@@ -116,15 +119,17 @@ export function reglaCertificados(version = VERSION_QEX) {
 }
 // Fuerza clásica en bits, SP 800-57 pt. 1 rev. 5, tabla 2: RSA por k (1024 → ≤ 80, 2048 → 112, 3072 → 128,
 // 7680 → 192, 15360 → 256); curvas (ECDSA y EdDSA) por f (160-223 → ≤ 80, 224-255 → 112, 256-383 → 128,
-// 384-511 → 192, 512+ → 256). Una llave más chica que la primera fila de la tabla da 0. ML-DSA: su fuerza
-// clásica de IR 8547 tabla 3 (44 → 128, 65 → 192, 87 → 256), que leerHoja trae en `bits`.
+// 384-511 → 192, 512+ → 256). Una llave más chica que la primera fila de la tabla da 0. Una firma post-cuántica:
+// su fuerza de IR 8547 tabla 3, que leerHoja trae en `bits` (null en HSS/LMS y XMSS: va dentro de la llave).
 export function fuerzaClasica(cert) {
-  if (!cert || !cert.ok || !Number.isFinite(cert.bits)) return null;
+  if (!cert || !cert.ok) return null;
+  if (FIRMAS_PQ.includes(cert.algoritmo)) return Number.isFinite(cert.bits) ? cert.bits : null;
+  if (!Number.isFinite(cert.bits)) return null;
   const b = cert.bits;
   if (cert.algoritmo === "RSA") return b >= 15360 ? 256 : b >= 7680 ? 192 : b >= 3072 ? 128 : b >= 2048 ? 112 : b >= 1024 ? 80 : 0;
   if (cert.algoritmo === "EC" || cert.algoritmo === "Ed25519" || cert.algoritmo === "Ed448")
     return b >= 512 ? 256 : b >= 384 ? 192 : b >= 256 ? 128 : b >= 224 ? 112 : b >= 160 ? 80 : 0;
-  if (cert.algoritmo === "ML-DSA") return b;
+  if (FIRMAS_PQ.includes(cert.algoritmo)) return b;
   return null;
 }
 export const REGLA_EDGE = Object.freeze({ soporta: 100, no_soporta: 0 });
@@ -153,9 +158,9 @@ export function certificadosValor(cert, version = VERSION_QEX) {
     if (cert.algoritmo === "RSA") return cert.bits >= R.rsa_bits ? R.supera : R.minimo;
     return null;
   }
+  if (FIRMAS_PQ.includes(cert.algoritmo)) return R.pq;      // toda firma post-cuántica de IR 8547 tabla 3
   const f = fuerzaClasica(cert);
   if (f == null) return null;
-  if (cert.algoritmo === "ML-DSA") return R.pq;
   const minimo = cert.algoritmo === "Ed25519" || cert.algoritmo === "Ed448" ? R.fuerza_min_eddsa : R.fuerza_min;
   return f >= minimo ? R.aprobada : R.bajo;
 }
