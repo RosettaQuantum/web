@@ -61,7 +61,9 @@ const PAGINAS = ["/", "/es/", "/consola/", "/cleveland/", "/es/cleveland/",
   "/api-docs/", "/es/api-docs/",
   // Q-Ready y los informes, agregados 2026-08-20. Son las paginas que un cliente
   // lee para decidir una compra y las que nadie habia mirado renderizadas.
-  "/informe-pqc/", "/q-ready/", "/es/q-ready/", "/q-ready/sample-report/", "/es/q-ready/sample-report/"];
+  "/informe-pqc/", "/q-ready/", "/es/q-ready/", "/q-ready/sample-report/", "/es/q-ready/sample-report/",
+  // la rúbrica del QEX (18-nov-2026): una grilla de 14 columnas que tiene que deslizarse en su caja
+  "/methodology/qex/", "/es/metodologia/qex/"];
 const ANCHOS = [375, 1280];
 
 /**

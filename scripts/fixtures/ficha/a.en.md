@@ -67,7 +67,7 @@ Points per action: RSA-4096 or P-384 key +10.00.
 | H3 | Dated plan for a post-quantum certificate | A1 | no change |
 
 ## 05 Not measured
-- HNDL posture is the banking sector model, not a measurement of the domain.
+- HNDL posture is the banking sector model, not a measurement of the domain: a per-sector table fixed in the 2026-08 edition; the derivation is not published.
 - What is internal (inventory, HSM, providers) cannot be seen from outside: that is why the cap is 84.
 - Not measured never means not protected.
 
@@ -78,6 +78,7 @@ Points per action: RSA-4096 or P-384 key +10.00.
 - CT fingerprint: 9d938f1f…d28f · 4022 cert.
 - Snapshot fingerprint: f0c71112…acdd
 - Method: CT · DNS · TLS handshakes without a session
+- Rubric: https://rosettaquantum.com/methodology/qex
 
 ## 07 Limits and next step
 - It is a one-day snapshot, measured from outside; the edge-to-origin leg is not observable.

@@ -67,7 +67,7 @@ Puntos por acción: llave RSA-4096 o P-384 +10,00.
 | H3 | Plan con fecha para certificado post-cuántico | A1 | no cambia |
 
 ## 05 No medido
-- La postura HNDL es el modelo del sector banca, no una medición del dominio.
+- La postura HNDL es el modelo del sector banca, no una medición del dominio: tabla por sector fijada en la edición 2026-08; la derivación no está publicada.
 - Lo interno (inventario, HSM, proveedores) no se ve desde afuera: por eso el tope es 84.
 - No medido nunca significa no protegido.
 
@@ -78,6 +78,7 @@ Puntos por acción: llave RSA-4096 o P-384 +10,00.
 - Huella CT: 9d938f1f…d28f · 4022 cert.
 - Huella de la foto: f0c71112…acdd
 - Método: CT · DNS · saludos TLS sin sesión
+- Rúbrica: https://rosettaquantum.com/es/metodologia/qex
 
 ## 07 Límites y siguiente paso
 - Es la foto de un día, medida desde afuera; el tramo del borde al origen no es observable.

@@ -15,6 +15,7 @@ Reusados sin cambio (ya aprobados): los nombres de las alertas (`TXT.alerta`) y 
 - `titulo`: Ficha Rosetta · Seguridad post-cuántica
 - `medido`: medido ‹1› UTC
 - `pais_sin`: país no determinado
+- **NUEVO** `pais_declarado`: ‹1› (país declarado)
 - `secciones[0]`: Veredicto
 - `secciones[1]`: Indicadores
 - `secciones[2]`: Alertas
@@ -173,7 +174,7 @@ Reusados sin cambio (ya aprobados): los nombres de las alertas (`TXT.alerta`) y 
 - `no_medido.correo_pendiente`: El cifrado del correo se mide aparte y llega después (herramienta ver_cifrado_correo).
 - `no_medido.correo_sin_dato`: El cifrado del correo no se midió en esta foto.
 - `no_medido.interno`: Lo interno (inventario, HSM, proveedores) no se ve desde afuera: por eso el tope es 84.
-- `no_medido.hndl`: La postura HNDL es el modelo del sector ‹1›, no una medición del dominio.
+- **CAMBIA** `no_medido.hndl`: La postura HNDL es el modelo del sector ‹1›, no una medición del dominio: tabla por sector fijada en la edición ‹2›; la derivación no está publicada.
 - `no_medido.dimension`: ‹1› no se pudo medir: sin esa dimensión la nota no puede ser A.
 - `no_medido.correo_mx`: Uno de los 5 servidores de correo no se midió. / 2 de los 5 servidores de correo no se midieron.
 - `no_medido.nunca`: No medido nunca significa no protegido.
@@ -184,6 +185,7 @@ Reusados sin cambio (ya aprobados): los nombres de las alertas (`TXT.alerta`) y 
 - `evidencia.huella_ct_sin`: Huella CT: sin registro
 - `evidencia.huella_foto`: Huella de la foto: ‹1›
 - `evidencia.metodo`: Método: CT · DNS · saludos TLS sin sesión
+- **NUEVO** `evidencia.rubrica`: Rúbrica: ‹1›
 - `limites.foto`: Es la foto de un día, medida desde afuera; el tramo del borde al origen no es observable.
 - `limites.informe`: Informe completo del dominio: ‹1›
 - `limites.pagina`: Página pública del dominio: ‹1›
@@ -199,6 +201,7 @@ Reusados sin cambio (ya aprobados): los nombres de las alertas (`TXT.alerta`) y 
 - `titulo`: Rosetta Fact Sheet · Post-quantum security
 - `medido`: measured ‹1› UTC
 - `pais_sin`: country not determined
+- **NUEVO** `pais_declarado`: ‹1› (declared country)
 - `secciones[0]`: Verdict
 - `secciones[1]`: Indicators
 - `secciones[2]`: Alerts
@@ -357,7 +360,7 @@ Reusados sin cambio (ya aprobados): los nombres de las alertas (`TXT.alerta`) y 
 - `no_medido.correo_pendiente`: Email encryption is measured separately and arrives later (tool ver_cifrado_correo).
 - `no_medido.correo_sin_dato`: Email encryption was not measured in this snapshot.
 - `no_medido.interno`: What is internal (inventory, HSM, providers) cannot be seen from outside: that is why the cap is 84.
-- `no_medido.hndl`: HNDL posture is the ‹1› sector model, not a measurement of the domain.
+- **CAMBIA** `no_medido.hndl`: HNDL posture is the ‹1› sector model, not a measurement of the domain: a per-sector table fixed in the ‹2› edition; the derivation is not published.
 - `no_medido.dimension`: ‹1› could not be measured: without that dimension the grade cannot be A.
 - `no_medido.correo_mx`: One of the 5 mail servers was not measured. / 2 of the 5 mail servers were not measured.
 - `no_medido.nunca`: Not measured never means not protected.
@@ -368,6 +371,7 @@ Reusados sin cambio (ya aprobados): los nombres de las alertas (`TXT.alerta`) y 
 - `evidencia.huella_ct_sin`: CT fingerprint: no log
 - `evidencia.huella_foto`: Snapshot fingerprint: ‹1›
 - `evidencia.metodo`: Method: CT · DNS · TLS handshakes without a session
+- **NUEVO** `evidencia.rubrica`: Rubric: ‹1›
 - `limites.foto`: It is a one-day snapshot, measured from outside; the edge-to-origin leg is not observable.
 - `limites.informe`: Full report for the domain: ‹1›
 - `limites.pagina`: Public page for the domain: ‹1›
@@ -417,7 +421,7 @@ Reusados sin cambio (ya aprobados): los nombres de las alertas (`TXT.alerta`) y 
 - **NUEVO** `catalogo[15]`: RQ.S.02.2 / .3 · Vigencia; plan con fecha para certificado post-cuántico · informativos, 0 puntos · medido
 - **NUEVO** `catalogo[16]`: RQ.S.03.1 a .4 · TLS 1.3 (−30); no productivos (−10); infraestructura, 3 o más (−10); legado (−10) · sobre una base de 70 · medido
 - **NUEVO** `catalogo[17]`: RQ.S.03.5 · security.txt · informativo, 0 puntos · medido
-- **NUEVO** `catalogo[18]`: RQ.S.04.1 a .3 · Años de secreto del sector; años de migración; margen de Mosca · sin dato: el modelo publica sólo el valor del sector · modelo
+- **CAMBIA** `catalogo[18]`: RQ.S.04.1 a .3 · Años de secreto del sector; años de migración; margen de Mosca · sin dato: tabla por sector fijada en la edición {edicion}; la derivación no está publicada · modelo
 - **NUEVO** `catalogo[19]`: RQ.S.05.1 · Soporta el híbrido · 100 o 0 · medido
 - **NUEVO** `catalogo[20]`: RQ.S.05.2 / .3 · Lo elige por defecto; lo tiene en todos los nombres · informativos, 0 puntos · medido
 - `h_reglas`: 4. Reglas
@@ -428,7 +432,7 @@ Reusados sin cambio (ya aprobados): los nombres de las alertas (`TXT.alerta`) y 
 - `reglas[4]`: Sin emojis, sin colores obligatorios, sin adjetivos de miedo, sin marcas salvo el proveedor medido.
 - `reglas[5]`: Huellas abreviadas a 8…4 caracteres en la ficha; completas en el JSON.
 - `reglas[6]`: Pie fijo: rosetta-ficha/1 · Rosetta Quantum · medición independiente · la dirección de la página del dominio.
-- `reglas[7]`: Comparación con el sector sólo dentro del país del índice de referencia (hoy Chile). El país se deduce del dominio; si no es el de la referencia, o no se puede deducir, no se compara y se dice.
+- **CAMBIA** `reglas[7]`: Comparación con el sector sólo dentro del país del índice de referencia (hoy Chile). El país sale, en este orden, de la ficha de la organización que lleva Rosetta, del que declara quien consulta (parámetro pais; la ficha dice «país declarado») o del dominio. Si no es el de la referencia, o no se puede saber, no se compara y se dice.
 - `reglas[8]`: Nombres de terceros enmascarados si el dueño no verificó el dominio por DNS: se muestra sólo el primer nombre del subdominio, hasta el segundo carácter del segmento que delata el ambiente o, si no hay ese segmento en el primer nombre, hasta su mitad (biometrics-d•••.ejemplo.com.py). Si dos nombres distintos quedan iguales, se distinguen con «#» y los primeros caracteres de una huella del nombre (all-d•••#3f.ejemplo.com.py), sin revelarlo. El dominio se muestra completo y los conteos no cambian.
 - `reglas[9]`: La lectura del veredicto dice la causa de la letra.
 - `reglas[10]`: El ID nombra el concepto; la versión dice cómo se midió. En el bloque estructurado cada valor declara su versión de método (metodo: por ejemplo QEX-1.0 en RQ.S.01 a RQ.S.05), para que un mismo ID nunca tenga dos definiciones sin decirlo.
@@ -437,6 +441,12 @@ Reusados sin cambio (ya aprobados): los nombres de las alertas (`TXT.alerta`) y 
 - `ejemplo_nota`: Una foto fija de ejemplo (dominio de ejemplo, no verificado: nombres enmascarados). Es la misma que fija la prueba del repositorio.
 - `h_validar`: 6. Validar
 - `validar`: La función que arma la ficha y la que valida su sintaxis son públicas: public/js/ficha.mjs (armarFicha, markdownDe y validarMarkdown).
+- **NUEVO** `h_escala`: 7. La escala de la nota (RQ.S.00)
+- **NUEVO** `escala_nota`: Se leen en orden: la primera que se cumple decide. Es la misma definición que usa la nota; un guardia exige que coincidan.
+- **NUEVO** `col_nota`: Nota
+- **NUEVO** `col_condicion`: Condición
+- **NUEVO** `col_desde`: Rige desde
+- **NUEVO** `rubrica`: Rúbrica completa: cada variable, su fuente, su regla de puntaje y su efecto en la nota
 
 ## Página /protocolo/ficha · en
 
@@ -472,7 +482,7 @@ Reusados sin cambio (ya aprobados): los nombres de las alertas (`TXT.alerta`) y 
 - **NUEVO** `catalogo[15]`: RQ.S.02.2 / .3 · Validity; dated plan for a post-quantum certificate · for information, 0 points · measured
 - **NUEVO** `catalogo[16]`: RQ.S.03.1 to .4 · TLS 1.3 (−30); non-production (−10); infrastructure, 3 or more (−10); legacy (−10) · on a base of 70 · measured
 - **NUEVO** `catalogo[17]`: RQ.S.03.5 · security.txt · for information, 0 points · measured
-- **NUEVO** `catalogo[18]`: RQ.S.04.1 to .3 · Years of secrecy for the sector; years to migrate; Mosca margin · no data: the model publishes only the sector value · model
+- **CAMBIA** `catalogo[18]`: RQ.S.04.1 to .3 · Years of secrecy for the sector; years to migrate; Mosca margin · no data: a per-sector table fixed in the {edicion} edition; the derivation is not published · model
 - **NUEVO** `catalogo[19]`: RQ.S.05.1 · Supports the hybrid · 100 or 0 · measured
 - **NUEVO** `catalogo[20]`: RQ.S.05.2 / .3 · Chooses it by default; has it on every name · for information, 0 points · measured
 - `h_reglas`: 4. Rules
@@ -483,7 +493,7 @@ Reusados sin cambio (ya aprobados): los nombres de las alertas (`TXT.alerta`) y 
 - `reglas[4]`: No emojis, no mandatory colours, no fear adjectives, no brands except the measured provider.
 - `reglas[5]`: Fingerprints shortened to 8…4 characters in the sheet; full in the JSON.
 - `reglas[6]`: Fixed footer: rosetta-ficha/1 · Rosetta Quantum · independent measurement · the URL of the domain's page.
-- `reglas[7]`: Sector comparison only within the country of the reference index (Chile today). The country is deduced from the domain; if it is not the reference country, or cannot be deduced, there is no comparison, and the sheet says so.
+- **CAMBIA** `reglas[7]`: Sector comparison only within the country of the reference index (Chile today). The country comes, in this order, from Rosetta's record of the organization, from the one declared by whoever asks (pais parameter; the sheet says “declared country”) or from the domain. If it is not the reference country, or cannot be known, there is no comparison, and the sheet says so.
 - `reglas[8]`: Third-party names are masked unless the owner verified the domain through DNS: only the first label of the subdomain is shown, up to the second character of the segment that reveals the environment or, if that segment is not in the first label, up to its middle (biometrics-d•••.ejemplo.com.py). When two different names end up identical, they are told apart with “#” and the first characters of a fingerprint of the name (all-d•••#3f.ejemplo.com.py), without revealing it. The domain is shown in full and counts do not change.
 - `reglas[9]`: The verdict reading states the cause of the grade.
 - `reglas[10]`: The ID names the concept; the version says how it was measured. In the structured block every value declares its method version (metodo: for example QEX-1.0 in RQ.S.01 to RQ.S.05), so the same ID never carries two definitions without saying so.
@@ -492,6 +502,12 @@ Reusados sin cambio (ya aprobados): los nombres de las alertas (`TXT.alerta`) y 
 - `ejemplo_nota`: A fixed example snapshot (example domain, not verified: names masked). It is the same one the repository test pins.
 - `h_validar`: 6. Validate
 - `validar`: The function that builds the sheet and the one that validates its syntax are public: public/js/ficha.mjs (armarFicha, markdownDe and validarMarkdown).
+- **NUEVO** `h_escala`: 7. The grade scale (RQ.S.00)
+- **NUEVO** `escala_nota`: Read in order: the first one that holds decides. It is the same definition the grade uses; a guard requires them to match.
+- **NUEVO** `col_nota`: Grade
+- **NUEVO** `col_condicion`: Condition
+- **NUEVO** `col_desde`: Applies since
+- **NUEVO** `rubrica`: Full rubric: every variable, its source, its scoring rule and its effect on the grade
 
 ## /llms.txt (línea nueva)
 
@@ -581,7 +597,7 @@ Puntos por acción: llave RSA-4096 o P-384 +10,00.
 | H3 | Plan con fecha para certificado post-cuántico | A1 | no cambia |
 
 ## 05 No medido
-- La postura HNDL es el modelo del sector banca, no una medición del dominio.
+- La postura HNDL es el modelo del sector banca, no una medición del dominio: tabla por sector fijada en la edición 2026-08; la derivación no está publicada.
 - Lo interno (inventario, HSM, proveedores) no se ve desde afuera: por eso el tope es 84.
 - No medido nunca significa no protegido.
 
@@ -592,6 +608,7 @@ Puntos por acción: llave RSA-4096 o P-384 +10,00.
 - Huella CT: 9d938f1f…d28f · 4022 cert.
 - Huella de la foto: f0c71112…acdd
 - Método: CT · DNS · saludos TLS sin sesión
+- Rúbrica: https://rosettaquantum.com/es/metodologia/qex
 
 ## 07 Límites y siguiente paso
 - Es la foto de un día, medida desde afuera; el tramo del borde al origen no es observable.
@@ -672,7 +689,7 @@ Points per action: RSA-4096 or P-384 key +10.00.
 | H3 | Dated plan for a post-quantum certificate | A1 | no change |
 
 ## 05 Not measured
-- HNDL posture is the banking sector model, not a measurement of the domain.
+- HNDL posture is the banking sector model, not a measurement of the domain: a per-sector table fixed in the 2026-08 edition; the derivation is not published.
 - What is internal (inventory, HSM, providers) cannot be seen from outside: that is why the cap is 84.
 - Not measured never means not protected.
 
@@ -683,6 +700,7 @@ Points per action: RSA-4096 or P-384 key +10.00.
 - CT fingerprint: 9d938f1f…d28f · 4022 cert.
 - Snapshot fingerprint: f0c71112…acdd
 - Method: CT · DNS · TLS handshakes without a session
+- Rubric: https://rosettaquantum.com/methodology/qex
 
 ## 07 Limits and next step
 - It is a one-day snapshot, measured from outside; the edge-to-origin leg is not observable.
@@ -769,7 +787,7 @@ Puntos por acción: llave RSA-4096 o P-384 +10,00.
 ## 05 No medido
 - crt.sh no respondió; se usó Cert Spotter (4022 certificados, 77 nombres).
 - 2 nombres respondieron sin evidencia del candado nuevo.
-- La postura HNDL es el modelo del sector banca, no una medición del dominio.
+- La postura HNDL es el modelo del sector banca, no una medición del dominio: tabla por sector fijada en la edición 2026-08; la derivación no está publicada.
 - Lo interno (inventario, HSM, proveedores) no se ve desde afuera: por eso el tope es 84.
 - No medido nunca significa no protegido.
 
@@ -780,6 +798,7 @@ Puntos por acción: llave RSA-4096 o P-384 +10,00.
 - Huella CT: f00b5266…7d86 · 4022 cert.
 - Huella de la foto: 5c1eaafd…e046
 - Método: CT · DNS · saludos TLS sin sesión
+- Rúbrica: https://rosettaquantum.com/es/metodologia/qex
 
 ## 07 Límites y siguiente paso
 - Es la foto de un día, medida desde afuera; el tramo del borde al origen no es observable.
@@ -867,7 +886,7 @@ Points per action: RSA-4096 or P-384 key +10.00.
 ## 05 Not measured
 - crt.sh did not respond; Cert Spotter was used (4022 certificates, 77 names).
 - 2 names answered without evidence of the new lock.
-- HNDL posture is the banking sector model, not a measurement of the domain.
+- HNDL posture is the banking sector model, not a measurement of the domain: a per-sector table fixed in the 2026-08 edition; the derivation is not published.
 - What is internal (inventory, HSM, providers) cannot be seen from outside: that is why the cap is 84.
 - Not measured never means not protected.
 
@@ -878,6 +897,7 @@ Points per action: RSA-4096 or P-384 key +10.00.
 - CT fingerprint: f00b5266…7d86 · 4022 cert.
 - Snapshot fingerprint: 5c1eaafd…e046
 - Method: CT · DNS · TLS handshakes without a session
+- Rubric: https://rosettaquantum.com/methodology/qex
 
 ## 07 Limits and next step
 - It is a one-day snapshot, measured from outside; the edge-to-origin leg is not observable.
@@ -959,7 +979,7 @@ Puntos por acción: llave RSA-4096 o P-384 +10,00.
 
 ## 05 No medido
 - 1 nombres respondieron sin evidencia del candado nuevo.
-- La postura HNDL es el modelo del sector retail, no una medición del dominio.
+- La postura HNDL es el modelo del sector retail, no una medición del dominio: tabla por sector fijada en la edición 2026-08; la derivación no está publicada.
 - Lo interno (inventario, HSM, proveedores) no se ve desde afuera: por eso el tope es 84.
 - No medido nunca significa no protegido.
 
@@ -970,6 +990,7 @@ Puntos por acción: llave RSA-4096 o P-384 +10,00.
 - Huella CT: c1b1ac16…ce0e · 4022 cert.
 - Huella de la foto: e6488add…c9f6
 - Método: CT · DNS · saludos TLS sin sesión
+- Rúbrica: https://rosettaquantum.com/es/metodologia/qex
 
 ## 07 Límites y siguiente paso
 - Es la foto de un día, medida desde afuera; el tramo del borde al origen no es observable.
@@ -1051,7 +1072,7 @@ Points per action: RSA-4096 or P-384 key +10.00.
 
 ## 05 Not measured
 - 1 names answered without evidence of the new lock.
-- HNDL posture is the retail sector model, not a measurement of the domain.
+- HNDL posture is the retail sector model, not a measurement of the domain: a per-sector table fixed in the 2026-08 edition; the derivation is not published.
 - What is internal (inventory, HSM, providers) cannot be seen from outside: that is why the cap is 84.
 - Not measured never means not protected.
 
@@ -1062,6 +1083,7 @@ Points per action: RSA-4096 or P-384 key +10.00.
 - CT fingerprint: c1b1ac16…ce0e · 4022 cert.
 - Snapshot fingerprint: e6488add…c9f6
 - Method: CT · DNS · TLS handshakes without a session
+- Rubric: https://rosettaquantum.com/methodology/qex
 
 ## 07 Limits and next step
 - It is a one-day snapshot, measured from outside; the edge-to-origin leg is not observable.
@@ -1148,7 +1170,7 @@ Puntos por acción: llave RSA-4096 o P-384 +10,00; activar el híbrido +10,00.
 
 ## 05 No medido
 - El cifrado del correo no se midió en esta foto.
-- La postura HNDL es el modelo del sector fintech, no una medición del dominio.
+- La postura HNDL es el modelo del sector fintech, no una medición del dominio: tabla por sector fijada en la edición 2026-08; la derivación no está publicada.
 - Lo interno (inventario, HSM, proveedores) no se ve desde afuera: por eso el tope es 84.
 - No medido nunca significa no protegido.
 
@@ -1159,6 +1181,7 @@ Puntos por acción: llave RSA-4096 o P-384 +10,00; activar el híbrido +10,00.
 - Huella CT: e5b89749…3a86 · 1 cert.
 - Huella de la foto: 6886b050…9447
 - Método: CT · DNS · saludos TLS sin sesión
+- Rúbrica: https://rosettaquantum.com/es/metodologia/qex
 
 ## 07 Límites y siguiente paso
 - Es la foto de un día, medida desde afuera; el tramo del borde al origen no es observable.
@@ -1245,7 +1268,7 @@ Points per action: RSA-4096 or P-384 key +10.00; enable the hybrid +10.00.
 
 ## 05 Not measured
 - Email encryption was not measured in this snapshot.
-- HNDL posture is the fintech sector model, not a measurement of the domain.
+- HNDL posture is the fintech sector model, not a measurement of the domain: a per-sector table fixed in the 2026-08 edition; the derivation is not published.
 - What is internal (inventory, HSM, providers) cannot be seen from outside: that is why the cap is 84.
 - Not measured never means not protected.
 
@@ -1256,6 +1279,7 @@ Points per action: RSA-4096 or P-384 key +10.00; enable the hybrid +10.00.
 - CT fingerprint: e5b89749…3a86 · 1 cert.
 - Snapshot fingerprint: 6886b050…9447
 - Method: CT · DNS · TLS handshakes without a session
+- Rubric: https://rosettaquantum.com/methodology/qex
 
 ## 07 Limits and next step
 - It is a one-day snapshot, measured from outside; the edge-to-origin leg is not observable.
@@ -1330,7 +1354,7 @@ Sin hallazgos.
 
 ## 05 No medido
 - Certificados y PKI no se pudo medir: sin esa dimensión la nota no puede ser A.
-- La postura HNDL es el modelo del sector fintech, no una medición del dominio.
+- La postura HNDL es el modelo del sector fintech, no una medición del dominio: tabla por sector fijada en la edición 2026-08; la derivación no está publicada.
 - Lo interno (inventario, HSM, proveedores) no se ve desde afuera: por eso el tope es 84.
 - No medido nunca significa no protegido.
 
@@ -1341,6 +1365,7 @@ Sin hallazgos.
 - Huella CT: a4f6c0d7…713e · 1 cert.
 - Huella de la foto: d716bd48…d06b
 - Método: CT · DNS · saludos TLS sin sesión
+- Rúbrica: https://rosettaquantum.com/es/metodologia/qex
 
 ## 07 Límites y siguiente paso
 - Es la foto de un día, medida desde afuera; el tramo del borde al origen no es observable.
@@ -1414,7 +1439,7 @@ No findings.
 
 ## 05 Not measured
 - Certificates and PKI could not be measured: without that dimension the grade cannot be A.
-- HNDL posture is the fintech sector model, not a measurement of the domain.
+- HNDL posture is the fintech sector model, not a measurement of the domain: a per-sector table fixed in the 2026-08 edition; the derivation is not published.
 - What is internal (inventory, HSM, providers) cannot be seen from outside: that is why the cap is 84.
 - Not measured never means not protected.
 
@@ -1425,6 +1450,7 @@ No findings.
 - CT fingerprint: a4f6c0d7…713e · 1 cert.
 - Snapshot fingerprint: d716bd48…d06b
 - Method: CT · DNS · TLS handshakes without a session
+- Rubric: https://rosettaquantum.com/methodology/qex
 
 ## 07 Limits and next step
 - It is a one-day snapshot, measured from outside; the edge-to-origin leg is not observable.

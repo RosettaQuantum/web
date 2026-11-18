@@ -297,6 +297,7 @@ export const FICHA = {
     titulo: "Ficha Rosetta · Seguridad post-cuántica",
     medido: (fecha) => `medido ${fecha} UTC`,
     pais_sin: "país no determinado",
+    pais_declarado: (nombre) => `${nombre} (país declarado)`,   // NUEVO (18-nov): provisorio
     secciones: ["Veredicto", "Indicadores", "Alertas", "Qué hacer", "No medido", "Evidencia", "Límites y siguiente paso"],
     col: { id: "ID", indicador: "Indicador", valor: "Valor", tipo: "Tipo", n: "#", nivel: "Nivel", hallazgo: "Hallazgo", donde: "Dónde",
       accion: "Acción", resuelve: "Resuelve", efecto: "Efecto en la nota" },
@@ -424,7 +425,8 @@ export const FICHA = {
       correo_pendiente: "El cifrado del correo se mide aparte y llega después (herramienta ver_cifrado_correo).",
       correo_sin_dato: "El cifrado del correo no se midió en esta foto.",
       interno: "Lo interno (inventario, HSM, proveedores) no se ve desde afuera: por eso el tope es 84.",
-      hndl: (sector) => `La postura HNDL es el modelo del sector ${sector}, no una medición del dominio.`,
+      // CAMBIADO (18-nov, provisorio): declara que la tabla no tiene derivación publicada
+      hndl: (sector, ed) => `La postura HNDL es el modelo del sector ${sector}, no una medición del dominio${ed ? `: tabla por sector fijada en la edición ${ed}; la derivación no está publicada` : ""}.`,
       dimension: (nombre) => `${nombre} no se pudo medir: sin esa dimensión la nota no puede ser A.`,
       correo_mx: (f, t) => (f === 1 ? `Uno de los ${t} servidores de correo no se midió.` : `${f} de los ${t} servidores de correo no se midieron.`),
       nunca: "No medido nunca significa no protegido.",
@@ -437,6 +439,7 @@ export const FICHA = {
       huella_ct_sin: "Huella CT: sin registro",
       huella_foto: (s) => `Huella de la foto: ${s}`,
       metodo: "Método: CT · DNS · saludos TLS sin sesión",
+      rubrica: (url) => `Rúbrica: ${url}`,   // NUEVO (18-nov): provisorio
     },
     limites: {
       foto: "Es la foto de un día, medida desde afuera; el tramo del borde al origen no es observable.",
@@ -454,6 +457,7 @@ export const FICHA = {
     titulo: "Rosetta Fact Sheet · Post-quantum security",
     medido: (fecha) => `measured ${fecha} UTC`,
     pais_sin: "country not determined",
+    pais_declarado: (nombre) => `${nombre} (declared country)`,   // NUEVO (18-nov): provisorio
     secciones: ["Verdict", "Indicators", "Alerts", "What to do", "Not measured", "Evidence", "Limits and next step"],
     col: { id: "ID", indicador: "Indicator", valor: "Value", tipo: "Type", n: "#", nivel: "Level", hallazgo: "Finding", donde: "Where",
       accion: "Action", resuelve: "Resolves", efecto: "Effect on the grade" },
@@ -576,7 +580,7 @@ export const FICHA = {
       correo_pendiente: "Email encryption is measured separately and arrives later (tool ver_cifrado_correo).",
       correo_sin_dato: "Email encryption was not measured in this snapshot.",
       interno: "What is internal (inventory, HSM, providers) cannot be seen from outside: that is why the cap is 84.",
-      hndl: (sector) => `HNDL posture is the ${sector} sector model, not a measurement of the domain.`,
+      hndl: (sector, ed) => `HNDL posture is the ${sector} sector model, not a measurement of the domain${ed ? `: a per-sector table fixed in the ${ed} edition; the derivation is not published` : ""}.`,
       dimension: (nombre) => `${nombre} could not be measured: without that dimension the grade cannot be A.`,
       correo_mx: (f, t) => (f === 1 ? `One of the ${t} mail servers was not measured.` : `${f} of the ${t} mail servers were not measured.`),
       nunca: "Not measured never means not protected.",
@@ -589,6 +593,7 @@ export const FICHA = {
       huella_ct_sin: "CT fingerprint: no log",
       huella_foto: (s) => `Snapshot fingerprint: ${s}`,
       metodo: "Method: CT · DNS · TLS handshakes without a session",
+      rubrica: (url) => `Rubric: ${url}`,   // NUEVO (18-nov): provisorio
     },
     limites: {
       foto: "It is a one-day snapshot, measured from outside; the edge-to-origin leg is not observable.",
@@ -639,7 +644,7 @@ export const FICHA_SPEC = {
       ["RQ.S.02.2 / .3", "Vigencia; plan con fecha para certificado post-cuántico", "informativos, 0 puntos", "medido"],
       ["RQ.S.03.1 a .4", "TLS 1.3 (−30); no productivos (−10); infraestructura, 3 o más (−10); legado (−10)", "sobre una base de 70", "medido"],
       ["RQ.S.03.5", "security.txt", "informativo, 0 puntos", "medido"],
-      ["RQ.S.04.1 a .3", "Años de secreto del sector; años de migración; margen de Mosca", "sin dato: el modelo publica sólo el valor del sector", "modelo"],
+      ["RQ.S.04.1 a .3", "Años de secreto del sector; años de migración; margen de Mosca", "sin dato: tabla por sector fijada en la edición {edicion}; la derivación no está publicada", "modelo"],
       ["RQ.S.05.1", "Soporta el híbrido", "100 o 0", "medido"],
       ["RQ.S.05.2 / .3", "Lo elige por defecto; lo tiene en todos los nombres", "informativos, 0 puntos", "medido"],
     ],
@@ -652,7 +657,8 @@ export const FICHA_SPEC = {
       "Sin emojis, sin colores obligatorios, sin adjetivos de miedo, sin marcas salvo el proveedor medido.",
       "Huellas abreviadas a 8…4 caracteres en la ficha; completas en el JSON.",
       "Pie fijo: rosetta-ficha/1 · Rosetta Quantum · medición independiente · la dirección de la página del dominio.",
-      "Comparación con el sector sólo dentro del país del índice de referencia (hoy Chile). El país se deduce del dominio; si no es el de la referencia, o no se puede deducir, no se compara y se dice.",
+      // CAMBIADO (18-nov, provisorio): el país ya no sale primero del dominio
+      "Comparación con el sector sólo dentro del país del índice de referencia (hoy Chile). El país sale, en este orden, de la ficha de la organización que lleva Rosetta, del que declara quien consulta (parámetro pais; la ficha dice «país declarado») o del dominio. Si no es el de la referencia, o no se puede saber, no se compara y se dice.",
       "Nombres de terceros enmascarados si el dueño no verificó el dominio por DNS: se muestra sólo el primer nombre del subdominio, hasta el segundo carácter del segmento que delata el ambiente o, si no hay ese segmento en el primer nombre, hasta su mitad (biometrics-d•••.ejemplo.com.py). Si dos nombres distintos quedan iguales, se distinguen con «#» y los primeros caracteres de una huella del nombre (all-d•••#3f.ejemplo.com.py), sin revelarlo. El dominio se muestra completo y los conteos no cambian.",
       "La lectura del veredicto dice la causa de la letra.",
       "El ID nombra el concepto; la versión dice cómo se midió. En el bloque estructurado cada valor declara su versión de método (metodo: por ejemplo QEX-1.0 en RQ.S.01 a RQ.S.05), para que un mismo ID nunca tenga dos definiciones sin decirlo.",
@@ -662,6 +668,11 @@ export const FICHA_SPEC = {
     ejemplo_nota: "Una foto fija de ejemplo (dominio de ejemplo, no verificado: nombres enmascarados). Es la misma que fija la prueba del repositorio.",
     h_validar: "6. Validar",
     validar: "La función que arma la ficha y la que valida su sintaxis son públicas: public/js/ficha.mjs (armarFicha, markdownDe y validarMarkdown).",
+    // NUEVO (18-nov): provisorio. La escala sale de ESCALA_NOTA (qex-nucleo.mjs) vía rubrica-qex.mjs.
+    h_escala: "7. La escala de la nota (RQ.S.00)",
+    escala_nota: "Se leen en orden: la primera que se cumple decide. Es la misma definición que usa la nota; un guardia exige que coincidan.",
+    col_nota: "Nota", col_condicion: "Condición", col_desde: "Rige desde",
+    rubrica: "Rúbrica completa: cada variable, su fuente, su regla de puntaje y su efecto en la nota",
   },
   en: {
     titulo_pagina: "rosetta-ficha/1 · specification — Rosetta Quantum",
@@ -694,7 +705,7 @@ export const FICHA_SPEC = {
       ["RQ.S.02.2 / .3", "Validity; dated plan for a post-quantum certificate", "for information, 0 points", "measured"],
       ["RQ.S.03.1 to .4", "TLS 1.3 (−30); non-production (−10); infrastructure, 3 or more (−10); legacy (−10)", "on a base of 70", "measured"],
       ["RQ.S.03.5", "security.txt", "for information, 0 points", "measured"],
-      ["RQ.S.04.1 to .3", "Years of secrecy for the sector; years to migrate; Mosca margin", "no data: the model publishes only the sector value", "model"],
+      ["RQ.S.04.1 to .3", "Years of secrecy for the sector; years to migrate; Mosca margin", "no data: a per-sector table fixed in the {edicion} edition; the derivation is not published", "model"],
       ["RQ.S.05.1", "Supports the hybrid", "100 or 0", "measured"],
       ["RQ.S.05.2 / .3", "Chooses it by default; has it on every name", "for information, 0 points", "measured"],
     ],
@@ -707,7 +718,7 @@ export const FICHA_SPEC = {
       "No emojis, no mandatory colours, no fear adjectives, no brands except the measured provider.",
       "Fingerprints shortened to 8…4 characters in the sheet; full in the JSON.",
       "Fixed footer: rosetta-ficha/1 · Rosetta Quantum · independent measurement · the URL of the domain's page.",
-      "Sector comparison only within the country of the reference index (Chile today). The country is deduced from the domain; if it is not the reference country, or cannot be deduced, there is no comparison, and the sheet says so.",
+      "Sector comparison only within the country of the reference index (Chile today). The country comes, in this order, from Rosetta's record of the organization, from the one declared by whoever asks (pais parameter; the sheet says “declared country”) or from the domain. If it is not the reference country, or cannot be known, there is no comparison, and the sheet says so.",
       "Third-party names are masked unless the owner verified the domain through DNS: only the first label of the subdomain is shown, up to the second character of the segment that reveals the environment or, if that segment is not in the first label, up to its middle (biometrics-d•••.ejemplo.com.py). When two different names end up identical, they are told apart with “#” and the first characters of a fingerprint of the name (all-d•••#3f.ejemplo.com.py), without revealing it. The domain is shown in full and counts do not change.",
       "The verdict reading states the cause of the grade.",
       "The ID names the concept; the version says how it was measured. In the structured block every value declares its method version (metodo: for example QEX-1.0 in RQ.S.01 to RQ.S.05), so the same ID never carries two definitions without saying so.",
@@ -717,5 +728,9 @@ export const FICHA_SPEC = {
     ejemplo_nota: "A fixed example snapshot (example domain, not verified: names masked). It is the same one the repository test pins.",
     h_validar: "6. Validate",
     validar: "The function that builds the sheet and the one that validates its syntax are public: public/js/ficha.mjs (armarFicha, markdownDe and validarMarkdown).",
+    h_escala: "7. The grade scale (RQ.S.00)",
+    escala_nota: "Read in order: the first one that holds decides. It is the same definition the grade uses; a guard requires them to match.",
+    col_nota: "Grade", col_condicion: "Condition", col_desde: "Applies since",
+    rubrica: "Full rubric: every variable, its source, its scoring rule and its effect on the grade",
   },
 };

@@ -887,6 +887,7 @@ export const HERRAMIENTAS = [
         dominio: { type: "string", description: "dominio público, p.ej. ejemplo.cl" },
         sector: { type: "string", description: "sector para el QEX y la comparación: banca, educacion, energia, fintech, gobierno, mineria, prevision, retail, salud_clinica, salud_isapre, seguros, telecom" },
         agente: { type: "string", description: "opcional: quién mide (nombre y versión del agente)" },
+        pais: { type: "string", description: "opcional: país de la organización, código ISO de dos letras (p.ej. CL). Si Rosetta tiene la ficha de la organización, manda la ficha; si no, este país; si no, el del dominio. La ficha dice «país declarado»." },
         idioma: IDIOMA_FICHA,
       } },
   },
@@ -1027,7 +1028,7 @@ export const HERRAMIENTAS = [
 // `quien` = { ip, user_agent, ctx }: lo que la herramienta de medición registra de quien mide.
 async function ejecutarHerramienta(env, nombre, args, quien = {}) {
   if (nombre === "medir_exposicion_pqc") return (MEDICION ? await MEDICION.medirParaAgente(env,
-    { dominio: args.dominio, sector: args.sector, agente: args.agente, idioma: args.idioma },
+    { dominio: args.dominio, sector: args.sector, agente: args.agente, idioma: args.idioma, pais: args.pais },
     { canal: "mcp", ip: quien.ip, user_agent: quien.user_agent }, quien.ctx) : sinMedicion).cuerpo;
   if (nombre === "ver_cifrado_correo") return (MEDICION ? await MEDICION.correoParaAgente(env, String(args.id || "")) : sinMedicion).cuerpo;
   if (nombre === "get_qready_grade") return (VERIFICADO ? await VERIFICADO.notaParaApi(env, args.domain, quien.url || new URL(SITE), args.idioma === "en" ? "en" : "es") : sinVerificado).cuerpo;
@@ -1253,10 +1254,11 @@ export const CATALOGO = [
       dominio: { type: "string", description: "Public domain, e.g. example.cl" },
       sector: { type: "string", description: "Sector key for the QEX: banca, educacion, energia, fintech, gobierno, mineria, prevision, retail, salud_clinica, salud_isapre, seguros, telecom" },
       agente: { type: "string", description: "Optional: who is measuring (agent name, e.g. my-agent/1.2)" },
+      pais: { type: "string", description: "Optional: the organization's country, ISO two-letter code (e.g. CL). Rosetta's record of the organization wins; otherwise this country; otherwise the domain's. The sheet says “declared country”." },
       idioma: { type: "string", enum: ["es", "en"], description: "Optional: language of presentacion (rosetta-ficha/1); es by default" } } },
     respuestas: {
       200: { description: "Measured. correo.cifrado_pq carries the id and URL to poll for the mail result." },
-      400: { description: "Missing or invalid domain, or unknown sector" },
+      400: { description: "Missing or invalid domain, unknown sector, or invalid country code" },
       405: { description: "Only POST" },
       429: { description: "Too many measurements in a minute from this address" },
     } },
@@ -1757,7 +1759,7 @@ async function enrutar(request, env, url, info = {}) {
     if (request.method !== "POST")
       return json({ ok: false, error: "Usa POST con {\"dominio\": \"ejemplo.cl\"}." }, 405, { allow: "POST, OPTIONS" });
     const c = await request.json().catch(() => ({}));
-    const r = MEDICION ? await MEDICION.medirParaAgente(env, { dominio: c.dominio, sector: c.sector, agente: c.agente, idioma: c.idioma },
+    const r = MEDICION ? await MEDICION.medirParaAgente(env, { dominio: c.dominio, sector: c.sector, agente: c.agente, idioma: c.idioma, pais: c.pais },
       { canal: "api", ip: request.headers.get("cf-connecting-ip"), user_agent: request.headers.get("user-agent") }, info.ctx) : sinMedicion;
     return json(r.cuerpo, r.http);
   }

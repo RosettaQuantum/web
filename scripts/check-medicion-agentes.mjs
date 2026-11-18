@@ -20,6 +20,11 @@
  *  3. El registro: una fila por medición, sin IP cruda, con canal y agente; una base que falla o
  *     que no confirma la fila no cambia la respuesta; 400 y 429 no escriben.
  *  4. La lista de sectores que anuncian api.js (MCP y OpenAPI) es la de la referencia.
+ *  5. (18-nov-2026) EL PAÍS NO SALE PRIMERO DEL TLD. Con el esquema REAL de db/org-ficha.schema.sql en
+ *     SQLite: la ficha maestra manda sobre el `pais` declarado, y éste sobre el TLD; lo declarado se dice
+ *     en la ficha («país declarado»); un .org con ficha CL se compara con su sector chileno; sin la tabla
+ *     (no aplicada) la medición responde igual y cae al declarado y al TLD; un país mal escrito → 400 sin
+ *     medir. MUTACIONES: el orden invertido y la lectura sin try/catch → gritan.
  *   node scripts/check-medicion-agentes.mjs
  */
 import { registerHooks } from "node:module";
@@ -168,9 +173,9 @@ const sinBase = await medirCon({ dominio: DOMINIO, sector: "banca" }, { env: {} 
 igual(sinBase.r.http, 200, "sin binding DB: la medición responde igual");
 igual(await A.registrar(dbFalsa("muda").DB, { id: "x" }).catch(() => "lanzó"), false, "registrar() sin RETURNING devuelve false, no true");
 console.error = errorOriginal;
-const deRegistro = errores.filter((e) => !/^dominioVerificado:/.test(e) && /mediciones_agentes/.test(e));
+const deRegistro = errores.filter((e) => !/^(dominioVerificado|org_ficha):/.test(e) && /mediciones_agentes/.test(e));   // org_ficha (18-nov): una lectura, no una escritura
 igual(deRegistro.length, 4, `cada escritura fallida queda en consola (${deRegistro.length} de 4)`);
-igual(errores.filter((e) => !deRegistro.includes(e)).every((e) => /^dominioVerificado:/.test(e)), true, "la única otra queja es la lectura de la verificación, que falla cerrado");
+igual(errores.filter((e) => !deRegistro.includes(e)).every((e) => /^(dominioVerificado|org_ficha):/.test(e)), true, "las únicas otras quejas son la lectura de la verificación, que falla cerrado, y la de la ficha maestra, que cae al TLD");
 const b4 = dbFalsa();
 const r4 = await medirCon({ dominio: "esto no es un dominio", sector: "banca" }, { env: { DB: b4.DB } });
 const r5 = await medirCon({ dominio: DOMINIO, sector: "astrología" }, { env: { DB: b4.DB } });
@@ -184,5 +189,40 @@ const listas = [...api.matchAll(/(?:sector para el QEX y la comparación|Sector 
 igual(listas.length, 2, "api.js anuncia los sectores en MCP y en OpenAPI");
 for (const l of listas) igual(l, Object.keys(REF.verticales).sort(), "los sectores anunciados son los de la referencia");
 
+// ---------------------------------------------------------------- 5 · el país: ficha maestra → declarado → TLD
+{
+  const { d1EnMemoria } = await import("./lib/d1-memoria.mjs");
+  const { conMutante } = await import("./lib/mutar.mjs");
+  const Fi = await import("../public/js/ficha.mjs");
+  const ESQ = ["db/medicion-agentes.schema.sql", "db/qready-verificado.schema.sql"].map((r) => new URL(r, raiz));
+  const conTabla = () => { const db = d1EnMemoria(...ESQ, new URL("db/org-ficha.schema.sql", raiz));
+    db.sqlite.prepare("INSERT INTO org_ficha (dominio, pais, sector, fuente, actualizado) VALUES (?, 'CL', 'banca', 'prueba', '2026-11-18')").run(DOMINIO); return db; };
+  const pais = (r) => [r.r.http, r.r.cuerpo.pais?.codigo ?? null, r.r.cuerpo.pais?.fuente ?? null, r.r.cuerpo.sector?.diferencia_con_mediana != null];
+  const cab = (r) => (r.r.cuerpo.presentacion?.markdown || "").split("\n")[1] || "";
+  const silencio = console.error; console.error = () => {};
+  const conFicha = await medirCon({ dominio: DOMINIO, sector: "banca", pais: "PY" }, { env: { DB: conTabla() } });
+  const declarado = await medirCon({ dominio: DOMINIO, sector: "banca", pais: "cl" }, { env: { DB: d1EnMemoria(...ESQ, new URL("db/org-ficha.schema.sql", raiz)) } });
+  const sinTabla = await medirCon({ dominio: DOMINIO, sector: "banca", pais: "CL" }, { env: { DB: d1EnMemoria(...ESQ) } });
+  const nada = await medirCon({ dominio: DOMINIO, sector: "banca" }, { env: { DB: d1EnMemoria(...ESQ) } });
+  const malo = await medirCon({ dominio: DOMINIO, sector: "banca", pais: "Chile" }, { env: { DB: d1EnMemoria(...ESQ) } });
+  console.error = silencio;
+  igual(pais(conFicha), [200, "CL", "ficha", true], "con ficha maestra: CL desde la ficha aunque se declare PY, y un .org se compara con su sector chileno");
+  igual(/ · Chile · /.test(cab(conFicha)) && !/declarado/.test(cab(conFicha)), true, "la ficha de la ficha maestra dice «Chile», sin «país declarado»");
+  igual(pais(declarado), [200, "CL", "declarado", true], "sin fila en la ficha maestra: el país declarado (normalizado a CL)");
+  igual(/ · Chile \(país declarado\) · /.test(cab(declarado)), true, "lo declarado se dice en el encabezado de la ficha");
+  igual(pais(sinTabla), [200, "CL", "declarado", true], "la tabla no existe (esquema sin aplicar): la medición responde igual y cae al declarado");
+  igual(pais(nada), [200, null, null, false], "sin ficha ni declarado, un .org no dice país: no se compara (el TLD, como antes)");
+  igual([malo.r.http, malo.h.vistos.sondas.length], [400, 0], "un país mal escrito (Chile) → 400, sin medir");
+  igual([Fi.resolverPais("x.com", { maestra: "CL", declarado: "PY" }), Fi.resolverPais("x.com", { declarado: "py" }), Fi.resolverPais("x.cl"), Fi.resolverPais("x.com", { maestra: "chile" })],
+    [{ codigo: "CL", fuente: "ficha" }, { codigo: "PY", fuente: "declarado" }, { codigo: "CL", fuente: "tld" }, { codigo: null, fuente: null }], "resolverPais: ficha → declarado → TLD; basura no es país");
+  await conMutante(new URL("public/js/ficha.mjs", raiz), "  const m = codigoPais(maestra);\n  if (m) return { codigo: m, fuente: \"ficha\" };\n", "",
+    async (M) => igual(M.resolverPais("x.com", { maestra: "CL", declarado: "PY" }).codigo !== "CL", true, "MUTACIÓN: sin la ficha maestra primero → manda lo declarado (grita)"));
+  const OF = await import("../lib/org-ficha.mjs");
+  igual(await OF.fichaMaestra(d1EnMemoria(...ESQ), DOMINIO).catch(() => "lanzó"), null, "la lectura sin la tabla devuelve null (no lanza)");
+  await conMutante(new URL("lib/org-ficha.mjs", raiz), "  } catch (e) {\n", "  } catch (e) { throw e;\n", async (M) => {
+    igual(await M.fichaMaestra(d1EnMemoria(...ESQ), DOMINIO).catch(() => "lanzó"), "lanzó", "MUTACIÓN: sin atrapar el error, una tabla que no existe tumba la lectura (el guardia lo ve)");
+  });
+}
+
 if (fallas.length) { console.error("check-medicion-agentes: FALLA\n  " + fallas.join("\n  ")); process.exit(1); }
-console.log(`check-medicion-agentes: ok (QEX ${pagina.qex} = página con insumos grabados, gritos de sector y de registro caído, registro sin IP cruda y que no tumba la medición)`);
+console.log(`check-medicion-agentes: ok (QEX ${pagina.qex} = página con insumos grabados, gritos de sector y de registro caído, registro sin IP cruda y que no tumba la medición, país ficha → declarado → TLD)`);
