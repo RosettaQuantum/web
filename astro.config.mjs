@@ -2,6 +2,7 @@ import { defineConfig } from 'astro/config';
 import sitemap from '@astrojs/sitemap';
 import fs from 'node:fs';
 import path from 'node:path';
+import { urlNoindex } from './src/lib/noindex.mjs';
 
 const SITE = 'https://rosettaquantum.com';
 
@@ -87,7 +88,10 @@ export default defineConfig({
       // Checkout, portal y la muestra siguen fuera: no se portaron.
       // 12-nov-2026: y su par en inglés, /q-ready/medicion (misma página, mismo criterio).
       filter: (page) => !page.includes('/rq-shell-') && (!page.includes('/q-ready') || /\/(es\/)?q-ready\/medicion\/?$/.test(page) || /\/es\/q-ready\/?$/.test(page))
-        && !(INFORME_BORRADOR && page.includes('/informe-pqc')),
+        && !(INFORME_BORRADOR && page.includes('/informe-pqc'))
+        // 18-nov-2026: una página que pide noindex no se anuncia. La señal es el meta de la
+        // propia página ya construida (src/lib/noindex.mjs), no una lista al lado.
+        && !urlNoindex(page, path.resolve('./dist')),
       i18n: { defaultLocale: 'en', locales: { en: 'en', es: 'es' } },
       serialize(item) {
         const links = BY_URL.get(item.url);
