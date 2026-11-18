@@ -8,7 +8,12 @@
  * Una sola definición: la página no recalcula nada por su cuenta.
  */
 
-export const VERSION_QEX = "QEX-1.0";
+// QEX-1.2 (18-nov-2026, aprobado por el dueño): cambia SÓLO la regla de la llave del certificado (RQ.S.02.1),
+// según NIST IR 8547 final. «QEX-1.1» no se usa para el índice publicado: era el nombre interno de la
+// higiene sobre nombres vivos, que ahora es QEX-1.2-hv. Una foto guardada se lee con la regla de SU versión
+// (foto.qex.version): ver certificadosValor y releerQex.
+export const VERSION_QEX = "QEX-1.2";
+export const VERSIONES_QEX = Object.freeze({ "QEX-1.0": "2026-08", "QEX-1.2": "2026-11-18", "QEX-1.2-hv": "interna, no publicada" });
 export const ESQUEMA_FOTO = "rosetta-qex-foto/1";
 export const PESOS = { certificados: 0.40, higiene: 0.25, hndl: 0.25, edge: 0.10 };
 export const TOPE = 84;
@@ -90,8 +95,38 @@ export const REGLA_HIGIENE = Object.freeze({
   infra_expuesta: Object.freeze({ desde: 3, puntos: -10 }),
   legado: Object.freeze({ desde: 1, puntos: -10 }),
 });
-// Regla normativa de certificados (reproduce 149/149 en agosto).
-export const REGLA_CERTIFICADOS = Object.freeze({ rsa_bits: 4096, curva_bits: 384, supera: 100, minimo: 75 });
+// La regla de la llave del certificado, POR VERSIÓN. Las fotos guardadas declaran su versión y se leen con
+// la suya: una foto QEX-1.0 con RSA-4096 sigue valiendo 100 en su desglose y en una comparación.
+//  · QEX-1.0 (agosto, reproduce 149/149): 100 si RSA ≥ 4096 o curva ≥ 384 bits, 75 si no.
+//  · QEX-1.2 (18-nov-2026): NIST IR 8547 final (oct-2026), tabla 2: ECDSA y RSA con ≥ 112 bits de fuerza
+//    clásica, y EdDSA con ≥ 128, están TODAS «Deprecated after 2030 / Disallowed after 2035»: valen lo mismo
+//    (75). Bajo esa fuerza no están entre lo aprobado (0). Un certificado post-cuántico ML-DSA (FIPS 204;
+//    IR 8547, tabla 3) vale 100. La fuerza sale de SP 800-57 pt. 1 rev. 5, tabla 2 (fuerzaClasica).
+//    Fuentes copiadas en docs/fuentes/regla-llave-2026-11-18.md.
+export const REGLAS_CERTIFICADOS = Object.freeze({
+  "QEX-1.0": Object.freeze({ tipo: "tamaño", rsa_bits: 4096, curva_bits: 384, supera: 100, minimo: 75 }),
+  "QEX-1.2": Object.freeze({ tipo: "fuerza", fuerza_min: 112, fuerza_min_eddsa: 128, aprobada: 75, bajo: 0, pq: 100 }),
+});
+export const REGLA_CERTIFICADOS = REGLAS_CERTIFICADOS[VERSION_QEX];
+// La regla de una versión. La interna (QEX-1.2-hv) usa la de su base; una versión desconocida lanza.
+export function reglaCertificados(version = VERSION_QEX) {
+  const R = REGLAS_CERTIFICADOS[String(version || "").replace(/-hv$/, "")];
+  if (!R) throw new Error(`versión del índice desconocida: ${version}`);
+  return R;
+}
+// Fuerza clásica en bits, SP 800-57 pt. 1 rev. 5, tabla 2: RSA por k (1024 → ≤ 80, 2048 → 112, 3072 → 128,
+// 7680 → 192, 15360 → 256); curvas (ECDSA y EdDSA) por f (160-223 → ≤ 80, 224-255 → 112, 256-383 → 128,
+// 384-511 → 192, 512+ → 256). Una llave más chica que la primera fila de la tabla da 0. ML-DSA: su fuerza
+// clásica de IR 8547 tabla 3 (44 → 128, 65 → 192, 87 → 256), que leerHoja trae en `bits`.
+export function fuerzaClasica(cert) {
+  if (!cert || !cert.ok || !Number.isFinite(cert.bits)) return null;
+  const b = cert.bits;
+  if (cert.algoritmo === "RSA") return b >= 15360 ? 256 : b >= 7680 ? 192 : b >= 3072 ? 128 : b >= 2048 ? 112 : b >= 1024 ? 80 : 0;
+  if (cert.algoritmo === "EC" || cert.algoritmo === "Ed25519" || cert.algoritmo === "Ed448")
+    return b >= 512 ? 256 : b >= 384 ? 192 : b >= 256 ? 128 : b >= 224 ? 112 : b >= 160 ? 80 : 0;
+  if (cert.algoritmo === "ML-DSA") return b;
+  return null;
+}
 export const REGLA_EDGE = Object.freeze({ soporta: 100, no_soporta: 0 });
 
 // higiene_regla.py. `sinTls13` null = no medido: no descuenta (en agosto, «sin TLS 1.3» sólo
@@ -108,14 +143,31 @@ export function higiene(sinTls13, ct) {
   return Math.max(R.piso, Math.min(R.techo, base));
 }
 
-// Regla normativa de certificados (reproduce 149/149 en agosto): 100 si supera el mínimo vigente
-// (RSA ≥ 4096 o curva ≥ 384 bits), 75 si está en el mínimo. Sin certificado leído: null (no 0).
-export function certificadosValor(cert) {
-  const R = REGLA_CERTIFICADOS;
+// El valor de la dimensión, con la regla de la versión pedida (la vigente si no se dice). Sin certificado
+// leído, o un algoritmo que la regla no conoce: null («no medido», nunca 0).
+export function certificadosValor(cert, version = VERSION_QEX) {
+  const R = reglaCertificados(version);
   if (!cert || !cert.ok) return null;
-  if (cert.algoritmo === "EC") return cert.bits >= R.curva_bits ? R.supera : R.minimo;
-  if (cert.algoritmo === "RSA") return cert.bits >= R.rsa_bits ? R.supera : R.minimo;
-  return null;
+  if (R.tipo === "tamaño") {
+    if (cert.algoritmo === "EC") return cert.bits >= R.curva_bits ? R.supera : R.minimo;
+    if (cert.algoritmo === "RSA") return cert.bits >= R.rsa_bits ? R.supera : R.minimo;
+    return null;
+  }
+  const f = fuerzaClasica(cert);
+  if (f == null) return null;
+  if (cert.algoritmo === "ML-DSA") return R.pq;
+  const minimo = cert.algoritmo === "Ed25519" || cert.algoritmo === "Ed448" ? R.fuerza_min_eddsa : R.fuerza_min;
+  return f >= minimo ? R.aprobada : R.bajo;
+}
+
+// Una foto leída con la regla de OTRA versión (18-nov-2026): las dimensiones y el QEX recalculados desde lo
+// crudo que la foto guarda. Sólo la llave cambia entre QEX-1.0 y QEX-1.2; las demás dimensiones se leen
+// tal cual. Lo usa comparar() para que un cambio de método no se lea como «cambió».
+export function releerQex(foto, version = VERSION_QEX) {
+  const q = (foto && foto.qex) || {};
+  if (!q.dimensiones || q.version === version) return q;
+  const dim = { ...q.dimensiones, certificados: certificadosValor(foto.certificado, version) };
+  return { ...qex(dim, version), tipos: q.tipos, releida_desde: q.version || null };
 }
 
 export const edgeValor = (soporta) => (soporta === true ? REGLA_EDGE.soporta : soporta === false ? REGLA_EDGE.no_soporta : null);
@@ -141,8 +193,8 @@ export function irec(dim, tope = TOPE) {
   return Math.min(tope, redondearPar(num / den));
 }
 
-// `version` (16-nov-2026): la misma cuenta sirve a QEX-1.0 y a QEX-1.1, que sólo difieren en qué
-// higiene reciben. Sin argumento declara QEX-1.0, como siempre.
+// `version` (16-nov-2026): la misma cuenta sirve al índice publicado y a la variante interna de higiene
+// viva, que sólo difieren en qué higiene reciben. Sin argumento declara la versión vigente.
 export function qex(dim, version = VERSION_QEX) {
   const aportes = {}; let suma = 0, pesoUsado = 0;
   for (const [k, p] of Object.entries(PESOS)) {
@@ -231,8 +283,12 @@ export function estadoEndpoint(e) {
 
 export function comparar(antes, ahora) {
   const it = [];
-  it.push(item("qex", "score", "QEX", antes.qex?.score, ahora.qex?.score));
-  for (const k of Object.keys(PESOS)) it.push(item("qex", k, ETIQUETA_DIM[k], antes.qex?.dimensiones?.[k], ahora.qex?.dimensiones?.[k]));
+  // (18-nov-2026) Si las dos fotos se midieron con versiones distintas del índice, la anterior se relee con
+  // la regla de la de hoy: un cambio de MÉTODO no es un «cambió» de la organización. Se declara en `metodo`.
+  const vAhora = ahora.qex?.version || null, vAntes = antes.qex?.version || null;
+  const qA = vAhora && vAntes && vAntes !== vAhora && antes.qex?.dimensiones ? releerQex(antes, vAhora) : antes.qex;
+  it.push(item("qex", "score", "QEX", qA?.score, ahora.qex?.score));
+  for (const k of Object.keys(PESOS)) it.push(item("qex", k, ETIQUETA_DIM[k], qA?.dimensiones?.[k], ahora.qex?.dimensiones?.[k]));
   for (const k of Object.keys(ETIQUETA_CT)) it.push(item("superficie", k, ETIQUETA_CT[k], antes.ct?.conteos?.[k], ahora.ct?.conteos?.[k]));
 
   const hA = new Set((antes.ct?.hosts || []).map((h) => h.host)), hB = new Set((ahora.ct?.hosts || []).map((h) => h.host));
@@ -270,6 +326,7 @@ export function comparar(antes, ahora) {
   return { antes: { medido_utc: antes.medido_utc, sha256: antes.sha256, edicion: antes.edicion },
     ahora: { medido_utc: ahora.medido_utc, sha256: ahora.sha256, edicion: ahora.edicion },
     mismo_dominio: antes.dominio === ahora.dominio,
+    metodo: { antes: vAntes, ahora: vAhora, releida: qA !== antes.qex },
     items: it, endpoints, hosts: { nuevos, retirados, siguen },
     resumen: { cambio: n("cambio"), se_mantiene: n("se_mantiene"), medido_hoy: n("medido_hoy"), sin_dato: n("sin_dato") } };
 }
@@ -356,7 +413,7 @@ export function armarFoto({ dominio, www, vertical, medido, ct, sondas: s, refer
   const dim = { certificados: certificadosValor(c), higiene: higiene(sinTls13, cuentas),
     hndl: ref.hndl, edge: edgeValor(v.soporta) };
   const q = qex(dim);
-  // QEX-1.1 (16-nov-2026) viaja sólo en el detalle: NO entra a la foto (ni a su huella), ni a la página,
+  // La higiene viva (QEX-1.2-hv, antes «QEX-1.1», 16-nov-2026) viaja sólo en el detalle: NO entra a la foto (ni a su huella), ni a la página,
   // ni al PDF. La cifra que se publica sigue siendo `q` (QEX-1.0).
   const q11 = qex11({ dim10: dim, sinTls13, ct: !!ct, endpoints, hosts, cuentas });
   const tipos = { certificados: "medido", higiene: ct ? "medido" : "medido, sin superficie", hndl: "modelo de sector", edge: "medido" };
@@ -380,7 +437,7 @@ export function armarFoto({ dominio, www, vertical, medido, ct, sondas: s, refer
   return { foto, detalle: { cuentas, hosts, endpoints, tls13, dim, q, tipos, ref, q11 } };
 }
 
-// ---------------------------------------------------------------- QEX-1.1: la higiene se mueve (16-nov-2026)
+// ---------------------------------------------------------------- QEX-1.2-hv (antes «QEX-1.1»): la higiene se mueve (16-nov-2026)
 // EL DEFECTO. En QEX-1.0 la higiene descuenta por los nombres ACUMULADOS en el registro público de
 // certificados: un certificado viejo para staging.<dominio> queda ahí para siempre. Si la organización
 // apaga sus ambientes de prueba, su higiene no sube: nada de lo que haga la mueve.
@@ -412,7 +469,9 @@ export function armarFoto({ dominio, www, vertical, medido, ct, sondas: s, refer
 // ambiente de pruebas vivo que PAT no reconocía.
 // Sin registro (ct null) la higiene es la misma de 1.0: sólo TLS.
 // scripts/check-qex-11.mjs: grito, silencio y mutaciones.
-export const VERSION_QEX_11 = "QEX-1.1";
+// (18-nov-2026) Renombrada: era «QEX-1.1». Es QEX-1.2 con higiene sobre nombres vivos (hv), interna; el
+// nombre 1.1 queda retirado para que nadie lo lea como una versión publicada del índice.
+export const VERSION_QEX_HV = "QEX-1.2-hv";
 
 export function estadoVivo(e) {
   if (!e) return "sin_sondear";
@@ -456,7 +515,7 @@ export function qex11({ dim10, sinTls13, ct, endpoints, hosts, cuentas = null })
   const viva = ct ? superficieViva(endpoints, hosts) : null;
   const dim = { ...dim10, higiene: higiene(sinTls13, viva ? viva.conteos : null) };
   const historico = cuentas ? { no_productivo: cuentas.no_productivo, legado: cuentas.legado, infra_expuesta: cuentas.infra_expuesta } : null;
-  return { ...qex(dim, VERSION_QEX_11), superficie: viva, historico };
+  return { ...qex(dim, VERSION_QEX_HV), superficie: viva, historico };
 }
 
 // ---------------------------------------------------------------- etiquetas en inglés (12-nov-2026)

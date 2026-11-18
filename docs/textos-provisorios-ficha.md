@@ -83,6 +83,9 @@ Reusados sin cambio (ya aprobados): los nombres de las alertas (`TXT.alerta`) y 
 - **NUEVO** `arbol.informativo`: ‹1› (informativo)
 - **NUEVO** `arbol.llave_minimo`: ‹1› = mínimo vigente
 - **NUEVO** `arbol.llave_supera`: ‹1› supera el mínimo vigente
+- **NUEVO** `arbol.llave_aprobada`: ‹1› = llave clásica aprobada hasta 2030 (‹2› bits)
+- **NUEVO** `arbol.llave_bajo`: ‹1›: ‹2› bits, bajo lo aprobado
+- **NUEVO** `arbol.llave_pq`: ‹1› = certificado post-cuántico
 - **NUEVO** `arbol.sin_certificado`: certificado no leído
 - **NUEVO** `arbol.vigencia`: vigencia: ‹1› días, hasta ‹2›
 - **NUEVO** `arbol.plan_sin`: sin plan con fecha para certificado post-cuántico
@@ -113,7 +116,7 @@ Reusados sin cambio (ya aprobados): los nombres de las alertas (`TXT.alerta`) y 
 - **NUEVO** `arbol.total`: suma de los aportes sobre peso ‹2›
 - **NUEVO** `arbol.maximo`: Máximo alcanzable desde afuera: ‹1› → ‹2›.
 - **NUEVO** `arbol.acciones`: Puntos por acción: ‹1›.
-- **NUEVO** `arbol.acc_llave`: llave RSA-4096 o P-384 +‹1›
+- **NUEVO** `arbol.acc_mldsa`: certificado ML-DSA +‹1›
 - **NUEVO** `arbol.acc_tls13`: activar TLS 1.3 +‹1›
 - **NUEVO** `arbol.acc_hibrido`: activar el híbrido +‹1›
 - **NUEVO** `arbol.no_cuadra`: El desglose de puntos no cuadra con esta foto: se omite.
@@ -269,6 +272,9 @@ Reusados sin cambio (ya aprobados): los nombres de las alertas (`TXT.alerta`) y 
 - **NUEVO** `arbol.informativo`: ‹1› (for information)
 - **NUEVO** `arbol.llave_minimo`: ‹1› = current minimum
 - **NUEVO** `arbol.llave_supera`: ‹1› above the current minimum
+- **NUEVO** `arbol.llave_aprobada`: ‹1› = classical key approved until 2030 (‹2› bits)
+- **NUEVO** `arbol.llave_bajo`: ‹1›: ‹2› bits, below what is approved
+- **NUEVO** `arbol.llave_pq`: ‹1› = post-quantum certificate
 - **NUEVO** `arbol.sin_certificado`: certificate not read
 - **NUEVO** `arbol.vigencia`: validity: ‹1› days, until ‹2›
 - **NUEVO** `arbol.plan_sin`: no dated plan for a post-quantum certificate
@@ -299,7 +305,7 @@ Reusados sin cambio (ya aprobados): los nombres de las alertas (`TXT.alerta`) y 
 - **NUEVO** `arbol.total`: sum of contributions over weight ‹2›
 - **NUEVO** `arbol.maximo`: Highest reachable from outside: ‹1› → ‹2›.
 - **NUEVO** `arbol.acciones`: Points per action: ‹1›.
-- **NUEVO** `arbol.acc_llave`: RSA-4096 or P-384 key +‹1›
+- **NUEVO** `arbol.acc_mldsa`: ML-DSA certificate +‹1›
 - **NUEVO** `arbol.acc_tls13`: enable TLS 1.3 +‹1›
 - **NUEVO** `arbol.acc_hibrido`: enable the hybrid +‹1›
 - **NUEVO** `arbol.no_cuadra`: The points breakdown does not add up for this snapshot: it is left out.
@@ -417,7 +423,7 @@ Reusados sin cambio (ya aprobados): los nombres de las alertas (`TXT.alerta`) y 
 - `catalogo[11]`: RQ.S.11 · Reservado (proveedores) · — · —
 - `catalogo[12]`: RQ.S.12 · Reservado (gobierno) · — · —
 - `catalogo[13]`: RQ.S.13 · Nombres observados en el registro público · conteo de nombres; no afirma que respondan · medido
-- **NUEVO** `catalogo[14]`: RQ.S.02.1 · Fuerza de la llave · 100 si RSA ≥ 4096 o curva ≥ 384; 75 en el mínimo · medido
+- **NUEVO** `catalogo[14]`: RQ.S.02.1 · Fuerza de la llave · {regla_llave} · medido
 - **NUEVO** `catalogo[15]`: RQ.S.02.2 / .3 · Vigencia; plan con fecha para certificado post-cuántico · informativos, 0 puntos · medido
 - **NUEVO** `catalogo[16]`: RQ.S.03.1 a .4 · TLS 1.3 (−30); no productivos (−10); infraestructura, 3 o más (−10); legado (−10) · sobre una base de 70 · medido
 - **NUEVO** `catalogo[17]`: RQ.S.03.5 · security.txt · informativo, 0 puntos · medido
@@ -478,7 +484,7 @@ Reusados sin cambio (ya aprobados): los nombres de las alertas (`TXT.alerta`) y 
 - `catalogo[11]`: RQ.S.11 · Reserved (providers) · — · —
 - `catalogo[12]`: RQ.S.12 · Reserved (governance) · — · —
 - `catalogo[13]`: RQ.S.13 · Names observed in the public log · count of names; does not claim they respond · measured
-- **NUEVO** `catalogo[14]`: RQ.S.02.1 · Key strength · 100 if RSA ≥ 4096 or curve ≥ 384; 75 at the minimum · measured
+- **NUEVO** `catalogo[14]`: RQ.S.02.1 · Key strength · {regla_llave} · measured
 - **NUEVO** `catalogo[15]`: RQ.S.02.2 / .3 · Validity; dated plan for a post-quantum certificate · for information, 0 points · measured
 - **NUEVO** `catalogo[16]`: RQ.S.03.1 to .4 · TLS 1.3 (−30); non-production (−10); infrastructure, 3 or more (−10); legacy (−10) · on a base of 70 · measured
 - **NUEVO** `catalogo[17]`: RQ.S.03.5 · security.txt · for information, 0 points · measured
@@ -580,7 +586,6 @@ medido: observado hoy por la sonda · modelo: valor del sector, no medido en el 
 | = RQ.S.01 | suma de los aportes |  | 55,50 → 56 |
 
 Máximo alcanzable desde afuera: 70,50 → 70.
-Puntos por acción: llave RSA-4096 o P-384 +10,00.
 
 ## 03 Alertas
 | # | Nivel | Hallazgo | Dónde |
@@ -672,7 +677,6 @@ measured: observed today by the probe · model: sector value, not measured on th
 | = RQ.S.01 | sum of contributions |  | 55.50 → 56 |
 
 Highest reachable from outside: 70.50 → 70.
-Points per action: RSA-4096 or P-384 key +10.00.
 
 ## 03 Alerts
 | # | Level | Finding | Where |
@@ -764,7 +768,6 @@ medido: observado hoy por la sonda · modelo: valor del sector, no medido en el 
 | = RQ.S.01 | suma de los aportes |  | 55,50 → 56 |
 
 Máximo alcanzable desde afuera: 70,50 → 70.
-Puntos por acción: llave RSA-4096 o P-384 +10,00.
 
 ## 03 Alertas
 | # | Nivel | Hallazgo | Dónde |
@@ -863,7 +866,6 @@ measured: observed today by the probe · model: sector value, not measured on th
 | = RQ.S.01 | sum of contributions |  | 55.50 → 56 |
 
 Highest reachable from outside: 70.50 → 70.
-Points per action: RSA-4096 or P-384 key +10.00.
 
 ## 03 Alerts
 | # | Level | Finding | Where |
@@ -962,7 +964,6 @@ medido: observado hoy por la sonda · modelo: valor del sector, no medido en el 
 | = RQ.S.01 | suma de los aportes |  | 68,75 → 69 |
 
 Máximo alcanzable desde afuera: 83,75 → 84.
-Puntos por acción: llave RSA-4096 o P-384 +10,00.
 
 ## 03 Alertas
 | # | Nivel | Hallazgo | Dónde |
@@ -1055,7 +1056,6 @@ measured: observed today by the probe · model: sector value, not measured on th
 | = RQ.S.01 | sum of contributions |  | 68.75 → 69 |
 
 Highest reachable from outside: 83.75 → 84.
-Points per action: RSA-4096 or P-384 key +10.00.
 
 ## 03 Alerts
 | # | Level | Finding | Where |
@@ -1146,7 +1146,7 @@ medido: observado hoy por la sonda · modelo: valor del sector, no medido en el 
 | = RQ.S.01 | suma de los aportes |  | 61,25 → 61 |
 
 Máximo alcanzable desde afuera: 83,75 → 84.
-Puntos por acción: llave RSA-4096 o P-384 +10,00; activar el híbrido +10,00.
+Puntos por acción: activar el híbrido +10,00.
 
 ## 03 Alertas
 | # | Nivel | Hallazgo | Dónde |
@@ -1244,7 +1244,7 @@ measured: observed today by the probe · model: sector value, not measured on th
 | = RQ.S.01 | sum of contributions |  | 61.25 → 61 |
 
 Highest reachable from outside: 83.75 → 84.
-Points per action: RSA-4096 or P-384 key +10.00; enable the hybrid +10.00.
+Points per action: enable the hybrid +10.00.
 
 ## 03 Alerts
 | # | Level | Finding | Where |

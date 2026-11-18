@@ -77,8 +77,13 @@ function sondearFunciones(M) {
   const RC = M.REGLA_CERTIFICADOS, RH = M.REGLA_HIGIENE, RE = M.REGLA_EDGE, out = [];
   const ok = (a, b, q) => { if (JSON.stringify(a) !== JSON.stringify(b)) out.push(`${q}: la constante dice ${JSON.stringify(b)}, la función da ${JSON.stringify(a)}`); };
   const cert = (algoritmo, bits) => M.certificadosValor({ ok: true, algoritmo, bits });
-  ok([cert("RSA", RC.rsa_bits), cert("RSA", RC.rsa_bits - 1), cert("EC", RC.curva_bits), cert("EC", RC.curva_bits - 1), M.certificadosValor({ ok: false }), M.certificadosValor(null)],
-    [RC.supera, RC.minimo, RC.supera, RC.minimo, null, null], "certificados: umbral RSA y de curva, sin certificado = null");
+  // QEX-1.2: la constante (fuerza mínima, valores) contra la función, en el umbral y un paso antes
+  ok([cert("RSA", 2048), cert("RSA", 2047), cert("EC", RC.fuerza_min * 2), cert("EC", RC.fuerza_min * 2 - 1), cert("ML-DSA", 128), M.certificadosValor({ ok: false }), M.certificadosValor(null)],
+    [RC.aprobada, RC.bajo, RC.aprobada, RC.bajo, RC.pq, null, null], "certificados QEX-1.2: umbral de fuerza RSA y de curva, ML-DSA, sin certificado = null");
+  // QEX-1.0 sigue leyéndose con su regla (las fotos guardadas)
+  const R10 = M.REGLAS_CERTIFICADOS["QEX-1.0"], c10 = (algoritmo, bits) => M.certificadosValor({ ok: true, algoritmo, bits }, "QEX-1.0");
+  ok([c10("RSA", R10.rsa_bits), c10("RSA", R10.rsa_bits - 1), c10("EC", R10.curva_bits), c10("EC", R10.curva_bits - 1)],
+    [R10.supera, R10.minimo, R10.supera, R10.minimo], "certificados QEX-1.0 (fotos guardadas): su umbral de tamaño");
   ok(M.higiene(false, {}), RH.base, "higiene: base");
   ok(M.higiene(null, {}), RH.base, "higiene: TLS 1.3 sin dato no descuenta");
   ok(M.higiene(true, null), RH.base + RH.sin_tls13, "higiene: sin TLS 1.3, sin registro");
@@ -177,10 +182,71 @@ for (const [k, n] of Object.entries(R.NORMAS)) igual(leer(n.citada_en).includes(
   igual([f97.metodo.includes(`hasta ${T} nombres`), sondeo.regla.includes(`hasta ${T} nombres`)], [true, true], "la rúbrica publica ese mismo tope");
 }
 
+// ---------------------------------------------------------------- 4 ter · la llave según NIST IR 8547 (QEX-1.2, 18-nov)
+// Anclado a la FUENTE, no a la constante: IR 8547 final, tabla 2 (docs/fuentes/regla-llave-2026-11-18.md),
+// pone a RSA ≥ 112, ECDSA ≥ 112 y EdDSA ≥ 128 bits en la misma fila: «Deprecated after 2030 / Disallowed
+// after 2035». Por eso RSA-2048, RSA-3072, RSA-4096, P-256, P-384 y Ed25519 tienen que valer LO MISMO, y
+// RSA-1024 (bajo 112) menos; un certificado ML-DSA (tabla 3) más. La regla de agosto (RSA-4096 y P-384 = 100)
+// no pasa esto: grita.
+function reglaLlave(M) {
+  const v = (algoritmo, bits) => M.certificadosValor({ ok: true, algoritmo, bits });
+  const clasicas = [v("RSA", 2048), v("RSA", 3072), v("RSA", 4096), v("EC", 256), v("EC", 384), v("Ed25519", 256)];
+  return { iguales: new Set(clasicas).size === 1 && clasicas[0] != null, bajoMenos: v("RSA", 1024) < clasicas[0], pqMas: v("ML-DSA", 192) > clasicas[0] };
+}
+igual(reglaLlave(N), { iguales: true, bajoMenos: true, pqMas: true }, "IR 8547: toda llave clásica aprobada vale lo mismo; bajo 112 bits vale menos; ML-DSA vale más");
+igual([N.fuerzaClasica({ ok: true, algoritmo: "RSA", bits: 2048 }), N.fuerzaClasica({ ok: true, algoritmo: "RSA", bits: 3072 }), N.fuerzaClasica({ ok: true, algoritmo: "EC", bits: 256 }),
+  N.fuerzaClasica({ ok: true, algoritmo: "EC", bits: 384 }), N.fuerzaClasica({ ok: true, algoritmo: "RSA", bits: 1024 })], [112, 128, 128, 192, 80], "fuerza clásica = SP 800-57, tabla 2");
+igual(readFileSync(new URL("docs/fuentes/regla-llave-2026-11-18.md", raiz), "utf8").includes("Deprecated after 2030"), true, "la fuente copiada trae la fila de IR 8547");
+// el lector de la hoja: una llave ML-DSA-65 de verdad (Node.js con OpenSSL 3.5) y una Ed25519, dentro de una hoja mínima
+{
+  const IE = await import("../lib/informe-envivo.mjs");
+  const { generateKeyPairSync } = await import("node:crypto");
+  const len = (n) => (n < 128 ? [n] : n < 256 ? [0x81, n] : [0x82, n >> 8, n & 255]);
+  const tlvB = (tag, ...partes) => { const c = Buffer.concat(partes.map((p) => Buffer.from(p))); return Buffer.concat([Buffer.from([tag, ...len(c.length)]), c]); };
+  const oidB = (o) => { const p = o.split(".").map(Number), b = [p[0] * 40 + p[1]];
+    for (const x of p.slice(2)) { const s = []; let y = x; do { s.unshift(y & 127); y >>= 7; } while (y); b.push(...s.map((z, i) => (i < s.length - 1 ? z | 128 : z))); }
+    return tlvB(0x06, b); };
+  const nombre = (cn) => tlvB(0x30, tlvB(0x31, tlvB(0x30, oidB("2.5.4.3"), tlvB(0x0c, Buffer.from(cn)))));
+  const hoja = (spki, firmaOid) => { const alg = tlvB(0x30, oidB(firmaOid));
+    const tbs = tlvB(0x30, tlvB(0xa0, tlvB(0x02, [2])), tlvB(0x02, [1]), alg, nombre("prueba"), tlvB(0x30, tlvB(0x17, Buffer.from("261101000000Z")), tlvB(0x17, Buffer.from("271101000000Z"))), nombre("prueba.example"), spki);
+    return new Uint8Array(tlvB(0x30, tbs, alg, tlvB(0x03, [0, 1, 2, 3]))); };
+  const ml = generateKeyPairSync("ml-dsa-65").publicKey.export({ type: "spki", format: "der" });
+  const h = IE.leerHoja(hoja(ml, "2.16.840.1.101.3.4.3.18"));
+  igual([h.algoritmo, h.curva, h.bits, h.firma, N.certificadosValor({ ok: true, ...h })], ["ML-DSA", "ML-DSA-65", 192, "ml-dsa-65", N.REGLA_CERTIFICADOS.pq],
+    "una hoja con llave ML-DSA-65 real se lee ML-DSA (OID 2.16.840.1.101.3.4.3.18 del CSOR) y vale lo de un certificado post-cuántico");
+  const ed = generateKeyPairSync("ed25519").publicKey.export({ type: "spki", format: "der" });
+  const he = IE.leerHoja(hoja(ed, "1.3.101.112"));
+  igual([he.algoritmo, N.certificadosValor({ ok: true, ...he }), N.certificadosValor({ ok: true, ...he }, "QEX-1.0")], ["Ed25519", N.REGLA_CERTIFICADOS.aprobada, null],
+    "Ed25519: con QEX-1.2 vale como toda llave clásica aprobada (antes, sin dato)");
+}
+// una foto guardada QEX-1.0 con RSA-4096 contra una nueva QEX-1.2 con la MISMA llave: la comparación no marca «cambió»
+{
+  const base = { esquema: N.ESQUEMA_FOTO, dominio: "ejemplo.cl", certificado: { ok: true, algoritmo: "RSA", bits: 4096 }, endpoints: [], borde: {}, proveedores: {} };
+  const dim = { certificados: 100, higiene: 60, hndl: 12, edge: 100 };
+  const f10 = { ...base, qex: N.qex(dim, "QEX-1.0") }, f12 = { ...base, qex: N.qex({ ...dim, certificados: N.certificadosValor(base.certificado) }) };
+  const c = N.comparar(f10, f12), est = (k) => c.items.find((x) => x.k === k).estado;
+  igual([est("certificados"), est("score"), c.metodo], ["se_mantiene", "se_mantiene", { antes: "QEX-1.0", ahora: N.VERSION_QEX, releida: true }],
+    "foto QEX-1.0 vs QEX-1.2 con la misma llave: se mantiene, y se declara que la anterior se releyó");
+  const c2 = N.comparar(f12, f12);
+  igual(c2.metodo.releida, false, "misma versión: no se relee nada");
+}
+
 // ---------------------------------------------------------------- 5 · mutaciones
 await conMutante(new URL("lib/informe-envivo.mjs", raiz), "const MAX_SENSIBLES = MAX_SONDEADOS;", "const MAX_SENSIBLES = 15 + 1;", async (M) => {
   const r = await M.manejarSondas(new Request("https://x/api/sondas", { method: "POST", body: JSON.stringify({ dominio: "ejemplo.cl", sensibles: Array.from({ length: N.MAX_SONDEADOS + 1 }, (_, i) => `n${i}.ejemplo.cl`) }) }), {}).catch(() => null);
   igual(r != null && r.status === 400, false, "MUTACIÓN: /api/sondas con su propio tope escrito a mano → deja pasar más de lo que la rúbrica dice (grita)");
+});
+await conMutante(NUCLEO, 'export const VERSION_QEX = "QEX-1.2";', 'export const VERSION_QEX = "QEX-1.0";', async (M) => {
+  igual(reglaLlave(M).iguales, false, "MUTACIÓN: volver a la regla de agosto (RSA-4096 y P-384 = 100) → IR 8547 grita");
+});
+await conMutante(NUCLEO, "  return f >= minimo ? R.aprobada : R.bajo;", "  return f >= minimo ? (f >= 192 ? R.pq : R.aprobada) : R.bajo;", async (M) => {
+  igual(reglaLlave(M).iguales, false, "MUTACIÓN: premiar una llave clásica más grande (P-384) → IR 8547 grita");
+});
+await conMutante(NUCLEO, "  if (!q.dimensiones || q.version === version) return q;", "  return q;", async (M) => {
+  const base = { esquema: M.ESQUEMA_FOTO, dominio: "ejemplo.cl", certificado: { ok: true, algoritmo: "RSA", bits: 4096 }, endpoints: [], borde: {}, proveedores: {} };
+  const dim = { certificados: 100, higiene: 60, hndl: 12, edge: 100 };
+  const c = M.comparar({ ...base, qex: M.qex(dim, "QEX-1.0") }, { ...base, qex: M.qex({ ...dim, certificados: M.certificadosValor(base.certificado) }) });
+  igual(c.items.find((x) => x.k === "certificados").estado === "cambio", true, "MUTACIÓN: sin releer la foto anterior → un cambio de método se lee «cambió» (grita)");
 });
 await conMutante(NUCLEO, "  sin_tls13: -30,", "  sin_tls13: -25,", async (M) => {
   igual(divergencias(B.generar({ N: M })).length > 0, true, "MUTACIÓN: la constante −30 pasa a −25 sin regenerar → la rúbrica publicada ya no es la del código (grita)");
@@ -203,5 +269,5 @@ await conMutante(NUCLEO, "export const NOTA_DIMENSION_MINIMA = 0.25;", "export c
 
 for (const f of fallas) console.log("  FALLA " + f);
 console.log(fallas.length ? `check-rubrica-qex: ${fallas.length} falla(s) de ${casos} casos` :
-  `check-rubrica-qex: ok (${casos} casos · publicado = generado · funciones = constantes · escala = explicarNota en ${cmp.n} combinaciones · tope de nombres una sola definición · 7 mutaciones gritan)`);
+  `check-rubrica-qex: ok (${casos} casos · publicado = generado · funciones = constantes · escala = explicarNota en ${cmp.n} combinaciones · tope de nombres una sola definición · la llave según IR 8547 · 10 mutaciones gritan)`);
 process.exit(fallas.length ? 1 : 0);

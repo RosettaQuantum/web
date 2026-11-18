@@ -28,6 +28,8 @@ export const COLUMNAS = ["version", "seccion", "id", "dimension", "variable", "o
 export const NORMAS = Object.freeze({
   ir8547: { etiqueta: "NIST IR 8547 (versión final, oct-2026)", etiqueta_en: "NIST IR 8547 (final version, Oct 2026)", citada_en: "public/js/medicion-envivo.mjs", busca: "NIST IR 8547 (oct-2026)" },
   fips203: { etiqueta: "FIPS 203 (ML-KEM)", etiqueta_en: "FIPS 203 (ML-KEM)", citada_en: "src/pages/informe-pqc/index.astro", busca: "ML-KEM (FIPS 203)" },
+  fips204: { etiqueta: "FIPS 204 (ML-DSA)", etiqueta_en: "FIPS 204 (ML-DSA)", citada_en: "src/components/qready/QrLanding.astro", busca: "FIPS 204 · ML-DSA" },
+  sp80057: { etiqueta: "NIST SP 800-57 pt. 1 rev. 5, tabla 2", etiqueta_en: "NIST SP 800-57 pt. 1 rev. 5, table 2", citada_en: "docs/fuentes/regla-llave-2026-11-18.md", busca: "Table 2: Comparable security strengths" },
   rfc8446: { etiqueta: "RFC 8446 (TLS 1.3)", etiqueta_en: "RFC 8446 (TLS 1.3)", citada_en: "lib/tls13-certificado.mjs", busca: "RFC 8446" },
   rfc9116: { etiqueta: "RFC 9116 (security.txt)", etiqueta_en: "RFC 9116 (security.txt)", citada_en: "src/pages/q-ready/spec/index.astro", busca: "RFC 9116" },
   rfc8032: { etiqueta: "RFC 8032 (Ed25519)", etiqueta_en: "RFC 8032 (Ed25519)", citada_en: "src/pages/q-ready/spec/index.astro", busca: "RFC 8032" },
@@ -62,12 +64,17 @@ export function armarRubrica({ referencia, cron, idioma = "es", N = NUCLEO }) {
   const condA = (c) => N.CONDICIONES_A.find((a) => a.codigo === c);
   const esc = (r) => N.ESCALA_NOTA.find((e) => e.regla === r);
   const desde = (...vs) => [...new Set(vs.filter(Boolean))].join(" · ");
+  // Las reglas que no cambiaron desde agosto rigen desde QEX-1.0; sólo la llave (RQ.S.02.1) rige desde la
+  // vigente. El nombre sale de VERSIONES_QEX (el guardia exige que cada «rige desde» exista ahí).
+  const Q10 = Object.keys(N.VERSIONES_QEX)[0];
   const fMed = T.frecuencia.medicion(hora), fEd = T.frecuencia.edicion(ed);
   const valoresHndl = Object.values(referencia.verticales).map((v) => v.hndl);
   const minH = Math.min(...valoresHndl), maxH = Math.max(...valoresHndl);
   const listaHndl = Object.entries(referencia.verticales).map(([, v]) => `${v.nombre} ${v.hndl}`).join(" · ");
 
-  const fila = (o) => ({ version, seccion: T.seccion.variable, norma: T.sin_norma, frecuencia: fMed, peso: null, puntos_qex: "—", puntos_dimension: "—", ...o });
+  // {hv}: el nombre de la variante interna sale del núcleo, no se escribe en el texto
+  const hv = (o) => Object.fromEntries(Object.entries(o).map(([k, v]) => [k, typeof v === "string" ? v.replaceAll("{hv}", N.VERSION_QEX_HV) : v]));
+  const fila = (o) => hv({ version, seccion: T.seccion.variable, norma: T.sin_norma, frecuencia: fMed, peso: null, puntos_qex: "—", puntos_dimension: "—", ...o });
   const tipo = (t) => T.tipo[t];
   const filas = [];
   const dimRow = (id, clave, maxDim, extra) => fila({ id, dimension: T.dim[clave], variable: F[id].variable, observa: F[id].observa, metodo: F[id].metodo,
@@ -78,19 +85,19 @@ export function armarRubrica({ referencia, cron, idioma = "es", N = NUCLEO }) {
     metodo: F["RQ.S.00"].metodo, tipo: tipo("medido"), regla: F["RQ.S.00"].regla(), efecto_nota: F["RQ.S.00"].efecto(), desde: N.VERSION_NOTA }));
   filas.push(fila({ id: "RQ.S.01", dimension: T.dim.qex, variable: F["RQ.S.01"].variable, observa: F["RQ.S.01"].observa, fuente: T.fuente.codigo,
     metodo: F["RQ.S.01"].metodo, tipo: tipo("medido"), regla: F["RQ.S.01"].regla(N.TOPE), puntos_dimension: `0–100`, puntos_qex: `0–${N.TOPE}`,
-    efecto_nota: F["RQ.S.01"].efecto(), desde: N.VERSION_QEX }));
+    efecto_nota: F["RQ.S.01"].efecto(), desde: Q10 }));
 
   // RQ.S.02 · certificados
-  filas.push(dimRow("RQ.S.02", "certificados", RC.supera, { fuente: T.fuente.tls_hoja, tipo: tipo("medido"), regla: F["RQ.S.02"].regla(RC.supera),
-    puntos_dimension: `0–${RC.supera}`, puntos_qex: fmt(RC.supera * P.certificados, idioma), efecto_nota: F["RQ.S.02"].efecto(minDim),
-    desde: desde(N.VERSION_QEX, condA("dimensiones_medidas").desde) }));
+  filas.push(dimRow("RQ.S.02", "certificados", RC.pq, { fuente: T.fuente.tls_hoja, tipo: tipo("medido"), regla: F["RQ.S.02"].regla(RC.pq),
+    puntos_dimension: `0–${RC.pq}`, puntos_qex: fmt(RC.pq * P.certificados, idioma), efecto_nota: F["RQ.S.02"].efecto(minDim),
+    desde: desde(Q10, condA("dimensiones_medidas").desde) }));
   filas.push(fila({ id: "RQ.S.02.1", dimension: T.dim.certificados, variable: F["RQ.S.02.1"].variable, observa: F["RQ.S.02.1"].observa, fuente: T.fuente.tls_hoja,
-    metodo: F["RQ.S.02.1"].metodo, tipo: tipo("medido"), regla: F["RQ.S.02.1"].regla(RC), puntos_dimension: `${RC.supera} / ${RC.minimo}`, peso: P.certificados,
-    puntos_qex: `${fmt(RC.supera * P.certificados, idioma)} / ${fmt(RC.minimo * P.certificados, idioma)}`, efecto_nota: F["RQ.S.02.1"].efecto(),
-    desde: N.VERSION_QEX, norma: norma("ir8547") }));
+    metodo: F["RQ.S.02.1"].metodo, tipo: tipo("medido"), regla: F["RQ.S.02.1"].regla(RC), puntos_dimension: `${RC.pq} / ${RC.aprobada} / ${RC.bajo}`, peso: P.certificados,
+    puntos_qex: `${fmt(RC.pq * P.certificados, idioma)} / ${fmt(RC.aprobada * P.certificados, idioma)} / ${fmt(RC.bajo * P.certificados, idioma)}`, efecto_nota: F["RQ.S.02.1"].efecto(),
+    desde: N.VERSION_QEX, norma: norma("ir8547", "sp80057", "fips204") }));
   filas.push(fila({ id: "RQ.S.02.2", dimension: T.dim.certificados, variable: F["RQ.S.02.2"].variable, observa: F["RQ.S.02.2"].observa, fuente: T.fuente.tls_hoja,
     metodo: F["RQ.S.02.2"].metodo, tipo: tipo("medido"), regla: F["RQ.S.02.2"].regla(), puntos_dimension: "0", peso: P.certificados, puntos_qex: "0",
-    efecto_nota: F["RQ.S.02.2"].efecto(), desde: desde(N.VERSION_QEX, alerta("certificado_vencido").desde) }));
+    efecto_nota: F["RQ.S.02.2"].efecto(), desde: desde(Q10, alerta("certificado_vencido").desde) }));
   filas.push(fila({ id: "RQ.S.02.3", dimension: T.dim.certificados, variable: F["RQ.S.02.3"].variable, observa: F["RQ.S.02.3"].observa, fuente: T.fuente.wellknown,
     metodo: F["RQ.S.02.3"].metodo, tipo: tipo("declarado"), regla: F["RQ.S.02.3"].regla(), puntos_dimension: "0", peso: P.certificados, puntos_qex: "0",
     efecto_nota: F["RQ.S.02.3"].efecto(), desde: alerta("certificado_sin_plan").desde, norma: norma("ir8547"), frecuencia: T.frecuencia.cron(hora) }));
@@ -98,38 +105,38 @@ export function armarRubrica({ referencia, cron, idioma = "es", N = NUCLEO }) {
   // RQ.S.03 · higiene
   filas.push(dimRow("RQ.S.03", "higiene", RH.base, { fuente: `${T.fuente.tls13}; ${T.fuente.ct}`, tipo: tipo("medido"), regla: F["RQ.S.03"].regla(RH),
     puntos_dimension: `${RH.piso}–${RH.base}`, puntos_qex: fmt(RH.base * P.higiene, idioma), efecto_nota: F["RQ.S.03"].efecto(minDim),
-    desde: desde(N.VERSION_QEX, condA("dimensiones_medidas").desde) }));
+    desde: desde(Q10, condA("dimensiones_medidas").desde) }));
   filas.push(fila({ id: "RQ.S.03.1", dimension: T.dim.higiene, variable: F["RQ.S.03.1"].variable, observa: F["RQ.S.03.1"].observa, fuente: T.fuente.tls13,
     metodo: F["RQ.S.03.1"].metodo, tipo: tipo("medido"), regla: F["RQ.S.03.1"].regla(RH.sin_tls13), puntos_dimension: conSigno(RH.sin_tls13, idioma), peso: P.higiene,
-    puntos_qex: conSigno(RH.sin_tls13 * P.higiene, idioma), efecto_nota: F["RQ.S.03.1"].efecto(), desde: desde(N.VERSION_QEX, esc("sin_tls13").desde), norma: norma("rfc8446") }));
+    puntos_qex: conSigno(RH.sin_tls13 * P.higiene, idioma), efecto_nota: F["RQ.S.03.1"].efecto(), desde: desde(Q10, esc("sin_tls13").desde), norma: norma("rfc8446") }));
   for (const [id, k] of [["RQ.S.03.2", "no_productivo"], ["RQ.S.03.3", "infra_expuesta"], ["RQ.S.03.4", "legado"]]) {
     filas.push(fila({ id, dimension: T.dim.higiene, variable: F[id].variable, observa: F[id].observa, fuente: T.fuente.ct, metodo: F[id].metodo, tipo: tipo("medido"),
       regla: F[id].regla(RH[k]), puntos_dimension: conSigno(RH[k].puntos, idioma), peso: P.higiene, puntos_qex: conSigno(RH[k].puntos * P.higiene, idioma),
-      efecto_nota: F[id].efecto(), desde: N.VERSION_QEX }));
+      efecto_nota: F[id].efecto(), desde: Q10 }));
   }
   filas.push(fila({ id: "RQ.S.03.5", dimension: T.dim.higiene, variable: F["RQ.S.03.5"].variable, observa: F["RQ.S.03.5"].observa, fuente: T.fuente.http_security,
     metodo: F["RQ.S.03.5"].metodo, tipo: tipo("medido"), regla: F["RQ.S.03.5"].regla(), puntos_dimension: "0", peso: P.higiene, puntos_qex: "0",
-    efecto_nota: F["RQ.S.03.5"].efecto(), desde: N.VERSION_QEX, norma: norma("rfc9116") }));
+    efecto_nota: F["RQ.S.03.5"].efecto(), desde: Q10, norma: norma("rfc9116") }));
 
   // RQ.S.04 · HNDL: modelo del sector; sus tres números no existen como datos
   filas.push(dimRow("RQ.S.04", "hndl", maxH, { fuente: T.fuente.sector, tipo: tipo("modelo"), regla: F["RQ.S.04"].regla(listaHndl),
     puntos_dimension: `${minH}–${maxH}`, puntos_qex: `${fmt(minH * P.hndl, idioma)}–${fmt(maxH * P.hndl, idioma)}`, efecto_nota: F["RQ.S.04"].efecto(minDim),
-    desde: desde(N.VERSION_QEX, condA("dimensiones_medidas").desde), frecuencia: fEd }));
+    desde: desde(Q10, condA("dimensiones_medidas").desde), frecuencia: fEd }));
   for (const id of ["RQ.S.04.1", "RQ.S.04.2", "RQ.S.04.3"]) {
     filas.push(fila({ id, dimension: T.dim.hndl, variable: F[id].variable, observa: F[id].observa, fuente: T.fuente.sector, metodo: F.hndl_sin_derivacion(ed),
-      tipo: tipo("modelo"), regla: F.hndl_regla_sub(), puntos_dimension: "—", peso: P.hndl, puntos_qex: "—", efecto_nota: "—", desde: N.VERSION_QEX, frecuencia: fEd }));
+      tipo: tipo("modelo"), regla: F.hndl_regla_sub(), puntos_dimension: "—", peso: P.hndl, puntos_qex: "—", efecto_nota: "—", desde: Q10, frecuencia: fEd }));
   }
 
   // RQ.S.05 · borde
   filas.push(dimRow("RQ.S.05", "edge", RE.soporta, { fuente: T.fuente.tls_borde, tipo: tipo("medido"), regla: F["RQ.S.05"].regla(RE.soporta),
-    puntos_dimension: `${RE.no_soporta}–${RE.soporta}`, puntos_qex: fmt(RE.soporta * P.edge, idioma), efecto_nota: F["RQ.S.05"].efecto(), desde: N.VERSION_QEX }));
+    puntos_dimension: `${RE.no_soporta}–${RE.soporta}`, puntos_qex: fmt(RE.soporta * P.edge, idioma), efecto_nota: F["RQ.S.05"].efecto(), desde: Q10 }));
   filas.push(fila({ id: "RQ.S.05.1", dimension: T.dim.edge, variable: F["RQ.S.05.1"].variable, observa: F["RQ.S.05.1"].observa, fuente: T.fuente.tls_borde,
     metodo: F["RQ.S.05.1"].metodo, tipo: tipo("medido"), regla: F["RQ.S.05.1"].regla(RE), puntos_dimension: `${RE.soporta} / ${RE.no_soporta}`, peso: P.edge,
     puntos_qex: `${fmt(RE.soporta * P.edge, idioma)} / ${fmt(RE.no_soporta * P.edge, idioma)}`, efecto_nota: F["RQ.S.05.1"].efecto(),
-    desde: desde(N.VERSION_QEX, esc("sin_candado").desde), norma: norma("fips203") }));
+    desde: desde(Q10, esc("sin_candado").desde), norma: norma("fips203") }));
   filas.push(fila({ id: "RQ.S.05.2", dimension: T.dim.edge, variable: F["RQ.S.05.2"].variable, observa: F["RQ.S.05.2"].observa, fuente: T.fuente.tls_borde,
     metodo: F["RQ.S.05.2"].metodo, tipo: tipo("medido"), regla: F["RQ.S.05.2"].regla(), puntos_dimension: "0", peso: P.edge, puntos_qex: "0",
-    efecto_nota: F["RQ.S.05.2"].efecto(), desde: N.VERSION_QEX, norma: norma("fips203") }));
+    efecto_nota: F["RQ.S.05.2"].efecto(), desde: Q10, norma: norma("fips203") }));
   filas.push(fila({ id: "RQ.S.05.3", dimension: T.dim.edge, variable: F["RQ.S.05.3"].variable, observa: F["RQ.S.05.3"].observa, fuente: T.fuente.tls_nombres,
     metodo: F["RQ.S.05.3"].metodo, tipo: tipo("medido"), regla: F["RQ.S.05.3"].regla(), puntos_dimension: "0", peso: P.edge, puntos_qex: "0",
     efecto_nota: F["RQ.S.05.3"].efecto(), desde: condA("candado_en_todos").desde, norma: norma("fips203") }));
@@ -164,19 +171,19 @@ export function armarRubrica({ referencia, cron, idioma = "es", N = NUCLEO }) {
     frecuencia: T.frecuencia.manual }));
 
   // ---- bloque 2 · la fórmula, con sus números calculados por el núcleo
-  const bloque = (seccion, id, variable, regla, d, extra = {}) => ({ ...Object.fromEntries(COLUMNAS.map((c) => [c, "—"])), version, seccion, id, variable, regla, desde: d, ...extra });
+  const bloque = (seccion, id, variable, regla, d, extra = {}) => hv({ ...Object.fromEntries(COLUMNAS.map((c) => [c, "—"])), version, seccion, id, variable, regla, desde: d, ...extra });
   const pesos = Object.entries(P).map(([k, p]) => `${T.dim[k]} ${numRubrica(p, idioma)}`).join(" · ");
   const ejemplo = 56.5;
   const maximos = [...new Set(valoresHndl)].sort((a, b) => a - b)
-    .map((h) => `HNDL ${h} → ${N.irec({ certificados: RC.supera, higiene: RH.base, hndl: h, edge: RE.soporta })}`).join(" · ");
+    .map((h) => `HNDL ${h} → ${N.irec({ certificados: RC.pq, higiene: RH.base, hndl: h, edge: RE.soporta })}`).join(" · ");
   const sF = T.seccion.formula, Fo = T.formula;
   const formula = [
-    bloque(sF, "F.1", T.dim.qex, Fo.dimension(pesos), N.VERSION_QEX),
-    bloque(sF, "F.2", T.dim.qex, Fo.suma(), N.VERSION_QEX),
-    bloque(sF, "F.3", T.dim.qex, Fo.renormaliza(), N.VERSION_QEX),
-    bloque(sF, "F.4", T.dim.qex, Fo.redondeo(numRubrica(ejemplo, idioma), N.redondearPar(ejemplo)), N.VERSION_QEX),
-    bloque(sF, "F.5", T.dim.qex, Fo.tope(N.TOPE), N.VERSION_QEX),
-    bloque(sF, "F.6", T.dim.qex, Fo.maximo(maximos), N.VERSION_QEX),
+    bloque(sF, "F.1", T.dim.qex, Fo.dimension(pesos), Q10),
+    bloque(sF, "F.2", T.dim.qex, Fo.suma(), Q10),
+    bloque(sF, "F.3", T.dim.qex, Fo.renormaliza(), Q10),
+    bloque(sF, "F.4", T.dim.qex, Fo.redondeo(numRubrica(ejemplo, idioma), N.redondearPar(ejemplo)), Q10),
+    bloque(sF, "F.5", T.dim.qex, Fo.tope(N.TOPE), Q10),
+    bloque(sF, "F.6", T.dim.qex, Fo.maximo(maximos), Q10),
   ];
 
   // ---- bloque 3 · la escala de letras (ESCALA_NOTA), los niveles de alerta y las condiciones de A
@@ -190,12 +197,12 @@ export function armarRubrica({ referencia, cron, idioma = "es", N = NUCLEO }) {
   // ---- bloque 4 · PAT, la señal de ambientes de prueba y los nombres de correo
   const Pt = T.pat, sP = T.seccion.pat;
   const pat = [
-    ...Object.keys(N.PAT).map((k) => bloque(sP, `PAT.${k}`, Pt[k], `${Pt.palabras(palabrasDe(N.PAT[k]).join(", "))} ${Pt.regla_rx(N.PAT[k].source)}`, N.VERSION_QEX)),
+    ...Object.keys(N.PAT).map((k) => bloque(sP, `PAT.${k}`, Pt[k], `${Pt.palabras(palabrasDe(N.PAT[k]).join(", "))} ${Pt.regla_rx(N.PAT[k].source)}`, Q10)),
     bloque(sP, "PAT.senal_prueba", Pt.senal_prueba, `${Pt.palabras(palabrasDe(N.SENAL_PRUEBA).join(", "))} ${Pt.calza} ${Pt.regla_rx(N.SENAL_PRUEBA.source)}`, "QREADY-NOTA-2"),
-    bloque(sP, "PAT.correo", Pt.correo, `${Pt.palabras(palabrasDe(N.PAT_CORREO).join(", "))} ${Pt.regla_rx(N.PAT_CORREO.source)}`, N.VERSION_QEX),
+    bloque(sP, "PAT.correo", Pt.correo, `${Pt.palabras(palabrasDe(N.PAT_CORREO).join(", "))} ${Pt.regla_rx(N.PAT_CORREO.source)}`, Q10),
     bloque(sP, "PAT.sondeo", Pt.sondeo, Pt.sensibles(N.CLASES_SENSIBLES.join(", "), N.MAX_SONDEADOS), "QREADY-NOTA-2"),
   ];
-  return { protocolo: RUBRICA_PROTOCOLO, version, idioma, rige: { qex: N.VERSION_QEX, qex_interno: N.VERSION_QEX_11, nota: N.VERSION_NOTA },
+  return { protocolo: RUBRICA_PROTOCOLO, version, idioma, rige: { qex: N.VERSION_QEX, qex_interno: N.VERSION_QEX_HV, nota: N.VERSION_NOTA },
     referencia: ed, filas, formula, escala, alertas, condiciones_a: condiciones, pat };
 }
 

@@ -36,9 +36,12 @@ eq(N.higiene(false, { no_productivo: 0, infra_expuesta: 0, legado: 1 }), 60, "le
 eq(N.higiene(null, null), 70, "sin TLS medido ni CT: no descuenta");
 eq(N.higiene(true, null), 40, "sin TLS 1.3 descuenta 30");
 // --- certificados
-eq(N.certificadosValor({ ok: true, algoritmo: "EC", bits: 256 }), 75, "P-256 = 75");
-eq(N.certificadosValor({ ok: true, algoritmo: "EC", bits: 384 }), 100, "P-384 = 100");
-eq(N.certificadosValor({ ok: true, algoritmo: "RSA", bits: 2048 }), 75, "RSA 2048 = 75");
+// agosto y octubre se midieron con QEX-1.0: su regla de la llave se pide por versión (18-nov-2026)
+eq(N.certificadosValor({ ok: true, algoritmo: "EC", bits: 256 }, "QEX-1.0"), 75, "QEX-1.0: P-256 = 75");
+eq(N.certificadosValor({ ok: true, algoritmo: "EC", bits: 384 }, "QEX-1.0"), 100, "QEX-1.0: P-384 = 100");
+eq(N.certificadosValor({ ok: true, algoritmo: "RSA", bits: 2048 }, "QEX-1.0"), 75, "QEX-1.0: RSA 2048 = 75");
+// QEX-1.2 (NIST IR 8547): toda llave clásica aprobada vale lo mismo
+eq([256, 384].map((b) => N.certificadosValor({ ok: true, algoritmo: "EC", bits: b })), [75, 75], "QEX-1.2: P-256 = P-384 = 75");
 eq(N.certificadosValor({ ok: false }), null, "certificado no leído = null, no 0");
 // --- clases: grito y silencio (el silencio paradójico: la palabra dentro de otra)
 eq(N.clasesDe("pre.fxenlinea.bancoejemplo.cl"), ["no_productivo"], "pre. es no productivo");

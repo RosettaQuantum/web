@@ -446,5 +446,26 @@ for (const n of ["medir_exposicion_pqc", "get_qready_grade"]) {
   igual([h.description.includes(FICHA.es.linea_mcp), JSON.stringify(h.inputSchema.properties.idioma?.enum)], [true, '["es","en"]'], `${n}: la descripción dice cómo mostrarla y acepta idioma`);
 }
 
+// ---------------------------------------------------------------- la llave según NIST IR 8547 (QEX-1.2, 18-nov-2026)
+// Una foto nueva (QEX-1.2) con RSA-4096 vale lo mismo que una RSA-2048 (75) y la ficha ya no recomienda una llave
+// clásica más grande: la ruta es ML-DSA. Una foto GUARDADA QEX-1.0 con RSA-4096 (100) se lee con su regla y su
+// desglose sigue cuadrando. MUTACIÓN: leer la foto guardada con la regla nueva → no cuadra (grita).
+{
+  const conLlave = (base, bits, version) => { const f = JSON.parse(JSON.stringify(base)); f.certificado = { ...f.certificado, ok: true, algoritmo: "RSA", bits };
+    const dim = { ...f.qex.dimensiones, certificados: N.certificadosValor(f.certificado, version) }; f.qex = { ...N.qex(dim, version), tipos: f.qex.tipos }; return f; };
+  const base = fixture("a").foto;
+  const f12 = conLlave(base, 4096, N.VERSION_QEX), f10 = conLlave(base, 4096, "QEX-1.0");
+  const A12 = Fi.arbolQex(f12), A10 = Fi.arbolQex(f10);
+  const s12 = A12.dimensiones["RQ.S.02"].subindices[0], s10 = A10.dimensiones["RQ.S.02"].subindices[0];
+  igual([A12.cuadra, s12.dimension, A12.ganancias.map((g) => g[0]).includes("acc_mldsa"), A12.ganancias.map((g) => g[0]).includes("acc_llave")], [true, 75, true, false],
+    "QEX-1.2: RSA-4096 vale 75, el desglose cuadra y la acción es «certificado ML-DSA», no una llave más grande");
+  const md = Fi.markdownDe(Fi.armarFicha(f12, { idioma: "es" }));
+  igual([/RSA-4096 o P-384/.test(md), /certificado ML-DSA \+10,00/.test(md), /RSA-4096 = llave clásica aprobada hasta 2030 \(152 bits\)|RSA-4096 = llave clásica aprobada hasta 2030 \(128 bits\)/.test(md)], [false, true, true],
+    "la ficha QEX-1.2 no recomienda RSA-4096 o P-384 y nombra la ruta a ML-DSA");
+  igual([A10.cuadra, s10.dimension, A10.ganancias.map((g) => g[0]).includes("acc_mldsa")], [true, 100, false], "una foto guardada QEX-1.0 con RSA-4096 se lee con su regla (100) y cuadra");
+  await conMutante(new URL("public/js/ficha.mjs", raiz), "vC = N.certificadosValor(c, metodo)", "vC = N.certificadosValor(c)",
+    async (M) => igual(M.arbolQex(f10).cuadra, false, "MUTACIÓN: leer la foto guardada QEX-1.0 con la regla nueva → el desglose no cuadra (grita)"));
+}
+
 if (fallas.length) { console.error("check-ficha: FALLA\n  " + fallas.join("\n  ")); process.exit(1); }
-console.log(`check-ficha: ok (${casos} casos · snapshot de ${CASOS.length} fotos × 2 idiomas · ${Object.keys(MUT).length + 1} mutaciones de texto y 10 de código gritan · sin undefined, NaN ni null · web, sello y PDF de la misma ficha · ajustes 1, 2 y 3 contra el camino real)${ACTUALIZAR ? " · SNAPSHOTS REESCRITOS: revise el diff" : ""}`);
+console.log(`check-ficha: ok (${casos} casos · snapshot de ${CASOS.length} fotos × 2 idiomas · ${Object.keys(MUT).length + 1} mutaciones de texto y 11 de código gritan · sin undefined, NaN ni null · web, sello y PDF de la misma ficha · ajustes 1, 2 y 3 contra el camino real)${ACTUALIZAR ? " · SNAPSHOTS REESCRITOS: revise el diff" : ""}`);

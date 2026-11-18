@@ -93,6 +93,34 @@ function archivos(rel, out = []) {
   return out;
 }
 
+// ---------------------------------------------------------------- la regla de la llave escrita a mano (18-nov-2026)
+// EL DEFECTO REAL: la regla de RQ.S.02.1 vivía escrita a mano en dos superficies servidas, el catálogo de
+// /protocolo/ficha («100 si RSA ≥ 4096 o curva ≥ 384; 75 en el mínimo») y «Puntos por acción» de la ficha
+// («llave RSA-4096 o P-384 +…»). Con la regla de NIST IR 8547 (QEX-1.2) las dos quedaban diciendo la vieja.
+// Ahora la regla sale de REGLAS_CERTIFICADOS. Qué busca: una línea con un tamaño de llave (RSA-4096, RSA ≥
+// 4096, P-384, «curva ≥ 384») Y un puntaje (100, 75, «+5», «+${…}»). Cada una tiene que estar revisada.
+// Punto ciego: la regla en prosa sin el número de la llave o sin el puntaje en la misma línea.
+export const LLAVE = /(RSA[ -]?(≥ ?)?\d{3,5}\b|\bP-(256|384|521)\b|\b(curva|curve) ≥ ?\d{3}\b)/;
+export const PUNTAJE = /(\b(100|75)\b|\+\d|\+\$\{)/;
+export const REVISADAS_LLAVE = {
+  // public/js/qex-nucleo.mjs: la regla de QEX-1.0 descrita en el comentario de REGLAS_CERTIFICADOS. Es la
+  // regla HISTÓRICA con que se leen las fotos guardadas de esa versión; la vigente está en la constante.
+  "regla histórica QEX-1.0 (fotos guardadas), revisada el 18-nov": [
+    "65d42ebdd212dd2f82c64de10d5257e1a45d7f79f6821496642e412925a218fa", "92683a8ba397090a51af696eb7340965087a67ee5403ee3f0163f2362eb5b8fc",
+  ],
+};
+export function lineasConReglaLlave(texto) {
+  const out = [];
+  texto.split("\n").forEach((l, i) => { if (LLAVE.test(l) && PUNTAJE.test(l)) out.push({ n: i + 1, linea: l.trim(), huella: sha(l.trim()) }); });
+  return out;
+}
+export function revisarLlave(textos, revisadas = REVISADAS_LLAVE) {
+  const ok = new Set(Object.values(revisadas).flat());
+  const sinRevisar = [];
+  for (const [rel, t] of textos) for (const h of lineasConReglaLlave(t)) if (!ok.has(h.huella)) sinRevisar.push({ rel, ...h });
+  return sinRevisar;
+}
+
 export function revisar(textos, revisadas = REVISADAS) {
   const ok = new Set(Object.values(revisadas).flat());
   const sinRevisar = [];
@@ -118,6 +146,14 @@ function autoprueba() {
   calla("api.acme-bank.example TLS 1.2 · ECDHE / ECDSA P-256", "una fila de inventario TLS");
   calla("const d = ct ? 1 : 0; // TLS", "código con dos puntos");
   calla("la letra D era sólo para sitios con TLS 1.2 o anterior", "la escala en prosa corrida (punto ciego declarado)");
+  // la regla de la llave: GRITO con las dos superficies reales de origin/main antes del 18-nov; SILENCIO con lo demás
+  const gritaL = (t, q) => { if (revisarLlave([["x", t]]).length === 0) fallas.push(`no grita (llave): ${q}`); };
+  const callaL = (t, q) => { const r = revisarLlave([["x", t]]); if (r.length) fallas.push(`grita sin motivo (llave): ${q} → ${r[0].linea}`); };
+  gritaL('      ["RQ.S.02.1", "Fuerza de la llave", "100 si RSA ≥ 4096 o curva ≥ 384; 75 en el mínimo", "medido"],', "el catálogo real de /protocolo/ficha");
+  gritaL("      acc_llave: (p) => `llave RSA-4096 o P-384 +${p}`,", "«Puntos por acción» real de la ficha");
+  callaL("api.acme-bank.example TLS 1.2 · ECDHE / ECDSA P-256", "una fila de inventario sin puntaje");
+  callaL('const CURVAS = { "1.2.840.10045.3.1.7": ["P-256", 256], "1.3.132.0.34": ["P-384", 384] };', "la tabla de curvas del lector");
+  callaL("La fuerza de una RSA-2048 son 112 bits.", "una fuerza, no un puntaje");
   return fallas;
 }
 
@@ -125,18 +161,20 @@ const directo = process.argv[1] && import.meta.url === pathToFileURL(process.arg
 if (directo && process.argv.includes("--self-test")) {
   const f = autoprueba();
   for (const x of f) console.log("  FALLA autoprueba: " + x);
-  console.log(`check-escala-nota --self-test: ${f.length ? "FALLA" : "ok (5 gritos, 7 silencios)"}`);
+  console.log(`check-escala-nota --self-test: ${f.length ? "FALLA" : "ok (7 gritos, 10 silencios)"}`);
   process.exit(f.length ? 1 : 0);
 }
 
 if (directo) {
 const lista = RAICES.flatMap((r) => archivos(r));
 const textos = lista.map((rel) => [rel, readFileSync(join(RAIZ, rel), "utf8")]);
-const sinRevisar = revisar(textos);
+const sinRevisar = revisar(textos), sinRevisarLlave = revisarLlave(textos);
 const auto = autoprueba();
 const vistas = textos.reduce((t, [, x]) => t + lineasConEscala(x).length, 0);
 for (const s of sinRevisar) console.log(`  FALLA ${s.rel}:${s.n} publica una escala de letras sin revisar contra ESCALA_NOTA (huella ${s.huella})\n        ${s.linea.slice(0, 160)}`);
+for (const s of sinRevisarLlave) console.log(`  FALLA ${s.rel}:${s.n} escribe a mano una regla de la llave del certificado (la regla sale de REGLAS_CERTIFICADOS; huella ${s.huella})\n        ${s.linea.slice(0, 160)}`);
 for (const x of auto) console.log("  FALLA autoprueba: " + x);
-console.log(`check-escala-nota: ${lista.length} archivos, ${vistas} líneas con forma de escala, ${sinRevisar.length} sin revisar · autoprueba ${auto.length ? "FALLA" : "ok"}`);
-process.exit(sinRevisar.length || auto.length ? 1 : 0);
+const vistasL = textos.reduce((t, [, x]) => t + lineasConReglaLlave(x).length, 0);
+console.log(`check-escala-nota: ${lista.length} archivos, ${vistas} líneas con forma de escala, ${sinRevisar.length} sin revisar · ${vistasL} con una regla de llave, ${sinRevisarLlave.length} sin revisar · autoprueba ${auto.length ? "FALLA" : "ok"}`);
+process.exit(sinRevisar.length || sinRevisarLlave.length || auto.length ? 1 : 0);
 }

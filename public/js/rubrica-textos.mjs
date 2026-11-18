@@ -92,8 +92,9 @@ export const RUBRICA = {
       "RQ.S.02.1": {
         variable: "Fuerza de la llave del certificado",
         observa: "Algoritmo y tamaño de la llave del certificado del sitio principal.",
-        metodo: "Se lee la hoja que entrega el servidor. Límite: no distingue una RSA de 1024 bits de una de 2048; las dos están bajo el umbral.",
-        regla: (R) => `${R.supera} si RSA ≥ ${R.rsa_bits} bits o curva ≥ ${R.curva_bits} bits; ${R.minimo} si es menor; sin certificado leído, sin dato (nunca 0).`,
+        // CAMBIA (18-nov, PROVISORIO: se aprobó la regla, no la redacción): la regla de NIST IR 8547 (QEX-1.2)
+        metodo: "Se lee la hoja que entrega el servidor. Fuerza clásica por tamaño (NIST SP 800-57, tabla 2): RSA-2048 = 112 bits, RSA-3072 = 128, P-256 = 128, Ed25519 = 128, P-384 = 192. Límite: la sonda reconoce RSA, las curvas P-256, P-384 y P-521, Ed25519 y ML-DSA; otro algoritmo sale sin dato.",
+        regla: (R) => `${R.aprobada} con cualquier llave clásica de al menos ${R.fuerza_min} bits de fuerza (EdDSA: ${R.fuerza_min_eddsa}), sea RSA-2048, RSA-4096, P-256 o P-384: NIST IR 8547 las depreca después de 2030 y las prohíbe después de 2035, todas por igual. ${R.bajo} bajo esa fuerza (por ejemplo RSA-1024): no está entre lo aprobado. ${R.pq} con un certificado post-cuántico ML-DSA. Sin certificado leído: sin dato, nunca 0.`,
         efecto: () => "Ninguno directo (ver RQ.S.02).",
       },
       "RQ.S.02.2": {
@@ -127,7 +128,7 @@ export const RUBRICA = {
       "RQ.S.03.2": {
         variable: "Nombres no productivos en el registro",
         observa: "Nombres de la clase no_productivo (bloque 4) en el registro público de certificados.",
-        metodo: "Se cuentan todos los nombres que el registro acumuló, aunque hoy no existan; en QEX-1.1 (interno, no publicado) sólo los que responden hoy. Límite: no ve nombres que nunca tuvieron un certificado público, ni comodines.",
+        metodo: "Se cuentan todos los nombres que el registro acumuló, aunque hoy no existan; en {hv} (interno, no publicado) sólo los que responden hoy. Límite: no ve nombres que nunca tuvieron un certificado público, ni comodines.",
         regla: (r) => `${pts(r.puntos)} si hay ${r.desde} o más.`,
         efecto: () => "Ninguno directo: la nota mira los que responden (RQ.S.09.1 a .3).",
       },
@@ -322,7 +323,7 @@ export const RUBRICA = {
       legado: "Nombres de legado",
       infra_expuesta: "Infraestructura sensible",
       critico: "Servicios críticos (se cuentan; no descuentan)",
-      senal_prueba: "Señal de ambientes de prueba (la nota y QEX-1.1)",
+      senal_prueba: "Señal de ambientes de prueba (la nota y {hv})",
       correo: "Nombres de correo (sólo cambia cómo se redacta y qué alerta sale)",
       palabras: (ws) => `Palabras: ${ws}.`,
       regla_rx: (rx) => `Expresión exacta: ${rx}`,
@@ -406,8 +407,8 @@ export const RUBRICA = {
       "RQ.S.02.1": {
         variable: "Certificate key strength",
         observa: "Algorithm and key size of the main site's certificate.",
-        metodo: "The leaf the server presents is read. Limit: it does not tell a 1024-bit RSA key from a 2048-bit one; both are below the threshold.",
-        regla: (R) => `${R.supera} if RSA ≥ ${R.rsa_bits} bits or curve ≥ ${R.curva_bits} bits; ${R.minimo} if smaller; with no certificate read, no data (never 0).`,
+        metodo: "The leaf the server presents is read. Classical strength by size (NIST SP 800-57, table 2): RSA-2048 = 112 bits, RSA-3072 = 128, P-256 = 128, Ed25519 = 128, P-384 = 192. Limit: the probe recognizes RSA, the P-256, P-384 and P-521 curves, Ed25519 and ML-DSA; any other algorithm comes out as no data.",
+        regla: (R) => `${R.aprobada} for any classical key of at least ${R.fuerza_min} bits of strength (EdDSA: ${R.fuerza_min_eddsa}), be it RSA-2048, RSA-4096, P-256 or P-384: NIST IR 8547 deprecates them after 2030 and disallows them after 2035, all alike. ${R.bajo} below that strength (for example RSA-1024): it is not among the approved. ${R.pq} with a post-quantum ML-DSA certificate. No certificate read: no data, never 0.`,
         efecto: () => "None directly (see RQ.S.02).",
       },
       "RQ.S.02.2": {
@@ -441,7 +442,7 @@ export const RUBRICA = {
       "RQ.S.03.2": {
         variable: "Non-production names in the log",
         observa: "Names of the no_productivo class (block 4) in the public certificate log.",
-        metodo: "Every name the log ever accumulated counts, even if it no longer exists; in QEX-1.1 (internal, not published) only those that answer today. Limit: it does not see names that never had a public certificate, nor wildcards.",
+        metodo: "Every name the log ever accumulated counts, even if it no longer exists; in {hv} (internal, not published) only those that answer today. Limit: it does not see names that never had a public certificate, nor wildcards.",
         regla: (r) => `${pts(r.puntos, "en")} if there are ${r.desde} or more.`,
         efecto: () => "None directly: the grade looks at the ones that answer (RQ.S.09.1 to .3).",
       },
@@ -633,7 +634,7 @@ export const RUBRICA = {
       legado: "Legacy names",
       infra_expuesta: "Sensitive infrastructure",
       critico: "Critical services (counted; no deduction)",
-      senal_prueba: "Test-environment signal (the grade and QEX-1.1)",
+      senal_prueba: "Test-environment signal (the grade and {hv})",
       correo: "Mail names (only changes the wording and which alert appears)",
       palabras: (ws) => `Words: ${ws}.`,
       regla_rx: (rx) => `Exact expression: ${rx}`,

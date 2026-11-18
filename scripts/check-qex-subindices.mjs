@@ -75,7 +75,9 @@ for (const c of ["a", "f", "sin-correo", "rastreo", "rastreob"]) {
     [60, 15, 16.25, 61.25, 61, { suma: 83.75, score: 84 }], "ejemplo: higiene 60 (15,00), HNDL 65 (16,25), 61,25 → 61, máximo 83,75 → 84");
   // la spec lista también «sacar staging +2,5 (sólo en QEX-1.1)»: no se imprime. En 1.0 no da puntos y la
   // ficha no nombra la 1.1 (scripts/check-qex-11.mjs). Ver el reporte: es lo que no calzó con la spec.
-  igual(A.ganancias, [["acc_llave", 10], ["acc_hibrido", 10]], "ejemplo: puntos por acción: llave +10 e híbrido +10");
+  // (18-nov-2026) la foto del ejemplo es QEX-1.0: su desglose cuadra con la regla de agosto, pero ya no se le
+  // recomienda «llave RSA-4096 o P-384 +10» (NIST IR 8547: una llave clásica más grande no suma). Queda el híbrido.
+  igual(A.ganancias, [["acc_hibrido", 10]], "ejemplo (foto QEX-1.0): puntos por acción: sólo el híbrido +10");
   const md = Fi.markdownDe(Fi.armarFicha(fixture("rastreo").foto, fixture("rastreo").ctx));
   igual(["| = RQ.S.01 | suma de los aportes |  | 61,25 → 61 |", "Máximo alcanzable desde afuera: 83,75 → 84."].filter((t) => !md.includes(t)), [], "ejemplo: la ficha lo imprime así");
   // la web, /verificado y el PDF: la misma tabla

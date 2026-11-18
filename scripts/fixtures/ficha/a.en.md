@@ -50,7 +50,6 @@ measured: observed today by the probe · model: sector value, not measured on th
 | = RQ.S.01 | sum of contributions |  | 55.50 → 56 |
 
 Highest reachable from outside: 70.50 → 70.
-Points per action: RSA-4096 or P-384 key +10.00.
 
 ## 03 Alerts
 | # | Level | Finding | Where |

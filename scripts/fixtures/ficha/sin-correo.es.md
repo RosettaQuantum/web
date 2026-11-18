@@ -50,7 +50,6 @@ medido: observado hoy por la sonda · modelo: valor del sector, no medido en el 
 | = RQ.S.01 | suma de los aportes |  | 68,75 → 69 |
 
 Máximo alcanzable desde afuera: 83,75 → 84.
-Puntos por acción: llave RSA-4096 o P-384 +10,00.
 
 ## 03 Alertas
 | # | Nivel | Hallazgo | Dónde |

@@ -283,13 +283,18 @@ export function arbolQex(foto, { idioma = "es", x = null } = {}) {
   const fila = (id, regla, dimension, peso, { informativo = false, tipo = "medido" } = {}) => ({ id, regla: informativo ? A.informativo(regla) : regla,
     dimension: informativo ? null : dimension, qex: informativo || dimension == null ? null : r2(dimension * peso), informativo, tipo, metodo });
   const dims = {};
-  // RQ.S.02 · certificados y PKI (certificadosValor)
-  const c = foto.certificado || {}, vC = N.certificadosValor(c);
-  const alg = c.algoritmo === "RSA" ? `RSA-${c.bits ?? "?"}` : c.algoritmo === "EC" ? (c.curva || `EC${c.bits ? "-" + c.bits : ""}`) : (c.algoritmo || "");
+  // RQ.S.02 · certificados y PKI (certificadosValor), con la regla de la versión de la foto (18-nov-2026: una
+  // foto QEX-1.0 guardada se lee con la regla de agosto y su desglose sigue cuadrando)
+  const c = foto.certificado || {}, vC = N.certificadosValor(c, metodo), RC = N.reglaCertificados(metodo);
+  const alg = c.algoritmo === "RSA" ? `RSA-${c.bits ?? "?"}` : c.algoritmo === "EC" ? (c.curva || `EC${c.bits ? "-" + c.bits : ""}`)
+    : c.algoritmo === "ML-DSA" ? (c.curva || "ML-DSA") : (c.algoritmo || "");
+  const reglaLlave = vC == null ? A.sin_certificado : RC.tipo === "tamaño" ? (vC === RC.supera ? A.llave_supera(alg) : A.llave_minimo(alg))
+    : vC === RC.pq ? A.llave_pq(alg) : vC === RC.aprobada ? A.llave_aprobada(alg, N.fuerzaClasica(c)) : A.llave_bajo(alg, N.fuerzaClasica(c));
+  const maxCert = RC.tipo === "tamaño" ? RC.supera : RC.pq;
   const dia = String(foto.medido_utc || "").slice(0, 10);
   const dias = c.ok && c.not_after ? Math.floor((Date.parse(c.not_after.slice(0, 10)) - Date.parse(dia)) / 86400000) : null;
   dims["RQ.S.02"] = { clave: "certificados", peso: P.certificados, base: null, maximo: 100, valor: d.certificados ?? null, recompuesto: vC, subindices: [
-    fila("RQ.S.02.1", vC == null ? A.sin_certificado : vC === 100 ? A.llave_supera(alg) : A.llave_minimo(alg), vC, P.certificados, { tipo: vC == null ? "no medido" : "medido" }),
+    fila("RQ.S.02.1", reglaLlave, vC, P.certificados, { tipo: vC == null ? "no medido" : "medido" }),
     fila("RQ.S.02.2", dias == null ? A.sin_certificado : A.vigencia(dias, c.not_after.slice(0, 10)), null, P.certificados, { informativo: true }),
     ...(xx.medias.some((m) => m.codigo === "certificado_sin_plan") ? [fila("RQ.S.02.3", A.plan_sin, null, P.certificados, { informativo: true })] : []),
   ] };
@@ -324,13 +329,15 @@ export function arbolQex(foto, { idioma = "es", x = null } = {}) {
   let suma = 0, peso = 0;
   for (const k of Object.keys(dims)) { const D = dims[k]; D.aporte = D.valor == null ? null : r2(D.valor * D.peso); if (D.valor != null) { suma += D.valor * D.peso; peso += D.peso; } }
   const score = N.irec(d);
-  const max = { certificados: 100, higiene: 70, hndl: d.hndl ?? null, edge: 100 };
+  const max = { certificados: maxCert, higiene: 70, hndl: d.hndl ?? null, edge: 100 };
   const maxSuma = Object.keys(P).reduce((t, k) => t + (max[k] == null ? 0 : max[k] * P[k]), 0);
   const ganancias = [];
-  if (vC != null && vC < 100) ganancias.push(["acc_llave", r2((100 - vC) * P.certificados)]);
+  // (18-nov-2026) La ruta de la llave es ML-DSA: una llave clásica más grande ya no suma (NIST IR 8547). A una
+  // foto QEX-1.0 no se le recomienda nada aquí: su regla premiaba RSA-4096 o P-384, y eso ya no se aconseja.
+  if (RC.tipo === "fuerza" && vC != null && vC < RC.pq) ganancias.push(["acc_mldsa", r2((RC.pq - vC) * P.certificados)]);
   if (dT) ganancias.push(["acc_tls13", r2(-dT * P.higiene)]);
   // No productivos, infraestructura y legado NO se listan: en QEX-1.0 cuentan el historial del registro,
-  // así que apagar un nombre hoy no devuelve puntos (sólo lo haría QEX-1.1, que no se publica ni se
+  // así que apagar un nombre hoy no devuelve puntos (sólo lo haría QEX-1.2-hv, que no se publica ni se
   // nombra en la ficha: scripts/check-qex-11.mjs).
   if (vE === 0) ganancias.push(["acc_hibrido", r2(100 * P.edge)]);
   // ¿cuadra? las dimensiones recompuestas con el núcleo, la suma de los aportes y el QEX

@@ -100,15 +100,17 @@ async function oro10(M) {
 }
 const unoCero = async (M) => { igual(await oro10(M), ORO_10, "el QEX-1.0 de dos dominios reales en los 12 sectores es el de antes de 1.1"); };
 await unoCero(N);
-igual(N.VERSION_QEX, "QEX-1.0", "la versión publicada sigue siendo QEX-1.0");
+// (18-nov-2026) el índice publicado pasó a QEX-1.2 (sólo cambió la regla de la llave) y la variante interna se
+// llama QEX-1.2-hv; «QEX-1.1» queda retirado.
+igual([N.VERSION_QEX, N.VERSION_QEX_HV], ["QEX-1.2", "QEX-1.2-hv"], "la versión publicada es QEX-1.2 y la interna QEX-1.2-hv");
 igual(createHash("sha256").update(REF_TEXTO).digest("hex"), HUELLA_REF, "la referencia publicada (medianas de agosto) no cambió");
 {
   const { foto, detalle } = await armar(N, "python.org", CT_PY, SONDAS_PY);
-  igual([foto.qex.version, detalle.q11.version], ["QEX-1.0", "QEX-1.1"], "la foto declara QEX-1.0; el detalle trae 1.1 aparte");
-  igual(JSON.stringify(foto).includes("QEX-1.1") || "q11" in foto || "qex_1_1" in foto, false, "1.1 no entra a la foto (ni a su huella, ni al PDF)");
+  igual([foto.qex.version, detalle.q11.version], ["QEX-1.2", "QEX-1.2-hv"], "la foto declara QEX-1.2; el detalle trae la higiene viva aparte");
+  igual(JSON.stringify(foto).includes("QEX-1.2-hv") || "q11" in foto || "qex_higiene_viva" in foto, false, "la higiene viva no entra a la foto (ni a su huella, ni al PDF)");
 }
 const pag = sinComentarios(leer("public/js/medicion-envivo.mjs"));
-igual(/q11|qex11|qex_1_1|VERSION_QEX_11/.test(pag), false, "la página no muestra 1.1");
+igual(/q11|qex11|qex_higiene_viva|VERSION_QEX_HV/.test(pag), false, "la página no muestra la higiene viva");
 
 // La API: `qex` sigue siendo 1.0 y trae 1.1 en `qex_1_1`, por el mismo camino que la página.
 const dbNula = { prepare: () => ({ bind: () => ({ first: async () => null }) }) };
@@ -120,12 +122,12 @@ async function api(M, sondas = SONDAS_PY) {
 const errorOriginal = console.error; console.error = () => {};
 const apiA = async (M) => {
   const c = await api(M);
-  igual([c.qex?.version, c.qex?.valor, c.qex?.dimensiones?.higiene?.valor], ["QEX-1.0", 56, 50], "API: `qex` es QEX-1.0 y no cambió");
-  igual([c.qex_1_1?.version, c.qex_1_1?.publicado, c.qex_1_1?.valor, c.qex_1_1?.dimensiones?.higiene, c.qex_1_1?.diferencia_con_1_0],
-    ["QEX-1.1", false, 58, 60, 2], "API: `qex_1_1` aparte, no publicado, con su versión y dimensiones");
+  igual([c.qex?.version, c.qex?.valor, c.qex?.dimensiones?.higiene?.valor], ["QEX-1.2", 56, 50], "API: `qex` es QEX-1.2 y para este dominio no cambió");
+  igual([c.qex_higiene_viva?.version, c.qex_higiene_viva?.publicado, c.qex_higiene_viva?.valor, c.qex_higiene_viva?.dimensiones?.higiene, c.qex_higiene_viva?.diferencia_con_publicado, "qex_1_1" in c],
+    ["QEX-1.2-hv", false, 58, 60, 2, false], "API: `qex_higiene_viva` aparte (ya no `qex_1_1`), no publicado, con su versión y dimensiones");
   // La ficha rosetta-ficha/1 (bloque estructurado y markdown) declara QEX-1.0 y no trae 1.1.
   const ficha = JSON.stringify(c.presentacion ?? null);
-  igual([c.presentacion != null, /QEX-1\.1|qex_1_1|q11/.test(ficha), /QEX-1\.0/.test(ficha)], [true, false, true], "la ficha sigue en QEX-1.0 y no trae 1.1");
+  igual([c.presentacion != null, /QEX-1\.2-hv|qex_higiene_viva|q11/.test(ficha), /QEX-1\.2/.test(ficha)], [true, false, true], "la ficha está en QEX-1.2 y no trae la higiene viva");
 };
 await apiA(A);
 
