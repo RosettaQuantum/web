@@ -16,8 +16,12 @@ const raiz = new URL("../", import.meta.url);
 // CUARTA vuelta (17-nov): aprobado por Nicholas con tres arreglos. Sólo cambia `accion.baja_legado`
 // («a el» → «al»). Lo demás de esta vuelta no es texto: el generador mostraba «undefined» y «NaN».
 // QUINTA vuelta (17-nov): subíndices QEX v1 (spec aprobada). **NUEVO** = lo que entra con ellos.
-const NUEVO = [/^arbol\./, /^sobre$/, /^catalogo\[1[4-9]\]$/, /^catalogo\[20\]$/, /^reglas\[11\]$/];
-const CAMBIA = [];
+// SEXTA vuelta (18-nov): la rúbrica maestra y el país. NUEVO: «país declarado», el enlace a la rúbrica en la
+// evidencia y la escala de la nota en /protocolo/ficha. CAMBIA: la línea HNDL de «No medido» (declara que la
+// derivación no está publicada), la regla del país y la fila RQ.S.04.1 a .3 del catálogo.
+const NUEVO = [/^arbol\./, /^sobre$/, /^catalogo\[1[4-79]\]$/, /^catalogo\[20\]$/, /^reglas\[11\]$/,
+  /^pais_declarado$/, /^evidencia\.rubrica$/, /^h_escala$/, /^escala_nota$/, /^col_(nota|condicion|desde)$/, /^rubrica$/];
+const CAMBIA = [/^no_medido\.hndl$/, /^reglas\[7\]$/, /^catalogo\[18\]$/];
 // Los datos de ejemplo con que se muestra cada función. EL DEFECTO (17-nov): este generador llamaba a
 // cada función con marcadores de texto, y a las que llevan singular/plural con un solo argumento; así
 // `referencia` salía «mediana 1 undefined (undefined orgs…) undefined está NaN puntos» y `correo_mx`

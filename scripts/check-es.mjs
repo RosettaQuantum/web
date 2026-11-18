@@ -87,7 +87,9 @@ console.log(`preview: ${PREVIEW}/es/\nfragmentos de texto revisados: ${vistos.si
 // Lo encontro Nicholas apretando un boton.
 const PAGINAS_ES = ["/es/", "/es/pilotos/", "/es/servicios/", "/es/biblioteca/",
   "/es/biblioteca/registro/", "/es/metodologia/", "/es/nosotros/", "/es/contacto/",
-  "/es/monitor/", "/es/verificar/", "/es/erratas/", "/es/politicas/", "/es/ledger/"];
+  "/es/monitor/", "/es/verificar/", "/es/erratas/", "/es/politicas/", "/es/ledger/",
+  // la rúbrica del QEX (18-nov-2026): enlaza a /es/protocolo/ficha y a sus descargas
+  "/es/metodologia/qex/"];
 // En ingles A PROPOSITO, con su motivo. La decision page de muestra es un entregable a
 // jurados, y esos se editan en ingles y no se portan (decision del 26-ago).
 const DESTINO_EN_INGLES_OK = ["/services/sample-report"];

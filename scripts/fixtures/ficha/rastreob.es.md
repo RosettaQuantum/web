@@ -60,7 +60,7 @@ Sin hallazgos.
 
 ## 05 No medido
 - Certificados y PKI no se pudo medir: sin esa dimensión la nota no puede ser A.
-- La postura HNDL es el modelo del sector fintech, no una medición del dominio.
+- La postura HNDL es el modelo del sector fintech, no una medición del dominio: tabla por sector fijada en la edición 2026-08; la derivación no está publicada.
 - Lo interno (inventario, HSM, proveedores) no se ve desde afuera: por eso el tope es 84.
 - No medido nunca significa no protegido.
 
@@ -71,6 +71,7 @@ Sin hallazgos.
 - Huella CT: a4f6c0d7…713e · 1 cert.
 - Huella de la foto: d716bd48…d06b
 - Método: CT · DNS · saludos TLS sin sesión
+- Rúbrica: https://rosettaquantum.com/es/metodologia/qex
 
 ## 07 Límites y siguiente paso
 - Es la foto de un día, medida desde afuera; el tramo del borde al origen no es observable.

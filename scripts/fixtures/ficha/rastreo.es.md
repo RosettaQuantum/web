@@ -72,7 +72,7 @@ Puntos por acción: llave RSA-4096 o P-384 +10,00; activar el híbrido +10,00.
 
 ## 05 No medido
 - El cifrado del correo no se midió en esta foto.
-- La postura HNDL es el modelo del sector fintech, no una medición del dominio.
+- La postura HNDL es el modelo del sector fintech, no una medición del dominio: tabla por sector fijada en la edición 2026-08; la derivación no está publicada.
 - Lo interno (inventario, HSM, proveedores) no se ve desde afuera: por eso el tope es 84.
 - No medido nunca significa no protegido.
 
@@ -83,6 +83,7 @@ Puntos por acción: llave RSA-4096 o P-384 +10,00; activar el híbrido +10,00.
 - Huella CT: e5b89749…3a86 · 1 cert.
 - Huella de la foto: 6886b050…9447
 - Método: CT · DNS · saludos TLS sin sesión
+- Rúbrica: https://rosettaquantum.com/es/metodologia/qex
 
 ## 07 Límites y siguiente paso
 - Es la foto de un día, medida desde afuera; el tramo del borde al origen no es observable.

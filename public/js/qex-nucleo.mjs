@@ -76,29 +76,49 @@ export function hostsCT(mapa, dominio) {
   });
 }
 
+// ---------------------------------------------------------------- las reglas, en datos (18-nov-2026)
+// Los umbrales y los puntos de cada regla viven aquí UNA vez: los usan las funciones de abajo y la
+// rúbrica publicada (public/js/rubrica-qex.mjs), que se genera de estas constantes y no las copia.
+// scripts/check-rubrica-qex.mjs grita si una regla cambia sin que la rúbrica publicada cambie, y si
+// una función deja de hacer lo que su constante dice (se la sondea en cada umbral). Cambiar un número
+// aquí es cambiar el QEX: no se toca sin decisión del dueño.
+// higiene_regla.py: base 70 y cuatro descuentos. `desde` = cuántos nombres hacen falta para descontar.
+export const REGLA_HIGIENE = Object.freeze({
+  base: 70, piso: 0, techo: 100,
+  sin_tls13: -30,
+  no_productivo: Object.freeze({ desde: 1, puntos: -10 }),
+  infra_expuesta: Object.freeze({ desde: 3, puntos: -10 }),
+  legado: Object.freeze({ desde: 1, puntos: -10 }),
+});
+// Regla normativa de certificados (reproduce 149/149 en agosto).
+export const REGLA_CERTIFICADOS = Object.freeze({ rsa_bits: 4096, curva_bits: 384, supera: 100, minimo: 75 });
+export const REGLA_EDGE = Object.freeze({ soporta: 100, no_soporta: 0 });
+
 // higiene_regla.py. `sinTls13` null = no medido: no descuenta (en agosto, «sin TLS 1.3» sólo
 // contaba con la alerta 70 explícita). `ct` null = CT no disponible: sólo cuenta TLS.
 export function higiene(sinTls13, ct) {
-  let base = 70;
-  if (sinTls13 === true) base -= 30;
+  const R = REGLA_HIGIENE;
+  let base = R.base;
+  if (sinTls13 === true) base += R.sin_tls13;
   if (ct) {
-    if ((ct.no_productivo || 0) > 0) base -= 10;
-    if ((ct.infra_expuesta || 0) >= 3) base -= 10;
-    if ((ct.legado || 0) > 0) base -= 10;
+    if ((ct.no_productivo || 0) >= R.no_productivo.desde) base += R.no_productivo.puntos;
+    if ((ct.infra_expuesta || 0) >= R.infra_expuesta.desde) base += R.infra_expuesta.puntos;
+    if ((ct.legado || 0) >= R.legado.desde) base += R.legado.puntos;
   }
-  return Math.max(0, Math.min(100, base));
+  return Math.max(R.piso, Math.min(R.techo, base));
 }
 
 // Regla normativa de certificados (reproduce 149/149 en agosto): 100 si supera el mínimo vigente
 // (RSA ≥ 4096 o curva ≥ 384 bits), 75 si está en el mínimo. Sin certificado leído: null (no 0).
 export function certificadosValor(cert) {
+  const R = REGLA_CERTIFICADOS;
   if (!cert || !cert.ok) return null;
-  if (cert.algoritmo === "EC") return cert.bits >= 384 ? 100 : 75;
-  if (cert.algoritmo === "RSA") return cert.bits >= 4096 ? 100 : 75;
+  if (cert.algoritmo === "EC") return cert.bits >= R.curva_bits ? R.supera : R.minimo;
+  if (cert.algoritmo === "RSA") return cert.bits >= R.rsa_bits ? R.supera : R.minimo;
   return null;
 }
 
-export const edgeValor = (soporta) => (soporta === true ? 100 : soporta === false ? 0 : null);
+export const edgeValor = (soporta) => (soporta === true ? REGLA_EDGE.soporta : soporta === false ? REGLA_EDGE.no_soporta : null);
 
 // round() de Python 3: mitad al par. Math.round(56.5) da 57; Python da 56.
 export function redondearPar(x) {
@@ -466,24 +486,14 @@ export const estadoEndpointEn = (e) => { const t = estadoEndpoint(e); return t =
 // Los umbrales son la PROPUESTA INICIAL del encargo (13-nov). Cambiarlos es decisión del dueño:
 // se proponen, no se tocan en silencio.
 //
-// Reglas, en orden (la primera que aplica decide):
-//   F  · falla grave MEDIDA: certificado vencido el día de la medición, o un ambiente de pruebas que
-//        responde ABIERTO en 443 (esAmbientePruebas: clase `no_productivo` de PAT, o SENAL_PRUEBA: desa,
-//        homolog…). Con 403 en la raíz es alerta media, no F (pruebasBloqueado, abajo).
-//        «Protocolo antiguo» salió de la tabla (decisión del dueño, 13-nov): el escáner no lo mide.
-//   D  · sin TLS 1.3 medido (sólo 1.2 o anterior). Sin TLS 1.3 no hay candado nuevo posible.
-//   —  · sin nota (null) si el borde no se pudo medir: null es «no medido», nunca «no protegido».
-//   C  · TLS 1.3 sin candado nuevo y sin alertas altas; con alertas altas, D.
-//        Con candado nuevo pero alertas altas abiertas, C (el candado no tapa la puerta abierta).
-//   B  · candado nuevo (X25519MLKEM768, leído del saludo B) en el sitio principal, sin alertas altas.
-//   A  · además, evidencia de candado nuevo en TODOS los nombres públicos que respondieron, con la
-//        superficie (registro de certificados) disponible y todos los nombres sensibles sondeados.
-//   A+ · A, más /.well-known/q-ready firmado y vigente, más inventario interno verificado por
-//        Rosetta. Nada de eso se ve desde afuera: desde afuera el máximo es A.
-// Alerta ALTA: un nombre de infraestructura sensible (no de correo) que responde en 443.
-// Alertas MEDIAS (no bajan la letra, se informan): certificado clásico sin plan con fecha,
-// nombres de legado que responden («sin dueño»), servicio de correo que responde en 443, y (NOTA-2)
-// ambiente de pruebas que responde 403 en la raíz: publicado con el acceso bloqueado (pruebasBloqueado).
+// LA ESCALA (qué letra y cuándo) está escrita UNA vez, en datos: ESCALA_NOTA y ALERTAS_NOTA, al final
+// de este bloque. Es la que publican la ficha, la rúbrica y las páginas; nadie la reescribe en prosa
+// (18-nov-2026: este comentario decía que la letra D era sólo para sitios con TLS 1.2 o anterior, y no
+// es la regla: también da D un sitio CON TLS 1.3, sin candado nuevo y con una alerta alta abierta).
+// scripts/check-rubrica-qex.mjs exige que ESCALA_NOTA dé la MISMA letra que explicarNota sobre todas las
+// combinaciones de hechos, y scripts/check-escala-nota.mjs grita si una superficie publica otra escala.
+// Desde afuera el máximo es A: A+ pide /.well-known/q-ready firmado y vigente e inventario interno
+// verificado por Rosetta, que no se ven desde afuera. null es «no medido», nunca «no protegido».
 // Los certificados post-cuánticos llegan en 2027: hoy no se castiga no tenerlos.
 // QREADY-NOTA-2 (16-nov-2026): cambia resultados, por eso sube la versión. Los ambientes de pruebas
 // (esAmbientePruebas, arriba) entran al sondeo con prioridad, y la señal suma desarrollo, development,
@@ -589,3 +599,63 @@ export function explicarNota(foto, extras = {}) {
 }
 
 export const notaQEX = (foto, extras = {}) => explicarNota(foto, extras).nota;
+
+// ---------------------------------------------------------------- la escala de la nota, en datos (18-nov-2026)
+// Encargo del 18-nov, opción (b) del dueño: la escala publicada dice la regla REAL, con las
+// reglas de la C y de la D aprobadas el 16-nov (las cuatro entradas del medio, abajo).
+// ESCALA_NOTA se lee en orden y la primera que aplica decide, sobre los hechos que explicarNota ya devuelve
+// (hechosDeNota). NO decide la nota en producción: la decide explicarNota. Es la descripción publicada, y
+// scripts/check-rubrica-qex.mjs exige que las dos den la misma letra en todas las combinaciones.
+// `desde`: la versión de la nota en que entró la regla (git: QREADY-NOTA-0 y -1 del 13-nov, -2 y -2.1 del
+// 16-nov). El texto que lee una persona vive en public/js/rubrica-textos.mjs (PROVISORIO).
+export const VERSIONES_NOTA = Object.freeze({
+  "QREADY-NOTA-0": "2026-11-13", "QREADY-NOTA-1": "2026-11-13", "QREADY-NOTA-2": "2026-11-16", "QREADY-NOTA-2.1": "2026-11-16",
+});
+// Las alertas que emite explicarNota, con su nivel. `techo_b`: la media que no deja dar A (MEDIAS_CON_TECHO_B).
+export const ALERTAS_NOTA = Object.freeze([
+  { codigo: "certificado_vencido", nivel: "grave", desde: "QREADY-NOTA-0" },
+  { codigo: "ambiente_pruebas_expuesto", nivel: "grave", desde: "QREADY-NOTA-0" },
+  { codigo: "infraestructura_expuesta", nivel: "alta", desde: "QREADY-NOTA-0" },
+  { codigo: "ambiente_pruebas_publicado_bloqueado", nivel: "media", techo_b: true, desde: "QREADY-NOTA-2" },
+  // agregada el 17-nov (main 7786413) sin subir la versión de la nota: se declara así, no se corrige la historia
+  { codigo: "ambiente_pruebas_publicado", nivel: "media", techo_b: true, desde: "QREADY-NOTA-2 (17-nov, sin cambio de versión)" },
+  { codigo: "certificado_sin_plan", nivel: "media", desde: "QREADY-NOTA-0" },
+  { codigo: "nombre_sin_dueno", nivel: "media", desde: "QREADY-NOTA-0" },
+  { codigo: "correo_responde_443", nivel: "media", desde: "QREADY-NOTA-0" },
+]);
+// Las condiciones de A, una por una (todas a la vez). La de la dimensión usa NOTA_DIMENSION_MINIMA.
+export const CONDICIONES_A = Object.freeze([
+  { codigo: "candado_principal", desde: "QREADY-NOTA-0", si: (h) => h.principal === true },
+  { codigo: "sin_graves_ni_altas", desde: "QREADY-NOTA-0", si: (h) => h.graves === 0 && h.altas === 0 },
+  { codigo: "superficie", desde: "QREADY-NOTA-0", si: (h) => h.superficie === true },
+  { codigo: "sensibles_sondeados", desde: "QREADY-NOTA-0", si: (h) => h.sin_sondear === 0 },
+  { codigo: "candado_en_todos", desde: "QREADY-NOTA-1", si: (h) => h.sin_evidencia === 0 },
+  { codigo: "sin_ambiente_publicado", desde: "QREADY-NOTA-2", si: (h) => !h.techo_b },
+  { codigo: "dimensiones_medidas", desde: "QREADY-NOTA-2.1", si: (h) => h.dimension_sin_medir === 0 },
+]);
+const esA = (h) => CONDICIONES_A.every((c) => c.si(h));
+export const ESCALA_NOTA = Object.freeze([
+  { regla: "grave", nota: "F", desde: "QREADY-NOTA-0", si: (h) => h.graves > 0 },
+  { regla: "sin_tls13", nota: "D", desde: "QREADY-NOTA-0", si: (h) => h.tls13 === false },
+  { regla: "borde_no_medido", nota: null, desde: "QREADY-NOTA-0", si: (h) => h.principal == null || h.tls13 == null },
+  { regla: "sin_candado_con_alta", nota: "D", desde: "QREADY-NOTA-0", si: (h) => h.principal === false && h.altas > 0 },
+  { regla: "sin_candado", nota: "C", desde: "QREADY-NOTA-0", si: (h) => h.principal === false },
+  { regla: "candado_con_alta", nota: "C", desde: "QREADY-NOTA-0", si: (h) => h.altas > 0 },
+  { regla: "a_mas", nota: "A+", desde: "QREADY-NOTA-0", si: (h) => esA(h) && h.well_known && h.inventario },
+  { regla: "a", nota: "A", desde: "QREADY-NOTA-0", si: esA },
+  { regla: "b", nota: "B", desde: "QREADY-NOTA-0", si: () => true },
+]);
+// Los hechos que mira la escala, leídos del resultado de explicarNota (x) y de los extras que recibió.
+export function hechosDeNota(x, extras = {}) {
+  const h = (x && x.hechos) || {};
+  return { graves: (x?.graves || []).length, altas: (x?.altas || []).length, principal: h.principal_hibrido ?? null, tls13: h.tls13 ?? null,
+    superficie: h.superficie === true, sin_sondear: (h.sensibles_sin_sondear || []).length, sin_evidencia: (h.sin_evidencia_hibrido || []).length,
+    techo_b: (x?.medias || []).some((m) => MEDIAS_CON_TECHO_B.includes(m.codigo)), dimension_sin_medir: (x?.no_evaluado || []).length,
+    well_known: extras.well_known_valido === true, inventario: extras.inventario_verificado === true };
+}
+// La letra según la escala publicada (y qué regla de la escala la dio).
+export function notaPorEscala(x, extras = {}) {
+  const h = hechosDeNota(x, extras);
+  const r = ESCALA_NOTA.find((e) => e.si(h));
+  return { nota: r.nota, regla: r.regla, hechos: h };
+}

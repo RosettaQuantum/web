@@ -1,0 +1,63 @@
+---
+/**
+ * La rúbrica maestra del QEX y de la nota (18-nov-2026), en /es/metodologia/qex y /methodology/qex.
+ * NO se escribe aquí: se pinta public/data/rubrica-qex.json, que genera scripts/build-rubrica-qex.mjs
+ * desde las constantes de qex-nucleo.mjs y que scripts/check-rubrica-qex.mjs exige igual al código.
+ * Las descargas son esos mismos archivos. El texto es PROVISORIO (public/js/rubrica-textos.mjs).
+ */
+import RUB from '../../public/data/rubrica-qex.json';
+import { textosRubrica } from '../../public/js/rubrica-textos.mjs';
+import { ARCHIVOS } from '../../public/js/rubrica-qex.mjs';
+const { lang = 'es' } = Astro.props;
+const idioma = lang === 'en' ? 'en' : 'es';
+const T = textosRubrica(idioma), C = T.col;
+const R = RUB[idioma];
+const COLS = ['id', 'variable', 'observa', 'fuente', 'metodo', 'tipo', 'regla', 'puntos_dimension', 'peso', 'puntos_qex', 'efecto_nota', 'desde', 'norma', 'frecuencia'];
+const peso = (v) => (v == null ? '—' : idioma === 'en' ? String(v) : String(v).replace('.', ','));
+const ficha = idioma === 'en' ? '/protocolo/ficha' : '/es/protocolo/ficha';
+---
+<section class="qv qv-spec"><div class="qv-wrap">
+  <p class="qv-eyebrow">{T.eyebrow}</p>
+  <h1 class="qv-h1">{T.titulo}</h1>
+  <p class="qv-lede">{T.lede}</p>
+  <p class="rq-aviso">{T.provisorio}</p>
+  <p>{T.version(RUB.rige.qex, RUB.rige.nota)} <code>{RUB.version}</code></p>
+
+  <h2>{T.descargas}</h2>
+  <ul>
+    <li><a href={ARCHIVOS.csv.es} download>{T.desc_csv('es')}</a> · {T.huella} <code class="rq-h">{RUB.csv.es.sha256}</code></li>
+    <li><a href={ARCHIVOS.csv.en} download>{T.desc_csv('en')}</a> · {T.huella} <code class="rq-h">{RUB.csv.en.sha256}</code></li>
+    <li><a href={ARCHIVOS.json} download>{T.desc_json}</a> · {T.huella} <code class="rq-h">{RUB.sha256}</code></li>
+  </ul>
+
+  <h2 id="variables">{T.h_grilla}</h2>
+  <div class="qv-tabla-caja"><table class="rq-grilla">
+    <tr>{COLS.map((c) => <th>{C[c]}</th>)}</tr>
+    {R.filas.map((f) => <tr>{COLS.map((c) => <td class={c === 'id' ? 'rq-id' : ''}>{c === 'peso' ? peso(f.peso) : f[c]}</td>)}</tr>)}
+  </table></div>
+
+  <h2 id="formula">{T.h_formula}</h2>
+  <ul>{R.formula.map((f) => <li>{f.regla}</li>)}</ul>
+
+  <h2 id="escala">{T.h_escala}</h2>
+  <p>{T.escala.orden}</p>
+  <div class="qv-tabla-caja"><table>
+    <tr><th>#</th><th>{C.efecto_nota}</th><th>{C.regla}</th><th>{C.desde}</th></tr>
+    {R.escala.map((e) => <tr><td>{e.id}</td><td><b>{e.variable}</b></td><td>{e.regla}</td><td><code>{e.desde}</code></td></tr>)}
+  </table></div>
+  <h3>{T.h_condiciones_a}</h3>
+  <ul>{R.condiciones_a.map((c) => <li>{c.regla} <code>{c.desde}</code></li>)}</ul>
+  <h3>{T.h_alertas}</h3>
+  <div class="qv-tabla-caja"><table>
+    <tr><th>{C.variable}</th><th>{C.efecto_nota}</th><th>{C.desde}</th></tr>
+    {R.alertas.map((a) => <tr><td>{a.variable}</td><td>{a.regla}</td><td><code>{a.desde}</code></td></tr>)}
+  </table></div>
+
+  <h2 id="clases">{T.h_pat}</h2>
+  <div class="qv-tabla-caja"><table>
+    <tr><th>{C.variable}</th><th>{C.regla}</th><th>{C.desde}</th></tr>
+    {R.pat.map((p) => <tr><td>{p.variable}</td><td class="rq-rx">{p.regla}</td><td><code>{p.desde}</code></td></tr>)}
+  </table></div>
+
+  <p><a href={ficha}>{T.ver_ficha}</a></p>
+</div></section>

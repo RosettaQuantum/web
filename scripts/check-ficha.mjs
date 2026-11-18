@@ -247,7 +247,7 @@ await conMutante(new URL("public/js/ficha.mjs", raiz), '...x.graves.map((a) => (
 // ---------------------------------------------------------------- 3 · ajuste 2: el país
 igual(["x.cl", "banco.com.py", "x.com", "x.io", "x.co.uk", "x.example", "x.org"].map(Fi.paisDeDominio), ["CL", "PY", null, null, "GB", null, null], "el país sale del TLD; .com, .io y .org no dicen país");
 igual([Fi.comparacion("x.cl", 56, 57), Fi.comparacion("banco.com.py", 53, 57).diferencia, Fi.comparacion("x.com", 53, 57).diferencia],
-  [{ pais: "CL", pais_referencia: "CL", compara: true, diferencia: -1 }, null, null], "sólo un dominio chileno se compara con la referencia chilena");
+  [{ pais: "CL", pais_fuente: "tld", pais_referencia: "CL", compara: true, diferencia: -1 }, null, null], "sólo un dominio chileno se compara con la referencia chilena (sin ficha ni país declarado, el del TLD; el orden completo: check-pais-ficha)");
 igual(Fi.notaSector("banco.com.py"), "Sin índice de referencia para Paraguay; no se compara", "sector.nota de un .py: el texto del encargo");
 igual(Fi.notaSector("x.cl"), null, "un .cl no lleva nota de país");
 await conMutante(new URL("public/js/ficha.mjs", raiz), "const compara = pais === PAIS_REFERENCIA && score != null", "const compara = score != null",

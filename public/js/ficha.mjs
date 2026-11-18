@@ -21,6 +21,8 @@
  */
 import * as N from "./qex-nucleo.mjs";
 import { textos, textosFicha } from "./qready-textos.mjs";
+// La rúbrica maestra (18-nov-2026): la sección 06 enlaza a ella.
+import { RUBRICA_URL } from "./rubrica-qex.mjs";
 
 export const PROTOCOLO = "rosetta-ficha/1";
 export const SITE = "https://rosettaquantum.com";
@@ -49,8 +51,14 @@ const DIM = { "RQ.S.02": "certificados", "RQ.S.03": "higiene", "RQ.S.04": "hndl"
 const RANGO = { "A+": 0, A: 1, B: 2, C: 3, D: 4, F: 5 };
 
 // ---------------------------------------------------------------- ajuste 2 · el país del dominio
-// Sólo del TLD: .cl → CL. Un TLD de dos letras que se usa como genérico (.io, .ai…) no dice país, y
-// un .com tampoco: en los dos casos no se compara, y se dice. Precisión antes que cobertura.
+// (18-nov-2026) El país NO sale primero del TLD. Orden (encargo del 18-nov, aprobado por el dueño):
+//   1. la ficha maestra de la organización (tabla privada org_ficha de D1, la consulta el Worker:
+//      lib/org-ficha.mjs). La lista no se publica: sólo llega aquí el código de país;
+//   2. el que declara quien consulta (parámetro opcional `pais` de /v1/medicion y medir_exposicion_pqc).
+//      La ficha lo dice: «Chile (país declarado)»;
+//   3. el TLD: .cl → CL. Un TLD de dos letras que se usa como genérico (.io, .ai…) no dice país, y
+//      un .com tampoco: en los dos casos no se compara, y se dice. Precisión antes que cobertura.
+// resolverPais devuelve { codigo, fuente }: fuente "ficha" | "declarado" | "tld" | null.
 const CC_GENERICOS = new Set(["io", "ai", "co", "me", "tv", "fm", "gg", "sh", "to", "ws", "cc", "ly", "so", "la", "ac", "app", "eu"]);
 export function paisDeDominio(dominio) {
   const tld = String(dominio || "").toLowerCase().split(".").pop();
@@ -58,18 +66,32 @@ export function paisDeDominio(dominio) {
   return tld === "uk" ? "GB" : tld.toUpperCase();
 }
 export const tldDe = (dominio) => String(dominio || "").toLowerCase().split(".").pop();
+// Un código de país ISO 3166-1 alfa-2 («cl», «CL») → «CL»; «UK» → «GB». Cualquier otra cosa → null.
+export function codigoPais(crudo) {
+  const s = String(crudo ?? "").trim().toUpperCase();
+  return /^[A-Z]{2}$/.test(s) ? (s === "UK" ? "GB" : s) : null;
+}
+export function resolverPais(dominio, { maestra = null, declarado = null } = {}) {
+  const m = codigoPais(maestra);
+  if (m) return { codigo: m, fuente: "ficha" };
+  const d = codigoPais(declarado);
+  if (d) return { codigo: d, fuente: "declarado" };
+  const t = paisDeDominio(dominio);
+  return { codigo: t, fuente: t ? "tld" : null };
+}
 export function nombrePais(codigo, idioma = "es") {
   if (!codigo) return null;
   try { return new Intl.DisplayNames([idioma === "en" ? "en" : "es"], { type: "region" }).of(codigo) || codigo; } catch { return codigo; }
 }
-// La comparación con el sector: sólo si el dominio es del país de la referencia.
-export function comparacion(dominio, score, medianaSector) {
-  const pais = paisDeDominio(dominio);
+// La comparación con el sector: sólo si el país (resolverPais) es el de la referencia.
+// `p`: el { codigo, fuente } ya resuelto; sin él, el del TLD.
+export function comparacion(dominio, score, medianaSector, p = null) {
+  const r = p || resolverPais(dominio), pais = r.codigo;
   const compara = pais === PAIS_REFERENCIA && score != null && medianaSector != null;
-  return { pais, pais_referencia: PAIS_REFERENCIA, compara, diferencia: compara ? N.redondearPar(score - medianaSector) : null };
+  return { pais, pais_fuente: r.fuente, pais_referencia: PAIS_REFERENCIA, compara, diferencia: compara ? N.redondearPar(score - medianaSector) : null };
 }
-export function notaSector(dominio, idioma = "es") {
-  const F = textosFicha(idioma), pais = paisDeDominio(dominio);
+export function notaSector(dominio, idioma = "es", p = null) {
+  const F = textosFicha(idioma), pais = (p || resolverPais(dominio)).codigo;
   if (pais === PAIS_REFERENCIA) return null;
   return pais ? F.sector_nota_otro_pais(nombrePais(pais, idioma)) : F.sector_nota_sin_pais(tldDe(dominio));
 }
@@ -383,6 +405,7 @@ function rangos(ids) {
 //   fuentes_que_fallaron  intentos fallidos del registro de certificados (lib/ct-registro.mjs)
 //   extras            los de N.explicarNota (inventario_verificado, well_known_valido)
 //   x                 N.explicarNota(foto, extras) ya calculado; si falta, se calcula aquí
+//   pais              { codigo, fuente } de resolverPais (ficha maestra, declarado o TLD); si falta, el TLD
 export function armarFicha(foto, ctx = {}) {
   const idioma = ctx.idioma === "en" ? "en" : "es";
   const F = textosFicha(idioma), T = textos(idioma);
@@ -391,7 +414,7 @@ export function armarFicha(foto, ctx = {}) {
   const a = analizar(foto, x, ctx.extras || {});
   const acciones = [...a.acciones, ...accionesInformativas(foto, ctx.correo)];
   const q = foto.qex || {}, dims = q.dimensiones || {};
-  const pais = paisDeDominio(dominio);
+  const rp = ctx.pais && "codigo" in ctx.pais ? ctx.pais : resolverPais(dominio), pais = rp.codigo;
   const medido = sinMs(foto.medido_utc);
   const pre = idioma === "en" ? "" : "/es";
   const urlDominio = ctx.publico ? `${SITE}${pre}/verificado/${dominio}`
@@ -399,7 +422,7 @@ export function armarFicha(foto, ctx = {}) {
   const sector = F.sector[foto.vertical] || foto.vertical || "";
 
   // 01 · veredicto
-  const cmp = comparacion(dominio, q.score, foto.referencia?.mediana_sector);
+  const cmp = comparacion(dominio, q.score, foto.referencia?.mediana_sector, rp);
   const referencia = q.score == null ? F.referencia_sin_qex
     : cmp.compara ? F.referencia(sector.toLowerCase(), entero(foto.referencia.mediana_sector), foto.referencia.n_sector, foto.referencia.edicion, dominio, cmp.diferencia)
     : pais ? F.referencia_otro_pais(nombrePais(pais, idioma)) : F.referencia_sin_pais(tldDe(dominio));
@@ -470,7 +493,7 @@ export function armarFicha(foto, ctx = {}) {
     const publicados = Array.isArray(ctx.correo?.resultado?.mx_publicados) ? ctx.correo.resultado.mx_publicados.length : ctx.correo.resultado.servidores.length;
     if (publicados > cm.total) nm.push(F.no_medido.correo_mx(publicados - cm.total, publicados));
   } else if (!(Array.isArray(mx) && mx.length === 0)) nm.push(pendiente ? F.no_medido.correo_pendiente : F.no_medido.correo_sin_dato);
-  if (dims.hndl != null) nm.push(F.no_medido.hndl(sector.toLowerCase()));
+  if (dims.hndl != null) nm.push(F.no_medido.hndl(sector.toLowerCase(), foto.referencia?.edicion || null));
   nm.push(F.no_medido.interno, F.no_medido.nunca);
 
   // 06 · evidencia
@@ -482,6 +505,7 @@ export function armarFicha(foto, ctx = {}) {
     certificados: foto.ct ? foto.ct.filas : null,
     huella_foto: foto.sha256 ? huella(foto.sha256) : null,
     metodo: F.evidencia.metodo.replace(/^[^:]+: /, ""),
+    rubrica: RUBRICA_URL[idioma],
   };
 
   // 07 · límites y siguiente paso
@@ -490,7 +514,8 @@ export function armarFicha(foto, ctx = {}) {
 
   return {
     protocolo: PROTOCOLO, idioma, dominio,
-    encabezado: { titulo: F.titulo, kicker: F.kicker, dominio, sector, pais: pais || null, pais_nombre: pais ? nombrePais(pais, idioma) : F.pais_sin,
+    encabezado: { titulo: F.titulo, kicker: F.kicker, dominio, sector, pais: pais || null, pais_fuente: rp.fuente || null,
+      pais_nombre: !pais ? F.pais_sin : rp.fuente === "declarado" ? F.pais_declarado(nombrePais(pais, idioma)) : nombrePais(pais, idioma),
       medido_utc: medido, desde_afuera: F.desde_afuera },
     veredicto: { lectura: lecturaDe(x, foto, idioma), referencia, publicacion: ctx.publico ? F.publicacion_publica(urlDominio) : F.publicacion_privada },
     indicadores: ind, puntos_qex: arbol, alertas, acciones: que, no_medido: nm, evidencia, limites: lim,
@@ -507,6 +532,7 @@ function lineasEvidencia(F, e) {
     e.huella_ct ? F.evidencia.huella_ct(e.huella_ct, e.certificados) : F.evidencia.huella_ct_sin,
     ...(e.huella_foto ? [F.evidencia.huella_foto(e.huella_foto)] : []),
     F.evidencia.metodo,
+    ...(e.rubrica ? [F.evidencia.rubrica(e.rubrica)] : []),
   ];
 }
 const num2 = (n) => String(n).padStart(2, "0");

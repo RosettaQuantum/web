@@ -1,0 +1,15 @@
+---
+/**
+ * /es/metodologia/qex (18-nov-2026): la rúbrica maestra del QEX y de la nota. Contenido: src/components/RubricaQex.astro.
+ * noindex mientras el texto sea provisorio (public/js/rubrica-textos.mjs): se quita al aprobarlo.
+ */
+import MarcaLayout from '../../../layouts/MarcaLayout.astro';
+import propia from '../../../styles/pages/qready-verificado.css?raw';
+import rubrica from '../../../styles/pages/rubrica-qex.css?raw';
+import RubricaQex from '../../../components/RubricaQex.astro';
+import { textosRubrica } from '../../../../public/js/rubrica-textos.mjs';
+const T = textosRubrica('es');
+---
+<MarcaLayout title={T.titulo_pagina} description={T.lede} lang="es" altUrl="/methodology/qex" ruta="/es/metodologia/qex" pageCss={propia + "\n" + rubrica} noindex={true}>
+  <RubricaQex lang="es" />
+</MarcaLayout>

@@ -60,7 +60,7 @@ No findings.
 
 ## 05 Not measured
 - Certificates and PKI could not be measured: without that dimension the grade cannot be A.
-- HNDL posture is the fintech sector model, not a measurement of the domain.
+- HNDL posture is the fintech sector model, not a measurement of the domain: a per-sector table fixed in the 2026-08 edition; the derivation is not published.
 - What is internal (inventory, HSM, providers) cannot be seen from outside: that is why the cap is 84.
 - Not measured never means not protected.
 
@@ -71,6 +71,7 @@ No findings.
 - CT fingerprint: a4f6c0d7…713e · 1 cert.
 - Snapshot fingerprint: d716bd48…d06b
 - Method: CT · DNS · TLS handshakes without a session
+- Rubric: https://rosettaquantum.com/methodology/qex
 
 ## 07 Limits and next step
 - It is a one-day snapshot, measured from outside; the edge-to-origin leg is not observable.

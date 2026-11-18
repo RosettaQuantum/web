@@ -43,7 +43,7 @@ export const LIMITES = { tamanos: 8, bajo13: 0, colores: 6, contraste: 4.5 };
 /** Las paginas de marca. Q-Ready queda fuera: conserva la identidad retirada por decision. */
 export const RUTAS = ["/", "/es/", "/ledger/", "/es/ledger/", "/library/", "/es/biblioteca/",
                       "/services/", "/es/servicios/", "/blog/", "/es/blog/",
-                      "/methodology/", "/informe-pqc/"];
+                      "/methodology/", "/informe-pqc/", "/methodology/qex/", "/es/metodologia/qex/"];
 
 /**
  * El nucleo, puro. Recibe lo medido y decide. Devuelve SIEMPRE los denominadores.

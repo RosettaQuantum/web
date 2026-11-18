@@ -8,6 +8,9 @@
 import { FICHA_SPEC, textosFicha } from '../../public/js/qready-textos.mjs';
 import { armarFicha, markdownDe, htmlDe, CSS_FICHA } from '../../public/js/ficha.mjs';
 import fx from '../../scripts/fixtures/ficha/f.json';
+// (18-nov-2026) La escala de la nota sale de ESCALA_NOTA (qex-nucleo.mjs) por rubrica-qex.mjs: no se escribe aquí.
+import { escalaPublicada, RUBRICA_URL } from '../../public/js/rubrica-qex.mjs';
+import REFERENCIA from '../../public/data/qex-referencia-2026-08.json';
 const { lang = 'es' } = Astro.props;
 const T = FICHA_SPEC[lang === 'en' ? 'en' : 'es'];
 const F = textosFicha(lang);
@@ -15,6 +18,10 @@ const fichaEj = armarFicha(fx.foto, { ...fx.ctx, idioma: lang === 'en' ? 'en' : 
 const ejemplo = markdownDe(fichaEj);
 // la misma ficha, como la pinta la web y el PDF (htmlDe): una sola fuente
 const ejemploHtml = htmlDe(fichaEj);
+const escala = escalaPublicada(lang === 'en' ? 'en' : 'es');
+const rubrica = RUBRICA_URL[lang === 'en' ? 'en' : 'es'].replace('https://rosettaquantum.com', '');
+// la edición de la tabla HNDL sale de la referencia publicada, no se escribe a mano
+const catalogo = T.catalogo.map((f) => f.map((c) => c.replace('{edicion}', REFERENCIA.edicion)));
 const forma = `"presentacion": {
   "protocolo": "rosetta-ficha/1",
   "spec": "https://rosettaquantum.com/protocolo/ficha",
@@ -49,7 +56,7 @@ const forma = `"presentacion": {
   <h2>{T.h_catalogo}</h2>
   <table>
     <tr><th>{T.col_id}</th><th>{T.col_indicador}</th><th>{T.col_valor}</th><th>{T.col_tipo}</th></tr>
-    {T.catalogo.map((f) => <tr><td><code>{f[0]}</code></td><td>{f[1]}</td><td>{f[2]}</td><td>{f[3]}</td></tr>)}
+    {catalogo.map((f) => <tr><td><code>{f[0]}</code></td><td>{f[1]}</td><td>{f[2]}</td><td>{f[3]}</td></tr>)}
   </table>
   <p>{T.catalogo_nota}</p>
 
@@ -64,4 +71,12 @@ const forma = `"presentacion": {
 
   <h2>{T.h_validar}</h2>
   <p>{T.validar}</p>
+
+  <h2 id="escala">{T.h_escala}</h2>
+  <p>{T.escala_nota}</p>
+  <div class="qv-tabla-caja"><table>
+    <tr><th>{T.col_nota}</th><th>{T.col_condicion}</th><th>{T.col_desde}</th></tr>
+    {escala.map((e) => <tr><td><b>{e.nota}</b></td><td>{e.condicion}</td><td><code>{e.desde}</code></td></tr>)}
+  </table></div>
+  <p><a href={rubrica}>{T.rubrica}</a></p>
 </div></section>

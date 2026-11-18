@@ -1,0 +1,15 @@
+---
+/**
+ * /methodology/qex (18-nov-2026): the master rubric of the QEX and the grade. Content: src/components/RubricaQex.astro.
+ * noindex while the text is provisional (public/js/rubrica-textos.mjs): removed on approval.
+ */
+import MarcaLayout from '../../layouts/MarcaLayout.astro';
+import propia from '../../styles/pages/qready-verificado.css?raw';
+import rubrica from '../../styles/pages/rubrica-qex.css?raw';
+import RubricaQex from '../../components/RubricaQex.astro';
+import { textosRubrica } from '../../../public/js/rubrica-textos.mjs';
+const T = textosRubrica('en');
+---
+<MarcaLayout title={T.titulo_pagina} description={T.lede} lang="en" altUrl="/es/metodologia/qex" ruta="/methodology/qex" pageCss={propia + "\n" + rubrica} noindex={true}>
+  <RubricaQex lang="en" />
+</MarcaLayout>
