@@ -51,6 +51,13 @@ const { actual, anterior } = elegirEdicion(ediciones, {
 });
 const { d } = actual;
 const prev = anterior?.d ?? null;
+// El párrafo de certificados nombra distribucion[0] y distribucion[1] (18-nov-2026): asume DOS valores.
+// Un tercero se caería en silencio, así que el build se niega y dice cuántos trajo.
+{
+  const dist = d.indice?.certificados_detalle?.distribucion;
+  if (!Array.isArray(dist) || dist.length !== 2)
+    throw new Error(`informe-pqc ${d.edicion}: certificados_detalle.distribucion trae ${Array.isArray(dist) ? dist.length : 'ningún'} valores (${Array.isArray(dist) ? dist.map((x: any) => x.valor + '→' + x.n).join(', ') : '—'}); el párrafo de certificados sólo sabe nombrar 2.`);
+}
 // Párrafos aprobados que entran SÓLO a esta edición (src/lib/informe-textos.mjs). Sha distinto = build caído.
 const textoLegal = textosDeEdicion(d.edicion, APROBADOS, (f: string) => mdAprobados[`../../data/informe-pqc/textos/${f}`]);
 
