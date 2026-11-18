@@ -33,6 +33,15 @@ export function respuestaNoindex(xRobots, cuerpo) {
   return /\bnoindex\b/i.test(xRobots || "") || htmlNoindex(cuerpo || "");
 }
 
+/** Veredicto del modo servido. Piso de cobertura: si no respondió más del 5 %, falla aunque no haya noindex. */
+export const PISO_SIN_RESPUESTA = 0.05;
+export function veredicto(nLocs, nMal, nSinRespuesta) {
+  if (!nLocs) return { ok: false, motivo: "el sitemap servido no trae ninguna URL" };
+  if (nMal) return { ok: false, motivo: `${nMal} URLs con noindex anunciadas` };
+  if (nSinRespuesta > nLocs * PISO_SIN_RESPUESTA) return { ok: false, motivo: `${nSinRespuesta} de ${nLocs} sin respuesta: se miró menos del ${100 - PISO_SIN_RESPUESTA * 100} %` };
+  return { ok: true, motivo: "" };
+}
+
 async function servido(origen) {
   const sm = await fetch(new URL("/sitemap-0.xml", origen) + "?rq=" + Date.now());
   if (!sm.ok) { console.log(`FALLA sitemap servido: HTTP ${sm.status}`); process.exit(1); }
@@ -56,7 +65,8 @@ async function servido(origen) {
   console.log(`check-sitemap-noindex --servido ${origen}: ${locs.length} URLs en el sitemap · ${miradas} miradas · ${sinRespuesta.length} sin respuesta · ${mal.length} con noindex`);
   for (const u of mal) console.log(`  FALLA noindex anunciado: ${u}`);
   for (const u of sinRespuesta.slice(0, 10)) console.log(`  sin respuesta: ${u}`);
-  if (!locs.length || mal.length || sinRespuesta.length > locs.length * 0.05) process.exit(1);
+  const v = veredicto(locs.length, mal.length, sinRespuesta.length);
+  if (!v.ok) { console.log(`  FALLA ${v.motivo}`); process.exit(1); }
   process.exit(0);
 }
 const k = process.argv.indexOf("--servido");
@@ -71,6 +81,9 @@ prueba("silencio: página indexable", !htmlNoindex('<meta name="description" con
 prueba("silencio paradójico: el meta sólo dentro de un comentario", !htmlNoindex('<!-- <meta name="robots" content="noindex"> -->'));
 prueba("servido · grito: cabecera X-Robots-Tag: noindex con cuerpo limpio", respuestaNoindex("noindex, nofollow", "<html></html>"));
 prueba("servido · silencio: sin cabecera ni meta", !respuestaNoindex(null, '<meta name="robots" content="index">'));
+prueba("servido · MUTACIÓN corte de red: 332 de 336 sin respuesta y 0 noindex NO es verde", !veredicto(336, 0, 332).ok);
+prueba("servido · piso exacto: 16 de 336 sin respuesta (4,8 %) pasa; 17 (5,1 %) falla", veredicto(336, 0, 16).ok && !veredicto(336, 0, 17).ok);
+prueba("servido · sitemap vacío falla", !veredicto(0, 0, 0).ok);
 prueba("archivoDe: /es/metodologia/qex/ → dist/es/metodologia/qex/index.html",
   archivoDe("https://rosettaquantum.com/es/metodologia/qex/", "/d") === "/d/es/metodologia/qex/index.html");
 
