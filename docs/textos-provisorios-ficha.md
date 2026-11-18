@@ -537,7 +537,7 @@ Reusados sin cambio (ya aprobados): los nombres de las alertas (`TXT.alerta`) y 
 | RQ.S.00 | Nota Q-Ready | **A** |
 | RQ.S.01 | Índice QEX | 56/100 (tope externo 84) |
 
-Lectura: Candado nuevo en el sitio y en todos los nombres públicos que respondieron. Es la nota máxima que se puede dar desde afuera.
+Lectura: Candado nuevo en el sitio y en todos los nombres públicos que respondieron, sin alertas graves ni altas, sin ambientes de prueba publicados y con todo lo sensible medido. Es la nota máxima que se puede dar desde afuera.
 Referencia: mediana banca 57 (12 orgs, edición 2026-08). ejemplo.cl está 1 punto abajo.
 Publicación: pública en https://rosettaquantum.com/es/verificado/ejemplo.cl
 
@@ -629,7 +629,7 @@ rosetta-ficha/1 · Rosetta Quantum · medición independiente
 | RQ.S.00 | Q-Ready grade | **A** |
 | RQ.S.01 | QEX index | 56/100 (external cap 84) |
 
-Reading: New lock on the site and on every public name that responded. The highest grade that can be given from outside.
+Reading: New lock on the site and on every public name that responded, no serious or high alerts, no published test environments, and everything sensitive measured. The highest grade that can be given from outside.
 Reference: banking median 57 (12 orgs, edition 2026-08). ejemplo.cl is 1 point below.
 Publication: public at https://rosettaquantum.com/verificado/ejemplo.cl
 

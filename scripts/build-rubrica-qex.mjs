@@ -21,21 +21,6 @@ const { RUBRICA } = await import("../public/js/rubrica-textos.mjs");
 
 export const REFERENCIA_ARCHIVO = "public/data/qex-referencia-2026-08.json";
 
-// PROPUESTA, NO APLICADA (18-nov-2026). La lectura de la A y de la B (TXT.nota_lectura de
-// qready-textos.mjs, aprobada el 13-nov) describe sólo una de sus causas: una B que sale por un ambiente
-// de pruebas publicado se lee «quedan nombres públicos sin evidencia del candado nuevo», que puede ser
-// falso. Esta es la propuesta para aprobar; ningún código la usa hasta entonces. Vive aquí y no en
-// public/js: no se sirve un texto sin aprobar.
-const PROPUESTA_LECTURA = {
-  es: {
-    A: "Candado nuevo en el sitio y en todos los nombres públicos que respondieron, sin alertas graves ni altas, sin ambientes de prueba publicados y con todo lo sensible medido. Es la nota máxima que se puede dar desde afuera.",
-    B: "Candado nuevo en el sitio principal y sin alertas graves ni altas, pero falta algo para A: nombres sin evidencia del candado nuevo, un ambiente de pruebas publicado, nombres sensibles sin medir o una dimensión sin medir.",
-  },
-  en: {
-    A: "New lock on the site and on every public name that responded, no serious or high alerts, no published test environments, and everything sensitive measured. The highest grade that can be given from outside.",
-    B: "New lock on the main site and no serious or high alerts, but something is missing for A: names without evidence of the new lock, a published test environment, sensitive names left unmeasured, or a dimension not measured.",
-  },
-};
 
 const sha = (t) => createHash("sha256").update(t).digest("hex");
 
@@ -69,7 +54,7 @@ export function generar({ N: nucleo = N } = {}) {
 function textosParaAprobar(es, en, json) {
   const L = ["# Textos provisorios · rúbrica del QEX y de la nota (18-nov-2026)", "",
     "Generado por `node scripts/build-rubrica-qex.mjs` desde `public/js/rubrica-textos.mjs`. **Nada de esto se publica en producción sin aprobación.**",
-    "Todo es NUEVO salvo los nombres de las alertas, que repiten los aprobados (`TXT.alerta` de qready-textos.mjs).",
+    "Todo es NUEVO salvo los nombres de las alertas, que repiten los aprobados (`TXT.alerta` de qready-textos.mjs), y la frase sobre el origen de la tabla HNDL en RQ.S.04 (es), aprobada el 18-nov y sellada en `src/data/q-ready/textos-aprobados/`.",
     `Versión: ${json.version} · sha256 del JSON: \`${json.sha256}\``,
     "Del mismo encargo, en otro documento: los textos nuevos o cambiados de la ficha (país declarado, enlace a la rúbrica en la sección 06, la línea HNDL de «No medido», la escala en /protocolo/ficha) están en `docs/textos-provisorios-ficha.md` (marcados NUEVO o CAMBIA). También es nueva la descripción del parámetro `pais` en api.js (herramienta MCP y OpenAPI).", ""];
   for (const [lang, r] of [["es", es], ["en", en]]) {
@@ -87,10 +72,6 @@ function textosParaAprobar(es, en, json) {
     for (const p of r.pat) L.push(`- ${p.id} ${p.variable}: ${p.regla}`);
     L.push("");
   }
-  L.push("## Propuesta, NO aplicada: la lectura de la A y de la B", "",
-    "`TXT.nota_lectura` (qready-textos.mjs, aprobado el 13-nov) la pintan /q-ready/medicion y /verificado. C, D y F dicen la regla real; A y B describen sólo una de sus causas. Propuesta (no la usa ningún código hasta que se apruebe):", "");
-  for (const lang of ["es", "en"]) for (const k of ["A", "B"]) L.push(`- ${lang} · ${k}: ${PROPUESTA_LECTURA[lang][k]}`);
-  L.push("");
   return L.join("\n");
 }
 

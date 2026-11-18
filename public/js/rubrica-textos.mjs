@@ -155,7 +155,7 @@ export const RUBRICA = {
       "RQ.S.04": {
         variable: "Postura HNDL (dimensión)",
         observa: "Nada del dominio: es el valor del sector que se declara al medir.",
-        metodo: "Se lee de la tabla de referencia. Límite: igual para toda organización del sector; nada de lo que haga la organización la mueve.",
+        metodo: "Se lee de la tabla de referencia. Límite: igual para toda organización del sector; nada de lo que haga la organización la mueve. Estos valores son un modelo propio de Rosetta, fijado en la edición de agosto de 2026. La derivación no está publicada: se publica el valor que se usa, no cómo se llegó a él.",
         regla: (lista) => `Valor del sector: ${lista}.`,
         efecto: (min) => `Sin sector no hay índice. Sin medir, con peso ≥ ${min}: la nota no puede ser A.`,
       },

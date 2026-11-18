@@ -27,6 +27,10 @@
  *   node scripts/check-rubrica-qex.mjs
  */
 import { readFileSync } from "node:fs";
+import { registerHooks } from "node:module";
+// lib/informe-envivo.mjs importa "cloudflare:sockets": aquí no se abre ningún socket.
+registerHooks({ resolve: (esp, ctx, sig) => esp === "cloudflare:sockets"
+  ? { url: "data:text/javascript,export function connect(){throw new Error('sin sockets en el guardia')}", shortCircuit: true } : sig(esp, ctx) });
 import { createHash } from "node:crypto";
 const N = await import("../public/js/qex-nucleo.mjs");
 const R = await import("../public/js/rubrica-qex.mjs");
@@ -158,7 +162,26 @@ igual(desdes.filter((d) => !(d in N.VERSIONES_NOTA)), [], "cada «rige desde» d
 // ---------------------------------------------------------------- 4 · las normas siguen citadas donde se dice
 for (const [k, n] of Object.entries(R.NORMAS)) igual(leer(n.citada_en).includes(n.busca), true, `norma ${k}: «${n.busca}» sigue citada en ${n.citada_en}`);
 
+// ---------------------------------------------------------------- 4 bis · el tope de nombres: UNA definición (18-nov)
+// El tope que publica la rúbrica (RQ.S.09.7 y «Qué nombres se sondean») es el que aplican /api/sondas y el
+// pedido al VPS: los dos lo importan de qex-nucleo. Se prueba por comportamiento, no por texto.
+{
+  const IE = await import("../lib/informe-envivo.mjs"), SV = await import("../lib/sonda-tls-vps.mjs");
+  const T = N.MAX_SONDEADOS, nombres = (n) => Array.from({ length: n }, (_, i) => `n${i}.ejemplo.cl`);
+  const pide = async (n) => { const r = await IE.manejarSondas(new Request("https://x/api/sondas", { method: "POST", body: JSON.stringify({ dominio: "ejemplo.cl", sensibles: nombres(n) }) }), {});
+    return [r.status, (await r.json()).error || null]; };
+  igual(await pide(T + 1), [400, `Como máximo ${T} endpoints por medición.`], `/api/sondas rechaza ${T + 1} nombres con el tope del núcleo (${T})`);
+  const fallidos = nombres(T + 5).map((host) => ({ host, ip: ["192.0.2.1"], responde_443: false, detalle: "sin respuesta TLS en 443" }));
+  igual(SV.pedidoParaVps({ dominio: "ejemplo.cl", www: "www.ejemplo.cl", borde: null, certificado: null, endpoints: fallidos }).hosts.length, T, `el pedido al VPS se corta en el tope del núcleo (${T})`);
+  const f97 = g.es.filas.find((f) => f.id === "RQ.S.09.7"), sondeo = g.es.pat.find((f) => f.id === "PAT.sondeo");
+  igual([f97.metodo.includes(`hasta ${T} nombres`), sondeo.regla.includes(`hasta ${T} nombres`)], [true, true], "la rúbrica publica ese mismo tope");
+}
+
 // ---------------------------------------------------------------- 5 · mutaciones
+await conMutante(new URL("lib/informe-envivo.mjs", raiz), "const MAX_SENSIBLES = MAX_SONDEADOS;", "const MAX_SENSIBLES = 15 + 1;", async (M) => {
+  const r = await M.manejarSondas(new Request("https://x/api/sondas", { method: "POST", body: JSON.stringify({ dominio: "ejemplo.cl", sensibles: Array.from({ length: N.MAX_SONDEADOS + 1 }, (_, i) => `n${i}.ejemplo.cl`) }) }), {}).catch(() => null);
+  igual(r != null && r.status === 400, false, "MUTACIÓN: /api/sondas con su propio tope escrito a mano → deja pasar más de lo que la rúbrica dice (grita)");
+});
 await conMutante(NUCLEO, "  sin_tls13: -30,", "  sin_tls13: -25,", async (M) => {
   igual(divergencias(B.generar({ N: M })).length > 0, true, "MUTACIÓN: la constante −30 pasa a −25 sin regenerar → la rúbrica publicada ya no es la del código (grita)");
 });
@@ -180,5 +203,5 @@ await conMutante(NUCLEO, "export const NOTA_DIMENSION_MINIMA = 0.25;", "export c
 
 for (const f of fallas) console.log("  FALLA " + f);
 console.log(fallas.length ? `check-rubrica-qex: ${fallas.length} falla(s) de ${casos} casos` :
-  `check-rubrica-qex: ok (${casos} casos · publicado = generado · funciones = constantes · escala = explicarNota en ${cmp.n} combinaciones · 6 mutaciones gritan)`);
+  `check-rubrica-qex: ok (${casos} casos · publicado = generado · funciones = constantes · escala = explicarNota en ${cmp.n} combinaciones · tope de nombres una sola definición · 7 mutaciones gritan)`);
 process.exit(fallas.length ? 1 : 0);

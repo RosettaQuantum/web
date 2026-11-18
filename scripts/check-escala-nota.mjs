@@ -48,17 +48,21 @@ export const CONDICION = /\b(TLS|candado|lock|alerta|alert|grave|serious|X25519M
 export const REVISADAS = {
   // public/js/qready-textos.mjs · TXT.nota_lectura (aprobado el 13-nov; C y D actualizadas el 16-nov).
   // Es la LECTURA de cada letra (la pintan /q-ready/medicion y /verificado), no la escala. C, D y F dicen
-  // la regla real. A+ resume la suya. A y B describen sólo una de sus causas (A: falta «todos los nombres
-  // sensibles sondeados», «sin ambiente de pruebas publicado» y «dimensiones medidas»; B: también sale
-  // por esas causas, no sólo por nombres sin evidencia). Propuesta de texto en
-  // docs/textos-provisorios-rubrica.md: no se cambia sin aprobación.
+  // la regla real. A+ resume la suya. A y B: reemplazo aprobado el 18-nov («Sí, el reemplazo»), sellado en
+  // src/data/q-ready/textos-aprobados/ (check-textos-aprobados); nombran las causas de la escala.
   "lectura de la letra (TXT.nota_lectura), revisada contra ESCALA_NOTA el 18-nov": [
-    "66ea9e77ed2da2a2e59974be0c469973194935d848fe337c13dd0196856abaed", "dfd90a2e5a246aa911c0cde61fcf36454b62718d908bfaafc805d68008ddd4c1",
-    "cc5779927598bb212bbda61407d157b4eee1b69b5f989776b28d6c63c9ae8033", "ffca9f63271d1bf2e8c7f39863da219fc154da338244433226e711b047635859",
+    "66ea9e77ed2da2a2e59974be0c469973194935d848fe337c13dd0196856abaed", "0f833e066e1794d2f930a95ebdf2a8f16959742f34a4c04a91d922a71d079e46",
+    "ffe457cbfe8ca0b0f29e429e34559c0ff8f18bf5e73c3e00b30e28c921e90f0c", "ffca9f63271d1bf2e8c7f39863da219fc154da338244433226e711b047635859",
     "26eeae6772860a17f4675713110f6a968a8ab6b372d232c09147017e817b27ec", "80a64e6b2d65932e382b1951fbebcb025ffe5362fc4a8865b71593fd3f17f94b",
-    "d55cfc602dcfd37e40578bda812406cf7061ae0bd558b9501a10e288c28107cd", "589c427d8cc4c77026346970cf205af69bf453caf1f59a0c6652c93a79634493",
-    "16d5970ba637cd2d08842f4b0147a99b613ffc0c706b704efbb53082021b2b52", "26d9e45c91fa48eaca6841ac829f256de5d3e5d9985721038463e5c5cb80559d",
+    "d55cfc602dcfd37e40578bda812406cf7061ae0bd558b9501a10e288c28107cd", "c10bb846712f21bdb95f4bac8e1245a162c66d6e5a0f39cfad54bb1da207a61a",
+    "0ec5d66964be9ee42bb500fbff84ecc672a2d86f40b08e0dd4880afb4b27a869", "26d9e45c91fa48eaca6841ac829f256de5d3e5d9985721038463e5c5cb80559d",
     "5c656da75e3ba27a2cbeb6728005c972c7880e826c0227263666e77689d94d5b", "90aaff0bed03a3601d0ac2cda7e277acbac7f61e5d651f8602a5b8ec72a577b8",
+  ],
+  // La copia sellada del documento que aprobó ese reemplazo (src/data/q-ready/textos-aprobados/): las mismas
+  // lecturas A y B, en la forma «- **A:** …» del documento.
+  "documento aprobado de la lectura A/B (sellado), 18-nov": [
+    "02465be26894ed4d2af95f65adf0ad514656fbe2f47cc8c9e02e8dd94461f9be", "2c27a7af7487469eb29dbaf5dc370cff6ffaad3494958f521e3b5d0279f97c10",
+    "4ba443e867a72bbadf406197fb4b1e97793f92b92db3594af7fea5984013bdfd", "c57454e859cd2cd7d44e96c900b1b65d829e463030cb82d82ee320e87cd3fcec",
   ],
   // lib/borde-envivo.mjs: los saludos TLS A, B y C al sitio principal. Son letras de los saludos, no la nota.
   "saludos A/B/C del borde (no son la nota)": [

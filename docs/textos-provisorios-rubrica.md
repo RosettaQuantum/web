@@ -1,8 +1,8 @@
 # Textos provisorios · rúbrica del QEX y de la nota (18-nov-2026)
 
 Generado por `node scripts/build-rubrica-qex.mjs` desde `public/js/rubrica-textos.mjs`. **Nada de esto se publica en producción sin aprobación.**
-Todo es NUEVO salvo los nombres de las alertas, que repiten los aprobados (`TXT.alerta` de qready-textos.mjs).
-Versión: rosetta-rubrica-qex/1 · QEX-1.0 · QREADY-NOTA-2.1 · sha256 del JSON: `9f4e8573cf286717e57e4ef76a5576f52918113dadf0af973d3a4935ad6df7f3`
+Todo es NUEVO salvo los nombres de las alertas, que repiten los aprobados (`TXT.alerta` de qready-textos.mjs), y la frase sobre el origen de la tabla HNDL en RQ.S.04 (es), aprobada el 18-nov y sellada en `src/data/q-ready/textos-aprobados/`.
+Versión: rosetta-rubrica-qex/1 · QEX-1.0 · QREADY-NOTA-2.1 · sha256 del JSON: `a89ceacb2a7e6e7a1280cae6b9aa45aed90ee9a0f3d40efad3769064b4caa16d`
 Del mismo encargo, en otro documento: los textos nuevos o cambiados de la ficha (país declarado, enlace a la rúbrica en la sección 06, la línea HNDL de «No medido», la escala en /protocolo/ficha) están en `docs/textos-provisorios-ficha.md` (marcados NUEVO o CAMBIA). También es nueva la descripción del parámetro `pais` en api.js (herramienta MCP y OpenAPI).
 
 ## es
@@ -51,7 +51,7 @@ Se leen en orden: la primera que se cumple decide.
 - **RQ.S.03.3** Infraestructura sensible en el registro — observa: Nombres de la clase infra_expuesta (bloque 4) en el registro público de certificados. · método y límites: Mismo conteo acumulado que RQ.S.03.2. Límite: un nombre de correo cuenta igual, aunque no exponga un servicio web. · regla: −10 si hay 3 o más. · efecto: Ninguno directo: la nota mira los que responden (RQ.S.09.4).
 - **RQ.S.03.4** Nombres de legado en el registro — observa: Nombres de la clase legado (bloque 4) en el registro público de certificados. · método y límites: Mismo conteo acumulado que RQ.S.03.2. · regla: −10 si hay 1 o más. · efecto: Ninguno directo: la nota mira los que responden (RQ.S.09.5).
 - **RQ.S.03.5** security.txt — observa: Si el dominio publica /.well-known/security.txt con una línea Contact. · método y límites: Se pide en el dominio y en www. 404, 410 o una página sin Contact = no publicado; 403 o 5xx = sin dato. Indicador de la ficha: RQ.S.08. · regla: Informativo: 0 puntos. · efecto: Ninguno.
-- **RQ.S.04** Postura HNDL (dimensión) — observa: Nada del dominio: es el valor del sector que se declara al medir. · método y límites: Se lee de la tabla de referencia. Límite: igual para toda organización del sector; nada de lo que haga la organización la mueve. · regla: Valor del sector: Banca 12 · Educación 37 · Energía 12 · Fintech 65 · Gobierno 12 · Minería 37 · Previsión 12 · Retail 65 · Salud · clínicas 12 · Salud · isapres 12 · Seguros 12 · Telecomunicaciones 12. · efecto: Sin sector no hay índice. Sin medir, con peso ≥ 0,25: la nota no puede ser A.
+- **RQ.S.04** Postura HNDL (dimensión) — observa: Nada del dominio: es el valor del sector que se declara al medir. · método y límites: Se lee de la tabla de referencia. Límite: igual para toda organización del sector; nada de lo que haga la organización la mueve. Estos valores son un modelo propio de Rosetta, fijado en la edición de agosto de 2026. La derivación no está publicada: se publica el valor que se usa, no cómo se llegó a él. · regla: Valor del sector: Banca 12 · Educación 37 · Energía 12 · Fintech 65 · Gobierno 12 · Minería 37 · Previsión 12 · Retail 65 · Salud · clínicas 12 · Salud · isapres 12 · Seguros 12 · Telecomunicaciones 12. · efecto: Sin sector no hay índice. Sin medir, con peso ≥ 0,25: la nota no puede ser A.
 - **RQ.S.04.1** Años que el dato del sector debe seguir secreto — observa: — · método y límites: Sin dato: tabla por sector fijada en la edición 2026-08; la derivación no está publicada. · regla: No puntúa por separado. · efecto: —
 - **RQ.S.04.2** Años que toma migrar en el sector — observa: — · método y límites: Sin dato: tabla por sector fijada en la edición 2026-08; la derivación no está publicada. · regla: No puntúa por separado. · efecto: —
 - **RQ.S.04.3** Margen de Mosca — observa: — · método y límites: Sin dato: tabla por sector fijada en la edición 2026-08; la derivación no está publicada. · regla: No puntúa por separado. · efecto: —
@@ -174,12 +174,3 @@ Read in order: the first one that holds decides.
 - PAT.senal_prueba Test-environment signal (the grade and QEX-1.1): Words: desa, desarrollo, development, dev, test, testing, qa, uat, stg, stage, staging, homolog, homologacion, hml, certificacion, prueba, pruebas, preprod, sandbox, demo. Matches as a segment of the name, or joined with a hyphen (for example api-desarrollo). Exact expression: (^|[.-])(desa|desarrollo|development|dev|test|testing|qa|uat|stg|stage|staging|homolog|homologacion|hml|certificacion|prueba|pruebas|preprod|sandbox|demo)(\d*)([.-]|$)
 - PAT.correo Mail names (only changes the wording and which alert appears): Words: mail, smtp, webmail, imap, pop3?, mx\d*, correo, owa, exchange. Exact expression: (^|[.\-])(mail|smtp|webmail|imap|pop3?|mx\d*|correo|owa|exchange)([.\-]|$)
 - PAT.sondeo Which names are probed: Test environments first, then the classes no_productivo, legado, infra_expuesta, up to 15 names per measurement.
-
-## Propuesta, NO aplicada: la lectura de la A y de la B
-
-`TXT.nota_lectura` (qready-textos.mjs, aprobado el 13-nov) la pintan /q-ready/medicion y /verificado. C, D y F dicen la regla real; A y B describen sólo una de sus causas. Propuesta (no la usa ningún código hasta que se apruebe):
-
-- es · A: Candado nuevo en el sitio y en todos los nombres públicos que respondieron, sin alertas graves ni altas, sin ambientes de prueba publicados y con todo lo sensible medido. Es la nota máxima que se puede dar desde afuera.
-- es · B: Candado nuevo en el sitio principal y sin alertas graves ni altas, pero falta algo para A: nombres sin evidencia del candado nuevo, un ambiente de pruebas publicado, nombres sensibles sin medir o una dimensión sin medir.
-- en · A: New lock on the site and on every public name that responded, no serious or high alerts, no published test environments, and everything sensitive measured. The highest grade that can be given from outside.
-- en · B: New lock on the main site and no serious or high alerts, but something is missing for A: names without evidence of the new lock, a published test environment, sensitive names left unmeasured, or a dimension not measured.

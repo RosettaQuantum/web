@@ -7,7 +7,7 @@
 | RQ.S.00 | Q-Ready grade | **A** |
 | RQ.S.01 | QEX index | 56/100 (external cap 84) |
 
-Reading: New lock on the site and on every public name that responded. The highest grade that can be given from outside.
+Reading: New lock on the site and on every public name that responded, no serious or high alerts, no published test environments, and everything sensitive measured. The highest grade that can be given from outside.
 Reference: banking median 57 (12 orgs, edition 2026-08). ejemplo.cl is 1 point below.
 Publication: public at https://rosettaquantum.com/verificado/ejemplo.cl
 
