@@ -165,14 +165,16 @@ async function abrirChromeUnaVez({ ancho = 1280, alto = 900 } = {}) {
      * de imprimir una pagina web: sale, no falla, y sale mal.
      */
     async imprimir(url, { esperaMs = 3500, escala = 1, margen = 0.4,
-                          imprimirFondo = true, apaisado = false } = {}) {
+                          imprimirFondo = true, apaisado = false, tamanoCss = false } = {}) {
       await enviar("Page.navigate", { url }, sessionId);
       await new Promise(r => setTimeout(r, esperaMs));
       const { data } = await enviar("Page.printToPDF", {
         printBackground: imprimirFondo, scale: escala, landscape: apaisado,
         marginTop: margen, marginBottom: margen,
         marginLeft: margen, marginRight: margen,
-        preferCSSPageSize: false,
+        // `tamanoCss`: la pagina manda con su `@page` (tamaño y margenes). Lo usa la guia PQC,
+        // que trae `@page{size:A4;...}`; sin esto Chrome imprime en Carta e ignora el A4.
+        preferCSSPageSize: tamanoCss,
       }, sessionId);
       return Buffer.from(data, "base64");
     },
