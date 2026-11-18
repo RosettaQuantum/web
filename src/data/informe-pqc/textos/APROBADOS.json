@@ -19,5 +19,12 @@
     "archivo": "2026-11/certificado-sin-leer.md",
     "sha256": "715a8aefbc95bb406ff78a2513ea0e982169ee86a5f672ba3e042f12600b322e",
     "aprobado_por": "Nicholas, 18-nov-2026: \"Sí, así queda\""
+  },
+  {
+    "edicion": "2026-11",
+    "seccion": "portada-pendiente",
+    "archivo": "2026-11/textos-aprobados-2026-11-18.md",
+    "sha256": "a31d2c1c3215d7f05b3568dc8e7468cf607615301177c2801c9de2dbb706aaa3",
+    "aprobado_por": "Nicholas, 18-nov-2026: aprobó los textos 1 a 6 «tal cual»"
   }
 ]

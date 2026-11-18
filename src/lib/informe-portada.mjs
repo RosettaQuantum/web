@@ -22,10 +22,12 @@ export const PENDIENTES_LEGALES = [
 
 const enPalabras = (n) => (PALABRAS[n] ?? String(n));
 
-/** «revisión legal de los seis puntos marcados en la sección 14, y aviso previo …» */
+/** «revisión legal de los seis puntos marcados en la sección 14». Sin «y aviso previo a las organizaciones con
+ *  hallazgos» desde el 18-nov-2026: Nicholas decidió no avisar antes de publicar, así que la portada prometía un
+ *  paso que no va a ocurrir. Texto aprobado (texto 1) en textos/2026-11/textos-aprobados-2026-11-18.md. */
 export function pendientePorDefecto(nPuntos, nSeccion) {
   if (!(nPuntos > 0) || !(nSeccion > 0)) throw new Error("informe-pqc: no se puede derivar la frase de pendientes (sin puntos o sin sección legal)");
-  return `revisión legal de los ${enPalabras(nPuntos)} puntos marcados en la sección ${nSeccion}, y aviso previo a las organizaciones con hallazgos`;
+  return `revisión legal de los ${enPalabras(nPuntos)} puntos marcados en la sección ${nSeccion}`;
 }
 
 /** Un día → «Medición: 6 de noviembre de 2026». Dos días → «Medición 2026-07-31 → 2026-08-02» (como siempre). */
