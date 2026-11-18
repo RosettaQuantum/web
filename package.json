@@ -22,6 +22,7 @@
     "check:bilingue": "node scripts/check-api-bilingue.mjs",
     "check:sello": "node scripts/check-api-vs-sello.mjs",
     "check:promesa": "node scripts/check-promesa-verificable.mjs",
+    "check:q": "node scripts/check-q-eventos.mjs && node scripts/check-q-endpoints.mjs",
     "check:ci": "node scripts/check-ci-salud.mjs",
     "check:fresca": "node scripts/check-produccion-fresca.mjs --self-test",
     "check:consumidor": "node scripts/check-guardias-con-consumidor.mjs --self-test",

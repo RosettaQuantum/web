@@ -249,6 +249,9 @@ jobs:
           PREVIEW_URL: ${{ steps.desplegar.outputs.url }}
         run: npm run check:api2
 
+      - name: T-q — la medicion de /es/q no se puede ensuciar ni filtrar
+        run: npm run check:q
+
       - name: Resumen
         if: always()
         run: |
