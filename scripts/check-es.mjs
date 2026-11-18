@@ -91,9 +91,13 @@ const PAGINAS_ES = ["/es/", "/es/pilotos/", "/es/servicios/", "/es/biblioteca/",
 // En ingles A PROPOSITO, con su motivo. La decision page de muestra es un entregable a
 // jurados, y esos se editan en ingles y no se portan (decision del 26-ago).
 const DESTINO_EN_INGLES_OK = ["/services/sample-report"];
+// Rutas en español que NO viven bajo /es/ (17-nov-2026): la guía PQC en español se publica en
+// /guia/... por decisión de Cowork y Nicholas (la inglesa en /guide/...). El pop-up la enlaza desde
+// toda página en español. Son destinos EN español, no en inglés: se declaran por ruta exacta.
+const RUTAS_ES_FUERA_DE_ES = ["/guia/criptografia-post-cuantica"];
 const noEs = (h) => h.startsWith("/") && !h.startsWith("/es/") && h !== "/" &&
   !/^\/(v1|mcp|api|_astro|js|piezas|consola|cleveland|blog\/)/.test(h) &&
-  !/\.[a-z]{2,4}$/.test(h) && !DESTINO_EN_INGLES_OK.includes(h);
+  !/\.[a-z]{2,4}$/.test(h) && !DESTINO_EN_INGLES_OK.includes(h) && !RUTAS_ES_FUERA_DE_ES.includes(h);
 let saltos = 0;
 for (const p of PAGINAS_ES) {
   const t = await (await fetch(PREVIEW + p, { headers: { "x-rq-check": "1" } })).text();
