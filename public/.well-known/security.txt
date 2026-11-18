@@ -1,0 +1,4 @@
+Contact: mailto:hello@rosettaquantum.com
+Expires: 2027-11-18T00:00:00Z
+Preferred-Languages: es, en
+Canonical: https://rosettaquantum.com/.well-known/security.txt
