@@ -8,7 +8,7 @@
  */
 export const CONSUMIDOR = { quien: "el postbuild (bloquea el deploy) y quien agregue un texto aprobado al informe", hace: "copia el .md byte a byte, declara su sha256 en APROBADOS.json y no lo edita a mano" };
 import { readFileSync, existsSync } from "node:fs";
-import { textosDeEdicion, apartados, sha256 } from "../src/lib/informe-textos.mjs";
+import { textosDeEdicion, apartados, sha256, frase } from "../src/lib/informe-textos.mjs";
 
 const base = new URL("../src/data/informe-pqc/textos/", import.meta.url);
 const APROBADOS = JSON.parse(readFileSync(new URL("APROBADOS.json", base), "utf8"));
@@ -19,7 +19,7 @@ const plano = (md) => md.replace(/\*\*/g, "").replace(/`/g, "").replace(/\s+/g, 
 /** Problemas del HTML construido para la edición `ed`. */
 export function revisar(html, ed, aprobados = APROBADOS, lee = leer) {
   const mal = [], h = texto(html);
-  for (const a of aprobados) {
+  for (const a of aprobados.filter((x) => x.seccion === "legal")) {
     const ap = apartados(lee(a.archivo));
     for (const p of [ap.hicimos, ap.no_hicimos]) {
       const esta = h.includes(plano(p));
@@ -38,6 +38,9 @@ for (const a of APROBADOS) prueba(`${a.archivo}: sha256 igual al aprobado`, sha2
 const t = textosDeEdicion("2026-11", APROBADOS, leer);
 prueba("noviembre trae los dos párrafos, uno por apartado", !!t && t.crudo.hicimos.startsWith("**Canal de reporte de seguridad.**") && t.crudo.no_hicimos.startsWith("No medimos páginas"));
 prueba("agosto no trae ninguno", textosDeEdicion("2026-08", APROBADOS, leer) === null);
+prueba("noviembre trae la frase de rutas desde su archivo sellado", t?.frase_rutas === "No exploramos rutas ni directorios más allá de la dirección estándar de security.txt.");
+prueba("MUTACIÓN frase editada a mano: el sha la tumba",
+  /no es el aprobado/.test(lanza(() => textosDeEdicion("2026-11", APROBADOS, (f) => f.endsWith("frase-rutas.md") ? leer(f).replace("estándar", "oficial") : leer(f))) ?? ""));
 // MUTACIÓN: una palabra distinta en la copia → el build se cae.
 const md = leer(APROBADOS[0].archivo);
 prueba("MUTACIÓN «212» → «213» en la copia: el sha la tumba",
@@ -57,8 +60,9 @@ if (existsSync(ruta)) {
   if (ed) {
     // La frase vieja «No exploramos rutas ni directorios.» se precisa sólo donde sí pedimos security.txt
     // (aprobado por Nicholas el 18-nov: «Sí, así»). Agosto la conserva tal cual.
-    const conSec = APROBADOS.some((a) => a.edicion === ed), h = texto(html);
-    const nueva = "No exploramos rutas ni directorios más allá de la dirección estándar de security.txt.";
+    const fr = APROBADOS.find((a) => a.edicion === ed && a.seccion === "legal-frase-rutas"), conSec = !!fr, h = texto(html);
+    // la frase sale del archivo sellado, no de un literal de este chequeo
+    const nueva = frase(leer(APROBADOS.find((a) => a.seccion === "legal-frase-rutas").archivo));
     const vieja = "No exploramos rutas ni directorios. No escaneamos";
     prueba(`dist/informe-pqc (${ed}): frase de rutas ${conSec ? "precisada" : "original"}`, conSec ? h.includes(nueva) && !h.includes(vieja) : h.includes(vieja) && !h.includes(nueva));
     const mal = revisar(html, ed); prueba(`dist/informe-pqc (${ed}): ${mal.length ? mal.join(" · ") : "textos aprobados donde van y sólo ahí"}`, mal.length === 0);
