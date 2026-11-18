@@ -1,22 +1,185 @@
 {
-  "_": "CASO CRUZADO de la regla de la llave, QEX-1.2. Existe porque la regla vive implementada dos veces y en dos lenguajes: `armar_indice.dim_certificados` (Python, el informe) y `qex-nucleo.REGLA_CERTIFICADOS` (JS, la herramienta en vivo). No se pueden importar entre si, asi que la UNICA definicion compartida es este archivo: los dos lados lo leen y los dos tienen que reproducirlo. Si alguien cambia una regla sin cambiar este archivo, su suite se pone roja. Propuesto por Rosetta Q Main el 18-nov-2026; los valores son los que acordamos.",
-  "version": "QEX-1.2",
-  "norma": "NIST IR 8547, version final de octubre de 2026, tabla 2 (pagina 15). Mapa de fuerza: SP 800-57 pt.1 rev.5, tabla 2.",
-  "pdf_norma": "https://nvlpubs.nist.gov/nistpubs/ir/2026/NIST.IR.8547.pdf",
-  "acordado_por": "Nicholas, 18-nov-2026, por delegacion: «cambia todos segun tu mejor criterio»",
-  "no_cubre": [
-    "La familia de llave DESCONOCIDA queda fuera a proposito, y los dos lados la tratan distinto por una razon declarada: el informe DETIENE el paso (puede esperar a un humano) y la herramienta en vivo devuelve «sin dato» (no puede no contestar). No es una divergencia de la regla: es la misma regla con dos politicas de fallo. Cuando los dos CONTESTAN, el numero es el mismo.",
-    "El certificado compuesto o «hibrido» no esta aqui porque no tiene hoy un OID estable que reconocer. Entra el dia que lo tenga, con su OID citado."
-  ],
-  "casos": [
-    {"llave": "RSA-1024",  "key_type": "rsaEncryption",  "key_bits": 1024, "puntaje": 0,    "porque": "80 bits de fuerza: bajo el umbral de 112, y SP 800-131A ya la prohibe desde antes del problema cuantico"},
-    {"llave": "RSA-2048",  "key_type": "rsaEncryption",  "key_bits": 2048, "puntaje": 75,   "porque": "112 bits justos: el umbral de la fila de RSA"},
-    {"llave": "RSA-3072",  "key_type": "rsaEncryption",  "key_bits": 3072, "puntaje": 75,   "porque": "128 bits, y la norma no distingue por tamano"},
-    {"llave": "RSA-4096",  "key_type": "rsaEncryption",  "key_bits": 4096, "puntaje": 75,   "porque": "152 bits; valia 100 bajo QEX-1.0 y ya no"},
-    {"llave": "P-256",     "key_type": "EC/prime256v1",  "key_bits": 256,  "puntaje": 75,   "porque": "128 bits"},
-    {"llave": "P-384",     "key_type": "EC/secp384r1",   "key_bits": 384,  "puntaje": 75,   "porque": "192 bits; valia 100 bajo QEX-1.0 y ya no"},
-    {"llave": "Ed25519",   "key_type": "ED25519",        "key_bits": 256,  "puntaje": 75,   "porque": "128 bits de fuerza con 256 de llave: se decide por nombre, no por tamano"},
-    {"llave": "ML-DSA-65", "key_type": "ML-DSA-65",      "key_bits": 0,    "puntaje": 100,  "porque": "tabla 3: la unica salida que NIST reconoce"},
-    {"llave": "sin certificado", "key_type": null, "key_bits": null, "ok": false, "puntaje": null, "porque": "no se pudo leer: ausencia, NO el minimo"}
-  ]
+ "_": "CASO CRUZADO de la regla de la llave, QEX-1.2. UNA sola definicion para dos lenguajes. La regla vive implementada dos veces -`armar_indice.dim_certificados` en Python para el informe, `qex-nucleo` en JS para la herramienta en vivo- y no se pueden importar entre si, asi que este archivo es la unica definicion compartida posible: los dos lados lo leen y los dos tienen que reproducirlo. Cada caso trae LAS DOS representaciones para que ninguno de los dos infiera la del otro.",
+ "version": "QEX-1.2",
+ "regla": {
+  "tipo": "fuerza",
+  "fuerza_min": 112,
+  "fuerza_min_eddsa": 128,
+  "aprobada": 75,
+  "bajo": 0,
+  "pq": 100
+ },
+ "norma": "NIST IR 8547, version final de octubre de 2026, tabla 2 (pagina 15) y tabla 3 (pagina 16). Mapa de fuerza clasica: SP 800-57 pt.1 rev.5, tabla 2.",
+ "pdf_norma": "https://nvlpubs.nist.gov/nistpubs/ir/2026/NIST.IR.8547.pdf",
+ "fuentes": {
+  "public/js/qex-nucleo.mjs": "ac4a1fb04c383daba84c93985402c970bdfcf99ef8d5aad849f031eb675f9cf9",
+  "lib/informe-envivo.mjs": "f6cd4d2f1d5d3c559b84f02a309a27af67f9e8af462c33875d211aa339baa26f"
+ },
+ "nota": "puntaje = QEX-1.2 (NIST IR 8547); puntaje_qex_1_0 = la regla de agosto, para las fotos guardadas. null = sin dato, nunca 0.",
+ "acordado_por": "Nicholas, 18-nov-2026, directo a Q Main: 75 para toda llave clasica >=112 bits, 0 por debajo, 100 reservado a post-cuantica.",
+ "quien_aporto_que": "Los 13 casos y los OID los genero Q Main con las funciones del sitio (su sha 3d44a06152253615...). P-224 lo agrego el lado del informe como caso del borde. Las `fuerza_clasica` son las de su fuente: OJO, RSA-4096 es 128 y no 152 -152 era una interpolacion mia sin fuente, corregida-.",
+ "no_cubre": [
+  "La familia de llave DESCONOCIDA queda fuera a proposito: el informe DETIENE el paso (puede esperar a un humano) y la herramienta en vivo devuelve «sin dato» (no puede no contestar). No es una divergencia de la regla, es la misma regla con dos politicas de fallo. Cuando los dos CONTESTAN, el numero es el mismo.",
+  "El certificado compuesto o «hibrido» NO esta, y ya no es una pregunta abierta: se quito de la regla el 18-nov-2026 porque no tiene hoy un OID estable que reconocer, y un termino de la regla sin nada detras es peor que no tenerlo. Entra el dia que lo tenga, con su OID citado desde la fuente.",
+  "HSS/LMS, XMSS y XMSS^MT se reconocen por OID solamente: ni OpenSSL ni Node generan esas llaves, asi que ningun lado las probo con una llave real. Declarado por Q Main y se mantiene.",
+  "`puntaje_qex_1_0` de Ed25519 es null en el lado JS y mi codigo viejo le habria dado 75, porque no reconocia EdDSA y caia al minimo. No afecta ninguna edicion -no hay ni un Ed25519 en los tres meses- pero quien relea una foto vieja tiene que saberlo."
+ ],
+ "casos": [
+  {
+   "llave": "RSA-1024",
+   "algoritmo": "RSA",
+   "parametros": null,
+   "bits": 1024,
+   "fuerza_clasica": 80,
+   "puntaje": 0,
+   "puntaje_qex_1_0": 75,
+   "key_type": "rsaEncryption",
+   "key_bits": 1024
+  },
+  {
+   "llave": "RSA-2048",
+   "algoritmo": "RSA",
+   "parametros": null,
+   "bits": 2048,
+   "fuerza_clasica": 112,
+   "puntaje": 75,
+   "puntaje_qex_1_0": 75,
+   "key_type": "rsaEncryption",
+   "key_bits": 2048
+  },
+  {
+   "llave": "RSA-3072",
+   "algoritmo": "RSA",
+   "parametros": null,
+   "bits": 3072,
+   "fuerza_clasica": 128,
+   "puntaje": 75,
+   "puntaje_qex_1_0": 75,
+   "key_type": "rsaEncryption",
+   "key_bits": 3072
+  },
+  {
+   "llave": "RSA-4096",
+   "algoritmo": "RSA",
+   "parametros": null,
+   "bits": 4096,
+   "fuerza_clasica": 128,
+   "puntaje": 75,
+   "puntaje_qex_1_0": 100,
+   "key_type": "rsaEncryption",
+   "key_bits": 4096
+  },
+  {
+   "llave": "P-224",
+   "algoritmo": "EC",
+   "parametros": "P-224",
+   "bits": 224,
+   "fuerza_clasica": 112,
+   "puntaje": 75,
+   "puntaje_qex_1_0": 75,
+   "porque": "EL CASO DEL BORDE, y el que de verdad prueba el umbral: una curva de 224 bits da 112 bits justos de fuerza clasica (SP 800-57 pt.1 rev.5), asi que cae DENTRO de la fila deprecada de la tabla 2 y vale 75. Con un umbral de 256 daria 0, o sea «prohibida hoy», que NIST no dice. Ningun CA publico la emite, asi que ninguno de los dos lados la ve en datos reales: solo este caso la ejerce.",
+   "key_type": "EC/secp224r1",
+   "key_bits": 224
+  },
+  {
+   "llave": "P-256",
+   "algoritmo": "EC",
+   "parametros": "P-256",
+   "bits": 256,
+   "fuerza_clasica": 128,
+   "puntaje": 75,
+   "puntaje_qex_1_0": 75,
+   "key_type": "EC/prime256v1",
+   "key_bits": 256
+  },
+  {
+   "llave": "P-384",
+   "algoritmo": "EC",
+   "parametros": "P-384",
+   "bits": 384,
+   "fuerza_clasica": 192,
+   "puntaje": 75,
+   "puntaje_qex_1_0": 100,
+   "key_type": "EC/secp384r1",
+   "key_bits": 384
+  },
+  {
+   "llave": "Ed25519",
+   "algoritmo": "Ed25519",
+   "parametros": null,
+   "bits": 256,
+   "fuerza_clasica": 128,
+   "puntaje": 75,
+   "puntaje_qex_1_0": null,
+   "key_type": "ED25519",
+   "key_bits": 256
+  },
+  {
+   "llave": "ML-DSA-65",
+   "algoritmo": "ML-DSA",
+   "parametros": "ML-DSA-65",
+   "bits": 192,
+   "fuerza_clasica": 192,
+   "puntaje": 100,
+   "puntaje_qex_1_0": null,
+   "key_type": "ML-DSA-65",
+   "key_bits": 0
+  },
+  {
+   "llave": "SLH-DSA-SHA2-128s",
+   "algoritmo": "SLH-DSA",
+   "parametros": "SLH-DSA-SHA2-128S",
+   "bits": 128,
+   "fuerza_clasica": 128,
+   "puntaje": 100,
+   "puntaje_qex_1_0": null,
+   "key_type": "SLH-DSA-SHA2-128S",
+   "key_bits": 0
+  },
+  {
+   "llave": "HSS/LMS (llave construida con el OID)",
+   "algoritmo": "HSS/LMS",
+   "parametros": "HSS/LMS",
+   "bits": null,
+   "fuerza_clasica": null,
+   "puntaje": 100,
+   "puntaje_qex_1_0": null,
+   "key_type": "HSS/LMS",
+   "key_bits": 0
+  },
+  {
+   "llave": "XMSS (llave construida con el OID)",
+   "algoritmo": "XMSS",
+   "parametros": "XMSS",
+   "bits": null,
+   "fuerza_clasica": null,
+   "puntaje": 100,
+   "puntaje_qex_1_0": null,
+   "key_type": "XMSS",
+   "key_bits": 0
+  },
+  {
+   "llave": "XMSS^MT (llave construida con el OID)",
+   "algoritmo": "XMSS^MT",
+   "parametros": "XMSS^MT",
+   "bits": null,
+   "fuerza_clasica": null,
+   "puntaje": 100,
+   "puntaje_qex_1_0": null,
+   "key_type": "XMSS^MT",
+   "key_bits": 0
+  },
+  {
+   "llave": "sin certificado",
+   "algoritmo": null,
+   "parametros": null,
+   "bits": null,
+   "fuerza_clasica": null,
+   "puntaje": null,
+   "puntaje_qex_1_0": null,
+   "key_type": null,
+   "key_bits": null,
+   "ok": false
+  }
+ ]
 }
