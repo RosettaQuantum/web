@@ -108,6 +108,14 @@ jobs:
       - name: Self-test del guardia de deriva del ledger
         run: node scripts/check-ledger-deriva.mjs --self-test
 
+      # El embudo de /es/q es un endpoint PUBLICO de escritura: la lista blanca de `ev`, la
+      # clase del agente en vez del user-agent crudo, la sal rotativa del hash de IP y la clave
+      # en la cabecera son todo lo que separa esa tabla de la basura. Corre ANTES del deploy, sin
+      # red y sin base, y tumba el deploy si falla: un guardia que hay que acordarse de correr a
+      # mano no es parte de la cadena.
+      - name: La medicion de /es/q no se puede ensuciar ni filtrar
+        run: npm run check:q
+
       - name: Deploy Worker
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
