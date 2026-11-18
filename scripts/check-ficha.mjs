@@ -419,7 +419,9 @@ igual(/Fi\.presentacion\(r\.foto/.test(leer("lib/medicion-agentes.mjs")) && /pre
   for (const r of ["src/pages/es/q-ready/medicion/index.astro", "src/pages/q-ready/medicion/index.astro"])
     igual(leer(r).includes('id="mv-ficha"'), true, `${r}: tiene la caja de la ficha`);
   // /verificado/<dominio>: 01 y 02 de la ficha, con el esquema real
-  const cuerpo = V.cuerpoVerificado({ lang: "es", dominio: "ejemplo.cl", fila: { verificado_en: "2026-11-13T00:00:00Z", inventario_verificado_en: null },
+  const filaV = { dominio: "ejemplo.cl", verificado_en: "2026-11-13T00:00:00Z", inventario_verificado_en: null };
+  const { extrasNota } = await import("../lib/qready-wellknown.mjs");
+  const cuerpo = V.cuerpoVerificado({ lang: "es", dominio: "ejemplo.cl", fila: filaV, extras: await extrasNota(filaV, {}),
     mediciones: [{ fecha: fixture("a").foto.medido_utc, nota: "A", qex: 56, sha256: fixture("a").foto.sha256, foto_json: JSON.stringify(fixture("a").foto) }] });
   igual([[...cuerpo.matchAll(/<span class="rf-num">(\d\d)<\/span>/g)].map((m) => m[1]), cuerpo.includes(">RQ.S.09<"), cuerpo.includes(`class="rf-lvl`)],
     [["01", "02"], true, false], "/verificado: muestra 01 y 02 de la ficha (sin alertas ni acciones)");
