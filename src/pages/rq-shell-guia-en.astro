@@ -1,0 +1,9 @@
+---
+/* Cascarón INTERNO: la barra y el pie del sitio para la guía PQC (en). No es una página: el Worker
+   lo lee de ASSETS y recorta sus piezas (lib/guia.mjs → ponerBarra). Fuera del sitemap por el
+   filtro /rq-shell- de astro.config.mjs y con noindex por si alguien llega. */
+import BarraGuia from '../components/BarraGuia.astro';
+---
+<!doctype html>
+<html lang="en"><head><meta charset="UTF-8" /><meta name="robots" content="noindex" /><title>rq-shell-guia-en</title></head>
+<body><BarraGuia lang="en" /></body></html>

@@ -1,0 +1,52 @@
+---
+/**
+ * La barra y el pie del SITIO para la guía PQC, que se sirve desde D1 sin layout (17-nov-2026).
+ *
+ * UNA SOLA FUENTE. No es una copia: son NavV2 y PieV2, los mismos componentes que montan / y /es/,
+ * con las mismas hojas (tokens.css, global.css, componentes/nav.css). Se compilan en un cascarón
+ * (src/pages/rq-shell-guia-{es,en}.astro) y el Worker los recorta de ahí en cada petición
+ * (lib/guia.mjs → ponerBarra). Ni la página de Cowork ni la fila de D1 se tocan.
+ *
+ * AISLADOS EN UN SHADOW ROOT DECLARATIVO (`<template shadowrootmode="open">`). La guía y el sitio
+ * traen CSS con selectores desnudos y se pisarían en las dos direcciones; dentro de la sombra
+ * ninguna hoja cruza. Las variables CSS sí cruzan (heredan), por eso las del sitio se redeclaran
+ * en `:host` (src/lib/css-sombra.js) y ganan sobre las de la guía.
+ *
+ * El EN/ES lleva al par de la guía: `__RQ_GUIA_ALT__` lo cambia el Worker por `alt_path` de la fila.
+ *
+ * LAS HOJAS SON LAS DE MarcaLayout, en su orden: tokens.css, global.css, componentes/nav.css y
+ * pages/home.css. La barra de / y /es/ toma de home.css el botón negro de «Pedir un árbitro»;
+ * sin esa hoja el CTA salía como texto plano (visto en la primera captura, 17-nov).
+ *
+ * LOS SCRIPTS TAMBIÉN SON LOS DEL SITIO: el del menú móvil (el de NavV2) y /js/frescura.js (la
+ * franja «Última corrida sellada…» bajo la barra). Dentro de la sombra `document.getElementById`
+ * no encuentra nada, así que el Worker los saca y los corre con un `document` que busca en el
+ * shadow root (lib/guia.mjs → extraerBarra). No se reescriben.
+ */
+import NavV2 from './NavV2.astro';
+import PieV2 from './PieV2.astro';
+import tokens from '../styles/tokens.css?raw';
+import global from '../styles/global.css?raw';
+import navCss from '../styles/componentes/nav.css?raw';
+import homeCss from '../styles/pages/home.css?raw';
+import frescuraFuente from '../../public/js/frescura.js?raw';
+import { transform } from 'esbuild';
+import { sinComentarios } from '../lib/css-sin-comentarios.js';
+import { cssParaSombra } from '../lib/css-sombra.js';
+
+const { lang = 'en' } = Astro.props;
+const css = cssParaSombra(sinComentarios([tokens, global, navCss, homeCss].join('\n')));
+// Minificado como el resto de public/js (scripts/minificar-js.mjs): sin los comentarios internos.
+const frescura = (await transform(frescuraFuente, { minify: true })).code;
+// Lo que vive del lado del DOCUMENTO: el anfitrión a todo el ancho (la guía le pone padding
+// lateral al body; el negativo es el MISMO max() que usa ella) y fuera de la impresión, para que
+// el PDF no la lleve.
+const doc = `rq-sitio-arriba,rq-sitio-abajo{display:block;` +
+  `margin-left:calc(-1 * max(16px, env(safe-area-inset-left, 0px)));` +
+  `margin-right:calc(-1 * max(16px, env(safe-area-inset-right, 0px)))}` +
+  `rq-sitio-abajo{margin-top:48px}` +
+  `@media print{rq-sitio-arriba,rq-sitio-abajo{display:none !important}}`;
+---
+<style data-rq-barra set:html={doc}></style>
+<rq-sitio-arriba data-lang={lang}><template shadowrootmode="open"><style set:html={css}></style><NavV2 lang={lang} ruta={lang === 'es' ? '/es/' : '/'} alt="__RQ_GUIA_ALT__" /><script set:html={frescura}></script></template></rq-sitio-arriba>
+<rq-sitio-abajo data-lang={lang}><template shadowrootmode="open"><style set:html={css}></style><PieV2 lang={lang} /></template></rq-sitio-abajo>

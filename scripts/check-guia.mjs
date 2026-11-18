@@ -120,8 +120,8 @@ console.log("1 · la ruta sólo sirve lo publicado");
   si(/s-maxage=3600/.test(r1.headers.get("cache-control")) && /stale-while-revalidate/.test(r1.headers.get("cache-control")),
     `cache-control «${r1.headers.get("cache-control")}»`);
   const cuerpo = await r1.text();
-  si(cuerpo.startsWith("<!doctype html><html lang=\"es\">") && !/rqPromo|class="nav|<footer/.test(cuerpo),
-    "el html sale tal cual, sin layout ni aviso alrededor");
+  si(cuerpo.startsWith("<!doctype html><html lang=\"es\">") && !/rqPromo/.test(cuerpo),
+    "el html es el de la fila (no se envuelve en un layout) y no lleva el pop-up");
   publicar(db, "es");
   const h = await pedir(G, db, PROD + RUTA_ES, { metodo: "HEAD" });
   si(h.status === 200 && (await h.text()) === "", "HEAD → 200 sin cuerpo");
@@ -545,6 +545,83 @@ export function revisarPdfs(archivos, rutas = G.PDF_RUTAS, c = G.PDF_COTAS) {
   const r = await pedir(G, db, PROD + PDF_ES, { assets: assets(pdf) });
   si(r.status === 200 && r.headers.get("content-type") === "application/pdf" && Buffer.from(await r.arrayBuffer()).equals(pdf),
     "publicada y con archivo: 200, application/pdf, los mismos bytes");
+}
+
+// ════ 7 · la barra y el pie del sitio ═══════════════════════════════════════════════
+// Corre en POSTBUILD a propósito: la barra sale del cascarón COMPILADO (dist/rq-shell-guia-*), que
+// es lo que el Worker recorta en producción. Probarla contra una barra escrita aquí sería probar
+// una copia, y la regla es justamente que no haya copias.
+console.log("\n7 · la barra y el pie del sitio");
+{
+  const CASCARON = { es: "dist/rq-shell-guia-es/index.html", en: "dist/rq-shell-guia-en/index.html" };
+  const cascarones = {};
+  for (const [l, f] of Object.entries(CASCARON)) {
+    const u = new URL("../" + f, import.meta.url);
+    if (!existsSync(u)) mal(`${f} no existe: sin el cascarón compilado la guía sale sin la barra del sitio (¿se corrió antes del build?)`);
+    else cascarones[G.rutaCascaronBarra(l)] = readFileSync(u, "utf8");
+  }
+  /**
+   * ¿La página servida trae la barra y el pie del sitio? Se mira el OBJETO: el anfitrión con su
+   * shadow root, el enlace a la home del idioma, el EN/ES al par de la guía, el pie, que todo vaya
+   * dentro de <body> y que la impresión la oculte.
+   */
+  const tieneBarra = (html, lang, alt) => {
+    const faltas = [];
+    const ab = html.indexOf("<rq-sitio-arriba"), body = /<body\b[^>]*>/.exec(html), pie = html.indexOf("<rq-sitio-abajo"), fin = html.lastIndexOf("</body>");
+    if (ab < 0) faltas.push("sin <rq-sitio-arriba>");
+    else if (!body || ab !== body.index + body[0].length) faltas.push("la barra no va justo después de <body>");
+    if (!/<rq-sitio-arriba[^>]*><template shadowrootmode="open">/.test(html)) faltas.push("la barra no va en un shadow root declarativo");
+    if (!html.includes(`class="wordmark" href="${lang === "es" ? "/es/" : "/"}"`)) faltas.push("sin el enlace a la home del sitio");
+    if (!html.includes(`<a href="${alt}">${lang === "es" ? "EN" : "ES"}</a>`)) faltas.push(`el ${lang === "es" ? "EN" : "ES"} no lleva a ${alt}`);
+    if (html.includes(G.MARCA_ALT)) faltas.push("quedó el marcador __RQ_GUIA_ALT__");
+    if (pie < 0 || pie > fin || !/<rq-sitio-abajo[^>]*><template shadowrootmode="open">[\s\S]*<footer>/.test(html)) faltas.push("sin el pie del sitio antes de </body>");
+    if (!/@media print\{rq-sitio-arriba,rq-sitio-abajo\{display:none !important\}\}/.test(html)) faltas.push("la impresión no la oculta (el PDF la llevaría)");
+    if (!/\(function\(document\)\{[\s\S]*getElementById\("burger"\)/.test(html)) faltas.push("el menú móvil no tiene su script");
+    return faltas;
+  };
+  const db = base();
+  publicar(db, "es"); publicar(db, "en");
+  const servir = async (mod, ruta, assets = activos(cascarones)) => {
+    const r = await pedir(mod, db, PROD + ruta, { assets });
+    return { r, html: await r.text() };
+  };
+  for (const [lang, ruta, alt] of [["es", RUTA_ES, RUTA_EN], ["en", RUTA_EN, RUTA_ES]]) {
+    const { r, html } = await servir(G, ruta);
+    const f = tieneBarra(html, lang, alt);
+    si(!f.length && /barra:ok/.test(r.headers.get("x-rq-guia") || ""), `${lang}: la página servida trae la barra y el pie del sitio, con el ${lang === "es" ? "EN" : "ES"} → ${alt}`, f.join(" · "));
+    // Y el contenido de Cowork queda intacto: quitando lo inyectado vuelve la fila (con indicadores).
+    const limpio = html.replace(/<style data-rq-barra[^>]*>[\s\S]*?<\/style>/, "")
+      .replace(/<rq-sitio-arriba[\s\S]*?<\/rq-sitio-arriba><script>[\s\S]*?<\/script>/, "")
+      .replace(/<rq-sitio-abajo[\s\S]*?<\/rq-sitio-abajo>/, "");
+    si(limpio === G.inyectarIndicadores(htmlDe(lang), await G.leerIndicadores({ DB: db })).html,
+      `${lang}: quitando la barra y el pie, la página es la fila de D1 byte a byte`);
+  }
+  // UNA SOLA FUENTE: los enlaces de la barra son los MISMOS que sirve /es/ y / (mismo componente).
+  const enlaces = (h) => { const n = /<nav>[\s\S]*?<\/nav>/.exec(h); return n ? [...n[0].matchAll(/href="([^"]*)"/g)].map((m) => m[1]) : null; };
+  for (const [lang, home, alt] of [["es", "dist/es/index.html", RUTA_EN], ["en", "dist/index.html", RUTA_ES]]) {
+    const u = new URL("../" + home, import.meta.url);
+    if (!existsSync(u)) { mal(`${home} no existe: no hay contra qué comparar la barra`); continue; }
+    const delSitio = enlaces(readFileSync(u, "utf8")), deLaGuia = enlaces((await servir(G, lang === "es" ? RUTA_ES : RUTA_EN)).html);
+    const otro = lang === "es" ? "EN" : "ES";
+    // En la home, el EN/ES apunta a la otra home; en la guía, al par. Todo lo demás, idéntico.
+    const a = (delSitio || []).filter((h) => !(lang === "es" ? h === "/" : h === "/es/")), b = (deLaGuia || []).filter((h) => h !== alt);
+    si(delSitio && deLaGuia && JSON.stringify(a) === JSON.stringify(b),
+      `${lang}: los enlaces de la barra son los de ${home} (salvo el ${otro}, que va al par de la guía)`, `${JSON.stringify(a)} ≠ ${JSON.stringify(b)}`);
+  }
+  // GRITO 1: sin el cascarón la página sale (no se cae) y la regla lo detecta.
+  { const { r, html } = await servir(G, RUTA_ES, activos());
+    si(r.status === 200 && tieneBarra(html, "es", RUTA_EN).length > 0 && /barra:FAILED/.test(r.headers.get("x-rq-guia") || ""),
+      "grito: sin el cascarón la guía sale igual (200) pero la regla detecta que falta la barra"); }
+  // GRITO 2: mutación real — la ruta deja de poner la barra.
+  await conMutante(GUIA, "html.slice(0, finCuerpo) + conAlt(piezas.arriba) + ", "html.slice(0, finCuerpo) + ", async (M) => {
+    const { html } = await servir(M, RUTA_ES);
+    si(tieneBarra(html, "es", RUTA_EN).length > 0, "grito: si la ruta no inyecta la barra, la regla lo caza");
+  });
+  // GRITO 3: mutación real — el EN/ES vuelve a la home en vez de al par.
+  await conMutante(GUIA, "t.split(MARCA_ALT).join(alt)", "t.split(MARCA_ALT).join(\"/\")", async (M) => {
+    const { html } = await servir(M, RUTA_ES);
+    si(tieneBarra(html, "es", RUTA_EN).some((x) => /EN no lleva/.test(x)), "grito: si el EN de la barra fuera a la home y no al par de la guía, la regla lo caza");
+  });
 }
 
 console.log(fallos
