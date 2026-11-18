@@ -37,6 +37,19 @@ on:
   schedule:
     - cron: "40 5 * * *"      # red de seguridad diaria: un push que fallo no queda sin copia
   workflow_dispatch:
+    inputs:
+      # REEMPLAZO AUTORIZADO DE UNA RAMA (18-nov-2026, Nicholas: «Sí, sólo esa rama»).
+      # Vive SÓLO en la rama espejo-reemplazo-agentes-medicion y se corre a mano con --ref;
+      # main no la trae. Exime del guardia a UNA rama y sólo si Codeberg está exactamente en
+      # el sha viejo anotado: si Codeberg se movió, el guardia vuelve a abortar.
+      reemplazar_rama:
+        description: "rama cuya divergencia está autorizada"
+        required: false
+        default: ""
+      sha_viejo:
+        description: "sha COMPLETO que hoy tiene Codeberg en esa rama"
+        required: false
+        default: ""
 
 concurrency:
   group: espejo-codeberg      # un escritor por superficie, tambien aca
@@ -76,6 +89,8 @@ jobs:
       - name: Empujar a Codeberg
         env:
           CODEBERG_TOKEN: ${{ secrets.CODEBERG_TOKEN }}
+          REEMPLAZAR_RAMA: ${{ github.event.inputs.reemplazar_rama }}
+          SHA_VIEJO: ${{ github.event.inputs.sha_viejo }}
         run: |
           set -euo pipefail
 
@@ -100,6 +115,10 @@ jobs:
             git rev-parse --verify -q "$ESPEJO" >/dev/null || continue
             ANTES=$(git rev-parse "$ESPEJO")
             AHORA=$(git rev-parse "refs/remotes/origin/${REF}")
+            if [ -n "${REEMPLAZAR_RAMA}" ] && [ "$REF" = "${REEMPLAZAR_RAMA}" ] && [ "$ANTES" = "${SHA_VIEJO}" ]; then
+              echo "::notice::${REF}: reemplazo autorizado, Codeberg ${ANTES} -> ${AHORA}"
+              continue
+            fi
             if [ "$ANTES" != "$AHORA" ] && ! git merge-base --is-ancestor "$ANTES" "$AHORA"; then
               RETROCEDEN="${RETROCEDEN} ${REF}"
               echo "::error::${REF}: Codeberg esta en ${ANTES} y no es ancestro de ${AHORA}."
