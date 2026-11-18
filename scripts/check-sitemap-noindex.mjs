@@ -15,6 +15,9 @@
  *                               denominador; una URL que no responde no es un noindex (no grita
  *                               por ella), pero si no responde más del 5 % el chequeo falla:
  *                               verde sin haber mirado no es verde.
+ * PUNTO CIEGO DECLARADO: pregunta «¿hay alguna URL con noindex en el sitemap?», NO «¿está el
+ * sitemap completo?». Si el Worker deja de agregar las ~266 notas de D1 y el sitemap sale con
+ * 70 URLs sanas, esto da verde. Detectar esa caída es otra pregunta y otro guardia.
  */
 export const CONSUMIDOR = { quien: "el postbuild (bloquea el deploy) y quien ponga noindex a una página", hace: "deja que astro.config.mjs la saque del sitemap leyendo el meta de la propia página; nunca la excluye a mano" };
 import fs from "node:fs";
@@ -62,7 +65,7 @@ async function servido(origen) {
   };
   await Promise.all(Array.from({ length: 8 }, trabajador));
   const miradas = locs.length - sinRespuesta.length;
-  console.log(`check-sitemap-noindex --servido ${origen}: ${locs.length} URLs en el sitemap · ${miradas} miradas · ${sinRespuesta.length} sin respuesta · ${mal.length} con noindex`);
+  console.log(`check-sitemap-noindex --servido ${origen}: ${locs.length} URLs en el sitemap · ${miradas} miradas · ${sinRespuesta.length} sin respuesta · ${mal.length} con noindex · NO mira si el sitemap está completo`);
   for (const u of mal) console.log(`  FALLA noindex anunciado: ${u}`);
   for (const u of sinRespuesta.slice(0, 10)) console.log(`  sin respuesta: ${u}`);
   const v = veredicto(locs.length, mal.length, sinRespuesta.length);
