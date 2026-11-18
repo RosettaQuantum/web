@@ -15,7 +15,7 @@
  *      con la guía sin publicar.
  *   5. El sitemap o /llms.txt declarando una guía con published=0: Google y los agentes
  *      llegan a un 404, o peor, el día que alguien olvide el WHERE, a la guía.
- *   6. Un PDF que no es el entregado: vacío, con otro hash, o con un nombre inventado.
+ *   6. Un PDF que no es la guía impresa: vacío, en Carta, cortado, o con un nombre inventado.
  *
  * CÓMO. Contra una D1 en memoria con el esquema REAL (db/*.schema.sql), ejecutando el MISMO
  * código que corre en el Worker (lib/guia.mjs, lib/sitemap.mjs) y el MISMO archivo que baja el
@@ -37,7 +37,6 @@ export const CONSUMIDOR = {
 };
 
 import { readFileSync, existsSync, readdirSync } from "node:fs";
-import { createHash } from "node:crypto";
 import vm from "node:vm";
 import { d1EnMemoria } from "./lib/d1-memoria.mjs";
 import { conMutante } from "./lib/mutar.mjs";
@@ -54,9 +53,11 @@ const leer = (f) => readFileSync(new URL("../" + f, import.meta.url), "utf8");
 // ── La base de mentira, con el esquema REAL ───────────────────────────────────────────
 const RUTA_ES = "/guia/criptografia-post-cuantica", RUTA_EN = "/guide/post-quantum-cryptography";
 const PDF_ES = "/guia/guia-criptografia-post-cuantica.pdf", PDF_EN = "/guide/post-quantum-cryptography-guide.pdf";
-// El valor de LATAM trae los venenos a la vez: cierre de script, comentario, y los patrones de
+// Un display con los venenos a la vez: cierre de script, comentario, y los patrones de
 // String.replace. `$&` solo no alcanza —el escapado ya convierte `&` en \u0026, y una mutación
-// que no cambia nada no prueba nada—; `$'` sí: inserta el resto del documento.
+// que no cambia nada no prueba nada—; `$'` sí: inserta el resto del documento. Desde que el
+// display sale de `value_num` (17-nov) ningún valor de la base puede traerlos, así que el escapado
+// y el reemplazo se ejercen con este mapa contra inyectarIndicadores, la función que usa la ruta.
 const VENENO = "0 de 5 </script><!--x--> $& $' $1";
 const htmlDe = (lang) => `<!doctype html><html lang="${lang}"><head><title>t</title>${G.MARCADOR}</head>` +
   `<body><p data-ind="broken_keys_rsa2048_public"><span class="v">0</span></p></body></html>`;
@@ -69,13 +70,16 @@ function base() {
   const ins = db.sqlite.prepare("INSERT INTO pages (id,slug_base,lang,path,alt_path,title,description,html,pdf_path,version,published,updated_at) VALUES (?,?,?,?,?,?,?,?,?,?,0,?)");
   ins.run("es", G.SLUG_GUIA, "es", RUTA_ES, RUTA_EN, "Guía ES", "d", htmlDe("es"), PDF_ES, "1.1", "2026-11-17T20:40:00Z");
   ins.run("en", G.SLUG_GUIA, "en", RUTA_EN, RUTA_ES, "Guide EN", "d", htmlDe("en"), PDF_EN, "1.1", "2026-11-17T20:40:00Z");
-  const ind = db.sqlite.prepare("INSERT INTO pqc_indicators (indicator_id,date,value,source_label,source_url,created_at) VALUES (?,?,?,'s','u','c')");
-  for (const [id, fecha, v] of [
-    ["broken_keys_rsa2048_public", "2026-11-16", "VIEJO"], ["broken_keys_rsa2048_public", "2026-11-17", "0"],
-    ["quantum_attributed_breaches_public", "2026-11-17", "0"], ["pqc_share_https_cloudflare", "2026-09-29", "≈70"],
-    ["nist_rsa_ecc_clock", "2026-10-27", "deprecate 2030 / disallow 2035 - FINAL"],
-    ["latam_fin_regulators_pqc_deadline", "2026-11-12", VENENO], ["ncsc_uk_clock", "2025-03-20", "NO-DEBE-SALIR"],
-  ]) ind.run(id, fecha, v);
+  // `value` trae lo que escribe la rutina (texto libre, en inglés) y NO se usa; `value_num` manda.
+  const ind = db.sqlite.prepare("INSERT INTO pqc_indicators (indicator_id,date,value,value_num,source_label,source_url,created_at) VALUES (?,?,?,?,'s','u','c')");
+  for (const [id, fecha, v, n] of [
+    ["broken_keys_rsa2048_public", "2026-11-16", "VIEJO", 7], ["broken_keys_rsa2048_public", "2026-11-17", "0", 0],
+    ["quantum_attributed_breaches_public", "2026-11-16", "0", 0],
+    ["quantum_attributed_breaches_public", "2026-11-17", "sin número", null],   // el último sin value_num → se salta
+    ["pqc_share_https_cloudflare", "2026-09-29", "≈70", 70],
+    ["nist_rsa_ecc_clock", "2026-10-27", "deprecate 2030 / disallow 2035 - FINAL", 2030],  // nunca se inyecta
+    ["latam_fin_regulators_pqc_deadline", "2026-11-12", "0 de 5", 0], ["ncsc_uk_clock", "2025-03-20", "NO-DEBE-SALIR", 1],
+  ]) ind.run(id, fecha, v, n);
   return db;
 }
 const publicar = (db, lang, v = 1) => db.sqlite.prepare("UPDATE pages SET published=? WHERE lang=?").run(v, lang);
@@ -136,12 +140,14 @@ console.log("1 · la ruta sólo sirve lo publicado");
 console.log("\n2 · el modo de prueba sólo existe en el preview");
 {
   const conf = JSON.parse(leer("wrangler.jsonc").replace(/^\s*\/\/.*$/gm, ""));
-  const fuera = (c) => {
+  const fuera = (c, v = "GUIA_PRUEBA") => {
     const malos = [];
-    if (c.vars && "GUIA_PRUEBA" in c.vars) malos.push("nivel superior");
-    for (const [n, e] of Object.entries(c.env || {})) if (n !== "preview" && e.vars && "GUIA_PRUEBA" in e.vars) malos.push(n);
+    if (c.vars && v in c.vars) malos.push("nivel superior");
+    for (const [n, e] of Object.entries(c.env || {})) if (n !== "preview" && e.vars && v in e.vars) malos.push(n);
     return malos;
   };
+  si(fuera(conf, "PROMO_PRUEBA").length === 0 && conf.env?.preview?.vars?.PROMO_PRUEBA === "1", "PROMO_PRUEBA (el ?promo=1) sólo en env.preview, y ahí está");
+  si(fuera({ ...conf, vars: { PROMO_PRUEBA: "1" } }, "PROMO_PRUEBA").join() === "nivel superior", "grito: PROMO_PRUEBA en producción se detecta");
   si(fuera(conf).length === 0, `GUIA_PRUEBA sólo en env.preview (fuera: ${fuera(conf).join(", ") || "ninguno"})`);
   si(conf.env?.preview?.vars?.GUIA_PRUEBA === "1", "el preview tiene su modo de prueba");
   si(fuera({ ...conf, vars: { GUIA_PRUEBA: "1" } }).join() === "nivel superior", "grito: la variable en producción se detecta");
@@ -167,7 +173,7 @@ console.log("\n2 · el modo de prueba sólo existe en el preview");
   si(r.status === 200 && r.headers.get("cache-control") === "no-store" && /noindex/.test(r.headers.get("x-robots-tag") || "")
     && /^prueba:borrador/.test(r.headers.get("x-rq-guia") || ""),
     `preview + variable: el borrador sale con no-store, noindex y «${r.headers.get("x-rq-guia")}»`);
-  await conMutante(GUIA, " && url && /\\.workers\\.dev$/.test(url.hostname)", "", async (M) => {
+  await conMutante(GUIA, " && url && /\\.workers\\.dev$/.test(url.hostname));", ");", async (M) => {
     const [p] = await prueba(M);
     si(p === 200, `grito: sin la llave del host, la variable abriría el borrador en producción (→ ${p}) — la prueba lo caza`);
   });
@@ -192,16 +198,24 @@ console.log("\n3 · el marcador de indicadores");
   const { html, crudo, datos } = await revisar(G);
   si(!html.includes(G.MARCADOR) && (html.match(/window\.RQ_INDICATORS=/g) || []).length === 1, "el marcador se reemplaza una vez y no queda");
   si(!!crudo && !crudo.includes("</") && !crudo.includes("<!--"), "el JSON no trae «</» ni «<!--»: no puede cerrar su <script>");
+  // Lo que la página YA trae impreso: «0», «≈70%», «0/5». El reloj del NIST no se toca.
   const esperado = {
     broken_keys_rsa2048_public: { display: "0", date: "2026-11-17" },
-    quantum_attributed_breaches_public: { display: "0", date: "2026-11-17" },
-    pqc_share_https_cloudflare: { display: "≈70", date: "2026-09-29" },
-    nist_rsa_ecc_clock: { display: "deprecate 2030 / disallow 2035 - FINAL", date: "2026-10-27" },
-    latam_fin_regulators_pqc_deadline: { display: VENENO, date: "2026-11-12" },
+    pqc_share_https_cloudflare: { display: "≈70%", date: "2026-09-29" },
+    latam_fin_regulators_pqc_deadline: { display: "0/5", date: "2026-11-12" },
   };
   const ordenar = (o) => JSON.stringify(Object.fromEntries(Object.entries(o || {}).sort()));
-  si(ordenar(datos) === ordenar(esperado), "los cinco indicadores, el ÚLTIMO de cada uno, el valor tal cual (con «$&» y «$'» literales) y nada más",
-    ordenar(datos).slice(0, 160));
+  si(ordenar(datos) === ordenar(esperado),
+    "display desde value_num con su formato («0», «≈70%», «0/5»), el ÚLTIMO de cada uno; sin el reloj del NIST, sin el de value_num nulo, sin ajenos",
+    ordenar(datos).slice(0, 200));
+  await conMutante(GUIA, "pqc_share_https_cloudflare: (n) => `≈${n}%`,", "pqc_share_https_cloudflare: (n) => String(n),", async (M) => {
+    const { datos: d } = await revisar(M);
+    si(d && d.pqc_share_https_cloudflare && d.pqc_share_https_cloudflare.display === "70", "grito: sin el formato, «≈70%» pasaría a «70» — la prueba lo caza");
+  });
+  await conMutante(GUIA, '    if (f.value_num === null || f.value_num === undefined || f.value_num === "") continue;\n', "", async (M) => {
+    const { datos: d } = await revisar(M);
+    si(d && d.quantum_attributed_breaches_public, "grito: sin saltar el value_num nulo, se pintaría «0» inventado — la prueba lo caza");
+  });
 
   // La consulta falla: la página sale igual, con el marcador intacto.
   const rota = base();
@@ -212,14 +226,24 @@ console.log("\n3 · el marcador de indicadores");
   si(rr.status === 200 && cr === htmlDe("es") && /indicadores:FAILED/.test(rr.headers.get("x-rq-guia") || ""),
     `consulta caída → 200, el html byte a byte con el marcador, y «${rr.headers.get("x-rq-guia")}»`);
 
+  // El escapado y el reemplazo, con el mapa envenenado sobre la misma función que usa la ruta.
+  const envenenado = { latam_fin_regulators_pqc_deadline: { display: VENENO, date: "2026-11-12" } };
+  const conVeneno = (mod) => {
+    const h = mod.inyectarIndicadores(htmlDe("es"), envenenado).html;
+    let d = null; try { d = JSON.parse(carga(h)); } catch { /* queda null */ }
+    return { h, d };
+  };
+  { const { h, d } = conVeneno(G);
+    si(d && d.latam_fin_regulators_pqc_deadline.display === VENENO && !carga(h).includes("</") && !carga(h).includes("<!--"),
+      "silencio: un valor con «</script><!--» y «$'» queda literal y no cierra su <script>"); }
   await conMutante(GUIA, "window.RQ_INDICATORS=${jsonParaScript(mapa)}", "window.RQ_INDICATORS=${JSON.stringify(mapa)}", async (M) => {
-    const { html: h, datos: d } = await revisar(M);
+    const { h, d } = conVeneno(M);
     si(h.includes("0 de 5 </script><!--x-->") && d === null,
-      "grito: sin escapar «<», el valor de la base corta el <script> y el JSON no parsea — la prueba lo caza");
+      "grito: sin escapar «<», el valor corta el <script> y el JSON no parsea — la prueba lo caza");
   });
   await conMutante(GUIA, "html.replace(MARCADOR, () => script)", "html.replace(MARCADOR, script)", async (M) => {
-    const { datos: d } = await revisar(M);
-    si(!d || ordenar(d) !== ordenar(esperado), "grito: reemplazar con cadena expande «$'» y mete el resto del documento en el valor — la prueba lo caza");
+    const { d } = conVeneno(M);
+    si(!d || d.latam_fin_regulators_pqc_deadline.display !== VENENO, "grito: reemplazar con cadena expande «$'» y mete el resto del documento en el valor — la prueba lo caza");
   });
 }
 
@@ -228,7 +252,7 @@ console.log("\n4 · el pop-up");
 const FUENTE_POPUP = leer("public/js/promo-guia.js");
 
 /** Una página de mentira que ejecuta el archivo REAL del pop-up. */
-function pagina({ ruta = "/", lang = "en", api = { mostrar: true, href: RUTA_EN }, local = {}, sesion = {}, rompe = false, modal = false, fuente = FUENTE_POPUP } = {}) {
+function pagina({ ruta = "/", busqueda = "", lang = "en", api = { mostrar: true, href: RUTA_EN }, local = {}, sesion = {}, rompe = false, modal = false, fuente = FUENTE_POPUP } = {}) {
   const estado = { modal, timers: [], fetches: [], balizas: [], escuchas: { scroll: [], keydown: [] } };
   const almacen = (datos) => ({
     datos,
@@ -250,7 +274,7 @@ function pagina({ ruta = "/", lang = "en", api = { mostrar: true, href: RUTA_EN 
     : s === "img[data-src]" ? ("data-src" in img.attrs ? img : null) : null);
   const raiz = { scrollHeight: 4000, scrollTop: 0 };
   const sandbox = {
-    location: { pathname: ruta },
+    location: { pathname: ruta, search: busqueda },
     localStorage: almacen(local), sessionStorage: almacen(sesion),
     innerHeight: 1000, scrollY: 0,
     document: {
@@ -321,6 +345,18 @@ function pagina({ ruta = "/", lang = "en", api = { mostrar: true, href: RUTA_EN 
   const raro = pagina({ api: { mostrar: true, href: "https://otro.example/" } }); await raro.reloj();
   si(raro.el.hidden, "un destino que no es la guía no se acepta");
 
+  // ?promo=1: se salta la memoria de sesión y de cierre, y se lo pide al Worker (que en producción
+  // lo ignora). En la guía, ni con el parámetro.
+  const forz = pagina({ busqueda: "?promo=1", sesion: { "rq-promo-guia": "1" }, local: { "rq-promo-guia:cerrado": String(Date.now()) } });
+  await forz.reloj();
+  si(forz.estado.fetches[0] === "/api/promo/guia?lang=en&promo=1" && !forz.el.hidden, "?promo=1: aparece aunque ya se haya visto y cerrado, y pide con &promo=1");
+  const sinForz = pagina({ busqueda: "?promo=0", sesion: { "rq-promo-guia": "1" } });
+  await sinForz.reloj();
+  si(sinForz.estado.fetches.length === 0, "silencio: ?promo=0 no fuerza nada");
+  const forzGuia = pagina({ ruta: RUTA_ES, busqueda: "?promo=1" });
+  await forzGuia.reloj();
+  si(forzGuia.el.hidden && forzGuia.estado.fetches.length === 0, "?promo=1 dentro de la guía: tampoco aparece");
+
   // LA REGLA: nunca en la guía.
   const enGuia = async (fuente) => {
     const vistos = [];
@@ -357,8 +393,13 @@ function pagina({ ruta = "/", lang = "en", api = { mostrar: true, href: RUTA_EN 
     out.soloEnDesdeEs = await estado(mod, PROD, "es");
     flag(db, "true"); out.flagTrue = (await estado(mod)).mostrar;
     flag(db, "0"); publicar(db, "en", 0);
-    out.prueba = await estado(mod, PREV, "es", PRUEBA);
-    out.pruebaEnProd = (await estado(mod, PROD, "es", PRUEBA)).mostrar;
+    // ?promo=1: sólo con la variable del preview, en *.workers.dev y con el parámetro.
+    const promo = { PROMO_PRUEBA: "1" };
+    const forzado = async (u, env) => (await (await pedir(mod, db, `${u}/api/promo/guia?lang=es&promo=1`, { env })).json());
+    out.forzado = await forzado(PREV, promo);
+    out.forzadoEnProd = (await forzado(PROD, promo)).mostrar;
+    out.forzadoSinVar = (await forzado(PREV, {})).mostrar;
+    out.previewSinParam = (await estado(mod, PREV, "es", { ...promo, ...PRUEBA })).mostrar;
     return out;
   };
   const c = await casos(G);
@@ -367,9 +408,16 @@ function pagina({ ruta = "/", lang = "en", api = { mostrar: true, href: RUTA_EN 
   si(c.flag1pub1.mostrar === true && c.flag1pub1.href === RUTA_EN, "flag encendido + guía publicada → aparece y enlaza a la publicada");
   si(c.soloEnDesdeEs.href === RUTA_EN, "en una página en español, con sólo la inglesa publicada, enlaza a la publicada");
   si(c.flagTrue === false, "falla cerrado: un flag distinto de '1' es apagado");
-  si(c.prueba.mostrar === true && c.prueba.href === RUTA_ES && c.pruebaEnProd === false, "modo de prueba: se enciende en el preview y no en producción");
+  si(c.forzado.mostrar === true && c.forzado.href === RUTA_ES, "?promo=1 en el preview: aparece con el flag apagado y la guía sin publicar, y enlaza al borrador");
+  si(c.forzadoEnProd === false, "?promo=1 en producción (aun con la variable): no hace nada");
+  si(c.forzadoSinVar === false, "?promo=1 en workers.dev sin la variable: no hace nada");
+  si(c.previewSinParam === false, "silencio: sin ?promo=1, el preview se comporta como producción (flag Y published)");
   const sinTabla = base(); sinTabla.sqlite.exec("DROP TABLE site_flags"); publicar(sinTabla, "en");
   si((await (await pedir(G, sinTabla, PROD + "/api/promo/guia")).json()).mostrar === false, "sin la tabla de flags → no aparece");
+  await conMutante(GUIA, ' && url && /\\.workers\\.dev$/.test(url.hostname)\n    && url.searchParams', "\n    && url.searchParams", async (M) => {
+    const m = await casos(M);
+    si(m.forzadoEnProd === true, "grito: sin la llave del host, ?promo=1 encendería el pop-up en producción — la prueba lo caza");
+  });
   await conMutante(GUIA, 'String(f.v).trim() === "1"', "true", async (M) => {
     const m = await casos(M);
     si(m.flag0pub1 === true, "grito: si el flag no se mirara, aparecería con el flag apagado — la prueba lo caza");
@@ -427,15 +475,32 @@ console.log("\n5 · sitemap y /llms.txt");
 
 // ════ 6 · los PDF ═════════════════════════════════════════════════════════════════════
 console.log("\n6 · los PDF");
-/** Revisa los PDF de public/ contra los esperados. Puro: recibe la lista. */
-export function revisarPdfs(archivos, esperados) {
+/**
+ * Lo que se puede leer de un PDF sin dependencias: páginas (`/Type /Page`, no `/Pages`) y la
+ * `/MediaBox` de cada una. Chrome (Skia) escribe un objeto por página sin comprimir esa parte,
+ * que es lo que imprime scripts/build-guia-pdf.mjs.
+ */
+export function inspeccionarPdf(bytes) {
+  const t = Buffer.from(bytes).toString("latin1");
+  const paginas = (t.match(/\/Type\s*\/Page(?![a-zA-Z])/g) || []).length;
+  const cajas = [...t.matchAll(/\/MediaBox\s*\[\s*([-\d.]+)\s+([-\d.]+)\s+([-\d.]+)\s+([-\d.]+)\s*\]/g)]
+    .map((m) => [Number(m[3]) - Number(m[1]), Number(m[4]) - Number(m[2])]);
+  return { paginas, cajas, bytes: bytes.length };
+}
+
+/** Revisa los PDF de public/ contra las cotas. Puro: recibe la lista. */
+export function revisarPdfs(archivos, rutas = G.PDF_RUTAS, c = G.PDF_COTAS) {
   const fallas = [];
   for (const { ruta, bytes } of archivos) {
-    if (!(ruta in esperados)) { fallas.push(`${ruta}: no es un PDF entregado (nombre fuera de PDF_ESPERADOS)`); continue; }
+    if (!rutas.includes(ruta)) { fallas.push(`${ruta}: no es un PDF de la guía (nombre fuera de PDF_RUTAS)`); continue; }
     if (!bytes.length) { fallas.push(`${ruta}: está vacío`); continue; }
-    if (!G.esPdf(bytes)) fallas.push(`${ruta}: no empieza por %PDF-`);
-    const sha = createHash("sha256").update(bytes).digest("hex");
-    if (sha !== esperados[ruta]) fallas.push(`${ruta}: sha256 ${sha.slice(0, 12)}… y se esperaba ${esperados[ruta].slice(0, 12)}…`);
+    if (!G.esPdf(bytes)) { fallas.push(`${ruta}: no empieza por %PDF-`); continue; }
+    const p = inspeccionarPdf(bytes);
+    const mb = (p.bytes / 1048576).toFixed(2);
+    if (p.bytes < c.bytesMin || p.bytes > c.bytesMax) fallas.push(`${ruta}: ${mb} MB, fuera de ${c.bytesMin / 1048576}–${c.bytesMax / 1048576} MB`);
+    if (p.paginas < c.paginasMin || p.paginas > c.paginasMax) fallas.push(`${ruta}: ${p.paginas} páginas, fuera de ${c.paginasMin}–${c.paginasMax}`);
+    const noA4 = p.cajas.filter(([w, h]) => Math.abs(w - c.a4[0]) > c.tolPt || Math.abs(h - c.a4[1]) > c.tolPt);
+    if (!p.cajas.length || noA4.length) fallas.push(`${ruta}: ${noA4.length || "sin"} página(s) que no son A4 (${(noA4[0] || []).map((x) => x.toFixed(0)).join("×") || "sin MediaBox"} pt)`);
   }
   return fallas;
 }
@@ -446,18 +511,27 @@ export function revisarPdfs(archivos, esperados) {
     if (!existsSync(d)) continue;
     for (const f of readdirSync(d)) if (f.toLowerCase().endsWith(".pdf")) reales.push({ ruta: `/${dir}/${f}`, bytes: readFileSync(new URL(f, d)) });
   }
-  const f = revisarPdfs(reales, G.PDF_ESPERADOS);
+  const f = revisarPdfs(reales);
   if (f.length) f.forEach((x) => mal(x));
   else if (!reales.length) ok("public/guia/ y public/guide/ sin PDF todavía: la ruta da 404 hasta que lleguen");
-  else ok(`${reales.length} PDF en public/, cada uno con el sha256 entregado`);
+  else for (const r of reales) { const p = inspeccionarPdf(r.bytes); ok(`${r.ruta}: %PDF-, A4, ${p.paginas} páginas, ${(p.bytes / 1048576).toFixed(2)} MB`); }
+  const faltan = G.PDF_RUTAS.filter((r) => !reales.some((x) => x.ruta === r));
+  if (reales.length && faltan.length) mal(`hay PDF de un idioma y no del otro: falta ${faltan.join(", ")}`);
 
-  const pdf = Buffer.from("%PDF-1.7\n%prueba\n");
-  const sha = createHash("sha256").update(pdf).digest("hex");
-  const esp = { "/guia/x.pdf": sha };
-  si(revisarPdfs([{ ruta: "/guia/x.pdf", bytes: pdf }], esp).length === 0, "silencio: el PDF con su hash pasa");
-  si(revisarPdfs([{ ruta: "/guia/x.pdf", bytes: Buffer.from("%PDF-1.7\n%otro\n") }], esp).length === 1, "grito: otro hash");
-  si(revisarPdfs([{ ruta: "/guia/x.pdf", bytes: Buffer.alloc(0) }], esp).length === 1, "grito: vacío");
-  si(revisarPdfs([{ ruta: "/guia/y.pdf", bytes: pdf }], esp).length === 1, "grito: un nombre inventado");
+  // Un PDF de mentira con la forma que escribe Chrome: N páginas, cada una con su MediaBox.
+  const falso = (n, caja = "0 0 594.95996 841.91998", relleno = 0) => Buffer.concat([
+    Buffer.from("%PDF-1.4\n" + Array.from({ length: n }, (_, k) => `${k + 3} 0 obj\n<</Type /Page\n/MediaBox [${caja}]>>\nendobj\n`).join("") + "2 0 obj\n<</Type /Pages /Count " + n + ">>\nendobj\n"),
+    Buffer.alloc(relleno, 32)]);
+  const MB = 1048576, R = G.PDF_RUTAS[0];
+  si(revisarPdfs([{ ruta: R, bytes: falso(39, undefined, 1.3 * MB) }]).length === 0, "silencio: 39 páginas A4 y 1,3 MB pasan");
+  si(revisarPdfs([{ ruta: R, bytes: falso(39, "0 0 612 792", 1.3 * MB) }]).length === 1, "grito: en Carta (612×792) en vez de A4");
+  si(revisarPdfs([{ ruta: R, bytes: falso(12, undefined, 1.3 * MB) }]).length === 1, "grito: 12 páginas (una impresión cortada)");
+  si(revisarPdfs([{ ruta: R, bytes: falso(39, undefined, 0.1 * MB) }]).length === 1, "grito: 0,1 MB");
+  si(revisarPdfs([{ ruta: R, bytes: falso(39, undefined, 4 * MB) }]).length === 1, "grito: 4 MB");
+  si(revisarPdfs([{ ruta: R, bytes: Buffer.alloc(0) }]).length === 1, "grito: vacío");
+  si(revisarPdfs([{ ruta: R, bytes: Buffer.concat([Buffer.from("<!doctype html>"), Buffer.alloc(MB)]) }]).length === 1, "grito: no empieza por %PDF-");
+  si(revisarPdfs([{ ruta: "/guia/y.pdf", bytes: falso(39, undefined, 1.3 * MB) }]).length === 1, "grito: un nombre inventado");
+  const pdf = falso(1);
 
   // La ruta: compuerta de publicación + archivo de verdad.
   const db = base();

@@ -38,8 +38,12 @@
     } catch (e) { /* la medición nunca rompe la página */ }
   }
 
+  // `?promo=1`: fuerza el aviso para poder verlo, sin memoria de sesión ni de cierre. Sólo
+  // tiene efecto en el preview: el Worker de producción ignora el parámetro (lib/guia.mjs →
+  // promoForzado), así que allí sigue mandando el flag de D1.
+  var forzar = /(?:^|[?&])promo=1(?:&|$)/.test(location.search || "");
   var el = document.getElementById("rqPromo");
-  if (!el || esGuia(location.pathname) || yaVisto()) return;
+  if (!el || esGuia(location.pathname) || (!forzar && yaVisto())) return;
 
   var lang = el.getAttribute("data-lang") === "es" ? "es" : "en";
   var disparado = false, reloj = null, paddingPrevio = "";
@@ -54,7 +58,7 @@
     disparado = true;
     clearTimeout(reloj);
     window.removeEventListener("scroll", alScroll);
-    fetch("/api/promo/guia?lang=" + lang, { credentials: "omit" })
+    fetch("/api/promo/guia?lang=" + lang + (forzar ? "&promo=1" : ""), { credentials: "omit" })
       .then(function (r) { return r.ok ? r.json() : null; })
       .then(function (j) {
         if (j && j.mostrar === true && typeof j.href === "string" && /^\/(?:guia|guide)\/[\w-]+$/.test(j.href)) mostrar(j.href);
@@ -64,7 +68,7 @@
 
   function mostrar(href) {
     if (modalAbierto()) { setTimeout(function () { mostrar(href); }, 2000); return; }
-    if (yaVisto()) return;   // otra pestaña de la misma sesión ya lo mostró o lo cerró
+    if (!forzar && yaVisto()) return;   // otra pestaña de la misma sesión ya lo mostró o lo cerró
     var ir = el.querySelector("[data-promo-ir]");
     ir.setAttribute("href", href);
     var img = el.querySelector("img[data-src]");
