@@ -84,6 +84,13 @@ prueba("MUTACIÓN línea vieja: la ventana repetida grita",
   revisarHtml(pagina({ ventana: "Medición 2026-11-06 → 2026-11-06", frase: pendientePorDefecto(6, 14) })).length === 1);
 // 2 · grito: los números. Mutación: «cuatro» y «11» clavados.
 prueba("la frase derivada dice seis y 14", pendientePorDefecto(PENDIENTES_LEGALES.length, 14).includes("los seis puntos marcados en la sección 14"));
+// Texto 1 aprobado el 18-nov: la frase de la portada es la fila «Diría» del documento sellado, sin la promesa de aviso.
+{
+  const md = readFileSync(new URL("../src/data/informe-pqc/textos/2026-11/textos-aprobados-2026-11-18.md", import.meta.url), "utf8");
+  const diria = /\| \*\*Diría\*\* \| Pendiente antes de publicar: (.+?)\. Esta edición/.exec(md)?.[1];
+  prueba("texto 1 aprobado: la frase construida (6, 14) es la fila «Diría» del documento sellado", pendientePorDefecto(6, 14) === diria);
+  prueba("MUTACIÓN la promesa vieja de aviso previo ya no calza con lo aprobado", `${pendientePorDefecto(6, 14)}, y aviso previo a las organizaciones con hallazgos` !== diria);
+}
 prueba("MUTACIÓN «cuatro» y «11» clavados: gritan los dos",
   revisarHtml(pagina({ ventana: ventanaTexto({ desde: "2026-11-06", hasta: "2026-11-06" }),
     frase: "revisión legal de los cuatro puntos marcados en la sección 11, y aviso previo a las organizaciones con hallazgos" })).length === 2);
