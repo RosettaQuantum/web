@@ -54,7 +54,15 @@ const ruta = new URL("../dist/informe-pqc/index.html", import.meta.url);
 if (existsSync(ruta)) {
   const html = readFileSync(ruta, "utf8");
   const ed = /data-edicion="([\d-]+)"/.exec(html)?.[1];
-  if (ed) { const mal = revisar(html, ed); prueba(`dist/informe-pqc (${ed}): ${mal.length ? mal.join(" · ") : "textos aprobados donde van y sólo ahí"}`, mal.length === 0); }
+  if (ed) {
+    // La frase vieja «No exploramos rutas ni directorios.» se precisa sólo donde sí pedimos security.txt
+    // (aprobado por Nicholas el 18-nov: «Sí, así»). Agosto la conserva tal cual.
+    const conSec = APROBADOS.some((a) => a.edicion === ed), h = texto(html);
+    const nueva = "No exploramos rutas ni directorios más allá de la dirección estándar de security.txt.";
+    const vieja = "No exploramos rutas ni directorios. No escaneamos";
+    prueba(`dist/informe-pqc (${ed}): frase de rutas ${conSec ? "precisada" : "original"}`, conSec ? h.includes(nueva) && !h.includes(vieja) : h.includes(vieja) && !h.includes(nueva));
+    const mal = revisar(html, ed); prueba(`dist/informe-pqc (${ed}): ${mal.length ? mal.join(" · ") : "textos aprobados donde van y sólo ahí"}`, mal.length === 0);
+  }
   else { saltadas++; console.log("  SALTADA dist/informe-pqc: la página no declara data-edicion"); }
 } else { saltadas++; console.log("  SALTADA dist/informe-pqc (no hay build)"); }
 

@@ -1323,7 +1323,7 @@ const frase = (ps: any[], k: string) =>
         <p>El saludo <strong>no se completa</strong>. No se establece sesión, no se transmiten datos de aplicación, no se envían credenciales y no se ejecuta ninguna prueba de intrusión. La carga equivale a abrir el sitio una vez.</p>
         {textoLegal && <p data-texto-aprobado="hicimos" set:html={textoLegal.hicimos} />}
         <h3>Qué NO hicimos</h3>
-        <p>No accedimos a ningún sistema. No intentamos autenticarnos. No exploramos rutas ni directorios. No escaneamos rangos de direcciones. No recopilamos datos personales.</p>
+        <p>No accedimos a ningún sistema. No intentamos autenticarnos. No exploramos rutas ni directorios{textoLegal ? ' más allá de la dirección estándar de security.txt' : ''}. No escaneamos rangos de direcciones. No recopilamos datos personales.</p>
         {textoLegal && <p data-texto-aprobado="no_hicimos" set:html={textoLegal.no_hicimos} />}
       </div>
       <div>
