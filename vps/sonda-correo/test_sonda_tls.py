@@ -168,6 +168,66 @@ for version, nombre in casos:
     prueba(f"B1: un servidor {'que sólo acepta TLS 1.3' if version == ssl.TLSVersion.TLSv1_3 else 'TLS 1.2'} entrega su hoja (la misma del servidor)", _b1)
 T.ip_publica = real_ip
 
+# --- 6. 18-nov-2026: el peor caso con 15 nombres MUDOS cabe en la mitad de la ventana de la página
+# EL CASO REAL (medido en producción el 18-nov con uchile.cl): un nombre que resuelve y no contesta en 443 le
+# cuesta 8 s al Worker y, como el Worker no pudo saludarlo, OTROS 8 s al VPS, en serie. Con 8 hilos, 15 mudos
+# eran 34 saludos en 5 tandas: 40 s de VPS, en una ventana de 30. Se prueba de dos formas:
+#   (a) la cuenta desde el código: tandas = ceil(saludos del peor pedido / hilos), peor = tandas × ESPERA, y
+#       tiene que caber en la mitad de ESPERA_MS (la otra mitad es el hueco de la prueba de arriba);
+#   (b) la medición: 15 nombres mudos de verdad (un servidor local que acepta la conexión y no contesta nada,
+#       como los mudos de uchile.cl) con ESPERA corta; el pedido entero tarda UNA espera, no cinco, y cada
+#       saludo sale «error» con su causa (el resultado no cambia: sólo cuántos esperan juntos).
+# MUTACIÓN: sonda_tls.py con 8 hilos (el comportamiento hasta el 18-nov) → (a) y (b) gritan.
+import math, re as _re, time as _time  # noqa: E402
+
+def _espera_pagina_ms():
+    js = AQUI.parents[1].joinpath("lib", "sonda-tls-vps.mjs").read_text()
+    return int(_re.search(r"ESPERA_MS = (\d+)_?(\d*)", js).group(0).split("=")[1].strip().replace("_", "").rstrip(";"))
+
+def _peor_pedido(M):
+    return M.SALUDOS_FIJOS + 2 * (M.MAX_NOMBRES - 2)
+
+def _cuenta(M):
+    tandas = math.ceil(_peor_pedido(M) / M.HILOS)
+    peor = tandas * M.ESPERA
+    assert peor * 1000 <= _espera_pagina_ms() / 2, f"15 mudos: {_peor_pedido(M)} saludos en {M.HILOS} hilos = {tandas} tandas de {M.ESPERA} s = {peor} s; no cabe en la mitad de {_espera_pagina_ms() // 1000} s"
+
+def _mudos(M, espera=0.4):
+    srv = real_sock(); srv.bind(("127.0.0.1", 0)); srv.listen(128)       # acepta (el kernel completa la conexión) y calla
+    puerto = srv.getsockname()[1]
+    ip0, esp0 = M.ip_publica, M.ESPERA
+    M.ip_publica = lambda h, p=puerto: (socket.AF_INET, ("127.0.0.1", p)); M.ESPERA = espera
+    try:
+        hosts = [f"mudo{i}.ejemplo.cl" for i in range(M.MAX_NOMBRES - 2)]
+        t0 = _time.time()
+        r = M.medir_pedido({"dominio": "ejemplo.cl", "www": "www.ejemplo.cl", "borde": True, "certificado": True, "hosts": hosts})
+        dt = _time.time() - t0
+    finally:
+        M.ip_publica, M.ESPERA = ip0, esp0; srv.close()
+    saludos = [x for h in r["hosts"].values() for x in h.values()] + list(r["borde"].values()) + [r["certificado"]]
+    igual(len(saludos), _peor_pedido(M), "saludos del pedido")
+    igual(all(x["error"] and x.get("grupo") is None for x in saludos), True, "cada saludo mudo es «error» con su causa, nunca un veredicto")
+    assert dt < 2 * espera, f"15 mudos tardaron {dt:.2f} s con ESPERA {espera} s: más de una espera (van en tandas)"
+
+prueba("15 mudos: la cuenta desde el código cabe en la mitad de la ventana de la página", lambda: _cuenta(T))
+prueba("15 mudos de verdad (servidor local que no contesta): una sola espera, cada saludo «error»", lambda: _mudos(T))
+
+def _mutacion():
+    src = AQUI.joinpath("sonda_tls.py").read_text()
+    viejo = "    with ThreadPoolExecutor(max_workers=max(1, min(HILOS, len(tareas)))) as ex:\n"
+    assert src.count(viejo) == 1, "la mutación no entra: el texto a cambiar no está una vez"
+    tmp = AQUI.joinpath(f"zz_sonda_tls_mutante_{os.getpid()}.py")
+    tmp.write_text(src.replace(viejo, "    with ThreadPoolExecutor(max_workers=8) as ex:\n").replace("HILOS = SALUDOS_FIJOS + 2 * (MAX_NOMBRES - 2)", "HILOS = 8"))
+    try:
+        M = importlib.import_module(tmp.stem)
+        for nombre, f in [("la cuenta", lambda: _cuenta(M)), ("la medición", lambda: _mudos(M))]:
+            try: f()
+            except AssertionError: continue
+            raise AssertionError(f"MUTACIÓN 8 hilos: {nombre} NO gritó")
+    finally:
+        tmp.unlink(missing_ok=True); sys.modules.pop(tmp.stem, None)
+prueba("MUTACIÓN: con 8 hilos (hasta el 18-nov) la cuenta y la medición gritan", _mutacion)
+
 for x in saltados: print(f"  SALTADO {x}")
 print(f"\ncheck-sonda-tls (python): {pasa} pasaron, {falla} fallaron, {len(saltados)} saltados")
 sys.exit(1 if falla else 0)

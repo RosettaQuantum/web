@@ -47,6 +47,14 @@ _LLAMAR_ORIGINAL = C.llamar
 INSTRUMENTO = "rosetta-sonda-tls/1 · ClientHello de probe_soporte.py (TLS 1.3) y de clientHello12 (TLS 1.2)"
 ESPERA = 8
 MAX_NOMBRES = 17           # el sitio + 15 nombres + margen
+# 18-nov-2026 (aprobado: «Sí, arréglalo»): UN HILO POR SALUDO. Con 8 hilos, un pedido de 15 nombres mudos
+# (34 saludos: A, B y C al sitio, el certificado y A y B a cada nombre) esperaba sus 8 s en 5 tandas, 40 s,
+# después de los 8 s que el Worker ya había gastado en esos mismos nombres: la página espera 30. Ahora
+# todos los saludos de un pedido van a la vez y el peor caso es UNA espera de ESPERA. Lo que se mide es
+# lo mismo (mismos saludos, mismo timeout, mismo resultado); sólo cambia cuántos esperan juntos.
+# test_sonda_tls.py exige que el peor caso quepa en la mitad de la ventana de la página.
+SALUDOS_FIJOS = 4          # A, B y C al sitio, y el certificado
+HILOS = SALUDOS_FIJOS + 2 * (MAX_NOMBRES - 2)
 TOPE_POR_HORA = 120        # pedidos por hora: protege la reputación de la IP del VPS
 _hora = []
 
@@ -197,7 +205,7 @@ def medir_pedido(p):
         tareas.append(("certificado", None, lambda: certificado(www)))
     for h in hosts:
         tareas += [("host", (h, "A"), lambda h=h: saludo(h, C.TODOS, True)), ("host", (h, "B"), lambda h=h: saludo(h, C.SOLO_HIB, False))]
-    with ThreadPoolExecutor(max_workers=8) as ex:
+    with ThreadPoolExecutor(max_workers=max(1, min(HILOS, len(tareas)))) as ex:
         res = list(ex.map(lambda t: t[2](), tareas))
     r = {"instrumento": INSTRUMENTO, "dominio": dominio, "www": www, "medido_utc": inicio, "desde_ip": C.IP_SALIDA or None,
          "borde": None, "certificado": None, "hosts": {}}
