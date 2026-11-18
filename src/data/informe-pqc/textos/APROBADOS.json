@@ -12,5 +12,12 @@
     "archivo": "2026-11/seccion-14-frase-rutas.md",
     "sha256": "b10423745746bf51721417562ceb7b8cd3813ce6c0ddc2eb3f3262499a878ce7",
     "aprobado_por": "Nicholas, 18-nov-2026: \"Sí, así\""
+  },
+  {
+    "edicion": "2026-11",
+    "seccion": "certificado-sin-leer",
+    "archivo": "2026-11/certificado-sin-leer.md",
+    "sha256": "715a8aefbc95bb406ff78a2513ea0e982169ee86a5f672ba3e042f12600b322e",
+    "aprobado_por": "Nicholas, 18-nov-2026: \"Sí, así queda\""
   }
 ]

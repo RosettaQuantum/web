@@ -8,7 +8,7 @@
  */
 export const CONSUMIDOR = { quien: "el postbuild (bloquea el deploy) y quien agregue un texto aprobado al informe", hace: "copia el .md byte a byte, declara su sha256 en APROBADOS.json y no lo edita a mano" };
 import { readFileSync, existsSync } from "node:fs";
-import { textosDeEdicion, apartados, sha256, frase } from "../src/lib/informe-textos.mjs";
+import { textosDeEdicion, apartados, sha256, frase, fraseCertificadoSinLeer } from "../src/lib/informe-textos.mjs";
 
 const base = new URL("../src/data/informe-pqc/textos/", import.meta.url);
 const APROBADOS = JSON.parse(readFileSync(new URL("APROBADOS.json", base), "utf8"));
@@ -53,6 +53,16 @@ prueba("grito: noviembre sin los párrafos", revisar("<section id=\"legal\"></se
 prueba("silencio paradójico: los párrafos sólo dentro de un comentario no cuentan como publicados",
   revisar(`<!-- ${pag()} -->`, "2026-08").length === 0 && revisar(`<!-- ${pag()} -->`, "2026-11").length === 2);
 
+// Frase del certificado sin leer: se ARMA con las cifras; el sello cubre lo construido para su edición.
+const selloSL = APROBADOS.find((a) => a.seccion === "certificado-sin-leer");
+const laFrase = (md) => { const m = /^## La frase\s*$([\s\S]*?)(?=^## |(?![\s\S]))/m.exec(md); return m ? m[1].trim().replace(/\s*\n\s*/g, " ") : null; };
+const sellada = laFrase(leer(selloSL.archivo));
+prueba(`certificado sin leer: lo construido para ${selloSL.edicion} (219, 220, 1) es byte a byte el sellado`, fraseCertificadoSinLeer(219, 220, 1) === sellada);
+prueba("MUTACIÓN otra cifra en la edición (218 leídos de 219): lo construido deja de calzar con el sello", fraseCertificadoSinLeer(218, 219, 1) !== sellada);
+prueba("grito: 2 sin leer con frase singular → el build se cae", /plural/.test(lanza(() => fraseCertificadoSinLeer(218, 220, 2)) ?? ""));
+prueba("grito: cifras que no suman la muestra", /≠ muestra/.test(lanza(() => fraseCertificadoSinLeer(219, 221, 1)) ?? ""));
+prueba("silencio: sin la clave (agosto) no hay frase; con 0 sin leer tampoco", fraseCertificadoSinLeer(170, 170, undefined) === null && fraseCertificadoSinLeer(220, 220, 0) === null);
+
 const ruta = new URL("../dist/informe-pqc/index.html", import.meta.url);
 if (existsSync(ruta)) {
   const html = readFileSync(ruta, "utf8");
@@ -65,6 +75,8 @@ if (existsSync(ruta)) {
     const nueva = frase(leer(APROBADOS.find((a) => a.seccion === "legal-frase-rutas").archivo));
     const vieja = "No exploramos rutas ni directorios. No escaneamos";
     prueba(`dist/informe-pqc (${ed}): frase de rutas ${conSec ? "precisada" : "original"}`, conSec ? h.includes(nueva) && !h.includes(vieja) : h.includes(vieja) && !h.includes(nueva));
+    const enPagina = texto(html).includes(sellada);
+    prueba(`dist/informe-pqc (${ed}): frase del certificado sin leer ${ed === selloSL.edicion ? "presente y sellada" : "ausente"}`, ed === selloSL.edicion ? enPagina : !enPagina);
     const mal = revisar(html, ed); prueba(`dist/informe-pqc (${ed}): ${mal.length ? mal.join(" · ") : "textos aprobados donde van y sólo ahí"}`, mal.length === 0);
   }
   else { saltadas++; console.log("  SALTADA dist/informe-pqc: la página no declara data-edicion"); }

@@ -64,3 +64,19 @@ export function textosDeEdicion(edicion, aprobados, leer) {
   const frase_rutas = fr.length ? enLinea(frase(leerSellado(fr[0], leer))) : null;
   return { hicimos: enLinea(ap.hicimos), no_hicimos: enLinea(ap.no_hicimos), frase_rutas, crudo: ap };
 }
+
+/**
+ * La frase del certificado que no se pudo leer (aprobada 18-nov-2026: «Sí, así queda»).
+ * Se ARMA con las cifras de la edición, no se copia: el mes que cambien, el texto cambia con ellas.
+ * El sello (textos/2026-11/certificado-sin-leer.md) cubre lo construido para 2026-11, byte a byte.
+ * Sólo existe redacción aprobada para 1 sin leer (singular). 0: no hay nada que declarar, no va.
+ * Más de 1: el build se cae hasta que Nicholas apruebe el plural.
+ */
+export function fraseCertificadoSinLeer(total, muestra, sinMedir) {
+  if (sinMedir == null) return null;
+  if (!Number.isInteger(total) || !Number.isInteger(muestra) || !Number.isInteger(sinMedir)) throw new Error("informe-textos: cifras del certificado sin leer no son enteros");
+  if (total + sinMedir !== muestra) throw new Error(`informe-textos: ${total} leídos + ${sinMedir} sin leer ≠ muestra ${muestra}`);
+  if (sinMedir === 0) return null;
+  if (sinMedir !== 1) throw new Error(`informe-textos: ${sinMedir} certificados sin leer y la frase aprobada es singular; falta aprobar el plural`);
+  return `${total} de ${muestra} organizaciones con certificado leído. De ${sinMedir} no se pudo leer el certificado y queda fuera de este desglose.`;
+}

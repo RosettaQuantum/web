@@ -2,7 +2,7 @@
 import { banda } from '../../lib/qex.js';
 import { elegirEdicion } from '../../lib/informe-elegir.mjs';
 import { PENDIENTES_LEGALES, pendientePorDefecto, ventanaTexto } from '../../lib/informe-portada.mjs';
-import { textosDeEdicion } from '../../lib/informe-textos.mjs';
+import { textosDeEdicion, fraseCertificadoSinLeer } from '../../lib/informe-textos.mjs';
 import APROBADOS from '../../data/informe-pqc/textos/APROBADOS.json';
 const mdAprobados = import.meta.glob('../../data/informe-pqc/textos/**/*.md', { query: '?raw', import: 'default', eager: true }) as Record<string, string>;
 import MarcaLayout from '../../layouts/MarcaLayout.astro';
@@ -559,6 +559,7 @@ const frase = (ps: any[], k: string) =>
 
     <div class="measure">
       <p>La dimensión de mayor peso —certificados, {d.indice.dimensiones[0].peso}%— resulta <strong>prácticamente constante</strong>: {d.indice.certificados_detalle.distribucion[0].n} de {d.indice.certificados_detalle.total} organizaciones obtienen el mismo valor, el {d.indice.certificados_detalle.pct_valor_dominante}% de la muestra. Sólo {d.indice.certificados_detalle.distribucion[1].n} se separan.</p>
+      {(() => { const f = fraseCertificadoSinLeer(d.indice.certificados_detalle.total, d.muestra.organizaciones, d.indice.certificados_detalle.sin_medir); return f && <p data-certificado-sin-leer>{f}</p>; })()}
 
       <p class="src"><strong>Lo que no publicamos, y por qué.</strong> {d.indice.certificados_detalle.sin_archivar}</p>
       <p>Eso importa por una razón que separa esta dimensión de todas las demás: <strong>el certificado lo emite y lo gestiona la organización.</strong> No hay proveedor de infraestructura que lo resuelva por contrato, como sí ocurre con el intercambio de claves en el borde.</p>
