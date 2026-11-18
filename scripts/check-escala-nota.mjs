@@ -108,6 +108,12 @@ export const REVISADAS_LLAVE = {
   "regla histórica QEX-1.0 (fotos guardadas), revisada el 18-nov": [
     "65d42ebdd212dd2f82c64de10d5257e1a45d7f79f6821496642e412925a218fa", "92683a8ba397090a51af696eb7340965087a67ee5403ee3f0163f2362eb5b8fc",
   ],
+  // src/data/informe-pqc/textos/2026-11/textos-aprobados-2026-11-18.md: el documento de aprobación sellado (sha
+  // a31d2c1c…) CITA la regla vieja como «decía» y razona el 100 descartado. Es un registro, no se sirve como regla:
+  // del documento sólo se extrae la fila «Diría» de la portada. No se edita (un byte cambia el sello).
+  "documento de aprobación sellado del 18-nov (cita la regla vieja, no la sirve), revisado el 18-nov": [
+    "94e6be8de7c2307a6d4bf671bc1203a2eb00a4c3a88756b1553616358ff9cfd6", "0759cc76de67de3d1920d6a35ff33aca4d6d05504f175a90f1069f70f23937e5",
+  ],
 };
 export function lineasConReglaLlave(texto) {
   const out = [];
