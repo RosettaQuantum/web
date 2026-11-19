@@ -66,12 +66,20 @@ const LEGAL2 = es
 // El lema tambien es prosa que lee el usuario. Quedaba en ingles en /es/ y no lo vio
 // ninguna de las dos revisiones a mano: lo caza T-es. La forma española es la que ya usa
 // la linea del ledger ("cada número enlaza a su fuente"), para no inventar una segunda.
+const SELLO_PAGINA = es ? "/es/verificado/rosettaquantum.com" : "/verificado/rosettaquantum.com";
+const SELLO_ALT = es ? "Sello Q-Ready Verified de rosettaquantum.com" : "Q-Ready Verified seal for rosettaquantum.com";
 const LEMA = es ? "Cada número de esta página enlaza a su fuente." : "Every number on this page links to its source.";
 ---
 <footer><div class="wrap">
-  <div style="display:flex;align-items:center;gap:10px">
+  <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
     <img src="/rosetta-mark.svg" width="26" height="34" alt="" aria-hidden="true" />
     <span style="font-family:var(--serif);font-size:var(--t-small);color:var(--ink)">Rosetta Quantum</span>
+    {/* Nuestro propio sello Q-Ready Verified (19-nov-2026, Nicholas: «En el pie de todas las páginas»). La letra
+        NO va escrita aquí: la dibuja /sello/ con la última medición guardada, y el enlace lleva a la página
+        pública de verificación (con la nota de autoverificación cuando es A+). */}
+    <a class="pie-sello" href={SELLO_PAGINA} style="margin-left:auto;display:inline-flex;line-height:0">
+      <img src="/sello/rosettaquantum.com.svg" width="225" height="48" alt={SELLO_ALT} loading="lazy" decoding="async" />
+    </a>
   </div>
   <div class="foot-cols">
     {COLS.map(([titulo, enlaces]) => (
