@@ -80,3 +80,19 @@ export function fraseCertificadoSinLeer(total, muestra, sinMedir) {
   if (sinMedir !== 1) throw new Error(`informe-textos: ${sinMedir} certificados sin leer y la frase aprobada es singular; falta aprobar el plural`);
   return `${total} de ${muestra} organizaciones con certificado leído. De ${sinMedir} no se pudo leer el certificado y queda fuera de este desglose.`;
 }
+
+/**
+ * Texto 5 (aprobado 18-nov; 19-nov: también en la web). La primera frase NO se toma de aquí: vive en la
+ * edición (indice.hallazgo_cert.texto), con su cifra vigilada por el motor. De aquí sale sólo la frase de
+ * cierre, la de NIST, del documento sellado (fila «Diría» del texto 5). null si la edición no la declara.
+ */
+export function cierreCertificados(edicion, aprobados, leer) {
+  const a = aprobados.find((x) => x.edicion === edicion && x.seccion === "certificados-constante");
+  if (!a) return null;
+  const md = leerSellado(a, leer);
+  const bloque = /### 5 ·[\s\S]*?\| \*\*Diría\*\* \| (.+?) \|/.exec(md);
+  if (!bloque) throw new Error("informe-textos: no encuentro la fila «Diría» del texto 5");
+  const m = /(Con la regla de NIST IR 8547[^.]*\.)\s*$/.exec(bloque[1]);
+  if (!m) throw new Error("informe-textos: la fila «Diría» del texto 5 no cierra con la frase de NIST");
+  return m[1];
+}

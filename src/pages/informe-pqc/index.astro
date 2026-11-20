@@ -2,7 +2,7 @@
 import { banda } from '../../lib/qex.js';
 import { elegirEdicion } from '../../lib/informe-elegir.mjs';
 import { PENDIENTES_LEGALES, pendientePorDefecto, ventanaTexto } from '../../lib/informe-portada.mjs';
-import { textosDeEdicion, fraseCertificadoSinLeer } from '../../lib/informe-textos.mjs';
+import { textosDeEdicion, fraseCertificadoSinLeer, cierreCertificados } from '../../lib/informe-textos.mjs';
 import APROBADOS from '../../data/informe-pqc/textos/APROBADOS.json';
 const mdAprobados = import.meta.glob('../../data/informe-pqc/textos/**/*.md', { query: '?raw', import: 'default', eager: true }) as Record<string, string>;
 import MarcaLayout from '../../layouts/MarcaLayout.astro';
@@ -72,7 +72,13 @@ if (d.edicion >= BANDAS_COMPLETAS_DESDE) {
 // aprobada vale lo mismo (75), así que el estudio queda con un valor. El párrafo aprobado dice «Sólo {[1].n} se
 // separan» y no tiene variante para eso: el build se niega con la causa, hasta que haya una frase aprobada para
 // un solo valor (propuesta en docs/textos-provisorios-informe-llave.md). El texto de este párrafo no se toca aquí.
-{
+// Texto 5 (19-nov-2026): la edición que DECLARA el texto 5 en APROBADOS.json (sección certificados-constante)
+// usa el párrafo aprobado: indice.hallazgo_cert.texto (su cifra la vigila el motor) + el cierre sellado. Lo
+// decide la declaración, no la presencia del campo: agosto también trae hallazgo_cert, con su propio texto.
+const cierreCert = cierreCertificados(d.edicion, APROBADOS, (f: string) => mdAprobados[`../../data/informe-pqc/textos/${f}`]);
+if (cierreCert && !d.indice?.hallazgo_cert?.texto)
+  throw new Error(`informe-pqc ${d.edicion}: la edición declara el texto 5 pero no trae indice.hallazgo_cert.texto.`);
+if (!cierreCert) {
   const dist = d.indice?.certificados_detalle?.distribucion;
   const lista = Array.isArray(dist) ? dist.map((x: any) => x.valor + '→' + x.n).join(', ') : '—';
   if (Array.isArray(dist) && dist.length === 1)
@@ -565,7 +571,9 @@ const frase = (ps: any[], k: string) =>
     <div class="pull"><p>El {d.indice.certificados_detalle.pct_valor_dominante}% de las organizaciones medidas obtiene el mismo puntaje en la dimensión que más pesa. Nadie se diferencia porque nadie ha empezado.</p></div>
 
     <div class="measure">
-      <p>La dimensión de mayor peso —certificados, {d.indice.dimensiones[0].peso}%— resulta <strong>prácticamente constante</strong>: {d.indice.certificados_detalle.distribucion[0].n} de {d.indice.certificados_detalle.total} organizaciones obtienen el mismo valor, el {d.indice.certificados_detalle.pct_valor_dominante}% de la muestra. Sólo {d.indice.certificados_detalle.distribucion[1].n} se separan.</p>
+      {cierreCert
+        ? <p data-certificados-constante>{d.indice.hallazgo_cert.texto} {cierreCert}</p>
+        : <p>La dimensión de mayor peso —certificados, {d.indice.dimensiones[0].peso}%— resulta <strong>prácticamente constante</strong>: {d.indice.certificados_detalle.distribucion[0].n} de {d.indice.certificados_detalle.total} organizaciones obtienen el mismo valor, el {d.indice.certificados_detalle.pct_valor_dominante}% de la muestra. Sólo {d.indice.certificados_detalle.distribucion[1].n} se separan.</p>}
       {(() => { const f = fraseCertificadoSinLeer(d.indice.certificados_detalle.total, d.muestra.organizaciones, d.indice.certificados_detalle.sin_medir); return f && <p data-certificado-sin-leer>{f}</p>; })()}
 
       <p class="src"><strong>Lo que no publicamos, y por qué.</strong> {d.indice.certificados_detalle.sin_archivar}</p>

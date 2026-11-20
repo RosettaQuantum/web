@@ -8,7 +8,7 @@
  */
 export const CONSUMIDOR = { quien: "el postbuild (bloquea el deploy) y quien agregue un texto aprobado al informe", hace: "copia el .md byte a byte, declara su sha256 en APROBADOS.json y no lo edita a mano" };
 import { readFileSync, existsSync } from "node:fs";
-import { textosDeEdicion, apartados, sha256, frase, fraseCertificadoSinLeer } from "../src/lib/informe-textos.mjs";
+import { textosDeEdicion, apartados, sha256, frase, fraseCertificadoSinLeer, cierreCertificados } from "../src/lib/informe-textos.mjs";
 
 const base = new URL("../src/data/informe-pqc/textos/", import.meta.url);
 const APROBADOS = JSON.parse(readFileSync(new URL("APROBADOS.json", base), "utf8"));
@@ -61,6 +61,8 @@ prueba(`certificado sin leer: lo construido para ${selloSL.edicion} (219, 220, 1
 prueba("MUTACIÓN otra cifra en la edición (218 leídos de 219): lo construido deja de calzar con el sello", fraseCertificadoSinLeer(218, 219, 1) !== sellada);
 prueba("grito: 2 sin leer con frase singular → el build se cae", /plural/.test(lanza(() => fraseCertificadoSinLeer(218, 220, 2)) ?? ""));
 prueba("grito: cifras que no suman la muestra", /≠ muestra/.test(lanza(() => fraseCertificadoSinLeer(219, 221, 1)) ?? ""));
+prueba("texto 5: el cierre sale del documento sellado", cierreCertificados("2026-11", APROBADOS, leer) === "Con la regla de NIST IR 8547 ninguna se separa hasta que aparezca un certificado post-cuántico.");
+prueba("texto 5: agosto no declara cierre", cierreCertificados("2026-08", APROBADOS, leer) === null);
 prueba("silencio: sin la clave (agosto) no hay frase; con 0 sin leer tampoco", fraseCertificadoSinLeer(170, 170, undefined) === null && fraseCertificadoSinLeer(220, 220, 0) === null);
 
 const ruta = new URL("../dist/informe-pqc/index.html", import.meta.url);
@@ -77,6 +79,18 @@ if (existsSync(ruta)) {
     prueba(`dist/informe-pqc (${ed}): frase de rutas ${conSec ? "precisada" : "original"}`, conSec ? h.includes(nueva) && !h.includes(vieja) : h.includes(vieja) && !h.includes(nueva));
     const enPagina = texto(html).includes(sellada);
     prueba(`dist/informe-pqc (${ed}): frase del certificado sin leer ${ed === selloSL.edicion ? "presente y sellada" : "ausente"}`, ed === selloSL.edicion ? enPagina : !enPagina);
+    // Texto 5 en la web (19-nov): con hallazgo_cert, el párrafo es el campo de la edición + el cierre sellado.
+    const datosEd = [new URL(`../src/data/informe-pqc/${ed}.json`, import.meta.url)].filter(existsSync).map((u) => JSON.parse(readFileSync(u, "utf8")))[0];
+    const hc = datosEd?.indice?.hallazgo_cert?.texto;
+    const cierre = cierreCertificados(ed, APROBADOS, leer);
+    if (cierre) {
+      const parr = (/<p data-certificados-constante>([\s\S]*?)<\/p>/.exec(html.replace(/<!--[\s\S]*?-->/g, "")) || [])[1] ?? "";
+      prueba(`dist/informe-pqc (${ed}): texto 5 · 1) no dice «prácticamente constante»`, !h.includes("prácticamente constante"));
+      prueba(`dist/informe-pqc (${ed}): texto 5 · 2) ni «null» ni «Sólo  se separan» en el párrafo`, !/null|undefined|Sólo\s+se separan/.test(parr) && !/Sólo\s+se separan/.test(h));
+      prueba(`dist/informe-pqc (${ed}): texto 5 · 3) el párrafo es hallazgo_cert.texto + el cierre sellado`, texto(parr).trim() === `${hc} ${cierre}`);
+    } else {
+      prueba(`dist/informe-pqc (${ed}): sin texto 5 declarado, sin su párrafo`, !html.includes("data-certificados-constante"));
+    }
     const mal = revisar(html, ed); prueba(`dist/informe-pqc (${ed}): ${mal.length ? mal.join(" · ") : "textos aprobados donde van y sólo ahí"}`, mal.length === 0);
   }
   else { saltadas++; console.log("  SALTADA dist/informe-pqc: la página no declara data-edicion"); }
