@@ -55,7 +55,7 @@ export const CONSUMIDOR = {
 
 import { readFileSync } from "node:fs";
 
-const BASE = "https://rosettaquantum.com";
+const BASE = (process.env.PROD_BASE || "https://rosettaquantum.com");
 const SELLO_ID = "RQ-EXP-0007-019";
 const FUENTE = "src/viz/cleveland/datos/cleveland-2026-07.stats.json";
 

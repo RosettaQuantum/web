@@ -110,7 +110,8 @@ console.log(`\n${ok} pasaron, ${mal} fallaron`);
 
 // -------------------------------------------------------------- --esperar produccion
 if (process.argv.includes("--esperar")) {
-  const SITE = "https://rosettaquantum.com";
+  const iBase = process.argv.indexOf("--base");
+  const SITE = (iBase > 0 ? process.argv[iBase + 1] : "https://rosettaquantum.com").replace(/\/+$/, "");
   console.log("\n-- contra produccion --");
   let okv = 0, malv = 0;
   const pv = (n, c, d = "") => { if (c) { okv++; console.log(`  ok   ${n}`); } else { malv++; console.log(`  FALLA ${n}${d ? "\n         " + d : ""}`); } };

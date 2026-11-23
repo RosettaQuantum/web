@@ -139,7 +139,7 @@ if (args.includes("--self-test")) {
 }
 
 if (args.includes("--deriva")) {
-  const url = "https://rosettaquantum.com/";
+  const url = (process.env.PROD_BASE || "https://rosettaquantum.com").replace(/\/+$/, "") + "/";
   const html = execSync(`curl -fsS ${url}`, { encoding: "utf8", maxBuffer: 10 * 1024 * 1024 });
   const m = html.match(/name="rq-build"\s+content="([^"]*)"/);
   const sello = m ? m[1] : null;

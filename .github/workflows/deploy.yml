@@ -148,11 +148,34 @@ jobs:
             echo "::warning::purga falló (al token le falta Zone → Cache Purge de rosettaquantum.com) — el edge servirá lo viejo hasta expirar TTL"
           fi
 
-      - name: Smoke test
+      # Desde el 2026-11-20 la zona tiene Bot Fight Mode: el borde le responde al runner
+      # de GitHub (IP de nube, curl) con 403 + `cf-mitigated: challenge`, y el smoke se
+      # puso rojo en cada deploy aunque el sitio estaba sano. NO se baja la proteccion
+      # (en el plan gratis no se puede eximir a nadie de Bot Fight Mode): si el borde
+      # DESAFIA, los chequeos miden el mismo Worker por workers.dev — mismo codigo, misma
+      # D1 — y queda un aviso en el resumen. Cualquier otra respuesta del borde (5xx,
+      # 404, un 403 sin la cabecera de desafio) es un fallo y corta el deploy.
+      # Punto ciego declarado: con el borde desafiando, NADIE mide que la cache del
+      # dominio sirva este build; eso queda en el aviso, no en un verde.
+      - name: Borde — a que origen miden los chequeos
         run: |
           sleep 5
+          code=$(curl -s -o /dev/null -D borde.h -w "%{http_code}" "https://rosettaquantum.com/")
+          if [ "$code" = "200" ]; then
+            base="https://rosettaquantum.com"
+          elif [ "$code" = "403" ] && grep -qi '^cf-mitigated: *challenge' borde.h; then
+            base="https://rosetta-quantum.nicholasiakl.workers.dev"
+            echo "::warning::El borde desafia al runner (Bot Fight Mode: 403 cf-mitigated: challenge). Los chequeos miden el Worker en $base — mismo codigo y misma D1, SIN la cache del dominio: que rosettaquantum.com sirva este build NO quedo medido."
+          else
+            echo "::error::el borde respondio $code en / y no es un desafio de Cloudflare"; cat borde.h; exit 1
+          fi
+          echo "PROD_BASE=$base" >> "$GITHUB_ENV"
+          echo "origen medido: $base (borde: $code)"
+
+      - name: Smoke test
+        run: |
           for u in / /es/ /ledger /blog /llms.txt; do
-            code=$(curl -s -o /dev/null -w "%{http_code}" -L "https://rosettaquantum.com$u")
+            code=$(curl -s -o /dev/null -w "%{http_code}" -L "$PROD_BASE$u")
             echo "$code  $u"
             [ "$code" = "200" ] || exit 1
           done
@@ -167,7 +190,7 @@ jobs:
       # purga fallo, esto se pone rojo. Mide el resultado, no el mecanismo.
       - name: P0 — produccion sirve ESTE build
         env:
-          PREVIEW_URL: "https://rosettaquantum.com"
+          PREVIEW_URL: ${{ env.PROD_BASE }}
           GITHUB_SHA: ${{ github.sha }}
           ESPERA_MAX: "240"
         run: npm run check:preview
@@ -175,7 +198,7 @@ jobs:
       - name: Ninguna URL del sitemap SERVIDO pide noindex
         # El build ve ~70 de ~336 URLs; el resto lo agrega el Worker desde D1 (notas, guía).
         # Aquí se mira lo que ve un buscador: cada <loc> servido, meta robots y X-Robots-Tag.
-        run: node scripts/check-sitemap-noindex.mjs --servido https://rosettaquantum.com
+        run: node scripts/check-sitemap-noindex.mjs --servido "$PROD_BASE"
 
       - name: Self-test de los validadores del archivador
         run: node scripts/check-quantum-catalog.mjs --self-test
@@ -419,77 +442,77 @@ jobs:
 
       - name: T-301 — las 14 redirecciones saltan y el destino responde
         env:
-          PREVIEW_URL: "https://rosettaquantum.com"
+          PREVIEW_URL: ${{ env.PROD_BASE }}
         run: npm run check:301
 
       - name: T-pages — los pares EN/ES responden completos
         env:
-          PREVIEW_URL: "https://rosettaquantum.com"
+          PREVIEW_URL: ${{ env.PROD_BASE }}
         run: npm run check:pages
 
       - name: T-masa — los 74 algoritmos y los artefactos siguen en el HTML
         env:
-          PREVIEW_URL: "https://rosettaquantum.com"
+          PREVIEW_URL: ${{ env.PROD_BASE }}
         run: npm run check:masa
 
       - name: T-lib — la Biblioteca sirve el archivo, y ningun claim sin verificar
         env:
-          PREVIEW_URL: "https://rosettaquantum.com"
+          PREVIEW_URL: ${{ env.PROD_BASE }}
         run: npm run check:lib
 
       - name: T-verify — la receta v3 reproduce sellos reales
         env:
-          PREVIEW_URL: "https://rosettaquantum.com"
+          PREVIEW_URL: ${{ env.PROD_BASE }}
         run: npm run check:verify
 
       - name: T-precios — solo se publican los precios decididos
         env:
-          PREVIEW_URL: "https://rosettaquantum.com"
+          PREVIEW_URL: ${{ env.PROD_BASE }}
         run: npm run check:precios
 
       - name: T-css — los tokens de marca ganan la cascada y la geometria es la aprobada
         env:
-          PREVIEW_URL: "https://rosettaquantum.com"
+          PREVIEW_URL: ${{ env.PROD_BASE }}
           RUTAS_REBUILD: "/,/es/,/library,/library/registry,/es/biblioteca,/es/biblioteca/registro"
         run: npm run check:css
 
       - name: T-fuentes — la pagina pide las familias que su CSS usa
         env:
-          PREVIEW_URL: "https://rosettaquantum.com"
+          PREVIEW_URL: ${{ env.PROD_BASE }}
           RUTAS_FUENTES: "/,/es/,/library,/es/biblioteca,/ledger/"
         run: npm run check:fuentes
 
       - name: T-estructura — una sola barra y un solo pie
         env:
-          PREVIEW_URL: "https://rosettaquantum.com"
+          PREVIEW_URL: ${{ env.PROD_BASE }}
           RUTAS_REBUILD: "/,/es/,/library,/library/registry,/es/biblioteca,/es/biblioteca/registro"
         run: npm run check:estructura
 
       - name: T-es — la home en español no deja fragmentos en inglés
         env:
-          PREVIEW_URL: "https://rosettaquantum.com"
+          PREVIEW_URL: ${{ env.PROD_BASE }}
         run: npm run check:es
 
       - name: T-movil — las reglas de telefono ganan, y la marca es la decidida
         env:
-          PREVIEW_URL: "https://rosettaquantum.com"
+          PREVIEW_URL: ${{ env.PROD_BASE }}
         run: npm run check:movil
 
       - name: T-llms — el canal de indexacion, y el noindex de Q-Ready
         env:
-          PREVIEW_URL: "https://rosettaquantum.com"
+          PREVIEW_URL: ${{ env.PROD_BASE }}
         run: npm run check:llms
 
       - name: T-boletin — la promesa servida es la de su lista, y la fila llega a esa lista
         env:
-          PREVIEW_URL: "https://rosettaquantum.com"
+          PREVIEW_URL: ${{ env.PROD_BASE }}
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
         run: npm run check:boletin
 
       - name: T-api — endpoints nuevos y /v1/state aditivo
         env:
-          PREVIEW_URL: "https://rosettaquantum.com"
+          PREVIEW_URL: ${{ env.PROD_BASE }}
         run: npm run check:api2
 
       - name: T-nav — la barra tiene 6 enlaces, CTA y menu movil
@@ -501,7 +524,7 @@ jobs:
       - name: Chequeo del archivador contra produccion
         env:
           GITHUB_SHA: ${{ github.sha }}
-        run: node scripts/check-quantum-catalog.mjs --esperar 120
+        run: node scripts/check-quantum-catalog.mjs --base "$PROD_BASE" --esperar 120
 
       # Compara tres listas: lo que el enrutador atiende, lo que el catalogo
       # declara y lo que la especificacion servida publica. Y ejerce cada ruta
@@ -509,25 +532,25 @@ jobs:
       - name: Chequeo de la especificacion OpenAPI
         env:
           GITHUB_SHA: ${{ github.sha }}
-        run: node scripts/check-openapi.mjs --esperar 120
+        run: node scripts/check-openapi.mjs --base "$PROD_BASE" --esperar 120
 
       # Las 8 categorias contra produccion, y la promesa central de una errata: que el
       # sello original que corrige siga respondiendo 200, no solo que la errata exista.
       - name: /v1/state completo y las erratas contra produccion
-        run: node scripts/check-estado-completo.mjs --esperar
+        run: node scripts/check-estado-completo.mjs --esperar --base "$PROD_BASE"
 
       # Que la PAGINA enumere el archivo entero, no solo que la API lo pagine bien.
       - name: El ledger no pierde artefactos, contra produccion
-        run: node scripts/check-ledger-ventana.mjs
+        run: node scripts/check-ledger-ventana.mjs --base "$PROD_BASE"
 
       - name: Las tildes tambien en lo que sirve la API
-        run: node scripts/check-tildes.mjs --api https://rosettaquantum.com
+        run: node scripts/check-tildes.mjs --api "$PROD_BASE"
 
       - name: El buscador encuentra lo que promete, contra produccion
-        run: node scripts/check-buscador.mjs
+        run: node scripts/check-buscador.mjs --base "$PROD_BASE"
 
       - name: Ninguna pagina se renderiza en la identidad retirada
-        run: node scripts/check-identidad.mjs --base https://rosettaquantum.com
+        run: node scripts/check-identidad.mjs --base "$PROD_BASE"
 
       - name: El sistema de diseño se sostiene, contra produccion
-        run: node scripts/check-sistema.mjs --base https://rosettaquantum.com
+        run: node scripts/check-sistema.mjs --base "$PROD_BASE"

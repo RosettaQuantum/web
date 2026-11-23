@@ -1,0 +1,412 @@
+# ENSAYO TEMPORAL (rama fix/smoke-desafio-borde): corre, desde un runner de GitHub de
+# verdad, los chequeos posteriores al despliegue contra lo que hoy esta en produccion
+# (bd4d0af). No despliega nada. Se borra antes de fusionar.
+name: Ensayo borde
+on:
+  push:
+    branches: [fix/smoke-desafio-borde]
+jobs:
+  ensayo:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npm ci
+      # Desde el 2026-11-20 la zona tiene Bot Fight Mode: el borde le responde al runner
+      # de GitHub (IP de nube, curl) con 403 + `cf-mitigated: challenge`, y el smoke se
+      # puso rojo en cada deploy aunque el sitio estaba sano. NO se baja la proteccion
+      # (en el plan gratis no se puede eximir a nadie de Bot Fight Mode): si el borde
+      # DESAFIA, los chequeos miden el mismo Worker por workers.dev — mismo codigo, misma
+      # D1 — y queda un aviso en el resumen. Cualquier otra respuesta del borde (5xx,
+      # 404, un 403 sin la cabecera de desafio) es un fallo y corta el deploy.
+      # Punto ciego declarado: con el borde desafiando, NADIE mide que la cache del
+      # dominio sirva este build; eso queda en el aviso, no en un verde.
+      - name: Borde — a que origen miden los chequeos
+        run: |
+          sleep 5
+          code=$(curl -s -o /dev/null -D borde.h -w "%{http_code}" "https://rosettaquantum.com/")
+          if [ "$code" = "200" ]; then
+            base="https://rosettaquantum.com"
+          elif [ "$code" = "403" ] && grep -qi '^cf-mitigated: *challenge' borde.h; then
+            base="https://rosetta-quantum.nicholasiakl.workers.dev"
+            echo "::warning::El borde desafia al runner (Bot Fight Mode: 403 cf-mitigated: challenge). Los chequeos miden el Worker en $base — mismo codigo y misma D1, SIN la cache del dominio: que rosettaquantum.com sirva este build NO quedo medido."
+          else
+            echo "::error::el borde respondio $code en / y no es un desafio de Cloudflare"; cat borde.h; exit 1
+          fi
+          echo "PROD_BASE=$base" >> "$GITHUB_ENV"
+          echo "origen medido: $base (borde: $code)"
+
+      - name: Smoke test
+        run: |
+          for u in / /es/ /ledger /blog /llms.txt; do
+            code=$(curl -s -o /dev/null -w "%{http_code}" -L "$PROD_BASE$u")
+            echo "$code  $u"
+            [ "$code" = "200" ] || exit 1
+          done
+
+      # Los validadores del archivador tienen que gritar contra defectos inyectados.
+      # Si este paso pasa "solo", el chequeo de abajo ya no prueba nada.
+      # P0 VA AQUI, ANTES DE TODA MEDICION SOBRE PRODUCCION. Espera a que el edge sirva
+      # ESTE build (el <meta rq-build> trae este sha). Estaba mas abajo y el 8-sep, en el
+      # cutover, check-alcance midio /library/registry en el HTML ANTERIOR y reporto un
+      # desborde ya arreglado. Una medicion contra un edge sin purgar no mide el sitio:
+      # mide el que habia. Y es ademas la comprobacion REAL de la purga de cache — si la
+      # purga fallo, esto se pone rojo. Mide el resultado, no el mecanismo.
+      - name: P0 — produccion sirve ESTE build
+        env:
+          PREVIEW_URL: ${{ env.PROD_BASE }}
+          GITHUB_SHA: bd4d0af5dd80ce769f8056602fe7c9993db2eea9
+          ESPERA_MAX: "240"
+        run: npm run check:preview
+
+      - name: Ninguna URL del sitemap SERVIDO pide noindex
+        # El build ve ~70 de ~336 URLs; el resto lo agrega el Worker desde D1 (notas, guía).
+        # Aquí se mira lo que ve un buscador: cada <loc> servido, meta robots y X-Robots-Tag.
+        run: node scripts/check-sitemap-noindex.mjs --servido "$PROD_BASE"
+
+      - name: Self-test de los validadores del archivador
+        run: node scripts/check-quantum-catalog.mjs --self-test
+
+      # El motor de graficos: la mitad que importa es que los guardias GRITEN.
+      # Un throw que nunca se prueba con el caso que debe atrapar es indistinguible
+      # de un throw que alguien borro.
+      # El renderizador del informe: sus tres defectos llegaron al PDF entregado y dos
+      # sobrevivieron mas de una version, porque solo se veian generando el documento
+      # entero y mirandolo. Cada caso esta escrito contra el markdown que lo produjo.
+      - name: Tests del renderizador del informe
+        run: node scripts/test-report-render.mjs
+
+      - name: Tests del motor de graficos
+        run: node scripts/test-charts.mjs
+
+      # Los datos de la viz tienen que seguir siendo byte-identicos a los que salieron
+      # del entregable sellado de Cleveland. Si alguien edita una coordenada, grita.
+      - name: Verificar la viz de Cleveland
+        run: node scripts/build-viz-cleveland.mjs --verificar
+
+      # AQUI CORRIA `build-pricing.mjs --verificar`, y se retiro con motivo escrito.
+      #
+      # Verificaba que /pricing y /es/precios fueran byte a byte el texto de
+      # src/aprobado/pricing.*.md. Las dos paginas se borraron en el commit 10 (301 a
+      # /services y /es/servicios) y el documento quedo SUPERADO: sus cifras —US$24.900,
+      # US$4.900, US$490, US$290— son las del catalogo viejo, y la decision del 2-sep las
+      # reemplazo. Medido el 8-sep: 0 de 34 fragmentos del documento aprobado aparecen en
+      # /services, y ninguno de sus montos. No es una pagina que se movio: es una oferta
+      # que se retiro.
+      #
+      # Desde el commit 10 el paso venia fallando con ENOENT y nadie lo vio, porque solo
+      # corre en este workflow y este workflow no corrio en dos semanas.
+      #
+      # LA GARANTIA QUE QUEDA VIVA, y por eso el reemplazo no es un hueco: T-precios
+      # (mas abajo, contra produccion) exige que TODA cantidad con signo de moneda en las
+      # paginas publicas este en la lista que Nicholas decidio. Lo que se pierde es la
+      # prueba mecanica de que la PROSA es la de un documento firmado; el texto de
+      # /services se aprobo por la otra via, la QA de las paginas del 3-sep.
+
+      # Las tres politicas se GENERAN desde los .md que Nicholas aprobo, anclados por
+      # sha. Si alguien edita un .astro a mano o cambia un .md sin regenerar, grita.
+      - name: Las politicas legales siguen siendo el texto aprobado
+        run: node scripts/build-legal.mjs --verificar
+
+      # NO SE PROMETE UNA TASA DE VICTORIA MIENTRAS EL CONTADOR DIGA CERO.
+      # El calculador de la portada multiplica por advRate (0,50-0,60) y su propio
+      # comentario dice que son "billed wins per request", mientras /v1/state publica
+      # victorias_cuanticas_medidas: 0. Un cliente lo desmiente con un curl a nuestra
+      # propia API (CLAUDE.md §1 ter).
+      #
+      # FALLA CERRADO desde el 2026-08-24. Nacio sin bloquear a proposito —el defecto
+      # estaba en main y detener el deploy de tres sesiones por una decision pendiente
+      # habria sido un bloqueador que retiene trabajo bueno—. Nicholas decidio sacar el
+      # multiplicador del modelo, el guardia dejo de tener contra que gritar, y recien
+      # ahi se cerro. El orden importa: primero se arregla el defecto, despues se cierra
+      # la puerta. Al reves solo se consigue que alguien desactive el guardia.
+      - name: No se promete ventaja mientras el contador diga cero
+        run: node scripts/check-ventaja-cero.mjs
+
+      - name: Self-test del guardia de ventaja-cero
+        run: node scripts/check-ventaja-cero.mjs --self-test
+
+      # El migrador de posts no puede pisar una edicion viva de D1 sin decirlo. Su primera
+      # corrida real encontro dos posts (quantum-drug-discovery-{en,es}) editados en D1 el
+      # 29-jul contra un markdown del 21-jul: correrlo habria revertido ocho dias de
+      # trabajo, sin conflicto y sin aviso.
+      - name: Self-test del guardia de sobrescritura de posts
+        run: node scripts/check-posts-sobrescritura.mjs --self-test
+
+      # Lo que la API sirve como texto sellado ES el sellado, byte a byte. Ese texto tiene
+      # SEIS copias en dos repos mas D1 mas la respuesta: hoy coinciden por disciplina, no
+      # por construccion. Al volver bilingue el campo, el riesgo concreto es que alguien
+      # "mejore" el lado espanol —ponerle las tildes que el sellado no tiene— y deje de
+      # ser el sellado sin que nada avise.
+      - name: Lo servido como sellado es el sellado
+        run: node scripts/check-api-vs-sello.mjs
+
+      - name: Self-test del guardia de texto sellado
+        run: node scripts/check-api-vs-sello.mjs --self-test
+
+      - name: Self-test del guardia de paridad bilingue
+        run: node scripts/check-api-bilingue.mjs --self-test
+
+      # LA PROMESA SE EJERCE, no se escribe. El `como_verificar` de /v1/challenges decia
+      # "recomputa el sha256 sobre datos + estadistica" y un tercero reproducia 1 de 4
+      # (0 de 4 con la receta mas natural de Python): el hash dependia del serializador,
+      # del orden de claves y de los separadores, y la instruccion no nombraba ninguno.
+      # Llevaba un MES publicado sin que nadie la siguiera. Una regla que vive en la
+      # cabeza de la gente no es una regla: es una intencion.
+      - name: La instruccion de verificacion se puede seguir
+        run: node scripts/check-promesa-verificable.mjs
+
+      - name: Self-test del guardia de la promesa
+        run: node scripts/check-promesa-verificable.mjs --self-test
+
+      # ¿QUIÉN VIGILA AL VIGILANTE? Esto.
+      #
+      # Un monitor que muere en silencio es PEOR que ninguno: fabrica confianza, porque su
+      # silencio se ve idéntico a "todo verde". No se arregla agregando otro vigilante
+      # —eso mueve la pregunta un piso—: se arregla haciendo que el latido lo compruebe
+      # algo que YA corre por sus propias razones y que BLOQUEA al que puede arreglarlo.
+      #
+      # Si el monitor lleva más de dos días sin latir, este deploy no sale. No depende de
+      # la disciplina de nadie: depende de la conveniencia del CTO, que es más confiable.
+      #
+      # El latido no es un archivo: es el historial de corridas de `monitor-ci.yml`. Un
+      # latido commiteado ensuciaría el repo en cada corrida, y un archivo que sale
+      # modificado siempre es uno cuyos diffs la gente aprende a saltarse.
+      - name: Self-test del monitor de CI
+        run: node scripts/check-ci-salud.mjs --self-test
+
+      - name: Self-test de los comparadores de la especificacion
+        run: node scripts/check-openapi.mjs --self-test
+
+      # estado_medido reportaba 4 de las 8 categorias que run_archives ya contaba
+      # (MANIFEST/PREDICTION/REPORT/ERRATA invisibles); publicado e invisible otra vez.
+      - name: Self-test de /v1/state completo y de las erratas
+        run: node scripts/check-estado-completo.mjs --self-test
+
+      # La pagina hornea 45 filas del archivo y la isla paginaba /v1/runs desde offset
+      # 45 — otra coleccion. 25 corridas selladas no salian en ninguna pagina y el pie
+      # decia "93 de 93". Ninguna guardia lo vio porque todas comparaban API con API.
+      - name: Self-test de la ventana del ledger
+        run: node scripts/check-ledger-ventana.mjs --self-test
+
+      # De las 74 descripciones en español del archivador, 0 tenian una sola tilde, y
+      # de las 40 fuentes tampoco. check-es preguntaba por fragmentos en INGLES, y un
+      # español sin acentos pasa esa pregunta entero.
+      - name: El español publicado lleva tildes
+        run: node scripts/check-tildes.mjs --self-test && node scripts/check-tildes.mjs
+
+      # El placeholder de la caja de busqueda es una PROMESA escrita por nosotros: dos
+      # de sus tres ejemplos devolvian "No matches". Un visitante que prueba el primer
+      # ejemplo que le ofrecemos y no obtiene nada concluye que el archivo esta vacio.
+      - name: Self-test del buscador contra su propio placeholder
+        run: node scripts/check-buscador.mjs --self-test
+
+      # /informe-pqc y las dos caras de /cleveland se quedaron semanas en la identidad
+      # retirada y ninguna guardia las vio: check-css mira 3 paginas y check-fuentes 2.
+      # Esta saca la lista de dist/ y le pregunta al navegador, no al archivo.
+      - name: Self-test de la identidad renderizada
+        run: node scripts/check-identidad.mjs --self-test
+
+      # 22 tamanos de fuente, 76 elementos bajo 13px y dos colores que no pasaban AA.
+      # Nada de eso rompe una pagina: por eso duro. Se le pregunta a la pantalla, no al
+      # archivo — el h3 salia en 21,06px por herencia del navegador, sin regla propia.
+      - name: Self-test del sistema de diseño
+        run: node scripts/check-sistema.mjs --self-test
+
+      # El sello de version va en TODA pagina servida, no solo en las de Astro: la consola
+      # y las dos caras de Cleveland son HTML plano y nunca pasan por el layout, asi que
+      # esperar su 200 no distinguia lo viejo de lo nuevo. El postbuild lo estampa y falla
+      # cerrado; esto prueba que sabe estampar Y que no estampa dos veces.
+      - name: Self-test del sello de version
+        run: node scripts/test-sellar-version.mjs
+
+      # ¿Se puede TOCAR lo que la pagina muestra? El 17-ago el boton «ver el sello» de
+      # Corridas quedaba en x=771 de una ventana de 375, dentro de un contenedor que
+      # heredaba overflow-x:hidden: existia en el DOM y no habia forma de llegar a el con
+      # el dedo. Ningun analisis estatico lo ve. Chrome viene preinstalado en el runner
+      # (google-chrome 151 en ubuntu-24.04) y se maneja por CDP sin dependencias nuevas.
+      - name: Self-test del chequeo de alcance
+        run: node scripts/check-alcance.mjs --self-test
+
+      - name: Todo lo interactivo se puede tocar (375 y 1280 px)
+        run: node scripts/check-alcance.mjs
+
+      # El lead de /q-ready/checkout: la fila se escribe ANTES del aviso por correo,
+      # asi que un correo caido nunca pierde el lead, y una escritura caida nunca
+      # confirma algo que no paso. Los dos casos van probados con fixtures falsas.
+      - name: El lead de Q-Ready no se pierde ni miente
+        run: node scripts/test-qready-lead.mjs
+
+      # Las zonas de la consola: riel, secciones y huecos tienen que corresponderse, las
+      # zonas declaradas no pueden llevar cifras escritas a mano, y el pie tiene que
+      # declarar EXACTAMENTE las rutas que el codigo pide. El --self-test rompe cada una
+      # de esas reglas a proposito y exige que el guardia grite.
+      - name: Self-test del guardia de zonas de la consola
+        run: node scripts/test-consola-zonas.mjs --self-test
+
+      - name: Las zonas de la consola cuadran
+        run: node scripts/test-consola-zonas.mjs
+
+      # El texto legible que emite la API: solo puede AGREGAR tildes al sellado. Corre
+      # contra las fijas (textos reales del archivo) para no depender de la red; el modo
+      # --vivo ejerce ademas lo que la API esta sirviendo de verdad.
+      - name: El texto legible dice lo mismo que el sellado
+        run: node scripts/test-legible.mjs
+
+      # El contador de uso: lo que importa es que NUNCA pueda tumbar una respuesta.
+      # El test fuerza el fallo de la escritura y comprueba que no propaga.
+      - name: Tests del contador de uso
+        run: node scripts/test-usage.mjs
+
+      # El verificador de sellos y su familia de trampas de formato numerico.
+      # Los vectores estan escritos contra los casos reales del archivo, y son los
+      # que hay que volver a pasar cuando llegue el canonicalizador v3.
+      - name: Vectores del verificador de sellos
+        run: node scripts/test-sello.mjs
+
+      # JCS (RFC 8785) para rosettaq-archive/v3. Implementacion independiente en JS,
+      # escrita desde el RFC, que valida los vectores del laboratorio. Corre solo si
+      # los vectores estan presentes: son de otro repo y pueden no estar en el clon.
+      - name: Validacion cruzada de JCS (si hay vectores)
+        run: |
+          V="../../evidence-staging/jcs_vectores.json"
+          S="sha256:8044a29a48c88184884b41708373a05715e13ce2d4b4db4bd312674ac5c96bcd"
+          if [ -f "$V" ]; then node scripts/cross-jcs.mjs "$V" --sello "$S"; else echo "::notice::sin vectores JCS en este clon — se salta"; fi
+
+      # La mitad que de verdad cierra la clase: el guardia de arriba pide colaboracion —
+      # quien escriba `wrangler deploy` a mano lo saltea entero. Esto mira el TERRENO y
+      # grita si lo que sirve produccion no viene de origin/main (un deploy a mano no
+      # tiene GITHUB_SHA y sella "local"; uno desde una rama sella un sha que no es
+      # ancestro). Va DESPUES del smoke test: primero que este arriba el build nuevo.
+      - name: Lo desplegado viene de main (deteccion de deriva)
+        run: node scripts/check-deploy-solo-main.mjs --deriva
+
+      # ── LOS GUARDIAS DEL REBUILD, CONTRA PRODUCCION ────────────────────────────
+      #
+      # POR QUE ESTAN AQUI: se escribieron entre el 1 y el 8-sep y vivian SOLO en
+      # deploy-preview.yml. El dia del cutover produccion pasa a ser este sitio, y sin
+      # esto se quedaba sin una sola de las comprobaciones que lo construyeron: las
+      # fuentes, la cascada, los 74 algoritmos en el HTML, las 14 redirecciones, el
+      # sello de /verify, los precios decididos, el noindex. Un sitio nuevo con los
+      # guardias del sitio viejo.
+      #
+      # PREVIEW_URL nombra AL OBJETIVO, no al entorno: aqui el objetivo es produccion.
+      # (Se deja el nombre de la variable en vez de tocar catorce scripts el dia del
+      # cutover; el cambio de nombre es trabajo de despues, sin prisa.)
+      #
+      # NO ESTA T-guardia (check-contenido) A PROPOSITO: compara el sitio nuevo contra
+      # produccion y contra la lista de rutas de main. Despues del cutover los dos lados
+      # de esa comparacion son el mismo sitio, asi que pasaria siempre — un guardia que
+      # se da la razon solo es peor que ninguno. Su trabajo se acaba en el cutover.
+
+      - name: T-301 — las 14 redirecciones saltan y el destino responde
+        env:
+          PREVIEW_URL: ${{ env.PROD_BASE }}
+        run: npm run check:301
+
+      - name: T-pages — los pares EN/ES responden completos
+        env:
+          PREVIEW_URL: ${{ env.PROD_BASE }}
+        run: npm run check:pages
+
+      - name: T-masa — los 74 algoritmos y los artefactos siguen en el HTML
+        env:
+          PREVIEW_URL: ${{ env.PROD_BASE }}
+        run: npm run check:masa
+
+      - name: T-lib — la Biblioteca sirve el archivo, y ningun claim sin verificar
+        env:
+          PREVIEW_URL: ${{ env.PROD_BASE }}
+        run: npm run check:lib
+
+      - name: T-verify — la receta v3 reproduce sellos reales
+        env:
+          PREVIEW_URL: ${{ env.PROD_BASE }}
+        run: npm run check:verify
+
+      - name: T-precios — solo se publican los precios decididos
+        env:
+          PREVIEW_URL: ${{ env.PROD_BASE }}
+        run: npm run check:precios
+
+      - name: T-css — los tokens de marca ganan la cascada y la geometria es la aprobada
+        env:
+          PREVIEW_URL: ${{ env.PROD_BASE }}
+          RUTAS_REBUILD: "/,/es/,/library,/library/registry,/es/biblioteca,/es/biblioteca/registro"
+        run: npm run check:css
+
+      - name: T-fuentes — la pagina pide las familias que su CSS usa
+        env:
+          PREVIEW_URL: ${{ env.PROD_BASE }}
+          RUTAS_FUENTES: "/,/es/,/library,/es/biblioteca,/ledger/"
+        run: npm run check:fuentes
+
+      - name: T-estructura — una sola barra y un solo pie
+        env:
+          PREVIEW_URL: ${{ env.PROD_BASE }}
+          RUTAS_REBUILD: "/,/es/,/library,/library/registry,/es/biblioteca,/es/biblioteca/registro"
+        run: npm run check:estructura
+
+      - name: T-es — la home en español no deja fragmentos en inglés
+        env:
+          PREVIEW_URL: ${{ env.PROD_BASE }}
+        run: npm run check:es
+
+      - name: T-movil — las reglas de telefono ganan, y la marca es la decidida
+        env:
+          PREVIEW_URL: ${{ env.PROD_BASE }}
+        run: npm run check:movil
+
+      - name: T-llms — el canal de indexacion, y el noindex de Q-Ready
+        env:
+          PREVIEW_URL: ${{ env.PROD_BASE }}
+        run: npm run check:llms
+
+      - name: T-api — endpoints nuevos y /v1/state aditivo
+        env:
+          PREVIEW_URL: ${{ env.PROD_BASE }}
+        run: npm run check:api2
+
+      - name: T-nav — la barra tiene 6 enlaces, CTA y menu movil
+        run: npm run check:nav
+
+      # Vigila lo desplegado, no el repo: que ninguna fila afirme sin cita, que el
+      # catalogo no encoja, que nadie declare evidencia que no tiene, y que los
+      # endpoints del ledger sigan intactos (api.js es compartido).
+      - name: Chequeo del archivador contra produccion
+        env:
+          GITHUB_SHA: bd4d0af5dd80ce769f8056602fe7c9993db2eea9
+        run: node scripts/check-quantum-catalog.mjs --base "$PROD_BASE" --esperar 120
+
+      # Compara tres listas: lo que el enrutador atiende, lo que el catalogo
+      # declara y lo que la especificacion servida publica. Y ejerce cada ruta
+      # documentada: una especificacion que documenta un 404 pide confianza.
+      - name: Chequeo de la especificacion OpenAPI
+        env:
+          GITHUB_SHA: bd4d0af5dd80ce769f8056602fe7c9993db2eea9
+        run: node scripts/check-openapi.mjs --base "$PROD_BASE" --esperar 120
+
+      # Las 8 categorias contra produccion, y la promesa central de una errata: que el
+      # sello original que corrige siga respondiendo 200, no solo que la errata exista.
+      - name: /v1/state completo y las erratas contra produccion
+        run: node scripts/check-estado-completo.mjs --esperar --base "$PROD_BASE"
+
+      # Que la PAGINA enumere el archivo entero, no solo que la API lo pagine bien.
+      - name: El ledger no pierde artefactos, contra produccion
+        run: node scripts/check-ledger-ventana.mjs --base "$PROD_BASE"
+
+      - name: Las tildes tambien en lo que sirve la API
+        run: node scripts/check-tildes.mjs --api "$PROD_BASE"
+
+      - name: El buscador encuentra lo que promete, contra produccion
+        run: node scripts/check-buscador.mjs --base "$PROD_BASE"
+
+      - name: Ninguna pagina se renderiza en la identidad retirada
+        run: node scripts/check-identidad.mjs --base "$PROD_BASE"
+
+      - name: El sistema de diseño se sostiene, contra produccion
+        run: node scripts/check-sistema.mjs --base "$PROD_BASE"

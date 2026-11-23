@@ -29,7 +29,7 @@ import { legible, soloDifierenEnTildes, TILDES, AMBIGUAS } from "../lib/legible.
 
 const RAIZ = join(dirname(fileURLToPath(import.meta.url)), "..");
 const FIJAS = join(RAIZ, "test/legible-fijas.json");
-const API = "https://rosettaquantum.com";
+const API = (process.env.PROD_BASE || "https://rosettaquantum.com");
 
 let ok = 0, mal = 0;
 const prueba = (nombre, cond, detalle = "") => {

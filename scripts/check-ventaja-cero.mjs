@@ -34,7 +34,7 @@
 import { readFileSync, readdirSync, existsSync } from "node:fs";
 import { join } from "node:path";
 
-const BASE = "https://rosettaquantum.com";
+const BASE = (process.env.PROD_BASE || "https://rosettaquantum.com");
 
 /**
  * Quita comentarios y deja solo codigo.
