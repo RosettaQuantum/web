@@ -8,7 +8,10 @@
    el título y la figura arrancan a la misma altura en todas las tarjetas de una fila, y todas
    terminan juntas. Sin subgrid (navegadores viejos) las tarjetas igual miden lo mismo: la fila
    de la grilla las estira. ── */
-.pub-galeria{padding:0 0 var(--s5)}
+/* La galería fija su propio papel y su tinta: /q-ready (inglés) conserva la identidad retirada,
+   oscura, y sin esto el título y el texto heredaban el crema de esa hoja sobre el papel claro de
+   la tarjeta (medido el 23-nov: #F4EEDF sobre #FBFBF9, invisible). En /es/q-ready no cambia nada. */
+.pub-galeria{background:var(--paper);color:var(--ink);font-family:var(--sans);padding:var(--s3) 0 var(--s5)}
 .pub-cab{display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:var(--s1) var(--s3);margin:0 0 var(--s3);border-top:1px solid var(--line);padding-top:var(--s3)}
 .pub-galeria .pub-titulo{font-family:var(--serif);font-weight:400;font-size:var(--t-title);line-height:var(--lh-title);letter-spacing:-.01em;color:var(--ink);margin:0;max-width:none}
 .pub-bajada{margin:0;font-size:var(--t-small);line-height:var(--lh-small);color:var(--ink-60);max-width:52ch}
@@ -34,7 +37,7 @@
 /* ── La tarjeta del Informe PQC mensual (antes en qready-puerta.css) ── */
 .pub-tarjeta{background:var(--panel);border:1px solid var(--line);border-top:3px solid var(--pending);border-radius:2px;padding:var(--s3);display:flex;flex-direction:column;gap:var(--s2);min-width:0}
 .qr-informe-et{display:flex;justify-content:space-between;flex-wrap:wrap;gap:4px 12px;margin:0;font-family:var(--mono);font-size:var(--t-label);color:var(--ink-60);text-transform:uppercase;letter-spacing:.08em}
-.pub-tarjeta .qr-informe-h{font-family:var(--serif);font-weight:500;font-size:var(--t-sub);line-height:1.2;margin:0}
+.pub-tarjeta .qr-informe-h{font-family:var(--serif);font-weight:500;font-size:var(--t-sub);line-height:1.2;margin:0;color:var(--ink);letter-spacing:normal}
 .qr-qex{margin:0;background:var(--paper);border:1px solid var(--line);border-radius:2px;padding:var(--s2)}
 .qr-qex-cab{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:flex-end;gap:6px 12px}
 .qr-qex-n{margin:0;font-family:var(--serif);font-size:var(--t-title);line-height:1;color:var(--pending);font-variant-numeric:tabular-nums}
