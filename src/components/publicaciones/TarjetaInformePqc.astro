@@ -1,11 +1,11 @@
 ---
 /**
- * La tarjeta del Informe PQC mensual — una de las tarjetas de la galería «Publicaciones de
- * Rosetta» (GaleriaPublicaciones.astro). 23-nov-2026.
+ * La tarjeta del Informe PQC mensual — la primera diapositiva del carrusel de publicaciones del hero
+ * (CarruselPublicaciones.astro). 23-nov-2026.
  *
- * Es el `aside.qr-informe` que vivía a la derecha del hero de /es/q-ready (12-nov-2026),
- * MOVIDO sin cambiar sus cifras ni su texto en español: el título pasa de h2 a h3 porque ahora
- * cuelga del h2 de la galería, y nada más. Las cifras siguen saliendo del JSON de cada edición
+ * Es el `aside.qr-informe` que vivía a la derecha del hero de /es/q-ready (12-nov-2026), en el mismo
+ * lugar y con el mismo HTML: sólo cambia `aside` por `article` (comprobado contra el construido de
+ * 5034e97: texto, gráfico y marcado iguales). Las cifras siguen saliendo del JSON de cada edición
  * (src/data/informe-pqc/*.json) y sólo de las que declaran `borrador:false`, así que una
  * edición en revisión no aparece sola.
  *
@@ -54,11 +54,11 @@ const descQ = !P ? '' : es
   : llenar(EN.pie, [P.indice.n, P.indice.max, P.indice.tope]);
 ---
 {P && (
-  <article class="qr-informe pub-tarjeta" aria-labelledby="qr-informe-t">
+  <article class="qr-informe" aria-labelledby="qr-informe-t">
     {es
       ? <p class="qr-informe-et"><span>Informe PQC mensual</span><span>edición {P.numero} · {mesDe(P.edicion)}</span></p>
       : <p class="qr-informe-et"><span>{EN.etiqueta[0]}</span><span>{llenar(EN.etiqueta[1], [P.numero, mesDe(P.edicion)])}</span></p>}
-    <h3 id="qr-informe-t" class="qr-informe-h">{es ? 'La gran empresa chilena, medida.' : EN.titulo}</h3>
+    <h2 id="qr-informe-t" class="qr-informe-h">{es ? 'La gran empresa chilena, medida.' : EN.titulo}</h2>
     <figure class="qr-qex">
       <div class="qr-qex-cab">
         <p class="qr-qex-n">{P.indice.mediana}<small>{es ? ' QEX · mediana' : EN.cifraPeque}</small></p>
@@ -83,8 +83,7 @@ const descQ = !P ? '' : es
         ? <figcaption>Distribución del índice en {P.indice.n} organizaciones. Ninguna pasa de {P.indice.max}; sobre {P.indice.tope} no se puede afirmar nada midiendo desde afuera.</figcaption>
         : <figcaption>{llenar(EN.pie, [P.indice.n, P.indice.max, P.indice.tope])}</figcaption>}
     </figure>
-    <div class="pub-cuerpo">
-      {es ? (
+    {es ? (
         <form class="qr-informe-form" id="qr-informe-form" data-edicion={P.edicion} novalidate>
           <label for="qr-informe-email">Deje su correo y ábralo ahora</label>
           <div class="qr-informe-fila">
@@ -112,6 +111,5 @@ const descQ = !P ? '' : es
           ))}
         </ol>
       </div>
-    </div>
   </article>
 )}

@@ -1,6 +1,12 @@
 ---
 /**
- * /es/q-ready — la puerta de seguridad, en la marca vigente. 15-sep-2026.
+ * /es/q-ready y /q-ready — la puerta de seguridad, en la marca vigente. 15-sep-2026.
+ *
+ * 23-nov-2026: la misma portada sirve a los dos idiomas (`lang`). Los textos viven en
+ * src/lib/puerta-textos.mjs: el español es el de siempre, sin cambiar una letra; el inglés es
+ * PROVISORIO (docs/textos-provisorios-q-ready-en.md). A la derecha del hero va el carrusel de
+ * publicaciones (components/publicaciones/CarruselPublicaciones.astro), en el lugar y con el
+ * tamaño que tenía la tarjeta del informe.
  *
  * Nace de la maqueta que Nicholas aprobó esa noche («un botón sutil, una landing elegante
  * de Q-Ready al nuevo diseño, el pop-up con el informe mensual y el form para el informe
@@ -26,7 +32,13 @@
  * sólo confirma si la fila quedó escrita. El JS no muestra «recibido» hasta que el
  * endpoint responde ok. Ver public/js/qready-puerta.js.
  */
-import GaleriaPublicaciones from '../publicaciones/GaleriaPublicaciones.astro';
+import CarruselPublicaciones from '../publicaciones/CarruselPublicaciones.astro';
+import { TEXTOS_PUERTA } from '../../lib/puerta-textos.mjs';
+import { llenar } from '../../lib/textos-galeria.mjs';
+
+const { lang = 'es' } = Astro.props;
+const es = lang === 'es';
+const t = TEXTOS_PUERTA[es ? 'es' : 'en'];
 
 const INFORME_PUBLICO = false;
 
@@ -35,11 +47,12 @@ const ed = Object.entries(mods).map(([p, m]: any) => ({ slug: p.split('/').pop()
   .sort((a, b) => b.slug.localeCompare(a.slug))[0];
 if (!ed) throw new Error('qready-puerta: no hay ninguna edición en src/data/informe-pqc/');
 const d = ed.d;
-const T = Object.fromEntries(d.titulares.map((t: any) => [t.id, t]));
+const T = Object.fromEntries(d.titulares.map((x: any) => [x.id, x]));
 const I = d.indice, M = d.muestra;
 const MESES = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
+const MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
 const [yy, mm] = d.edicion.split('-').map(Number);
-const mesLargo = `${MESES[mm - 1]} de ${yy}`;
+const mesLargo = es ? `${MESES[mm - 1]} de ${yy}` : `${MONTHS[mm - 1]} ${yy}`;
 const corta = (iso: string) => { const [, m, dd] = iso.split('-'); return `${+dd}-${MESES[+m - 1].slice(0, 3)}`; };
 const ventana = `${corta(d.ventana.desde)} → ${corta(d.ventana.hasta)}`;
 const GRI = 'https://globalriskinstitute.org/publication/quantum-threat-timeline-report-2025b/';
@@ -56,13 +69,14 @@ const barras = d.qday.map((q: any) => {
   const r = { x: prev, w: x(año) - prev, y: 182 - alto, h: alto, lx: x(año) - 4, ly: 176 - alto, lab: q.lab };
   prev = x(año); return r;
 });
-const desc = `Migrar toma ${MIGRA} años, de ${AHORA} a ${finMigra}. Lo último migrado debe seguir secreto ${SECRETO} años más, hasta ${hasta}. `
-  + d.qday.map((q: any) => `hacia ${q.h.split('·')[1].trim()} la probabilidad estimada es ${q.lab}`).join('; ') + '.';
+const R = t.reloj;
+const desc = llenar(R.descA, [MIGRA, AHORA, finMigra, SECRETO, hasta])
+  + d.qday.map((q: any) => llenar(R.descItem, [q.h.split('·')[1].trim(), q.lab])).join('; ') + '.';
 
 // ── EL PANEL DEL INFORME DE LA INDUSTRIA ─────────────────────────────────────────────────
-// Iba a la derecha del hero desde el 12-nov-2026. El 23-nov pasó a ser la primera tarjeta de la
-// galería «Publicaciones de Rosetta» (components/publicaciones/), que va justo debajo del hero:
-// mismas cifras, mismo formulario, mismo criterio (sólo ediciones con borrador:false).
+// A la derecha del hero desde el 12-nov-2026. El 23-nov pasó a ser la primera diapositiva del
+// carrusel de publicaciones, en el mismo lugar y con el mismo tamaño: mismas cifras, mismo
+// formulario, mismo criterio (sólo ediciones con borrador:false).
 
 const ANCLA: Record<string, string> = { ambientes: 'panel', infra: 'panel', canal: 'panel', hibrido: 'medicion', proveedores: 'ruta' };
 const CIFRAS = [
@@ -70,72 +84,68 @@ const CIFRAS = [
   { id: 'hibrido', sev: '' }, { id: 'proveedores', sev: 'mal', k: 'Proveedores de core con fecha comprometida' },
 ].map((c) => ({ ...c, t: T[c.id] }));
 ---
-<section class="pg qr-hero" style="border-top:none" id="arriba"><div class="wrap">
+<section class="pg qr-hero" style="border-top:none" id="arriba"><div class="wrap qr-hero-grid">
   <div>
-    <div class="eyebrow">Q-Ready · exposición criptográfica post-cuántica</div>
-    <h1>¿Qué tan lista está su criptografía para el momento cuántico?</h1>
-    <p class="lede">Medimos desde afuera, sin tocar su red, qué criptografía expone hoy su superficie pública y quién decide de verdad su plazo de migración. Es el mismo método con que medimos a {M.organizaciones} organizaciones chilenas en {mesLargo}.</p>
+    <div class="eyebrow">{t.hero.eyebrow}</div>
+    <h1>{t.hero.h1}</h1>
+    <p class="lede">{llenar(t.hero.lede, [M.organizaciones, mesLargo])}</p>
     <p class="qr-acciones">
-      <button type="button" class="btn btn-solid" data-abrir="individual">Solicitar mi informe individual</button>
-      <a class="btn btn-ghost qr-medir" href="/es/q-ready/medicion"><span class="qr-vivo" aria-hidden="true"></span>Medir mi dominio ahora <span class="qr-medir-flecha" aria-hidden="true">→</span></a>
-      {INFORME_PUBLICO && <button type="button" class="qr-link" data-abrir="informe">o reciba el informe de la industria →</button>}
+      <button type="button" class="btn btn-solid" data-abrir="individual">{t.hero.individual}</button>
+      <a class="btn btn-ghost qr-medir" href={t.rutas.medicion}><span class="qr-vivo" aria-hidden="true"></span>{t.hero.medir} <span class="qr-medir-flecha" aria-hidden="true">→</span></a>
+      {INFORME_PUBLICO && es && <button type="button" class="qr-link" data-abrir="informe">o reciba el informe de la industria →</button>}
     </p>
-    <p class="qr-nota">El informe individual es gratis y confidencial: no se publica ni se comparte.</p>
+    <p class="qr-nota">{t.hero.nota}</p>
   </div>
+  <CarruselPublicaciones lang={lang} />
 </div></section>
-
-<GaleriaPublicaciones lang="es" />
 
 <section><div class="wrap qr-dos">
   <div>
-    <div class="eyebrow">Por qué ahora</div>
-    <h2>El riesgo empieza hoy, no cuando llegue la máquina.</h2>
-    <p>Un adversario con paciencia puede grabar hoy tráfico cifrado y guardarlo, barato, hasta que exista un computador capaz de romper RSA y curvas elípticas. Ese día el archivo se abre hacia atrás: lo que salió cifrado en 2026 queda legible entonces.</p>
-    <p class="qr-nota">No afirmamos que a nadie le hayan robado datos. Afirmamos una exposición medible contra un calendario público.</p>
+    <div class="eyebrow">{t.ahora.eyebrow}</div>
+    <h2>{t.ahora.h2}</h2>
+    <p>{t.ahora.p}</p>
+    <p class="qr-nota">{t.ahora.nota}</p>
   </div>
   <ol class="qr-hndl">
-    <li><b>Graba</b>el tráfico cifrado en tránsito</li>
-    <li><b>Guarda</b>a la espera de capacidad</li>
-    <li><b>Rompe</b>la clave cuando exista la máquina</li>
-    <li><b>Lee</b>lo de hace años, hacia atrás</li>
+    {t.ahora.pasos.map(([b, r]: string[]) => <li><b>{b}</b>{r}</li>)}
   </ol>
 </div></section>
 
 <section><div class="wrap">
-  <div class="eyebrow">Sume los años</div>
-  <h2>Si la cuenta da tarde, ya va tarde.</h2>
-  <p class="lede qr-medida">Si el tiempo que sus datos deben seguir secretos más el que toma migrar supera el tiempo hasta la amenaza, la organización llega tarde. Con un perfil típico de banca:</p>
+  <div class="eyebrow">{R.eyebrow}</div>
+  <h2>{R.h2}</h2>
+  <p class="lede qr-medida">{R.lede}</p>
   <figure class="qr-reloj">
-    <p class="qr-deslice" aria-hidden="true">Deslice para ver hasta {FIN} →</p>
+    <p class="qr-deslice" aria-hidden="true">{llenar(R.deslice, [FIN])}</p>
     <div class="qr-reloj-scroll">
       <svg class="reloj-svg" viewBox="0 0 760 250" role="img" aria-labelledby="reloj-t reloj-d">
-        <title id="reloj-t">Sume los años</title>
+        <title id="reloj-t">{R.titulo}</title>
         <desc id="reloj-d">{desc}</desc>
         {ejes.map((a) => (<>
           <line class="rj-grid" x1={x(a)} y1="30" x2={x(a)} y2="206" />
           <text class="rj-eje" x={x(a)} y="226" text-anchor="middle">{a}</text>
         </>))}
-        <text class="rj-fila" x="0" y="62">Migrar</text>
+        <text class="rj-fila" x="0" y="62">{R.migrar}</text>
         <rect class="rj-migra" x={x(AHORA)} y="48" width={x(finMigra) - x(AHORA)} height="20" rx="2" />
-        <text class="rj-dentro" x={x(AHORA) + 10} y="62">{MIGRA} años</text>
-        <text class="rj-fila" x="0" y="104">Seguir secreto</text>
+        <text class="rj-dentro" x={x(AHORA) + 10} y="62">{llenar(R.anios, [MIGRA])}</text>
+        <text class="rj-fila" x="0" y="104">{R.secreto}</text>
         <rect class="rj-secreto" x={x(finMigra)} y="90" width={x(hasta) - x(finMigra)} height="20" rx="2" />
-        <text class="rj-dentro" x={x(finMigra) + 10} y="104">{SECRETO} años</text>
-        <text class="rj-fila" x="0" y="150">Amenaza</text>
-        <text class="rj-fila rj-sub" x="0" y="166">prob. estimada</text>
+        <text class="rj-dentro" x={x(finMigra) + 10} y="104">{llenar(R.anios, [SECRETO])}</text>
+        <text class="rj-fila" x="0" y="150">{R.amenaza}</text>
+        <text class="rj-fila rj-sub" x="0" y="166">{R.prob}</text>
         {barras.map((b: any) => (<>
           <rect class="rj-prob" x={b.x} y={b.y} width={b.w} height={b.h} />
           <text class="rj-lab" x={b.lx} y={b.ly} text-anchor="end">{b.lab}</text>
         </>))}
         <line class="rj-corte" x1={x(hasta)} y1="30" x2={x(hasta)} y2="206" />
-        <text class="rj-corte-t" x={x(hasta) - 8} y="40" text-anchor="end">necesita protección hasta {hasta}</text>
+        <text class="rj-corte-t" x={x(hasta) - 8} y="40" text-anchor="end">{llenar(R.corte, [hasta])}</text>
       </svg>
     </div>
-    <figcaption>Perfil de ejemplo: secreto {SECRETO} años, migración {MIGRA}. Probabilidades: consenso de 26 expertos del Global Risk Institute; las de 15 y 20 años usan la lectura conservadora. <b>Ninguna de estas fechas es un pronóstico:</b> son la distancia contra la que se planifica. <a class="qr-base" href={GRI} rel="noopener">fuente →</a></figcaption>
+    <figcaption>{llenar(R.pie, [SECRETO, MIGRA])} <b>{R.pieNegrita}</b> {R.pieCola} <a class="qr-base" href={GRI} rel="noopener">{R.fuente}</a></figcaption>
   </figure>
 </div></section>
 
-{INFORME_PUBLICO && (
+{INFORME_PUBLICO && es && (
   <section id="cifras"><div class="wrap">
     <div class="eyebrow">Informe de la industria · edición {d.numero} · {mesLargo}</div>
     <h2>Lo que medimos en la gran empresa chilena.</h2>
@@ -157,58 +167,47 @@ const CIFRAS = [
 
 <section><div class="wrap qr-dos">
   <div>
-    <div class="eyebrow">Su informe individual</div>
-    <h2>Lo que recibe su organización.</h2>
-    <p>Un documento que un directorio puede leer, con la evidencia detrás. Sale de la medición de su propia superficie pública y lo revisa una persona antes de entregarlo.</p>
-    <p class="qr-acciones"><button type="button" class="btn btn-solid" data-abrir="individual">Solicitar mi informe individual</button></p>
-    <p class="qr-nota">Gratis. Confidencial: dirigido sólo a su organización, fuera del informe agregado.</p>
+    <div class="eyebrow">{t.individual.eyebrow}</div>
+    <h2>{t.individual.h2}</h2>
+    <p>{t.individual.p}</p>
+    <p class="qr-acciones"><button type="button" class="btn btn-solid" data-abrir="individual">{t.hero.individual}</button></p>
+    <p class="qr-nota">{t.individual.nota}</p>
   </div>
   <ol class="qr-indice">
-    <li><span>01</span><b>Su índice</b>Su número de 0 a 100 frente a la mediana del país y de su sector.</li>
-    <li><span>02</span><b>El hallazgo principal</b>Lo que más pesa en su caso, con la evidencia que lo sostiene.</li>
-    <li><span>03</span><b>Su superficie pública</b>Qué encontramos en registros públicos y qué responde desde internet.</li>
-    <li><span>04</span><b>Su ruta crítica</b>Los proveedores que fijan su plazo real, y cuáles no tienen fecha.</li>
-    <li><span>05</span><b>Plan 30 · 90 · 365</b>Qué hacer, en qué orden, y de qué hallazgo sale cada acción.</li>
-    <li><span>06</span><b>Alcance y límites</b>Qué mide el informe, qué no puede decir, y cómo reproducirlo.</li>
+    {t.individual.indice.map(([b, r]: string[], k: number) => <li><span>{String(k + 1).padStart(2, '0')}</span><b>{b}</b>{r}</li>)}
   </ol>
 </div></section>
 
 <section><div class="wrap">
-  <div class="eyebrow">Cómo se mide</div>
-  <h2>Cuatro pasos, sin tocar su red.</h2>
+  <div class="eyebrow">{t.pasos.eyebrow}</div>
+  <h2>{t.pasos.h2}</h2>
   <div class="qr-pasos">
-    <div class="paso"><b>Usted lo pide</b><p>Con su dominio y un correo de su organización. Medimos sólo lo que alguien de la organización autoriza.</p></div>
-    <div class="paso"><b>Leemos registros públicos</b><p>Certificate Transparency muestra cada nombre de host que su organización certificó alguna vez.</p></div>
-    <div class="paso"><b>Un saludo por host</b><p>Sobre los hosts críticos abrimos una conexión y enviamos un solo saludo TLS. No se completa: no hay sesión, ni datos, ni credenciales, ni prueba de intrusión.</p></div>
-    <div class="paso"><b>Una persona lo revisa</b><p>Un analista revisa el resultado antes de entregárselo y le escribe para coordinar.</p></div>
+    {t.pasos.lista.map(([b, r]: string[]) => <div class="paso"><b>{b}</b><p>{r}</p></div>)}
   </div>
 </div></section>
 
 <section><div class="wrap qr-dos">
   <div>
-    <div class="eyebrow">Con honestidad</div>
-    <h2>Lo que Q-Ready no es.</h2>
+    <div class="eyebrow">{t.noEs.eyebrow}</div>
+    <h2>{t.noEs.h2}</h2>
   </div>
   <ul class="puerta-hoy">
-    <li>No es una certificación, ni reemplaza una revisión interna formal.</li>
-    <li>No ve el interior: módulos de seguridad de hardware, core, VPN, firma de código o cifrado en reposo quedan fuera de una medición externa.</li>
-    <li>Un número bajo no significa que su organización sea insegura, y uno alto no significa que esté preparada.</li>
-    <li>No vende pánico: las fechas de 2030 y 2035 son de política pública, no un pronóstico sobre el hardware.</li>
+    {t.noEs.lista.map((r: string) => <li>{r}</li>)}
   </ul>
 </div></section>
 
 <section class="puerta-cierre"><div class="wrap qr-cierre">
-  <p class="lede">Vea dónde está su criptografía frente al reloj.</p>
-  <button type="button" class="btn btn-solid" data-abrir="individual">Solicitar mi informe individual</button>
+  <p class="lede">{t.cierre.lede}</p>
+  <button type="button" class="btn btn-solid" data-abrir="individual">{t.hero.individual}</button>
 </div></section>
 
-<div class="qr-velo" id="qr-velo" hidden data-publico={INFORME_PUBLICO ? '1' : '0'}>
+<div class="qr-velo" id="qr-velo" hidden data-publico={INFORME_PUBLICO && es ? '1' : '0'} data-lang={es ? 'es' : 'en'} data-origen={t.rutas.origen} data-textos={JSON.stringify(t.js)}>
   <div class="qr-dialogo" role="dialog" aria-modal="true" aria-labelledby="qr-dialogo-t" tabindex="-1">
-    <button type="button" class="qr-cerrar" data-cerrar aria-label="Cerrar">×</button>
-    <p class="eyebrow">Q-Ready</p>
-    <h2 id="qr-dialogo-t">{INFORME_PUBLICO ? 'Dos formas de empezar.' : 'Pida el informe de su organización.'}</h2>
-    <div class={`qr-opciones ${INFORME_PUBLICO ? '' : 'qr-una'}`}>
-      {INFORME_PUBLICO && (
+    <button type="button" class="qr-cerrar" data-cerrar aria-label={t.dialogo.cerrar}>×</button>
+    <p class="eyebrow">{t.dialogo.eyebrow}</p>
+    <h2 id="qr-dialogo-t">{INFORME_PUBLICO && es ? 'Dos formas de empezar.' : t.dialogo.h2}</h2>
+    <div class={`qr-opciones ${INFORME_PUBLICO && es ? '' : 'qr-una'}`}>
+      {INFORME_PUBLICO && es && (
         <form class="qr-op qr-op-informe" data-op="informe" novalidate>
           <p class="qr-op-et">Informe de la industria</p>
           <h3>Edición {d.numero} · {mesLargo}</h3>
@@ -222,22 +221,22 @@ const CIFRAS = [
         </form>
       )}
       <form class="qr-op qr-op-individual" data-op="individual" novalidate>
-        <p class="qr-op-et">Su informe individual · gratis</p>
-        <h3>Su organización, medida.</h3>
-        <p>El mismo método, sobre su propia superficie. Confidencial: sólo para su organización.</p>
+        <p class="qr-op-et">{t.dialogo.et}</p>
+        <h3>{t.dialogo.h3}</h3>
+        <p>{t.dialogo.p}</p>
         <div class="qr-par">
-          <label>Organización<input name="legal" autocomplete="organization" required /></label>
-          <label>Dominio raíz<input name="dominio" required placeholder="empresa.cl" inputmode="url" autocapitalize="off" spellcheck="false" /></label>
+          <label>{t.dialogo.organizacion}<input name="legal" autocomplete="organization" required /></label>
+          <label>{t.dialogo.dominio}<input name="dominio" required placeholder={t.dialogo.dominioEj} inputmode="url" autocapitalize="off" spellcheck="false" /></label>
         </div>
         <div class="qr-par">
-          <label>Nombre y cargo<input name="name" autocomplete="name" required /></label>
-          <label>Correo de la organización<input type="email" name="email" autocomplete="email" required placeholder="nombre@empresa.cl" /></label>
+          <label>{t.dialogo.nombre}<input name="name" autocomplete="name" required /></label>
+          <label>{t.dialogo.correo}<input type="email" name="email" autocomplete="email" required placeholder={t.dialogo.correoEj} /></label>
         </div>
-        <label class="qr-check"><input type="checkbox" name="autoriza" required /> Represento a esta organización y autorizo medir su superficie pública: un saludo TLS por host, sin acceso a sistemas.</label>
-        <button type="submit" class="btn btn-solid">Solicitar mi informe</button>
+        <label class="qr-check"><input type="checkbox" name="autoriza" required /> {t.dialogo.autoriza}</label>
+        <button type="submit" class="btn btn-solid">{t.dialogo.enviar}</button>
         <p class="qr-estado" role="status" hidden></p>
       </form>
     </div>
-    <p class="qr-pie">Puede pedir su exclusión o el detalle de lo observado cuando quiera, sin costo y sin condiciones.</p>
+    <p class="qr-pie">{t.dialogo.pie}</p>
   </div>
 </div>

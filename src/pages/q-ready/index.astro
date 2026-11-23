@@ -1,13 +1,28 @@
 ---
-import BaseLayout from '../../layouts/BaseLayout.astro';
-import QrLanding from '../../components/qready/QrLanding.astro';
-import css from '../../styles/pages/q-ready.css?raw';
+/**
+ * /q-ready — la puerta de seguridad en inglés, en la marca vigente (23-nov-2026, pedido de Nicholas).
+ * Es el MISMO componente que /es/q-ready (QReadyPuerta) con lang="en"; sus textos en inglés están
+ * PROVISORIOS en docs/textos-provisorios-q-ready-en.md hasta que Nicholas los apruebe.
+ *
+ * Reemplaza a la /q-ready vieja (QrLanding, identidad retirada, noindex), que se retira: la URL sigue
+ * siendo la misma, así que ningún enlace se rompe. Indexable como su par en español: está en el
+ * sitemap con su hreflang (astro.config.mjs).
+ *
+ * Sin /js/turnstile.js: lo usa sólo el formulario del informe, que existe sólo en español.
+ */
+import MarcaLayout from '../../layouts/MarcaLayout.astro';
+import QReadyPuerta from '../../components/paginas/QReadyPuerta.astro';
+import { TEXTOS_PUERTA } from '../../lib/puerta-textos.mjs';
+import paginas from '../../styles/pages/paginas.css?raw';
+import propia from '../../styles/pages/qready-puerta.css?raw';
 import publicaciones from '../../styles/componentes/publicaciones.css?raw';
+const t = TEXTOS_PUERTA.en.meta;
 ---
-<BaseLayout
-  title="Rosetta Q-Ready — Is your cryptography ready for the quantum clock?"
-  description="Automated map of your post-quantum cryptographic exposure. Public-surface evidence, a Q-Ready score 0–100, and a board-ready report — no network access at the External tier."
-  noindex
-  lang="en" altUrl="/es/q-ready" pageCss={css + '\n' + publicaciones}>
-  <QrLanding lang="en" />
-</BaseLayout>
+<MarcaLayout
+  title={t.titulo}
+  description={t.descripcion}
+  lang="en" altUrl="/es/q-ready" ruta="/q-ready"
+  pageCss={paginas + '\n' + propia + '\n' + publicaciones} scripts={["/js/qready-puerta.js", "/js/publicaciones-carrusel.js", "/js/frescura.js"]}
+>
+  <QReadyPuerta lang="en" />
+</MarcaLayout>

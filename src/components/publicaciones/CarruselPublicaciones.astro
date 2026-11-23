@@ -1,0 +1,95 @@
+---
+/**
+ * Las publicaciones de Rosetta, como CARRUSEL dentro del hero de la portada de seguridad
+ * (/es/q-ready y /q-ready). Decisión de Nicholas, 23-nov-2026, al ver producción: la galería no va
+ * como sección nueva debajo del hero, sino en el lugar del `aside.qr-informe` de antes y con su
+ * mismo tamaño. Una tarjeta a la vez: primero el informe (gráfico y formulario como antes), después
+ * la guía.
+ *
+ * UNA LISTA, UN LUGAR. Las diapositivas salen de src/data/publicaciones.json, en su orden; la próxima
+ * publicación entra con un registro. Los textos de las tarjetas son los APROBADOS (Nicholas,
+ * 23-nov-2026, «Sí, así»), sellados en src/data/publicaciones/textos-aprobados/. El título aprobado de
+ * la galería («Publicaciones de Rosetta» / «Rosetta publications») queda como NOMBRE ACCESIBLE del
+ * carrusel; su bajada ya no tiene lugar y no se usa.
+ *
+ * EL TAMAÑO. Todas las diapositivas ocupan la MISMA celda de una grilla: el carrusel mide lo que la
+ * más alta, que es la del informe, así que el hero no crece. Las inactivas van con
+ * `visibility:hidden`, que además las saca del orden de tabulación y del árbol de accesibilidad. Las
+ * flechas y los puntos van ABSOLUTOS, debajo de la tarjeta, dentro del relleno inferior del hero
+ * (40 px): no suman alto.
+ *
+ * SIN JAVASCRIPT las dos tarjetas se ven apiladas y sin controles (el <noscript> de abajo). Con JS
+ * (public/js/publicaciones-carrusel.js): flechas, puntos, ← → en los controles, aria-current en el
+ * punto activo y una región aria-live="polite" que anuncia la tarjeta nueva. No rota solo.
+ *
+ * Las etiquetas de las flechas («Publicación anterior»/«siguiente») son texto nuevo: PROVISORIAS,
+ * en docs/textos-provisorios-q-ready-en.md.
+ */
+import datos from '../../data/publicaciones.json';
+import aprobado from '../../data/publicaciones/textos-aprobados/TEXTOS-galeria-seguridad-2026-11-23.md?raw';
+import { textosGaleria } from '../../lib/textos-galeria.mjs';
+import { TEXTOS_PUERTA } from '../../lib/puerta-textos.mjs';
+import TarjetaInformePqc from './TarjetaInformePqc.astro';
+
+const { lang = 'es' } = Astro.props;
+const es = lang === 'es';
+const TX: any = textosGaleria(aprobado);
+const nombre = TX.galeria[es ? 'es' : 'en'].titulo;
+const C = TEXTOS_PUERTA[es ? 'es' : 'en'].carrusel;
+const TIPOS = new Set(['informe-pqc', 'documento']);
+for (const p of datos.publicaciones as any[]) {
+  if (!TIPOS.has(p.tipo)) throw new Error(`publicaciones.json: "${p.id}" trae tipo "${p.tipo}", que el carrusel no sabe pintar`);
+  if (p.tipo === 'documento' && !p[lang]) throw new Error(`publicaciones.json: "${p.id}" no trae su estructura en "${lang}"`);
+  if (p.tipo === 'documento' && !TX[p.textos]?.[lang]) throw new Error(`publicaciones.json: "${p.id}" pide los textos "${p.textos}", que no están aprobados en "${lang}"`);
+}
+// El nombre de cada punto es el título de su tarjeta: no hace falta texto nuevo para decir adónde lleva.
+// El del informe en español es el de su tarjeta (no está en el documento aprobado: no cambió); en inglés, el aprobado.
+const titulos = (datos.publicaciones as any[]).map((p) => p.tipo === 'informe-pqc' ? (es ? 'La gran empresa chilena, medida.' : TX.informeEn.titulo) : TX[p.textos][lang].titulo);
+const n = datos.publicaciones.length;
+---
+<div class="pub-carrusel" id="pub-carrusel" role="region" aria-label={nombre}>
+  <div class="pub-pista" id="pub-pista" aria-live="polite">
+    {(datos.publicaciones as any[]).map((p: any, k: number) => (
+      <div class={k === 0 ? 'pub-diapo activa' : 'pub-diapo'} data-diapo={k}>
+        {p.tipo === 'informe-pqc'
+          ? <TarjetaInformePqc lang={lang} />
+          : (() => {
+              const e = p[lang];
+              const t = TX[p.textos][lang];
+              const idT = `pub-${p.id}-t`;
+              return (
+                <article class="pub-documento" aria-labelledby={idT}>
+                  <p class="qr-informe-et"><span>{t.etiqueta[0]}</span><span>{t.etiqueta[1]}</span></p>
+                  <h2 id={idT} class="qr-informe-h">{t.titulo}</h2>
+                  <figure class="pub-portada">
+                    <a href={e.enlaces[0]} tabindex="-1" aria-hidden="true">
+                      <img src={e.portada.src} width={e.portada.ancho} height={e.portada.alto} alt={t.alt} decoding="async" />
+                    </a>
+                  </figure>
+                  <div class="pub-cuerpo">
+                    <p class="pub-texto">{t.bajada}</p>
+                    <p class="pub-meta">{t.meta}</p>
+                    <p class="pub-acciones">
+                      <a class="pub-enlace pub-enlace-principal" href={e.enlaces[0]}>{t.enlaces[0]} <span aria-hidden="true">→</span></a>
+                      <a class="pub-enlace" href={e.enlaces[1]}>{t.enlaces[1]}</a>
+                    </p>
+                  </div>
+                </article>
+              );
+            })()}
+      </div>
+    ))}
+  </div>
+  {n > 1 && (
+    <div class="pub-controles">
+      <button type="button" class="pub-flecha" data-paso="-1" aria-controls="pub-pista" aria-label={C.anterior}><span aria-hidden="true">←</span></button>
+      <div class="pub-puntos">
+        {titulos.map((t: string, k: number) => (
+          <button type="button" class="pub-punto" data-ir={k} aria-controls="pub-pista" aria-label={t} aria-current={k === 0 ? 'true' : 'false'}></button>
+        ))}
+      </div>
+      <button type="button" class="pub-flecha" data-paso="1" aria-controls="pub-pista" aria-label={C.siguiente}><span aria-hidden="true">→</span></button>
+    </div>
+  )}
+  <noscript><style is:inline>.pub-pista{display:flex!important;flex-direction:column;gap:var(--s3)}.pub-pista>.pub-diapo{visibility:visible!important}.pub-controles{display:none!important}</style></noscript>
+</div>

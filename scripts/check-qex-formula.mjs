@@ -113,7 +113,9 @@ for (const d of json.indice.dimensiones) {
 if (fallas === 0) bien('el estudio publicado (220 organizaciones) usa la misma ponderacion');
 
 // 3) ningun score ni banda escritos a mano en lo que se renderiza
-for (const f of ['src/components/qready/QrReport.astro', 'src/components/qready/QrLanding.astro']) {
+// QrLanding (la /q-ready vieja, con su anillo de ejemplo) se retiró el 23-nov-2026: /q-ready pasó a ser
+// la portada nueva, que no pinta ningún score. Queda QrReport, el único que sigue derivando uno.
+for (const f of ['src/components/qready/QrReport.astro']) {
   const src = leer(f);
   if (/SCORE\s*=\s*\d/.test(src)) mal(`${f} escribe el score a mano en vez de derivarlo`);
   else if (!/score\(VALORES\)/.test(src)) mal(`${f} no deriva el score con score() de src/lib/qex.js`);
