@@ -15,6 +15,8 @@
 // Worker inserta ahi la ruta del post traducido, y el marcador __RQ_ALT_ + _ tiene que
 // sobrevivir a la compilacion. Sin este prop, NavV2 calculaba el alterno desde `ruta` y
 // el marcador desaparecia del HTML compilado — el post se habria servido roto.
+import aprobado from "../data/publicaciones/textos-aprobados/TEXTOS-galeria-seguridad-2026-11-23.md?raw";
+import { textosGaleria } from "../lib/textos-galeria.mjs";
 const { lang = "en", ruta = "/", alt = null } = Astro.props;
 const es = lang === "es";
 
@@ -26,6 +28,10 @@ const es = lang === "es";
 // de seguridad (/es/q-ready) reúne todo lo de PQC —el informe mensual, la guía, la medición— y
 // hasta hoy sólo tenía puerta desde el pie. Un séptimo item no cabe a 840px (B1.1, y medido de
 // nuevo el 23-nov), así que entra en el lugar de Notes, que sigue en el pie («La firma» → Notes).
+// La etiqueta sale del texto APROBADO (Nicholas, 23-nov-2026: «Sí, así»), sellado en
+// src/data/publicaciones/textos-aprobados/; no se escribe aquí. La hamburguesa cubre hasta 1023px
+// (ver styles/componentes/nav.css).
+const SEG = textosGaleria(aprobado).menu[lang === "es" ? "es" : "en"];
 const ENLACES = es
   /* B1.8 · Monitor sale del menu. Un item de navegacion que promete un producto y
      entrega 158 palabras cuesta mas credibilidad que cualquier problema tipografico,
@@ -37,10 +43,10 @@ const ENLACES = es
      Sigue anunciada en llms.txt y en el sitemap, y enlazada desde el pie. */
   ? [["/es/pilotos", "Pilotos"], ["/es/servicios", "Servicios"], ["/es/biblioteca", "Biblioteca"],
      ["/es/ledger", "Ledger"], ["/es/metodologia", "Metodología"],
-     ["/es/q-ready", "Seguridad"]]
+     [SEG.ruta, SEG.texto]]
   : [["/pilots", "Pilots"], ["/services", "Services"], ["/library", "Library"],
      ["/ledger", "Ledger"], ["/methodology", "Methodology"],
-     ["/q-ready", "Security"]];
+     [SEG.ruta, SEG.texto]];
 
 /* B1.1 · copy del anexo A del spec maestro, aprobado. */
 const CTA = es ? ["/es/pilotos", "Pedir un árbitro"] : ["/pilots", "Request a referee"];

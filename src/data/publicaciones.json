@@ -1,38 +1,36 @@
 {
-  "_nota": "La galería «Publicaciones de Rosetta» de la portada de seguridad (/es/q-ready y /q-ready) se arma de esta lista, en este orden. Una publicación nueva es un registro nuevo. `tipo: informe-pqc` es la tarjeta del informe mensual: sus cifras salen de src/data/informe-pqc/*.json, no de aquí. `tipo: documento` se arma entera de su registro. Los textos con `provisorio: true` esperan la aprobación de Nicholas: ver docs/textos-provisorios-galeria.md.",
-  "galeria": {
-    "provisorio": true,
-    "es": { "titulo": "Publicaciones de Rosetta", "bajada": "Lo que medimos, publicado con fecha y fuente." },
-    "en": { "titulo": "Rosetta publications", "bajada": "What we measure, published with a date and a source." }
-  },
+  "_nota": "La galería «Publicaciones de Rosetta» de la portada de seguridad (/es/q-ready y /q-ready) se arma de esta lista, en este orden. Aquí van la ESTRUCTURA (tipo, rutas, imagen); los TEXTOS salen del documento aprobado por Nicholas el 23-nov-2026, src/data/publicaciones/textos-aprobados/ (lo lee src/lib/textos-galeria.mjs). Una publicación nueva es un registro aquí y una sección aprobada allá. `tipo: informe-pqc` es la tarjeta del informe mensual: sus cifras salen de src/data/informe-pqc/*.json.",
   "publicaciones": [
-    { "id": "informe-pqc", "tipo": "informe-pqc" },
+    {
+      "id": "informe-pqc",
+      "tipo": "informe-pqc"
+    },
     {
       "id": "guia-pqc",
       "tipo": "documento",
-      "provisorio": true,
       "es": {
-        "etiqueta": ["Guía de referencia", "PQC Watch"],
-        "titulo": "Criptografía post-cuántica: la guía medida",
-        "bajada": "Qué rompe un computador cuántico, qué aprobó el NIST, quién puso fecha y cómo se migra. Cada número lleva fecha y fuente.",
-        "meta": "14 capítulos · 60 fuentes · PDF gratis",
-        "portada": { "src": "/publicaciones/guia-pqc-portada-es.jpg", "ancho": 636, "alto": 900, "alt": "Portada de la guía «Criptografía post-cuántica: la guía medida»" },
+        "portada": {
+          "src": "/publicaciones/guia-pqc-portada-es.jpg",
+          "ancho": 636,
+          "alto": 900
+        },
         "enlaces": [
-          { "href": "/guia/criptografia-post-cuantica", "texto": "Leer la guía" },
-          { "href": "/guia/guia-criptografia-post-cuantica.pdf", "texto": "Descargar el PDF" }
+          "/guia/criptografia-post-cuantica",
+          "/guia/guia-criptografia-post-cuantica.pdf"
         ]
       },
       "en": {
-        "etiqueta": ["Reference guide", "PQC Watch"],
-        "titulo": "Post-quantum cryptography: the measured guide",
-        "bajada": "What a quantum computer breaks, what NIST approved, who has set deadlines and how to migrate. Every number carries a date and a source.",
-        "meta": "14 chapters · 60 sources · free PDF",
-        "portada": { "src": "/publicaciones/guia-pqc-portada-en.jpg", "ancho": 636, "alto": 900, "alt": "Cover of the guide “Post-quantum cryptography: the measured guide”" },
+        "portada": {
+          "src": "/publicaciones/guia-pqc-portada-en.jpg",
+          "ancho": 636,
+          "alto": 900
+        },
         "enlaces": [
-          { "href": "/guide/post-quantum-cryptography", "texto": "Read the guide" },
-          { "href": "/guide/post-quantum-cryptography-guide.pdf", "texto": "Download the PDF" }
+          "/guide/post-quantum-cryptography",
+          "/guide/post-quantum-cryptography-guide.pdf"
         ]
-      }
+      },
+      "textos": "guia"
     }
   ]
 }

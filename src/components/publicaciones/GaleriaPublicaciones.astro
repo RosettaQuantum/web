@@ -13,19 +13,24 @@
  * las figuras y el comienzo del cuerpo quedan a la misma altura en todas, y las tarjetas
  * terminan juntas. El CSS está en styles/componentes/publicaciones.css.
  *
- * Los textos de la galería y de la tarjeta de la guía son PROVISORIOS hasta que Nicholas los
- * apruebe: docs/textos-provisorios-galeria.md.
+ * LOS TEXTOS están APROBADOS (Nicholas, 23-nov-2026: «Sí, así») y se leen del documento sellado
+ * (src/data/publicaciones/textos-aprobados/, vía src/lib/textos-galeria.mjs). Aquí no se escribe
+ * ninguno: publicaciones.json trae sólo la estructura. Lo vigila scripts/check-textos-galeria.mjs.
  */
 import datos from '../../data/publicaciones.json';
+import aprobado from '../../data/publicaciones/textos-aprobados/TEXTOS-galeria-seguridad-2026-11-23.md?raw';
+import { textosGaleria } from '../../lib/textos-galeria.mjs';
 import TarjetaInformePqc from './TarjetaInformePqc.astro';
 
 const { lang = 'es' } = Astro.props;
 const es = lang === 'es';
-const G = datos.galeria[es ? 'es' : 'en'];
+const TX: any = textosGaleria(aprobado);
+const G = TX.galeria[es ? 'es' : 'en'];
 const TIPOS = new Set(['informe-pqc', 'documento']);
-for (const p of datos.publicaciones) {
+for (const p of datos.publicaciones as any[]) {
   if (!TIPOS.has(p.tipo)) throw new Error(`publicaciones.json: "${p.id}" trae tipo "${p.tipo}", que la galería no sabe pintar`);
-  if (p.tipo === 'documento' && !(p as any)[lang]) throw new Error(`publicaciones.json: "${p.id}" no trae textos en "${lang}"`);
+  if (p.tipo === 'documento' && !p[lang]) throw new Error(`publicaciones.json: "${p.id}" no trae su estructura en "${lang}"`);
+  if (p.tipo === 'documento' && !TX[p.textos]?.[lang]) throw new Error(`publicaciones.json: "${p.id}" pide los textos "${p.textos}", que no están aprobados en "${lang}"`);
 }
 ---
 <section class="pub-galeria" aria-labelledby="pub-galeria-t"><div class="wrap">
@@ -37,23 +42,24 @@ for (const p of datos.publicaciones) {
     {datos.publicaciones.map((p: any) => p.tipo === 'informe-pqc'
       ? <TarjetaInformePqc lang={lang} />
       : (() => {
-          const t = p[lang];
+          const e = p[lang];
+          const t = TX[p.textos][lang];
           const idT = `pub-${p.id}-t`;
           return (
             <article class="pub-tarjeta pub-documento" aria-labelledby={idT}>
               <p class="qr-informe-et"><span>{t.etiqueta[0]}</span><span>{t.etiqueta[1]}</span></p>
               <h3 id={idT} class="qr-informe-h">{t.titulo}</h3>
               <figure class="pub-portada">
-                <a href={t.enlaces[0].href} tabindex="-1" aria-hidden="true">
-                  <img src={t.portada.src} width={t.portada.ancho} height={t.portada.alto} alt={t.portada.alt} decoding="async" />
+                <a href={e.enlaces[0]} tabindex="-1" aria-hidden="true">
+                  <img src={e.portada.src} width={e.portada.ancho} height={e.portada.alto} alt={t.alt} decoding="async" />
                 </a>
               </figure>
               <div class="pub-cuerpo">
                 <p class="pub-texto">{t.bajada}</p>
                 <p class="pub-meta">{t.meta}</p>
                 <p class="pub-acciones">
-                  <a class="pub-enlace pub-enlace-principal" href={t.enlaces[0].href}>{t.enlaces[0].texto} <span aria-hidden="true">→</span></a>
-                  {t.enlaces.slice(1).map((e: any) => <a class="pub-enlace" href={e.href}>{e.texto}</a>)}
+                  <a class="pub-enlace pub-enlace-principal" href={e.enlaces[0]}>{t.enlaces[0]} <span aria-hidden="true">→</span></a>
+                  <a class="pub-enlace" href={e.enlaces[1]}>{t.enlaces[1]}</a>
                 </p>
               </div>
             </article>

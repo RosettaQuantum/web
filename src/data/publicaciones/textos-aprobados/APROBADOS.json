@@ -1,0 +1,8 @@
+[
+ {
+  "archivo": "TEXTOS-galeria-seguridad-2026-11-23.md",
+  "sha256": "8e0c821b6eb5d8f9d88930fa40b0c02622f2256b57947658489bcc0a759a4031",
+  "aprobado_por": "Nicholas, 23-nov-2026: \"Sí, así\"",
+  "usa": "src/lib/textos-galeria.mjs → components/NavV2.astro (botón Seguridad/Security), components/publicaciones/GaleriaPublicaciones.astro (encabezado y tarjeta de la guía) y components/publicaciones/TarjetaInformePqc.astro (tarjeta del informe en inglés). La tarjeta del informe en español no está en este documento: no cambió."
+ }
+]

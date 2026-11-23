@@ -11,11 +11,16 @@
  *
  * EN INGLÉS no hay formulario: el informe existe sólo en español y el formulario lo maneja
  * public/js/qready-puerta.js, que se carga sólo en /es/q-ready. La tarjeta en inglés enlaza
- * directo a /informe-pqc y dice que está en español. Sus textos son PROVISORIOS
- * (docs/textos-provisorios-galeria.md).
+ * directo a /informe-pqc y dice que está en español. Sus textos están APROBADOS (Nicholas,
+ * 23-nov-2026: «Sí, así») y se leen del documento sellado vía src/lib/textos-galeria.mjs: aquí
+ * sólo se llenan sus marcadores con las cifras de la edición. El `desc` del gráfico en inglés es
+ * el mismo pie aprobado: un texto para lector de pantalla también es texto que lee alguien.
  *
  * Sin edición publicada no se pinta nada: la galería no la cuenta.
  */
+import aprobado from '../../data/publicaciones/textos-aprobados/TEXTOS-galeria-seguridad-2026-11-23.md?raw';
+import { textosGaleria, llenar } from '../../lib/textos-galeria.mjs';
+const EN: any = textosGaleria(aprobado).informeEn;
 const { lang = 'es' } = Astro.props;
 const es = lang === 'es';
 
@@ -46,24 +51,23 @@ const ejesQ = [40, 50, 60, 70, 80, 90];
 const descQ = !P ? '' : es
   ? `Distribución del índice QEX en ${mesDe(P.edicion)}: ` + dist.map((b: any) => `${b.a} a ${b.z}, ${b.n} organizaciones (${b.pct} %)`).join('; ')
     + `. Mediana ${P.indice.mediana}. Techo observable desde afuera: ${P.indice.tope}.`
-  : `Distribution of the QEX index in ${mesDe(P.edicion)}: ` + dist.map((b: any) => `${b.a} to ${b.z}, ${b.n} organizations (${b.pct}%)`).join('; ')
-    + `. Median ${P.indice.mediana}. Ceiling observable from outside: ${P.indice.tope}.`;
+  : llenar(EN.pie, [P.indice.n, P.indice.max, P.indice.tope]);
 ---
 {P && (
   <article class="qr-informe pub-tarjeta" aria-labelledby="qr-informe-t">
     {es
       ? <p class="qr-informe-et"><span>Informe PQC mensual</span><span>edición {P.numero} · {mesDe(P.edicion)}</span></p>
-      : <p class="qr-informe-et"><span>Monthly PQC report</span><span>edition {P.numero} · {mesDe(P.edicion)}</span></p>}
-    <h3 id="qr-informe-t" class="qr-informe-h">{es ? 'La gran empresa chilena, medida.' : 'Large Chilean companies, measured.'}</h3>
+      : <p class="qr-informe-et"><span>{EN.etiqueta[0]}</span><span>{llenar(EN.etiqueta[1], [P.numero, mesDe(P.edicion)])}</span></p>}
+    <h3 id="qr-informe-t" class="qr-informe-h">{es ? 'La gran empresa chilena, medida.' : EN.titulo}</h3>
     <figure class="qr-qex">
       <div class="qr-qex-cab">
-        <p class="qr-qex-n">{P.indice.mediana}<small>{es ? ' QEX · mediana' : ' QEX · median'}</small></p>
+        <p class="qr-qex-n">{P.indice.mediana}<small>{es ? ' QEX · mediana' : EN.cifraPeque}</small></p>
         {es
           ? <p class="qr-qex-m">n = {P.indice.n} organizaciones<br />de {P.indice.min} a {P.indice.max}</p>
-          : <p class="qr-qex-m">n = {P.indice.n} organizations<br />from {P.indice.min} to {P.indice.max}</p>}
+          : <p class="qr-qex-m">{llenar(EN.cifraLineas[0], [P.indice.n])}<br />{llenar(EN.cifraLineas[1], [P.indice.min, P.indice.max])}</p>}
       </div>
       <svg class="qr-qex-svg" viewBox="0 0 320 146" role="img" aria-labelledby="qr-qex-t qr-qex-d">
-        <title id="qr-qex-t">{es ? 'Distribución del QEX' : 'QEX distribution'} · {mesDe(P.edicion)}</title>
+        <title id="qr-qex-t">{es ? `Distribución del QEX · ${mesDe(P.edicion)}` : llenar(EN.graficoTitulo, [mesDe(P.edicion)])}</title>
         <desc id="qr-qex-d">{descQ}</desc>
         <rect class="qx-techo" x={hx(P.indice.tope)} y="18" width={HX1 - hx(P.indice.tope)} height={HBASE - 18} />
         {barrasQ.map((b: any) => (<>
@@ -72,12 +76,12 @@ const descQ = !P ? '' : es
         </>))}
         <line class="qx-base" x1={HX0} y1={HBASE} x2={HX1} y2={HBASE} />
         <line class="qx-corte" x1={hx(P.indice.tope)} y1="12" x2={hx(P.indice.tope)} y2={HBASE} />
-        <text class="qx-et" x={hx(P.indice.tope) - 4} y="12" text-anchor="end">{es ? 'techo' : 'ceiling'} {P.indice.tope}</text>
+        <text class="qx-et" x={hx(P.indice.tope) - 4} y="12" text-anchor="end">{es ? `techo ${P.indice.tope}` : llenar(EN.graficoRotulo, [P.indice.tope])}</text>
         {ejesQ.map((v) => <text class="qx-eje" x={hx(v)} y={HBASE + 16} text-anchor="middle">{v}</text>)}
       </svg>
       {es
         ? <figcaption>Distribución del índice en {P.indice.n} organizaciones. Ninguna pasa de {P.indice.max}; sobre {P.indice.tope} no se puede afirmar nada midiendo desde afuera.</figcaption>
-        : <figcaption>Index distribution across {P.indice.n} organizations. None scores above {P.indice.max}; above {P.indice.tope} nothing can be claimed when measuring from outside.</figcaption>}
+        : <figcaption>{llenar(EN.pie, [P.indice.n, P.indice.max, P.indice.tope])}</figcaption>}
     </figure>
     <div class="pub-cuerpo">
       {es ? (
@@ -93,17 +97,17 @@ const descQ = !P ? '' : es
           <p class="qr-estado" role="status" aria-live="polite" hidden></p>
         </form>
       ) : (
-        <p class="pub-acciones"><a class="pub-enlace pub-enlace-principal" href="/informe-pqc">Read the report (in Spanish) <span aria-hidden="true">→</span></a></p>
+        <p class="pub-acciones"><a class="pub-enlace pub-enlace-principal" href="/informe-pqc">{EN.enlace} <span aria-hidden="true">→</span></a></p>
       )}
       <div class="qr-archivo">
-        <p class="qr-archivo-t">{es ? 'Ediciones' : 'Editions'}</p>
+        <p class="qr-archivo-t">{es ? 'Ediciones' : EN.archivoTitulo}</p>
         <ol>
           {publicadas.map((e, k) => (
             <li>
               {k === 0 ? <a href="/informe-pqc">{Mayus(mesDe(e.d.edicion))}</a> : <span>{Mayus(mesDe(e.d.edicion))}</span>}
               {es
                 ? <span class="qr-archivo-m">n.º {e.d.numero} · mediana {e.d.indice.mediana} · n = {e.d.indice.n}</span>
-                : <span class="qr-archivo-m">no. {e.d.numero} · median {e.d.indice.mediana} · n = {e.d.indice.n}</span>}
+                : <span class="qr-archivo-m">{llenar(EN.archivoFila, [e.d.numero, e.d.indice.mediana, e.d.indice.n])}</span>}
             </li>
           ))}
         </ol>

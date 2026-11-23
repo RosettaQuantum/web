@@ -57,8 +57,15 @@ footer{background:var(--paper) !important}
    sola a una segunda fila. auto-fit se acomoda a 4, a 5 o a las que haya, asi que
    la proxima columna no vuelve a romperlo en silencio. (10-sep-2026) */
 @media(min-width:900px){.foot-cols{grid-template-columns:repeat(auto-fit,minmax(170px,1fr))}}
-@media(min-width:840px){.nav-links{display:flex}}
-@media(min-width:840px){.burger{display:none}}
+/* EL CORTE DE LA HAMBURGUESA va a 1024px, no a 840 (23-nov-2026, decisión de Nicholas). Medido con el
+   viewport emulado e innerWidth real: con los seis items la marca pisaba «Pilotos» hasta 967px en
+   español (937 en inglés) y EN/ES caía en dos o tres líneas. 1024 deja 56px de margen sobre el primer
+   ancho limpio. Bajo el corte la barra lleva marca, CTA (desde 840), EN/ES y hamburguesa; los items van
+   al menú móvil. Acotado a la barra (`nav:not([class])`): un `.nav-links` desnudo alcanza a cualquiera
+   que nazca mañana. Lo mide scripts/check-nav.mjs --medir sobre dist, a 840, 1023, 1024 y 1280. */
+@media(min-width:1024px){nav:not([class]) .nav-links{display:flex}}
+@media(min-width:1024px){nav:not([class]) .burger{display:none}}
+@media(min-width:1024px){nav:not([class]) .mobile-menu.on{display:none}}
 
 /* B10.2 · la franja de frescura, bajo la barra. Fina, sin caja, sin color: es un dato
    de servicio, no un anuncio. Nace oculta y el JS la muestra solo si pudo leer el

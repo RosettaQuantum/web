@@ -5,6 +5,12 @@
  * el nav todavia no esta montado en ninguna pagina: montarlo antes de que existan las
  * rutas dejaria el preview con 404 visibles. Cuando el commit 6 monte la home, T-home
  * lo vuelve a comprobar contra el HTML servido.
+ *
+ * `--medir` (postbuild, 23-nov-2026): abre las home construidas en dist/ con Chrome, el viewport
+ * EMULADO (un --window-size no baja de ~500 px y mide otra cosa), y comprueba que la barra no se
+ * encime a 840, 980, corte-1, corte y 1280 px, en español y en inglés. Nace de un defecto que estuvo
+ * meses en producción sin que nada lo dijera: a 840 px la marca pisaba «Pilotos» 45 px y EN/ES caía
+ * en tres líneas. Ver medirBarra() más abajo.
  */
 export const CONSUMIDOR = {
   quien: "quien empuja a una rama rebuild",
@@ -18,6 +24,12 @@ const fallos = [];
 const ok = (m) => console.log(`  ok    ${m}`);
 const mal = (m) => { console.log(`  FALLA ${m}`); fallos.push(m); };
 
+if (process.argv.includes("--medir")) {
+  await medirBarra();
+  console.log(fallos.length ? `\nT-nav --medir: ${fallos.length} fallo(s)` : "\nT-nav --medir: la barra no se encima en ningún ancho medido, en los dos idiomas");
+  process.exit(fallos.length ? 1 : 0);
+}
+
 // /blog entra el 8-sep. Estaba SOLO en el pie, y 106 posts sin puerta en la barra es
 // exactamente el hueco que este guardia existe para no dejar pasar: contaba seis y los
 // seis estaban, asi que callaba sobre el que faltaba. Una lista de lo que TIENE que
@@ -29,8 +41,11 @@ const mal = (m) => { console.log(`  FALLA ${m}`); fallos.push(m); };
    seguridad, que reúne el informe PQC mensual y la guía. Hasta ese día sólo tenía puerta desde el pie. */
 /* VARIANTE B (23-nov): «Seguridad» reemplaza a «Notes» en la barra. /blog sigue en el pie, y eso
    también se exige aquí: sacarlo de la barra no puede dejar los posts sin puerta. */
-const en = ["/pilots","/services","/library","/ledger","/methodology","/q-ready"];
-const es = ["/es/pilotos","/es/servicios","/es/biblioteca","/es/ledger","/es/metodologia","/es/q-ready"];
+/* «Seguridad» (/es/q-ready, /q-ready) NO está en estas listas porque su ruta y su etiqueta no se
+   escriben en NavV2: salen del texto aprobado (src/data/publicaciones/textos-aprobados/). Se
+   comprueba más abajo, contra el documento. */
+const en = ["/pilots","/services","/library","/ledger","/methodology"];
+const es = ["/es/pilotos","/es/servicios","/es/biblioteca","/es/ledger","/es/metodologia"];
 {
   const pie = readFileSync("src/components/PieV2.astro", "utf8");
   pie.includes('["/es/blog", "Notes"]') && pie.includes('["/blog", "Notes"]')
@@ -42,10 +57,20 @@ const faltanEs = es.filter((r) => !src.includes(`"${r}"`));
 faltanEn.length ? mal(`faltan rutas EN: ${faltanEn}`) : ok(`${en.length} enlaces EN`);
 faltanEs.length ? mal(`faltan rutas ES: ${faltanEs}`) : ok(`${es.length} enlaces ES`);
 // La etiqueta, no sólo la ruta: el pie ya enlaza /es/q-ready con «Si llevas la seguridad», así que
-// una ruta presente en el archivo no prueba que el botón diga lo que se pidió.
-src.includes('["/es/q-ready", "Seguridad"]') && src.includes('["/q-ready", "Security"]')
-  ? ok("«Seguridad» / «Security» lleva a la portada de seguridad en los dos idiomas")
-  : mal("falta el botón «Seguridad» → /es/q-ready o «Security» → /q-ready");
+// una ruta presente en el archivo no prueba que el botón diga lo que se pidió. Desde el 23-nov la
+// etiqueta es la APROBADA y NavV2 la lee del documento: se exige que la lea (las dos ramas del
+// arreglo) y que el documento diga lo aprobado.
+{
+  const { textosGaleria, ARCHIVO, DIR } = await import("../src/lib/textos-galeria.mjs");
+  const M = textosGaleria(readFileSync(DIR + ARCHIVO, "utf8")).menu;
+  const leeAprobado = src.includes(`import aprobado from "../data/publicaciones/textos-aprobados/${ARCHIVO}?raw"`)
+    && (src.match(/\[SEG\.ruta, SEG\.texto\]/g) || []).length === 2;
+  leeAprobado ? ok("NavV2 toma «Seguridad» del texto aprobado, en las dos ramas del menú")
+              : mal("NavV2 no toma el botón de seguridad del texto aprobado (import + [SEG.ruta, SEG.texto] en es y en)");
+  M.es.texto === "Seguridad" && M.es.ruta === "/es/q-ready" && M.en.texto === "Security" && M.en.ruta === "/q-ready"
+    ? ok("el texto aprobado dice «Seguridad» → /es/q-ready y «Security» → /q-ready")
+    : mal(`el texto aprobado del menú no es el esperado: ${JSON.stringify(M)}`);
+}
 // Los textos son los aprobados: EN de la maqueta v20, ES de
 // handoff/web/rosetta-home-es-textos-v20.md (2-sep). Si cambian, cambia el aprobado
 // primero — este guardia esta escrito contra el texto, no contra "hay un boton".
@@ -140,3 +165,120 @@ src.includes('id="burger"') && src.includes('id="mobileMenu"') && src.includes("
 
 console.log(fallos.length ? `\nT-nav: ${fallos.length} fallo(s)` : "\nT-nav: barra completa en los dos idiomas, y nadie fija el <nav> por elemento");
 process.exit(fallos.length ? 1 : 0);
+
+/* ---------------------------------------------------------------------------
+ * --medir · la barra, medida en la página construida.
+ *
+ * QUÉ MIDE, en /es/ y / de dist (las dos montan NavV2), a 840, 980, corte-1, corte y 1280 px:
+ *  · el ancho es el pedido (innerWidth real): si no, el instrumento mide otra cosa y FALLA;
+ *  · bajo el corte, los items están ocultos y la hamburguesa a la vista;
+ *  · desde el corte, los items a la vista y la marca a 8 px o más del primer enlace («encime»);
+ *  · en todo ancho, EN/ES en una sola línea.
+ * El corte se LEE de nav.css y de home.css (las dos hojas que pintan la barra) y tienen que decir lo
+ * mismo.
+ *
+ * GRITO: en la página real a 840 px se inyecta el corte viejo (items a la vista desde 840) y la
+ * medida TIENE que dar encime; si no lo da, el instrumento no sirve y falla. SILENCIO: la página real.
+ *
+ * TRES ESTADOS. Las fuentes de marca vienen de Google Fonts. Sin ellas el navegador dibuja con
+ * Georgia y system-ui, que miden otra cosa: entonces se dice NO MEDIDO y no se falla (un falso
+ * positivo detendría el build de otro por la red), pero tampoco se dice «ok».
+ *
+ * PUNTO CIEGO DECLARADO: mide los anchos listados, no todos; entre medio manda el margen del corte.
+ * --------------------------------------------------------------------------- */
+async function medirBarra() {
+  const { existsSync, statSync } = await import("node:fs");
+  const { createServer } = await import("node:http");
+  const { join, extname, normalize } = await import("node:path");
+  const { abrirChrome } = await import("./lib/chrome.mjs");
+
+  const hojas = ["src/styles/componentes/nav.css", "src/styles/pages/home.css"];
+  const cortes = hojas.map((h) => {
+    const m = [...sinComentarios(readFileSync(h, "utf8")).matchAll(/@media\(min-width:(\d+)px\)\{nav:not\(\[class\]\) \.nav-links\{display:flex\}\}/g)];
+    return m.length === 1 ? Number(m[0][1]) : null;
+  });
+  if (cortes.some((c) => c === null) || cortes[0] !== cortes[1]) {
+    mal(`el corte de la hamburguesa no está una vez y igual en las dos hojas (${hojas.join(", ")}): ${cortes}`);
+    return;
+  }
+  const CORTE = cortes[0];
+  ok(`corte de la hamburguesa: ${CORTE}px, igual en nav.css y home.css`);
+  if (!existsSync("dist/es/index.html") || !existsSync("dist/index.html")) { mal("no hay dist/: --medir corre después de construir"); return; }
+
+  const TIPOS = { ".html": "text/html; charset=utf-8", ".css": "text/css", ".js": "text/javascript", ".mjs": "text/javascript",
+    ".svg": "image/svg+xml", ".png": "image/png", ".jpg": "image/jpeg", ".woff2": "font/woff2", ".json": "application/json" };
+  const srv = createServer((req, res) => {
+    let p = normalize(decodeURIComponent(new URL(req.url, "http://x").pathname)).replace(/^(\.\.[/\\])+/, "");
+    let f = join("dist", p);
+    if (existsSync(f) && statSync(f).isDirectory()) f = join(f, "index.html");
+    if (!existsSync(f)) { res.writeHead(404); res.end(); return; }
+    res.writeHead(200, { "content-type": TIPOS[extname(f)] || "application/octet-stream" });
+    res.end(readFileSync(f));
+  });
+  await new Promise((r) => srv.listen(0, "127.0.0.1", r));
+  const BASE = `http://127.0.0.1:${srv.address().port}`;
+
+  // Corre DENTRO de la página. Sin parámetros: evaluar() la serializa con toString().
+  const medir = async () => {
+    await document.fonts.ready;
+    const fuentes = document.fonts.check('16px "IBM Plex Sans"') && document.fonts.check('18px "Newsreader"');
+    const nav = document.querySelector("nav:not([class])");
+    if (!nav) return { sinBarra: true };
+    const links = [...nav.querySelectorAll(".nav-links a")];
+    const visibles = getComputedStyle(nav.querySelector(".nav-links")).display !== "none" && links.some((a) => a.getBoundingClientRect().width > 0);
+    const burger = nav.querySelector(".burger");
+    const lang = nav.querySelector(".nav-right .lang");
+    const wm = nav.querySelector(".wm").getBoundingClientRect();
+    return {
+      ancho: innerWidth, fuentes, visibles,
+      burger: getComputedStyle(burger).display !== "none",
+      encime: visibles ? Math.round((wm.right - links[0].getBoundingClientRect().left) * 10) / 10 : null,
+      lineasIdioma: Math.round(lang.getBoundingClientRect().height / parseFloat(getComputedStyle(lang).lineHeight)),
+      desborda: document.documentElement.scrollWidth > innerWidth,
+    };
+  };
+  const conCorteViejo = async () => {
+    const st = document.createElement("style");
+    st.textContent = "@media(min-width:840px){html body nav:not([class]) .nav-links{display:flex!important} html body nav:not([class]) .burger{display:none!important}}";
+    document.head.appendChild(st);
+    await new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)));
+    const nav = document.querySelector("nav:not([class])");
+    const a = nav.querySelector(".nav-links a").getBoundingClientRect();
+    const wm = nav.querySelector(".wm").getBoundingClientRect();
+    const lang = nav.querySelector(".nav-right .lang");
+    return { encime: Math.round((wm.right - a.left) * 10) / 10,
+      lineasIdioma: Math.round(lang.getBoundingClientRect().height / parseFloat(getComputedStyle(lang).lineHeight)) };
+  };
+
+  const MARGEN = 8;
+  const anchos = [...new Set([840, 980, CORTE - 1, CORTE, 1280])].sort((a, b) => a - b);
+  let sinFuentes = 0;
+  try {
+    for (const ancho of anchos) {
+      const c = await abrirChrome({ ancho, alto: 900 });
+      try {
+        for (const ruta of ["/es/", "/"]) {
+          const m = await c.evaluar(BASE + ruta, medir, 1500);
+          const d = `${ruta} @${ancho}`;
+          if (m.sinBarra) { mal(`${d}: no encontré la barra (nav:not([class]))`); continue; }
+          if (m.ancho !== ancho) { mal(`${d}: el navegador midió a ${m.ancho}px — el instrumento no mide lo que dice`); continue; }
+          if (!m.fuentes) { sinFuentes++; console.log(`  NO MEDIDO ${d}: no cargaron las fuentes de marca (Google Fonts); con las de reemplazo el ancho es otro`); continue; }
+          const debeVer = ancho >= CORTE;
+          if (m.visibles !== debeVer) mal(`${d}: los items ${m.visibles ? "se ven" : "no se ven"} y el corte es ${CORTE}px`);
+          else if (!debeVer && !m.burger) mal(`${d}: sin items y sin hamburguesa — no hay cómo navegar`);
+          else if (debeVer && m.encime > -MARGEN) mal(`${d}: la marca queda a ${-m.encime}px del primer enlace (encime ${m.encime}px; se pide ≥ ${MARGEN}px de aire)`);
+          else if (m.lineasIdioma !== 1) mal(`${d}: EN/ES cae en ${m.lineasIdioma} líneas`);
+          else if (m.desborda) mal(`${d}: la página se desborda a lo ancho`);
+          else ok(`${d.padEnd(14)} ${debeVer ? `items a la vista, marca a ${-m.encime}px del primer enlace` : "hamburguesa, items en el menú móvil"} · EN/ES en 1 línea`);
+        }
+        if (ancho === 840) {
+          const g = await c.evaluar(BASE + "/es/", conCorteViejo, 1500);
+          g.encime > -MARGEN || g.lineasIdioma !== 1
+            ? ok(`grito/silencio           con el corte viejo (840px) la misma medida da encime ${g.encime}px y EN/ES en ${g.lineasIdioma} líneas; la página real pasa`)
+            : mal(`la mutación no sirve: con el corte viejo a 840px la medida no ve encime (${g.encime}px, ${g.lineasIdioma} líneas)`);
+        }
+      } finally { await c.cerrar(); }
+    }
+  } finally { srv.close(); }
+  if (sinFuentes) console.log(`  NO MEDIDO en ${sinFuentes} de ${anchos.length * 2} casos: sin las fuentes de marca no se puede afirmar nada del ancho`);
+}

@@ -53,13 +53,15 @@ nav:not([class]){position:sticky;top:0;z-index:50;background:rgba(244,245,241,.9
    que termina ganando la cascada. Una cuarta definicion en otra hoja no se ve. */
 .nav-cta{display:inline-flex;align-items:center;height:40px;padding:0 20px;background:var(--ink);color:var(--paper);border:1px solid var(--ink);font-family:var(--sans);font-size:var(--t-small);font-weight:500;border-radius:2px;white-space:nowrap}
 .nav-cta:hover{background:var(--paper);color:var(--ink);border-color:var(--ink)}
-@media(min-width:840px){.nav-links{display:flex}}
+/* Corte de la hamburguesa: 1024px, acotado a la barra. El porqué está en componentes/nav.css. */
+@media(min-width:1024px){nav:not([class]) .nav-links{display:flex}}
 .burger{display:inline-flex;flex-direction:column;justify-content:center;gap:4px;width:38px;height:38px;border:1px solid var(--line);border-radius:2px;background:var(--panel);cursor:pointer;padding:0 9px}
 .burger span{display:block;width:18px;height:1.6px;background:var(--ink);transition:transform .2s,opacity .2s}
 .burger.on span:nth-child(1){transform:translateY(5.6px) rotate(45deg)}
 .burger.on span:nth-child(2){opacity:0}
 .burger.on span:nth-child(3){transform:translateY(-5.6px) rotate(-45deg)}
-@media(min-width:840px){.burger{display:none}}
+@media(min-width:1024px){nav:not([class]) .burger{display:none}}
+@media(min-width:1024px){nav:not([class]) .mobile-menu.on{display:none}}
 .mobile-menu{display:none;border-top:1px solid var(--line);background:var(--paper)}
 .mobile-menu.on{display:block}
 .mobile-menu a{display:block;padding:14px 22px;border-bottom:1px solid var(--line);font-family:var(--serif);font-size:var(--t-sub);color:var(--ink)}
