@@ -48,6 +48,8 @@ export function llenar(plantilla, valores) {
   return plantilla.replace(/‹[^›]+›/g, () => String(valores[k++]));
 }
 
+export const RUTA_SEGURIDAD_EN = "/es/q-ready";
+
 export function textosGaleria(md) {
   // El menú: «- **PROVISORIO** es: `Seguridad` → /es/q-ready»
   const menu = {};
@@ -57,7 +59,10 @@ export function textosGaleria(md) {
     const m = [...secMenu.matchAll(re)];
     if (m.length !== 1) throw new Error(`textos de la galería: el botón del menú en «${lang}» aparece ${m.length} veces`);
     if (m[0][2] !== ruta) throw new Error(`textos de la galería: el botón del menú en «${lang}» apunta a ${m[0][2]}, no a ${ruta}`);
-    menu[lang] = { texto: m[0][1], ruta };
+    // 23-nov-2026, decisión de Nicholas («Ya: Security apunta a la versión nueva»): /q-ready en inglés es la
+    // página VIEJA (identidad retirada, noindex) y el botón la sacó a la luz. Hasta que exista la portada nueva en
+    // inglés, «Security» lleva a la nueva en español. La etiqueta sigue siendo la aprobada; sólo cambia el destino.
+    menu[lang] = { texto: m[0][1], ruta: lang === "en" ? RUTA_SEGURIDAD_EN : ruta };
   }
 
   const tG = "Galería · encabezado", sG = seccion(md, tG);

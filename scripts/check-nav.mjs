@@ -67,8 +67,9 @@ faltanEs.length ? mal(`faltan rutas ES: ${faltanEs}`) : ok(`${es.length} enlaces
     && (src.match(/\[SEG\.ruta, SEG\.texto\]/g) || []).length === 2;
   leeAprobado ? ok("NavV2 toma «Seguridad» del texto aprobado, en las dos ramas del menú")
               : mal("NavV2 no toma el botón de seguridad del texto aprobado (import + [SEG.ruta, SEG.texto] en es y en)");
-  M.es.texto === "Seguridad" && M.es.ruta === "/es/q-ready" && M.en.texto === "Security" && M.en.ruta === "/q-ready"
-    ? ok("el texto aprobado dice «Seguridad» → /es/q-ready y «Security» → /q-ready")
+  // 23-nov: «Security» NO va a /q-ready (la página vieja, identidad retirada) sino a la portada nueva.
+  M.es.texto === "Seguridad" && M.es.ruta === "/es/q-ready" && M.en.texto === "Security" && M.en.ruta === "/es/q-ready"
+    ? ok("el menú dice «Seguridad» → /es/q-ready y «Security» → /es/q-ready (nunca a la /q-ready vieja)")
     : mal(`el texto aprobado del menú no es el esperado: ${JSON.stringify(M)}`);
 }
 // Los textos son los aprobados: EN de la maqueta v20, ES de

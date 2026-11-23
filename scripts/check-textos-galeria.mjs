@@ -90,7 +90,10 @@ export function esperados(T, informe) {
   out["/index.html"].push(`href="${T.menu.en.ruta}">${T.menu.en.texto}</a>`);
   for (const [lang, f] of [["es", "/es/q-ready/index.html"], ["en", "/q-ready/index.html"]]) {
     const G = T.galeria[lang], g = T.guia[lang];
-    out[f].push(`href="${T.menu[lang].ruta}">${T.menu[lang].texto}</a>`,
+    // /q-ready (inglés) es la página VIEJA, con su propia barra: no lleva NavV2, así que el botón del menú se
+    // exige sólo en las páginas con NavV2 (23-nov-2026: «Security» ya no apunta a ella).
+    if (lang === "es") out[f].push(`href="${T.menu[lang].ruta}">${T.menu[lang].texto}</a>`);
+    out[f].push(
       ...[G.titulo, G.bajada, g.etiqueta[0], g.etiqueta[1], g.titulo, g.bajada, g.meta, g.enlaces[1]].map(entero),
       `>${g.enlaces[0]} <span`, `alt="${g.alt}"`);
   }
