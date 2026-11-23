@@ -26,6 +26,8 @@
  * sólo confirma si la fila quedó escrita. El JS no muestra «recibido» hasta que el
  * endpoint responde ok. Ver public/js/qready-puerta.js.
  */
+import GaleriaPublicaciones from '../publicaciones/GaleriaPublicaciones.astro';
+
 const INFORME_PUBLICO = false;
 
 const mods = import.meta.glob('../../data/informe-pqc/*.json', { eager: true });
@@ -57,33 +59,10 @@ const barras = d.qday.map((q: any) => {
 const desc = `Migrar toma ${MIGRA} años, de ${AHORA} a ${finMigra}. Lo último migrado debe seguir secreto ${SECRETO} años más, hasta ${hasta}. `
   + d.qday.map((q: any) => `hacia ${q.h.split('·')[1].trim()} la probabilidad estimada es ${q.lab}`).join('; ') + '.';
 
-// ── EL PANEL DEL INFORME DE LA INDUSTRIA (12-nov-2026) ──────────────────────────────────
-// Va a la derecha del hero aunque INFORME_PUBLICO siga en false: ese interruptor nació (15-sep)
-// porque la edición de agosto era «borrador pendiente de revisión legal», y agosto se publicó el
-// 4-nov (borrador:false). El panel no mira el interruptor: mira cada edición y muestra SÓLO las
-// que declaran borrador:false, así que una edición nueva en revisión no aparece sola.
-// La figura es la distribución del QEX de la última edición publicada, dibujada de su JSON.
-const publicadas = Object.entries(mods).map(([p, m]: any) => ({ slug: p.split('/').pop().replace('.json', ''), d: m.default ?? m }))
-  .filter((e) => e.d.borrador === false).sort((a, b) => b.slug.localeCompare(a.slug));
-const P = publicadas[0]?.d;
-const mesDe = (ed: string) => { const [a, m] = ed.split('-').map(Number); return `${MESES[m - 1]} de ${a}`; };
-const Mayus = (x: string) => x.charAt(0).toUpperCase() + x.slice(1);
-const HX0 = 34, HX1 = 306, HD0 = 40, HD1 = 90;
-const hx = (v: number) => HX0 + (v - HD0) * (HX1 - HX0) / (HD1 - HD0);
-const HBASE = 118, HALTO = 84;
-const dist = P ? P.indice.distribucion.map((b: any) => {
-  const [a, z] = String(b.rango).split(/[–-]/).map(Number);
-  return { a, z, n: b.n, pct: b.pct };
-}) : [];
-const pctMax = Math.max(1, ...dist.map((b: any) => b.pct));
-const barrasQ = dist.map((b: any) => {
-  const h = HALTO * b.pct / pctMax;
-  return { x: hx(b.a) + 1, w: hx(b.z + 1) - hx(b.a) - 2, y: HBASE - h, h, pct: b.pct, n: b.n,
-    med: P.indice.mediana >= b.a && P.indice.mediana <= b.z, lx: (hx(b.a) + hx(b.z + 1)) / 2 };
-});
-const ejesQ = [40, 50, 60, 70, 80, 90];
-const descQ = P ? `Distribución del índice QEX en ${mesDe(P.edicion)}: ` + dist.map((b: any) => `${b.a} a ${b.z}, ${b.n} organizaciones (${b.pct} %)`).join('; ')
-  + `. Mediana ${P.indice.mediana}. Techo observable desde afuera: ${P.indice.tope}.` : '';
+// ── EL PANEL DEL INFORME DE LA INDUSTRIA ─────────────────────────────────────────────────
+// Iba a la derecha del hero desde el 12-nov-2026. El 23-nov pasó a ser la primera tarjeta de la
+// galería «Publicaciones de Rosetta» (components/publicaciones/), que va justo debajo del hero:
+// mismas cifras, mismo formulario, mismo criterio (sólo ediciones con borrador:false).
 
 const ANCLA: Record<string, string> = { ambientes: 'panel', infra: 'panel', canal: 'panel', hibrido: 'medicion', proveedores: 'ruta' };
 const CIFRAS = [
@@ -91,7 +70,7 @@ const CIFRAS = [
   { id: 'hibrido', sev: '' }, { id: 'proveedores', sev: 'mal', k: 'Proveedores de core con fecha comprometida' },
 ].map((c) => ({ ...c, t: T[c.id] }));
 ---
-<section class="pg qr-hero" style="border-top:none" id="arriba"><div class={`wrap ${P ? 'qr-hero-grid' : ''}`}>
+<section class="pg qr-hero" style="border-top:none" id="arriba"><div class="wrap">
   <div>
     <div class="eyebrow">Q-Ready · exposición criptográfica post-cuántica</div>
     <h1>¿Qué tan lista está su criptografía para el momento cuántico?</h1>
@@ -103,55 +82,9 @@ const CIFRAS = [
     </p>
     <p class="qr-nota">El informe individual es gratis y confidencial: no se publica ni se comparte.</p>
   </div>
-  {P && (
-    <aside class="qr-informe" aria-labelledby="qr-informe-t">
-      <p class="qr-informe-et"><span>Informe PQC mensual</span><span>edición {P.numero} · {mesDe(P.edicion)}</span></p>
-      <h2 id="qr-informe-t" class="qr-informe-h">La gran empresa chilena, medida.</h2>
-      <figure class="qr-qex">
-        <div class="qr-qex-cab">
-          <p class="qr-qex-n">{P.indice.mediana}<small> QEX · mediana</small></p>
-          <p class="qr-qex-m">n = {P.indice.n} organizaciones<br />de {P.indice.min} a {P.indice.max}</p>
-        </div>
-        <svg class="qr-qex-svg" viewBox="0 0 320 146" role="img" aria-labelledby="qr-qex-t qr-qex-d">
-          <title id="qr-qex-t">Distribución del QEX · {mesDe(P.edicion)}</title>
-          <desc id="qr-qex-d">{descQ}</desc>
-          <rect class="qx-techo" x={hx(P.indice.tope)} y="18" width={HX1 - hx(P.indice.tope)} height={HBASE - 18} />
-          {barrasQ.map((b: any) => (<>
-            <rect class={b.med ? 'qx-barra qx-med' : 'qx-barra'} x={b.x} y={b.y} width={b.w} height={b.h} />
-            <text class="qx-pct" x={b.lx} y={b.y - 4} text-anchor="middle">{b.pct}%</text>
-          </>))}
-          <line class="qx-base" x1={HX0} y1={HBASE} x2={HX1} y2={HBASE} />
-          <line class="qx-corte" x1={hx(P.indice.tope)} y1="12" x2={hx(P.indice.tope)} y2={HBASE} />
-          <text class="qx-et" x={hx(P.indice.tope) - 4} y="12" text-anchor="end">techo {P.indice.tope}</text>
-          {ejesQ.map((v) => <text class="qx-eje" x={hx(v)} y={HBASE + 16} text-anchor="middle">{v}</text>)}
-        </svg>
-        <figcaption>Distribución del índice en {P.indice.n} organizaciones. Ninguna pasa de {P.indice.max}; sobre {P.indice.tope} no se puede afirmar nada midiendo desde afuera.</figcaption>
-      </figure>
-      <form class="qr-informe-form" id="qr-informe-form" data-edicion={P.edicion} novalidate>
-        <label for="qr-informe-email">Deje su correo y ábralo ahora</label>
-        <div class="qr-informe-fila">
-          <input id="qr-informe-email" type="email" name="email" autocomplete="email" required placeholder="nombre@empresa.cl" />
-          <button type="submit" class="btn btn-solid">Abrir el informe</button>
-        </div>
-        <label class="qr-informe-check"><input type="checkbox" name="proxima" /> Avísenme cuando salga la próxima edición</label>
-        <p class="qr-informe-pie">Guardamos su correo sólo para esto. Para borrarlo, escriba a hello@rosettaquantum.com.</p>
-        <div class="qr-ts" data-turnstile></div>
-        <p class="qr-estado" role="status" aria-live="polite" hidden></p>
-      </form>
-      <div class="qr-archivo">
-        <p class="qr-archivo-t">Ediciones</p>
-        <ol>
-          {publicadas.map((e, k) => (
-            <li>
-              {k === 0 ? <a href="/informe-pqc">{Mayus(mesDe(e.d.edicion))}</a> : <span>{Mayus(mesDe(e.d.edicion))}</span>}
-              <span class="qr-archivo-m">n.º {e.d.numero} · mediana {e.d.indice.mediana} · n = {e.d.indice.n}</span>
-            </li>
-          ))}
-        </ol>
-      </div>
-    </aside>
-  )}
 </div></section>
+
+<GaleriaPublicaciones lang="es" />
 
 <section><div class="wrap qr-dos">
   <div>

@@ -25,12 +25,19 @@ const mal = (m) => { console.log(`  FALLA ${m}`); fallos.push(m); };
 /* /monitor salio de la barra el 10-sep (bloque 1 del spec maestro, B1.8): prometia un
    producto y entregaba 158 palabras. La pagina sigue viva, anunciada en llms.txt y en el
    sitemap — lo que cambio es que ya no ocupa un lugar en el menu principal. */
-const en = ["/pilots","/services","/library","/ledger","/methodology","/blog"];
-const es = ["/es/pilotos","/es/servicios","/es/biblioteca","/es/ledger","/es/metodologia","/es/blog"];
+/* /q-ready entra el 23-nov (pedido de Nicholas): «Seguridad» / «Security» lleva a la portada de
+   seguridad, que reúne el informe PQC mensual y la guía. Hasta ese día sólo tenía puerta desde el pie. */
+const en = ["/pilots","/services","/library","/ledger","/methodology","/q-ready","/blog"];
+const es = ["/es/pilotos","/es/servicios","/es/biblioteca","/es/ledger","/es/metodologia","/es/q-ready","/es/blog"];
 const faltanEn = en.filter((r) => !src.includes(`"${r}"`));
 const faltanEs = es.filter((r) => !src.includes(`"${r}"`));
 faltanEn.length ? mal(`faltan rutas EN: ${faltanEn}`) : ok(`${en.length} enlaces EN`);
 faltanEs.length ? mal(`faltan rutas ES: ${faltanEs}`) : ok(`${es.length} enlaces ES`);
+// La etiqueta, no sólo la ruta: el pie ya enlaza /es/q-ready con «Si llevas la seguridad», así que
+// una ruta presente en el archivo no prueba que el botón diga lo que se pidió.
+src.includes('["/es/q-ready", "Seguridad"]') && src.includes('["/q-ready", "Security"]')
+  ? ok("«Seguridad» / «Security» lleva a la portada de seguridad en los dos idiomas")
+  : mal("falta el botón «Seguridad» → /es/q-ready o «Security» → /q-ready");
 // Los textos son los aprobados: EN de la maqueta v20, ES de
 // handoff/web/rosetta-home-es-textos-v20.md (2-sep). Si cambian, cambia el aprobado
 // primero — este guardia esta escrito contra el texto, no contra "hay un boton".

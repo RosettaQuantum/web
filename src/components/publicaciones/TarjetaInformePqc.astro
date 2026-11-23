@@ -1,0 +1,113 @@
+---
+/**
+ * La tarjeta del Informe PQC mensual — una de las tarjetas de la galería «Publicaciones de
+ * Rosetta» (GaleriaPublicaciones.astro). 23-nov-2026.
+ *
+ * Es el `aside.qr-informe` que vivía a la derecha del hero de /es/q-ready (12-nov-2026),
+ * MOVIDO sin cambiar sus cifras ni su texto en español: el título pasa de h2 a h3 porque ahora
+ * cuelga del h2 de la galería, y nada más. Las cifras siguen saliendo del JSON de cada edición
+ * (src/data/informe-pqc/*.json) y sólo de las que declaran `borrador:false`, así que una
+ * edición en revisión no aparece sola.
+ *
+ * EN INGLÉS no hay formulario: el informe existe sólo en español y el formulario lo maneja
+ * public/js/qready-puerta.js, que se carga sólo en /es/q-ready. La tarjeta en inglés enlaza
+ * directo a /informe-pqc y dice que está en español. Sus textos son PROVISORIOS
+ * (docs/textos-provisorios-galeria.md).
+ *
+ * Sin edición publicada no se pinta nada: la galería no la cuenta.
+ */
+const { lang = 'es' } = Astro.props;
+const es = lang === 'es';
+
+const mods = import.meta.glob('../../data/informe-pqc/*.json', { eager: true });
+const publicadas = Object.entries(mods).map(([p, m]: any) => ({ slug: p.split('/').pop().replace('.json', ''), d: m.default ?? m }))
+  .filter((e) => e.d.borrador === false).sort((a, b) => b.slug.localeCompare(a.slug));
+const P = publicadas[0]?.d;
+
+const MESES = es
+  ? ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre']
+  : ['January','February','March','April','May','June','July','August','September','October','November','December'];
+const mesDe = (ed: string) => { const [a, m] = ed.split('-').map(Number); return es ? `${MESES[m - 1]} de ${a}` : `${MESES[m - 1]} ${a}`; };
+const Mayus = (x: string) => x.charAt(0).toUpperCase() + x.slice(1);
+const HX0 = 34, HX1 = 306, HD0 = 40, HD1 = 90;
+const hx = (v: number) => HX0 + (v - HD0) * (HX1 - HX0) / (HD1 - HD0);
+const HBASE = 118, HALTO = 84;
+const dist = P ? P.indice.distribucion.map((b: any) => {
+  const [a, z] = String(b.rango).split(/[–-]/).map(Number);
+  return { a, z, n: b.n, pct: b.pct };
+}) : [];
+const pctMax = Math.max(1, ...dist.map((b: any) => b.pct));
+const barrasQ = dist.map((b: any) => {
+  const h = HALTO * b.pct / pctMax;
+  return { x: hx(b.a) + 1, w: hx(b.z + 1) - hx(b.a) - 2, y: HBASE - h, h, pct: b.pct, n: b.n,
+    med: P.indice.mediana >= b.a && P.indice.mediana <= b.z, lx: (hx(b.a) + hx(b.z + 1)) / 2 };
+});
+const ejesQ = [40, 50, 60, 70, 80, 90];
+const descQ = !P ? '' : es
+  ? `Distribución del índice QEX en ${mesDe(P.edicion)}: ` + dist.map((b: any) => `${b.a} a ${b.z}, ${b.n} organizaciones (${b.pct} %)`).join('; ')
+    + `. Mediana ${P.indice.mediana}. Techo observable desde afuera: ${P.indice.tope}.`
+  : `Distribution of the QEX index in ${mesDe(P.edicion)}: ` + dist.map((b: any) => `${b.a} to ${b.z}, ${b.n} organizations (${b.pct}%)`).join('; ')
+    + `. Median ${P.indice.mediana}. Ceiling observable from outside: ${P.indice.tope}.`;
+---
+{P && (
+  <article class="qr-informe pub-tarjeta" aria-labelledby="qr-informe-t">
+    {es
+      ? <p class="qr-informe-et"><span>Informe PQC mensual</span><span>edición {P.numero} · {mesDe(P.edicion)}</span></p>
+      : <p class="qr-informe-et"><span>Monthly PQC report</span><span>edition {P.numero} · {mesDe(P.edicion)}</span></p>}
+    <h3 id="qr-informe-t" class="qr-informe-h">{es ? 'La gran empresa chilena, medida.' : 'Large Chilean companies, measured.'}</h3>
+    <figure class="qr-qex">
+      <div class="qr-qex-cab">
+        <p class="qr-qex-n">{P.indice.mediana}<small>{es ? ' QEX · mediana' : ' QEX · median'}</small></p>
+        {es
+          ? <p class="qr-qex-m">n = {P.indice.n} organizaciones<br />de {P.indice.min} a {P.indice.max}</p>
+          : <p class="qr-qex-m">n = {P.indice.n} organizations<br />from {P.indice.min} to {P.indice.max}</p>}
+      </div>
+      <svg class="qr-qex-svg" viewBox="0 0 320 146" role="img" aria-labelledby="qr-qex-t qr-qex-d">
+        <title id="qr-qex-t">{es ? 'Distribución del QEX' : 'QEX distribution'} · {mesDe(P.edicion)}</title>
+        <desc id="qr-qex-d">{descQ}</desc>
+        <rect class="qx-techo" x={hx(P.indice.tope)} y="18" width={HX1 - hx(P.indice.tope)} height={HBASE - 18} />
+        {barrasQ.map((b: any) => (<>
+          <rect class={b.med ? 'qx-barra qx-med' : 'qx-barra'} x={b.x} y={b.y} width={b.w} height={b.h} />
+          <text class="qx-pct" x={b.lx} y={b.y - 4} text-anchor="middle">{b.pct}%</text>
+        </>))}
+        <line class="qx-base" x1={HX0} y1={HBASE} x2={HX1} y2={HBASE} />
+        <line class="qx-corte" x1={hx(P.indice.tope)} y1="12" x2={hx(P.indice.tope)} y2={HBASE} />
+        <text class="qx-et" x={hx(P.indice.tope) - 4} y="12" text-anchor="end">{es ? 'techo' : 'ceiling'} {P.indice.tope}</text>
+        {ejesQ.map((v) => <text class="qx-eje" x={hx(v)} y={HBASE + 16} text-anchor="middle">{v}</text>)}
+      </svg>
+      {es
+        ? <figcaption>Distribución del índice en {P.indice.n} organizaciones. Ninguna pasa de {P.indice.max}; sobre {P.indice.tope} no se puede afirmar nada midiendo desde afuera.</figcaption>
+        : <figcaption>Index distribution across {P.indice.n} organizations. None scores above {P.indice.max}; above {P.indice.tope} nothing can be claimed when measuring from outside.</figcaption>}
+    </figure>
+    <div class="pub-cuerpo">
+      {es ? (
+        <form class="qr-informe-form" id="qr-informe-form" data-edicion={P.edicion} novalidate>
+          <label for="qr-informe-email">Deje su correo y ábralo ahora</label>
+          <div class="qr-informe-fila">
+            <input id="qr-informe-email" type="email" name="email" autocomplete="email" required placeholder="nombre@empresa.cl" />
+            <button type="submit" class="btn btn-solid">Abrir el informe</button>
+          </div>
+          <label class="qr-informe-check"><input type="checkbox" name="proxima" /> Avísenme cuando salga la próxima edición</label>
+          <p class="qr-informe-pie">Guardamos su correo sólo para esto. Para borrarlo, escriba a hello@rosettaquantum.com.</p>
+          <div class="qr-ts" data-turnstile></div>
+          <p class="qr-estado" role="status" aria-live="polite" hidden></p>
+        </form>
+      ) : (
+        <p class="pub-acciones"><a class="pub-enlace pub-enlace-principal" href="/informe-pqc">Read the report (in Spanish) <span aria-hidden="true">→</span></a></p>
+      )}
+      <div class="qr-archivo">
+        <p class="qr-archivo-t">{es ? 'Ediciones' : 'Editions'}</p>
+        <ol>
+          {publicadas.map((e, k) => (
+            <li>
+              {k === 0 ? <a href="/informe-pqc">{Mayus(mesDe(e.d.edicion))}</a> : <span>{Mayus(mesDe(e.d.edicion))}</span>}
+              {es
+                ? <span class="qr-archivo-m">n.º {e.d.numero} · mediana {e.d.indice.mediana} · n = {e.d.indice.n}</span>
+                : <span class="qr-archivo-m">no. {e.d.numero} · median {e.d.indice.mediana} · n = {e.d.indice.n}</span>}
+            </li>
+          ))}
+        </ol>
+      </div>
+    </div>
+  </article>
+)}

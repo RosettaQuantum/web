@@ -1,0 +1,63 @@
+---
+/**
+ * «Publicaciones de Rosetta» — la galería de la portada de seguridad (/es/q-ready, /q-ready).
+ * Pedido de Nicholas, 23-nov-2026: la tarjeta del informe PQC mensual que iba sola en el hero
+ * pasa a ser la primera de una galería, y la guía PQC entra al lado con el mismo formato.
+ *
+ * UNA LISTA, UN LUGAR. Las tarjetas salen de src/data/publicaciones.json, en su orden. La
+ * próxima publicación entra con un registro `tipo: documento` y no toca este archivo. El
+ * informe es `tipo: informe-pqc` porque su figura se dibuja del JSON de cada edición.
+ *
+ * MISMA ALTURA Y MISMA LÍNEA BASE. Cada tarjeta ocupa cuatro filas de la grilla de la galería
+ * (etiqueta · título · figura · cuerpo) con `grid-template-rows: subgrid`, así que los títulos,
+ * las figuras y el comienzo del cuerpo quedan a la misma altura en todas, y las tarjetas
+ * terminan juntas. El CSS está en styles/componentes/publicaciones.css.
+ *
+ * Los textos de la galería y de la tarjeta de la guía son PROVISORIOS hasta que Nicholas los
+ * apruebe: docs/textos-provisorios-galeria.md.
+ */
+import datos from '../../data/publicaciones.json';
+import TarjetaInformePqc from './TarjetaInformePqc.astro';
+
+const { lang = 'es' } = Astro.props;
+const es = lang === 'es';
+const G = datos.galeria[es ? 'es' : 'en'];
+const TIPOS = new Set(['informe-pqc', 'documento']);
+for (const p of datos.publicaciones) {
+  if (!TIPOS.has(p.tipo)) throw new Error(`publicaciones.json: "${p.id}" trae tipo "${p.tipo}", que la galería no sabe pintar`);
+  if (p.tipo === 'documento' && !(p as any)[lang]) throw new Error(`publicaciones.json: "${p.id}" no trae textos en "${lang}"`);
+}
+---
+<section class="pub-galeria" aria-labelledby="pub-galeria-t"><div class="wrap">
+  <div class="pub-cab">
+    <h2 id="pub-galeria-t" class="pub-titulo">{G.titulo}</h2>
+    <p class="pub-bajada">{G.bajada}</p>
+  </div>
+  <div class="pub-grilla">
+    {datos.publicaciones.map((p: any) => p.tipo === 'informe-pqc'
+      ? <TarjetaInformePqc lang={lang} />
+      : (() => {
+          const t = p[lang];
+          const idT = `pub-${p.id}-t`;
+          return (
+            <article class="pub-tarjeta pub-documento" aria-labelledby={idT}>
+              <p class="qr-informe-et"><span>{t.etiqueta[0]}</span><span>{t.etiqueta[1]}</span></p>
+              <h3 id={idT} class="qr-informe-h">{t.titulo}</h3>
+              <figure class="pub-portada">
+                <a href={t.enlaces[0].href} tabindex="-1" aria-hidden="true">
+                  <img src={t.portada.src} width={t.portada.ancho} height={t.portada.alto} alt={t.portada.alt} loading="lazy" decoding="async" />
+                </a>
+              </figure>
+              <div class="pub-cuerpo">
+                <p class="pub-texto">{t.bajada}</p>
+                <p class="pub-meta">{t.meta}</p>
+                <p class="pub-acciones">
+                  <a class="pub-enlace pub-enlace-principal" href={t.enlaces[0].href}>{t.enlaces[0].texto} <span aria-hidden="true">→</span></a>
+                  {t.enlaces.slice(1).map((e: any) => <a class="pub-enlace" href={e.href}>{e.texto}</a>)}
+                </p>
+              </div>
+            </article>
+          );
+        })())}
+  </div>
+</div></section>

@@ -10,12 +10,13 @@ import MarcaLayout from '../../../layouts/MarcaLayout.astro';
 import QReadyPuerta from '../../../components/paginas/QReadyPuerta.astro';
 import paginas from '../../../styles/pages/paginas.css?raw';
 import propia from '../../../styles/pages/qready-puerta.css?raw';
+import publicaciones from '../../../styles/componentes/publicaciones.css?raw';
 ---
 <MarcaLayout
   title="¿Qué tan lista está su criptografía para el momento cuántico? — Rosetta Q-Ready"
   description="Medimos desde afuera, sin tocar su red, qué criptografía expone su superficie pública y quién decide su plazo real de migración. Informe individual gratis y confidencial."
   lang="es" altUrl="/q-ready" ruta="/es/q-ready"
-  pageCss={paginas + '\n' + propia} scripts={["/js/turnstile.js", "/js/qready-puerta.js", "/js/frescura.js"]}
+  pageCss={paginas + '\n' + propia + '\n' + publicaciones} scripts={["/js/turnstile.js", "/js/qready-puerta.js", "/js/frescura.js"]}
 >
   <QReadyPuerta />
 </MarcaLayout>

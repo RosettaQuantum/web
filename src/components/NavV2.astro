@@ -22,6 +22,12 @@ const es = lang === "es";
 // tenian puerta desde el chrome — solo desde el pie. Lo encontro Nicholas preguntando
 // "¿como accedo al blog?". Se usa la misma palabra que el pie: una sola etiqueta para lo
 // mismo en todo el sitio.
+// "Seguridad" entra el 23-nov (pedido de Nicholas): la portada de seguridad (/es/q-ready) reúne
+// todo lo de PQC —el informe mensual, la guía, la medición— y hasta hoy sólo tenía puerta desde
+// el pie. Es el SÉPTIMO item, el que en septiembre (B1.1) no cabía a 840px. Medido el 23-nov con el
+// viewport emulado: a 840px la barra ya se encimaba CON SEIS (la marca pisa «Pilotos» y EN/ES cae
+// en tres líneas; limpia desde 940px en español); con siete queda igual de mal. Está en revisión
+// de Nicholas con la alternativa de que «Seguridad» reemplace a «Notes». Lo vigila check-nav.
 const ENLACES = es
   /* B1.8 · Monitor sale del menu. Un item de navegacion que promete un producto y
      entrega 158 palabras cuesta mas credibilidad que cualquier problema tipografico,
@@ -33,10 +39,10 @@ const ENLACES = es
      Sigue anunciada en llms.txt y en el sitemap, y enlazada desde el pie. */
   ? [["/es/pilotos", "Pilotos"], ["/es/servicios", "Servicios"], ["/es/biblioteca", "Biblioteca"],
      ["/es/ledger", "Ledger"], ["/es/metodologia", "Metodología"],
-     ["/es/blog", "Notes"]]
+     ["/es/q-ready", "Seguridad"], ["/es/blog", "Notes"]]
   : [["/pilots", "Pilots"], ["/services", "Services"], ["/library", "Library"],
      ["/ledger", "Ledger"], ["/methodology", "Methodology"],
-     ["/blog", "Notes"]];
+     ["/q-ready", "Security"], ["/blog", "Notes"]];
 
 /* B1.1 · copy del anexo A del spec maestro, aprobado. */
 const CTA = es ? ["/es/pilotos", "Pedir un árbitro"] : ["/pilots", "Request a referee"];

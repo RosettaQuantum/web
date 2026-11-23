@@ -5,6 +5,7 @@ const p = (path) => es ? `/es${path}` : path;
 
 /* sample score ring geometry — el score del ejemplo se deriva, no se escribe */
 import { score, banda } from '../../lib/qex.js';
+import GaleriaPublicaciones from '../publicaciones/GaleriaPublicaciones.astro';
 const VALORES = { cert: 40, higiene: 52, hndl: 15, edge: 5 };
 const SCORE = score(VALORES);
 const B = banda(SCORE);
@@ -191,6 +192,9 @@ const jsonldService = {
     </div>
   </div>
 </header>
+
+<!-- 1b · publicaciones (23-nov-2026): la misma galería que /es/q-ready, en el idioma de la página -->
+<GaleriaPublicaciones lang={lang} />
 
 <!-- 2 · clock -->
 <section>

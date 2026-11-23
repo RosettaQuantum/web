@@ -1,0 +1,75 @@
+/* ── «Publicaciones de Rosetta» · la galería de la portada de seguridad (23-nov-2026) ─────────
+   La montan /es/q-ready (marca vigente) y /q-ready (inglés). Sólo tokens de global.css y
+   tokens.css; ningún color nuevo. Las reglas de la tarjeta del informe (.qr-informe-et, .qr-qex,
+   .qr-archivo…) vienen tal cual de styles/pages/qready-puerta.css, donde nacieron el 12-nov.
+
+   MISMA ALTURA Y MISMA LÍNEA BASE: la grilla de la galería reparte cuatro filas por tarjeta
+   (etiqueta · título · figura · cuerpo) y cada tarjeta las toma con `subgrid`. Así la etiqueta,
+   el título y la figura arrancan a la misma altura en todas las tarjetas de una fila, y todas
+   terminan juntas. Sin subgrid (navegadores viejos) las tarjetas igual miden lo mismo: la fila
+   de la grilla las estira. ── */
+.pub-galeria{padding:0 0 var(--s5)}
+.pub-cab{display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:var(--s1) var(--s3);margin:0 0 var(--s3);border-top:1px solid var(--line);padding-top:var(--s3)}
+.pub-galeria .pub-titulo{font-family:var(--serif);font-weight:400;font-size:var(--t-title);line-height:var(--lh-title);letter-spacing:-.01em;color:var(--ink);margin:0;max-width:none}
+.pub-bajada{margin:0;font-size:var(--t-small);line-height:var(--lh-small);color:var(--ink-60);max-width:52ch}
+.pub-grilla{display:grid;grid-template-columns:1fr;gap:var(--s3)}
+@media(min-width:860px){.pub-grilla{grid-template-columns:repeat(auto-fit,minmax(min(100%,380px),1fr))}}
+.pub-tarjeta>*{min-width:0}
+.pub-cuerpo{display:flex;flex-direction:column;gap:var(--s2)}
+
+/* La figura de un documento: su portada, sobre el mismo papel que el gráfico del informe. */
+.pub-portada{margin:0;display:flex;align-items:center;justify-content:center;background:var(--paper);border:1px solid var(--line);border-radius:2px;padding:var(--s2)}
+.pub-portada a{display:block;line-height:0}
+.pub-portada img{display:block;height:auto;width:auto;max-width:100%;max-height:320px;border:1px solid var(--line);box-shadow:0 1px 2px rgba(22,24,27,.08)}
+.pub-texto{margin:0;font-size:var(--t-small);line-height:var(--lh-small);color:var(--ink)}
+.pub-meta{margin:0;font-family:var(--mono);font-size:var(--t-label);color:var(--ink-60);letter-spacing:.04em}
+/* Las acciones van al pie de la tarjeta: con alturas iguales, la línea de enlaces de cada una
+   cae a la misma altura que el final de la otra. */
+.pub-acciones{margin:auto 0 0;display:flex;flex-wrap:wrap;align-items:center;gap:var(--s1) var(--s3);padding-top:var(--s2);border-top:1px solid var(--line);font-size:var(--t-small)}
+.pub-enlace{color:var(--verdict);text-decoration:underline;text-underline-offset:3px}
+.pub-enlace-principal{font-weight:500}
+.pub-enlace:hover{color:var(--ink)}
+.pub-galeria .qr-archivo li a{color:var(--verdict)}
+
+/* ── La tarjeta del Informe PQC mensual (antes en qready-puerta.css) ── */
+.pub-tarjeta{background:var(--panel);border:1px solid var(--line);border-top:3px solid var(--pending);border-radius:2px;padding:var(--s3);display:flex;flex-direction:column;gap:var(--s2);min-width:0}
+.qr-informe-et{display:flex;justify-content:space-between;flex-wrap:wrap;gap:4px 12px;margin:0;font-family:var(--mono);font-size:var(--t-label);color:var(--ink-60);text-transform:uppercase;letter-spacing:.08em}
+.pub-tarjeta .qr-informe-h{font-family:var(--serif);font-weight:500;font-size:var(--t-sub);line-height:1.2;margin:0}
+.qr-qex{margin:0;background:var(--paper);border:1px solid var(--line);border-radius:2px;padding:var(--s2)}
+.qr-qex-cab{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:flex-end;gap:6px 12px}
+.qr-qex-n{margin:0;font-family:var(--serif);font-size:var(--t-title);line-height:1;color:var(--pending);font-variant-numeric:tabular-nums}
+.qr-qex-n small{white-space:nowrap;font-family:var(--mono);font-size:var(--t-label);color:var(--ink-60);letter-spacing:.04em}
+.qr-qex-m{margin:0;font-family:var(--mono);font-size:var(--t-label);color:var(--ink-60);line-height:1.45}
+.qr-qex-svg{display:block;width:100%;height:auto;margin-top:var(--s1)}
+.qx-barra{fill:var(--pending-20)}
+.qx-med{fill:var(--pending)}
+.qx-techo{fill:var(--paper-2)}
+.qx-base{stroke:var(--ink-60);stroke-width:1}
+.qx-corte{stroke:var(--ink);stroke-width:1.25;stroke-dasharray:3 3}
+.qx-pct,.qx-eje,.qx-et{font-family:var(--mono);font-size:10px;fill:var(--ink-60)}
+.qx-et{fill:var(--ink)}
+.qr-qex figcaption{font-size:var(--t-label);color:var(--ink-60);line-height:1.5;margin-top:6px}
+.qr-informe-form{display:flex;flex-direction:column;gap:8px}
+.qr-informe-form>label:first-child{font-size:var(--t-small);font-weight:500;color:var(--ink)}
+.qr-informe-fila{display:flex;flex-wrap:wrap;gap:8px}
+.qr-informe-fila input{flex:1 1 180px;min-height:48px;font:inherit;font-size:var(--t-small);padding:0 12px;border:1.5px solid var(--line);border-radius:2px;background:#fff;color:var(--ink)}
+.qr-informe-fila input:focus-visible{outline:2px solid var(--verdict);outline-offset:1px;border-color:var(--verdict)}
+.qr-informe-fila input[aria-invalid=true]{border-color:var(--alert)}
+.qr-informe-fila .btn{flex:0 0 auto;width:auto}
+.qr-informe-check{display:flex;gap:8px;align-items:flex-start;font-size:var(--t-label);color:var(--ink-60);line-height:1.45}
+.qr-informe-check input{margin-top:2px;width:16px;height:16px;flex:none;accent-color:var(--verdict)}
+.qr-informe-pie{margin:0;font-size:var(--t-label);color:var(--ink-60)}
+.qr-informe .qr-estado a{color:var(--verdict);text-decoration:underline;text-underline-offset:3px}
+.qr-archivo{border-top:1px solid var(--line);padding-top:var(--s2)}
+.qr-archivo-t{margin:0 0 6px;font-family:var(--mono);font-size:var(--t-label);color:var(--ink-60);text-transform:uppercase;letter-spacing:.08em}
+.qr-archivo ol{list-style:none;margin:0;padding:0}
+.qr-archivo li{display:flex;justify-content:space-between;flex-wrap:wrap;gap:2px 12px;padding:6px 0;border-bottom:1px dashed var(--line);font-size:var(--t-small)}
+.qr-archivo li a{color:var(--verdict);text-decoration:underline;text-underline-offset:3px}
+.qr-archivo-m{font-family:var(--mono);font-size:var(--t-label);color:var(--ink-60)}
+
+/* Al FINAL a propósito: `.pub-tarjeta{display:flex}` (arriba, la regla de la tarjeta) le ganaría
+   a `display:grid` por ir después, y las filas dejarían de alinearse sin que nada falle. */
+@supports (grid-template-rows:subgrid){
+  .pub-grilla{grid-auto-rows:auto}
+  .pub-tarjeta{display:grid;grid-row:span 4;grid-template-rows:subgrid;row-gap:var(--s2);align-content:start}
+}
