@@ -27,8 +27,16 @@ const mal = (m) => { console.log(`  FALLA ${m}`); fallos.push(m); };
    sitemap — lo que cambio es que ya no ocupa un lugar en el menu principal. */
 /* /q-ready entra el 23-nov (pedido de Nicholas): «Seguridad» / «Security» lleva a la portada de
    seguridad, que reúne el informe PQC mensual y la guía. Hasta ese día sólo tenía puerta desde el pie. */
-const en = ["/pilots","/services","/library","/ledger","/methodology","/q-ready","/blog"];
-const es = ["/es/pilotos","/es/servicios","/es/biblioteca","/es/ledger","/es/metodologia","/es/q-ready","/es/blog"];
+/* VARIANTE B (23-nov): «Seguridad» reemplaza a «Notes» en la barra. /blog sigue en el pie, y eso
+   también se exige aquí: sacarlo de la barra no puede dejar los posts sin puerta. */
+const en = ["/pilots","/services","/library","/ledger","/methodology","/q-ready"];
+const es = ["/es/pilotos","/es/servicios","/es/biblioteca","/es/ledger","/es/metodologia","/es/q-ready"];
+{
+  const pie = readFileSync("src/components/PieV2.astro", "utf8");
+  pie.includes('["/es/blog", "Notes"]') && pie.includes('["/blog", "Notes"]')
+    ? ok("Notes sigue en el pie en los dos idiomas (salió de la barra por Seguridad)")
+    : mal("Notes salió de la barra y tampoco está en el pie: los posts quedan sin puerta");
+}
 const faltanEn = en.filter((r) => !src.includes(`"${r}"`));
 const faltanEs = es.filter((r) => !src.includes(`"${r}"`));
 faltanEn.length ? mal(`faltan rutas EN: ${faltanEn}`) : ok(`${en.length} enlaces EN`);
