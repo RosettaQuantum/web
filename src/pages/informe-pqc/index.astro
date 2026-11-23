@@ -244,10 +244,29 @@ const DIRECCION: Record<string, string> = {
   no_monotona: 'sube y baja',
 };
 const serie = d.serie ?? null;
+// Los tres paneles de la Fig. 1, en el orden de las columnas de la tabla: una
+// lista que vive en dos lugares ya divergio, asi que el orden sale de aqui.
+const SMS = [
+  { k: 'hibrido',      campo: 'pct', u: '%', t: 'Soporta el híbrido' },
+  { k: 'certificados', campo: 'pct', u: '%', t: 'Certificado sobre el mínimo' },
+  { k: 'qex_mediana',  campo: 'v',   u: '',  t: 'Mediana del índice' },
+];
 const pct = (p: any, k: string) => p?.[k]?.pct;
 const frase = (ps: any[], k: string) =>
   ps.map((p, i) => `${pct(p, k)} % en ${mesEs(p.mes)}`)
     .reduce((acc, x, i, a) => i === 0 ? `de ${x}` : i === a.length - 1 ? `${acc} y ${x}` : `${acc} a ${x}`, '');
+
+// EL PIE PERMANENTE DE LAS 37 PAGINAS (23-nov-2026). Decision 3 de la maqueta:
+// «el estado viaja en un pie permanente en las 37 paginas», para que cualquiera
+// que imprima una hoja suelta sepa que esta leyendo un borrador. El folio ya
+// salia del `@page` del CSS; el estado NO puede salir de ahi porque es un dato
+// de la edicion, asi que el `@page` del lado izquierdo lo arma esta pagina.
+// Las comillas dobles se escapan: el valor entra dentro de un `content:"..."`.
+const pieEstado = esBorrador
+  ? `Borrador de trabajo · no publicada · ${d.edicion}`
+  : `Rosetta Quantum · edición ${String(d.numero).padStart(2, '0')} · ${d.edicion}`;
+const cssPieDeEdicion = `@media print{@page{@bottom-left{content:"${pieEstado.replace(/"/g, '\\"')}";`
+  + `font-family:'IBM Plex Sans',sans-serif;font-size:8pt;letter-spacing:.06em;color:#4A4E48}}}`;
 ---
 {/* Portado a la marca el 2026-09-09 por instruccion de Nicholas. Antes usaba
     BaseLayout, que le daba el chrome retirado —barra oscura en basalto, pie en
@@ -258,12 +277,22 @@ const frase = (ps: any[], k: string) =>
 <MarcaLayout
   title={`${d.titulo} — Informe ${mesLargo} · Rosetta Quantum`}
   description={`${d.subtitulo}. Edición ${d.numero}, ${mesLargo}. Medición técnica sobre endpoints reales, no encuesta.`}
-  lang="es" altUrl="/" ruta="/informe-pqc" pageCss={css} scripts={["/js/frescura.js", "/js/informe-indice.js"]} noindex={esBorrador}>
+  lang="es" altUrl="/" ruta="/informe-pqc" pageCss={css + cssPieDeEdicion} scripts={["/js/frescura.js", "/js/informe-indice.js"]} noindex={esBorrador}>
 
 <div class="informe-doc" data-edicion={d.edicion}>
 <div class="informe">
 
   <header class="mast">
+    {/* La marca encabeza la portada IMPRESA, con el nombre al lado, igual que
+        en la barra del sitio. En pantalla la oculta el CSS: ahi la barra ya
+        la trae. 18-nov-2026: la maqueta encabezaba con el simbolo del
+        brand-kit —que nunca se desplego— y sin el nombre; Nicholas lo marco
+        a ojo. Lo desplegado es esta hoja. */}
+    <div class="lockup">
+      <img src="/rosetta-mark.svg" width="34" height="44" alt="" />
+      <span class="wm">Rosetta Quantum</span>
+    </div>
+
     <div class="edicion">
       <span class="num">Edición {String(d.numero).padStart(2,'0')}</span>
       <span>{mesLargo}</span>
@@ -707,6 +736,65 @@ const frase = (ps: any[], k: string) =>
     <div class="measure">
       <p class="lede">Cada edición mide la misma muestra, así que las cifras se pueden leer como una serie. Esta tabla va más lejos: se restringe a las <strong>{serie.conjunto_fijo} organizaciones medidas en los tres meses</strong>, para que la diferencia entre un mes y otro sea cambio y no muestra.</p>
     </div>
+
+    {/* FIG. 1 · TRES PEQUENOS MULTIPLOS (23-nov-2026)
+        Decision 5 de la maqueta: «tres pequenos multiplos con eje 0-100
+        compartido y septiembre como hueco explicito». Con escalas propias,
+        3 -> 2 -> 3 % pareceria un vaiven; con eje comun se ve de una que el
+        hibrido sube y los certificados no se mueven.
+
+        NO AGREGA NI UNA FRASE NUEVA: el titulo, el `n`, los meses, las cifras
+        y la nota de los dos puntos ya estan en esta misma seccion. La figura
+        dibuja lo que la tabla de abajo ya dice; por eso tampoco repite la nota
+        de lectura, que vive bajo la tabla.
+
+        Los colores NO van como atributos del SVG -ahi `var()` no resuelve-:
+        van por clase, desde la hoja, para que ninguno quede escrito a mano. */}
+    <figure class="chart fig-serie">
+      <figcaption class="chart-h">
+        <p class="chart-t"><span class="fig-n">Fig. 1</span> — Tres mediciones, el mismo grupo</p>
+        <p class="chart-s">n = {serie.conjunto_fijo} organizaciones medidas en los tres meses · eje 0–100 en los tres paneles</p>
+      </figcaption>
+      <div class="chart-b fig-sms">
+        {SMS.map((s) => {
+          const vals = serie.puntos.map((p: any) => p[s.k][s.campo]);
+          const W = 100, H = 108, ML = 2, MR = 2, MT = 22, MB = 20;
+          const px = [0, 1, 2].map((i) => ML + (W - ML - MR) * i / 2);
+          const anc = ['start', 'middle', 'end'];
+          const py = (v: number) => MT + (H - MT - MB) * (1 - v / 100);
+          return (
+            <div class="sm">
+              <p class="sm-t">{s.t}</p>
+              <svg viewBox={`0 0 ${W} ${H}`} role="img" aria-label={s.t}>
+                <line class="eje" x1={ML} y1={py(0)} x2={W - MR} y2={py(0)} />
+                <line class="tope" x1={ML} y1={py(100)} x2={W - MR} y2={py(100)} />
+                <text class="rot" x={ML} y={py(100) - 2.6}>100</text>
+                {[0, 1].filter((i) => vals[i] != null && vals[i + 1] != null).map((i) => (
+                  <line class="tramo" x1={px[i]} y1={py(vals[i])} x2={px[i + 1]} y2={py(vals[i + 1])} />
+                ))}
+                {vals.map((v: any, i: number) => v == null ? (
+                  <g>
+                    <line class="hueco" x1={px[i]} y1={py(100)} x2={px[i]} y2={py(0)} />
+                    <text class="rot" x={px[i]} y={py(50)} text-anchor={anc[i]}>SIN ÍNDICE</text>
+                  </g>
+                ) : (
+                  <g>
+                    <circle class="punto" cx={px[i]} cy={py(v)} r="2.1" />
+                    <text class="cifra" x={px[i]} y={py(v) - 5.2} text-anchor={anc[i]}>{v}{s.u}</text>
+                  </g>
+                ))}
+                {/* Tres letras y no el mes entero: en una columna de 55 mm
+                    «SEPTIEMBRE» y «NOVIEMBRE» se pisan, y la tabla de abajo
+                    trae los tres meses escritos completos. */}
+                {serie.puntos.map((p: any, i: number) => (
+                  <text class="rot mes" x={px[i]} y={H - 4.6} text-anchor={anc[i]}>{mesEs(p.mes).slice(0, 3).toUpperCase()}</text>
+                ))}
+              </svg>
+            </div>
+          );
+        })}
+      </div>
+    </figure>
 
     <div class="panel">
       <div class="panel-h">

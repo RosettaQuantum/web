@@ -294,8 +294,16 @@ async function conElBorrador(ruta, fn) {
     // justo donde aparecen las cifras sin medir y la prosa recien escrita. Las
     // dos que miran el informe se corren aqui, con la misma variable, para que
     // vean la pagina del borrador y no la de la publicada.
+    // 23-nov-2026: la lista pasa de tres a ocho. Con el diseno nuevo se tocaron
+    // la hoja de estilos y la pagina, y las tres de antes no miran ni el texto
+    // aprobado, ni la portada, ni el indice, ni la geometria: un PDF podia
+    // salir con el texto cambiado y las tres decian que si. Las cinco nuevas ya
+    // existian y nadie las corria sobre el borrador — corrian en `prebuild`,
+    // que `npx astro build` se salta.
     for (const g of ["check-informe-no-medido.mjs", "check-informe-serie.mjs",
-                     "check-informe-panel.mjs"]) {
+                     "check-informe-panel.mjs", "check-informe-textos.mjs",
+                     "check-informe-portada.mjs", "check-informe-indice.mjs",
+                     "check-informe-cifras.mjs", "check-informe-geometria.mjs"]) {
       try {
         execFileSync("node", [join(RAIZ, "scripts", g)], { cwd: RAIZ, stdio: "pipe", env: entorno });
         console.log(`  ${g}: ok`);

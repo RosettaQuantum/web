@@ -170,6 +170,46 @@ html{scroll-behavior:smooth}
 .bar-val{font-family:var(--mono);font-size:var(--t-data);color:var(--ink);
   font-variant-numeric:tabular-nums;display:flex;gap:6px;align-items:center}
 
+/* ---------- Fig. 1 · los tres pequenos multiplos de la serie ----------
+   Decision 5 de la maqueta. Los colores van POR CLASE y no como atributos del
+   SVG: en un atributo de presentacion `var(--token)` no resuelve, y entonces
+   habria que escribir los hex a mano — que es justo lo que la paleta viva
+   existe para no hacer. Los cuerpos van en unidades del viewBox (100 x 108),
+   asi que escalan con el ancho de la columna en pantalla y en papel. */
+.fig-serie{margin:30px 0}
+.fig-n{font-family:var(--sans);font-weight:600;letter-spacing:.07em;color:var(--verdict)}
+/* Los rotulos van todos en la MISMA fila de la rejilla y los tres dibujos en
+   la siguiente: asi la fila del rotulo mide lo que mide el mas alto y los tres
+   ejes arrancan a la misma altura. Reservar dos lineas con `min-height` no
+   alcanzaba -en papel `.informe-doc p` le pone otra interlinea y la altura
+   natural de dos lineas se pasaba del minimo-, y en pequenos multiplos, que
+   existen para comparar, tres ejes a tres alturas es el defecto entero. */
+/* `display:contents` NO sirve aqui: los seis hijos caen en la rejilla en orden
+   de documento y el segundo dibujo termina bajo el primer rotulo (comprobado,
+   23-nov). Con `subgrid` cada panel se queda en SU columna y toma las dos filas
+   del padre, que es lo que hace que los tres rotulos midan lo mismo. */
+.fig-sms{display:grid;grid-template-columns:repeat(3,1fr);
+  grid-template-rows:auto auto;gap:0 18px}
+.fig-sms .sm{display:grid;grid-row:span 2;grid-template-rows:subgrid;min-width:0}
+/* El rotulo reserva DOS lineas siempre. «Certificado sobre el minimo» ocupa dos
+   y los otros dos una, asi que sin esto el panel del medio arrancaba 7 mm mas
+   abajo y los tres ejes quedaban a tres alturas distintas — en pequenos
+   multiplos, que existen para comparar, eso es el defecto entero. */
+.sm-t{font-family:var(--sans);font-size:var(--t-label);font-weight:600;letter-spacing:.07em;
+  text-transform:uppercase;color:var(--ink-60);margin:0 0 7px;line-height:1.3;
+  align-self:end}
+.fig-sms svg{width:100%;height:auto;display:block;overflow:visible}
+.fig-sms .eje{stroke:var(--ink-60);stroke-width:.7}
+.fig-sms .tope{stroke:var(--line);stroke-width:.5}
+.fig-sms .tramo{stroke:var(--ink);stroke-width:1;fill:none}
+.fig-sms .punto{fill:var(--verdict)}
+.fig-sms .hueco{stroke:var(--line);stroke-width:.7;stroke-dasharray:2 2}
+.fig-sms .cifra{font-family:var(--serif);font-size:8px;fill:var(--ink)}
+.fig-sms .rot{font-family:var(--sans);font-size:5px;font-weight:600;letter-spacing:.4px;
+  fill:var(--ink-60)}
+@media(max-width:620px){.fig-sms{grid-template-columns:1fr;grid-template-rows:none;gap:14px 0}
+  .fig-sms .sm{grid-row:auto;grid-template-rows:auto auto}}
+
 .informe-doc table{width:100%;border-collapse:collapse;font-size:var(--t-small);margin:22px 0}
 .informe-doc th,.informe-doc td{text-align:left;padding:10px 13px;border-bottom:1px solid var(--line);vertical-align:top}
 .informe-doc th{font-family:var(--mono);font-size:var(--t-data);letter-spacing:.08em;text-transform:uppercase;
@@ -258,11 +298,23 @@ td.num{font-family:var(--mono);font-variant-numeric:tabular-nums;text-align:righ
    selectores. Lo que NO cubre: un titulo de seccion queda con su primer parrafo,
    pero el panel que viene despues puede caer en la pagina siguiente si no cabe. */
 @page{size:A4;margin:18mm 16mm;
-  @bottom-right{content:counter(page) " / " counter(pages);font-family:'IBM Plex Mono',monospace;font-size:8pt;color:#4A4E48}}
+  /* 23-nov-2026: el folio tambien deja la monoespaciada (decision 1 de la
+     maqueta). El pie de la IZQUIERDA lo pone la pagina, porque lleva el
+     estado de la edicion y eso es un dato, no una constante: va en
+     `index.astro` junto al resto de lo que sabe si es borrador. */
+  @bottom-right{content:counter(page) " / " counter(pages);font-family:'IBM Plex Sans',sans-serif;font-size:8pt;letter-spacing:.04em;font-variant-numeric:tabular-nums;color:#4A4E48}}
 @media print{
   *,*::before,*::after{-webkit-print-color-adjust:exact;print-color-adjust:exact}
   html{scroll-behavior:auto}
-  /* la hoja entera es el soporte: sin un rectangulo de papel dentro del margen blanco */
+  /* EL PAPEL DEL SITIO, 23-nov-2026. Antes todo iba transparente -«la hoja
+     entera es el soporte»- y la hoja salia blanca. Nicholas decidio el
+     19-nov, para la maqueta: «Papel del sitio». El fondo va en el LIENZO de
+     la pagina (`@page`), no en `html`: con margenes de pagina, lo que se
+     pinta en `html` se queda dentro de la mancha y deja los 18/16 mm en
+     blanco -una lamina de color dentro de un marco blanco, comprobado en la
+     maqueta el 19-nov-. Todo lo de adentro sigue transparente para que no
+     se dibuje un segundo rectangulo encima. */
+  @page{background:var(--paper)}
   html,body,main,nav,.informe-doc,.informe-doc header,.informe-doc section{background:transparent !important}
   .informe-doc{padding-bottom:0}
   .informe{max-width:170mm;padding:0;margin:0 auto}
@@ -350,7 +402,85 @@ td.num{font-family:var(--mono);font-variant-numeric:tabular-nums;text-align:righ
   /* enlaces: conservan el texto, no el aspecto de enlace */
   .informe-doc a{color:inherit;text-decoration:none}
   .informe-doc a.btn,.btn{background:none;color:var(--ink);border:1px solid var(--ink);transition:none}
+
+  /* ===================================================================
+     LA MAQUETA v2 EN PAPEL (23-nov-2026)
+     Lo que la maqueta de cuatro hojas decidio y esta hoja no tenia. NO se
+     toca NADA de los cortes de pagina de arriba: son once iteraciones
+     medidas hoja por hoja contra defectos reales y funcionan. Sobre-
+     corregir borra trabajo bueno.
+     =================================================================== */
+
+  /* 1 · DOS FAMILIAS, CERO MONOESPACIADA.
+     Decision 1 de la maqueta. La capa «medida» deja de señalarse con la
+     familia y pasa a señalarse con versalita tracked, cifras tabulares y
+     color semantico. La monoespaciada en papel se lee como terminal, no
+     como documento, y era lo que mas aire de consola le daba al informe.
+     IBM Plex Sans trae `tabular-nums`, asi que las columnas de cifras
+     siguen alineando sin la mono. */
+  .eyebrow,.edicion,.delta,.snum,.panel-h .meta,.tile .k,.tile .v.sin-medir,
+  .chip,.bar-val,.informe-doc th,.informe-doc td.num,.term dt,.src,.gi h4,
+  .rev h4,.informe-doc td .sin-dato,.mono,.toc a::before{
+    font-family:var(--sans);font-variant-numeric:tabular-nums lining-nums}
+  .eyebrow,.snum,.tile .k,.chip,.informe-doc th,.rev h4,.sp .cap,
+  .tile .v.sin-medir,.informe-doc td .sin-dato{font-weight:600}
+  .src,.term dt,.panel-h .meta,.gi h4,.bar-val,.informe-doc td.num{font-weight:500}
+  /* La versalita tracked es para ROTULOS -una o dos palabras-, no para prosa.
+     Puesta sobre `.src` estiraba notas enteras («Verticales con menos de 3
+     organizaciones medidas se omiten…») y una frase tracked se lee como un
+     cartel, no como una nota al pie. */
+  .informe-doc th,.tile .k{letter-spacing:.07em}
+  .src{letter-spacing:0}
+
+  /* 2 · LA ESCALA DE PAPEL.
+     La portada de la maqueta lleva el titulo grande en Newsreader y la
+     cifra de panel en tabular de cuerpo alto: es lo que separa un informe
+     impreso de una pagina web impresa. */
+  .informe-doc h1{font-size:28pt;line-height:1.04;letter-spacing:-.016em}
+  .tile .v{font-size:22pt;letter-spacing:-.02em}
+  .pull p{font-size:14pt}
+
+  /* 3 · LA MARCA ENCABEZA LA PORTADA, CON EL NOMBRE AL LADO.
+     Es la pieza que el sitio usa en su barra -la hoja mas las palabras
+     «Rosetta Quantum»- y la que el 18-nov Nicholas echo de menos en la
+     maqueta: la hoja sola es un simbolo abstracto. En pantalla NO va, que
+     ahi la barra del sitio ya la trae; en papel no hay barra. */
+  .lockup{display:flex;align-items:center;gap:3.5mm;margin-bottom:7mm}
+  .lockup img{height:15mm;width:auto}
+  .lockup .wm{font-family:var(--serif);font-size:13.5pt;letter-spacing:.02em;
+    color:var(--ink);white-space:nowrap}
+
+  /* 6 · LA PILDORA DEJA DE SER UNA PASTILLA.
+     En papel los chips pasan a `white-space:normal` y con `border-radius:999px`
+     uno de cuatro lineas se dibuja como un ovalo gigante -visto en la hoja 17,
+     «LO QUE NEGOCIA UN NAVEGADOR MODERNO»-. El radio de pastilla solo funciona
+     en una linea. Pasa a la pildora de la maqueta: rectangulo con una barra de
+     color a la izquierda, que ademas se lee igual con una o con cuatro. */
+  .chip{border-radius:1px;border-width:0 0 0 1.4pt;padding:1.5mm 2mm;
+    align-items:flex-start;line-height:1.3}
+  .chip::before{display:none}
+
+  /* 4 · EL TITULAR NO SE «EQUILIBRA».
+     `text-wrap:balance` reparte el titulo en lineas de largo parejo y con
+     cuatro palabras largas elige CUATRO lineas cortas sobre una columna de
+     40 mm, dejando media mancha vacia al lado. En pantalla ese equilibrio
+     ayuda; en una portada A4 el titulo tiene 170 mm y los quiere usar. */
+  .informe-doc h1{text-wrap:normal;max-width:none}
+
+  /* 5 · EL RECUADRO ROSADO SALE DE LA PORTADA.
+     Decision 3 de la maqueta, textual. El aviso de borrador iba en rojo de
+     alerta sobre rosa -el mismo tratamiento que una cifra critica-, y no es
+     un hallazgo grave: es el estado del documento, y ademas ya viaja en el
+     pie de las 37 paginas. Pasa al aviso de la maqueta: banda de papel
+     hundido con una regla de `--pending` a la izquierda. */
+  .draft{background:var(--paper-2);border:0;border-left:3pt solid var(--pending);
+    border-radius:0;padding:4mm 5mm}
+  .draft strong{color:var(--ink)}
 }
+
+/* En pantalla la marca de la portada no se dibuja: la barra del sitio ya la
+   trae y dos veces la misma marca en la misma vista es un error de sistema. */
+.lockup{display:none}
 /* Informe de cliente (30-oct-2026): sus notas .src son prosa que explica la tabla, no una línea de
    fuente; en mono se leían como código. El informe mensual conserva el mono. */
 .cliente .src{font-family:var(--sans);font-size:var(--t-small)}
