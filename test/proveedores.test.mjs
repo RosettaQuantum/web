@@ -158,5 +158,62 @@ console.log("\n9 · descubrir_proveedores: la variable RQT_PROVEEDORES la encien
   si(api.herramientasPara(ON, new URL(PROD)).some((h) => h.name === "descubrir_proveedores"), "grito: con la variable se lista en producción");
 }
 
+// ════ 10 · (catálogo 0.2) más señales por DNS público ════════════════════════════════
+console.log("\n10 · DMARC, TLS-RPT, BIMI, MTA-STS, subnombres y ASN");
+{
+  const AS = (ip, asn, nombre) => ({ [`${ip.split(".").reverse().join(".")}.origin.asn.cymru.com|TXT`]: r("NOERROR", [TXT("x", `${asn} | ${ip}/24 | US | arin | 2000-01-01`)]),
+    [`as${asn}.asn.cymru.com|TXT`]: r("NOERROR", [TXT("x", `${asn} | US | arin | 2000-01-01 | ${nombre}`)]) });
+  const ct = { fuentes: [{ fuente: "crt.sh", ok: true, certificados: [{ nombres: ["click.ejemplo.cl", "ayuda.ejemplo.cl", "envios.ejemplo.cl", "raro.ejemplo.cl", "interno.ejemplo.cl"], emisor_dn: "O=DigiCert Inc", not_after: "2027-01-01" }] }] };
+  const res = descubrir(base({
+    [`${D}|TXT`]: r("NOERROR", [TXT(D, "v=spf1 ip4:54.240.34.12 ip4:200.1.1.0/24 -all")]),
+    ...AS("54.240.34.12", 14618, "AMAZON-AES - Amazon.com, Inc., US"), ...AS("200.1.1.0", 64500, "EJEMPLO-AS - Banco Ejemplo S.A., CL"),
+    [`_dmarc.${D}|TXT`]: r("NOERROR", [TXT(`_dmarc.${D}`, "v=DMARC1; p=reject; rua=mailto:fulano@rua.dmp.cisco.com,mailto:dmarc@ejemplo.cl; ruf=mailto:x@desconocido.net!10m")]),
+    [`_smtp._tls.${D}|TXT`]: r("NOERROR", [TXT(`_smtp._tls.${D}`, "v=TLSRPTv1; rua=mailto:tls@uriports.com")]),
+    [`default._bimi.${D}|TXT`]: r("NOERROR", [TXT(`default._bimi.${D}`, "v=BIMI1; l=https://bimi.otro-host.com/logo.svg; a=https://x.digicert.com/vmc.pem")]),
+    [`mta-sts.${D}|A`]: r("NOERROR", [CN(`mta-sts.${D}`, "ejemplo.mta-sts.mailhardener.com")]),
+    [`click.${D}|A`]: r("NOERROR", [A(`click.${D}`, "13.111.1.1")]), ...AS("13.111.1.1", 14340, "SALESFORCE - Salesforce.com, Inc., US"),
+    [`ayuda.${D}|A`]: r("NOERROR", [CN(`ayuda.${D}`, "ejemplo.zendesk.com"), A("ejemplo.zendesk.com", "104.16.1.1")]),
+    // el TXT/MX de un nombre que es CNAME trae los registros del DESTINO: no son del cliente
+    [`ayuda.${D}|TXT`]: r("NOERROR", [CN(`ayuda.${D}`, "ejemplo.zendesk.com"), TXT("ejemplo.zendesk.com", "google-site-verification=del-saas")]),
+    [`ayuda.${D}|MX`]: r("NOERROR", [CN(`ayuda.${D}`, "ejemplo.zendesk.com"), { name: "ejemplo.zendesk.com", type: 15, data: "10 mx.mimecast.com." }]),
+    [`envios.${D}|A`]: r("NOERROR", [A(`envios.${D}`, "200.1.1.9")]),
+    [`envios.${D}|TXT`]: r("NOERROR", [TXT(`envios.${D}`, "v=spf1 include:sendgrid.net -all"), TXT(`envios.${D}`, "atlassian-domain-verification=abc")]),
+    [`envios.${D}|MX`]: r("NOERROR", [{ name: `envios.${D}`, type: 15, data: "10 mx.hc1.iphmx.com." }]),
+    [`raro.${D}|A`]: r("NOERROR", [CN(`raro.${D}`, "raro.desconocido.io"), A("raro.desconocido.io", "20.1.1.1")]), ...AS("20.1.1.1", 8075, "MICROSOFT-CORP"),
+    [`interno.${D}|A`]: r("NOERROR", [A(`interno.${D}`, "200.1.1.20")]),
+  }, ct));
+  const p = (s) => filasDe(res, s).filter((f) => f.proveedor).map((f) => f.proveedor).sort().join();
+  si(/Cisco/.test(p("RQ.T.03")) && filasDe(res, "RQ.T.03").some((f) => /DMARC rua → @rua\.dmp\.cisco\.com/.test(f.evidencia)), "grito: DMARC rua → Cisco (Domain Protection)");
+  si(!JSON.stringify(res).includes("fulano") && !JSON.stringify(res).includes("dmarc@"), "silencio: la parte local de la dirección (dato personal) nunca sale");
+  si(filasDe(res, "RQ.T.03").some((f) => f.proveedor === "desconocido.net" && !f.clasificado) && !res.proveedores.some((x) => x.proveedor === "desconocido.net"), "ruf a un dominio desconocido: sin clasificar, fuera del conteo");
+  si(/Amazon/.test(p("RQ.T.03")) && filasDe(res, "RQ.T.03").some((f) => /ip4:54\.240\.34\.12 → AS14618/.test(f.evidencia)), "grito: ip4 del SPF → AS14618 → Amazon");
+  si(!res.filas.some((f) => /Banco Ejemplo|AS64500/.test(f.evidencia)) && res.por_senal["RQ.T.03"].denominador.spf_ip4.del_propio_cliente === 1, "silencio: el ASN del propio cliente no es un tercero (se cuenta aparte)");
+  si(/URIports/.test(p("RQ.T.02")) && /Mailhardener/.test(p("RQ.T.02")), "grito: TLS-RPT → URIports y MTA-STS (CNAME) → Mailhardener");
+  si(/DigiCert/.test(p("RQ.T.03")) && filasDe(res, "RQ.T.03").some((f) => f.proveedor === "otro-host.com" && !f.clasificado), "BIMI: a= de DigiCert se atribuye; un host de logo desconocido queda sin clasificar");
+  si(/Salesforce/.test(p("RQ.T.01")), "grito: un nombre sin CNAME cuya IP es de AS14340 → Salesforce");
+  si(!res.filas.some((f) => f.senal === "RQ.T.01" && f.proveedor === "Microsoft"), "silencio: el ASN de un nombre que delega a un tercero desconocido NO se atribuye (sería la red del tercero)");
+  si(!res.filas.some((f) => /del-saas/.test(f.evidencia)) && !/Google/.test(p("RQ.T.07")) && !/Mimecast/.test(p("RQ.T.02")),
+    "silencio paradójico: el TXT y el MX del destino de un CNAME no se leen como del cliente");
+  si(/Atlassian/.test(p("RQ.T.07")) && /Twilio \(SendGrid\)/.test(p("RQ.T.03")) && /Cisco/.test(p("RQ.T.02")), "grito: TXT, SPF y MX de un subnombre propio sí cuentan");
+  const vacio = descubrir(base({ [`${D}|TXT`]: r("NOERROR", [TXT(D, "v=spf1 ip4:1.2.3.4 -all")]) }));
+  si(vacio.por_senal["RQ.T.03"].denominador.spf_ip4.sin_asn === 1 && vacio.por_senal["RQ.T.03"].proveedores === 0, "un rango sin respuesta de Team Cymru: «sin ASN» en el denominador, ningún proveedor inventado");
+}
+
+// ════ 11 · el ejecutor sólo habla con DNS y CT (nunca con el cliente) ═══════════════════
+console.log("\n11 · ejecutor: pasivo, con tope");
+{
+  const { recolectar } = await import("../lib/proveedores-ejecutor.mjs");
+  const hosts = new Set();
+  const falso = async (url) => { const u = new URL(url); hosts.add(u.hostname);
+    if (u.hostname === "cloudflare-dns.com") return new Response(JSON.stringify({ Status: 0, Answer: [] }), { status: 200 });
+    return new Response("[]", { status: 200 }); };
+  const ins = await recolectar("ejemplo.cl", { f: falso });
+  si([...hosts].every((h) => ["cloudflare-dns.com", "crt.sh", "api.certspotter.com"].includes(h)) && hosts.has("cloudflare-dns.com"),
+    `sólo DoH y CT: ${[...hosts].sort().join(", ")}`);
+  const tope = await recolectar("ejemplo.cl", { f: falso, maxDns: 5 });
+  si(tope.consultas.dns === 5 && tope.consultas.sobre_tope > 0 && Object.values(tope.dns).some((x) => /tope de 5/.test(x.error || "")), "grito: pasado el tope, la consulta queda con su error (no se hace)");
+  si(descubrir(tope).filas.some((f) => f.estado === "sin dato"), "y las señales sin respuesta dicen «sin dato»");
+}
+
 console.log(`\n  --- pasaron ${pasaron} · fallaron ${fallaron}`);
 process.exit(fallaron ? 1 : 0);
