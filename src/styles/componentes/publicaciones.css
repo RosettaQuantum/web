@@ -8,19 +8,61 @@
    alta (la del informe), y la del documento se estira a esa altura. Las flechas y los puntos van
    ABSOLUTOS debajo de la tarjeta, dentro del relleno inferior del hero (40 px, .qr-hero): no le suman
    alto. ── */
-.pub-carrusel{position:relative;min-width:0}
-.pub-pista{display:grid}
-.pub-pista>.pub-diapo{grid-area:1/1;min-width:0;display:flex}
+.pub-carrusel{position:relative;min-width:0;--pub-ms:7000ms}
+.pub-pista{display:grid;position:relative}
+.pub-pista>.pub-diapo{grid-area:1/1;min-width:0;display:flex;position:relative;z-index:1}
 .pub-pista>.pub-diapo>*{flex:1 1 auto;min-width:0}
-.pub-pista>.pub-diapo:not(.activa){visibility:hidden}
+
+/* La transición: la tarjeta que entra aparece y se desliza 12 px; la que sale se desvanece. ≤ 300 ms.
+   `visibility` espera a que termine el fundido, así la que sale no desaparece de golpe. 12 px y no más:
+   el desplazamiento de una tarjeta oculta también cuenta para el ancho de la página, y 12 px caben en el
+   relleno lateral (22 px) en todos los anchos. */
+.pub-pista>.pub-diapo{transition:opacity .3s ease,transform .3s ease,visibility 0s linear .3s}
+.pub-pista>.pub-diapo:not(.activa){visibility:hidden;opacity:0;transform:translateX(12px)}
+.pub-pista>.pub-diapo.activa{transition:opacity .3s ease,transform .3s ease,visibility 0s}
+
+/* El mazo: el borde de la tarjeta siguiente asoma 6 px a la derecha, detrás. No baja (ahí van los
+   controles) ni sube (ahí van las pestañas): sólo hacia el relleno lateral de la página. */
+.pub-pista::before{content:"";position:absolute;top:10px;bottom:10px;right:-6px;width:24px;z-index:0;
+  background:var(--paper-2);border:1px solid var(--line);border-left:0;border-radius:0 2px 2px 0}
+
+/* Las pestañas: encima de la tarjeta, en el relleno superior del hero (44 px; ocupan 30 + 6). */
+.pub-pestanas{position:absolute;left:0;bottom:calc(100% + 6px);display:flex;gap:4px;max-width:100%}
+.pub-pestana{position:relative;display:inline-flex;align-items:center;height:30px;padding:0 12px;overflow:hidden;
+  border:1px solid var(--line);border-radius:2px;background:var(--paper);color:var(--ink-60);
+  font-family:var(--sans);font-size:var(--t-label);line-height:1;white-space:nowrap;cursor:pointer}
+.pub-pestana:hover{color:var(--ink);border-color:var(--ink-60)}
+.pub-pestana[aria-selected="true"]{background:var(--panel);color:var(--ink);border-color:var(--pending);font-weight:500}
+.pub-pestana:focus-visible{outline:2px solid var(--verdict);outline-offset:2px}
+/* La barra de progreso: 2 px al pie de la pestaña activa, sólo mientras el carrusel avanza solo. */
+.pub-progreso{position:absolute;left:0;right:0;bottom:0;height:2px;background:var(--pending);transform:scaleX(0);transform-origin:left center}
+.pub-carrusel.auto .pub-pestana[aria-selected="true"] .pub-progreso{animation:pub-avance var(--pub-ms) linear forwards}
+.pub-carrusel.auto.pausa .pub-progreso{animation-play-state:paused}
+@keyframes pub-avance{to{transform:scaleX(1)}}
+
 .pub-controles{position:absolute;left:0;right:0;top:calc(100% + 4px);height:32px;display:flex;align-items:center;justify-content:center;gap:var(--s1)}
-.pub-flecha{width:32px;height:32px;display:inline-flex;align-items:center;justify-content:center;padding:0;border:1px solid var(--line);border-radius:2px;background:var(--panel);color:var(--ink);font-family:var(--mono);font-size:var(--t-small);line-height:1;cursor:pointer}
-.pub-flecha:hover{border-color:var(--ink)}
-.pub-puntos{display:flex;gap:2px}
-.pub-punto{width:24px;height:24px;display:inline-flex;align-items:center;justify-content:center;padding:0;border:0;background:none;cursor:pointer}
-.pub-punto::before{content:"";width:8px;height:8px;border-radius:50%;border:1px solid var(--ink-60);background:transparent}
-.pub-punto[aria-current="true"]::before{background:var(--pending);border-color:var(--pending)}
-.pub-flecha:focus-visible,.pub-punto:focus-visible{outline:2px solid var(--verdict);outline-offset:2px}
+.pub-flecha,.pub-pausa{width:32px;height:32px;display:inline-flex;align-items:center;justify-content:center;padding:0;border:1px solid var(--line);border-radius:2px;background:var(--panel);color:var(--ink);font-family:var(--mono);font-size:var(--t-small);line-height:1;cursor:pointer}
+.pub-flecha:hover,.pub-pausa:hover{border-color:var(--ink)}
+.pub-flecha:focus-visible,.pub-pausa:focus-visible{outline:2px solid var(--verdict);outline-offset:2px}
+/* El ícono de la pausa: dos barras mientras avanza; un triángulo cuando está detenido. */
+.pub-icono{display:block;width:10px;height:12px;border-left:3px solid var(--ink);border-right:3px solid var(--ink)}
+.pub-pausa[data-estado="detenido"] .pub-icono{width:0;height:0;border-style:solid;border-width:6px 0 6px 10px;border-color:transparent transparent transparent var(--ink)}
+
+/* Una columna (≤ 860 px): entre el texto del hero y la tarjeta hay 24 px, no caben las pestañas. Bajan a
+   la fila de los controles, a la izquierda; la pausa queda a la derecha y las flechas sobran (las
+   pestañas ya llevan a cada tarjeta). */
+@media(max-width:860px){
+  .pub-pestanas{bottom:auto;top:calc(100% + 4px);height:32px;align-items:center}
+  .pub-pestana{height:32px;padding:0 10px}
+  .pub-controles{left:auto;justify-content:flex-end}
+  .pub-flecha{display:none}
+}
+
+@media (prefers-reduced-motion:reduce){
+  .pub-pista>.pub-diapo,.pub-pista>.pub-diapo.activa{transition:none}
+  .pub-pista>.pub-diapo:not(.activa){transform:none}
+  .pub-progreso{display:none}
+}
 
 /* ── La tarjeta de un documento (la guía PQC): la misma piel que .qr-informe ── */
 .pub-documento{background:var(--panel);border:1px solid var(--line);border-top:3px solid var(--pending);border-radius:2px;padding:var(--s3);display:flex;flex-direction:column;gap:var(--s2)}

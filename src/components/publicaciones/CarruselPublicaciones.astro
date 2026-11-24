@@ -14,22 +14,29 @@
  *
  * EL TAMAÑO. Todas las diapositivas ocupan la MISMA celda de una grilla: el carrusel mide lo que la
  * más alta, que es la del informe, así que el hero no crece. Las inactivas van con
- * `visibility:hidden`, que además las saca del orden de tabulación y del árbol de accesibilidad. Las
- * flechas y los puntos van ABSOLUTOS, debajo de la tarjeta, dentro del relleno inferior del hero
- * (40 px): no suman alto.
+ * `visibility:hidden`, que además las saca del orden de tabulación y del árbol de accesibilidad. Los
+ * controles (flechas y pausa) van ABSOLUTOS debajo de la tarjeta, dentro del relleno inferior del hero
+ * (40 px), y las PESTAÑAS van absolutas ENCIMA, dentro del relleno superior (44 px) desde 861 px; en una
+ * columna (≤ 860 px) entre el texto y la tarjeta hay sólo 24 px, así que bajan a la fila de los controles.
+ * Nada de eso suma alto.
  *
- * SIN JAVASCRIPT las dos tarjetas se ven apiladas y sin controles (el <noscript> de abajo). Con JS
- * (public/js/publicaciones-carrusel.js): flechas, puntos, ← → en los controles, aria-current en el
- * punto activo y una región aria-live="polite" que anuncia la tarjeta nueva. No rota solo.
+ * 24-nov-2026 · MOVIMIENTO (Nicholas: «se luce poco»). Pestañas con la ceja de cada tarjeta, avance solo
+ * cada 7 s con una barra fina en la pestaña activa, transición corta (≤ 300 ms) y el borde de la tarjeta
+ * siguiente asomando a la derecha. El avance se detiene para siempre al primer clic, foco o tecla dentro
+ * del carrusel; se pausa con el mouse encima; no existe con prefers-reduced-motion; y hay un botón de
+ * pausa/reanudar (WCAG 2.2.2). Ver public/js/publicaciones-carrusel.js.
  *
- * Las etiquetas de las flechas («Publicación anterior»/«siguiente») son texto nuevo: PROVISORIAS,
- * en docs/textos-provisorios-q-ready-en.md.
+ * SIN JAVASCRIPT las dos tarjetas se ven apiladas, sin pestañas ni controles (el <noscript> de abajo).
+ *
+ * Textos: las pestañas usan las cejas ya aprobadas; las flechas, los textos aprobados el 23-nov; el botón
+ * de pausa es texto NUEVO y PROVISORIO (src/lib/carrusel-textos.mjs, docs/textos-provisorios-carrusel.md).
  */
 import datos from '../../data/publicaciones.json';
 import aprobado from '../../data/publicaciones/textos-aprobados/TEXTOS-galeria-seguridad-2026-11-23.md?raw';
 import { textosGaleria } from '../../lib/textos-galeria.mjs';
 import { TEXTOS_PUERTA } from '../../lib/puerta-textos.mjs';
 import TarjetaInformePqc from './TarjetaInformePqc.astro';
+import { TEXTOS_CARRUSEL } from '../../lib/carrusel-textos.mjs';
 
 const { lang = 'es' } = Astro.props;
 const es = lang === 'es';
@@ -42,15 +49,25 @@ for (const p of datos.publicaciones as any[]) {
   if (p.tipo === 'documento' && !p[lang]) throw new Error(`publicaciones.json: "${p.id}" no trae su estructura en "${lang}"`);
   if (p.tipo === 'documento' && !TX[p.textos]?.[lang]) throw new Error(`publicaciones.json: "${p.id}" pide los textos "${p.textos}", que no están aprobados en "${lang}"`);
 }
-// El nombre de cada punto es el título de su tarjeta: no hace falta texto nuevo para decir adónde lleva.
-// El del informe en español es el de su tarjeta (no está en el documento aprobado: no cambió); en inglés, el aprobado.
-const titulos = (datos.publicaciones as any[]).map((p) => p.tipo === 'informe-pqc' ? (es ? 'La gran empresa chilena, medida.' : TX.informeEn.titulo) : TX[p.textos][lang].titulo);
+// 24-nov-2026 · PESTAÑAS en lugar de puntos (Nicholas: «se luce poco, casi no se nota que es un carrusel»).
+// Cada pestaña lleva la CEJA de su tarjeta, que ya está aprobada: no hay texto nuevo para decir qué hay. La del
+// informe en español es la de su tarjeta (no cambió); en inglés, la sellada el 23-nov.
+const cejas = (datos.publicaciones as any[]).map((p) => p.tipo === 'informe-pqc' ? (es ? 'Informe PQC mensual' : TX.informeEn.etiqueta[0]) : TX[p.textos][lang].etiqueta[0]);
 const n = datos.publicaciones.length;
+const P = TEXTOS_CARRUSEL[es ? 'es' : 'en'];   // «Pausar»/«Reanudar»: PROVISORIOS (docs/textos-provisorios-carrusel.md)
 ---
-<div class="pub-carrusel" id="pub-carrusel" role="region" aria-label={nombre}>
+<div class="pub-carrusel" id="pub-carrusel" role="region" aria-label={nombre} data-pausar={P.pausar} data-reanudar={P.reanudar}>
+  {n > 1 && (
+    <div class="pub-pestanas" role="tablist" aria-label={nombre}>
+      {cejas.map((c: string, k: number) => (
+        <button type="button" role="tab" class="pub-pestana" id={`pub-tab-${k}`} data-ir={k} aria-controls={`pub-diapo-${k}`}
+          aria-selected={k === 0 ? 'true' : 'false'} tabindex={k === 0 ? '0' : '-1'}><span>{c}</span><span class="pub-progreso" aria-hidden="true"></span></button>
+      ))}
+    </div>
+  )}
   <div class="pub-pista" id="pub-pista" aria-live="polite">
     {(datos.publicaciones as any[]).map((p: any, k: number) => (
-      <div class={k === 0 ? 'pub-diapo activa' : 'pub-diapo'} data-diapo={k}>
+      <div class={k === 0 ? 'pub-diapo activa' : 'pub-diapo'} data-diapo={k} id={`pub-diapo-${k}`} role={n > 1 ? 'tabpanel' : undefined} aria-labelledby={n > 1 ? `pub-tab-${k}` : undefined}>
         {p.tipo === 'informe-pqc'
           ? <TarjetaInformePqc lang={lang} />
           : (() => {
@@ -83,13 +100,9 @@ const n = datos.publicaciones.length;
   {n > 1 && (
     <div class="pub-controles">
       <button type="button" class="pub-flecha" data-paso="-1" aria-controls="pub-pista" aria-label={C.anterior}><span aria-hidden="true">←</span></button>
-      <div class="pub-puntos">
-        {titulos.map((t: string, k: number) => (
-          <button type="button" class="pub-punto" data-ir={k} aria-controls="pub-pista" aria-label={t} aria-current={k === 0 ? 'true' : 'false'}></button>
-        ))}
-      </div>
+      <button type="button" class="pub-pausa" aria-controls="pub-pista" aria-label={P.pausar} hidden><span class="pub-icono" aria-hidden="true"></span></button>
       <button type="button" class="pub-flecha" data-paso="1" aria-controls="pub-pista" aria-label={C.siguiente}><span aria-hidden="true">→</span></button>
     </div>
   )}
-  <noscript><style is:inline>.pub-pista{display:flex!important;flex-direction:column;gap:var(--s3)}.pub-pista>.pub-diapo{visibility:visible!important}.pub-controles{display:none!important}</style></noscript>
+  <noscript><style is:inline>.pub-pista{display:flex!important;flex-direction:column;gap:var(--s3)}.pub-pista>.pub-diapo{visibility:visible!important;opacity:1!important;transform:none!important}.pub-pista::before,.pub-pestanas,.pub-controles{display:none!important}</style></noscript>
 </div>
