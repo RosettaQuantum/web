@@ -29,7 +29,7 @@ function pintarFicha(foto, s, co) {
   if (!caja) return;
   if (!document.getElementById("rf-css")) { const st = document.createElement("style"); st.id = "rf-css"; st.textContent = CSS_FICHA; document.head.append(st); }
   caja.innerHTML = htmlDe(armarFicha(foto, { idioma: IDIOMA, verificado: s.nombres_completos === true, publico: s.pagina_publica === true,
-    correo: co, fuentes_que_fallaron: ctIntentos }));
+    correo: co, fuentes_que_fallaron: ctIntentos, extras: s.extras_nota || {} }));
   caja.hidden = false;
 }
 
@@ -398,7 +398,8 @@ form.addEventListener("submit", async (e) => {
 
   pintarResultado({ d, s, ct, mapa, hostsCT, dominio, www, nuevosCT });
   // La nota Q-Ready: la MISMA función que usan el servidor, el cron y el sello (qex-nucleo.mjs).
-  const nota = N.explicarNota(fotoHoy);
+  // extras_nota (24-nov): las del sello si el dueño verificó el dominio (/api/sondas); si no, {}.
+  const nota = N.explicarNota(fotoHoy, s.extras_nota || {});
   pintarNota(nota);
   pintarFicha(fotoHoy, s, co);
   // La lectura en cuatro pasos (canales, cápsula, Shor) la pinta /js/medicion-historia.mjs con el mismo dato.

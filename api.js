@@ -32,6 +32,9 @@ import { legiblesDe } from "./lib/legible.mjs";
 // (encargo del 13-nov: muchos agentes sólo leen la descripción). Texto provisorio, en qready-textos.mjs.
 import { FICHA } from "./public/js/qready-textos.mjs";
 const LINEA_FICHA = " " + FICHA.es.linea_mcp;
+// Las versiones vigentes salen del núcleo (24-nov-2026): una descripción con «QEX-1.2» escrito a mano
+// envejece sola la próxima vez que cambie la regla.
+import { VERSION_QEX, VERSION_NOTA } from "./public/js/qex-nucleo.mjs";
 const IDIOMA_FICHA = { type: "string", enum: ["es", "en"], description: "opcional: idioma de presentacion (rosetta-ficha/1), es por defecto" };
 // La medición en vivo usa sockets TCP (cloudflare:sockets), que el build de Astro no puede
 // resolver, y este archivo también lo importa Astro (llms.txt, /api-docs). Por eso no se
@@ -879,7 +882,9 @@ export const HERRAMIENTAS = [
       "servidores de correo y su security.txt. Envía saludos TLS reales (no es lectura de un " +
       "archivo). Con `sector`, devuelve además el índice QEX (el mismo cálculo que la página " +
       "/es/q-ready/medicion" +
-      ") y su comparación con el sector. El cifrado del correo llega aparte: " +
+      ") y su comparación con el sector, y la nota Q-Ready (A+ a F, " + VERSION_NOTA + "; QEX en su versión vigente, " +
+      VERSION_QEX + "). Si el dueño verificó el dominio, la letra es la misma de su sello. `ficha_url` abre la ficha " +
+      "del dominio en la web; `informe_pqc`, el informe PQC mensual publicado. El cifrado del correo llega aparte: " +
       "la respuesta trae un id para ver_cifrado_correo. null significa «no medido», nunca " +
       "«no protegido». Límite: pocas mediciones por minuto." + LINEA_FICHA,
     inputSchema: { type: "object", required: ["dominio"],
@@ -910,6 +915,23 @@ export const HERRAMIENTAS = [
       "cualquiera, use medir_exposicion_pqc (la nota viene en su respuesta, sin publicarse)." + LINEA_FICHA,
     inputSchema: { type: "object", required: ["domain"],
       properties: { domain: { type: "string", description: "dominio, p.ej. rosettaquantum.com" }, idioma: IDIOMA_FICHA } },
+  },
+  {
+    // PROVISORIO (24-nov-2026): texto pendiente de aprobación de Nicholas antes de producción.
+    name: "verificar_dominio",
+    description:
+      "Q-Ready Verified: la prueba de que un dominio es de quien dice, por un registro TXT en su DNS. Sin `token`: " +
+      "dice si el dominio tiene nota pública (con su página y su sello) y devuelve el enlace para iniciar la " +
+      "verificación; la inicia una persona en esa página (pasa un control anti-robot y recibe el TXT). Con `token` " +
+      "(el que la página le entregó a esa persona): comprueba el TXT ahora, igual que el botón «Comprobar»; si queda " +
+      "verificado, Rosetta mide el dominio cada día y publica su nota sólo si el dueño lo eligió. No revela si un " +
+      "dominio está verificado en privado. La nota pública se lee con get_qready_grade.",
+    inputSchema: { type: "object",
+      properties: {
+        dominio: { type: "string", description: "dominio público, p.ej. ejemplo.cl (obligatorio sin token)" },
+        token: { type: "string", description: "opcional: el token de 64 caracteres que la página entregó al iniciar la verificación" },
+        idioma: { type: "string", enum: ["es", "en"], description: "opcional: idioma de los enlaces, es por defecto" },
+      } },
   },
   {
     name: "estado_del_archivo",
@@ -1031,6 +1053,8 @@ async function ejecutarHerramienta(env, nombre, args, quien = {}) {
     { dominio: args.dominio, sector: args.sector, agente: args.agente, idioma: args.idioma, pais: args.pais },
     { canal: "mcp", ip: quien.ip, user_agent: quien.user_agent }, quien.ctx) : sinMedicion).cuerpo;
   if (nombre === "ver_cifrado_correo") return (MEDICION ? await MEDICION.correoParaAgente(env, String(args.id || "")) : sinMedicion).cuerpo;
+  if (nombre === "verificar_dominio") return (VERIFICADO && VERIFICADO.verificacionParaApi ? await VERIFICADO.verificacionParaApi(env,
+    { dominio: args.dominio, token: args.token, idioma: args.idioma }, quien.url || new URL(SITE), quien.ip, quien.ctx) : sinVerificado).cuerpo;
   if (nombre === "get_qready_grade") return (VERIFICADO ? await VERIFICADO.notaParaApi(env, args.domain, quien.url || new URL(SITE), args.idioma === "en" ? "en" : "es") : sinVerificado).cuerpo;
   if (nombre === "estado_del_archivo") return await estado(env);
   if (nombre === "buscar_evidencia") {
