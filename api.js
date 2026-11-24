@@ -1107,6 +1107,16 @@ async function proveedoresPermitido(ip) {
   await caches.default.put(k, new Response(String(n + 1), { headers: { "cache-control": "max-age=70" } }));
   return true;
 }
+// El entorno real, por el host que atendió el pedido (24-nov-2026). Antes la respuesta decía preview
+// escrito a mano, también en producción. *.workers.dev = preview; rosettaquantum.com = produccion; otro o sin
+// URL = null (no se sabe, no se adivina). Guardia: scripts/check-entorno-proveedores.mjs.
+export function entornoDeHost(url) {
+  const h = url && url.hostname ? url.hostname : null;
+  if (!h) return null;
+  if (h === "rosettaquantum.com" || h.endsWith(".rosettaquantum.com")) return "produccion";
+  if (h.endsWith(".workers.dev")) return "preview";
+  return null;
+}
 async function herramientaProveedores(args, quien) {
   const dominio = String(args.dominio || "").trim().toLowerCase().replace(/^https?:\/\//, "").replace(/[\/?#].*$/, "").replace(/\.$/, "");
   if (!dominioValidoCt(dominio)) return { ok: false, error: "dominio inválido" };
@@ -1116,7 +1126,7 @@ async function herramientaProveedores(args, quien) {
   const insumos = await recolectarProveedores(dominio);
   const r = descubrirProveedores(insumos, { declarados });
   return { ok: true, aviso: "Salida PRIVADA: nombra proveedores del cliente. No se publica (RQ.T, regla 2 del diseño).",
-    medido_desde: "worker (preview)", segundos: Math.round((Date.now() - t) / 100) / 10, consultas: insumos.consultas, ...r };
+    medido_desde: "worker", entorno: entornoDeHost(quien.url), segundos: Math.round((Date.now() - t) / 100) / 10, consultas: insumos.consultas, ...r };
 }
 
 // `quien` = { ip, user_agent, ctx }: lo que la herramienta de medición registra de quien mide.

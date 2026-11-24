@@ -1,0 +1,115 @@
+{
+  "edicion": "2026-11",
+  "fuente": "src/data/informe-pqc/2026-11.json (indice: 220 organizaciones chilenas; sólo agregados)",
+  "n": 220,
+  "mediana_pais": 58,
+  "mediana_pais_dimension": {
+    "certificados": 75,
+    "higiene": 60,
+    "hndl": 12,
+    "edge": 100
+  },
+  "cuartiles": "La edición no publica cuartiles por sector: p25 y p75 van null (no publicado).",
+  "hndl_edicion": "2026-08",
+  "hndl_fuente": "public/data/qex-referencia-2026-08.json",
+  "hndl_es_modelo": "La postura HNDL es un valor del sector (vida útil del dato y plazo de migración), no una medición de la organización.",
+  "generado_por": "scripts/build-qex-referencia.mjs",
+  "verticales": {
+    "banca": {
+      "nombre": "Banca",
+      "n": 17,
+      "mediana": 56,
+      "p25": null,
+      "p75": null,
+      "hndl": 12
+    },
+    "educacion": {
+      "nombre": "Educación",
+      "n": 20,
+      "mediana": 60,
+      "p25": null,
+      "p75": null,
+      "hndl": 37
+    },
+    "energia": {
+      "nombre": "Energía",
+      "n": 20,
+      "mediana": 56,
+      "p25": null,
+      "p75": null,
+      "hndl": 12
+    },
+    "fintech": {
+      "nombre": "Fintech",
+      "n": 20,
+      "mediana": 71,
+      "p25": null,
+      "p75": null,
+      "hndl": 65
+    },
+    "gobierno": {
+      "nombre": "Gobierno",
+      "n": 18,
+      "mediana": 50,
+      "p25": null,
+      "p75": null,
+      "hndl": 12
+    },
+    "mineria": {
+      "nombre": "Minería",
+      "n": 20,
+      "mediana": 62,
+      "p25": null,
+      "p75": null,
+      "hndl": 37
+    },
+    "prevision": {
+      "nombre": "Previsión",
+      "n": 18,
+      "mediana": 53,
+      "p25": null,
+      "p75": null,
+      "hndl": 12
+    },
+    "retail": {
+      "nombre": "Retail",
+      "n": 20,
+      "mediana": 71,
+      "p25": null,
+      "p75": null,
+      "hndl": 65
+    },
+    "salud_clinica": {
+      "nombre": "Salud · clínicas",
+      "n": 19,
+      "mediana": 56,
+      "p25": null,
+      "p75": null,
+      "hndl": 12
+    },
+    "salud_isapre": {
+      "nombre": "Salud · isapres",
+      "n": 10,
+      "mediana": 56,
+      "p25": null,
+      "p75": null,
+      "hndl": 12
+    },
+    "seguros": {
+      "nombre": "Seguros",
+      "n": 20,
+      "mediana": 58,
+      "p25": null,
+      "p75": null,
+      "hndl": 12
+    },
+    "telecom": {
+      "nombre": "Telecomunicaciones",
+      "n": 18,
+      "mediana": 50,
+      "p25": null,
+      "p75": null,
+      "hndl": 12
+    }
+  }
+}

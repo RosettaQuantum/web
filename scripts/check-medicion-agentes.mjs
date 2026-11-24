@@ -51,7 +51,8 @@ const FX = "scripts/fixtures/medicion-agentes/";
 const CT_TEXTO = gunzipSync(readFileSync(new URL(FX + "ct-python.org.json.gz", raiz))).toString("utf8");
 const CT = JSON.parse(CT_TEXTO);
 const SONDAS = JSON.parse(leer(FX + "sondas-python.org.json"));
-const REF = JSON.parse(leer("public/data/qex-referencia-2026-08.json"));
+// la referencia que pide la página y la que importa el servidor: la vigente (24-nov-2026), generada desde la última edición
+const REF = JSON.parse(leer("public/data/qex-referencia-vigente.json"));
 const json = (o, status = 200) => new Response(JSON.stringify(o), { status, headers: { "content-type": "application/json" } });
 
 function manejadores({ ctCaido = false, limite = false } = {}) {
@@ -141,8 +142,8 @@ for (const f of ["N.dominioDeEntrada(", "N.nombresASondear(", "N.ctDesdeServidor
 const copiaPropia = (t) => /\.slice\(0,\s*15\)|CLASES_SENSIBLES\.includes/.test(t);
 if (copiaPropia(pag)) fallas.push("la página volvió a escribir su propia regla de qué se sondea");
 igual(copiaPropia("const pedidos = todos.slice(0, 15);"), true, "el detector de copia propia grita con la regla vieja");
-const refPagina = /fetch\("\/data\/(qex-referencia-[\d-]+\.json)"\)/.exec(pag)?.[1];
-const refServidor = /from "\.\.\/public\/data\/(qex-referencia-[\d-]+\.json)"/.exec(leer("lib/medicion-agentes.mjs"))?.[1];
+const refPagina = /fetch\("\/data\/(qex-referencia-[\w-]+\.json)"\)/.exec(pag)?.[1];
+const refServidor = /from "\.\.\/public\/data\/(qex-referencia-[\w-]+\.json)"/.exec(leer("lib/medicion-agentes.mjs"))?.[1];
 igual([!!refPagina, refPagina === refServidor], [true, true], `la página (${refPagina}) y el servidor (${refServidor}) usan la misma referencia por sector`);
 
 // ---------------------------------------------------------------- 3 · el registro

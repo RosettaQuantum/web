@@ -109,8 +109,8 @@ for (const f of sondearFunciones(N)) fallas.push(f); casos++;
 const REF = JSON.parse(leer(B.REFERENCIA_ARCHIVO));
 const f04 = g.es.filas.find((f) => f.id === "RQ.S.04");
 igual(Object.values(REF.verticales).every((v) => f04.regla.includes(`${v.nombre} ${v.hndl}`)), true, "RQ.S.04 publica el valor HNDL de cada sector de la referencia");
-igual(g.es.filas.filter((f) => /^RQ\.S\.04\.\d$/.test(f.id)).every((f) => f.metodo.includes(REF.edicion) && /no está publicada/.test(f.metodo)), true,
-  "RQ.S.04.1 a .3 declaran: tabla fijada en la edición de la referencia; la derivación no está publicada");
+igual(g.es.filas.filter((f) => /^RQ\.S\.04\.\d$/.test(f.id)).every((f) => f.metodo.includes(REF.hndl_edicion || REF.edicion) && /no está publicada/.test(f.metodo)), true,
+  "RQ.S.04.1 a .3 declaran: tabla fijada en la edición del modelo HNDL (hndl_edicion, 24-nov-2026); la derivación no está publicada");
 
 // ---------------------------------------------------------------- 3 · ESCALA_NOTA = explicarNota
 const DOM = "ejemplo.cl";
