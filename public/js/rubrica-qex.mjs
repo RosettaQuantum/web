@@ -28,7 +28,8 @@ export const COLUMNAS = ["version", "seccion", "id", "dimension", "variable", "o
 export const NORMAS = Object.freeze({
   ir8547: { etiqueta: "NIST IR 8547 (versión final, oct-2026)", etiqueta_en: "NIST IR 8547 (final version, Oct 2026)", citada_en: "public/js/medicion-envivo.mjs", busca: "NIST IR 8547 (oct-2026)" },
   fips203: { etiqueta: "FIPS 203 (ML-KEM)", etiqueta_en: "FIPS 203 (ML-KEM)", citada_en: "src/pages/informe-pqc/index.astro", busca: "ML-KEM (FIPS 203)" },
-  fips204: { etiqueta: "FIPS 204 (ML-DSA)", etiqueta_en: "FIPS 204 (ML-DSA)", citada_en: "src/components/qready/QrLanding.astro", busca: "FIPS 204 · ML-DSA" },
+  // fips204: la cita vivía en QrLanding (la /q-ready vieja, retirada el 23-nov-2026); sigue en el informe PQC.
+  fips204: { etiqueta: "FIPS 204 (ML-DSA)", etiqueta_en: "FIPS 204 (ML-DSA)", citada_en: "src/pages/informe-pqc/index.astro", busca: "ML-DSA · FIPS 204" },
   sp80057: { etiqueta: "NIST SP 800-57 pt. 1 rev. 5, tabla 2", etiqueta_en: "NIST SP 800-57 pt. 1 rev. 5, table 2", citada_en: "docs/fuentes/regla-llave-2026-11-18.md", busca: "Table 2: Comparable security strengths" },
   rfc8446: { etiqueta: "RFC 8446 (TLS 1.3)", etiqueta_en: "RFC 8446 (TLS 1.3)", citada_en: "lib/tls13-certificado.mjs", busca: "RFC 8446" },
   rfc9116: { etiqueta: "RFC 9116 (security.txt)", etiqueta_en: "RFC 9116 (security.txt)", citada_en: "src/pages/q-ready/spec/index.astro", busca: "RFC 9116" },

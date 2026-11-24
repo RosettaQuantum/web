@@ -59,9 +59,17 @@ for (const v of PAIRS.values()) {
   BY_URL.set(v.en, links);
   BY_URL.set(v.es, links);
 }
-// La medición en vivo: único par EN/ES de /q-ready que se anuncia (12-nov-2026).
+// La medición en vivo: par EN/ES de /q-ready que se anuncia (12-nov-2026).
 {
   const en = `${SITE}/q-ready/medicion/`, es = `${SITE}/es/q-ready/medicion/`;
+  const links = [{ url: en, lang: 'en' }, { url: es, lang: 'es' }, { url: en, lang: 'x-default' }];
+  BY_URL.set(en, links);
+  BY_URL.set(es, links);
+}
+// Y la portada de seguridad (23-nov-2026): /q-ready dejó de ser la página vieja (identidad retirada,
+// noindex) y es la misma portada que /es/q-ready, en inglés.
+{
+  const en = `${SITE}/q-ready/`, es = `${SITE}/es/q-ready/`;
   const links = [{ url: en, lang: 'en' }, { url: es, lang: 'es' }, { url: en, lang: 'x-default' }];
   BY_URL.set(en, links);
   BY_URL.set(es, links);
@@ -87,7 +95,8 @@ export default defineConfig({
       // 3-nov-2026: entra también /es/q-ready/medicion (medición en vivo, indexable por decisión de Nicholas).
       // Checkout, portal y la muestra siguen fuera: no se portaron.
       // 12-nov-2026: y su par en inglés, /q-ready/medicion (misma página, mismo criterio).
-      filter: (page) => !page.includes('/rq-shell-') && (!page.includes('/q-ready') || /\/(es\/)?q-ready\/medicion\/?$/.test(page) || /\/es\/q-ready\/?$/.test(page))
+      // 23-nov-2026: y /q-ready, la portada nueva en inglés (par de /es/q-ready).
+      filter: (page) => !page.includes('/rq-shell-') && (!page.includes('/q-ready') || /\/(es\/)?q-ready\/medicion\/?$/.test(page) || /\/(es\/)?q-ready\/?$/.test(page))
         && !(INFORME_BORRADOR && page.includes('/informe-pqc'))
         // 18-nov-2026: una página que pide noindex no se anuncia. La señal es el meta de la
         // propia página ya construida (src/lib/noindex.mjs), no una lista al lado.

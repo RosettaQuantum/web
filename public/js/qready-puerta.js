@@ -1,5 +1,10 @@
 /*
- * /es/q-ready — el pop-up y el formulario del informe individual. 15-sep-2026.
+ * /es/q-ready y /q-ready — el pop-up y el formulario del informe individual. 15-sep-2026.
+ *
+ * 23-nov-2026: la portada sirve a los dos idiomas. Los mensajes del formulario individual llegan en
+ * `data-textos` del velo (src/lib/puerta-textos.mjs → js), con el idioma y la ruta de origen; si el
+ * atributo faltara, quedan los de siempre en español. El formulario del informe (más abajo) existe
+ * sólo en español y no cambia.
  *
  * TRES REGLAS QUE SALIERON DE REVISAR LA MAQUETA, cada una por un defecto real:
  *  1. El diálogo se oculta con el atributo `hidden` y la hoja declara [hidden]{display:none
@@ -16,6 +21,15 @@
   if (!velo) return;
   const dialogo = velo.querySelector('.qr-dialogo');
   const publico = velo.dataset.publico === '1';
+  const ES = { faltan: 'Faltan campos por completar.', dominio: 'El correo tiene que ser del dominio ‹dominio›.',
+    dominioSin: 'El correo tiene que ser del dominio que indicó.', enviando: 'Enviando…',
+    recibido: 'Recibido. Le escribiremos a ese correo para coordinar su informe.',
+    noRegistro: 'No pudimos registrar su pedido. Escríbanos a hello@rosettaquantum.com.',
+    noConecta: 'No pudimos conectar. Escríbanos a hello@rosettaquantum.com.' };
+  let TX = ES;
+  try { TX = { ...ES, ...JSON.parse(velo.dataset.textos || '{}') }; } catch { /* quedan los de siempre */ }
+  const LANG = velo.dataset.lang === 'en' ? 'en' : 'es';
+  const ORIGEN = velo.dataset.origen || '/es/q-ready';
   let antes = null, visto = false;
   const leer = (k) => { try { return sessionStorage.getItem(k); } catch { return null; } };
   const guardar = (k, v) => { try { sessionStorage.setItem(k, v); } catch { /* sin almacenamiento: da igual */ } };
@@ -71,7 +85,7 @@
       i.setAttribute('aria-invalid', bien ? 'false' : 'true');
       if (!bien && ok) { i.focus(); ok = false; }
     });
-    if (!ok) { decir(form, 'Faltan campos por completar.'); return; }
+    if (!ok) { decir(form, TX.faltan); return; }
 
     const boton = form.querySelector('button[type=submit]');
     const datos = Object.fromEntries(new FormData(form));
@@ -83,27 +97,27 @@
       const delCorreo = String(datos.email).split('@')[1]?.toLowerCase() || '';
       if (!dom || !(delCorreo === dom || delCorreo.endsWith('.' + dom))) {
         const i = form.querySelector('[name=email]'); i.setAttribute('aria-invalid', 'true'); i.focus();
-        decir(form, `El correo tiene que ser del dominio ${dom || 'que indicó'}.`);
+        decir(form, dom ? TX.dominio.replace('‹dominio›', dom) : TX.dominioSin);
         return;
       }
-      boton.disabled = true; decir(form, 'Enviando…');
+      boton.disabled = true; decir(form, TX.enviando);
       try {
         const r = await fetch('/api/qready-lead', {
           method: 'POST', headers: { 'content-type': 'application/json' },
           body: JSON.stringify({
-            legal: datos.legal, name: datos.name, email: datos.email, lang: 'es', tier: 'scan-individual',
-            notes: `Dominio: ${dom} · Autoriza medir su superficie pública: sí · Origen: /es/q-ready`,
+            legal: datos.legal, name: datos.name, email: datos.email, lang: LANG, tier: 'scan-individual',
+            notes: `Dominio: ${dom} · Autoriza medir su superficie pública: sí · Origen: ${ORIGEN}`,
           }),
         });
         const j = await r.json().catch(() => ({}));
         if (r.ok && j.ok) {
-          decir(form, 'Recibido. Le escribiremos a ese correo para coordinar su informe.', true);
+          decir(form, TX.recibido, true);
           form.querySelectorAll('input').forEach((i) => { i.disabled = true; });
           return;
         }
-        decir(form, 'No pudimos registrar su pedido. Escríbanos a hello@rosettaquantum.com.');
+        decir(form, TX.noRegistro);
       } catch {
-        decir(form, 'No pudimos conectar. Escríbanos a hello@rosettaquantum.com.');
+        decir(form, TX.noConecta);
       }
       boton.disabled = false;
       return;
