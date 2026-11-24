@@ -1,5 +1,10 @@
 ---
-import { CATALOGO, HERRAMIENTAS } from '../../../api.js';
+import { CATALOGO, HERRAMIENTAS as LISTA, HERRAMIENTA_PROVEEDORES } from '../../../api.js';
+// 24-nov-2026: descubrir_proveedores se sirve en producción (decisión de Nicholas) y vive fuera de
+// la lista base; la página nombra y cuenta lo que el servidor sirve.
+const HERRAMIENTAS = [...LISTA, HERRAMIENTA_PROVEEDORES];
+// El texto 3 aprobado (24-nov-2026), sellado: reemplaza la frase vieja de «sólo lectura».
+import { TEXTOS_MCP } from '../../lib/mcp-textos.mjs';
 import MarcaLayout from '../../layouts/MarcaLayout.astro';
 import css from '../../styles/pages/api-docs.css?raw';
 // La cara española de /api-docs. Nicholas aprobó el inglés tal como está y pidió la
@@ -68,7 +73,7 @@ const ARRANQUE_AGENTES = [
       </pre>
       <p>
         Apunta un cliente MCP a <code>https://rosettaquantum.com/mcp</code> — {HERRAMIENTAS.length} herramientas
-        de sólo lectura, sin paso de autenticación.
+        ({TEXTOS_MCP.es.registro}), sin paso de autenticación.
       </p>
 
       <h3>Publicamos nuestro propio uso</h3>
@@ -174,7 +179,7 @@ const ARRANQUE_AGENTES = [
       <h2>Servidor MCP</h2>
       <p>
         <code>POST {SITE}/mcp</code> habla JSON-RPC 2.0 y expone {HERRAMIENTAS.length} herramientas
-        de sólo lectura: {HERRAMIENTAS.map((h, i) => (<>{i > 0 ? (i === HERRAMIENTAS.length - 1 ? ' y ' : ', ') : ''}<code>{h.name}</code></>))}.
+        ({TEXTOS_MCP.es.registro}): {HERRAMIENTAS.map((h, i) => (<>{i > 0 ? (i === HERRAMIENTAS.length - 1 ? ' y ' : ', ') : ''}<code>{h.name}</code></>))}.
       </p>
       <pre><code>{MCP_CMD}</code></pre>
 

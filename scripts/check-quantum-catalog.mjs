@@ -739,7 +739,7 @@ console.log("\n  -- la promesa central: recomputar un sello --");
     // La pagina decia "nine tools" en un parrafo y "four tools" —con cuatro nombres—
     // tres parrafos mas abajo, con el servidor sirviendo 9. Ahora sale del codigo, y
     // esto lo compara contra lo que el servidor responde de verdad.
-    const cuenta = (docs.txt.match(/(\d+) (?:read-only tools|herramientas)/) || [])[1];
+    const cuenta = (docs.txt.match(/(\d+) (?:read-only tools|tools|herramientas)/) || [])[1];
     comprobar(`${ruta} dice cuantas herramientas MCP hay (${cuenta}) y son las que sirve (${nombresMcp.length})`,
       Number(cuenta) === nombresMcp.length, "la pagina y el servidor no coinciden");
     const sinNombrar = nombresMcp.filter(n => !docs.txt.includes(n));
