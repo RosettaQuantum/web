@@ -104,7 +104,11 @@
       // ?promo=1 de la guia PQC: SOLO aqui. Fuerza el pop-up aunque el flag de D1 este apagado y la
       // guia sin publicar, para poder verlo (lib/guia.mjs → promoForzado, que ademas exige host
       // *.workers.dev y el parametro). Sin el parametro el preview se comporta como produccion.
-      "vars": { "QREADY_PRUEBA_DNS": "1", "GUIA_PRUEBA": "1", "PROMO_PRUEBA": "1" }
+      //
+      // RQ.T · descubrir_proveedores (24-nov-2026): SOLO aqui. Nombra proveedores de un tercero, asi que
+      // no existe en produccion (api.js → proveedoresHabilitado, que ademas exige host *.workers.dev).
+      // test/proveedores.test.mjs grita si esta variable aparece fuera de env.preview.
+      "vars": { "QREADY_PRUEBA_DNS": "1", "GUIA_PRUEBA": "1", "PROMO_PRUEBA": "1", "RQT_PROVEEDORES": "1" }
     }
   }
 }
