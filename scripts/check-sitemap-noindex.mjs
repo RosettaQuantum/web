@@ -45,6 +45,11 @@ export function veredicto(nLocs, nMal, nSinRespuesta) {
   return { ok: true, motivo: "" };
 }
 
+// Los <loc> del sitemap nombran el dominio público. Cuando el borde desafía al runner
+// (Bot Fight Mode → 403 cf-mitigated: challenge), el CI mide el Worker por otro origen
+// (workers.dev): se pide la MISMA ruta a ese origen, no la URL absoluta del <loc>.
+export const enOrigen = (loc, origen) => { const x = new URL(loc); return new URL(x.pathname + x.search, origen).href; };
+
 async function servido(origen) {
   const sm = await fetch(new URL("/sitemap-0.xml", origen) + "?rq=" + Date.now());
   if (!sm.ok) { console.log(`FALLA sitemap servido: HTTP ${sm.status}`); process.exit(1); }
@@ -56,7 +61,7 @@ async function servido(origen) {
     while (i < locs.length) {
       const u = locs[i++];
       try {
-        const r = await fetch(u, { redirect: "follow", headers: { "user-agent": "rosetta-check-sitemap-noindex/1" } });
+        const r = await fetch(enOrigen(u, origen), { redirect: "follow", headers: { "user-agent": "rosetta-check-sitemap-noindex/1" } });
         const cuerpo = (r.headers.get("content-type") || "").includes("html") ? await r.text() : "";
         if (!r.ok) sinRespuesta.push(`${u} (${r.status})`);
         else if (respuestaNoindex(r.headers.get("x-robots-tag"), cuerpo)) mal.push(u);
@@ -87,6 +92,10 @@ prueba("servido · silencio: sin cabecera ni meta", !respuestaNoindex(null, '<me
 prueba("servido · MUTACIÓN corte de red: 332 de 336 sin respuesta y 0 noindex NO es verde", !veredicto(336, 0, 332).ok);
 prueba("servido · piso exacto: 16 de 336 sin respuesta (4,8 %) pasa; 17 (5,1 %) falla", veredicto(336, 0, 16).ok && !veredicto(336, 0, 17).ok);
 prueba("servido · sitemap vacío falla", !veredicto(0, 0, 0).ok);
+prueba("enOrigen: el <loc> del dominio se pide al origen medido, con la misma ruta",
+  enOrigen("https://rosettaquantum.com/es/q-ready/?a=1", "https://w.x.workers.dev") === "https://w.x.workers.dev/es/q-ready/?a=1");
+prueba("enOrigen: contra el propio dominio no cambia nada",
+  enOrigen("https://rosettaquantum.com/es/", "https://rosettaquantum.com") === "https://rosettaquantum.com/es/");
 prueba("archivoDe: /es/metodologia/qex/ → dist/es/metodologia/qex/index.html",
   archivoDe("https://rosettaquantum.com/es/metodologia/qex/", "/d") === "/d/es/metodologia/qex/index.html");
 

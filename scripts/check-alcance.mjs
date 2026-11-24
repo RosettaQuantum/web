@@ -38,7 +38,7 @@ import { join } from "node:path";
    Costo real de no saberlo: media hora persiguiendo un desborde de 550 px que
    estaba en produccion y ya estaba arreglado en el codigo. (2026-08-21) */
 const BASE = process.argv.includes("--base") ? process.argv[process.argv.indexOf("--base") + 1]
-                                             : "https://rosettaquantum.com";
+                                             : (process.env.PROD_BASE || "https://rosettaquantum.com");
 /** Las paginas donde alguien tiene que poder HACER algo.
  *
  * SE AUDITAN RUTAS QUE EXISTEN, NO REDIRECCIONES. La lista traia `/es/precios/` y

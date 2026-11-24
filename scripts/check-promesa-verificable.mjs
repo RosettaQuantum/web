@@ -66,7 +66,7 @@ import { createHash } from "node:crypto";
 import { esperarVersion, esperarRutas } from "./lib/esperar.mjs";
 
 const BASE = process.argv.includes("--base")
-  ? process.argv[process.argv.indexOf("--base") + 1] : "https://rosettaquantum.com";
+  ? process.argv[process.argv.indexOf("--base") + 1] : (process.env.PROD_BASE || "https://rosettaquantum.com");
 const CORRIDA = "cleveland-2026-07";
 
 /** El sha256 de unos bytes, tal como los bajaria un tercero. */
