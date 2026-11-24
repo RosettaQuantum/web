@@ -1,0 +1,1534 @@
+---
+import { banda } from '../lib/qex.js';
+import { elegirEdicion } from '../lib/informe-elegir.mjs';
+import { PENDIENTES_LEGALES, pendientePorDefecto, ventanaTexto } from '../lib/informe-portada.mjs';
+import { textosDeEdicion, fraseCertificadoSinLeer, cierreCertificados } from '../lib/informe-textos.mjs';
+import APROBADOS from '../data/informe-pqc/textos/APROBADOS.json';
+const mdAprobados = import.meta.glob('../data/informe-pqc/textos/**/*.md', { query: '?raw', import: 'default', eager: true }) as Record<string, string>;
+import MarcaLayout from '../layouts/MarcaLayout.astro';
+import css from '../styles/pages/informe-pqc.css?raw';
+
+// Ediciones: un JSON por mes. La más reciente manda; la anterior alimenta las variaciones.
+const mods = import.meta.glob('../data/informe-pqc/*.json', { eager: true });
+// El nombre del archivo y el campo `edicion` deben decir lo mismo. Si no coinciden,
+// el build falla: no hay forma de saber cuál de los dos miente, y elegir uno en silencio
+// mueve el defecto en vez de arreglarlo.
+const ediciones = Object.entries(mods).map(([p, m]: any) => {
+  const archivo = p.split('/').pop()!;
+  const slug = archivo.replace(/\.json$/, '');
+  const d = m.default ?? m;
+  if (!/^\d{4}-\d{2}$/.test(slug))
+    throw new Error(`informe-pqc: el archivo "${archivo}" no se llama AAAA-MM.json`);
+  if (!/^\d{4}-\d{2}$/.test(d?.edicion ?? ''))
+    throw new Error(`informe-pqc: "${archivo}" no trae campo \`edicion\` con formato AAAA-MM`);
+  if (d.edicion !== slug)
+    throw new Error(`informe-pqc: "${archivo}" declara edicion="${d.edicion}". El nombre del archivo y el campo deben coincidir.`);
+  return { slug, archivo, d };
+}).sort((a, b) => b.slug.localeCompare(a.slug));
+
+if (!ediciones.length) throw new Error('informe-pqc: no hay ninguna edición en src/data/informe-pqc/');
+
+// La cadena de comparación tiene que ser consistente: si una edición dice de cuál viene,
+// esa tiene que ser la anterior real. Un `anterior` equivocado compara contra el mes que no es.
+for (let i = 0; i < ediciones.length - 1; i++) {
+  const esperada = ediciones[i + 1].slug;
+  const declarada = ediciones[i].d.anterior;
+  if (declarada != null && declarada !== esperada)
+    throw new Error(`informe-pqc: ${ediciones[i].slug} declara anterior="${declarada}" pero la anterior real es ${esperada}.`);
+}
+
+// CUÁL edición se publica: la publicada más reciente, no el slug más alto (src/lib/informe-elegir.mjs).
+// `RQ_INFORME_PREVIEW=2026-11 npx astro build` muestra ESE borrador conservando la comparacion
+// contra la anterior. Lo usa `scripts/build-informe-pdf.mjs --borrador` para imprimir el PDF de
+// un borrador; en un build normal la variable no existe y no cambia nada. El borrador sigue
+// saliendo con cartel y `noindex`, porque eso lo decide `borrador` y esto no lo toca.
+// Falla cerrada (revisión 13-nov): en el CI que despliega, la previsualización no existe. Si
+// RQ_INFORME_PREVIEW quedara puesta ahí, producción mostraría el borrador en vez de la publicada.
+if (process.env.RQ_INFORME_PREVIEW && process.env.CI)
+  throw new Error("informe-pqc: RQ_INFORME_PREVIEW está puesta en CI; la previsualización es sólo local.");
+// LA EDICION PUEDE VENIR POR PROP (24-nov-2026). Sin prop se comporta
+// EXACTAMENTE como antes —elige la publicada mas reciente, con su
+// previsualizacion—, que es lo que hace `/informe-pqc/`. Con `slug` renderiza
+// ESA edicion, que es lo que hacen las landings `/informe-pqc/AAAA-MM/`.
+//
+// Por que existe: hasta hoy habia UNA sola URL y mostraba la ultima. Al
+// publicar noviembre, agosto dejo de tener direccion: cuatro rutas probadas
+// daban 404 y el sitemap traia una sola URL. El informe se vende como serie
+// —«para que las cifras puedan leerse como una serie»— y la serie tenia un
+// solo termino visible; quien hubiera citado el link de agosto pasaba a ver
+// noviembre, con otras cifras.
+interface Props { slug?: string }
+const { slug: slugPedido } = Astro.props as Props;
+let actual, anterior;
+if (slugPedido) {
+  const i = ediciones.findIndex((e) => e.slug === slugPedido);
+  if (i < 0) throw new Error(`informe-pqc: no existe la edicion ${slugPedido}`);
+  actual = ediciones[i];
+  anterior = ediciones[i + 1] ?? null;   // la lista va de mas nueva a mas vieja
+} else {
+  ({ actual, anterior } = elegirEdicion(ediciones, {
+    previsualizar: process.env.RQ_INFORME_PREVIEW || null,
+  }));
+}
+const { d } = actual;
+const prev = anterior?.d ?? null;
+
+// Las ediciones PUBLICADAS, para la lista de la serie. Un borrador no entra:
+// no tiene landing, asi que enlazarlo seria un 404.
+const publicadas = ediciones.filter((e: any) => e.d?.borrador === false);
+const MESES_ES = ['enero','febrero','marzo','abril','mayo','junio','julio',
+                  'agosto','septiembre','octubre','noviembre','diciembre'];
+const mesDe = (slug: string) => {
+  const [a, m] = slug.split('-');
+  return `${MESES_ES[Number(m) - 1]} de ${a}`;
+};
+// Bandas del índice (18-nov-2026, Nicholas: «Sí, 0·0%»). Un conteo 0 es una medición y se pinta
+// «0 · 0 %»; una banda SIN conteo es ausencia y antes se pintaba igual («—», por el `?? 0`), que es la
+// ausencia disfrazada de cero. FRONTERA: desde la edición 2026-11 el motor publica las cinco bandas
+// (CLAVES_NUEVAS, sesión Q-Ready medición), así que una banda declarada sin conteo tumba el build.
+// 2026-08 está publicada con tres conteos (Expuesto y Cripto-ágil no venían) y publicado es
+// publicado: ahí la ausencia se sigue pintando «—», nunca «0».
+const BANDAS_COMPLETAS_DESDE = '2026-11';
+const conteoBanda = (nombre: string): number | null => {
+  const v = (d.indice.bandas_conteo as Record<string, number>)?.[nombre];
+  return typeof v === 'number' ? v : null;
+};
+if (d.edicion >= BANDAS_COMPLETAS_DESDE) {
+  const faltan = d.indice.bandas.map((b: any) => b.n).filter((n: string) => conteoBanda(n) === null);
+  if (faltan.length) throw new Error(`informe-pqc ${d.edicion}: bandas declaradas sin conteo: ${faltan.join(', ')}. Desde ${BANDAS_COMPLETAS_DESDE} el motor publica las cinco; un hueco es un dato perdido, no un cero.`);
+}
+// El párrafo de certificados nombra distribucion[0] y distribucion[1] (18-nov-2026): asume DOS valores.
+// Un tercero se caería en silencio, así que el build se niega y dice cuántos trajo.
+// UN SOLO valor (18-nov-2026) es el caso esperado desde QEX-1.2: con la regla de NIST IR 8547 toda llave clásica
+// aprobada vale lo mismo (75), así que el estudio queda con un valor. El párrafo aprobado dice «Sólo {[1].n} se
+// separan» y no tiene variante para eso: el build se niega con la causa, hasta que haya una frase aprobada para
+// un solo valor (propuesta en docs/textos-provisorios-informe-llave.md). El texto de este párrafo no se toca aquí.
+// Texto 5 (19-nov-2026): la edición que DECLARA el texto 5 en APROBADOS.json (sección certificados-constante)
+// usa el párrafo aprobado: indice.hallazgo_cert.texto (su cifra la vigila el motor) + el cierre sellado. Lo
+// decide la declaración, no la presencia del campo: agosto también trae hallazgo_cert, con su propio texto.
+const cierreCert = cierreCertificados(d.edicion, APROBADOS, (f: string) => mdAprobados[`../data/informe-pqc/textos/${f}`]);
+if (cierreCert && !d.indice?.hallazgo_cert?.texto)
+  throw new Error(`informe-pqc ${d.edicion}: la edición declara el texto 5 pero no trae indice.hallazgo_cert.texto.`);
+if (!cierreCert) {
+  const dist = d.indice?.certificados_detalle?.distribucion;
+  const lista = Array.isArray(dist) ? dist.map((x: any) => x.valor + '→' + x.n).join(', ') : '—';
+  if (Array.isArray(dist) && dist.length === 1)
+    throw new Error(`informe-pqc ${d.edicion}: certificados_detalle.distribucion trae UN solo valor (${lista}). Es lo esperado con la regla de QEX-1.2 (NIST IR 8547: toda llave clásica aprobada vale lo mismo), pero el párrafo de certificados nombra distribucion[1] («Sólo … se separan»): falta la frase aprobada para un solo valor (propuesta en docs/textos-provisorios-informe-llave.md).`);
+  if (!Array.isArray(dist) || dist.length !== 2)
+    throw new Error(`informe-pqc ${d.edicion}: certificados_detalle.distribucion trae ${Array.isArray(dist) ? dist.length : 'ningún'} valores (${lista}); el párrafo de certificados sólo sabe nombrar 2.`);
+}
+// Párrafos aprobados que entran SÓLO a esta edición (src/lib/informe-textos.mjs). Sha distinto = build caído.
+const textoLegal = textosDeEdicion(d.edicion, APROBADOS, (f: string) => mdAprobados[`../data/informe-pqc/textos/${f}`]);
+
+/**
+ * ¿Esta edicion es un borrador?
+ *
+ * FALLA CERRADO: si el JSON no dice nada, es borrador. Una edicion nueva que alguien
+ * suelta en src/data/ sin declarar su estado NO se indexa sola.
+ *
+ * Y ES UN SOLO INTERRUPTOR PARA LAS DOS COSAS —el cartel de "borrador de trabajo" y el
+ * `noindex`— porque hasta hoy vivian separados: el cartel estaba escrito a mano en el
+ * HTML y el noindex no existia, asi que la pagina decia "pendiente de revision legal"
+ * y a la vez se ofrecia a los buscadores. Dos verdades sobre el mismo hecho es una
+ * mentira esperando.
+ *
+ * `borrador` acepta true (borrador sin detalle), false (publicada) o un texto con lo
+ * que falta, que es lo que se muestra.
+ */
+const esBorrador = d.borrador !== false;
+// La frase de pendientes se arma DESPUÉS de SECCIONES (más abajo): su número de sección y su conteo
+// de puntos se derivan, no se escriben (src/lib/informe-portada.mjs).
+
+/* La nota al pie de la tabla de normas dice DOS cosas: que lo marcado «por
+ * verificar» no se publica, y que se muestra porque esto es un borrador. Las dos
+ * dejan de ser ciertas en cuanto no queda ninguna fila sin verificar, y la frase
+ * estaba FIJA — fuera de `esBorrador`. Apagar el borrador la habria publicado
+ * afirmando ser borrador, y afirmando una regla que ella misma incumplia.
+ * Ahora cuelga del DATO y no de la memoria de nadie: si vuelve a entrar una
+ * norma sin verificar, la nota vuelve sola. (4-nov-2026) */
+const hayPorVerificar = d.chile.normas.some((n: any) => n.estado === "noverificado");
+
+const MESES = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
+const [yy, mm] = d.edicion.split('-').map(Number);
+const mesLargo = `${MESES[mm-1]} de ${yy}`;
+
+/** Variación contra la edición anterior. Sin anterior devuelve la marca de línea base. */
+/** Color según si subir es bueno o malo para ESA métrica. `polaridad:'mayor_mejor'`
+ *  invierte el semáforo. Sin declararla, se asume que subir es malo. */
+function pintar(dif: number, polaridad?: string) {
+  if (polaridad === 'neutra') return 'flat';   // moverse no es mejor ni peor: sin semáforo
+  const mejora = polaridad === 'mayor_mejor' ? dif > 0 : dif < 0;
+  return mejora ? 'down' : 'up';   // .down = verde (mejora) · .up = rojo (empeora)
+}
+function delta(id: string, valor: number | null, sinComparacion?: string | null) {
+  /* Sin valor no hay variación. Con `null` esto daba `null - 0 = 0` y devolvía
+   * «sin cambio», que afirma una medición inexistente: la peor forma de la
+   * ausencia disfrazada de valor, porque suena tranquilizadora. */
+  // La ficha no pinta chip cuando no hay medición, así que este texto no se
+  // llega a ver; existe igual por si otro lugar llama a `delta` con un null.
+  if (!medida(valor)) return { cls: 'flat', txt: SIN_MEDIR };
+  /* El motor marca `_sin_comparacion` (con su causa) cuando la cifra anterior medía otra
+   * cosa: restarlas publica una variación entre dos conjuntos distintos. Caso real
+   * (17-nov-2026): «Sin security.txt publicado», 96 % de agosto sobre base 140 con otro
+   * rótulo y sin crudo → «+1 %». Decisión de Nicholas: quitarle la comparación. Se mira
+   * ANTES de `prev`: la página no lee `d.variacion`, calcula el delta aquí. */
+  if (sinComparacion) return { cls: 'new', txt: 'línea base' };
+  if (!prev) return { cls: 'new', txt: 'línea base' };
+  const ant = prev.titulares?.find((t: any) => t.id === id);
+  if (!ant) return { cls: 'new', txt: 'nuevo' };
+  const dif = +((valor as number) - ant.v).toFixed(1);
+  if (dif === 0) return { cls: 'flat', txt: 'sin cambio' };
+  return { cls: pintar(dif, ant.polaridad), txt: `${dif > 0 ? '+' : ''}${dif}${ant.u ?? ''}` };
+}
+function deltaVert(id: string, ratio: number) {
+  if (!prev) return null;
+  const ant = prev.verticales?.find((v: any) => v.id === id);
+  if (!ant) return { cls: 'new', txt: 'nuevo' };
+  const dif = ratio - ant.ratio;
+  if (dif === 0) return { cls: 'flat', txt: '=' };
+  // adopción de híbrido: subir es mejor
+  return { cls: pintar(dif, 'mayor_mejor'), txt: `${dif > 0 ? '+' : ''}${dif}` };
+}
+
+/* Una cifra SIN MEDIR dice «no medido», que es la convención de la casa y ya se
+ * usa en /informe-cliente y en /es/q-ready/medicion («un canal que no pudimos
+ * medir dice no medido, nunca no protegido»). Acá no estaba, y el 13-nov-2026
+ * eso TUMBÓ EL BUILD: la edición de noviembre trae `titulares[4].v` en null
+ * —«Proveedores de core con fecha», que se revisa a mano y este mes no se
+ * revisó— y `nf` llamaba `.toLocaleString()` sobre null. La compuerta de la
+ * máquina venía diciendo desde agosto «mientras estén en null, la página tiene
+ * que pintarlas como no medido»: era una promesa sin nada detrás, y nadie la
+ * ejerció porque agosto no tenía ninguna cifra sin medir. */
+const SIN_MEDIR = 'no medido';
+const medida = (n: unknown) => n !== null && n !== undefined;
+const nf = (n: number | null | undefined) =>
+  medida(n) ? (n as number).toLocaleString('es-CL') : SIN_MEDIR;
+const cdnPct = (o: any) => o.pct;
+// El panel «Banco tipo». `null` cuando la edición no trae el bloque —agosto, que
+// es anterior a que existiera—; en ese caso el panel cae a los literales, que
+// para ESA edición son sus propias medianas. Ver el comentario del panel.
+const vt: any = (d as any).vertical_tipo ?? null;
+
+/* Las secciones del documento, en una sola lista.
+ *
+ * Esta constante ya existia y NO la usaba nadie: doce entradas, con otros titulos y sin
+ * «Los cuatro relojes», mientras el indice visible se escribia a mano con trece. Dos
+ * listas de lo mismo, una muerta y ya divergida. Ahora manda esta y de ella salen las dos
+ * cosas que la nombran —el indice de arriba y la barra fina al desplazar—, asi que no
+ * pueden decir cosas distintas.
+ *
+ * Los titulos son LOS PUBLICADOS, copiados del indice que ya estaba en la pagina: este
+ * cambio es de estructura, no de texto. Y el orden es el del documento: si se agrega una
+ * seccion, entra aqui y aparece sola en los dos lugares. Lo cubre check-informe-indice.mjs,
+ * que compara esta lista contra los <section id> del HTML construido. */
+/* El índice, la barra fina y los <section id> salen TODOS de esta lista, y
+ * T-informe-indice los compara en los dos sentidos y en orden.
+ *
+ * Por eso una sección condicional tiene que estar condicionada ACÁ también: la
+ * de la serie sólo existe si la edición trae el bloque `serie` —agosto no lo
+ * tiene—, y dejarla fija en la lista hacía que el índice ofreciera un ancla a
+ * ninguna parte. Lo cazó T-informe-indice en el primer build, que es justo para
+ * lo que está. */
+const TODAS: { id: string; t: string; si?: boolean }[] = [
+  { id: 'panel',      t: 'Panel de exposición · lectura de 30 segundos' },
+  { id: 'ejecutivo',  t: 'Resumen para directorio · dos minutos' },
+  { id: 'relojes',    t: 'Los cuatro relojes' },
+  { id: 'indice',     t: 'El índice' },
+  { id: 'serie',      t: 'Cómo viene cambiando', si: !!d.serie },
+  { id: 'medicion',   t: 'La medición' },
+  { id: 'trampa',     t: 'La trampa' },
+  { id: 'ruta',       t: 'Lo que sí define su plazo' },
+  { id: 'costo',      t: 'El costo de esperar' },
+  { id: 'entregable', t: 'Qué se puede saber de su organización' },
+  { id: 'contexto',   t: 'Por qué existe el problema' },
+  { id: 'reloj',      t: 'Dónde está la máquina y cuándo llega' },
+  { id: 'glosario',   t: 'Glosario' },
+  { id: 'legal',      t: 'Metodología, límites y aviso legal' },
+];
+const SECCIONES = TODAS.filter((x) => x.si !== false);
+const nn = (i: number) => String(i + 1).padStart(2, '0');
+const pendiente = typeof d.borrador === "string" ? d.borrador
+  : pendientePorDefecto(PENDIENTES_LEGALES.length, SECCIONES.findIndex((x) => x.id === 'legal') + 1);
+
+/* LA SERIE EN EL TIEMPO.
+ *
+ * El bloque `serie` de la edición trae SÓLO números y códigos: ni un nombre de
+ * mes, ni la palabra «sube». Las palabras viven acá, que es donde se aprueban
+ * una vez; así una edición nueva no puede publicar una frase que nadie vio.
+ *
+ * Y la frase se arma DESDE EL DATO, no escrita con los números adentro. El
+ * 13-nov-2026 la bajada de superficie decía «mediana 41 por organización» con
+ * el total de noviembre al lado: el 41 era de agosto, porque un número metido
+ * dentro de un texto no lo recalcula nadie. Un párrafo con las cifras escritas
+ * a mano es el mismo defecto, más largo. */
+const MES_ES: Record<string, string> = {
+  '01': 'enero', '02': 'febrero', '03': 'marzo', '04': 'abril', '05': 'mayo',
+  '06': 'junio', '07': 'julio', '08': 'agosto', '09': 'septiembre',
+  '10': 'octubre', '11': 'noviembre', '12': 'diciembre',
+};
+const mesEs = (slug: string) => MES_ES[slug.slice(5, 7)] ?? slug;
+/* La dirección llega como código. Sin código —menos de tres puntos— no se
+ * afirma nada: dos mediciones son una flecha, no una tendencia. */
+const DIRECCION: Record<string, string> = {
+  monotona_sube: 'sube en cada tramo',
+  monotona_baja: 'baja en cada tramo',
+  no_monotona: 'sube y baja',
+};
+const serie = d.serie ?? null;
+// Los tres paneles de la Fig. 1, en el orden de las columnas de la tabla: una
+// lista que vive en dos lugares ya divergio, asi que el orden sale de aqui.
+const SMS = [
+  { k: 'hibrido',      campo: 'pct', u: '%', t: 'Soporta el híbrido' },
+  { k: 'certificados', campo: 'pct', u: '%', t: 'Certificado sobre el mínimo' },
+  { k: 'qex_mediana',  campo: 'v',   u: '',  t: 'Mediana del índice' },
+];
+const pct = (p: any, k: string) => p?.[k]?.pct;
+const frase = (ps: any[], k: string) =>
+  ps.map((p, i) => `${pct(p, k)} % en ${mesEs(p.mes)}`)
+    .reduce((acc, x, i, a) => i === 0 ? `de ${x}` : i === a.length - 1 ? `${acc} y ${x}` : `${acc} a ${x}`, '');
+
+// EL PIE PERMANENTE DE LAS 37 PAGINAS (23-nov-2026). Decision 3 de la maqueta:
+// «el estado viaja en un pie permanente en las 37 paginas», para que cualquiera
+// que imprima una hoja suelta sepa que esta leyendo un borrador. El folio ya
+// salia del `@page` del CSS; el estado NO puede salir de ahi porque es un dato
+// de la edicion, asi que el `@page` del lado izquierdo lo arma esta pagina.
+// Las comillas dobles se escapan: el valor entra dentro de un `content:"..."`.
+const pieEstado = esBorrador
+  ? `Borrador de trabajo · no publicada · ${d.edicion}`
+  : `Rosetta Quantum · edición ${String(d.numero).padStart(2, '0')} · ${d.edicion}`;
+const cssPieDeEdicion = `@media print{@page{@bottom-left{content:"${pieEstado.replace(/"/g, '\\"')}";`
+  + `font-family:'IBM Plex Sans',sans-serif;font-size:8pt;letter-spacing:.06em;color:#4A4E48}}}`;
+---
+{/* Portado a la marca el 2026-09-09 por instruccion de Nicholas. Antes usaba
+    BaseLayout, que le daba el chrome retirado —barra oscura en basalto, pie en
+    papiro— sobre un documento que ya estaba en la identidad vieja. Ahora entra por
+    MarcaLayout: misma barra, mismo pie y misma tipografia que el resto del sitio.
+    `altUrl` apunta al home ingles porque este informe NO tiene cara en ingles: el
+    conmutador tiene que llevar a una pagina que exista, no a un 404 inventado. */}
+<MarcaLayout
+  title={`${d.titulo} — Informe ${mesLargo} · Rosetta Quantum`}
+  description={`${d.subtitulo}. Edición ${d.numero}, ${mesLargo}. Medición técnica sobre endpoints reales, no encuesta.`}
+  lang="es" altUrl="/" ruta="/informe-pqc" pageCss={css + cssPieDeEdicion} scripts={["/js/frescura.js", "/js/informe-indice.js"]} noindex={esBorrador}>
+
+<div class="informe-doc" data-edicion={d.edicion}>
+<div class="informe">
+
+  <header class="mast">
+    {/* La marca encabeza la portada IMPRESA, con el nombre al lado, igual que
+        en la barra del sitio. En pantalla la oculta el CSS: ahi la barra ya
+        la trae. 18-nov-2026: la maqueta encabezaba con el simbolo del
+        brand-kit —que nunca se desplego— y sin el nombre; Nicholas lo marco
+        a ojo. Lo desplegado es esta hoja. */}
+    <div class="lockup">
+      <img src="/rosetta-mark.svg" width="34" height="44" alt="" />
+      <span class="wm">Rosetta Quantum</span>
+    </div>
+
+    <div class="edicion">
+      <span class="num">Edición {String(d.numero).padStart(2,'0')}</span>
+      <span>{mesLargo}</span>
+      <span>{ventanaTexto(d.ventana)}</span>
+      <span>{d.muestra.organizaciones} organizaciones · {d.muestra.verticales} verticales</span>
+      <span>{prev ? `Compara contra edición ${String(prev.numero).padStart(2,'0')}` : 'Primera edición · línea base'}</span>
+    </div>
+
+    <h1>{d.titulo}</h1>
+    <p class="standfirst">{d.subtitulo}</p>
+
+    {/* LA SERIE, NAVEGABLE (24-nov-2026). Sin esto las landings por edicion
+        existen y no las enlaza nadie: sólo el sitemap. Se listan las
+        PUBLICADAS, de la mas nueva a la mas vieja, y la que se esta leyendo
+        va marcada y sin enlace. Las etiquetas no son prosa nueva: son las
+        mismas palabras que la cabecera ya usa para nombrarse. */}
+    {publicadas.length > 1 && (
+      <nav class="edics" aria-label="Ediciones del informe">
+        <span class="edics-k">Ediciones</span>
+        {publicadas.map((e: any) => (
+          e.slug === d.edicion
+            ? <span class="edics-a es-hoy" aria-current="page">{`Edición ${String(e.d.numero).padStart(2,'0')} · ${mesDe(e.slug)}`}</span>
+            : <a class="edics-a" href={`/informe-pqc/${e.slug}/`}>{`Edición ${String(e.d.numero).padStart(2,'0')} · ${mesDe(e.slug)}`}</a>
+        ))}
+      </nav>
+    )}
+  </header>
+
+  {d.SIMULADO && (
+    <div class="draft" style="border-width:2px;background:var(--alert-10)">
+      <strong>⚠ EDICIÓN CON DATOS SIMULADOS — NO PUBLICAR.</strong> {d.SIMULADO} Existe solo para verificar que la comparación mes a mes funciona.
+    </div>
+  )}
+  {esBorrador && (
+    <div class="draft">
+      <strong>Borrador de trabajo.</strong> Pendiente antes de publicar: {pendiente}. Esta edición no se ofrece a los buscadores mientras diga esto.
+    </div>
+  )}
+
+  <div class="measure" style="margin:32px 0 8px">
+    <p class="lede">
+      <strong>Este es un informe mensual, no un estudio puntual.</strong> Cada edición mide la misma
+      muestra de {d.muestra.organizaciones} organizaciones con el mismo método y publica el mismo índice,
+      para que las cifras puedan leerse como una serie. {prev
+        ? `Las variaciones respecto de la edición anterior aparecen junto a cada métrica y en cada barra.`
+        : `Esta primera edición fija la línea base: desde la próxima, cada métrica llevará su variación mensual y podrá verse quién se movió y hacia dónde.`}
+    </p>
+  </div>
+
+  <nav class="toc" id="contenido" aria-label="Contenido">
+    <h2>Contenido de esta edición</h2>
+    <ol>
+      {SECCIONES.map((s) => (
+        <li><a href={`#${s.id}`}><span class="tl">{s.t}</span></a></li>
+      ))}
+    </ol>
+  </nav>
+
+  {/* La barra fina. Vive DESPUES del indice en el DOM y es sticky, asi que no se ve
+      mientras el indice esta en pantalla y aparece sola en cuanto se pasa: no hace falta
+      JS para mostrarla ni esconderla. Se pega a 60 px —el alto de la barra del sitio— y
+      queda por debajo de ella (z-index 40 contra 50), que es exactamente lo que el indice
+      no hacia. Sin JS muestra la seccion 01 y abre la lista igual (es un <details>), asi
+      que no depende del script para servir. */}
+  <details class="tocbar" id="tocbar">
+    <summary>
+      <span class="tb-n">01</span>
+      <span class="tb-t">{SECCIONES[0].t}</span>
+      <svg class="tb-v" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
+    </summary>
+    <ol class="tb-lista">
+      {SECCIONES.map((s, i) => (
+        <li><a href={`#${s.id}`} data-n={nn(i)}><span class="tb-ln">{nn(i)}</span><span>{s.t}</span></a></li>
+      ))}
+    </ol>
+  </details>
+
+  <!-- CONTEXTO GLOBAL -->
+  <div class="chart" style="margin:34px 0 6px">
+    <div class="chart-h">
+      <p class="chart-t">Dónde está el mundo, y dónde está Chile</p>
+      <p class="chart-s">Todas las cifras provienen de mediciones técnicas sobre endpoints, no de encuestas.</p>
+    </div>
+    <div class="chart-b"><div class="tw">
+      <table>
+        <thead><tr><th>Qué se mide</th><th class="num">Mundo</th><th class="num">Chile</th><th>De dónde sale la referencia</th></tr></thead>
+        <tbody>
+          <tr><td>Endpoints que negocian intercambio híbrido</td>
+            <td class="num">{d.referencia_global.hibrido_global}%</td>
+            <td class="num"><strong>{d.referencia_global.hibrido_chile}%</strong></td>
+            <td>{nf(d.referencia_global.dominios_medidos)} dominios · {d.referencia_global.fuente}</td></tr>
+          <tr><td>Servidores configurados por su dueño con híbrido</td>
+            <td class="num">0%</td><td class="num">—</td>
+            <td>8.443 configuraciones Nginx reales · arXiv:2605.17955</td></tr>
+          <tr><td>Certificados post-cuánticos en producción</td>
+            <td class="num">0%</td><td class="num">0%</td>
+            <td>Todas las mediciones publicadas coinciden</td></tr>
+          <tr><td>Países con mandato o guía técnica con plazos</td>
+            <td class="num">12+</td><td class="num"><strong>0</strong></td>
+            <td>Revisión propia de instrumentos regulatorios</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="src">Chile está cuatro puntos por encima del promedio mundial en la métrica visible — y ese promedio deja la mitad de la infraestructura sin proteger. La autenticación sigue íntegramente clásica en todo el mundo.</p>
+    </div>
+  </div>
+
+  <div class="measure" style="margin-bottom:8px">
+    <p>Tres cosas conviene tener claras antes de mirar cualquier número de este informe. <strong>La primera</strong> es que Chile no está atrasado respecto del mundo: está levemente por delante, y eso no es una buena noticia sino una medida de lo bajo que está el promedio. <strong>La segunda</strong> es que la única métrica donde el mundo avanza —el intercambio de claves en el borde— es también la que un proveedor de infraestructura activa por contrato, sin que la organización decida nada. <strong>Y la tercera</strong> es que la autenticación, que es la mitad del problema, está en cero en todas partes.</p>
+  </div>
+
+  <!-- 01 · PANEL -->
+  <section id="panel">
+    <div class="sechead">
+      <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9h18M8 9v11"/></svg>
+      <span class="snum">01 · Panel de exposición · lectura de 30 segundos</span>
+    </div>
+
+    <div class="panel">
+      <div class="panel-h">
+        <h3>Superficie criptográfica pública — gran empresa chilena</h3>
+        <span class="meta">n = {d.muestra.organizaciones} · {d.muestra.sondeadas} sondeadas</span>
+      </div>
+      <div class="tiles">
+        {d.titulares.map((t: any) => {
+          const dl = delta(t.id, t.v, t._sin_comparacion);
+          const sev = t.sev === 'asterisco' ? '' : t.sev === 'info' ? '' : t.sev;
+          return (
+            <div class={`tile ${sev}`}>
+              <span class="k">{t.k}{t.sev === 'asterisco' ? ' *' : ''}</span>
+              <span class={medida(t.v) ? 'v' : 'v sin-medir'}>{nf(t.v)}{medida(t.v) ? t.u : ''}</span>
+              <span class="sub">
+                {medida(t.v) && <><span class={`delta ${dl.cls}`}>{dl.txt}</span>{' '}</>}{t.sub}
+              </span>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+    <p class="src">* Métrica que un cambio de proveedor de CDN pone en verde sin modificar la exposición real. Ver sección 04.</p>
+
+    <div class="chart">
+      <div class="chart-h">
+        <p class="chart-t">Cuánta superficie pública tiene una gran empresa chilena</p>
+        <p class="chart-s">Nombres de host en registros públicos de certificados. n = {d.muestra.con_indice}.</p>
+      </div>
+      <div class="chart-b">
+        <div class="bars">
+          {d.superficie.map((s: any) => (
+            <div class="bar-row">
+              <span class="bar-lab">{s.rango}</span>
+              <div class="bar-track"><div class={`bar-fill ${s.pct>=18?'lo':s.pct>=30?'mid':''}`} style={`width:${Math.round(s.pct/35*100)}%`}></div></div>
+              <span class="bar-val">{s.n} · {s.pct}%</span>
+            </div>
+          ))}
+        </div>
+        <p class="src">El {d.prosa.mas30_pct}% tiene más de 30 nombres de host públicos. El {d.prosa.profundos_pct}% tiene subdominios de tercer o cuarto nivel.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 02 · EJECUTIVO -->
+  <section id="ejecutivo">
+    <div class="sechead">
+      <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M7 9h10M7 13h7"/></svg>
+      <span class="snum">02 · Resumen para directorio · dos minutos</span>
+    </div>
+    <h2>Lo que un directorio necesita saber</h2>
+    <div class="measure">
+      <p class="lede">Toda la criptografía que hoy protege las transacciones, los contratos y los registros de su organización quedará obsoleta dentro del horizonte de vida útil de esos mismos datos. No es una hipótesis: es un calendario que otros ya fijaron.</p>
+    </div>
+
+    <div class="term">
+      <dl>
+        <dt>El riesgo, en una línea</dt>
+        <dd>Un adversario puede capturar tráfico cifrado <strong>hoy</strong> y descifrarlo cuando exista la máquina. Todo dato que deba seguir siendo secreto más allá de ~2035 está, en términos de riesgo, expuesto desde el momento en que se transmite.</dd>
+        <dt>Por qué ahora y no en cinco años</dt>
+        <dd>Una migración toma años y depende de proveedores que aún no se comprometen. El margen se calcula <strong>restando</strong>: vida útil del dato, más tiempo de migración, contra el horizonte de la amenaza.</dd>
+      </dl>
+    </div>
+
+    <div class="measure">
+      <h3>El número, y qué significa</h3>
+      <p>La mediana nacional del <strong>{d.indice.nombre}</strong> es <strong>{d.indice.mediana} de 100</strong> —con techo externo {d.indice.tope}—, con todas las organizaciones medidas entre {d.indice.min} y {d.indice.max}. Ese apiñamiento es el dato más importante del informe: <strong>no hay líderes.</strong> El {d.indice.certificados_detalle.pct_valor_dominante}% comparte exactamente el mismo puntaje en esa dimensión, y esa capa no la resuelve ningún proveedor.</p>
+
+      <h3>Tres hechos medidos, no opinados</h3>
+      <ul>
+        <li><strong>El {d.prosa.sin_hibrido_pct}% de las grandes organizaciones chilenas no negocia criptografía post-cuántica en su infraestructura pública.</strong> Y de las que sí la tienen, prácticamente todas la obtuvieron como efecto secundario de su contrato de CDN.</li>
+        <li><strong>El {d.titulares.find((t: any) => t.id === 'ambientes').v}% tiene nombres de ambientes de prueba con certificado público emitido y el {d.titulares.find((t: any) => t.id === 'infra').v}% nombres de infraestructura sensible</strong>, y el {d.titulares.find((t: any) => t.id === 'canal').v}% no tiene canal donde alguien pueda reportárselo.</li>
+        <li><strong>Ningún proveedor de core bancario o switch de pagos tiene soporte post-cuántico comprometido públicamente.</strong> El plazo real lo define un tercero que todavía no ha dicho cuándo.</li>
+      </ul>
+
+      <h3>Qué decidir</h3>
+      <ul>
+        <li><strong>Nombrar un responsable</strong> de agilidad criptográfica. Hoy nadie tiene el problema asignado.</li>
+        <li><strong>Levantar el inventario</strong> de dónde vive la criptografía. Primer requisito de todos los marcos internacionales.</li>
+        <li><strong>Preguntarle a los proveedores críticos</strong> por su fecha comprometida. Esa respuesta define el plazo mejor que cualquier pronóstico.</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- 04 · EL INDICE -->
+  <!-- 03 · LOS CUATRO RELOJES -->
+  <section id="relojes">
+    <div class="sechead">
+      <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2"/></svg>
+      <span class="snum">03 · Los cuatro relojes</span>
+    </div>
+    <h2>Nadie lo va a multar este año. Igual va tarde.</h2>
+    <div class="measure">
+      <p class="lede">La objeción razonable a todo este informe es «no hay ninguna norma que me
+      obligue». Es cierta, y no cambia nada. Hay cuatro relojes corriendo y sólo uno de ellos es
+      el del regulador — que además es el que va más lento.</p>
+    </div>
+
+    {d.relojes.map((r: any, i: number) => (
+      <div class="panel">
+        <div class="panel-h">
+          <h3>{i + 1} · {r.n}</h3>
+          <span class={`chip ${r.sev}`}>{r.sub}</span>
+        </div>
+        <div class="tile">
+          <p style="margin:0">{r.cuerpo}</p>
+          {r.pie && <p class="src" style="margin:.7em 0 0">{r.pie}</p>}
+        </div>
+      </div>
+    ))}
+
+    <h3>Y en Chile, con todas sus letras</h3>
+    <div class="measure">
+      <p><strong>{d.chile.afirmacion}</strong> {d.chile.matiz}</p>
+    </div>
+
+    <div class="chart">
+      <div class="chart-h">
+        <p class="chart-t">Lo que sí está vigente o por entrar en vigencia</p>
+        <p class="chart-s">Ninguna de estas normas nombra criptografía post-cuántica.</p>
+      </div>
+      <div class="chart-b"><div class="tw">
+        <table>
+          <thead><tr><th>Norma</th><th>Qué establece</th><th>Estado</th></tr></thead>
+          <tbody>
+            {d.chile.normas.map((n: any) => (
+              <tr>
+                <td>{n.n}</td>
+                <td>{n.q}</td>
+                <td><span class={`chip ${n.estado === 'ok' ? 'ok' : n.estado === 'pendiente' ? 'warn' : 'crit'}`}>{n.f}</span></td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      {hayPorVerificar && (
+      <p class="src">Las marcadas «por verificar» no se publican hasta confirmarse contra la fuente primaria del regulador. Se muestran acá porque este documento es un borrador de trabajo.</p>
+      )}
+      </div>
+    </div>
+
+    <div class="pull"><p>El regulador es el único de los cuatro relojes que le va a avisar antes. Los otros tres ya sonaron.</p></div>
+  </section>
+
+  <section id="indice">
+    <div class="sechead">
+      <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 20h18"/><path d="M6 20V9M11 20V5M16 20v-7M21 20v-4"/></svg>
+      <span class="snum">04 · El índice</span>
+    </div>
+    <h2>{d.indice.nombre}</h2>
+    <div class="measure">
+      <p class="lede">Un número entre 0 y {d.indice.tope} que resume la exposición criptográfica observable de una organización desde afuera. Se recalcula cada mes con el mismo método, para que la serie signifique algo.</p>
+      <p>La diferencia con cualquier otro estudio de ciberseguridad está en el origen del dato: <strong>estas cuatro dimensiones se miden sobre endpoints reales</strong>, no se preguntan. Y las declaramos completas —incluidos sus pesos y sus límites— para que cualquiera pueda reproducir el cálculo o discutirlo.</p>
+    </div>
+
+    <div class="panel">
+      <div class="panel-h">
+        <h3>Cómo se compone · {d.indice.version}</h3>
+        <span class="meta">n = {d.indice.n} organizaciones chilenas</span>
+      </div>
+      <div class="chart-b"><div class="tw">
+        <table>
+          <thead><tr><th>Dimensión</th><th class="num">Peso</th><th>Origen</th><th>Qué mide y por qué pesa lo que pesa</th><th class="num">Mediana</th></tr></thead>
+          <tbody>
+            {d.indice.dimensiones.map((x: any) => (
+              <tr>
+                <td><strong>{x.k}</strong></td>
+                <td class="num">{x.peso}%</td>
+                <td><span class={`chip ${x.tipo === 'medido' ? 'ok' : 'warn'}`}>{x.tipo}</span></td>
+                <td>{x.que}<br /><span style="color:var(--ink-60)">{x.porque}</span></td>
+                <td class="num">{x.mediana}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      <p class="src">Una dimensión marcada <strong>modelo</strong> no se midió en sus sistemas: se deriva del perfil de su sector. La distinción se conserva en todo el informe.</p>
+      </div>
+    </div>
+
+    <div class="chart">
+      <div class="chart-h">
+        <p class="chart-t">Dónde cae la gran empresa chilena</p>
+        <p class="chart-s">Distribución del índice sobre {d.indice.n} organizaciones. Mediana {d.indice.mediana}, rango {d.indice.min}–{d.indice.max}.</p>
+      </div>
+      <div class="chart-b">
+        <div class="bars">
+          {d.indice.distribucion.map((t: any) => (
+            <div class="bar-row">
+              <span class="bar-lab">{t.rango}</span>
+              <div class="bar-track"><div class={`bar-fill ${t.n===0?'':'mid'}`} style={`width:${Math.round(t.pct/28*100)}%`}></div></div>
+              <span class="bar-val">{t.n > 0 ? `${t.n} · ${t.pct}%` : '—'}</span>
+            </div>
+          ))}
+        </div>
+        <p class="src">Ninguna organización alcanza el tope de {d.indice.tope}. {d.indice.tope_razon}</p>
+      </div>
+    </div>
+
+    <div class="measure">
+      <p>La curva es angosta y eso <em>es</em> el hallazgo: entre el mejor y el peor hay {d.indice.max - d.indice.min} puntos, y {Math.round(100*Math.max(...Object.values(d.indice.bandas_conteo as Record<string,number>))/d.indice.n)}% de la muestra cae en una sola banda. No hay líderes ni rezagados marcados. <strong>Todo el país está en el mismo lugar.</strong></p>
+    </div>
+
+    <div class="pull"><p>El {d.indice.certificados_detalle.pct_valor_dominante}% de las organizaciones medidas obtiene el mismo puntaje en la dimensión que más pesa. Nadie se diferencia porque nadie ha empezado.</p></div>
+
+    <div class="measure">
+      {cierreCert
+        ? <p data-certificados-constante>{d.indice.hallazgo_cert.texto} {cierreCert}</p>
+        : <p>La dimensión de mayor peso —certificados, {d.indice.dimensiones[0].peso}%— resulta <strong>prácticamente constante</strong>: {d.indice.certificados_detalle.distribucion[0].n} de {d.indice.certificados_detalle.total} organizaciones obtienen el mismo valor, el {d.indice.certificados_detalle.pct_valor_dominante}% de la muestra. Sólo {d.indice.certificados_detalle.distribucion[1].n} se separan.</p>}
+      {(() => { const f = fraseCertificadoSinLeer(d.indice.certificados_detalle.total, d.muestra.organizaciones, d.indice.certificados_detalle.sin_medir); return f && <p data-certificado-sin-leer>{f}</p>; })()}
+
+      <p class="src"><strong>Lo que no publicamos, y por qué.</strong> {d.indice.certificados_detalle.sin_archivar}</p>
+      <p>Eso importa por una razón que separa esta dimensión de todas las demás: <strong>el certificado lo emite y lo gestiona la organización.</strong> No hay proveedor de infraestructura que lo resuelva por contrato, como sí ocurre con el intercambio de claves en el borde.</p>
+    </div>
+
+    <div class="chart">
+      <div class="chart-h">
+        <p class="chart-t">La escala, y dónde cae Chile en ella</p>
+        <p class="chart-s">Cinco niveles de madurez. Describen el estado de la organización, nunca la técnica que usa. n = {d.indice.n}.</p>
+      </div>
+      <div class="chart-b"><div class="tw">
+        <table>
+          <thead><tr><th>Nivel</th><th>Rango</th><th>Qué significa</th><th class="num">Organizaciones</th></tr></thead>
+          <tbody>
+            {d.indice.bandas.map((b: any) => {
+              const n = conteoBanda(b.n);
+              return (
+                <tr style={!n ? 'opacity:.55' : ''}>
+                  <td><strong>{b.n}</strong></td>
+                  <td class="mono">{b.rango}</td>
+                  <td>{b.sig}</td>
+                  <td class="num">{n === null ? '—' : `${n} · ${Math.round(n / d.indice.n * 100)}%`}</td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
+      <p class="src">El nivel más alto es inalcanzable desde afuera por diseño: ninguna medición externa observa el interior, y por eso el índice se corta en 84. Ninguna organización de esta muestra alcanza los dos extremos.</p>
+      </div>
+    </div>
+
+    <div class="chart">
+      <div class="chart-h">
+        <p class="chart-t">Índice por vertical</p>
+        <p class="chart-s">Mediana de cada sector y desglose por dimensión. {prev ? 'La variación es contra la edición anterior.' : 'Línea base.'}</p>
+      </div>
+      <div class="chart-b"><div class="tw">
+        <table>
+          <thead><tr><th>Vertical</th><th class="num">n</th><th class="num">Índice</th><th class="num">Cert.</th><th class="num">Higiene</th><th class="num">Edge</th><th>Banda</th></tr></thead>
+          <tbody>
+            {d.indice.verticales.map((v: any) => (
+              <tr>
+                <td>{v.n}</td><td class="num">{v.norg}</td>
+                <td class="num"><strong>{v.indice}</strong></td>
+                <td class="num">{v.cert}<br /><span class="mono" style="font-size:var(--t-label);opacity:.6">{v.cert_iguales}/{v.cert_n}</span></td><td class="num">{v.higiene}</td><td class="num">{v.edge}</td>
+                <td><span class={`chip ${v.indice>=70?'ok':v.indice>=50?'warn':'crit'}`}>{banda(v.indice).n}</span></td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      <p class="src">Verticales con menos de 3 organizaciones medidas se omiten. Isapres y clínicas se reportan por separado solo cuando cada una alcanza n ≥ 8.</p>
+      </div>
+    </div>
+
+    <h3>Por qué el índice todavía no separa mucho, y por qué eso es el hallazgo</h3>
+    <p class="measure">Medimos cuánto separa cada dimensión a las organizaciones entre sí. El resultado
+    incomoda: <strong>la dimensión que más pesa es la que menos distingue</strong>. {d.indice.discriminacion.dims[0].concentracion}%
+    de la muestra comparte exactamente el mismo puntaje de certificados.</p>
+
+    <div class="chart">
+      <div class="chart-h">
+        <p class="chart-t">Cuánto separa cada dimensión</p>
+        <p class="chart-s">«Aporte» es la dispersión que la dimensión entrega al puntaje final, en puntos. n = {d.indice.n}.</p>
+      </div>
+      <div class="chart-b"><div class="tw">
+        <table>
+          <thead><tr><th>Dimensión</th><th class="num">Peso</th><th class="num">Valores distintos</th><th class="num">Concentración</th><th class="num">Aporte</th></tr></thead>
+          <tbody>
+            {d.indice.discriminacion.dims.map((x: any) => (
+              <tr>
+                <td>{x.k}</td>
+                <td class="num">{x.peso}%</td>
+                <td class="num">{x.distintos}</td>
+                <td class="num">{x.concentracion}%</td>
+                <td class="num"><strong>{String(x.aporte).replace('.', ',')}</strong></td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      <p class="src">Concentración = porcentaje de organizaciones que comparten el valor más común de esa dimensión.</p>
+      </div>
+    </div>
+
+    <p class="measure">Eso podría leerse como que el índice está mal ponderado. No lo está: <strong>está
+    fechado</strong>. Los certificados son idénticos porque en agosto de 2026, en Chile, nadie ha empezado
+    a migrar. No hay variación que capturar todavía.</p>
+
+    <p class="measure">La consecuencia, dicha sin adornos: hoy el índice de una organización lo mueven
+    sobre todo <strong>su sector y su proveedor de CDN</strong> —las dos dimensiones que más dispersión
+    aportan— y no algo que ella haya decidido sobre criptografía. Quitando el efecto del sector, la
+    dispersión cae de {String(d.indice.discriminacion.disp_total).replace('.', ',')} a
+    {' '}{String(d.indice.discriminacion.disp_sin_sector).replace('.', ',')} puntos.</p>
+
+    <p class="measure">Por eso el índice sirve como <strong>indicador adelantado</strong>: el mes en que
+    la dimensión de certificados empiece a separar es el mes en que la migración empezó de verdad en
+    Chile. Está construido para capturar exactamente ese momento.</p>
+
+    <div class="panel">
+      <div class="panel-h"><h3>Lo que no afirmamos, aunque lo parezca</h3>
+        <span class="meta">control de honestidad</span></div>
+      <div class="tile">
+        <p style="margin:0">En los primeros puestos hay organizaciones con superficies mínimas: 74 puntos
+        con 5 nombres de host, 71 con 3. Es tentador concluir que el índice premia tener poco expuesto.
+        <strong>Lo medimos y no se sostiene</strong>: la correlación entre puntaje y tamaño de superficie
+        es {String(d.indice.discriminacion.rho_superficie).replace('.', ',')} en
+        {' '}{d.indice.discriminacion.rho_n} organizaciones, es decir, prácticamente nula. El efecto vive
+        sólo en los extremos y desaparece en el grueso de la muestra.</p>
+        <p style="margin:.8em 0 0">Queda escrito porque la afirmación es atractiva, suena sofisticada, y
+        habría sido falsa. Sí es una razón para no leer el ranking como una lista de los mejores.</p>
+      </div>
+    </div>
+
+    <div class="cta">
+      <p>Su organización tiene un número en esta curva. Podemos calcularlo con el mismo método y entregarle el desglose por dimensión.</p>
+      <a class="btn" href="mailto:hello@rosettaquantum.com?subject=Mi%20%C3%ADndice%20QEX">Calcular mi índice</a>
+    </div>
+  </section>
+
+  <!-- 05 · MEDICION -->
+  {serie && (
+  <section id="serie">
+    <div class="sechead">
+      <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 17l5-6 4 4 5-7 4 5"/><path d="M3 21h18"/></svg>
+      <span class="snum">{nn(SECCIONES.findIndex((x) => x.id === 'serie'))} · Cómo viene cambiando</span>
+    </div>
+    <h2>Lo que se mueve y lo que no</h2>
+    <div class="measure">
+      <p class="lede">Cada edición mide la misma muestra, así que las cifras se pueden leer como una serie. Esta tabla va más lejos: se restringe a las <strong>{serie.conjunto_fijo} organizaciones medidas en los tres meses</strong>, para que la diferencia entre un mes y otro sea cambio y no muestra.</p>
+    </div>
+
+    {/* FIG. 1 · TRES PEQUENOS MULTIPLOS (23-nov-2026)
+        Decision 5 de la maqueta: «tres pequenos multiplos con eje 0-100
+        compartido y septiembre como hueco explicito». Con escalas propias,
+        3 -> 2 -> 3 % pareceria un vaiven; con eje comun se ve de una que el
+        hibrido sube y los certificados no se mueven.
+
+        NO AGREGA NI UNA FRASE NUEVA: el titulo, el `n`, los meses, las cifras
+        y la nota de los dos puntos ya estan en esta misma seccion. La figura
+        dibuja lo que la tabla de abajo ya dice; por eso tampoco repite la nota
+        de lectura, que vive bajo la tabla.
+
+        Los colores NO van como atributos del SVG -ahi `var()` no resuelve-:
+        van por clase, desde la hoja, para que ninguno quede escrito a mano. */}
+    <figure class="chart fig-serie">
+      <figcaption class="chart-h">
+        <p class="chart-t"><span class="fig-n">Fig. 1</span> — Tres mediciones, el mismo grupo</p>
+        <p class="chart-s">n = {serie.conjunto_fijo} organizaciones medidas en los tres meses · eje 0–100 en los tres paneles</p>
+      </figcaption>
+      <div class="chart-b fig-sms">
+        {SMS.map((s) => {
+          const vals = serie.puntos.map((p: any) => p[s.k][s.campo]);
+          const W = 100, H = 108, ML = 2, MR = 2, MT = 22, MB = 20;
+          const px = [0, 1, 2].map((i) => ML + (W - ML - MR) * i / 2);
+          const anc = ['start', 'middle', 'end'];
+          const py = (v: number) => MT + (H - MT - MB) * (1 - v / 100);
+          return (
+            <div class="sm">
+              <p class="sm-t">{s.t}</p>
+              <svg viewBox={`0 0 ${W} ${H}`} role="img" aria-label={s.t}>
+                <line class="eje" x1={ML} y1={py(0)} x2={W - MR} y2={py(0)} />
+                <line class="tope" x1={ML} y1={py(100)} x2={W - MR} y2={py(100)} />
+                <text class="rot" x={ML} y={py(100) - 2.6}>100</text>
+                {[0, 1].filter((i) => vals[i] != null && vals[i + 1] != null).map((i) => (
+                  <line class="tramo" x1={px[i]} y1={py(vals[i])} x2={px[i + 1]} y2={py(vals[i + 1])} />
+                ))}
+                {vals.map((v: any, i: number) => v == null ? (
+                  <g>
+                    <line class="hueco" x1={px[i]} y1={py(100)} x2={px[i]} y2={py(0)} />
+                    <text class="rot" x={px[i]} y={py(50)} text-anchor={anc[i]}>SIN ÍNDICE</text>
+                  </g>
+                ) : (
+                  <g>
+                    <circle class="punto" cx={px[i]} cy={py(v)} r="2.1" />
+                    <text class="cifra" x={px[i]} y={py(v) - 5.2} text-anchor={anc[i]}>{v}{s.u}</text>
+                  </g>
+                ))}
+                {/* Tres letras y no el mes entero: en una columna de 55 mm
+                    «SEPTIEMBRE» y «NOVIEMBRE» se pisan, y la tabla de abajo
+                    trae los tres meses escritos completos. */}
+                {serie.puntos.map((p: any, i: number) => (
+                  <text class="rot mes" x={px[i]} y={H - 4.6} text-anchor={anc[i]}>{mesEs(p.mes).slice(0, 3).toUpperCase()}</text>
+                ))}
+              </svg>
+            </div>
+          );
+        })}
+      </div>
+    </figure>
+
+    <div class="panel">
+      <div class="panel-h">
+        <h3>Tres mediciones, el mismo grupo</h3>
+        <span class="meta">n = {serie.conjunto_fijo} organizaciones</span>
+      </div>
+      <div class="chart-b"><div class="tw">
+        <table>
+          <thead><tr>
+            <th>Mes</th>
+            <th class="num">Soporta el híbrido</th>
+            <th class="num">Certificado sobre el mínimo</th>
+            <th class="num">Mediana del índice</th>
+          </tr></thead>
+          <tbody>
+            {serie.puntos.map((p: any) => (
+              <tr>
+                <td><strong>{mesEs(p.mes)}</strong></td>
+                <td class="num">{p.hibrido.pct}%</td>
+                <td class="num">{p.certificados.pct}%</td>
+                <td class="num">{p.qex_mediana.v ?? <span class="sin-dato">sin índice</span>}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      <p class="src">La mediana del índice tiene dos puntos y no tres: {serie.puntos.filter((p: any) => p.qex_mediana.v === null).map((p: any) => mesEs(p.mes)).join(' y ')} no tiene índice, porque sin descubrimiento no hay higiene ni HNDL, que son la mitad del peso. Dos puntos se dibujan, no se extrapolan.</p>
+      </div>
+    </div>
+
+    <div class="measure">
+      <p>En el grupo de {serie.conjunto_fijo} organizaciones medido los tres meses, el soporte del intercambio híbrido pasó {frase(serie.puntos, 'hibrido')}: {DIRECCION[serie.tendencias.hibrido.direccion] ?? 'no se puede afirmar una dirección'}. Es el único indicador del índice que se mueve por decisión de las organizaciones y no por el calendario de un proveedor.</p>
+      <p>Los certificados no se mueven: {serie.puntos.map((p: any) => `${p.certificados.pct} %`).join(', ')}. Ninguna autoridad certificadora pública emite certificados post-cuánticos, así que esta dimensión —el 40 % del peso— no la mueve nadie este año.</p>
+    </div>
+  </section>
+  )}
+
+  <section id="medicion">
+    <div class="sechead">
+      <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5 21 21"/></svg>
+      <span class="snum">05 · La medición</span>
+    </div>
+    <h2>Qué encontramos en la infraestructura pública chilena</h2>
+    <div class="measure">
+      <p class="lede">Hasta donde alcanza la literatura pública, no existe ninguna medición técnica de preparación post-cuántica sobre endpoints reales de un país o sector. Los estudios que existen son encuestas de opinión. Este no lo es.</p>
+
+      <p>Revisamos alrededor de treinta y cinco publicaciones de consultoras, agencias nacionales de ciberseguridad y organismos intergubernamentales: McKinsey, Deloitte, Accenture, PwC, EY, KPMG, Capgemini, IBM, el Foro Económico Mundial, ENISA, el NIST, la CISA, el NCSC británico, el BSI alemán, la ANSSI francesa. <strong>Ninguna midió.</strong> Todas preguntaron.</p>
+
+      <p>La diferencia importa. Cuando el IBM Institute for Business Value reporta un índice de preparación de 25 sobre 100, ese número viene de ejecutivos describiendo su propia organización. Cuando la ANSSI encuestó entidades reguladas francesas, respondieron 38. El BSI alemán obtuvo 28 respuestas de más de 150 cuestionarios.</p>
+
+      <p>Y para América Latina no existe nada, ni por encuesta ni por medición. Lo verificamos por varias vías, incluyendo el sitio de la Agencia Nacional de Ciberseguridad chilena, que no contiene una sola mención a criptografía post-cuántica.</p>
+    </div>
+
+    <div class="term">
+      <dl>
+        <dt>Qué hicimos exactamente</dt>
+        <dd>Consultamos registros públicos de Certificate Transparency para descubrir la superficie de cada organización, y abrimos <strong>una conexión TLS por host, enviando un solo saludo inicial que ofrece explícitamente grupos post-cuánticos</strong>, para observar qué responde el servidor. No completamos el saludo, no transferimos datos, no accedimos a ningún sistema. La carga equivale a abrir el sitio una vez.</dd>
+        <dt>Por qué ofrecer explícitamente y no solo observar</dt>
+        <dd>Porque limitarse a mirar lo que se negocia por defecto <em>subestima</em> el soporte real. Es la advertencia metodológica central de la literatura académica reciente, y es la razón por la que este método mide capacidad y no casualidad.</dd>
+      </dl>
+    </div>
+
+    <div class="chart">
+      <div class="chart-h">
+        <p class="chart-t">Organizaciones cuyos endpoints públicos negocian criptografía híbrida</p>
+        <p class="chart-s">n = {d.muestra.sondeadas} sondeadas con éxito. {prev ? 'La variación es contra la edición anterior.' : 'Línea base — desde la próxima edición aparece la variación mensual.'}</p>
+      </div>
+      <div class="chart-b">
+        <div class="bars">
+          {d.verticales.map((v: any) => {
+            const dv = deltaVert(v.id, v.ratio);
+            return (
+              <div class="bar-row">
+                <span class="bar-lab">{v.n}</span>
+                <div class="bar-track"><div class={`bar-fill ${v.ratio>=65?'hi':v.ratio>=45?'mid':'lo'}`} style={`width:${v.ratio}%`}></div></div>
+                <span class="bar-val">{v.ratio}%{dv && <span class={`delta ${dv.cls}`}>{dv.txt}</span>}</span>
+              </div>
+            );
+          })}
+        </div>
+        <p class="src">Medición propia. Isapres y clínicas se reportan agrupadas como salud por la regla de anonimato estadístico (n ≥ 8).</p>
+      </div>
+    </div>
+
+    <div class="measure">
+      <p>El contraste es de {d.verticales[0].ratio - d.verticales[d.verticales.length-1].ratio} puntos entre el primero y el último. El sector que vende zapatillas y procesa pagos está más protegido que el que custodia la identidad, el padrón electoral, los registros tributarios y las fichas de salud de toda la población.</p>
+
+      <h3>Cómo se mide ese 65 %, y por qué el sondeo obvio da otro número</h3>
+    <div class="measure">
+      <p>Si usted reproduce esta medición con el método intuitivo —anunciar el híbrido y mandar
+      la llave de x25519— le va a dar <strong>{d.tres_preguntas.filas[2].pct} %</strong>, no
+      {d.tres_preguntas.filas[0].pct} %. No es que uno esté mal: <strong>son tres preguntas
+      distintas al mismo servidor</strong>, y sólo las dos primeras hablan de seguridad.</p>
+    </div>
+
+    <div class="chart">
+      <div class="chart-h">
+        <p class="chart-t">Tres preguntas, tres números</p>
+        <p class="chart-s">Sobre las mismas {d.tres_preguntas.n} organizaciones sondeadas.</p>
+      </div>
+      <div class="chart-b"><div class="tw">
+        <table>
+          <thead><tr><th>Pregunta</th><th>Cómo se sondea</th><th class="num">Resultado</th><th>Qué mide</th></tr></thead>
+          <tbody>
+            {d.tres_preguntas.filas.map((f: any) => (
+              <tr>
+                <td><strong>{f.q}</strong></td>
+                <td set:html={f.como}></td>
+                <td class="num"><strong>{f.pct} %</strong><br /><span class="mono" style="font-size:var(--t-label);opacity:.6">{f.v} de {d.tres_preguntas.n}</span></td>
+                <td><span class={`chip ${f.sev}`}>{f.tipo}</span></td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      <p class="src">Organizaciones que soportan el híbrido pero no lo eligen cuando pueden: <strong>{d.tres_preguntas.discrepancia}</strong>. Soportar y elegir resultaron ser lo mismo en toda la muestra.</p>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-h"><h3>El error fue nuestro, y lo decimos acá</h3>
+        <span class="meta">corrección de método</span></div>
+      <div class="tile">
+        <p style="margin:0">{d.tres_preguntas.leccion} Un servidor que acepta x25519 cuando el
+        cliente ya le mandó esa llave no está renunciando a nada: se está ahorrando una vuelta
+        de saludo, que es comportamiento correcto de TLS. Nosotros leímos ese ahorro como
+        ausencia de capacidad.</p>
+        <p style="margin:.8em 0 0"><strong>Si nuestro propio instrumento confundió «el proveedor
+        no lo tiene» con «no se lo pedimos bien», una organización con quince proveedores no
+        tiene ninguna posibilidad de responderse esto sola.</strong> Ese es, en una frase, el
+        problema que este informe existe para mostrar.</p>
+      </div>
+    </div>
+
+    <h3>Pero la causa no es la que parece</h3>
+      <p>Al cruzar cada resultado con la infraestructura que sirve el dominio, aparece la explicación:</p>
+    </div>
+
+    <div class="chart">
+      <div class="chart-h"><p class="chart-t">El factor que realmente predice la protección</p>
+      <p class="chart-s">Organizaciones cuyo borde soporta el intercambio de claves híbrido, por proveedor de red de distribución. n = {d.cdn.conCdn.n + d.cdn.sinCdn.n}.</p></div>
+      <div class="chart-b">
+        <div class="bars">
+          {d.cdn.desglose.map((c: any) => (
+            <div class="bar-row"><span class="bar-lab">{c.n}</span>
+              <div class="bar-track"><div class={`bar-fill ${c.pct >= 70 ? 'hi' : 'lo'}`} style={`width:${c.pct}%`}></div></div>
+              <span class="bar-val">{c.pct}%</span></div>
+          ))}
+        </div>
+        <p class="src">Detrás de una red de distribución reconocida: {d.cdn.conCdn.soporta} de {d.cdn.conCdn.n} ({d.cdn.conCdn.pct}%). Sobre infraestructura propia: {d.cdn.sinCdn.soporta} de {d.cdn.sinCdn.n} ({d.cdn.sinCdn.pct}%).</p>
+      </div>
+    </div>
+
+    {/* RETIRADO el 2026-11-04 por decision de Nicholas. Aqui iba el argumento del
+        contrato: 16 organizaciones en Akamai Enhanced TLS al 100 % contra 4 en
+        Standard TLS al 0 %. Es uno de los argumentos mas fuertes del informe y se
+        retira igual, porque su lado bajo tiene base 4 y el punto 3 de la seccion
+        legal prohibe publicar una cifra sobre menos de ocho organizaciones: cuatro
+        son identificables por DNS y sobre ellas se afirmaba algo negativo. Vuelve
+        el mes que ese lado llegue a ocho. Lo vigila check-informe-anonimato.mjs. */}
+
+    <div class="pull"><p>La mayor parte de la protección post-cuántica que hoy tiene Chile no la decidió ningún equipo de seguridad. La decidió un contrato de red de distribución de contenido.</p></div>
+
+    <h3>{d.dos_tramos.titulo}</h3>
+    <div class="measure">
+      <p set:html={d.dos_tramos.cuerpo}></p>
+    </div>
+
+    <div class="chart">
+      <div class="chart-h">
+        <p class="chart-t">Qué alcanza nuestra medición y qué no</p>
+        <p class="chart-s">El camino del tráfico cuando hay una red de distribución de por medio.</p>
+      </div>
+      <div class="chart-b"><div class="tw">
+        <table>
+          <thead><tr><th>Tramo</th><th>Estado</th><th>Qué significa</th></tr></thead>
+          <tbody>
+            {d.dos_tramos.tramos.map((t: any) => (
+              <tr>
+                <td><strong>{t.n}</strong></td>
+                <td><span class={`chip ${t.estado === 'medido' ? 'ok' : 'crit'}`}>{t.estado}</span></td>
+                <td>{t.nota}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      <p class="src">{d.dos_tramos.evidencia}</p>
+      </div>
+    </div>
+
+    <div class="measure">
+      <p set:html={d.dos_tramos.consecuencia}></p>
+      <p>{d.dos_tramos.que_hacemos}</p>
+    </div>
+
+    <div class="measure">
+      <p>Esto reordena por completo la lectura del gráfico anterior. Fintech y retail lideran porque viven del comercio electrónico y contrataron CDN; el Estado va último porque se autoaloja. La adopción observada mide, sobre todo, <strong>una decisión de proveedor</strong> — no la madurez criptográfica de la organización.</p>
+
+      <p>Y por eso la conclusión no es tranquilizadora para quien va bien: esa protección cubre el borde público y <strong>no dice nada</strong> sobre los sistemas internos, las VPN, los módulos de seguridad de hardware, la firma de código ni las bases de datos. Es la capa más visible y la más fácil de conseguir.</p>
+    </div>
+
+    <div class="term">
+      <dl>
+        <dt>Verifíquelo usted mismo en cinco minutos</dt>
+        <dd>Los registros de Certificate Transparency son públicos. Abra <span class="mono">crt.sh</span> y busque su dominio con el formato <span class="mono">%.sudominio.cl</span> — el porcentaje incluye todos los subdominios. Verá cada nombre de host que su organización ha certificado alguna vez.<br /><br />
+        Sobre {d.muestra.organizaciones} organizaciones, <strong>la mediana es 41 y el máximo pasa de 800.</strong> La reacción más común no es sorpresa por la cantidad, sino por los nombres que nadie reconoce.</dd>
+      </dl>
+    </div>
+
+    <div class="measure">
+      <h3>Chile frente al mundo</h3>
+      <p>Chile no está atrasado respecto del mundo. Está levemente por delante, y eso tampoco es buena noticia.</p>
+    </div>
+
+    <div class="tw">
+      <table>
+        <thead><tr><th>Métrica</th><th class="num">Global</th><th class="num">Chile</th><th>Fuente de la referencia</th></tr></thead>
+        <tbody>
+          <tr><td>Soporta intercambio híbrido post-cuántico</td><td class="num">{d.referencia_global.hibrido_global}%</td><td class="num"><strong>{d.referencia_global.hibrido_chile}%</strong></td><td>Medición sobre {nf(d.referencia_global.dominios_medidos)} dominios · {d.referencia_global.fuente}</td></tr>
+          <tr><td>Solo criptografía clásica</td><td class="num">{(100 - d.referencia_global.hibrido_global).toFixed(1)}%</td><td class="num">{(100 - d.referencia_global.hibrido_chile).toFixed(1)}%</td><td>ídem</td></tr>
+          <tr><td>Certificados post-cuánticos</td><td class="num">{d.referencia_global.certificados_pqc}%</td><td class="num">—</td><td>ídem; confirmado también por telemetría de CDN</td></tr>
+          <tr><td>Configuraciones de servidor con híbrido</td><td class="num">0%</td><td class="num">—</td><td>8.443 configuraciones Nginx reales · arXiv:2605.17955</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="measure">
+      <p class="src">{d.referencia_global.nota_comparabilidad}</p>
+
+      <p>La aparente contradicción entre {d.referencia_global.hibrido_global}% y 0% no es un error: <strong>miden superficies distintas.</strong> La sesión negociada refleja lo que el proveedor de CDN activó por ti; la configuración del servidor refleja lo que la organización decidió. Nadie ha reconciliado esos números, y nadie lo había hecho para ningún país.</p>
+
+      <p>El promedio mundial deja la mitad de la infraestructura sin protección, y la autenticación —los certificados que prueban que un servidor es quien dice ser— sigue íntegramente clásica <strong>en todo el mundo</strong>. Estar en el promedio de eso no es una posición defendible.</p>
+
+      <p>El estudio global corrobora además nuestro hallazgo sectorial de forma independiente: reporta TLS obsoleto concentrado en banca y gobierno, y adopción desigual con las plataformas tecnológicas por delante de las infraestructuras heredadas. Es el mismo patrón, medido por otros, en otra población.</p>
+
+      <h3>Los estudios existentes preguntaron; este midió</h3>
+      <p>Vale la pena poner las cifras propias al lado de las que circulan, porque la diferencia de método explica la diferencia de resultado:</p>
+    </div>
+
+    <div class="tw">
+      <table>
+        <thead><tr><th>Estudio</th><th>Método</th><th class="num">Muestra</th><th>Hallazgo principal</th></tr></thead>
+        <tbody>
+          <tr><td>Capgemini Research Institute, 2025</td><td>Encuesta</td><td class="num">1.000</td><td>~10% califica como maduro; 13 países, ninguno latinoamericano</td></tr>
+          <tr><td>DigiCert, 2025 → 2026</td><td>Encuesta</td><td class="num">~1.000</td><td>Despliegue autodeclarado sube de 5% a 7% en un año</td></tr>
+          <tr><td>IBM Institute for Business Value, 2025</td><td>Encuesta</td><td class="num">750</td><td>Índice 25/100; 62% asume que sus proveedores resolverán</td></tr>
+          <tr><td>ISACA, 2025</td><td>Encuesta</td><td class="num">2.600</td><td>95% sin hoja de ruta; 44% nunca había oído de los estándares del NIST</td></tr>
+          <tr><td>BSI, Alemania, 2023</td><td>Encuesta</td><td class="num">28</td><td>Ninguna espera cumplir sus requisitos de confidencialidad en los 2030</td></tr>
+          <tr><td>ANSSI, Francia</td><td>Encuesta</td><td class="num">38</td><td>Reconocen la amenaza, no entienden el impacto en sus sistemas</td></tr>
+          <tr><td>HKMA + KPMG, Hong Kong, 2026</td><td>Autoevaluación</td><td class="num">—</td><td>Bancos de Hong Kong: 2,3 sobre 10</td></tr>
+          <tr><td><strong>Este informe</strong></td><td><strong>Medición técnica</strong></td><td class="num"><strong>{d.muestra.organizaciones}</strong></td><td><strong>Endpoints reales, sin preguntar a nadie</strong></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="measure">
+      <p>La distinción no es un detalle metodológico. Cuando el 62% de los ejecutivos encuestados por IBM declara que <em>asume que sus proveedores resolverán la transición</em>, y nuestra propia revisión encuentra que ningún proveedor de core bancario tiene un compromiso público, <strong>esas dos afirmaciones no pueden ser ciertas a la vez.</strong></p>
+    </div>
+  </section>
+
+  <!-- 05 · TRAMPA -->
+  <section id="trampa">
+    <div class="sechead">
+      <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 3.5 7.5v5c0 4.3 3.5 7.6 8.5 8.8 5-1.2 8.5-4.5 8.5-8.8v-5Z"/><path d="M12 8.5v4.5M12 16.2v.3"/></svg>
+      <span class="snum">06 · La trampa</span>
+    </div>
+    <h2>Poner un CDN adelante pone el número en verde sin cambiar su exposición</h2>
+    <div class="measure">
+      <p class="lede">Es la conclusión más incómoda de este estudio, y la que más conviene entender antes de tomar cualquier decisión de inversión.</p>
+
+      <p>El número que medimos —y el que mide cualquiera desde afuera— se vuelve verde con un cambio de configuración de proveedor. No con una migración. Contratar una red de distribución de contenido, o activar una opción en la que ya tiene, mueve a su organización del {d.cdn.sinCdn.pct}% al {d.cdn.conCdn.pct}% en la única métrica visible públicamente.</p>
+
+      <p>Eso protege algo real: el tráfico entre el navegador de su cliente y el borde de la red. No es nada. Pero <strong>es la parte de su criptografía que usted no gestiona, no la que define su riesgo</strong>, y es exactamente la que un auditor, un competidor o un periodista puede medir sin permiso.</p>
+    </div>
+
+
+    <div class="split">
+      <div class="sp yes">
+        <span class="cap">Lo que el CDN sí resuelve</span>
+        <h4>El borde público</h4>
+        <ul>
+          <li>Intercambio de claves en el tráfico web hacia visitantes</li>
+          <li>La métrica que este informe mide y que cualquiera puede medir</li>
+          <li>Se activa en horas, no en años</li>
+        </ul>
+      </div>
+      <div class="sp no">
+        <span class="cap">Lo que no toca en absoluto</span>
+        <h4>Todo lo que define su plazo real</h4>
+        <ul>
+          <li>Módulos de seguridad de hardware que custodian sus claves</li>
+          <li>Core bancario, switch de pagos, mainframe</li>
+          <li>VPN y accesos remotos</li>
+          <li>Firma de código y de firmware</li>
+          <li>Certificados internos y PKI privada</li>
+          <li>Cifrado en reposo de bases de datos</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="pull"><p>Un banco puede aparecer en verde en toda medición externa y tener una fecha de migración que no depende de él en absoluto.</p></div>
+    <div class="measure">
+      <p>Y hay un efecto secundario peor que no hacer nada: <strong>el verde barato produce una sensación de asunto resuelto.</strong> Una organización que ve su número en verde deja de preguntar, no levanta el inventario, no consulta a sus proveedores — y descubre el problema real cuando ya no queda margen para resolverlo.</p>
+    </div>
+  </section>
+
+  <!-- 06 · RUTA -->
+  <section id="ruta">
+    <div class="sechead">
+      <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20 9 9l4 6 3-4 4 9Z"/><circle cx="9" cy="9" r="1.5"/><circle cx="16" cy="11" r="1.5"/></svg>
+      <span class="snum">07 · Lo que sí define su plazo</span>
+    </div>
+    <h2>Su ruta crítica está fuera de su control</h2>
+    <div class="measure">
+      <p class="lede">Una migración no avanza más rápido que el proveedor más lento del sistema más crítico. Este es el estado del stack financiero, revisado y con fuente por fila.</p>
+    </div>
+
+    <div class="panel">
+      <div class="panel-h"><h3>Soporte post-cuántico por capa</h3><span class="meta">54 proveedores en el registro</span></div>
+      <div class="chart-b"><div class="tw">
+        <table>
+          <thead><tr><th>Capa</th><th>Proveedores</th><th>Estado</th><th>Qué significa</th></tr></thead>
+          <tbody>
+            {d.stack.map((r: any) => (
+              <tr>
+                <td>{r.capa}</td><td>{r.prov}</td>
+                <td><span class={`chip ${r.estado}`}>{r.estado === 'ok' ? 'soportado' : r.estado === 'warn' ? 'parcial' : 'sin fecha'}</span></td>
+                <td>{r.nota}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      <p class="src">"Sin fecha" significa que no encontramos compromiso público a la fecha de esta edición, no que el proveedor no piense hacerlo. Cada fila con documentación oficial, versión mínima y fecha de verificación.</p>
+      </div>
+      <p class="src">{d.stack_nota}</p>
+    </div>
+
+    <div class="measure">
+      <p>Léalo de abajo hacia arriba y aparece el problema de fondo. Las capas donde <em>usted</em> puede actuar —sistema operativo, librerías, red— están mayormente resueltas o en camino. Las capas donde <strong>depende de un tercero</strong> —core bancario, switch de pagos, HSM de pagos— <strong>no tienen una sola fecha comprometida.</strong></p>
+
+      <p>Eso significa que el plazo de su organización no lo fija usted, ni su presupuesto, ni el regulador. Lo fija un proveedor que todavía no ha dicho cuándo. Y la única forma de saber cuál es ese proveedor y qué fecha maneja es <strong>preguntarle formalmente y por escrito</strong> — que es exactamente lo que casi nadie ha hecho.</p>
+    </div>
+  </section>
+
+  <!-- 07 · COSTO -->
+  <section id="costo">
+    <div class="sechead">
+      <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="M12 7v5l3.2 2"/><path d="M20.5 4.5 18 7"/></svg>
+      <span class="snum">08 · El costo de esperar</span>
+    </div>
+    <h2>Qué pasa si empieza en 2029 en vez de este año</h2>
+    <div class="measure">
+      <p class="lede">No hay que estimar la probabilidad de Q-Day. Basta restar contra fechas que ya fijaron terceros.</p>
+    </div>
+
+    <div class="chart">
+      <div class="chart-h"><p class="chart-t">Plazos regulatorios vigentes</p>
+      <p class="chart-s">Distinguimos obligación con fuerza legal de guía oficial, porque se confunden constantemente.</p></div>
+      <div class="chart-b"><div class="tw">
+        <table>
+          <thead><tr><th>Año</th><th>Qué exige</th><th>A quién</th><th>Carácter</th></tr></thead>
+          <tbody>
+            {d.plazos.map((p: any) => (
+              <tr><td class="num">{p.a}</td><td>{p.q}</td><td>{p.quien}</td>
+              <td>{p.tipo === 'obl' ? <strong>Obligación</strong> : p.tipo === 'guia' ? 'Guía' : 'Mixto'}</td></tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      <p class="src">Ninguna es un pronóstico de Q-Day: son plazos de acción. El documento del NIST que fija 2030 y 2035 para EE. UU. ya está en versión final (octubre de 2026).</p>
+      </div>
+    </div>
+
+    <div class="measure">
+      <p>Con una migración de cinco años: arrancar en 2026 termina en 2031 y alcanza todos los plazos. <strong>Arrancar en 2029 termina en 2034, con Swift 2027, Estados Unidos 2030 y 2031, y Reino Unido y Canadá 2031 ya vencidos.</strong></p>
+      <p>Y el costo que llega primero no está en ninguna tabla: <strong>el cuestionario de un cliente enterprise, la casa matriz que unifica estándares, o la contraparte internacional que exige evidencia.</strong> Esa exigencia no avisa con años de anticipación — llega con un plazo de semanas, y a esa altura el inventario criptográfico ya debería existir.</p>
+
+      <h3>Tres precisiones que casi todo el material comercial confunde</h3>
+      <p><strong>Australia merece nota al pie.</strong> Es la fecha más agresiva del mundo —2030 contra el 2031 alemán y el 2035 de casi todos— y retira de aprobación no solo RSA y curvas elípticas, sino también AES-128, SHA-256 e incluso los parámetros post-cuánticos intermedios ML-KEM-768 y ML-DSA-65. Pero su fuerza legal es la más débil: el manual australiano declara expresamente que ninguna organización está obligada por ley a cumplirlo, y las fechas de 2030 viven en el texto explicativo, no en un control numerado.</p>
+
+      <p><strong>Ninguna de estas fechas es un pronóstico de Q-Day</strong> — son plazos de acción, deliberadamente conservadores. Y el documento del NIST que fija 2030 y 2035 para Estados Unidos <strong>ya está en versión final</strong>: se publicó en octubre de 2026, después de que el memorándum de junio lo citara como borrador.</p>
+
+      <p><strong>Las tres autoridades técnicas más influyentes fuera de Estados Unidos se contradicen</strong> en el punto central de la transición. Australia sostiene que los esquemas híbridos no tienen valor práctico frente a un computador cuántico y no los recomienda. Alemania recomienda explícitamente el híbrido, con construcciones nombradas. Francia lo hace <em>obligatorio</em> para otorgar sus certificaciones. Una organización multinacional no puede satisfacer a las tres con una sola arquitectura.</p>
+
+      <h3>Y en América Latina, nada</h3>
+      <p>Buscamos instrumentos con plazos —mandato o guía técnica— en la región. <strong>No existe ninguno.</strong> Ningún país latinoamericano ha publicado una fecha, una obligación ni una hoja de ruta de migración criptográfica.</p>
+
+      <p>Eso deja a una organización chilena en una posición particular: <strong>ningún regulador local le va a exigir nada, mientras sus proveedores, sus casas matrices y sus contrapartes internacionales quedan sujetos a fechas obligatorias</strong> entre 2027 y 2031. La exigencia no va a llegar por el regulador. Va a llegar por la cadena de suministro — y en general sin aviso previo.</p>
+
+      <p>En el sector financiero, además, <strong>ningún regulador del mundo ha fijado una fecha obligatoria.</strong> El de Singapur emitió una circular consultiva en 2024, el Banco de Pagos Internacionales publica investigación, y el regulador financiero de Nueva York no ha emitido ninguna guía sobre el tema.</p>
+    </div>
+
+    <div class="cta">
+      <p>La primera pregunta de cualquier plan de migración es cuál es su ruta crítica. Se la podemos decir en una semana.</p>
+      <a class="btn" href="mailto:hello@rosettaquantum.com?subject=Ruta%20cr%C3%ADtica%20post-cu%C3%A1ntica">Conocer mi ruta crítica</a>
+    </div>
+  </section>
+
+  <!-- 08 · ENTREGABLE -->
+  <section id="entregable">
+    <div class="sechead">
+      <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 18h16"/><path d="M7 18v-5M12 18V7M17 18v-9"/></svg>
+      <span class="snum">09 · Qué se puede saber de su organización</span>
+    </div>
+    <h2>Así se ve el informe de una sola organización</h2>
+    <div class="measure">
+      <p class="lede">Este informe responde cómo está el país. Un gerente de riesgo necesita responder otra cosa: <em>cuál es mi exposición, qué la define, y qué hago el lunes.</em></p>
+      <p>El panel siguiente es una <strong>organización tipo del sector banca</strong>, construida con las medianas reales de las medidas en esta edición. No es una empresa concreta.</p>
+    </div>
+
+    {/* 16-nov-2026: las seis cifras de este panel eran literales escritos aquí, y
+        la frase de arriba dice «las medianas reales de las medidas en ESTA
+        edición». En noviembre decía 76 hosts contra 212 medidos y n = 12 cuando
+        la vertical trae 17: ciertas en agosto, falsas al mes siguiente. Ahora
+        salen de `d.vertical_tipo`, que el paso 7 deriva del dato sellado.
+
+        Los literales quedan SÓLO como respaldo de la edición que no trae el
+        bloque —agosto, que está publicada y cuyo JSON no se toca—, y para ESA
+        edición son sus propias medianas. Ninguna edición posterior los alcanza.
+
+        `proveedores_sin_fecha` viaja en null a propósito: nunca se midió qué
+        proveedores usa una organización, así que sale «no medido». El 3 que
+        decía esta tile no salía de ningún dato. */}
+    <div class="panel">
+      <div class="panel-h"><h3>Banco tipo · perfil de exposición</h3><span class="meta">medianas reales · n = {vt ? vt.n : 12}</span></div>
+      <div class="tiles">
+        <div class="tile warn"><span class="k">Índice QEX</span><span class="v">{d.indice.verticales.find((v:any)=>v.id==='banca')?.indice ?? '—'}</span><span class="sub">mediana nacional {d.indice.mediana} · tope {d.indice.tope}</span></div>
+        <div class="tile"><span class="k">Hosts descubiertos</span><span class="v">{vt ? nf(vt.hostnames) : 76}</span><span class="sub">máximo del sector: {vt ? nf(vt.hostnames_max) : 378}</span></div>
+        <div class="tile warn"><span class="k">Subdominios profundos</span><span class="v">{vt ? nf(vt.profundos) : 14}</span><span class="sub">sin dueño identificable</span></div>
+        <div class="tile crit"><span class="k">Ambientes no productivos</span><span class="v">{vt ? nf(vt.no_productivo) : 4}</span><span class="sub">{vt ? 'con certificado público emitido' : 'respondiendo en internet'}</span></div>
+        <div class="tile crit"><span class="k">Infra sensible {vt ? 'publicada' : 'expuesta'}</span><span class="v">{vt ? nf(vt.infra_expuesta) : 2}</span><span class="sub">VPN, admin o webmail</span></div>
+        <div class="tile"><span class="k">Posición en su sector</span><span class="v">{vt ? `${vt.posicion}/${vt.n}` : '6/12'}</span><span class="sub">mediana exacta de banca</span></div>
+        <div class={`tile ${vt && !medida(vt.proveedores_sin_fecha) ? '' : 'crit'}`}><span class="k">Proveedores sin fecha</span><span class={vt && !medida(vt.proveedores_sin_fecha) ? 'v sin-medir' : 'v'}>{vt ? nf(vt.proveedores_sin_fecha) : 3}</span><span class="sub">definen su ruta crítica</span></div>
+      </div>
+    </div>
+
+    <div class="tw">
+      <table>
+        <thead><tr><th>Plazo</th><th>Acción</th><th>Por qué ahora</th></tr></thead>
+        <tbody>
+          <tr><td class="mono">30 días</td><td>Reclamar o dar de baja los ambientes no productivos y endpoints expuestos</td><td>Riesgo inmediato, sin relación con lo cuántico. La corrección más barata</td></tr>
+          <tr><td class="mono">30 días</td><td>Publicar un canal de reporte de seguridad</td><td>96% del país no lo tiene. Un archivo de texto y una casilla</td></tr>
+          <tr><td class="mono">30 días</td><td>Enviar las cartas a los proveedores sin fecha comprometida</td><td>Su respuesta define el plazo de todo lo demás</td></tr>
+          <tr><td class="mono">90 días</td><td>Activar híbrido donde el proveedor ya lo soporta y está apagado</td><td>Sin proyecto ni presupuesto nuevo</td></tr>
+          <tr><td class="mono">90 días</td><td>Levantar el inventario criptográfico interno</td><td>Sin esto no hay plan posible</td></tr>
+          <tr><td class="mono">365 días</td><td>Verificar firmware de HSM y ruta de actualización de mensajería financiera</td><td>La única fecha dura del stack es julio 2027</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="measure">
+      <p><strong>Cinco de estas seis acciones no tienen nada que ver con computación cuántica.</strong> Son higiene, inventario y gobierno — cosas que ya deberían estar y que la transición post-cuántica simplemente obliga a mirar. Esa es la razón por la que este trabajo se paga solo aunque la máquina llegue en 2045.</p>
+
+      <h3>Lo que este informe no puede decirle</h3>
+      <p>Todo lo anterior se midió desde afuera, sobre superficie pública. Es la parte fácil, y es también la que menos importa. El borde público es lo que un CDN puede arreglar por contrato; lo que define de verdad el plazo está adentro y no es observable: los módulos de seguridad de hardware que custodian las claves, el core bancario, el switch de pagos, las VPN, la firma de código, el inventario de certificados internos.</p>
+
+      <p>Y sobre todo, algo que ninguna organización puede averiguar sola con costo razonable: <strong>qué van a hacer sus proveedores, y cuándo.</strong> Un banco puede tener su sitio web protegido y una fecha de migración que no depende de él en absoluto.</p>
+    </div>
+    <div class="note">Cualquier organización de la muestra puede solicitar su propio panel y su propio plan, sin costo y sin condiciones. Es su dato.</div>
+  </section>
+
+  <!-- 09 · CONTEXTO -->
+  <section id="contexto">
+    <div class="sechead">
+      <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>
+      <span class="snum">10 · Por qué existe el problema</span>
+    </div>
+    <h2>Alguien puede estar guardando su tráfico cifrado hoy para leerlo en 2035</h2>
+    <div class="measure">
+      <p class="lede">Se llama <em>Harvest Now, Decrypt Later</em> —cosechar ahora, descifrar después— y es la única amenaza de seguridad que no requiere que el atacante pueda hacer nada todavía.</p>
+
+      <p>La idea es simple y por eso incómoda. Casi todo el tráfico cifrado de internet se protege con dos familias de matemáticas: RSA y curvas elípticas. Ambas son seguras porque hay problemas que un computador clásico no sabe resolver rápido — factorizar un número enorme, por ejemplo. No es que sea imposible: es que tomaría más tiempo que la edad del universo.</p>
+
+      <p>En 1994 Peter Shor demostró que un computador cuántico —una máquina que todavía no existía— podría resolver exactamente ese problema en tiempo razonable. No fue un hallazgo empírico sino un <strong>teorema</strong>: se demostró que la matemática que protege el sistema financiero mundial tiene una puerta trasera, y se publicó la llave treinta años antes de que existiera la cerradura.</p>
+
+      <p>De ahí sale la asimetría que define el problema. Un adversario con paciencia y capacidad de almacenamiento puede capturar tráfico cifrado hoy —una transferencia bancaria, una ficha clínica, un contrato, comunicaciones de Estado— guardarlo, y esperar. El día que exista la máquina, todo ese archivo se abre retroactivamente.</p>
+    </div>
+
+    <div class="term">
+      <dl>
+        <dt>RSA y ECC</dt>
+        <dd>Los dos sistemas de clave pública que hoy protegen prácticamente toda conexión segura. Son los que Shor rompe.</dd>
+        <dt>CRQC · Cryptographically Relevant Quantum Computer</dt>
+        <dd>Un computador cuántico lo bastante grande y estable para ejecutar el algoritmo de Shor sobre claves reales. No existe. La discusión es cuándo.</dd>
+        <dt>ML-KEM (FIPS 203)</dt>
+        <dd>El nuevo estándar de intercambio de claves resistente a ataques cuánticos, publicado por el NIST en agosto de 2024. Reemplaza la parte de RSA y ECC que negocia la clave de sesión.</dd>
+        <dt>Híbrido · X25519MLKEM768</dt>
+        <dd>La transición práctica: se negocian dos claves a la vez, una clásica y una post-cuántica, y se combinan. Si una falla, la otra sostiene. Es lo que medimos en este informe.</dd>
+      </dl>
+    </div>
+
+    <div class="measure">
+      <p>La consecuencia práctica es que <strong>el reloj de este riesgo no empieza el día que exista la máquina: empieza el día que sus datos se transmiten.</strong> Un dato que debe permanecer confidencial diez años y que viaja hoy bajo criptografía clásica ya está, en términos de riesgo, expuesto.</p>
+    </div>
+
+    <div class="pull">
+      <p>Si su organización maneja datos que deben seguir siendo secretos en 2036, la pregunta no es si migrar. Es si alcanza.</p>
+    </div>
+
+    <div class="measure">
+      <h3>La regla que convierte esto en una decisión, no en una discusión</h3>
+      <p>Michele Mosca, del Institute for Quantum Computing, propuso una desigualdad que evita la pelea estéril sobre la fecha exacta:</p>
+    </div>
+
+    <div class="term">
+      <dl>
+        <dt>Vida útil del dato + Tiempo de migración &gt; Horizonte de la amenaza</dt>
+        <dd>Si la suma de los dos primeros supera al tercero, la organización <strong>ya está expuesta</strong>. No en el futuro: hoy, porque el dato que viaja hoy seguirá siendo secreto cuando la máquina exista.</dd>
+      </dl>
+    </div>
+
+    <div class="measure">
+      <p>Un banco cuyos registros deben permanecer confidenciales diez años, y cuya migración criptográfica tomará cinco, necesita que la amenaza esté a más de quince años de distancia. Y hay una consecuencia que se ve mejor con las fechas puestas: <strong>el último dato migrado en 2031 sigue siendo confidencial hasta 2041</strong> — cinco años más allá del horizonte donde el consenso experto concentra la probabilidad. Como se verá en la sección siguiente, ese consenso no ofrece esa holgura.</p>
+    </div>
+  </section>
+
+  <!-- 10 · RELOJ -->
+  <section id="reloj">
+    <div class="sechead">
+      <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="2.4"/><ellipse cx="12" cy="12" rx="9.5" ry="4" transform="rotate(30 12 12)"/><ellipse cx="12" cy="12" rx="9.5" ry="4" transform="rotate(-30 12 12)"/></svg>
+      <span class="snum">11 · Dónde está la máquina y cuándo llega</span>
+    </div>
+    <h2>El cálculo se acortó doscientas veces. El hardware no.</h2>
+    <div class="measure">
+      <p class="lede">Es la parte del problema donde más se exagera en ambas direcciones. Los datos verificados cuentan una historia más interesante que cualquiera de los dos extremos.</p>
+
+      <p>En 2019, Craig Gidney y Martin Ekerå publicaron la estimación de referencia: romper una clave RSA de 2048 bits requeriría <strong>20 millones de qubits físicos</strong> trabajando ocho horas. Con las máquinas de la época —Google tenía 53 qubits— eso ubicaba la amenaza en un futuro cómodo.</p>
+
+      <p>Seis años después, el mismo Gidney publicó una revisión: <strong>menos de un millón de qubits</strong>, menos de una semana. Y en febrero de 2026 un equipo en Sídney bajó la estimación a <strong>menos de cien mil</strong>.</p>
+
+      <p>Lo decisivo no es la magnitud de la caída sino su causa. Los tres trabajos <strong>asumen exactamente el mismo hardware</strong>: la misma tasa de error, el mismo ciclo, el mismo tiempo de reacción. La mejora es puramente algorítmica y arquitectónica. Nadie puede descartarla diciendo que suponen máquinas mejores, porque no lo hacen.</p>
+    </div>
+
+    <div class="chart">
+      <div class="chart-h"><p class="chart-t">Qubits físicos necesarios para romper RSA-2048</p>
+      <p class="chart-s">Escala logarítmica. Mismos supuestos de hardware en las tres estimaciones.</p></div>
+      <div class="chart-b">
+        <div class="bars">
+          {d.costoRsa.map((c: any) => (
+            <div class="bar-row">
+              <span class="bar-lab">{c.y} · {c.quien}</span>
+              <div class="bar-track"><div class="bar-fill" style={`width:${c.w}%`}></div></div>
+              <span class="bar-val">{c.q}</span>
+            </div>
+          ))}
+        </div>
+        <p class="src">Gidney &amp; Ekerå, <em>Quantum</em> 5, 433 (2021), revisado por pares · Gidney, arXiv:2505.15917 · Iceberg Quantum, arXiv:2602.11457. Los dos últimos son preprints.</p>
+      </div>
+    </div>
+
+    <div class="measure">
+      <h3>Y ahora el contrapeso, que es igual de importante</h3>
+      <p>Esa cifra mide qubits <em>físicos</em>. Lo que realmente hace falta son qubits <em>lógicos</em>, y la distinción es donde se pierde casi toda la conversación pública.</p>
+    </div>
+
+    <div class="term">
+      <dl>
+        <dt>Qubit físico</dt>
+        <dd>Un dispositivo real: un circuito superconductor, un ion atrapado. Ruidoso, frágil, se equivoca seguido.</dd>
+        <dt>Qubit lógico</dt>
+        <dd>Un qubit confiable construido a partir de muchos físicos mediante corrección de errores. La razón va de 100 a 1.000 físicos por cada lógico. <strong>Confundirlos infla las capacidades reales en dos o tres órdenes de magnitud</strong>, y es el error más frecuente en el material de proveedores.</dd>
+        <dt>Post-selección</dt>
+        <dd>Detectar que hubo un error y <em>descartar</em> esa corrida. No es corrección: es filtrado. Funciona en demostraciones y deja de funcionar cuando el circuito crece, porque la fracción de corridas útiles cae exponencialmente.</dd>
+      </dl>
+    </div>
+
+    <div class="measure">
+      <p>Para romper RSA-2048 se necesitan <strong>del orden de miles de qubits lógicos</strong> operando de forma sostenida. ¿Cuántos existen hoy?</p>
+
+      <p>En diciembre de 2024, Google demostró con el procesador Willow el primer código de superficie que opera <em>bajo el umbral</em>: agregar más qubits físicos <strong>mejora</strong> el qubit lógico en vez de degradarlo. Fue la pregunta abierta central del campo y se respondió que sí. Usó 101 qubits físicos para sostener <strong>un</strong> qubit lógico, y ese qubit vivió 2,4 veces más que el mejor físico del chip.</p>
+
+      <p>Es el único qubit lógico inequívocamente bajo umbral y sin post-selección jamás demostrado. Y era una <strong>memoria</strong>: almacenó información, no computó con ella.</p>
+
+      <p>Los conteos más altos que circulan —94 de Quantinuum, 70 de IBM— dependen todos de post-selección. Sus propios <em>abstracts</em> lo dicen: <span class="mono" style="font-size:.9em">"with reasonable postselection rates"</span>, <span class="mono" style="font-size:.9em">"after syndrome post-selection"</span>. Quantinuum incluso acuñó el término "parcialmente tolerante a fallos" para describirlo.</p>
+    </div>
+
+    <div class="pull"><p>A agosto de 2026 no existe ninguna máquina con más de cien qubits lógicos plenamente corregidos. Ni cerca.</p></div>
+
+    <div class="measure">
+      <p>La otra métrica que sí avanza de forma sostenida es la tasa de error de las compuertas de dos qubits, que cayó aproximadamente un orden de magnitud en siete años: de 0,62% en el Sycamore de Google (2019) a 0,079% en el Helios de Quantinuum (2025). Es progreso real y constante — pero es un orden de magnitud, no tres.</p>
+
+      <h3>El capital, y la fecha</h3>
+      <p class="lede">El capital comprometido en computación cuántica supera los 56.000 millones de dólares entre programas públicos de una docena de países e inversión privada, que alcanzó su récord en 2025 con 12.600 millones. Al mismo tiempo, las empresas cuánticas cotizadas se desplomaron entre 57% y 75% desde sus máximos. Ambas cosas son ciertas: el dinero sigue entrando, y el mercado dejó de creerle a los plazos cortos.</p>
+
+      <p>El Global Risk Institute encuesta cada año a un panel de expertos con una pregunta precisa: qué probabilidad hay de que exista un computador capaz de factorizar un número de 2048 bits en menos de 24 horas, dentro de cada horizonte. La edición más reciente recogió 26 respuestas.</p>
+    </div>
+
+    <div class="chart">
+      <div class="chart-h"><p class="chart-t">Probabilidad de que exista un computador capaz de romper RSA-2048</p>
+      <p class="chart-s">Consenso de 26 expertos. Las cifras de 15 y 20 años corresponden a la interpretación conservadora.</p></div>
+      <div class="chart-b">
+        <div class="bars">
+          {d.qday.map((q: any) => (
+            <div class="bar-row">
+              <span class="bar-lab">{q.h}</span>
+              <div class="bar-track"><div class={`bar-fill ${q.p>=51?'lo':'mid'}`} style={`width:${q.p}%`}></div></div>
+              <span class="bar-val">{q.lab}</span>
+            </div>
+          ))}
+        </div>
+        <p class="src">Global Risk Institute, <em>Quantum Threat Timeline Report 2025</em>, publicado marzo de 2026.</p>
+      </div>
+    </div>
+
+    <div class="measure">
+      <p>El hallazgo que los propios autores destacan: <strong>es la estimación a diez años más alta en los siete años de la serie.</strong> La masa de probabilidad se está desplazando hacia mediados de la próxima década.</p>
+
+      <p>Conviene decir también lo que esta encuesta no es. La muestra es pequeña, su composición cambia entre años, y las ediciones de 2019 a 2021 daban probabilidades <em>mayores</em> para el mismo horizonte. No es una predicción: es el mejor consenso disponible, con sus límites a la vista.</p>
+    </div>
+  </section>
+
+  <!-- 11 · GLOSARIO -->
+  <section id="glosario">
+    <div class="sechead">
+      <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 4.5h6a2.5 2.5 0 0 1 2.5 2.5v13"/><path d="M20 4.5h-6a2.5 2.5 0 0 0-2.5 2.5v13"/><path d="M4 4.5v13M20 4.5v13"/></svg>
+      <span class="snum">12 · Glosario</span>
+    </div>
+    <h2>Los términos, en una línea cada uno</h2>
+    <div class="gloss">
+      <div class="gi"><h4>Criptografía asimétrica</h4><span class="en">RSA, ECC</span><p>Permite a dos partes que nunca se han visto acordar una clave secreta. Es exactamente lo que un computador cuántico rompe.</p></div>
+      <div class="gi"><h4>Algoritmo de Shor</h4><span class="en">1994</span><p>Permitiría factorizar números grandes en tiempo razonable. Es un teorema demostrado: solo falta la máquina.</p></div>
+      <div class="gi"><h4>HNDL</h4><span class="en">Harvest Now, Decrypt Later</span><p>Capturar tráfico cifrado hoy para descifrarlo después. Por eso el riesgo empieza ahora.</p></div>
+      <div class="gi"><h4>CRQC</h4><span class="en">Cryptographically Relevant Quantum Computer</span><p>Máquina capaz de romper claves reales. No existe; el debate es cuándo.</p></div>
+      <div class="gi"><h4>Qubit físico</h4><span class="en">physical qubit</span><p>Dispositivo real de hardware. Ruidoso y frágil. Es la cifra que anuncian los fabricantes.</p></div>
+      <div class="gi"><h4>Qubit lógico</h4><span class="en">logical qubit</span><p>Qubit confiable hecho con muchos físicos. Entre 100 y 1.000 por cada uno. <strong>Confundirlos infla las capacidades en dos o tres órdenes de magnitud.</strong></p></div>
+      <div class="gi"><h4>Post-selección</h4><span class="en">post-selection</span><p>Detectar el error y descartar la corrida. No es corrección: es filtrado, y deja de funcionar al crecer el circuito.</p></div>
+      <div class="gi"><h4>Bajo umbral</h4><span class="en">below threshold</span><p>Agregar qubits físicos <em>mejora</em> el lógico en vez de degradarlo. Demostrado por primera vez en diciembre de 2024.</p></div>
+      <div class="gi"><h4>ML-KEM · FIPS 203</h4><span class="en">antes Kyber</span><p>Estándar de intercambio de claves post-cuántico, publicado por el NIST en agosto de 2024. Es lo que medimos.</p></div>
+      <div class="gi"><h4>ML-DSA · FIPS 204</h4><span class="en">antes Dilithium</span><p>Estándar de firma digital. Protege la autenticación. Su adopción global es del 0%.</p></div>
+      <div class="gi"><h4>Híbrido</h4><span class="en">X25519MLKEM768</span><p>Negociar dos claves a la vez, clásica y post-cuántica. Si una falla, la otra sostiene.</p></div>
+      <div class="gi"><h4>TLS 1.3</h4><span class="en">Transport Layer Security</span><p>El intercambio post-cuántico <strong>lo requiere</strong>: sin TLS 1.3 no hay migración posible.</p></div>
+      <div class="gi"><h4>Certificate Transparency</h4><span class="en">registros públicos</span><p>Registros auditables de cada certificado emitido. Permiten descubrir superficie sin tocar sistemas.</p></div>
+      <div class="gi"><h4>Agilidad criptográfica</h4><span class="en">crypto-agility</span><p>Poder cambiar de algoritmo sin rehacer los sistemas. El objetivo real de fondo.</p></div>
+      <div class="gi"><h4>Inventario criptográfico</h4><span class="en">CBOM</span><p>Registro de dónde vive cada mecanismo. Primer requisito de todos los marcos: no se migra lo que no se sabe que existe.</p></div>
+    </div>
+  </section>
+
+  <!-- 12 · LEGAL -->
+  <section id="legal" class="legal">
+    <div class="sechead">
+      <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3.5 4.5 6.5v5.2c0 4.4 3.1 7.6 7.5 8.8 4.4-1.2 7.5-4.4 7.5-8.8V6.5Z"/><path d="M9.3 12.2l1.9 1.9 3.6-3.8"/></svg>
+      <span class="snum">13 · Metodología, límites y aviso legal</span>
+    </div>
+    <h2>Cómo se hizo y qué no afirma</h2>
+
+    <div class="cols">
+      <div>
+        <h3>Qué hicimos</h3>
+        <p>Consultamos <strong>registros públicos de Certificate Transparency</strong> para descubrir los nombres de host de cada dominio. Sobre los hosts críticos abrimos <strong>una única conexión TCP y enviamos un solo saludo inicial de TLS</strong> que ofrece explícitamente grupos post-cuánticos, y observamos la respuesta.</p>
+        <p>El saludo <strong>no se completa</strong>. No se establece sesión, no se transmiten datos de aplicación, no se envían credenciales y no se ejecuta ninguna prueba de intrusión. La carga equivale a abrir el sitio una vez.</p>
+        {textoLegal && <p data-texto-aprobado="hicimos" set:html={textoLegal.hicimos} />}
+        <h3>Qué NO hicimos</h3>
+        <p>No accedimos a ningún sistema. No intentamos autenticarnos. {textoLegal?.frase_rutas ?? 'No exploramos rutas ni directorios.'} No escaneamos rangos de direcciones. No recopilamos datos personales.</p>
+        {textoLegal && <p data-texto-aprobado="no_hicimos" set:html={textoLegal.no_hicimos} />}
+      </div>
+      <div>
+        <h3>Sobre el índice</h3>
+        <p>El <strong>{d.indice.nombre} ({d.indice.sigla})</strong>, versión <span class="mono">{d.indice.version}</span>, combina cuatro dimensiones con los pesos publicados en la sección 03. Tres se miden sobre endpoints reales; la cuarta —postura HNDL— <strong>se deriva del perfil del sector y se declara como modelo, no como medición</strong>.</p>
+        <p>El índice está topado en {d.indice.tope}: una medición externa no observa el interior de una organización y por lo tanto <strong>nunca puede afirmar que está preparada</strong>, solo que no lo está. La banda superior requiere evidencia asistida por el propio cliente.</p>
+        <p>Cuando una dimensión no se puede medir en una organización, el peso se renormaliza sobre las disponibles y el hecho se registra. <strong>Una dimensión ausente no se cuenta como cero.</strong></p>
+        <h3>Límites</h3>
+        <p>Estas mediciones observan <strong>únicamente la superficie pública</strong>. No dicen nada sobre sistemas internos, módulos de seguridad de hardware, redes privadas, firma de código ni bases de datos.</p>
+        <p>Un resultado favorable <strong>no implica</strong> preparación. Un resultado desfavorable <strong>no implica</strong> inseguridad, incidente ni incumplimiento.</p>
+        <h3>Naturaleza del documento</h3>
+        <p>Describe <strong>observaciones técnicas</strong> sobre infraestructura pública en la fecha indicada. No es auditoría, certificación, evaluación de cumplimiento ni dictamen legal. Rosetta Quantum no es organismo certificador ni estudio jurídico.</p>
+      </div>
+    </div>
+
+    {/* 6-nov-2026: el recuadro sale sólo en borrador. Publicada, una edición que dice estar
+        «pendiente de revisión legal antes de publicar» se contradice (decisión de Nicholas).
+        T-llms lo vigila sobre la página servida. */}
+    {esBorrador && (<div class="rev">
+      <h4>Pendiente de revisión legal antes de publicar</h4>
+      <ol>{PENDIENTES_LEGALES.map((p) => <li>{p}</li>)}</ol>
+    </div>)}
+
+    <div class="note"><strong>Derecho de exclusión y de acceso.</strong> Cualquier organización puede pedir su exclusión de futuras ediciones, o el detalle completo de lo observado en su superficie, sin costo y sin condiciones. Ambas dentro de 72 horas hábiles y sin justificación. <strong>Escriba a <a href="mailto:hello@rosettaquantum.com?subject=Informe%20PQC">hello@rosettaquantum.com</a>.</strong></div>
+
+    <div class="measure" style="margin-top:34px">
+      <p style="font-family:var(--serif);font-size:var(--t-sub);line-height:1.4;color:var(--ink)">La transición post-cuántica no se resuelve el día que exista la máquina. Se resuelve en los años previos, con inventario, con preguntas incómodas a los proveedores y con alguien a cargo. Nada de eso requiere creer en una fecha — solo requiere empezar antes de que la fecha la fije otro.</p>
+    </div>
+
+    <p class="src">Rosetta Quantum · Edición {String(d.numero).padStart(2,'0')} · {mesLargo} · una unidad de Sumeria · Metodología y conjunto de datos agregado disponibles a solicitud.</p>
+  </section>
+
+</div>
+</div>
+</MarcaLayout>

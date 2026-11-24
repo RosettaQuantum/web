@@ -41,6 +41,16 @@ html{scroll-behavior:smooth}
 .mast h1{font-size:var(--t-title);line-height:1.06;margin:0 0 .3em;letter-spacing:-.015em}
 .standfirst{font-size:var(--t-body);color:var(--ink-60);max-width:60ch}
 
+/* ---------- la serie, navegable ---------- */
+.edics{display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 18px;margin-top:18px;
+  padding-top:12px;border-top:1px solid var(--line)}
+.edics-k{font-size:var(--t-label);font-weight:600;letter-spacing:.07em;
+  text-transform:uppercase;color:var(--ink-60)}
+.informe-doc .edics-a{font-size:var(--t-small);color:var(--ink-60);
+  border-bottom:1px solid var(--line);padding-bottom:1px}
+.informe-doc a.edics-a:hover{color:var(--ink);border-bottom-color:var(--ink)}
+.informe-doc .edics-a.es-hoy{color:var(--ink);border-bottom-color:transparent;font-weight:500}
+
 /* ---------- badge de variación mensual ---------- */
 .delta{display:inline-flex;align-items:center;gap:4px;font-family:var(--mono);
   font-size:var(--t-data);letter-spacing:.05em;padding:1px 7px;border-radius:2px;
@@ -100,7 +110,10 @@ html{scroll-behavior:smooth}
 .tb-lista a:hover{color:var(--pending)}
 .tb-ln{font-family:var(--mono);font-size:var(--t-data);color:var(--pending);flex:none}
 .tb-lista a[aria-current="true"]{color:var(--pending)}
-@media print{.tocbar{display:none}}
+@media print{.tocbar{display:none}
+  /* La lista de ediciones es navegacion: en papel no sirve de nada y le roba
+     aire a la portada. Igual que la barra fina del indice. */
+  .edics{display:none}}
 
 /* ---------- secciones ---------- */
 /* scroll-margin-top sube de 20 a 56: con la barra del sitio (60) y la barra fina (38),

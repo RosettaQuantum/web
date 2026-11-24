@@ -1,0 +1,30 @@
+---
+// UNA URL PERMANENTE POR EDICION: `/informe-pqc/AAAA-MM/`.
+//
+// Hasta el 24-nov-2026 habia UNA sola direccion y mostraba la ultima. Al
+// publicar noviembre, agosto se quedo sin URL: cuatro rutas probadas daban 404
+// y el sitemap traia una sola. El informe se vende como serie —«para que las
+// cifras puedan leerse como una serie»— y la serie tenia un solo termino
+// visible; quien hubiera guardado o citado el link de agosto pasaba a ver
+// noviembre, con otras cifras.
+//
+// SOLO LAS PUBLICADAS. Un borrador no recibe direccion permanente: lleva
+// cartel y `noindex` justamente porque todavia no es publico, y darle una URL
+// estable seria contradecirlo. Se filtra por `borrador === false` y no por
+// «existe el archivo».
+import InformePQC from '../../components/InformePQC.astro';
+
+export async function getStaticPaths() {
+  const mods = import.meta.glob('../../data/informe-pqc/*.json', { eager: true });
+  return Object.entries(mods)
+    .map(([p, m]: any) => {
+      const slug = p.split('/').pop()!.replace(/\.json$/, '');
+      return { slug, d: (m as any).default ?? m };
+    })
+    .filter(({ d }: any) => d?.borrador === false)
+    .map(({ slug }) => ({ params: { edicion: slug } }));
+}
+
+const { edicion } = Astro.params;
+---
+<InformePQC slug={edicion} />
