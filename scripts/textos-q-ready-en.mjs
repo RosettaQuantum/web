@@ -53,5 +53,20 @@ Las notas internas que el formulario manda a hello@ siguen en español.
 |---|---|---|---|
 ${filas.map(([k, es, en]) => `| \`${k}\` | ${celda(es)} | ${celda(en)} | ${estado(k, es, en)} |`).join("\n")}
 `;
+// --verificar: lo que el código sirve HOY tiene que ser byte a byte la tabla que Nicholas aprobó el 23-nov
+// («Textos OK, súbelo»), sellada en src/data/q-ready/textos-aprobados/ con su sha256 en APROBADOS.json.
+// Un texto nuevo es una tabla nueva y una aprobación nueva, no una edición de ésta.
+const SELLADO = "src/data/q-ready/textos-aprobados/TEXTOS-q-ready-en-2026-11-23.md";
+if (process.argv.includes("--verificar")) {
+  const sellado = readFileSync(SELLADO, "utf8");
+  const difiere = (a, b) => { const x = a.split("\n"), y = b.split("\n"); for (let i = 0; i < Math.max(x.length, y.length); i++) if (x[i] !== y[i]) return i + 1; return 0; };
+  // grito: una mutación de un carácter en un texto servido tiene que detectarse
+  const mutada = md.replace("Measure my domain now", "Measure my domain now!");
+  if (mutada === md || !difiere(mutada, sellado)) { console.log("FALLA autoprueba: la mutación no entró o no se detecta"); process.exit(1); }
+  const linea = difiere(md, sellado);
+  if (linea) { console.log(`FALLA textos de /q-ready distintos de los aprobados (${SELLADO}), primera diferencia en la línea ${linea}:\n  servido:  ${md.split("\n")[linea - 1]}\n  aprobado: ${sellado.split("\n")[linea - 1]}`); process.exit(1); }
+  console.log(`textos-q-ready-en --verificar: ok · ${filas.length} filas servidas = las aprobadas · la mutación grita`);
+  process.exit(0);
+}
 writeFileSync("docs/textos-provisorios-q-ready-en.md", md);
 console.log(`docs/textos-provisorios-q-ready-en.md: ${filas.length} filas`);

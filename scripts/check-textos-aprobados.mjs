@@ -35,6 +35,7 @@ let casos = 0;
 const igual = (a, b, q) => { casos++; if (JSON.stringify(a) !== JSON.stringify(b)) fallas.push(`${q}: esperaba ${JSON.stringify(b)}, dio ${JSON.stringify(a)}`); };
 
 const LECTURA = "TEXTO-lectura-notas-A-B-2026-11-18.md", HNDL = "TEXTO-rubrica-hndl-origen-2026-11-18.md", T234 = "TEXTOS-para-aprobar-2026-11-18.md";
+const QR_EN = "TEXTOS-q-ready-en-2026-11-23.md"; // su contenido lo vigila scripts/textos-q-ready-en.mjs --verificar
 // Las lecturas que NO se tocan (A+, C, D, F), como estaban el 18-nov: cambiarlas no está aprobado.
 const SIN_CAMBIO = {
   es: { "A+": "Candado nuevo en todo lo visible y un plan interno firmado y verificado.",
@@ -49,8 +50,9 @@ const SIN_CAMBIO = {
 
 // ---------------------------------------------------------------- 1 · el sello
 const AP = TA.aprobados();
-igual(AP.map((a) => a.archivo).sort(), [LECTURA, HNDL, T234].sort(), "APROBADOS.json declara los tres documentos, ni más ni menos");
-for (const a of AP) igual([TA.sha256(TA.leerBytes(a.archivo)), /^Nicholas, 18-nov-2026(: "Sí, | \(textos 2, 3 y 4\)$)/.test(a.aprobado_por)], [a.sha256, true], `${a.archivo}: sha256 y aprobado_por iguales a APROBADOS.json`);
+igual(AP.map((a) => a.archivo).sort(), [LECTURA, HNDL, T234, QR_EN].sort(), "APROBADOS.json declara los cuatro documentos, ni más ni menos");
+igual(AP.find((a) => a.archivo === QR_EN)?.sha256, "3d16e4f79b7297c553170691727fff3a11e05e74a2e38895cfcaaf6f33c23cd4", "TEXTOS-q-ready-en: el sha256 con que se aprobó");
+for (const a of AP) igual([TA.sha256(TA.leerBytes(a.archivo)), /^Nicholas, (18-nov-2026(: "Sí, | \(textos 2, 3 y 4\)$)|23-nov-2026: «Textos OK, súbelo»)/.test(a.aprobado_por)], [a.sha256, true], `${a.archivo}: sha256 y aprobado_por iguales a APROBADOS.json`);
 igual(AP.find((a) => a.archivo === T234).sha256, "a31d2c1c3215d7f05b3568dc8e7468cf607615301177c2801c9de2dbb706aaa3", "TEXTOS-para-aprobar: el sha256 con que se aprobó");
 
 // ---------------------------------------------------------------- 2 · el código dice lo aprobado
@@ -114,5 +116,5 @@ await conMutante(RTX, "sólo si es post-cuántica;", "sólo si es postcuántica;
 
 for (const f of fallas) console.log("  FALLA " + f);
 console.log(fallas.length ? `check-textos-aprobados: ${fallas.length} falla(s) de ${casos} casos`
-  : `check-textos-aprobados: ok (${casos} casos · 3 documentos sellados · lectura A/B, frase HNDL es/en, tope y llave = lo aprobado · 9 mutaciones gritan)`);
+  : `check-textos-aprobados: ok (${casos} casos · 4 documentos sellados · lectura A/B, frase HNDL es/en, tope y llave = lo aprobado · 9 mutaciones gritan)`);
 process.exit(fallas.length ? 1 : 0);
