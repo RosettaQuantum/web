@@ -1,0 +1,129 @@
+{
+ "generado": "desde git HEAD afc8a11 (lib/informe-envivo.mjs y lib/borde-envivo.mjs, antes de mover las tablas)",
+ "mx": [
+  [
+   "mx1.hc0000-00.iphmx.com",
+   "Cisco Secure Email (IronPort)"
+  ],
+  [
+   "mx0a-001.pphosted.com",
+   "Proofpoint"
+  ],
+  [
+   "eu-smtp-inbound-1.mimecast.com",
+   "Mimecast"
+  ],
+  [
+   "ejemplo-cl.mail.protection.outlook.com",
+   "Microsoft 365"
+  ],
+  [
+   "aspmx.l.google.com",
+   "Google Workspace"
+  ],
+  [
+   "alt1.aspmx.l.googlemail.com",
+   "Google Workspace"
+  ],
+  [
+   "mx.notgoogle.com",
+   "Google Workspace"
+  ],
+  [
+   "d123.ess.barracudanetworks.com",
+   "Barracuda"
+  ],
+  [
+   "cluster1.eu.messagelabs.com",
+   "Broadcom (Symantec)"
+  ],
+  [
+   "mx.ejemplo.cl",
+   "ejemplo.cl"
+  ],
+  [
+   "mail.ejemplo.com.br",
+   "com.br"
+  ],
+  [
+   "mx1.mail.ovh.net",
+   "ovh.net"
+  ],
+  [
+   "route1.mx.cloudflare.net",
+   "cloudflare.net"
+  ],
+  [
+   "x",
+   "x"
+  ]
+ ],
+ "cdn": [
+  [
+   [],
+   "sin CNAME"
+  ],
+  [
+   [
+    "wild.ejemplo.edgekey.net",
+    "e00000.b.akamaiedge.net"
+   ],
+   "Akamai Enhanced TLS"
+  ],
+  [
+   [
+    "a.edgesuite.net",
+    "a1.akamai.net"
+   ],
+   "Akamai Standard TLS"
+  ],
+  [
+   [
+    "x.akamaized.net"
+   ],
+   "Akamai"
+  ],
+  [
+   [
+    "d1.cloudfront.net"
+   ],
+   "Amazon CloudFront"
+  ],
+  [
+   [
+    "x.global.ssl.fastly.net"
+   ],
+   "Fastly"
+  ],
+  [
+   [
+    "x.azureedge.net"
+   ],
+   "Azure Front Door"
+  ],
+  [
+   [
+    "x.azurefd.net"
+   ],
+   "Azure Front Door"
+  ],
+  [
+   [
+    "q0.ng.impervadns.net"
+   ],
+   "otro"
+  ],
+  [
+   [
+    "foo.ejemplo.cl"
+   ],
+   "otro"
+  ],
+  [
+   [
+    "x.edgekey.net.cdn.cloudflare.net"
+   ],
+   "Akamai Enhanced TLS"
+  ]
+ ]
+}

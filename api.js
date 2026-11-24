@@ -45,6 +45,10 @@ let VERIFICADO = null;
 export const registrarVerificado = (m) => { VERIFICADO = m; };
 const sinVerificado = { http: 503, cuerpo: { ok: false, error: "Q-Ready Verified no está disponible en este servidor." } };
 import { evaluarPeticion, RECHAZOS as RECHAZOS_PUERTA, huellaDelCuerpo } from "./lib/puerta.mjs";
+// RQ.T (24-nov-2026): descubrir proveedores desde DNS y CT. Módulos puros (sin sockets): Astro los puede importar.
+import { recolectar as recolectarProveedores } from "./lib/proveedores-ejecutor.mjs";
+import { descubrir as descubrirProveedores } from "./lib/proveedores-descubrir.mjs";
+import { dominioValido as dominioValidoCt } from "./lib/ct-registro.mjs";
 
 const SITE = "https://rosettaquantum.com";
 const CACHE = "public, s-maxage=300";
@@ -1025,6 +1029,58 @@ export const HERRAMIENTAS = [
   },
 ];
 
+// RQ.T · descubrir_proveedores (24-nov-2026). NO está en HERRAMIENTAS a propósito: esa lista es la que
+// producción lista en tools/list y la que /api-docs cuenta y nombra. Esta herramienta NOMBRA a los
+// proveedores de un tercero, y nombrar proveedores en una superficie pública choca con la regla del
+// encargo (b9250741, regla 4). Por eso sólo existe con las DOS llaves del preview, igual que el modo de
+// prueba de la guía: la variable RQT_PROVEEDORES="1" (declarada sólo en env.preview de wrangler.jsonc;
+// test/proveedores.test.mjs grita si aparece en otro lado) Y un host *.workers.dev. Sin las dos, ni se
+// lista ni se ejecuta: contesta «herramienta desconocida», lo mismo que a un nombre inventado.
+// Encenderla en producción es decisión de Nicholas.
+export const HERRAMIENTA_PROVEEDORES = {
+  name: "descubrir_proveedores",
+  description:
+    "RQ.T: descubre los proveedores de un dominio desde su superficie PÚBLICA, sin " +
+    "tocar al cliente: operador del borde (CNAME y ASN), correo (MX), envío autorizado (SPF y DKIM), DNS " +
+    "autoritativo (NS), emisores de certificados (CT y CAA), subdominios delegados a un SaaS (CT → CNAME) y " +
+    "TXT de verificación de SaaS. Sólo DNS y registro público de certificados: ningún GET, ningún saludo TLS. " +
+    "Cada fila dice de qué señal salió (RQ.T.01–07). «sin dato» nunca es cero. Con `declarados`, cuenta los " +
+    "descubiertos que no estaban en esa lista.",
+  inputSchema: { type: "object", required: ["dominio"],
+    properties: {
+      dominio: { type: "string", description: "dominio público, p.ej. ejemplo.cl" },
+      declarados: { type: "array", items: { type: "string" }, description: "opcional: proveedores que el cliente declaró (RQ.T.09), por nombre de empresa" },
+    } },
+};
+export function proveedoresHabilitado(env, url) {
+  // 24-nov-2026: Nicholas decidió encenderla en producción («Encender en producción»): basta la
+  // variable, en cualquier host. El host *.workers.dev ya no es llave.
+  return !!(env && env.RQT_PROVEEDORES === "1");
+}
+export const herramientasPara = (env, url) => (proveedoresHabilitado(env, url) ? [...HERRAMIENTAS, HERRAMIENTA_PROVEEDORES] : HERRAMIENTAS);
+// Cada llamada hace ~200 consultas DNS y dos al registro de certificados: 2 por minuto por IP (caché del
+// borde, no la base: no escribe en D1).
+async function proveedoresPermitido(ip) {
+  if (typeof caches === "undefined") return true;
+  const k = new Request(`https://rosettaquantum.com/__lim/rqt/${ip || "x"}/${Math.floor(Date.now() / 60000)}`);
+  const prev = await caches.default.match(k);
+  const n = prev ? Number(await prev.text()) || 0 : 0;
+  if (n >= 2) return false;
+  await caches.default.put(k, new Response(String(n + 1), { headers: { "cache-control": "max-age=70" } }));
+  return true;
+}
+async function herramientaProveedores(args, quien) {
+  const dominio = String(args.dominio || "").trim().toLowerCase().replace(/^https?:\/\//, "").replace(/[\/?#].*$/, "").replace(/\.$/, "");
+  if (!dominioValidoCt(dominio)) return { ok: false, error: "dominio inválido" };
+  if (!(await proveedoresPermitido(quien.ip))) return { ok: false, error: "demasiadas consultas; espere un minuto" };
+  const declarados = Array.isArray(args.declarados) ? args.declarados.map(String).slice(0, 200) : null;
+  const t = Date.now();
+  const insumos = await recolectarProveedores(dominio);
+  const r = descubrirProveedores(insumos, { declarados });
+  return { ok: true, aviso: "Salida PRIVADA: nombra proveedores del cliente. No se publica (RQ.T, regla 2 del diseño).",
+    medido_desde: "worker (preview)", segundos: Math.round((Date.now() - t) / 100) / 10, consultas: insumos.consultas, ...r };
+}
+
 // `quien` = { ip, user_agent, ctx }: lo que la herramienta de medición registra de quien mide.
 async function ejecutarHerramienta(env, nombre, args, quien = {}) {
   if (nombre === "medir_exposicion_pqc") return (MEDICION ? await MEDICION.medirParaAgente(env,
@@ -1070,6 +1126,7 @@ async function ejecutarHerramienta(env, nombre, args, quien = {}) {
     const r = await fuentes(env, u);
     return await r.json();
   }
+  if (nombre === HERRAMIENTA_PROVEEDORES.name && proveedoresHabilitado(env, quien.url)) return await herramientaProveedores(args, quien);
   throw new Error(`herramienta desconocida: ${nombre}`);
 }
 
@@ -1079,7 +1136,7 @@ async function mcp(request, env, info = {}) {
     return json({
       servidor: "rosetta-evidence",
       transporte: "JSON-RPC 2.0 sobre HTTP POST",
-      herramientas: HERRAMIENTAS.map(h => ({ nombre: h.name, descripcion: h.description })),
+      herramientas: herramientasPara(env, info.url).map(h => ({ nombre: h.name, descripcion: h.description })),
       nota: "Solo lectura. Toda respuesta incluye sha256 y URLs de las copias públicas.",
     });
   }
@@ -1098,7 +1155,7 @@ async function mcp(request, env, info = {}) {
       }, req.id);
     }
     if (req.method === "notifications/initialized") return new Response(null, { status: 204, headers: CORS });
-    if (req.method === "tools/list") { info.tool = "tools/list"; return responder({ tools: HERRAMIENTAS }, req.id); }
+    if (req.method === "tools/list") { info.tool = "tools/list"; return responder({ tools: herramientasPara(env, info.url) }, req.id); }
     if (req.method === "tools/call") {
       const { name, arguments: args = {} } = req.params || {};
       info.tool = name;   // para el contador de uso; no se guarda nada mas del que llama
