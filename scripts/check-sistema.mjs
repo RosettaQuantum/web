@@ -109,7 +109,17 @@ function sonda() {
   for (const e of el) {
     const c = getComputedStyle(e);
     tam.add(c.fontSize); col.add(c.color);
-    if (parseFloat(c.fontSize) < 13) bajo13++;
+    // El tamaño que se VE. Un <text> dentro de un <svg> con viewBox se escala con el dibujo:
+    // «font-size:5px» en un panel de 100 unidades dibujado a 422 px se ve a 21 px. Contar la
+    // unidad del dibujo como si fueran píxeles dio 21 falsos «bajo 13px» en la serie de la
+    // edición 02 (24-nov-2026), que a 1440 y a 390 se lee a 21–34 px. El conteo de tamaños
+    // distintos sigue usando el valor declarado, igual que antes.
+    let ve = parseFloat(c.fontSize);
+    const svg = e.ownerSVGElement;
+    if (svg && svg.viewBox && svg.viewBox.baseVal && svg.viewBox.baseVal.width) {
+      ve *= svg.getBoundingClientRect().width / svg.viewBox.baseVal.width;
+    }
+    if (ve < 13) bajo13++;
     const r = cr(c.color, fondo(e));
     if (r < 4.5) malContraste.push(r.toFixed(2) + " " + c.color + ' "' + e.textContent.trim().slice(0, 24) + '"');
   }
