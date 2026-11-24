@@ -117,7 +117,9 @@ const descQ = !P ? '' : es
         <ol>
           {publicadas.map((e, k) => (
             <li>
-              {k === 0 ? <a href="/informe-pqc">{Mayus(mesDe(e.d.edicion))}</a> : <span>{Mayus(mesDe(e.d.edicion))}</span>}
+              {/* 24-nov-2026: cada edición tiene su URL permanente (/informe-pqc/AAAA-MM/); antes sólo la
+                 vigente era enlace y agosto quedaba como texto suelto. */}
+              <a href={`/informe-pqc/${e.slug}/`}>{Mayus(mesDe(e.d.edicion))}</a>
               {es
                 ? <span class="qr-archivo-m">n.º {e.d.numero} · mediana {e.d.indice.mediana} · n = {e.d.indice.n}</span>
                 : <span class="qr-archivo-m">{llenar(EN.archivoFila, [e.d.numero, e.d.indice.mediana, e.d.indice.n])}</span>}
