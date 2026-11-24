@@ -22,5 +22,11 @@
   "sha256": "3d16e4f79b7297c553170691727fff3a11e05e74a2e38895cfcaaf6f33c23cd4",
   "aprobado_por": "Nicholas, 23-nov-2026: «Textos OK, súbelo» (los 92 textos de la tabla, tal cual)",
   "usa": "src/lib/puerta-textos.mjs · textos en inglés de /q-ready, y las flechas del carrusel en los dos idiomas"
+ },
+ {
+  "archivo": "TEXTOS-carrusel-2026-11-24.md",
+  "sha256": "76d5bcc1159c74ce69b4f8630e5974e50693475f3067fd5c4901b9c61d69a5a1",
+  "aprobado_por": "Nicholas, 24-nov-2026: «Sí, con esos textos»",
+  "usa": "src/lib/carrusel-textos.mjs · TEXTOS_CARRUSEL.es/en.pausar y .reanudar (botón de pausa del carrusel)"
  }
 ]
