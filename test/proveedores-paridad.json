@@ -2,7 +2,7 @@
  "generado": "desde git HEAD afc8a11 (lib/informe-envivo.mjs y lib/borde-envivo.mjs, antes de mover las tablas)",
  "mx": [
   [
-   "mx1.hc5532-55.iphmx.com",
+   "mx1.hc0000-00.iphmx.com",
    "Cisco Secure Email (IronPort)"
   ],
   [
@@ -14,7 +14,7 @@
    "Mimecast"
   ],
   [
-   "santander-cl.mail.protection.outlook.com",
+   "ejemplo-cl.mail.protection.outlook.com",
    "Microsoft 365"
   ],
   [
@@ -38,8 +38,8 @@
    "Broadcom (Symantec)"
   ],
   [
-   "mx.santander.cl",
-   "santander.cl"
+   "mx.ejemplo.cl",
+   "ejemplo.cl"
   ],
   [
    "mail.ejemplo.com.br",
@@ -65,8 +65,8 @@
   ],
   [
    [
-    "wild.santander.edgekey.net",
-    "e39625.b.akamaiedge.net"
+    "wild.ejemplo.edgekey.net",
+    "e00000.b.akamaiedge.net"
    ],
    "Akamai Enhanced TLS"
   ],
@@ -109,13 +109,13 @@
   ],
   [
    [
-    "q8envmi.ng.impervadns.net"
+    "q0.ng.impervadns.net"
    ],
    "otro"
   ],
   [
    [
-    "foo.santander.cl"
+    "foo.ejemplo.cl"
    ],
    "otro"
   ],

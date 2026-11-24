@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 // RQ.T · corre el descubrimiento de proveedores (T.01–T.07) sobre un dominio, desde esta máquina.
 //
-//   node scripts/descubrir-proveedores.mjs santander.cl --salida DIR [--declarados a,b,c]
+//   node scripts/descubrir-proveedores.mjs ejemplo.cl --salida DIR [--declarados a,b,c]
 //       consulta DNS y CT, escribe DIR/insumos-<dominio>-<utc>.json y DIR/rqt-<dominio>-<utc>.json, imprime la tabla
 //   node scripts/descubrir-proveedores.mjs --releer DIR/insumos-….json
 //       re-clasifica unos insumos guardados SIN consultar nada (sirve para cambiar el catálogo y comparar)

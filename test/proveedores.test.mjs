@@ -32,14 +32,14 @@ console.log("1 · paridad con el código de antes (fijas generadas desde git HEA
 
 // ════ 2 · el catálogo calza por etiqueta, no por cadena ═════════════════════════════
 console.log("\n2 · catálogo");
-si(C.clasificarNombre("wild.santander.edgekey.net")?.proveedor === "Akamai", "grito: x.edgekey.net → Akamai");
+si(C.clasificarNombre("wild.ejemplo.edgekey.net")?.proveedor === "Akamai", "grito: x.edgekey.net → Akamai");
 si(C.clasificarNombre("fooedgekey.net") === null, "silencio: fooedgekey.net no es Akamai (calza por etiqueta)");
 si(C.clasificarNombre("x.cloudapp.azure.com")?.servicio === "Azure", "el sufijo más largo gana (cloudapp.azure.com)");
-si(C.verificacionTxt("MS=ms67027216")?.proveedor === "Microsoft", "grito: MS=ms… → Microsoft");
+si(C.verificacionTxt("MS=ms12345678")?.proveedor === "Microsoft", "grito: MS=ms… → Microsoft");
 si(C.verificacionTxt("nota: google-site-verification= ya no se usa") === null, "silencio paradójico: el patrón DESCRITO en un TXT no es el patrón");
 si(C.caDeEmisor("DigiCert, Inc.") === "DigiCert" && C.empresaDeCa("Amazon Trust Services") === "Amazon", "CA y empresa normalizadas");
 si(organizacionDe('C=US, O="Entrust, Inc.", OU=See www.entrust.net, CN=X') === "Entrust, Inc.", "O= entre comillas con coma adentro");
-si(textoTxt('"VISA=" "91D8E6043AAC94F76C7D7DB198E7061F"') === "VISA=91D8E6043AAC94F76C7D7DB198E7061F", "TXT partido en dos cadenas se une sin separador");
+si(textoTxt('"VISA=" "0123456789ABCDEF0123456789ABCDEF"') === "VISA=0123456789ABCDEF0123456789ABCDEF", "TXT partido en dos cadenas se une sin separador");
 
 // ════ 3 · señal vacía → «sin dato», nunca 0 ═════════════════════════════════════════
 console.log("\n3 · una señal que no devuelve nada dice «sin dato» y su conteo es null");
@@ -62,11 +62,11 @@ console.log("\n3 · una señal que no devuelve nada dice «sin dato» y su conte
 // ════ 4 · un TXT que no es de SaaS no inventa proveedor ═════════════════════════════
 console.log("\n4 · TXT de verificación");
 {
-  const ruido = descubrir(base({ [`${D}|TXT`]: r("NOERROR", [TXT(D, "15fds9f6gr811c5sx2l6phnz9t1gqyqq"), TXT(D, "v=spf1 -all"), TXT(D, "bU3UfzJvMt6UoDo6Wod8v6G+KlS9gGXqXPpd0AblRG0=")]) }));
+  const ruido = descubrir(base({ [`${D}|TXT`]: r("NOERROR", [TXT(D, "a1b2c3d4e5f6g7h8i9j0k1l2m3n4o5p6"), TXT(D, "v=spf1 -all"), TXT(D, "QUJDREVGR0hJSktMTU5PUFFSU1RVVldYWVo0MTIzNDU2Nzg=")]) }));
   si(filasDe(ruido, "RQ.T.07").every((f) => f.proveedor === null) && ruido.por_senal["RQ.T.07"].proveedores === 0,
     "silencio: tokens sin patrón → ningún proveedor (con dato, 0)");
   si(ruido.por_senal["RQ.T.07"].denominador.sin_patron === 2 && ruido.por_senal["RQ.T.07"].denominador.spf === 1, "y entran al denominador: 2 sin patrón, 1 SPF");
-  const conMs = descubrir(base({ [`${D}|TXT`]: r("NOERROR", [TXT(D, "15fds9f6gr811c5sx2l6phnz9t1gqyqq"), TXT(D, "MS=ms123"), TXT(D, "docusign=8b94")]) }));
+  const conMs = descubrir(base({ [`${D}|TXT`]: r("NOERROR", [TXT(D, "a1b2c3d4e5f6g7h8i9j0k1l2m3n4o5p6"), TXT(D, "MS=ms123"), TXT(D, "docusign=8b94")]) }));
   si(filasDe(conMs, "RQ.T.07").map((f) => f.proveedor).join() === "DocuSign,Microsoft", "grito: MS= y docusign= → Microsoft y DocuSign, el token no");
 }
 
