@@ -122,7 +122,7 @@ for (const [re, porque] of RETIRADO) {
 // 5 · ningun precio que Nicholas no haya decidido. Misma lista que T-precios, un archivo.
 // Una cifra de mercado en el título de una nota («$350 million») no es un precio nuestro: nuestros
 // precios nunca van en millones. Caso real 3-nov-2026 (la nota del Pentágono).
-const montos = [...new Set([...txt.matchAll(/(?:US\$|\$)\s?([\d][\d.,]*)(?![\d.,]|\s?(?:million|millones|billion|mil millones)\b)/g)]
+const montos = [...new Set([...txt.matchAll(/(?:US\$|\$)\s?([\d][\d.,]*)(?![\d.,]|\s?(?:million|millones|billion|mil millones|MM|M|B|bn)\b)/g)]
   .map((m) => m[1].replace(/[.,]$/, "")))];
 const sinAprobar = montos.filter((m) => !DECIDIDOS.has(m));
 if (sinAprobar.length) mal(`precios sin decidir: ${sinAprobar.map((x) => "$" + x).join(" · ")}`);
@@ -221,7 +221,13 @@ ok("ninguna pagina publica lleva noindex por accidente");
   const conRetirado = txt + "\n- [Q-Ready](https://x/q-ready): US$4,900\n";
   // Silencio: la medición permitida y una cifra de mercado no deben gritar.
   const callaMedicion = !RETIRADO[0][0].test("- [M](https://x/es/q-ready/medicion/)");
-  const callaMercado = ![..."$350 million".matchAll(/(?:US\$|\$)\s?([\d][\d.,]*)(?![\d.,]|\s?(?:million|millones|billion|mil millones)\b)/g)].length;
+  const callaMercado = ![..."$350 million".matchAll(/(?:US\$|\$)\s?([\d][\d.,]*)(?![\d.,]|\s?(?:million|millones|billion|mil millones|MM|M|B|bn)\b)/g)].length;
+  // 24-nov-2026: «US$290M» (Serie C de Q-CTRL, título de una nota) gritó como precio sin decidir.
+  // El sufijo M/MM/B/bn es la misma cifra de mercado que «million», abreviada.
+  const callaAbrev = !["US$290M", "$1.2B", "US$45MM"].some((x) => [...x.matchAll(/(?:US\$|\$)\s?([\d][\d.,]*)(?![\d.,]|\s?(?:million|millones|billion|mil millones|MM|M|B|bn)\b)/g)].length);
+  const gritaPrecio = [..."US$290 al mes".matchAll(/(?:US\$|\$)\s?([\d][\d.,]*)(?![\d.,]|\s?(?:million|millones|billion|mil millones|MM|M|B|bn)\b)/g)].length === 1;
+  if (callaAbrev && gritaPrecio) ok("silencio/grito            «US$290M» calla; «US$290 al mes» sigue gritando");
+  else mal("el filtro de cifras de mercado abreviadas no hace lo que dice");
   if (callaMedicion && callaMercado) ok("silencio                 la medición permitida y «$350 million» no gritan");
   else mal(`el silencio falla (medicion:${callaMedicion} mercado:${callaMercado})`);
   // El informe: que se caiga la linea tiene que detectarse, y que NO se confunda con una
