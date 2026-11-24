@@ -38,6 +38,7 @@ const igual = (a, b, q) => { casos++; if (JSON.stringify(a) !== JSON.stringify(b
 const LECTURA = "TEXTO-lectura-notas-A-B-2026-11-18.md", HNDL = "TEXTO-rubrica-hndl-origen-2026-11-18.md", T234 = "TEXTOS-para-aprobar-2026-11-18.md";
 const CARRUSEL = "TEXTOS-carrusel-2026-11-24.md";
 const QR_EN = "TEXTOS-q-ready-en-2026-11-23.md";
+const MCP_H = "TEXTOS-mcp-herramientas-2026-11-24.md"; // descripciones de tres herramientas, verbatim
 const MCP = "TEXTOS-mcp-2026-11-24.md"; // su contenido lo vigila scripts/textos-q-ready-en.mjs --verificar
 // Las lecturas que NO se tocan (A+, C, D, F), como estaban el 18-nov: cambiarlas no está aprobado.
 const SIN_CAMBIO = {
@@ -53,14 +54,15 @@ const SIN_CAMBIO = {
 
 // ---------------------------------------------------------------- 1 · el sello
 const AP = TA.aprobados();
-igual(AP.map((a) => a.archivo).sort(), [LECTURA, HNDL, T234, QR_EN, CARRUSEL, MCP].sort(), "APROBADOS.json declara los seis documentos, ni más ni menos");
+igual(AP.map((a) => a.archivo).sort(), [LECTURA, HNDL, T234, QR_EN, CARRUSEL, MCP, MCP_H].sort(), "APROBADOS.json declara los siete documentos, ni más ni menos");
+igual(AP.find((a) => a.archivo === MCP_H)?.sha256, "d0a76b239d3daad085421be059b60da075761b5294aa8fe45891d23b8cd1ab71", "TEXTOS-mcp-herramientas: el sha256 con que se aprobó");
 igual(AP.find((a) => a.archivo === MCP)?.sha256, "0bf245ba5cd0885060e1059eb6df78f940942a523a143385aa85f1b85175fe48", "TEXTOS-mcp: el sha256 con que se aprobó");
 igual(AP.find((a) => a.archivo === CARRUSEL)?.sha256, "76d5bcc1159c74ce69b4f8630e5974e50693475f3067fd5c4901b9c61d69a5a1", "TEXTOS-carrusel: el sha256 con que se aprobó");
 { const sell = TA.leerBytes(CARRUSEL).toString("utf8");
   for (const [l, t] of Object.entries(TEXTOS_CARRUSEL)) for (const [k, v] of Object.entries(t))
     igual(sell.includes(`| ${v} |`), true, `carrusel ${l}.${k} «${v}» es el texto aprobado`); }
 igual(AP.find((a) => a.archivo === QR_EN)?.sha256, "3d16e4f79b7297c553170691727fff3a11e05e74a2e38895cfcaaf6f33c23cd4", "TEXTOS-q-ready-en: el sha256 con que se aprobó");
-for (const a of AP) igual([TA.sha256(TA.leerBytes(a.archivo)), /^Nicholas, (18-nov-2026(: "Sí, | \(textos 2, 3 y 4\)$)|23-nov-2026: «Textos OK, súbelo»|24-nov-2026: «Sí, con esos textos»|24-nov-2026 \(vía coordinación\): textos 1 y 3 del MCP, ES y EN tal cual$)/.test(a.aprobado_por)], [a.sha256, true], `${a.archivo}: sha256 y aprobado_por iguales a APROBADOS.json`);
+for (const a of AP) igual([TA.sha256(TA.leerBytes(a.archivo)), /^Nicholas, (18-nov-2026(: "Sí, | \(textos 2, 3 y 4\)$)|23-nov-2026: «Textos OK, súbelo»|24-nov-2026: «Sí, con esos textos»|24-nov-2026 \(vía coordinación\): textos 1 y 3 del MCP, ES y EN tal cual$|24-nov-2026: «Sí, tal cual» y «Sí, apruebo y sube»$)/.test(a.aprobado_por)], [a.sha256, true], `${a.archivo}: sha256 y aprobado_por iguales a APROBADOS.json`);
 igual(AP.find((a) => a.archivo === T234).sha256, "a31d2c1c3215d7f05b3568dc8e7468cf607615301177c2801c9de2dbb706aaa3", "TEXTOS-para-aprobar: el sha256 con que se aprobó");
 
 // ---------------------------------------------------------------- 2 · el código dice lo aprobado
@@ -149,7 +151,20 @@ igual(revisarMcp(TM, HERRAMIENTAS, NOTA_MCP, leer("src/pages/api-docs.astro").re
   "MUTACIÓN MCP texto 3: /api-docs vuelve a «read-only tools» → grita");
 igual(revisarMcp(TM, HERRAMIENTAS, "Solo lectura. Toda respuesta incluye sha256 y URLs de las copias públicas.").length > 0, true, "MUTACIÓN MCP texto 3: GET /mcp vuelve a «Solo lectura» → grita");
 
+// ---------------------------------------------------------------- 5 · descripciones de herramientas (24-nov-2026)
+// iniciar_verificacion, verificar_dominio y descubrir_proveedores se sirven tal cual quedaron selladas.
+{
+  const docH = TA.leerBytes(MCP_H).toString("utf8");
+  const { HERRAMIENTA_PROVEEDORES } = await import("../api.js");
+  const revisarH = (hs) => hs.filter((h) => !docH.includes(`## ${h.name}\n\n${h.description}\n`)).map((h) => h.name);
+  const tres = [...HERRAMIENTAS.filter((h) => ["iniciar_verificacion", "verificar_dominio"].includes(h.name)), HERRAMIENTA_PROVEEDORES];
+  igual(tres.length, 3, "las tres herramientas existen");
+  igual(revisarH(tres), [], "las tres descripciones son las aprobadas, byte a byte");
+  igual(revisarH(tres.map((h) => h.name === "descubrir_proveedores" ? { ...h, description: h.description.replace("«sin dato» nunca es cero", "«sin dato» es cero") } : h)),
+    ["descubrir_proveedores"], "MUTACIÓN: otra redacción de descubrir_proveedores → grita");
+}
+
 for (const f of fallas) console.log("  FALLA " + f);
 console.log(fallas.length ? `check-textos-aprobados: ${fallas.length} falla(s) de ${casos} casos`
-  : `check-textos-aprobados: ok (${casos} casos · 6 documentos sellados · lectura A/B, frase HNDL es/en, tope y llave, textos del MCP = lo aprobado · 12 mutaciones gritan)`);
+  : `check-textos-aprobados: ok (${casos} casos · 7 documentos sellados · lectura A/B, frase HNDL es/en, tope y llave, textos del MCP = lo aprobado · 13 mutaciones gritan)`);
 process.exit(fallas.length ? 1 : 0);

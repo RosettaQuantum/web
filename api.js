@@ -920,7 +920,7 @@ export const HERRAMIENTAS = [
       properties: { domain: { type: "string", description: "dominio, p.ej. rosettaquantum.com" }, idioma: IDIOMA_FICHA } },
   },
   {
-    // PROVISORIO (24-nov-2026, texto 2 reescrito tras la decisión de iniciar por MCP): pendiente de aprobación.
+    // APROBADO por Nicholas el 24-nov-2026 («Sí, apruebo y sube»); sellado en TEXTOS-mcp-herramientas-2026-11-24.md.
     name: "iniciar_verificacion",
     description:
       "Q-Ready Verified, paso 1: inicia la verificación de un dominio y entrega el registro TXT que su dueño tiene " +
@@ -939,7 +939,7 @@ export const HERRAMIENTAS = [
       } },
   },
   {
-    // PROVISORIO (24-nov-2026, texto 2 reescrito tras la decisión de iniciar por MCP): pendiente de aprobación.
+    // APROBADO por Nicholas el 24-nov-2026 («Sí, apruebo y sube»); sellado en TEXTOS-mcp-herramientas-2026-11-24.md.
     name: "verificar_dominio",
     description:
       "Q-Ready Verified, paso 2 y consulta. Con `token` (el que entregó iniciar_verificacion o la página): comprueba " +

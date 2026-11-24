@@ -34,5 +34,11 @@
   "sha256": "0bf245ba5cd0885060e1059eb6df78f940942a523a143385aa85f1b85175fe48",
   "aprobado_por": "Nicholas, 24-nov-2026 (vía coordinación): textos 1 y 3 del MCP, ES y EN tal cual",
   "usa": "src/lib/mcp-textos.mjs · TEXTOS_MCP.es.medir (descripción de medir_exposicion_pqc en api.js), TEXTOS_MCP.es.registro (GET /mcp, NOTA_MCP) y TEXTOS_MCP.en.registro (/api-docs). TEXTOS_MCP.en.medir está sellado y hoy no lo sirve ninguna superficie."
+ },
+ {
+  "archivo": "TEXTOS-mcp-herramientas-2026-11-24.md",
+  "sha256": "d0a76b239d3daad085421be059b60da075761b5294aa8fe45891d23b8cd1ab71",
+  "aprobado_por": "Nicholas, 24-nov-2026: «Sí, tal cual» y «Sí, apruebo y sube»",
+  "usa": "api.js · descripciones de iniciar_verificacion, verificar_dominio y descubrir_proveedores en tools/list"
  }
 ]
