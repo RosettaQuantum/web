@@ -1,0 +1,2769 @@
+{
+  "edicion": "2026-11",
+  "_borrador": "Un solo interruptor para dos cosas: enciende el cartel de la pagina Y el noindex. Hasta el 9-sep-2026 vivian separados y la pagina decia \"pendiente de revision legal\" mientras se ofrecia a los buscadores. Texto = lo que falta; false = publicada; ausente = borrador (falla cerrado).",
+  "borrador": false,
+  "numero": 2,
+  "titulo": "Criptografía post-cuántica en la gran empresa chilena",
+  "subtitulo": "Medición técnica sobre la infraestructura pública de 220 organizaciones",
+  "ventana": {
+    "desde": "2026-11-06",
+    "hasta": "2026-11-18"
+  },
+  "anterior": "2026-08",
+  "muestra": {
+    "organizaciones": 220,
+    "verticales": 12,
+    "sondeadas": 214,
+    "con_descubrimiento": 212,
+    "con_indice": 220,
+    "hostnames": 29794
+  },
+  "titulares": [
+    {
+      "id": "irec",
+      "k": "Índice QEX · mediana nacional",
+      "v": 58,
+      "u": "",
+      "sev": "warn",
+      "sub": "rango 45–74 · tope 84",
+      "base": 220,
+      "polaridad": "mayor_mejor"
+    },
+    {
+      "id": "ambientes",
+      "k": "Ambiente no productivo publicado",
+      "v": 65,
+      "u": "%",
+      "sev": "crit",
+      "sub": "nombres dev, QA o staging con certificado público emitido",
+      "base": 212,
+      "polaridad": "mayor_peor"
+    },
+    {
+      "id": "infra",
+      "k": "Infraestructura sensible publicada",
+      "v": 63,
+      "u": "%",
+      "sev": "crit",
+      "sub": "VPN, admin, cpanel o webmail",
+      "base": 212,
+      "polaridad": "mayor_peor"
+    },
+    {
+      "id": "canal",
+      "k": "Sin security.txt publicado",
+      "v": 97,
+      "u": "%",
+      "sev": "crit",
+      "sub": "no publican el archivo estándar que dice a quién avisarle de una vulnerabilidad (RFC 9116)",
+      "base": 212,
+      "polaridad": "mayor_peor",
+      "_sin_comparacion": "agosto publicó 96 % sobre una base de 140 bajo el rótulo viejo; el crudo de ese estudio no existe en el corpus, así que esa cifra no se puede recomputar y además medía otra cosa. Restarlas da un «+1 %» entre dos conjuntos distintos. Aprobado por Nicholas el 17-nov-2026: «Quitarle la comparacion a esa ficha»."
+    },
+    {
+      "id": "proveedores",
+      "k": "Proveedores de core con soporte PQC citable",
+      "v": 0,
+      "u": "",
+      "sev": "crit",
+      "sub": "de 11 revisados en el stack financiero",
+      "base": 11,
+      "polaridad": "mayor_mejor"
+    },
+    {
+      "id": "tls13",
+      "k": "Sin soporte de TLS 1.3",
+      "v": 9,
+      "u": "",
+      "sev": "warn",
+      "sub": "no pueden migrar aunque quieran",
+      "base": 220,
+      "polaridad": "mayor_peor"
+    },
+    {
+      "id": "superficie",
+      "k": "Nombres de host descubiertos",
+      "v": 29794,
+      "u": "",
+      "sev": "info",
+      "sub": "mediana 51 por organización",
+      "base": 212,
+      "polaridad": "neutra"
+    },
+    {
+      "id": "hibrido",
+      "k": "Con híbrido post-cuántico",
+      "v": 69,
+      "u": "%",
+      "sev": "asterisco",
+      "sub": "soporte real; el CDN decide buena parte",
+      "base": 212,
+      "polaridad": "mayor_mejor"
+    }
+  ],
+  "verticales": [
+    {
+      "n": "Fintech y pagos",
+      "id": "fintech",
+      "nprobe": 20,
+      "hibrido": 20,
+      "ratio": 100,
+      "gate": null,
+      "medianaHosts": 36
+    },
+    {
+      "n": "Retail",
+      "id": "retail",
+      "nprobe": 20,
+      "hibrido": 18,
+      "ratio": 90,
+      "gate": null,
+      "medianaHosts": 45
+    },
+    {
+      "n": "Seguros",
+      "id": "seguros",
+      "nprobe": 19,
+      "hibrido": 15,
+      "ratio": 79,
+      "gate": null,
+      "medianaHosts": 79
+    },
+    {
+      "n": "Educación superior",
+      "id": "educacion",
+      "nprobe": 19,
+      "hibrido": 11,
+      "ratio": 58,
+      "gate": null,
+      "medianaHosts": 259
+    },
+    {
+      "n": "Previsión",
+      "id": "prevision",
+      "nprobe": 18,
+      "hibrido": 11,
+      "ratio": 61,
+      "gate": null,
+      "medianaHosts": 47
+    },
+    {
+      "n": "Energía y utilities",
+      "id": "energia",
+      "nprobe": 19,
+      "hibrido": 14,
+      "ratio": 74,
+      "gate": null,
+      "medianaHosts": 40
+    },
+    {
+      "n": "Banca",
+      "id": "banca",
+      "nprobe": 17,
+      "hibrido": 14,
+      "ratio": 82,
+      "gate": null,
+      "medianaHosts": 212
+    },
+    {
+      "n": "Minería",
+      "id": "mineria",
+      "nprobe": 17,
+      "hibrido": 11,
+      "ratio": 65,
+      "gate": null,
+      "medianaHosts": 35
+    },
+    {
+      "n": "Telecomunicaciones",
+      "id": "telecom",
+      "nprobe": 18,
+      "hibrido": 8,
+      "ratio": 44,
+      "gate": null,
+      "medianaHosts": 51
+    },
+    {
+      "n": "Salud",
+      "id": "salud",
+      "nprobe": 28,
+      "hibrido": 17,
+      "ratio": 61,
+      "gate": null,
+      "medianaHosts": 43,
+      "nota": "isapres y clínicas agrupadas por regla de anonimato (n≥8)"
+    },
+    {
+      "n": "Gobierno",
+      "id": "gobierno",
+      "nprobe": 17,
+      "hibrido": 7,
+      "ratio": 41,
+      "gate": null,
+      "medianaHosts": 41
+    }
+  ],
+  "cdn": {
+    "desglose": [
+      {
+        "n": "Cloudflare",
+        "total": 68,
+        "soporta": 65,
+        "pct": 96,
+        "propio": false
+      },
+      {
+        "n": "Akamai Enhanced TLS",
+        "total": 16,
+        "soporta": 16,
+        "pct": 100,
+        "propio": false
+      },
+      {
+        "n": "Otros (Imperva, Azure, Akamai Standard TLS, Fastly)",
+        "total": 16,
+        "soporta": 16,
+        "pct": 100,
+        "propio": false
+      },
+      {
+        "n": "CloudFront",
+        "total": 11,
+        "soporta": 11,
+        "pct": 100,
+        "propio": false
+      },
+      {
+        "n": "Sin CDN reconocido / infraestructura propia",
+        "total": 101,
+        "soporta": 38,
+        "pct": 38,
+        "propio": true
+      }
+    ],
+    "conCdn": {
+      "n": 111,
+      "soporta": 108,
+      "pct": 97
+    },
+    "sinCdn": {
+      "n": 101,
+      "soporta": 38,
+      "pct": 38
+    }
+  },
+  "superficie": [
+    {
+      "rango": "300 o más",
+      "n": 25,
+      "pct": 12
+    },
+    {
+      "rango": "100 – 299",
+      "n": 40,
+      "pct": 19
+    },
+    {
+      "rango": "30 – 99",
+      "n": 70,
+      "pct": 33
+    },
+    {
+      "rango": "10 – 29",
+      "n": 46,
+      "pct": 22
+    },
+    {
+      "rango": "menos de 10",
+      "n": 31,
+      "pct": 15
+    }
+  ],
+  "referencia_global": {
+    "hibrido_global": 49.3,
+    "hibrido_chile": 64.6,
+    "certificados_pqc": 0,
+    "dominios_medidos": 32011,
+    "fuente": "arXiv:2606.16473, junio 2026",
+    "nota_comparabilidad": "El 49,3 % global proviene de un estudio externo cuyo método de sondeo no conocemos en detalle. Hoy sabemos que la forma de preguntar cambia el resultado en más de diez puntos —soporte 65 %, disposición a pagar un viaje extra 54 %—, así que esta comparación se lee como orden de magnitud y no como diferencia exacta. Nuestra cifra es soporte real, forzando el híbrido como único grupo ofrecido."
+  },
+  "stack": [
+    {
+      "capa": "Sistema operativo y librerías",
+      "prov": "Red Hat, OpenSSL",
+      "estado": "ok",
+      "nota": "Resuelto actualizando versión"
+    },
+    {
+      "capa": "Mainframe",
+      "prov": "IBM z/OS, IBM Z",
+      "estado": "ok",
+      "nota": "Disponible vía parche sobre z/OS 3.1"
+    },
+    {
+      "capa": "HSM · Entrust",
+      "prov": "nShield 5s / 5c",
+      "estado": "ok",
+      "nota": "Firmware v13.8+. La función post-cuántica viene activa, sin licencia aparte."
+    },
+    {
+      "capa": "HSM · Entrust",
+      "prov": "nShield Connect XC / Solo XC",
+      "estado": "warn",
+      "nota": "Firmware Y licencia PostQuantum comprada por separado — a diferencia de la línea 5."
+    },
+    {
+      "capa": "HSM · Thales",
+      "prov": "Luna 7 (firmware 7.9.0+)",
+      "estado": "ok",
+      "nota": "ML-KEM y ML-DSA nativos desde jul-2025 sobre el hardware que ya tiene."
+    },
+    {
+      "capa": "HSM · Thales",
+      "prov": "Luna 8",
+      "estado": "crit",
+      "nota": "No es actualización de firmware: es reemplazo de hardware. Es presupuesto, no un ticket."
+    },
+    {
+      "capa": "HSM · Utimaco",
+      "prov": "Quantum Protect (u.trust Se / CSe)",
+      "estado": "warn",
+      "nota": "Paquete adicional con licencia, actualizable en campo sin cambiar hardware."
+    },
+    {
+      "capa": "HSM · Utimaco",
+      "prov": "CP5 / eIDAS",
+      "estado": "crit",
+      "nota": "Sin ruta post-cuántica publicada. Si su caso es firma cualificada eIDAS, hoy no hay camino."
+    },
+    {
+      "capa": "Gestión de llaves en la nube",
+      "prov": "Azure Key Vault · Managed HSM · Cloud HSM",
+      "estado": "crit",
+      "nota": "Sin post-cuántico, sin vista previa y sin fecha anunciada."
+    },
+    {
+      "capa": "Gestión de llaves en la nube",
+      "prov": "AWS KMS",
+      "estado": "warn",
+      "nota": "Ofrece ML-DSA como tipo de llave para firmar (ML_DSA_44/65/87, desde jun-2025). NO ofrece ML-KEM como servicio de encapsulación — el híbrido de AWS está en el TLS hacia la API, que es otra capa. Y ML-KEM es justo lo que mitiga cosecha-hoy-descifra-mañana."
+    },
+    {
+      "capa": "Gestión de llaves en la nube",
+      "prov": "Google Cloud KMS",
+      "estado": "warn",
+      "nota": "Firmas post-cuánticas en disponibilidad general (jul-2026). El nivel de protección —si es sólo software o llega al HSM— queda por confirmar."
+    },
+    {
+      "capa": "Base de datos",
+      "prov": "Oracle Database",
+      "estado": "warn",
+      "nota": "Solo transporte; no cubre cifrado en reposo"
+    },
+    {
+      "capa": "HSM de pagos",
+      "prov": "Thales payShield",
+      "estado": "crit",
+      "nota": "Sin declaración pública"
+    },
+    {
+      "capa": "Red y VPN",
+      "prov": "Cisco ASA / Secure Client",
+      "estado": "warn",
+      "nota": "ML-KEM real a fin de 2026; no se resuelve actualizando hoy"
+    },
+    {
+      "capa": "Red y VPN",
+      "prov": "Fortinet, Palo Alto, Check Point",
+      "estado": "ok",
+      "nota": "En Fortinet los grupos PQC no operan en modo FIPS"
+    },
+    {
+      "capa": "Core bancario",
+      "prov": "Temenos, Finacle, FIS, Fiserv",
+      "estado": "crit",
+      "nota": "Ninguno ha publicado fecha"
+    },
+    {
+      "capa": "Core bancario",
+      "prov": "Oracle FLEXCUBE",
+      "estado": "crit",
+      "nota": "No hereda el soporte de Oracle Database"
+    },
+    {
+      "capa": "Switch de pagos",
+      "prov": "Visa, ACI Worldwide",
+      "estado": "crit",
+      "nota": "Sin hoja de ruta pública"
+    },
+    {
+      "capa": "Mensajería financiera",
+      "prov": "Swift",
+      "estado": "warn",
+      "nota": "Julio 2027. Requiere Alliance 7.9; sin ruta desde 7.7"
+    },
+    {
+      "capa": "Certificados públicos",
+      "prov": "DigiCert, Sectigo",
+      "estado": "warn",
+      "nota": "Solo jerarquías privadas"
+    }
+  ],
+  "plazos": [
+    {
+      "a": "2026",
+      "q": "Estados miembros inician despliegue",
+      "quien": "Unión Europea",
+      "tipo": "guia"
+    },
+    {
+      "a": "2027",
+      "q": "Nuevas adquisiciones cumplen CNSA 2.0",
+      "quien": "Sistemas de seguridad nacional EE. UU.",
+      "tipo": "obl"
+    },
+    {
+      "a": "2027",
+      "q": "SwiftNet 8.0 habilitado para PQC",
+      "quien": "Mensajería financiera global",
+      "tipo": "obl"
+    },
+    {
+      "a": "2028",
+      "q": "Descubrimiento y plan inicial",
+      "quien": "Reino Unido",
+      "tipo": "guia"
+    },
+    {
+      "a": "2030",
+      "q": "Intercambio de claves post-cuántico",
+      "quien": "Gobierno federal civil EE. UU.",
+      "tipo": "obl"
+    },
+    {
+      "a": "2030",
+      "q": "Casos de alto riesgo transicionados",
+      "quien": "Unión Europea",
+      "tipo": "guia"
+    },
+    {
+      "a": "2031",
+      "q": "Firmas digitales post-cuánticas",
+      "quien": "Gobierno federal civil EE. UU.",
+      "tipo": "obl"
+    },
+    {
+      "a": "2035",
+      "q": "Migración completa",
+      "quien": "EE. UU. · RU · Canadá · UE",
+      "tipo": "mixto"
+    }
+  ],
+  "qday": [
+    {
+      "h": "5 años · 2031",
+      "p": 15,
+      "lab": "~15%"
+    },
+    {
+      "h": "10 años · 2036",
+      "p": 49,
+      "lab": "28–49%"
+    },
+    {
+      "h": "15 años · 2041",
+      "p": 51,
+      "lab": "≥51%"
+    },
+    {
+      "h": "20 años · 2046",
+      "p": 69,
+      "lab": "≥69%"
+    }
+  ],
+  "costoRsa": [
+    {
+      "y": "2019",
+      "quien": "Gidney & Ekerå",
+      "q": "20.000.000",
+      "w": 100,
+      "estado": "revisado por pares"
+    },
+    {
+      "y": "2025",
+      "quien": "Gidney",
+      "q": "< 1.000.000",
+      "w": 68,
+      "estado": "preprint"
+    },
+    {
+      "y": "2026",
+      "quien": "Iceberg Quantum",
+      "q": "< 100.000",
+      "w": 53,
+      "estado": "preprint"
+    }
+  ],
+  "cambios": [],
+  "indice": {
+    "nombre": "QEX — Quantum Exposure Index, by Rosetta",
+    "sigla": "QEX",
+    "version": "QEX-1.2",
+    "tope": 84,
+    "tope_razon": "Una medición externa no observa el interior. La banda superior requiere evidencia asistida.",
+    "n": 220,
+    "mediana": 58,
+    "promedio": 57.6,
+    "min": 38,
+    "max": 74,
+    "dimensiones": [
+      {
+        "k": "Certificados y PKI",
+        "peso": 40,
+        "tipo": "medido",
+        "id": "cert",
+        "que": "Algoritmo de firma, tamaño de clave y vigencia del certificado del endpoint.",
+        "porque": "Es la capa que la organización emite y gestiona. Ningún proveedor de infraestructura la resuelve por contrato.",
+        "mediana": 75
+      },
+      {
+        "k": "Higiene de superficie",
+        "peso": 25,
+        "tipo": "medido",
+        "id": "higiene",
+        "que": "Soporte de TLS 1.3, nombres de ambientes no productivos publicados, nombres de infraestructura sensible publicados, sistemas marcados como legado.",
+        "porque": "TLS 1.3 es requisito del intercambio post-cuántico: sin él la migración es imposible.",
+        "mediana": 60
+      },
+      {
+        "k": "Postura HNDL",
+        "peso": 25,
+        "tipo": "modelo",
+        "id": "hndl",
+        "que": "Desigualdad de Mosca aplicada al perfil del sector: vida útil del dato más tiempo de migración contra el horizonte de amenaza.",
+        "porque": "Deriva del sector, no de sus sistemas. Se declara como modelo y no como medición.",
+        "mediana": 12
+      },
+      {
+        "k": "PQC en el edge",
+        "peso": 10,
+        "tipo": "medido",
+        "id": "edge",
+        "que": "Si el endpoint público negocia intercambio de claves híbrido post-cuántico.",
+        "porque": "Mide sobre todo qué proveedor de CDN se contrató. Por eso pesa poco: es la señal más visible y la menos propia.",
+        "mediana": 100
+      }
+    ],
+    "bandas": [
+      {
+        "rango": "0–29",
+        "n": "Expuesto",
+        "sig": "Sin postura observable"
+      },
+      {
+        "rango": "30–49",
+        "n": "Consciente",
+        "sig": "Higiene parcial, sin transición material"
+      },
+      {
+        "rango": "50–69",
+        "n": "En transición",
+        "sig": "Avances puntuales, no sistemáticos"
+      },
+      {
+        "rango": "70–84",
+        "n": "Perímetro migrado",
+        "sig": "Borde público protegido; interior sin observar"
+      },
+      {
+        "rango": "85–100",
+        "n": "Cripto-ágil",
+        "sig": "Inalcanzable por medición externa"
+      }
+    ],
+    "distribucion": [
+      {
+        "rango": "menos de 50",
+        "n": 37,
+        "pct": 17
+      },
+      {
+        "rango": "50–54",
+        "n": 39,
+        "pct": 18
+      },
+      {
+        "rango": "55–59",
+        "n": 58,
+        "pct": 26
+      },
+      {
+        "rango": "60–64",
+        "n": 46,
+        "pct": 21
+      },
+      {
+        "rango": "65–69",
+        "n": 11,
+        "pct": 5
+      },
+      {
+        "rango": "70 o más",
+        "n": 29,
+        "pct": 13
+      }
+    ],
+    "verticales": [
+      {
+        "n": "Fintech y pagos",
+        "id": "fintech",
+        "norg": 20,
+        "indice": 71,
+        "cert": 75,
+        "higiene": 60,
+        "edge": 100,
+        "cert_n": 20,
+        "cert_iguales": 20
+      },
+      {
+        "n": "Retail",
+        "id": "retail",
+        "norg": 20,
+        "indice": 71,
+        "cert": 75,
+        "higiene": 60,
+        "edge": 100,
+        "cert_n": 20,
+        "cert_iguales": 20
+      },
+      {
+        "n": "Educación superior",
+        "id": "educacion",
+        "norg": 20,
+        "indice": 60,
+        "cert": 75,
+        "higiene": 50,
+        "edge": 100,
+        "cert_n": 20,
+        "cert_iguales": 20
+      },
+      {
+        "n": "Minería",
+        "id": "mineria",
+        "norg": 20,
+        "indice": 62,
+        "cert": 75,
+        "higiene": 60,
+        "edge": 100,
+        "cert_n": 20,
+        "cert_iguales": 20
+      },
+      {
+        "n": "Seguros",
+        "id": "seguros",
+        "norg": 20,
+        "indice": 58,
+        "cert": 75,
+        "higiene": 60,
+        "edge": 100,
+        "cert_n": 20,
+        "cert_iguales": 20
+      },
+      {
+        "n": "Previsión",
+        "id": "prevision",
+        "norg": 18,
+        "indice": 53,
+        "cert": 75,
+        "higiene": 60,
+        "edge": 100,
+        "cert_n": 17,
+        "cert_iguales": 17
+      },
+      {
+        "n": "Energía y utilities",
+        "id": "energia",
+        "norg": 20,
+        "indice": 56,
+        "cert": 75,
+        "higiene": 60,
+        "edge": 100,
+        "cert_n": 20,
+        "cert_iguales": 20
+      },
+      {
+        "n": "Banca",
+        "id": "banca",
+        "norg": 17,
+        "indice": 56,
+        "cert": 75,
+        "higiene": 50,
+        "edge": 100,
+        "cert_n": 17,
+        "cert_iguales": 17
+      },
+      {
+        "n": "Telecomunicaciones",
+        "id": "telecom",
+        "norg": 18,
+        "indice": 50,
+        "cert": 75,
+        "higiene": 60,
+        "edge": 0,
+        "cert_n": 18,
+        "cert_iguales": 18
+      },
+      {
+        "n": "Clínicas",
+        "id": "salud_clinica",
+        "norg": 19,
+        "indice": 56,
+        "cert": 75,
+        "higiene": 60,
+        "edge": 100,
+        "cert_n": 19,
+        "cert_iguales": 19
+      },
+      {
+        "n": "Isapres",
+        "id": "salud_isapre",
+        "norg": 10,
+        "indice": 56,
+        "cert": 75,
+        "higiene": 65,
+        "edge": 100,
+        "cert_n": 10,
+        "cert_iguales": 10
+      },
+      {
+        "n": "Gobierno",
+        "id": "gobierno",
+        "norg": 18,
+        "indice": 50,
+        "cert": 75,
+        "higiene": 60,
+        "edge": 0,
+        "cert_n": 18,
+        "cert_iguales": 18
+      }
+    ],
+    "hallazgo_cert": {
+      "constante_pct": 100,
+      "texto": "La dimensión de mayor peso es constante en toda la muestra: las 219 organizaciones con certificado leído obtienen el mismo valor."
+    },
+    "bandas_conteo": {
+      "En transición": 154,
+      "Consciente": 37,
+      "Perímetro migrado": 29,
+      "Cripto-ágil": 0,
+      "Expuesto": 0
+    },
+    "certificados_detalle": {
+      "recomputable_desde": "indice-2026-11.json · dimensión certificados",
+      "distribucion": [
+        {
+          "valor": 75,
+          "n": 219,
+          "pct": 100
+        }
+      ],
+      "total": 219,
+      "pct_valor_dominante": 100,
+      "sin_archivar": "El desglose por algoritmo y tamaño de clave no está archivado: en el corpus no existe ningún dato de certificado por organización. La versión anterior de este bloque publicaba 128 + 48 + 10 sobre un total de 187 — tres partes que suman 186. Se retira hasta volver a medir y guardar el artefacto crudo.",
+      "sin_medir": 1
+    },
+    "discriminacion": {
+      "dims": [
+        {
+          "k": "Certificados",
+          "peso": 40,
+          "distintos": 1,
+          "concentracion": 100,
+          "aporte": 0.0
+        },
+        {
+          "k": "Higiene",
+          "peso": 25,
+          "distintos": 6,
+          "concentracion": 33,
+          "aporte": 2.7
+        },
+        {
+          "k": "HNDL",
+          "peso": 25,
+          "distintos": 3,
+          "concentracion": 64,
+          "aporte": 5.2
+        },
+        {
+          "k": "Borde",
+          "peso": 10,
+          "distintos": 2,
+          "concentracion": 69,
+          "aporte": 4.6
+        }
+      ],
+      "disp_total": 8.1,
+      "disp_sin_sector": 5.4,
+      "rho_superficie": -0.14,
+      "rho_n": 211
+    }
+  },
+  "relojes": [
+    {
+      "id": "vida",
+      "n": "Su fecha límite la pone la vida útil de sus datos",
+      "sub": "no el regulador",
+      "sev": "crit",
+      "cuerpo": "Un contrato hipotecario, una historia clínica o un expediente laboral tienen que seguir siendo secretos durante décadas. Si sus datos deben permanecer secretos 8 años y migrar le tomará 9, necesita 17 años de protección por delante. Las estimaciones de la amenaza no dan 17 años. La resta ya salió negativa: no es que vaya a llegar tarde, es que ya va tarde.",
+      "pie": "Formulación de Mosca: vida útil del secreto + tiempo de migración > horizonte de la amenaza."
+    },
+    {
+      "id": "deuda",
+      "n": "La deuda ya está corriendo",
+      "sub": "cosecha hoy, descifra mañana",
+      "sev": "crit",
+      "cuerpo": "El tráfico que sale cifrado de su organización hoy puede estar siendo almacenado por alguien que no puede leerlo todavía. Cuando pueda, lo leerá con la fecha de hoy. Nada de lo que haga en 2030 protege lo que salió en 2026. Es el único riesgo de esta lista que no se puede remediar después.",
+      "pie": null
+    },
+    {
+      "id": "contrato",
+      "n": "La regulación le va a llegar por contrato antes que por ley",
+      "sub": "su matriz, sus corresponsales, el cuestionario de proveedores",
+      "sev": "warn",
+      "cuerpo": "El primer requerimiento formal no va a venir de un regulador chileno. Va a venir de su casa matriz, de un banco corresponsal, de una contraparte que exporta, o del cuestionario de seguridad de un cliente grande. Ese cuestionario ya trae la pregunta en varias industrias, y se responde con un plan o con un silencio que cuesta.",
+      "pie": null
+    },
+    {
+      "id": "nist",
+      "n": "Las fechas técnicas ya están escritas",
+      "sub": "y ya están en versión final",
+      "sev": "warn",
+      "cuerpo": "NIST publicó la versión final de su calendario de transición (IR 8547, octubre de 2026): RSA y curvas elípticas quedan deprecados después de 2030 y prohibidos después de 2035, con cualquier tamaño de clave. Es la fecha contra la que sus proveedores están planificando sus versiones, y eso sí lo va a sentir.",
+      "pie": "NIST IR 8547, versión final, octubre de 2026."
+    }
+  ],
+  "chile": {
+    "afirmacion": "Al corte de este informe, ningún regulador chileno exige criptografía post-cuántica.",
+    "matiz": "Lo que sí existe son obligaciones de gestión de riesgo operacional y de seguridad de la información bajo las cuales un supervisor puede preguntar por el plan. Ninguna norma chilena nombra PQC, y este informe no va a insinuar que sí.",
+    "normas": [
+      {
+        "n": "Ley 21.663 · Ley Marco de Ciberseguridad",
+        "q": "Crea la ANCI y el régimen de Operadores de Importancia Vital",
+        "f": "vigente",
+        "estado": "ok"
+      },
+      {
+        "n": "Ley 21.719 · Protección de datos personales",
+        "q": "Nueva Agencia, notificación de brechas en 72 horas, multas hasta 20.000 UTM",
+        "f": "vigencia 1-dic-2026",
+        "estado": "pendiente"
+      },
+      {
+        "n": "CMF · Recopilación Actualizada de Normas",
+        "q": "Riesgo operacional y seguridad de la información en bancos: capítulos 20-10 (seguridad de la información y ciberseguridad), 21-8 (riesgo operacional), 20-7 (externalización), 20-8 (incidentes) y 20-9 (continuidad)",
+        "f": "vigente",
+        "estado": "ok"
+      }
+    ]
+  },
+  "tres_preguntas": {
+    "n": 212,
+    "filas": [
+      {
+        "q": "¿Lo soporta?",
+        "como": "Se ofrece sólo X25519MLKEM768 en <code>supported_groups</code>, con <code>key_share</code> vacío. El servidor no tiene alternativa: o lo pide por HelloRetryRequest, o rechaza el saludo.",
+        "v": 146,
+        "pct": 69,
+        "tipo": "Capacidad real",
+        "sev": "ok"
+      },
+      {
+        "q": "¿Lo elige?",
+        "como": "Se ofrecen el híbrido y x25519, con <code>key_share</code> vacío. El servidor elige libremente cuál prefiere.",
+        "v": 146,
+        "pct": 69,
+        "tipo": "Lo que negocia un navegador moderno",
+        "sev": "ok"
+      },
+      {
+        "q": "¿Paga un viaje extra?",
+        "como": "Se ofrecen ambos y se manda <code>key_share</code> de x25519. Sólo responde HelloRetryRequest quien esté dispuesto a gastar una vuelta más para mejorar a un cliente que no ofreció la llave híbrida.",
+        "v": 114,
+        "pct": 54,
+        "tipo": "Política de latencia del proveedor — no es seguridad",
+        "sev": "warn"
+      }
+    ],
+    "discrepancia": 0,
+    "leccion": "Nuestra primera medición fue la tercera pregunta y la publicamos como si fuera la primera. Akamai Enhanced TLS aparecía en 0 % cuando está en 100 %."
+  },
+  "prosa": {
+    "mas30_pct": 64,
+    "profundos_pct": 84,
+    "sin_hibrido_pct": 31,
+    "base": 212
+  },
+  "dos_tramos": {
+    "titulo": "Hay dos conexiones, no una — y sólo medimos la primera",
+    "cuerpo": "Cuando una organización sirve su sitio detrás de una red de distribución de contenido, el tráfico no viaja por una conexión cifrada sino por dos: del navegador al borde del proveedor, y del borde al servidor de la organización. Nuestro sondeo llega al borde y recibe su respuesta. Mide bien ese primer tramo. <strong>Del segundo no sabemos nada</strong>, y no lo puede saber nadie desde fuera de la organización.",
+    "consecuencia": "Para una organización detrás de un CDN, «su borde ya negocia criptografía post-cuántica» es cierto y es incompleto. No significa que su tráfico esté protegido de punta a punta: significa que lo está <strong>hasta el borde</strong>. Si el segundo tramo va en criptografía clásica, hay un punto donde el tráfico vuelve a ser interceptable — dentro de la red del proveedor, no de la suya, pero interceptable.",
+    "evidencia": "No es hipotético: los proveedores tratan los dos tramos como funciones separadas, con calendarios y opciones de configuración propias. Akamai documenta «PQC Client to Edge» y «PQC to Origin» como comportamientos independientes.",
+    "que_hacemos": "Lo declaramos y no lo puntuamos. La dimensión de borde mide el primer tramo y dice que mide el primer tramo; meter el segundo en el índice sería inventarlo. La pregunta «¿y el tramo hasta mi origen?» es de las primeras que conviene hacerle a su proveedor.",
+    "tramos": [
+      {
+        "n": "Navegador → borde del proveedor",
+        "estado": "medido",
+        "nota": "Es lo que reporta este informe. 65 % de la muestra lo soporta."
+      },
+      {
+        "n": "Borde del proveedor → su servidor",
+        "estado": "invisible",
+        "nota": "Ocurre entre dos infraestructuras que no son públicas. Ninguna medición externa lo alcanza."
+      }
+    ]
+  },
+  "stack_nota": "El estado de cada proveedor sale de su documentación pública, con fecha de consulta. Un «sin fecha» no significa que el fabricante no esté trabajando en ello: significa que usted no puede planificar contra nada. Esta tabla reemplaza a una fila anterior que agrupaba Thales, Utimaco y Entrust en un solo «requiere firmware específico» — cuatro de esos seis productos necesitan algo más que firmware, y uno no tiene ruta.",
+  "vertical_tipo": {
+    "id": "banca",
+    "n": 15,
+    "n_indice": 17,
+    "hostnames": 212,
+    "hostnames_max": 1403,
+    "profundos": 36,
+    "no_productivo": 6,
+    "infra_expuesta": 3,
+    "posicion": 8,
+    "proveedores_sin_fecha": null,
+    "qex": 56
+  },
+  "serie": {
+    "conjunto_fijo": 191,
+    "puntos": [
+      {
+        "mes": "2026-08",
+        "hibrido": {
+          "pct": 65,
+          "base": 191
+        },
+        "certificados": {
+          "pct": 0,
+          "base": 190
+        },
+        "qex_mediana": {
+          "v": 57,
+          "base": 150
+        }
+      },
+      {
+        "mes": "2026-09",
+        "hibrido": {
+          "pct": 68,
+          "base": 191
+        },
+        "certificados": {
+          "pct": 0,
+          "base": 191
+        },
+        "qex_mediana": {
+          "v": null,
+          "base": null
+        }
+      },
+      {
+        "mes": "2026-11",
+        "hibrido": {
+          "pct": 75,
+          "base": 191
+        },
+        "certificados": {
+          "pct": 0,
+          "base": 190
+        },
+        "qex_mediana": {
+          "v": 58,
+          "base": 191
+        }
+      }
+    ],
+    "tendencias": {
+      "hibrido": {
+        "puntos": 3,
+        "direccion": "monotona_sube"
+      },
+      "certificados": {
+        "puntos": 3,
+        "direccion": "plana"
+      }
+    }
+  },
+  "procedencia": {
+    "_": "De donde sale cada bloque medido. Por BLOQUE, no por hoja. `estado` dice, hoja por hoja, si el numero se derivo de lo sellado de este mes: una hoja en `no_derivable` sale null, y null es NO MEDIDO, nunca cero.",
+    "entradas": [
+      {
+        "archivo": "estudio-chile-descubrimiento-2026-11.json",
+        "papel": "descubrimiento",
+        "sha256": "d6d98faa2ba6a59ecbe0744d8e34b32c45bd01be99062d1591a8fdcc26e0e775"
+      },
+      {
+        "archivo": "estudio-chile-resultados.json",
+        "papel": "resultados",
+        "sha256": "37eee8f8d655d23b8c2609f66b6d60d298adde09a65b53639ef0b3a39624e5c1"
+      },
+      {
+        "archivo": "rescan-soporte-2026-11.json",
+        "papel": "rescan",
+        "sha256": "65c9933884d14076d95709fb765a74bf7cced9a44841f825fc0caf1152a02f23"
+      },
+      {
+        "archivo": "indice-2026-11.json",
+        "papel": "indice",
+        "sha256": "f564cb89c7efc9151edfa9422cd59ab259eadafd9244faca882cccc47f5c8120"
+      },
+      {
+        "archivo": "canal/canal-2026-11.json",
+        "papel": "canal",
+        "sha256": "487719d3fbe0270ed91bf43c9fa894cc6ca492ff581882cd13b6821a7748367b"
+      },
+      {
+        "archivo": "serie/serie-2026-11.json",
+        "papel": "serie",
+        "sha256": "17f2cee7819480e1c5e580d2fff3ef091a61a66b419dc6aa28dfc74a2b0172bc"
+      },
+      {
+        "archivo": "proveedores/proveedores-2026-11.json",
+        "papel": "proveedores",
+        "sha256": "b0943a8128552e3a84b63e7945bfe33eaeaf968e7dd20fb7002f01be4d98dcf3"
+      }
+    ],
+    "bloques": {
+      "muestra": [
+        "descubrimiento",
+        "resultados",
+        "indice"
+      ],
+      "titulares": [
+        "descubrimiento",
+        "resultados",
+        "rescan",
+        "indice",
+        "canal",
+        "proveedores",
+        "serie"
+      ],
+      "verticales": [
+        "descubrimiento",
+        "rescan"
+      ],
+      "cdn": [
+        "rescan"
+      ],
+      "superficie": [
+        "descubrimiento",
+        "indice"
+      ],
+      "indice": [
+        "descubrimiento",
+        "indice"
+      ],
+      "prosa": [
+        "descubrimiento",
+        "rescan",
+        "indice"
+      ],
+      "tres_preguntas": [
+        "rescan"
+      ],
+      "serie": [
+        "serie"
+      ]
+    },
+    "metodo": {
+      "qex_version": "QEX-1.2",
+      "pesos": {
+        "certificados": 0.4,
+        "higiene": 0.25,
+        "hndl": 0.25,
+        "edge": 0.1
+      },
+      "tope": 84,
+      "pesos_desde": {
+        "archivo": "calcular_qex.py",
+        "version": "QEX-1.0",
+        "nota": "los pesos y el tope no cambiaron"
+      },
+      "regla_certificados": {
+        "version": "QEX-1.2",
+        "norma": "NIST IR 8547, version final de octubre de 2026, tabla 2 (pagina 15); mapa de fuerza en SP 800-57 pt.1 rev.5, tabla 2",
+        "caso_cruzado": "caso-cruzado-regla-llave-2026-11-18.json"
+      }
+    },
+    "rotulos": {
+      "archivo": "rotulos/2026-11.json",
+      "aprobado_en": [
+        "TEXTO-alcanzabilidad-2026-11-16.md",
+        "TEXTO-noviembre-2026-11-13.md",
+        "TEXTO-proveedores-2026-11-14.md",
+        "TEXTO-rotulo-superficie-2026-11-13.md",
+        "TEXTO-rotulos-noviembre-2026-11-09.md",
+        "TEXTOS-para-aprobar-2026-11-18.md"
+      ],
+      "aprobado_por": {
+        "TEXTO-rotulos-noviembre-2026-11-09.md": "Nicholas, 9-nov-2026: «Van asi»",
+        "TEXTO-noviembre-2026-11-13.md": "Nicholas, 13-nov-2026: «Apruebalo y sigue»",
+        "TEXTO-rotulo-superficie-2026-11-13.md": "Nicholas, 13-nov-2026: «a) mediana 51»",
+        "TEXTO-proveedores-2026-11-14.md": "Nicholas, 16-nov-2026: «Si, cambiala»",
+        "TEXTO-alcanzabilidad-2026-11-16.md": "Nicholas, 16-nov-2026: «Si, cambialas»",
+        "TEXTOS-para-aprobar-2026-11-18.md": "Nicholas, 18-nov-2026: «Sí, van tal cual»"
+      },
+      "cambios": [
+        "indice.distribucion: «45–49» -> «menos de 50» (aprobado en TEXTO-rotulos-noviembre-2026-11-09.md)",
+        "indice.distribucion: «70–74» -> «70 o más» (aprobado en TEXTO-rotulos-noviembre-2026-11-09.md)",
+        "cdn.desglose: «Otros (Imperva, Azure, Akamai Standard TLS)» -> «Otros (Imperva, Azure, Akamai Standard TLS, Fastly)» (aprobado en TEXTO-rotulos-noviembre-2026-11-09.md)",
+        "titulares: «Sin canal de reporte de seguridad» -> «Sin security.txt publicado» (aprobado en TEXTO-noviembre-2026-11-13.md)",
+        "titulares: «no existe dónde avisarles de un hallazgo» -> «no publican el archivo estándar que dice a quién avisarle de una vulnerabilidad (RFC 9116)» (aprobado en TEXTO-noviembre-2026-11-13.md)",
+        "titulares: «mediana 41 por organización» -> «mediana 51 por organización» (aprobado en TEXTO-rotulo-superficie-2026-11-13.md)",
+        "titulares: «Proveedores de core con fecha» -> «Proveedores de core con soporte PQC citable» (aprobado en TEXTO-proveedores-2026-11-14.md)",
+        "titulares: «Ambiente no productivo expuesto» -> «Ambiente no productivo publicado» (aprobado en TEXTO-alcanzabilidad-2026-11-16.md)",
+        "titulares: «dev, QA o staging respondiendo en internet» -> «nombres dev, QA o staging con certificado público emitido» (aprobado en TEXTO-alcanzabilidad-2026-11-16.md)",
+        "titulares: «Infraestructura sensible expuesta» -> «Infraestructura sensible publicada» (aprobado en TEXTO-alcanzabilidad-2026-11-16.md)",
+        "indice.dimensiones: «Soporte de TLS 1.3, ambientes no productivos expuestos, infraestructura sensible alcanzable, sistemas marcados como legado.» -> «Soporte de TLS 1.3, nombres de ambientes no productivos publicados, nombres de infraestructura sensible publicados, sistemas marcados como legado.» (aprobado en TEXTO-alcanzabilidad-2026-11-16.md)",
+        "indice.hallazgo_cert: «La dimensión de mayor peso es prácticamente constante en toda la muestra.» -> «La dimensión de mayor peso es constante en toda la muestra: las 219 organizaciones con certificado leído obtienen el mismo valor.» (aprobado en TEXTOS-para-aprobar-2026-11-18.md)"
+      ],
+      "sin_comparacion": {
+        "titulares[3]": "agosto publicó 96 % sobre una base de 140 bajo el rótulo viejo; el crudo de ese estudio no existe en el corpus, así que esa cifra no se puede recomputar y además medía otra cosa. Restarlas da un «+1 %» entre dos conjuntos distintos. Aprobado por Nicholas el 17-nov-2026: «Quitarle la comparacion a esa ficha»."
+      }
+    },
+    "estado": {
+      "derivadas": 253,
+      "no_derivables": [
+        "verticales[0].gate",
+        "verticales[10].gate",
+        "verticales[1].gate",
+        "verticales[2].gate",
+        "verticales[3].gate",
+        "verticales[4].gate",
+        "verticales[5].gate",
+        "verticales[6].gate",
+        "verticales[7].gate",
+        "verticales[8].gate",
+        "verticales[9].gate"
+      ],
+      "etiquetas_heredadas": 170,
+      "retenidas": {},
+      "cifras_en_etiquetas": [
+        "proveedores.sub: la cantidad de proveedores revisados del stack financiero = 11",
+        "indice.hallazgo_cert.texto: las organizaciones del indice con certificado leido = 219",
+        "superficie.sub: la mediana de nombres de host por organizacion = 51.5",
+        "fuera de la base de lo que mide el descubrimiento, por `ct_ok` falso: 8 de 220. Los dominios no van aqui: la edicion se publica."
+      ],
+      "bloques_nuevos": [
+        "vertical_tipo",
+        "serie"
+      ],
+      "filas_que_no_existen": [
+        "indice.certificados_detalle.distribucion: la plantilla traia 2 filas y este mes hay 1; las de mas se quitan (no son «sin medir»)"
+      ]
+    }
+  },
+  "variacion": {
+    "cdn.conCdn.n": {
+      "antes": 105,
+      "ahora": 111,
+      "delta": 6,
+      "estado": "sube"
+    },
+    "cdn.conCdn.pct": {
+      "antes": 90,
+      "ahora": 97,
+      "delta": 7,
+      "estado": "sube"
+    },
+    "cdn.conCdn.soporta": {
+      "antes": 95,
+      "ahora": 108,
+      "delta": 13,
+      "estado": "sube"
+    },
+    "cdn.desglose[0].pct": {
+      "antes": 100,
+      "ahora": 96,
+      "delta": -4,
+      "estado": "baja"
+    },
+    "cdn.desglose[0].propio": {
+      "antes": false,
+      "ahora": false,
+      "estado": "igual"
+    },
+    "cdn.desglose[0].soporta": {
+      "antes": 63,
+      "ahora": 65,
+      "delta": 2,
+      "estado": "sube"
+    },
+    "cdn.desglose[0].total": {
+      "antes": 63,
+      "ahora": 68,
+      "delta": 5,
+      "estado": "sube"
+    },
+    "cdn.desglose[1].pct": {
+      "antes": 100,
+      "ahora": 100,
+      "delta": 0,
+      "estado": "igual"
+    },
+    "cdn.desglose[1].propio": {
+      "antes": false,
+      "ahora": false,
+      "estado": "igual"
+    },
+    "cdn.desglose[1].soporta": {
+      "antes": 16,
+      "ahora": 16,
+      "delta": 0,
+      "estado": "igual"
+    },
+    "cdn.desglose[1].total": {
+      "antes": 16,
+      "ahora": 16,
+      "delta": 0,
+      "estado": "igual"
+    },
+    "cdn.desglose[2].pct": {
+      "antes": 29,
+      "ahora": 100,
+      "delta": 71,
+      "estado": "sube"
+    },
+    "cdn.desglose[2].propio": {
+      "antes": false,
+      "ahora": false,
+      "estado": "igual"
+    },
+    "cdn.desglose[2].soporta": {
+      "antes": 4,
+      "ahora": 16,
+      "delta": 12,
+      "estado": "sube"
+    },
+    "cdn.desglose[2].total": {
+      "antes": 14,
+      "ahora": 16,
+      "delta": 2,
+      "estado": "sube"
+    },
+    "cdn.desglose[3].pct": {
+      "antes": 100,
+      "ahora": 100,
+      "delta": 0,
+      "estado": "igual"
+    },
+    "cdn.desglose[3].propio": {
+      "antes": false,
+      "ahora": false,
+      "estado": "igual"
+    },
+    "cdn.desglose[3].soporta": {
+      "antes": 12,
+      "ahora": 11,
+      "delta": -1,
+      "estado": "baja"
+    },
+    "cdn.desglose[3].total": {
+      "antes": 12,
+      "ahora": 11,
+      "delta": -1,
+      "estado": "baja"
+    },
+    "cdn.desglose[4].pct": {
+      "antes": 33,
+      "ahora": 38,
+      "delta": 5,
+      "estado": "sube"
+    },
+    "cdn.desglose[4].propio": {
+      "antes": true,
+      "ahora": true,
+      "estado": "igual"
+    },
+    "cdn.desglose[4].soporta": {
+      "antes": 29,
+      "ahora": 38,
+      "delta": 9,
+      "estado": "sube"
+    },
+    "cdn.desglose[4].total": {
+      "antes": 87,
+      "ahora": 101,
+      "delta": 14,
+      "estado": "sube"
+    },
+    "cdn.sinCdn.n": {
+      "antes": 87,
+      "ahora": 101,
+      "delta": 14,
+      "estado": "sube"
+    },
+    "cdn.sinCdn.pct": {
+      "antes": 33,
+      "ahora": 38,
+      "delta": 5,
+      "estado": "sube"
+    },
+    "cdn.sinCdn.soporta": {
+      "antes": 29,
+      "ahora": 38,
+      "delta": 9,
+      "estado": "sube"
+    },
+    "indice.bandas_conteo.Consciente": {
+      "antes": 28,
+      "ahora": 37,
+      "delta": 9,
+      "estado": "sube"
+    },
+    "indice.bandas_conteo.Cripto-ágil": {
+      "antes": null,
+      "ahora": 0,
+      "estado": "nueva"
+    },
+    "indice.bandas_conteo.En transición": {
+      "antes": 119,
+      "ahora": 154,
+      "delta": 35,
+      "estado": "sube"
+    },
+    "indice.bandas_conteo.Expuesto": {
+      "antes": null,
+      "ahora": 0,
+      "estado": "nueva"
+    },
+    "indice.bandas_conteo.Perímetro migrado": {
+      "antes": 23,
+      "ahora": 29,
+      "delta": 6,
+      "estado": "sube"
+    },
+    "indice.certificados_detalle.distribucion[0].n": {
+      "antes": 159,
+      "ahora": 219,
+      "delta": 60,
+      "estado": "sube"
+    },
+    "indice.certificados_detalle.distribucion[0].pct": {
+      "antes": 94,
+      "ahora": 100,
+      "delta": 6,
+      "estado": "sube"
+    },
+    "indice.certificados_detalle.distribucion[0].valor": {
+      "antes": 75,
+      "ahora": 75,
+      "delta": 0,
+      "estado": "igual"
+    },
+    "indice.certificados_detalle.distribucion[1].n": {
+      "antes": 11,
+      "ahora": null,
+      "estado": "desaparecida"
+    },
+    "indice.certificados_detalle.distribucion[1].pct": {
+      "antes": 6,
+      "ahora": null,
+      "estado": "desaparecida"
+    },
+    "indice.certificados_detalle.distribucion[1].valor": {
+      "antes": 100,
+      "ahora": null,
+      "estado": "desaparecida"
+    },
+    "indice.certificados_detalle.pct_valor_dominante": {
+      "antes": 94,
+      "ahora": 100,
+      "delta": 6,
+      "estado": "sube"
+    },
+    "indice.certificados_detalle.sin_medir": {
+      "antes": null,
+      "ahora": 1,
+      "estado": "nueva"
+    },
+    "indice.certificados_detalle.total": {
+      "antes": 170,
+      "ahora": 219,
+      "delta": 49,
+      "estado": "sube"
+    },
+    "indice.dimensiones[0].mediana": {
+      "antes": 75,
+      "ahora": 75,
+      "delta": 0,
+      "estado": "igual"
+    },
+    "indice.dimensiones[0].peso": {
+      "antes": 40,
+      "ahora": 40,
+      "delta": 0,
+      "estado": "igual"
+    },
+    "indice.dimensiones[1].mediana": {
+      "antes": 60,
+      "ahora": 60,
+      "delta": 0,
+      "estado": "igual"
+    },
+    "indice.dimensiones[1].peso": {
+      "antes": 25,
+      "ahora": 25,
+      "delta": 0,
+      "estado": "igual"
+    },
+    "indice.dimensiones[2].mediana": {
+      "antes": 12,
+      "ahora": 12,
+      "delta": 0,
+      "estado": "igual"
+    },
+    "indice.dimensiones[2].peso": {
+      "antes": 25,
+      "ahora": 25,
+      "delta": 0,
+      "estado": "igual"
+    },
+    "indice.dimensiones[3].mediana": {
+      "antes": 100,
+      "ahora": 100,
+      "delta": 0,
+      "estado": "igual"
+    },
+    "indice.dimensiones[3].peso": {
+      "antes": 10,
+      "ahora": 10,
+      "delta": 0,
+      "estado": "igual"
+    },
+    "indice.discriminacion.dims[0].aporte": {
+      "antes": 2.5,
+      "ahora": 0.0,
+      "delta": -2.5,
+      "estado": "baja"
+    },
+    "indice.discriminacion.dims[0].concentracion": {
+      "antes": 94,
+      "ahora": 100,
+      "delta": 6,
+      "estado": "sube"
+    },
+    "indice.discriminacion.dims[0].distintos": {
+      "antes": 2,
+      "ahora": 1,
+      "delta": -1,
+      "estado": "baja"
+    },
+    "indice.discriminacion.dims[0].peso": {
+      "antes": 40,
+      "ahora": 40,
+      "delta": 0,
+      "estado": "igual"
+    },
+    "indice.discriminacion.dims[1].aporte": {
+      "antes": 2.6,
+      "ahora": 2.7,
+      "delta": 0.1,
+      "estado": "sube"
+    },
+    "indice.discriminacion.dims[1].concentracion": {
+      "antes": 36,
+      "ahora": 33,
+      "delta": -3,
+      "estado": "baja"
+    },
+    "indice.discriminacion.dims[1].distintos": {
+      "antes": 6,
+      "ahora": 6,
+      "delta": 0,
+      "estado": "igual"
+    },
+    "indice.discriminacion.dims[1].peso": {
+      "antes": 25,
+      "ahora": 25,
+      "delta": 0,
+      "estado": "igual"
+    },
+    "indice.discriminacion.dims[2].aporte": {
+      "antes": 5.1,
+      "ahora": 5.2,
+      "delta": 0.1,
+      "estado": "sube"
+    },
+    "indice.discriminacion.dims[2].concentracion": {
+      "antes": 68,
+      "ahora": 64,
+      "delta": -4,
+      "estado": "baja"
+    },
+    "indice.discriminacion.dims[2].distintos": {
+      "antes": 3,
+      "ahora": 3,
+      "delta": 0,
+      "estado": "igual"
+    },
+    "indice.discriminacion.dims[2].peso": {
+      "antes": 25,
+      "ahora": 25,
+      "delta": 0,
+      "estado": "igual"
+    },
+    "indice.discriminacion.dims[3].aporte": {
+      "antes": 4.9,
+      "ahora": 4.6,
+      "delta": -0.3,
+      "estado": "baja"
+    },
+    "indice.discriminacion.dims[3].concentracion": {
+      "antes": 62,
+      "ahora": 69,
+      "delta": 7,
+      "estado": "sube"
+    },
+    "indice.discriminacion.dims[3].distintos": {
+      "antes": 2,
+      "ahora": 2,
+      "delta": 0,
+      "estado": "igual"
+    },
+    "indice.discriminacion.dims[3].peso": {
+      "antes": 10,
+      "ahora": 10,
+      "delta": 0,
+      "estado": "igual"
+    },
+    "indice.discriminacion.disp_sin_sector": {
+      "antes": 5.3,
+      "ahora": 5.4,
+      "delta": 0.1,
+      "estado": "sube"
+    },
+    "indice.discriminacion.disp_total": {
+      "antes": 7.8,
+      "ahora": 8.1,
+      "delta": 0.3,
+      "estado": "sube"
+    },
+    "indice.discriminacion.rho_n": {
+      "antes": 169,
+      "ahora": 211,
+      "delta": 42,
+      "estado": "sube"
+    },
+    "indice.discriminacion.rho_superficie": {
+      "antes": -0.12,
+      "ahora": -0.14,
+      "delta": -0.02,
+      "estado": "baja"
+    },
+    "indice.distribucion[0].n": {
+      "antes": 28,
+      "ahora": 37,
+      "delta": 9,
+      "estado": "sube"
+    },
+    "indice.distribucion[0].pct": {
+      "antes": 16,
+      "ahora": 17,
+      "delta": 1,
+      "estado": "sube"
+    },
+    "indice.distribucion[1].n": {
+      "antes": 34,
+      "ahora": 39,
+      "delta": 5,
+      "estado": "sube"
+    },
+    "indice.distribucion[1].pct": {
+      "antes": 20,
+      "ahora": 18,
+      "delta": -2,
+      "estado": "baja"
+    },
+    "indice.distribucion[2].n": {
+      "antes": 47,
+      "ahora": 58,
+      "delta": 11,
+      "estado": "sube"
+    },
+    "indice.distribucion[2].pct": {
+      "antes": 28,
+      "ahora": 26,
+      "delta": -2,
+      "estado": "baja"
+    },
+    "indice.distribucion[3].n": {
+      "antes": 30,
+      "ahora": 46,
+      "delta": 16,
+      "estado": "sube"
+    },
+    "indice.distribucion[3].pct": {
+      "antes": 18,
+      "ahora": 21,
+      "delta": 3,
+      "estado": "sube"
+    },
+    "indice.distribucion[4].n": {
+      "antes": 8,
+      "ahora": 11,
+      "delta": 3,
+      "estado": "sube"
+    },
+    "indice.distribucion[4].pct": {
+      "antes": 5,
+      "ahora": 5,
+      "delta": 0,
+      "estado": "igual"
+    },
+    "indice.distribucion[5].n": {
+      "antes": 23,
+      "ahora": 29,
+      "delta": 6,
+      "estado": "sube"
+    },
+    "indice.distribucion[5].pct": {
+      "antes": 14,
+      "ahora": 13,
+      "delta": -1,
+      "estado": "baja"
+    },
+    "indice.hallazgo_cert.constante_pct": {
+      "antes": 94,
+      "ahora": 100,
+      "delta": 6,
+      "estado": "sube"
+    },
+    "indice.max": {
+      "antes": 74,
+      "ahora": 74,
+      "delta": 0,
+      "estado": "igual"
+    },
+    "indice.mediana": {
+      "antes": 57,
+      "ahora": 58,
+      "delta": 1,
+      "estado": "sube"
+    },
+    "indice.min": {
+      "antes": 45,
+      "ahora": 38,
+      "delta": -7,
+      "estado": "baja"
+    },
+    "indice.n": {
+      "antes": 170,
+      "ahora": 220,
+      "delta": 50,
+      "estado": "sube"
+    },
+    "indice.promedio": {
+      "antes": 57.5,
+      "ahora": 57.6,
+      "delta": 0.1,
+      "estado": "sube"
+    },
+    "indice.tope": {
+      "antes": 84,
+      "ahora": 84,
+      "delta": 0,
+      "estado": "igual"
+    },
+    "indice.verticales[0].cert": {
+      "antes": 75,
+      "ahora": 75,
+      "delta": 0,
+      "estado": "igual"
+    },
+    "indice.verticales[0].cert_iguales": {
+      "antes": 15,
+      "ahora": 20,
+      "delta": 5,
+      "estado": "sube"
+    },
+    "indice.verticales[0].cert_n": {
+      "antes": 15,
+      "ahora": 20,
+      "delta": 5,
+      "estado": "sube"
+    },
+    "indice.verticales[0].edge": {
+      "antes": 100,
+      "ahora": 100,
+      "delta": 0,
+      "estado": "igual"
+    },
+    "indice.verticales[0].higiene": {
+      "antes": 60,
+      "ahora": 60,
+      "delta": 0,
+      "estado": "igual"
+    },
+    "indice.verticales[0].indice": {
+      "antes": 71,
+      "ahora": 71,
+      "delta": 0,
+      "estado": "igual"
+    },
+    "indice.verticales[0].norg": {
+      "antes": 15,
+      "ahora": 20,
+      "delta": 5,
+      "estado": "sube"
+    },
+    "indice.verticales[10].cert": {
+      "antes": 75,
+      "ahora": 75,
+      "delta": 0,
+      "estado": "igual"
+    },
+    "indice.verticales[10].cert_iguales": {
+      "antes": 8,
+      "ahora": 10,
+      "delta": 2,
+      "estado": "sube"
+    },
+    "indice.verticales[10].cert_n": {
+      "antes": 9,
+      "ahora": 10,
+      "delta": 1,
+      "estado": "sube"
+    },
+    "indice.verticales[10].edge": {
+      "antes": 0,
+      "ahora": 100,
+      "delta": 100,
+      "estado": "sube"
+    },
+    "indice.verticales[10].higiene": {
+      "antes": 60,
+      "ahora": 65,
+      "delta": 5,
+      "estado": "sube"
+    },
+    "indice.verticales[10].indice": {
+      "antes": 50,
+      "ahora": 56,
+      "delta": 6,
+      "estado": "sube"
+    },
+    "indice.verticales[10].norg": {
+      "antes": 9,
+      "ahora": 10,
+      "delta": 1,
+      "estado": "sube"
+    },
+    "indice.verticales[11].cert": {
+      "antes": 75,
+      "ahora": 75,
+      "delta": 0,
+      "estado": "igual"
+    },
+    "indice.verticales[11].cert_iguales": {
+      "antes": 14,
+      "ahora": 18,
+      "delta": 4,
+      "estado": "sube"
+    },
+    "indice.verticales[11].cert_n": {
+      "antes": 15,
+      "ahora": 18,
+      "delta": 3,
+      "estado": "sube"
+    },
+    "indice.verticales[11].edge": {
+      "antes": 0,
+      "ahora": 0,
+      "delta": 0,
+      "estado": "igual"
+    },
+    "indice.verticales[11].higiene": {
+      "antes": 60,
+      "ahora": 60,
+      "delta": 0,
+      "estado": "igual"
+    },
+    "indice.verticales[11].indice": {
+      "antes": 48,
+      "ahora": 50,
+      "delta": 2,
+      "estado": "sube"
+    },
+    "indice.verticales[11].norg": {
+      "antes": 15,
+      "ahora": 18,
+      "delta": 3,
+      "estado": "sube"
+    },
+    "indice.verticales[1].cert": {
+      "antes": 75,
+      "ahora": 75,
+      "delta": 0,
+      "estado": "igual"
+    },
+    "indice.verticales[1].cert_iguales": {
+      "antes": 14,
+      "ahora": 20,
+      "delta": 6,
+      "estado": "sube"
+    },
+    "indice.verticales[1].cert_n": {
+      "antes": 14,
+      "ahora": 20,
+      "delta": 6,
+      "estado": "sube"
+    },
+    "indice.verticales[1].edge": {
+      "antes": 100,
+      "ahora": 100,
+      "delta": 0,
+      "estado": "igual"
+    },
+    "indice.verticales[1].higiene": {
+      "antes": 60,
+      "ahora": 60,
+      "delta": 0,
+      "estado": "igual"
+    },
+    "indice.verticales[1].indice": {
+      "antes": 71,
+      "ahora": 71,
+      "delta": 0,
+      "estado": "igual"
+    },
+    "indice.verticales[1].norg": {
+      "antes": 14,
+      "ahora": 20,
+      "delta": 6,
+      "estado": "sube"
+    },
+    "indice.verticales[2].cert": {
+      "antes": 75,
+      "ahora": 75,
+      "delta": 0,
+      "estado": "igual"
+    },
+    "indice.verticales[2].cert_iguales": {
+      "antes": 15,
+      "ahora": 20,
+      "delta": 5,
+      "estado": "sube"
+    },
+    "indice.verticales[2].cert_n": {
+      "antes": 15,
+      "ahora": 20,
+      "delta": 5,
+      "estado": "sube"
+    },
+    "indice.verticales[2].edge": {
+      "antes": 100,
+      "ahora": 100,
+      "delta": 0,
+      "estado": "igual"
+    },
+    "indice.verticales[2].higiene": {
+      "antes": 50,
+      "ahora": 50,
+      "delta": 0,
+      "estado": "igual"
+    },
+    "indice.verticales[2].indice": {
+      "antes": 62,
+      "ahora": 60,
+      "delta": -2,
+      "estado": "baja"
+    },
+    "indice.verticales[2].norg": {
+      "antes": 15,
+      "ahora": 20,
+      "delta": 5,
+      "estado": "sube"
+    },
+    "indice.verticales[3].cert": {
+      "antes": 75,
+      "ahora": 75,
+      "delta": 0,
+      "estado": "igual"
+    },
+    "indice.verticales[3].cert_iguales": {
+      "antes": 8,
+      "ahora": 20,
+      "delta": 12,
+      "estado": "sube"
+    },
+    "indice.verticales[3].cert_n": {
+      "antes": 11,
+      "ahora": 20,
+      "delta": 9,
+      "estado": "sube"
+    },
+    "indice.verticales[3].edge": {
+      "antes": 0,
+      "ahora": 100,
+      "delta": 100,
+      "estado": "sube"
+    },
+    "indice.verticales[3].higiene": {
+      "antes": 60,
+      "ahora": 60,
+      "delta": 0,
+      "estado": "igual"
+    },
+    "indice.verticales[3].indice": {
+      "antes": 62,
+      "ahora": 62,
+      "delta": 0,
+      "estado": "igual"
+    },
+    "indice.verticales[3].norg": {
+      "antes": 11,
+      "ahora": 20,
+      "delta": 9,
+      "estado": "sube"
+    },
+    "indice.verticales[4].cert": {
+      "antes": 75,
+      "ahora": 75,
+      "delta": 0,
+      "estado": "igual"
+    },
+    "indice.verticales[4].cert_iguales": {
+      "antes": 14,
+      "ahora": 20,
+      "delta": 6,
+      "estado": "sube"
+    },
+    "indice.verticales[4].cert_n": {
+      "antes": 16,
+      "ahora": 20,
+      "delta": 4,
+      "estado": "sube"
+    },
+    "indice.verticales[4].edge": {
+      "antes": 100,
+      "ahora": 100,
+      "delta": 0,
+      "estado": "igual"
+    },
+    "indice.verticales[4].higiene": {
+      "antes": 60,
+      "ahora": 60,
+      "delta": 0,
+      "estado": "igual"
+    },
+    "indice.verticales[4].indice": {
+      "antes": 58,
+      "ahora": 58,
+      "delta": 0,
+      "estado": "igual"
+    },
+    "indice.verticales[4].norg": {
+      "antes": 16,
+      "ahora": 20,
+      "delta": 4,
+      "estado": "sube"
+    },
+    "indice.verticales[5].cert": {
+      "antes": 75,
+      "ahora": 75,
+      "delta": 0,
+      "estado": "igual"
+    },
+    "indice.verticales[5].cert_iguales": {
+      "antes": 14,
+      "ahora": 17,
+      "delta": 3,
+      "estado": "sube"
+    },
+    "indice.verticales[5].cert_n": {
+      "antes": 17,
+      "ahora": 17,
+      "delta": 0,
+      "estado": "igual"
+    },
+    "indice.verticales[5].edge": {
+      "antes": 100,
+      "ahora": 100,
+      "delta": 0,
+      "estado": "igual"
+    },
+    "indice.verticales[5].higiene": {
+      "antes": 60,
+      "ahora": 60,
+      "delta": 0,
+      "estado": "igual"
+    },
+    "indice.verticales[5].indice": {
+      "antes": 56,
+      "ahora": 53,
+      "delta": -3,
+      "estado": "baja"
+    },
+    "indice.verticales[5].norg": {
+      "antes": 17,
+      "ahora": 18,
+      "delta": 1,
+      "estado": "sube"
+    },
+    "indice.verticales[6].cert": {
+      "antes": 75,
+      "ahora": 75,
+      "delta": 0,
+      "estado": "igual"
+    },
+    "indice.verticales[6].cert_iguales": {
+      "antes": 18,
+      "ahora": 20,
+      "delta": 2,
+      "estado": "sube"
+    },
+    "indice.verticales[6].cert_n": {
+      "antes": 19,
+      "ahora": 20,
+      "delta": 1,
+      "estado": "sube"
+    },
+    "indice.verticales[6].edge": {
+      "antes": 100,
+      "ahora": 100,
+      "delta": 0,
+      "estado": "igual"
+    },
+    "indice.verticales[6].higiene": {
+      "antes": 60,
+      "ahora": 60,
+      "delta": 0,
+      "estado": "igual"
+    },
+    "indice.verticales[6].indice": {
+      "antes": 56,
+      "ahora": 56,
+      "delta": 0,
+      "estado": "igual"
+    },
+    "indice.verticales[6].norg": {
+      "antes": 19,
+      "ahora": 20,
+      "delta": 1,
+      "estado": "sube"
+    },
+    "indice.verticales[7].cert": {
+      "antes": 75,
+      "ahora": 75,
+      "delta": 0,
+      "estado": "igual"
+    },
+    "indice.verticales[7].cert_iguales": {
+      "antes": 12,
+      "ahora": 17,
+      "delta": 5,
+      "estado": "sube"
+    },
+    "indice.verticales[7].cert_n": {
+      "antes": 12,
+      "ahora": 17,
+      "delta": 5,
+      "estado": "sube"
+    },
+    "indice.verticales[7].edge": {
+      "antes": 100,
+      "ahora": 100,
+      "delta": 0,
+      "estado": "igual"
+    },
+    "indice.verticales[7].higiene": {
+      "antes": 55,
+      "ahora": 50,
+      "delta": -5,
+      "estado": "baja"
+    },
+    "indice.verticales[7].indice": {
+      "antes": 57,
+      "ahora": 56,
+      "delta": -1,
+      "estado": "baja"
+    },
+    "indice.verticales[7].norg": {
+      "antes": 12,
+      "ahora": 17,
+      "delta": 5,
+      "estado": "sube"
+    },
+    "indice.verticales[8].cert": {
+      "antes": 75,
+      "ahora": 75,
+      "delta": 0,
+      "estado": "igual"
+    },
+    "indice.verticales[8].cert_iguales": {
+      "antes": 10,
+      "ahora": 18,
+      "delta": 8,
+      "estado": "sube"
+    },
+    "indice.verticales[8].cert_n": {
+      "antes": 10,
+      "ahora": 18,
+      "delta": 8,
+      "estado": "sube"
+    },
+    "indice.verticales[8].edge": {
+      "antes": 0,
+      "ahora": 0,
+      "delta": 0,
+      "estado": "igual"
+    },
+    "indice.verticales[8].higiene": {
+      "antes": 60,
+      "ahora": 60,
+      "delta": 0,
+      "estado": "igual"
+    },
+    "indice.verticales[8].indice": {
+      "antes": 51,
+      "ahora": 50,
+      "delta": -1,
+      "estado": "baja"
+    },
+    "indice.verticales[8].norg": {
+      "antes": 10,
+      "ahora": 18,
+      "delta": 8,
+      "estado": "sube"
+    },
+    "indice.verticales[9].cert": {
+      "antes": 75,
+      "ahora": 75,
+      "delta": 0,
+      "estado": "igual"
+    },
+    "indice.verticales[9].cert_iguales": {
+      "antes": 17,
+      "ahora": 19,
+      "delta": 2,
+      "estado": "sube"
+    },
+    "indice.verticales[9].cert_n": {
+      "antes": 17,
+      "ahora": 19,
+      "delta": 2,
+      "estado": "sube"
+    },
+    "indice.verticales[9].edge": {
+      "antes": 0,
+      "ahora": 100,
+      "delta": 100,
+      "estado": "sube"
+    },
+    "indice.verticales[9].higiene": {
+      "antes": 60,
+      "ahora": 60,
+      "delta": 0,
+      "estado": "igual"
+    },
+    "indice.verticales[9].indice": {
+      "antes": 50,
+      "ahora": 56,
+      "delta": 6,
+      "estado": "sube"
+    },
+    "indice.verticales[9].norg": {
+      "antes": 17,
+      "ahora": 19,
+      "delta": 2,
+      "estado": "sube"
+    },
+    "muestra.con_descubrimiento": {
+      "antes": 191,
+      "ahora": 212,
+      "delta": 21,
+      "estado": "sube"
+    },
+    "muestra.con_indice": {
+      "antes": 170,
+      "ahora": 220,
+      "delta": 50,
+      "estado": "sube"
+    },
+    "muestra.hostnames": {
+      "antes": 14656,
+      "ahora": 29794,
+      "delta": 15138,
+      "estado": "sube"
+    },
+    "muestra.organizaciones": {
+      "antes": 220,
+      "ahora": 220,
+      "delta": 0,
+      "estado": "igual"
+    },
+    "muestra.sondeadas": {
+      "antes": 194,
+      "ahora": 214,
+      "delta": 20,
+      "estado": "sube"
+    },
+    "muestra.verticales": {
+      "antes": 12,
+      "ahora": 12,
+      "delta": 0,
+      "estado": "igual"
+    },
+    "prosa.base": {
+      "antes": 170,
+      "ahora": 212,
+      "delta": 42,
+      "estado": "sube"
+    },
+    "prosa.mas30_pct": {
+      "antes": 60,
+      "ahora": 64,
+      "delta": 4,
+      "estado": "sube"
+    },
+    "prosa.profundos_pct": {
+      "antes": 83,
+      "ahora": 84,
+      "delta": 1,
+      "estado": "sube"
+    },
+    "prosa.sin_hibrido_pct": {
+      "antes": 34,
+      "ahora": 31,
+      "delta": -3,
+      "estado": "baja"
+    },
+    "superficie[0].n": {
+      "antes": 10,
+      "ahora": 25,
+      "delta": 15,
+      "estado": "sube"
+    },
+    "superficie[0].pct": {
+      "antes": 6,
+      "ahora": 12,
+      "delta": 6,
+      "estado": "sube"
+    },
+    "superficie[1].n": {
+      "antes": 32,
+      "ahora": 40,
+      "delta": 8,
+      "estado": "sube"
+    },
+    "superficie[1].pct": {
+      "antes": 19,
+      "ahora": 19,
+      "delta": 0,
+      "estado": "igual"
+    },
+    "superficie[2].n": {
+      "antes": 60,
+      "ahora": 70,
+      "delta": 10,
+      "estado": "sube"
+    },
+    "superficie[2].pct": {
+      "antes": 35,
+      "ahora": 33,
+      "delta": -2,
+      "estado": "baja"
+    },
+    "superficie[3].n": {
+      "antes": 39,
+      "ahora": 46,
+      "delta": 7,
+      "estado": "sube"
+    },
+    "superficie[3].pct": {
+      "antes": 23,
+      "ahora": 22,
+      "delta": -1,
+      "estado": "baja"
+    },
+    "superficie[4].n": {
+      "antes": 29,
+      "ahora": 31,
+      "delta": 2,
+      "estado": "sube"
+    },
+    "superficie[4].pct": {
+      "antes": 17,
+      "ahora": 15,
+      "delta": -2,
+      "estado": "baja"
+    },
+    "titulares[0].base": {
+      "antes": 170,
+      "ahora": 220,
+      "delta": 50,
+      "estado": "sube"
+    },
+    "titulares[0].v": {
+      "antes": 57,
+      "ahora": 58,
+      "delta": 1,
+      "estado": "sube"
+    },
+    "titulares[1].base": {
+      "antes": 170,
+      "ahora": 212,
+      "delta": 42,
+      "estado": "sube"
+    },
+    "titulares[1].v": {
+      "antes": 62,
+      "ahora": 65,
+      "delta": 3,
+      "estado": "sube"
+    },
+    "titulares[2].base": {
+      "antes": 170,
+      "ahora": 212,
+      "delta": 42,
+      "estado": "sube"
+    },
+    "titulares[2].v": {
+      "antes": 61,
+      "ahora": 63,
+      "delta": 2,
+      "estado": "sube"
+    },
+    "titulares[3].base": {
+      "antes": 140,
+      "ahora": 212,
+      "estado": "sin comparacion",
+      "causa": "agosto publicó 96 % sobre una base de 140 bajo el rótulo viejo; el crudo de ese estudio no existe en el corpus, así que esa cifra no se puede recomputar y además medía otra cosa. Restarlas da un «+1 %» entre dos conjuntos distintos. Aprobado por Nicholas el 17-nov-2026: «Quitarle la comparacion a esa ficha»."
+    },
+    "titulares[3].v": {
+      "antes": 96,
+      "ahora": 97,
+      "estado": "sin comparacion",
+      "causa": "agosto publicó 96 % sobre una base de 140 bajo el rótulo viejo; el crudo de ese estudio no existe en el corpus, así que esa cifra no se puede recomputar y además medía otra cosa. Restarlas da un «+1 %» entre dos conjuntos distintos. Aprobado por Nicholas el 17-nov-2026: «Quitarle la comparacion a esa ficha»."
+    },
+    "titulares[4].base": {
+      "antes": 11,
+      "ahora": 11,
+      "delta": 0,
+      "estado": "igual"
+    },
+    "titulares[4].v": {
+      "antes": 0,
+      "ahora": 0,
+      "delta": 0,
+      "estado": "igual"
+    },
+    "titulares[5].base": {
+      "antes": 220,
+      "ahora": 220,
+      "delta": 0,
+      "estado": "igual"
+    },
+    "titulares[5].v": {
+      "antes": 9,
+      "ahora": 9,
+      "delta": 0,
+      "estado": "igual"
+    },
+    "titulares[6].base": {
+      "antes": 170,
+      "ahora": 212,
+      "delta": 42,
+      "estado": "sube"
+    },
+    "titulares[6].v": {
+      "antes": 14656,
+      "ahora": 29794,
+      "delta": 15138,
+      "estado": "sube"
+    },
+    "titulares[7].base": {
+      "antes": 192,
+      "ahora": 212,
+      "delta": 20,
+      "estado": "sube"
+    },
+    "titulares[7].v": {
+      "antes": 65,
+      "ahora": 69,
+      "delta": 4,
+      "estado": "sube"
+    },
+    "tres_preguntas.discrepancia": {
+      "antes": 0,
+      "ahora": 0,
+      "delta": 0,
+      "estado": "igual"
+    },
+    "tres_preguntas.filas[0].pct": {
+      "antes": 65,
+      "ahora": 69,
+      "delta": 4,
+      "estado": "sube"
+    },
+    "tres_preguntas.filas[0].v": {
+      "antes": 124,
+      "ahora": 146,
+      "delta": 22,
+      "estado": "sube"
+    },
+    "tres_preguntas.filas[1].pct": {
+      "antes": 65,
+      "ahora": 69,
+      "delta": 4,
+      "estado": "sube"
+    },
+    "tres_preguntas.filas[1].v": {
+      "antes": 124,
+      "ahora": 146,
+      "delta": 22,
+      "estado": "sube"
+    },
+    "tres_preguntas.filas[2].pct": {
+      "antes": 54,
+      "ahora": 54,
+      "delta": 0,
+      "estado": "igual"
+    },
+    "tres_preguntas.filas[2].v": {
+      "antes": 103,
+      "ahora": 114,
+      "delta": 11,
+      "estado": "sube"
+    },
+    "tres_preguntas.n": {
+      "antes": 192,
+      "ahora": 212,
+      "delta": 20,
+      "estado": "sube"
+    },
+    "verticales[0].gate": {
+      "antes": 66,
+      "ahora": null,
+      "estado": "no medida"
+    },
+    "verticales[0].hibrido": {
+      "antes": 18,
+      "ahora": 20,
+      "delta": 2,
+      "estado": "sube"
+    },
+    "verticales[0].medianaHosts": {
+      "antes": 32,
+      "ahora": 36,
+      "delta": 4,
+      "estado": "sube"
+    },
+    "verticales[0].nprobe": {
+      "antes": 20,
+      "ahora": 20,
+      "delta": 0,
+      "estado": "igual"
+    },
+    "verticales[0].ratio": {
+      "antes": 90,
+      "ahora": 100,
+      "delta": 10,
+      "estado": "sube"
+    },
+    "verticales[10].gate": {
+      "antes": 64,
+      "ahora": null,
+      "estado": "no medida"
+    },
+    "verticales[10].hibrido": {
+      "antes": 6,
+      "ahora": 7,
+      "delta": 1,
+      "estado": "sube"
+    },
+    "verticales[10].medianaHosts": {
+      "antes": 37,
+      "ahora": 41,
+      "delta": 4,
+      "estado": "sube"
+    },
+    "verticales[10].nprobe": {
+      "antes": 16,
+      "ahora": 17,
+      "delta": 1,
+      "estado": "sube"
+    },
+    "verticales[10].ratio": {
+      "antes": 38,
+      "ahora": 41,
+      "delta": 3,
+      "estado": "sube"
+    },
+    "verticales[1].gate": {
+      "antes": 93,
+      "ahora": null,
+      "estado": "no medida"
+    },
+    "verticales[1].hibrido": {
+      "antes": 16,
+      "ahora": 18,
+      "delta": 2,
+      "estado": "sube"
+    },
+    "verticales[1].medianaHosts": {
+      "antes": 43,
+      "ahora": 45,
+      "delta": 2,
+      "estado": "sube"
+    },
+    "verticales[1].nprobe": {
+      "antes": 17,
+      "ahora": 20,
+      "delta": 3,
+      "estado": "sube"
+    },
+    "verticales[1].ratio": {
+      "antes": 94,
+      "ahora": 90,
+      "delta": -4,
+      "estado": "baja"
+    },
+    "verticales[2].gate": {
+      "antes": 56,
+      "ahora": null,
+      "estado": "no medida"
+    },
+    "verticales[2].hibrido": {
+      "antes": 14,
+      "ahora": 15,
+      "delta": 1,
+      "estado": "sube"
+    },
+    "verticales[2].medianaHosts": {
+      "antes": 75,
+      "ahora": 79,
+      "delta": 4,
+      "estado": "sube"
+    },
+    "verticales[2].nprobe": {
+      "antes": 17,
+      "ahora": 19,
+      "delta": 2,
+      "estado": "sube"
+    },
+    "verticales[2].ratio": {
+      "antes": 82,
+      "ahora": 79,
+      "delta": -3,
+      "estado": "baja"
+    },
+    "verticales[3].gate": {
+      "antes": 66,
+      "ahora": null,
+      "estado": "no medida"
+    },
+    "verticales[3].hibrido": {
+      "antes": 10,
+      "ahora": 11,
+      "delta": 1,
+      "estado": "sube"
+    },
+    "verticales[3].medianaHosts": {
+      "antes": 156,
+      "ahora": 259,
+      "delta": 103,
+      "estado": "sube"
+    },
+    "verticales[3].nprobe": {
+      "antes": 16,
+      "ahora": 19,
+      "delta": 3,
+      "estado": "sube"
+    },
+    "verticales[3].ratio": {
+      "antes": 62,
+      "ahora": 58,
+      "delta": -4,
+      "estado": "baja"
+    },
+    "verticales[4].gate": {
+      "antes": 52,
+      "ahora": null,
+      "estado": "no medida"
+    },
+    "verticales[4].hibrido": {
+      "antes": 10,
+      "ahora": 11,
+      "delta": 1,
+      "estado": "sube"
+    },
+    "verticales[4].medianaHosts": {
+      "antes": 40,
+      "ahora": 47,
+      "delta": 7,
+      "estado": "sube"
+    },
+    "verticales[4].nprobe": {
+      "antes": 16,
+      "ahora": 18,
+      "delta": 2,
+      "estado": "sube"
+    },
+    "verticales[4].ratio": {
+      "antes": 62,
+      "ahora": 61,
+      "delta": -1,
+      "estado": "baja"
+    },
+    "verticales[5].gate": {
+      "antes": 78,
+      "ahora": null,
+      "estado": "no medida"
+    },
+    "verticales[5].hibrido": {
+      "antes": 10,
+      "ahora": 14,
+      "delta": 4,
+      "estado": "sube"
+    },
+    "verticales[5].medianaHosts": {
+      "antes": 37,
+      "ahora": 40,
+      "delta": 3,
+      "estado": "sube"
+    },
+    "verticales[5].nprobe": {
+      "antes": 18,
+      "ahora": 19,
+      "delta": 1,
+      "estado": "sube"
+    },
+    "verticales[5].ratio": {
+      "antes": 56,
+      "ahora": 74,
+      "delta": 18,
+      "estado": "sube"
+    },
+    "verticales[6].gate": {
+      "antes": 83,
+      "ahora": null,
+      "estado": "no medida"
+    },
+    "verticales[6].hibrido": {
+      "antes": 14,
+      "ahora": 14,
+      "delta": 0,
+      "estado": "igual"
+    },
+    "verticales[6].medianaHosts": {
+      "antes": 76,
+      "ahora": 212,
+      "delta": 136,
+      "estado": "sube"
+    },
+    "verticales[6].nprobe": {
+      "antes": 15,
+      "ahora": 17,
+      "delta": 2,
+      "estado": "sube"
+    },
+    "verticales[6].ratio": {
+      "antes": 93,
+      "ahora": 82,
+      "delta": -11,
+      "estado": "baja"
+    },
+    "verticales[7].gate": {
+      "antes": 33,
+      "ahora": null,
+      "estado": "no medida"
+    },
+    "verticales[7].hibrido": {
+      "antes": 10,
+      "ahora": 11,
+      "delta": 1,
+      "estado": "sube"
+    },
+    "verticales[7].medianaHosts": {
+      "antes": 16,
+      "ahora": 35,
+      "delta": 19,
+      "estado": "sube"
+    },
+    "verticales[7].nprobe": {
+      "antes": 17,
+      "ahora": 17,
+      "delta": 0,
+      "estado": "igual"
+    },
+    "verticales[7].ratio": {
+      "antes": 59,
+      "ahora": 65,
+      "delta": 6,
+      "estado": "sube"
+    },
+    "verticales[8].gate": {
+      "antes": 70,
+      "ahora": null,
+      "estado": "no medida"
+    },
+    "verticales[8].hibrido": {
+      "antes": 7,
+      "ahora": 8,
+      "delta": 1,
+      "estado": "sube"
+    },
+    "verticales[8].medianaHosts": {
+      "antes": 52,
+      "ahora": 51,
+      "delta": -1,
+      "estado": "baja"
+    },
+    "verticales[8].nprobe": {
+      "antes": 16,
+      "ahora": 18,
+      "delta": 2,
+      "estado": "sube"
+    },
+    "verticales[8].ratio": {
+      "antes": 44,
+      "ahora": 44,
+      "delta": 0,
+      "estado": "igual"
+    },
+    "verticales[9].gate": {
+      "antes": 47,
+      "ahora": null,
+      "estado": "no medida"
+    },
+    "verticales[9].hibrido": {
+      "antes": 9,
+      "ahora": 17,
+      "delta": 8,
+      "estado": "sube"
+    },
+    "verticales[9].medianaHosts": {
+      "antes": 33,
+      "ahora": 43,
+      "delta": 10,
+      "estado": "sube"
+    },
+    "verticales[9].nprobe": {
+      "antes": 24,
+      "ahora": 28,
+      "delta": 4,
+      "estado": "sube"
+    },
+    "verticales[9].ratio": {
+      "antes": 38,
+      "ahora": 61,
+      "delta": 23,
+      "estado": "sube"
+    }
+  }
+}
