@@ -2,7 +2,7 @@
 
 Generado por `node scripts/build-rubrica-qex.mjs` desde `public/js/rubrica-textos.mjs`. **Nada de esto se publica en producción sin aprobación.**
 Todo es NUEVO salvo los nombres de las alertas, que repiten los aprobados (`TXT.alerta` de qready-textos.mjs), la frase sobre el origen de la tabla HNDL en RQ.S.04 (es, «Sí, así queda»), y los textos 2, 3 y 4 del 18-nov: RQ.S.04 en inglés, el método de RQ.S.09.7 (el tope de sondeo) y el método y la regla de RQ.S.02.1 (la llave), aprobados y sellados en `src/data/q-ready/textos-aprobados/`.
-Versión: rosetta-rubrica-qex/1 · QEX-1.2 · QREADY-NOTA-2.1 · sha256 del JSON: `2b1b0e4362e2997a68362ceb71a2f7be3fa65f7af235d568a1dfcd65721ea81c`
+Versión: rosetta-rubrica-qex/1 · QEX-1.2 · QREADY-NOTA-2.1 · sha256 del JSON: `7548c0e1e9ebd10d071905b7c45cad446bc8bd7b496270faeb795abce508b58a`
 Del mismo encargo, en otro documento: los textos nuevos o cambiados de la ficha (país declarado, enlace a la rúbrica en la sección 06, la línea HNDL de «No medido», la escala en /protocolo/ficha) están en `docs/textos-provisorios-ficha.md` (marcados NUEVO o CAMBIA). También es nueva la descripción del parámetro `pais` en api.js (herramienta MCP y OpenAPI).
 
 ## es

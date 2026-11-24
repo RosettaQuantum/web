@@ -500,7 +500,8 @@ export function armarFicha(foto, ctx = {}) {
     const publicados = Array.isArray(ctx.correo?.resultado?.mx_publicados) ? ctx.correo.resultado.mx_publicados.length : ctx.correo.resultado.servidores.length;
     if (publicados > cm.total) nm.push(F.no_medido.correo_mx(publicados - cm.total, publicados));
   } else if (!(Array.isArray(mx) && mx.length === 0)) nm.push(pendiente ? F.no_medido.correo_pendiente : F.no_medido.correo_sin_dato);
-  if (dims.hndl != null) nm.push(F.no_medido.hndl(sector.toLowerCase(), foto.referencia?.edicion || null));
+  // la edición del MODELO HNDL (hndl_edicion); una foto anterior al 24-nov sólo trae `edicion`, que entonces era la misma
+  if (dims.hndl != null) nm.push(F.no_medido.hndl(sector.toLowerCase(), foto.referencia?.hndl_edicion || foto.referencia?.edicion || null));
   nm.push(F.no_medido.interno, F.no_medido.nunca);
 
   // 06 · evidencia

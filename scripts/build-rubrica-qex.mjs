@@ -19,7 +19,7 @@ const R = await import("../public/js/rubrica-qex.mjs");
 const N = await import("../public/js/qex-nucleo.mjs");
 const { RUBRICA } = await import("../public/js/rubrica-textos.mjs");
 
-export const REFERENCIA_ARCHIVO = "public/data/qex-referencia-2026-08.json";
+export const REFERENCIA_ARCHIVO = "public/data/qex-referencia-vigente.json";
 
 
 const sha = (t) => createHash("sha256").update(t).digest("hex");

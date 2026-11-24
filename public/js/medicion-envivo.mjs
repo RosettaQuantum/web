@@ -207,7 +207,7 @@ $("mv-b-archivo").addEventListener("change", async (e) => {
 
 // ---------------------------------------------------------------- sector
 (async () => {
-  try { referencia = await (await fetch("/data/qex-referencia-2026-08.json")).json(); }
+  try { referencia = await (await fetch("/data/qex-referencia-vigente.json")).json(); }
   catch { decir(t("No pudimos cargar la referencia por sector. Recargue la página.", "We could not load the sector reference. Please reload the page."), true); return; }
   $("mv-sector").innerHTML = Object.entries(referencia.verticales)
     .map(([k, v]) => `<option value="${esc(k)}"${k === "banca" ? " selected" : ""}>${esc(sectorNombre(k, v.nombre))}</option>`).join("");

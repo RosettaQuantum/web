@@ -56,7 +56,9 @@ export function horaCron(cron) {
 export function armarRubrica({ referencia, cron, idioma = "es", N = NUCLEO }) {
   const T = textosRubrica(idioma), F = T.filas, en = idioma === "en";
   const P = N.PESOS, RH = N.REGLA_HIGIENE, RC = N.REGLA_CERTIFICADOS, RE = N.REGLA_EDGE;
-  const ed = referencia.edicion, hora = horaCron(cron);
+  // ed: la edición del MODELO HNDL (24-nov-2026: la referencia vigente trae las medianas de la última edición y
+  // el modelo fijado en 2026-08 en hndl_edicion; en esta rúbrica `ed` sólo describe el modelo HNDL).
+  const ed = referencia.hndl_edicion || referencia.edicion, hora = horaCron(cron);
   if (!hora) throw new Error(`cron ilegible: ${cron}`);
   const version = `${RUBRICA_PROTOCOLO} · ${N.VERSION_QEX} · ${N.VERSION_NOTA}`;
   const norma = (...ks) => ks.map((k) => (en ? NORMAS[k].etiqueta_en : NORMAS[k].etiqueta)).join("; ") || T.sin_norma;

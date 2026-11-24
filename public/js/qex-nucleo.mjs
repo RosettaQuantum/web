@@ -436,7 +436,10 @@ export function armarFoto({ dominio, www, vertical, medido, ct, sondas: s, refer
       not_before: corta(c.not_before), not_after: corta(c.not_after), medido_desde: c.medido_desde || "worker" } : { ok: false, error: c.error, medido_desde: c.medido_desde || "worker" },
     proveedores: { correo: s.correo.proveedor, mx: s.correo.mx, security_txt: s.security_txt.publicado },
     qex: { ...q, tipos },
-    referencia: { edicion: referencia.edicion, mediana_pais: referencia.mediana_pais, mediana_sector: ref.mediana, n_sector: ref.n },
+    // hndl_edicion (24-nov-2026): la edición en que se fijó el MODELO HNDL, que no es la de las medianas. Una
+    // referencia vieja sin el campo la deja fuera (las fotos guardadas no cambian).
+    referencia: { edicion: referencia.edicion, mediana_pais: referencia.mediana_pais, mediana_sector: ref.mediana, n_sector: ref.n,
+      ...(referencia.hndl_edicion ? { hndl_edicion: referencia.hndl_edicion } : {}) },
     instrumentos: { pagina: "qex-nucleo.mjs", servidor: s.instrumento },
   };
   return { foto, detalle: { cuentas, hosts, endpoints, tls13, dim, q, tipos, ref, q11 } };

@@ -11,7 +11,7 @@
   "public/js/qex-nucleo.mjs",
   "public/js/rubrica-qex.mjs",
   "public/js/rubrica-textos.mjs",
-  "public/data/qex-referencia-2026-08.json",
+  "public/data/qex-referencia-vigente.json",
   "wrangler.jsonc (triggers.crons)"
  ],
  "estado_texto": "provisorio: pendiente de aprobación",
@@ -2674,5 +2674,5 @@
    }
   ]
  },
- "sha256": "2b1b0e4362e2997a68362ceb71a2f7be3fa65f7af235d568a1dfcd65721ea81c"
+ "sha256": "7548c0e1e9ebd10d071905b7c45cad446bc8bd7b496270faeb795abce508b58a"
 }
