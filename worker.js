@@ -6,8 +6,13 @@ import { manejarEnvio, manejarBaja } from "./lib/envio-informe.mjs";
 // El logo del PDF de la ficha (wrangler.jsonc: **/rosetta-mark.svg como texto, igual que og-ruta).
 import marcaSvg from "./public/rosetta-mark.svg";
 registrarMedicion(medicionAgentes);
-import { notaParaApi } from "./lib/qready-verificado.mjs";
-registrarVerificado({ notaParaApi });
+import { notaParaApi, verificacionParaApi, iniciarParaApi } from "./lib/qready-verificado.mjs";
+// verificar_dominio (MCP, 24-nov-2026): comprobar con el MISMO camino que la página, incluida la medición
+// en segundo plano la primera vez que el dominio queda verificado (tomarFoto, como lib/qready-rutas.mjs).
+registrarVerificado({ notaParaApi,
+  verificacionParaApi: (env, args, url, ip, ctx) => verificacionParaApi(env, args, url, ip, ctx, { tomarFoto: medicionAgentes.tomarFoto }),
+  // iniciar_verificacion (24-nov-2026, decisión de Nicholas): el alta por MCP, con los topes de iniciarPedido.
+  iniciarParaApi: (env, args, url, ip) => iniciarParaApi(env, args, url, ip, { sectoresValidos: medicionAgentes.sectoresValidos() }) });
 import { manejarQreadyLead } from "./lib/qready-lead.mjs";
 import { manejarInformeIndustria, manejarDescarga } from "./lib/captacion.mjs";
 import { manejarOg } from "./lib/og-ruta.mjs";

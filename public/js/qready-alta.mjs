@@ -20,6 +20,15 @@ const ERR = EN
   : { dominio: "Escriba un dominio público, por ejemplo ejemplo.cl.", sector: "Elija un sector.", contacto: "Escriba un correo válido o déjelo vacío." };
 
 if (form) {
+  // ?dominio= y ?sector= (24-nov-2026): el enlace que entrega la herramienta MCP verificar_dominio llega con el
+  // dominio escrito. Sólo prellena: el pedido sigue pasando por Turnstile y por el botón de la persona.
+  try {
+    const q = new URLSearchParams(location.search);
+    const d = dominioDeEntrada(q.get("dominio") || "");
+    if (d && !$("qv-dominio").value) $("qv-dominio").value = d;
+    const sec = q.get("sector");
+    if (sec && [...$("qv-sector").options].some((o) => o.value === sec)) $("qv-sector").value = sec;
+  } catch { /* sin prellenado: el formulario sigue igual */ }
   form.addEventListener("focusin", () => { if (!ts && window.rqTurnstile) ts = window.rqTurnstile.montar($("qv-ts")); }, { once: true });
   form.addEventListener("submit", async (e) => {
     e.preventDefault();

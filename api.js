@@ -32,6 +32,10 @@ import { legiblesDe } from "./lib/legible.mjs";
 // (encargo del 13-nov: muchos agentes sólo leen la descripción). Texto provisorio, en qready-textos.mjs.
 import { FICHA } from "./public/js/qready-textos.mjs";
 const LINEA_FICHA = " " + FICHA.es.linea_mcp;
+// Textos aprobados del MCP (24-nov-2026), sellados: src/lib/mcp-textos.mjs (check-textos-aprobados).
+import { TEXTOS_MCP, mayuscula } from "./src/lib/mcp-textos.mjs";
+// Los topes del alta (módulo puro): la descripción de iniciar_verificacion los lee de ahí.
+import { TOPES_ALTA, VIGENCIA_TOKEN_HORAS } from "./lib/qready-topes.mjs";
 const IDIOMA_FICHA = { type: "string", enum: ["es", "en"], description: "opcional: idioma de presentacion (rosetta-ficha/1), es por defecto" };
 // La medición en vivo usa sockets TCP (cloudflare:sockets), que el build de Astro no puede
 // resolver, y este archivo también lo importa Astro (llms.txt, /api-docs). Por eso no se
@@ -883,7 +887,7 @@ export const HERRAMIENTAS = [
       "servidores de correo y su security.txt. Envía saludos TLS reales (no es lectura de un " +
       "archivo). Con `sector`, devuelve además el índice QEX (el mismo cálculo que la página " +
       "/es/q-ready/medicion" +
-      ") y su comparación con el sector. El cifrado del correo llega aparte: " +
+      ") y su comparación con el sector, " + TEXTOS_MCP.es.medir + " El cifrado del correo llega aparte: " +
       "la respuesta trae un id para ver_cifrado_correo. null significa «no medido», nunca " +
       "«no protegido». Límite: pocas mediciones por minuto." + LINEA_FICHA,
     inputSchema: { type: "object", required: ["dominio"],
@@ -914,6 +918,40 @@ export const HERRAMIENTAS = [
       "cualquiera, use medir_exposicion_pqc (la nota viene en su respuesta, sin publicarse)." + LINEA_FICHA,
     inputSchema: { type: "object", required: ["domain"],
       properties: { domain: { type: "string", description: "dominio, p.ej. rosettaquantum.com" }, idioma: IDIOMA_FICHA } },
+  },
+  {
+    // PROVISORIO (24-nov-2026, texto 2 reescrito tras la decisión de iniciar por MCP): pendiente de aprobación.
+    name: "iniciar_verificacion",
+    description:
+      "Q-Ready Verified, paso 1: inicia la verificación de un dominio y entrega el registro TXT que su dueño tiene " +
+      "que publicar en el DNS (`_qready.<dominio>` y su valor). Iniciar no prueba nada: el dominio queda verificado " +
+      "sólo cuando ese TXT aparece en su DNS (paso 2: verificar_dominio con el token). Topes: " + TOPES_ALTA.dominio_hora +
+      " pedidos por hora por dominio y " + TOPES_ALTA.origen_hora + " por hora por origen; el token caduca a las " +
+      VIGENCIA_TOKEN_HORAS + " horas si no se verifica. Con `publico`: true, la nota se publica con página y sello " +
+      "cuando el dominio quede verificado.",
+    inputSchema: { type: "object", required: ["dominio", "sector"],
+      properties: {
+        dominio: { type: "string", description: "dominio público, p.ej. ejemplo.cl" },
+        sector: { type: "string", description: "sector del dominio: banca, educacion, energia, fintech, gobierno, mineria, prevision, retail, salud_clinica, salud_isapre, seguros, telecom" },
+        publico: { type: "boolean", description: "opcional: publicar la nota con página y sello al quedar verificado (false por defecto)" },
+        contacto: { type: "string", description: "opcional: correo de contacto del dueño" },
+        idioma: { type: "string", enum: ["es", "en"], description: "opcional: idioma de los enlaces, es por defecto" },
+      } },
+  },
+  {
+    // PROVISORIO (24-nov-2026, texto 2 reescrito tras la decisión de iniciar por MCP): pendiente de aprobación.
+    name: "verificar_dominio",
+    description:
+      "Q-Ready Verified, paso 2 y consulta. Con `token` (el que entregó iniciar_verificacion o la página): comprueba " +
+      "ahora el TXT en el DNS, igual que el botón «Comprobar»; si está, el dominio queda verificado y Rosetta lo mide " +
+      "cada día. Sin `token`: dice si el dominio tiene nota pública, con su página y su sello. No revela si un dominio " +
+      "está verificado en privado. La nota pública se lee con get_qready_grade.",
+    inputSchema: { type: "object",
+      properties: {
+        dominio: { type: "string", description: "dominio público, p.ej. ejemplo.cl (obligatorio sin token)" },
+        token: { type: "string", description: "opcional: el token de 64 caracteres que entregó iniciar_verificacion o la página" },
+        idioma: { type: "string", enum: ["es", "en"], description: "opcional: idioma de los enlaces, es por defecto" },
+      } },
   },
   {
     name: "estado_del_archivo",
@@ -1087,6 +1125,11 @@ async function ejecutarHerramienta(env, nombre, args, quien = {}) {
     { dominio: args.dominio, sector: args.sector, agente: args.agente, idioma: args.idioma, pais: args.pais },
     { canal: "mcp", ip: quien.ip, user_agent: quien.user_agent }, quien.ctx) : sinMedicion).cuerpo;
   if (nombre === "ver_cifrado_correo") return (MEDICION ? await MEDICION.correoParaAgente(env, String(args.id || "")) : sinMedicion).cuerpo;
+  if (nombre === "iniciar_verificacion") return (VERIFICADO && VERIFICADO.iniciarParaApi ? await VERIFICADO.iniciarParaApi(env,
+    { dominio: args.dominio, sector: args.sector, publico: args.publico, contacto: args.contacto, idioma: args.idioma },
+    quien.url || new URL(SITE), quien.ip) : sinVerificado).cuerpo;
+  if (nombre === "verificar_dominio") return (VERIFICADO && VERIFICADO.verificacionParaApi ? await VERIFICADO.verificacionParaApi(env,
+    { dominio: args.dominio, token: args.token, idioma: args.idioma }, quien.url || new URL(SITE), quien.ip, quien.ctx) : sinVerificado).cuerpo;
   if (nombre === "get_qready_grade") return (VERIFICADO ? await VERIFICADO.notaParaApi(env, args.domain, quien.url || new URL(SITE), args.idioma === "en" ? "en" : "es") : sinVerificado).cuerpo;
   if (nombre === "estado_del_archivo") return await estado(env);
   if (nombre === "buscar_evidencia") {
@@ -1130,6 +1173,9 @@ async function ejecutarHerramienta(env, nombre, args, quien = {}) {
   throw new Error(`herramienta desconocida: ${nombre}`);
 }
 
+// GET /mcp: el texto 3 aprobado (24-nov-2026), con mayúscula inicial, en vez de «Solo lectura».
+export const NOTA_MCP = mayuscula(TEXTOS_MCP.es.registro) + ". Toda respuesta incluye sha256 y URLs de las copias públicas.";
+
 async function mcp(request, env, info = {}) {
   if (request.method === "GET") {
     // Un GET al endpoint sirve de descubrimiento humano: que es y que ofrece.
@@ -1137,7 +1183,7 @@ async function mcp(request, env, info = {}) {
       servidor: "rosetta-evidence",
       transporte: "JSON-RPC 2.0 sobre HTTP POST",
       herramientas: herramientasPara(env, info.url).map(h => ({ nombre: h.name, descripcion: h.description })),
-      nota: "Solo lectura. Toda respuesta incluye sha256 y URLs de las copias públicas.",
+      nota: NOTA_MCP,
     });
   }
   let req;

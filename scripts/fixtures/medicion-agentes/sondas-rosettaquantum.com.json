@@ -1,0 +1,103 @@
+{
+ "ok": true,
+ "instrumento": "rosetta-sondas-envivo/1",
+ "dominio": "rosettaquantum.com",
+ "www": "www.rosettaquantum.com",
+ "medido_utc": "2026-11-24T15:28:38.632Z",
+ "nombres_completos": true,
+ "pagina_publica": true,
+ "nombres_enmascarados": false,
+ "borde": {
+  "instrumento": "rosetta-borde-envivo/1 · saludos desde la sonda del VPS (vps/sonda-correo/sonda_tls.py)",
+  "host": "www.rosettaquantum.com",
+  "medido_utc": "2026-11-24T15:28:39Z",
+  "dns": {
+   "cadena": [],
+   "cdn": "sin CNAME"
+  },
+  "saludos": {
+   "A_como_navegador": {
+    "grupo": "X25519MLKEM768",
+    "hrr": true,
+    "alerta": null,
+    "error": null,
+    "ms": 30
+   },
+   "B_solo_hibrido": {
+    "grupo": "X25519MLKEM768",
+    "hrr": true,
+    "alerta": null,
+    "error": null,
+    "ms": 28
+   },
+   "C_eleccion_libre": {
+    "grupo": "X25519MLKEM768",
+    "hrr": true,
+    "alerta": null,
+    "error": null,
+    "ms": 32
+   }
+  },
+  "veredicto": {
+   "conectado": true,
+   "soporta": true,
+   "pide_mejora": true,
+   "elige": true
+  },
+  "medido_desde": "vps",
+  "desde_ip": "45.88.191.121",
+  "alcance": "Mide el tramo cliente → borde. El tramo borde → origen no es observable desde fuera.",
+  "sha256": "f1305a031c7da75049f2641da13282de0454125ec3916140b6bd3f4640986938"
+ },
+ "certificado": {
+  "host": "www.rosettaquantum.com",
+  "ok": true,
+  "metodo": "saludo TLS 1.2 desde la sonda del VPS; se lee la hoja que entrega el servidor",
+  "error": null,
+  "ms": 28,
+  "firma": "ecdsa-with-SHA256",
+  "emisor": "Google Trust Services",
+  "sujeto": "rosettaquantum.com",
+  "not_before": "2026-11-08T18:42:33Z",
+  "not_after": "2027-02-06T19:42:06Z",
+  "algoritmo": "EC",
+  "curva": "P-256",
+  "bits": 256,
+  "medido_desde": "vps"
+ },
+ "endpoints": [],
+ "correo": {
+  "mx": [
+   "route1.mx.cloudflare.net",
+   "route2.mx.cloudflare.net",
+   "route3.mx.cloudflare.net"
+  ],
+  "proveedor": "cloudflare.net",
+  "error": null
+ },
+ "security_txt": {
+  "publicado": null,
+  "url": null,
+  "intentos": [
+   {
+    "url": "https://rosettaquantum.com/.well-known/security.txt",
+    "status": 522,
+    "contact": false
+   },
+   {
+    "url": "https://www.rosettaquantum.com/.well-known/security.txt",
+    "status": 522,
+    "contact": false
+   }
+  ]
+ },
+ "vps": {
+  "estado": "hecho",
+  "id": "0bbac63f-09a5-4170-8d3d-d9a003c7d806",
+  "instrumento": "rosetta-sonda-tls/1 · ClientHello de probe_soporte.py (TLS 1.3) y de clientHello12 (TLS 1.2)",
+  "desde_ip": "45.88.191.121"
+ },
+ "get_raiz": "dueño verificado",
+ "ssh": null,
+ "descartados": 0
+}

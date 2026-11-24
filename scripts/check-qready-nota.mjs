@@ -280,7 +280,7 @@ await conMutante(INF, "return { getPermitido, endpoints: getPermitido ? await co
 
 // ---------------------------------------------------------------- 2 · página y servidor: una sola función
 const pag = sinComentarios(leer("public/js/medicion-envivo.mjs"));
-igual(/N\.explicarNota\(fotoHoy\)/.test(pag), true, "la página calcula la nota con N.explicarNota(fotoHoy)");
+igual(/N\.explicarNota\(fotoHoy, s\.extras_nota \|\| \{\}\)/.test(pag), true, "la página calcula la nota con N.explicarNota(fotoHoy, s.extras_nota || {}) (las extras del sello, 24-nov)");
 const letraPropia = (t) => /=\s*["'](A\+|[ABCDF])["']/.test(t) || /\?\s*["'](A\+|[ABCDF])["']\s*:/.test(t);
 igual(letraPropia(pag), false, "la página no asigna letras por su cuenta");
 igual(letraPropia('const nota = tls13 ? "C" : "D";'), true, "el detector de letra propia grita con una regla escrita en la página");
@@ -307,8 +307,8 @@ igual(await letraServidor(A), letraPagina, "silencio: el servidor da la misma le
 const sinSector = await A.medirParaAgente({ DB: dbNula }, { dominio: "python.org" }, { canal: "api", ip: "203.0.113.9" }, null, manejadores());
 igual(sinSector.cuerpo.nota, null, "sin sector no hay foto y no se inventa una letra");
 // MUTACIÓN: el servidor con su propia regla (sin la foto)
-await conMutante(new URL("lib/medicion-agentes.mjs", raiz), "const x = N.explicarNota(r.foto);",
-  'const x = { ...N.explicarNota(r.foto), nota: r.d.borde?.veredicto?.soporta ? "A" : "C" };',
+await conMutante(new URL("lib/medicion-agentes.mjs", raiz), "const x = N.explicarNota(r.foto, extras);",
+  'const x = { ...N.explicarNota(r.foto, extras), nota: r.d.borde?.veredicto?.soporta ? "A" : "C" };',
   async (M) => igual((await letraServidor(M)) !== letraPagina, true, "MUTACIÓN: un servidor con regla propia → el comparador ve otra letra"));
 console.error = errorOriginal;
 
