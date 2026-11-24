@@ -37,7 +37,8 @@ const igual = (a, b, q) => { casos++; if (JSON.stringify(a) !== JSON.stringify(b
 
 const LECTURA = "TEXTO-lectura-notas-A-B-2026-11-18.md", HNDL = "TEXTO-rubrica-hndl-origen-2026-11-18.md", T234 = "TEXTOS-para-aprobar-2026-11-18.md";
 const CARRUSEL = "TEXTOS-carrusel-2026-11-24.md";
-const QR_EN = "TEXTOS-q-ready-en-2026-11-23.md"; // su contenido lo vigila scripts/textos-q-ready-en.mjs --verificar
+const QR_EN = "TEXTOS-q-ready-en-2026-11-23.md";
+const MCP = "TEXTOS-mcp-2026-11-24.md"; // su contenido lo vigila scripts/textos-q-ready-en.mjs --verificar
 // Las lecturas que NO se tocan (A+, C, D, F), como estaban el 18-nov: cambiarlas no está aprobado.
 const SIN_CAMBIO = {
   es: { "A+": "Candado nuevo en todo lo visible y un plan interno firmado y verificado.",
@@ -52,13 +53,14 @@ const SIN_CAMBIO = {
 
 // ---------------------------------------------------------------- 1 · el sello
 const AP = TA.aprobados();
-igual(AP.map((a) => a.archivo).sort(), [LECTURA, HNDL, T234, QR_EN, CARRUSEL].sort(), "APROBADOS.json declara los cinco documentos, ni más ni menos");
+igual(AP.map((a) => a.archivo).sort(), [LECTURA, HNDL, T234, QR_EN, CARRUSEL, MCP].sort(), "APROBADOS.json declara los seis documentos, ni más ni menos");
+igual(AP.find((a) => a.archivo === MCP)?.sha256, "0bf245ba5cd0885060e1059eb6df78f940942a523a143385aa85f1b85175fe48", "TEXTOS-mcp: el sha256 con que se aprobó");
 igual(AP.find((a) => a.archivo === CARRUSEL)?.sha256, "76d5bcc1159c74ce69b4f8630e5974e50693475f3067fd5c4901b9c61d69a5a1", "TEXTOS-carrusel: el sha256 con que se aprobó");
 { const sell = TA.leerBytes(CARRUSEL).toString("utf8");
   for (const [l, t] of Object.entries(TEXTOS_CARRUSEL)) for (const [k, v] of Object.entries(t))
     igual(sell.includes(`| ${v} |`), true, `carrusel ${l}.${k} «${v}» es el texto aprobado`); }
 igual(AP.find((a) => a.archivo === QR_EN)?.sha256, "3d16e4f79b7297c553170691727fff3a11e05e74a2e38895cfcaaf6f33c23cd4", "TEXTOS-q-ready-en: el sha256 con que se aprobó");
-for (const a of AP) igual([TA.sha256(TA.leerBytes(a.archivo)), /^Nicholas, (18-nov-2026(: "Sí, | \(textos 2, 3 y 4\)$)|23-nov-2026: «Textos OK, súbelo»|24-nov-2026: «Sí, con esos textos»)/.test(a.aprobado_por)], [a.sha256, true], `${a.archivo}: sha256 y aprobado_por iguales a APROBADOS.json`);
+for (const a of AP) igual([TA.sha256(TA.leerBytes(a.archivo)), /^Nicholas, (18-nov-2026(: "Sí, | \(textos 2, 3 y 4\)$)|23-nov-2026: «Textos OK, súbelo»|24-nov-2026: «Sí, con esos textos»|24-nov-2026 \(vía coordinación\): textos 1 y 3 del MCP, ES y EN tal cual$)/.test(a.aprobado_por)], [a.sha256, true], `${a.archivo}: sha256 y aprobado_por iguales a APROBADOS.json`);
 igual(AP.find((a) => a.archivo === T234).sha256, "a31d2c1c3215d7f05b3568dc8e7468cf607615301177c2801c9de2dbb706aaa3", "TEXTOS-para-aprobar: el sha256 con que se aprobó");
 
 // ---------------------------------------------------------------- 2 · el código dice lo aprobado
@@ -120,7 +122,34 @@ await conMutante(RTX, "depreca después de 2030 todo ECDSA y RSA", "depreca desp
 await conMutante(RTX, "sólo si es post-cuántica;", "sólo si es postcuántica;",
   async (M) => igual(revisar234(M).some((x) => x.startsWith("texto 4 (es): la regla")), true, "MUTACIÓN texto 4: la regla de la llave con un guion menos → grita"));
 
+// ---------------------------------------------------------------- 4 · los textos del MCP (24-nov-2026)
+// TEXTOS-mcp-2026-11-24.md: textos 1 y 3, ES y EN. El código los sirve desde src/lib/mcp-textos.mjs:
+//  1 es → la descripción de medir_exposicion_pqc (tools/list); 3 es → GET /mcp con mayúscula inicial;
+//  3 en → /api-docs, dos veces, y ya no dice «read-only tools». 1 en está sellado y hoy no se sirve.
+const MCP_DOC = TA.leerBytes(MCP).toString("utf8");
+const { HERRAMIENTAS, NOTA_MCP } = await import("../api.js");
+const NUC = await import("../public/js/qex-nucleo.mjs");
+function revisarMcp(TM, herramientas = HERRAMIENTAS, nota = NOTA_MCP, docs = leer("src/pages/api-docs.astro")) {
+  const out = [];
+  for (const l of ["es", "en"]) for (const k of ["medir", "registro"])
+    if (!MCP_DOC.includes(`| ${TM.TEXTOS_MCP[l][k]} |`)) out.push(`mcp ${l}.${k} no es el texto aprobado`);
+  const medir = herramientas.find((h) => h.name === "medir_exposicion_pqc")?.description || "";
+  if (!medir.includes("comparación con el sector, " + TM.TEXTOS_MCP.es.medir + " El cifrado")) out.push("medir_exposicion_pqc no sirve el texto 1 aprobado");
+  if (!nota.startsWith(TM.mayuscula(TM.TEXTOS_MCP.es.registro) + ". ")) out.push("GET /mcp no sirve el texto 3 aprobado");
+  if ((docs.match(/\{TEXTOS_MCP\.en\.registro\}/g) || []).length !== 2 || /read-only\s+tools/.test(docs)) out.push("/api-docs no sirve el texto 3 en inglés (o vuelve a decir read-only tools)");
+  for (const v of [NUC.VERSION_NOTA, NUC.VERSION_QEX]) if (!TM.TEXTOS_MCP.es.medir.includes(v) || !TM.TEXTOS_MCP.en.medir.includes(v))
+    out.push(`el texto 1 aprobado nombra otra versión que la vigente (${v}): se vuelve a aprobar`);
+  return out;
+}
+const TM = await import("../src/lib/mcp-textos.mjs");
+igual(revisarMcp(TM), [], "MCP: los textos 1 y 3 se sirven tal cual se aprobaron, ES y EN");
+await conMutante(new URL("src/lib/mcp-textos.mjs", raiz), "la letra es la misma de su sello", "la letra es igual a la de su sello",
+  async (M) => igual(revisarMcp(M).some((x) => x.startsWith("mcp es.medir")), true, "MUTACIÓN MCP texto 1: otra redacción en el código → grita"));
+igual(revisarMcp(TM, HERRAMIENTAS, NOTA_MCP, leer("src/pages/api-docs.astro").replace("tools\n        ({TEXTOS_MCP.en.registro}):", "read-only\n        tools:")).length > 0, true,
+  "MUTACIÓN MCP texto 3: /api-docs vuelve a «read-only tools» → grita");
+igual(revisarMcp(TM, HERRAMIENTAS, "Solo lectura. Toda respuesta incluye sha256 y URLs de las copias públicas.").length > 0, true, "MUTACIÓN MCP texto 3: GET /mcp vuelve a «Solo lectura» → grita");
+
 for (const f of fallas) console.log("  FALLA " + f);
 console.log(fallas.length ? `check-textos-aprobados: ${fallas.length} falla(s) de ${casos} casos`
-  : `check-textos-aprobados: ok (${casos} casos · 5 documentos sellados · lectura A/B, frase HNDL es/en, tope y llave = lo aprobado · 9 mutaciones gritan)`);
+  : `check-textos-aprobados: ok (${casos} casos · 6 documentos sellados · lectura A/B, frase HNDL es/en, tope y llave, textos del MCP = lo aprobado · 12 mutaciones gritan)`);
 process.exit(fallas.length ? 1 : 0);

@@ -1,5 +1,7 @@
 ---
 import { CATALOGO, HERRAMIENTAS } from '../../api.js';
+// El texto 3 aprobado (24-nov-2026), sellado: reemplaza la frase vieja de «sólo lectura» de las herramientas.
+import { TEXTOS_MCP } from '../lib/mcp-textos.mjs';
 import MarcaLayout from '../layouts/MarcaLayout.astro';
 import css from '../styles/pages/api-docs.css?raw';
 // Esta pagina existe porque la API la promete: cada respuesta dice "recomputa el sha256
@@ -64,7 +66,7 @@ const ARRANQUE_AGENTES = [
       <pre><code set:html={ARRANQUE_AGENTES} />
       </pre>
       <p>
-        Point an MCP client at <code>https://rosettaquantum.com/mcp</code> — {HERRAMIENTAS.length} read-only tools, no authentication step.
+        Point an MCP client at <code>https://rosettaquantum.com/mcp</code> — {HERRAMIENTAS.length} tools ({TEXTOS_MCP.en.registro}), no authentication step.
       </p>
 
       <h3>We publish our own usage</h3>
@@ -167,8 +169,8 @@ const ARRANQUE_AGENTES = [
 
       <h2>MCP server</h2>
       <p>
-        <code>POST {SITE}/mcp</code> speaks JSON-RPC 2.0 and exposes {HERRAMIENTAS.length} read-only
-        tools: {HERRAMIENTAS.map((h, i) => (<>{i > 0 ? (i === HERRAMIENTAS.length - 1 ? ' and ' : ', ') : ''}<code>{h.name}</code></>))}.
+        <code>POST {SITE}/mcp</code> speaks JSON-RPC 2.0 and exposes {HERRAMIENTAS.length} tools
+        ({TEXTOS_MCP.en.registro}): {HERRAMIENTAS.map((h, i) => (<>{i > 0 ? (i === HERRAMIENTAS.length - 1 ? ' and ' : ', ') : ''}<code>{h.name}</code></>))}.
       </p>
       <pre><code>{MCP_CMD}</code></pre>
 

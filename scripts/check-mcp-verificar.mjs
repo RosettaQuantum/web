@@ -11,8 +11,16 @@
  *  · SILENCIO de la privacidad: verificado en PRIVADO → la respuesta es idéntica a la de uno sin verificar.
  *  · con token (modo de prueba del preview, TXT simulado): ausente → no verifica; presente → verificado,
  *    con página y sello; y la respuesta de la ruta de la página trae los mismos campos y valores.
- *  · el alta NO existe por MCP: la herramienta no escribe un pedido nuevo (cuenta de filas igual).
+ *  · sin token, verificar_dominio no escribe un pedido nuevo (cuenta de filas igual).
  *  · token mal formado → 400 sin tocar la base.
+ * INICIAR (24-nov-2026, decisión de Nicholas: «una persona o un agente vía MCP… por ejemplo Nyx5»):
+ *  · SILENCIO un pedido normal por iniciar_verificacion entrega `_qready.<dominio>` y su valor, caduca a las 72 h,
+ *    y con el TXT publicado verificar_dominio lo deja verificado (iniciar → comprobar, punta a punta).
+ *  · GRITO    el 4º pedido de un dominio en una hora (desde orígenes distintos) → 429 tope «dominio»;
+ *             el 11º de un origen en una hora (dominios distintos, minutos distintos) → 429 tope «origen».
+ *  · CADUCA   un pedido sin verificar de hace más de 72 h → 410; uno de 71 h se comprueba normal.
+ *  · MISMO CAMINO la ruta de la página (después de Turnstile) cae en el mismo tope por dominio.
+ *  · MUTACIÓN sin el tope por dominio → el grito no grita.
  *   node scripts/check-mcp-verificar.mjs
  */
 import { registerHooks } from "node:module";
@@ -23,6 +31,7 @@ const memoria = new Map();
 globalThis.caches = { default: { match: async (k) => (memoria.has(k.url) ? new Response(memoria.get(k.url)) : undefined),
   put: async (k, r) => { memoria.set(k.url, await r.text()); } } };
 const V = await import("../lib/qready-verificado.mjs");
+const { conMutante } = await import("./lib/mutar.mjs");
 const { HERRAMIENTAS } = await import("../api.js");
 const { d1EnMemoria } = await import("./lib/d1-memoria.mjs");
 
@@ -94,9 +103,76 @@ igual(HERRAMIENTAS.filter((x) => x.name === "verificar_dominio").length, 1, "una
   igual((await V.verificacionParaApi(env, { token: "no-es-un-token" }, PREV, "203.0.113.8")).http, 400, "token mal formado: 400");
 }
 
+// ---------------------------------------------------------------- iniciar (24-nov-2026)
+igual(HERRAMIENTAS.some((x) => x.name === "iniciar_verificacion" && JSON.stringify(x.inputSchema.required) === '["dominio","sector"]'), true,
+  "tools/list expone iniciar_verificacion (dominio y sector obligatorios)");
+const T0 = Date.parse("2026-11-24T12:00:00.000Z");
+const en = (min) => new Date(T0 + min * 60000).toISOString();
+async function iniciar(Vx, env, dominio, origen, min) {
+  return Vx.iniciarPedido(env, { dominio, sector: "banca" }, { url: PREV, origen, sectoresValidos: ["banca"], ahora: en(min) });
+}
+{
+  memoria.clear();
+  const db = d1EnMemoria(...ESQ);
+  const env = { DB: db, QREADY_PRUEBA_DNS: "1" };
+  // SILENCIO punta a punta, por la herramienta MCP
+  const ini = (await V.iniciarParaApi(env, { dominio: "prueba-rosetta.example", sector: "banca" }, PREV, "198.51.100.1", { sectoresValidos: ["banca"] })).cuerpo;
+  igual([ini.ok, /^[0-9a-f]{64}$/.test(ini.token), ini.txt?.nombre, ini.txt?.valor === V.valorTxt(ini.token), ini.entorno],
+    [true, true, "_qready.prueba-rosetta.example", true, "preview-prueba"], "SILENCIO: un pedido normal por MCP entrega el TXT");
+  igual(Date.parse(ini.caduca_utc) - Date.now() > 71.9 * 3600e3 && Date.parse(ini.caduca_utc) - Date.now() <= 72 * 3600e3 + 5000, true, "el token caduca a las 72 h");
+  await db.prepare("UPDATE qready_dominios SET txt_prueba = ?2 WHERE token = ?1").bind(ini.token, ini.txt.valor).run();
+  const ok = (await V.verificacionParaApi(env, { token: ini.token }, PREV, "198.51.100.1")).cuerpo;
+  igual([ok.verificado, ok.cambio], [true, "verificado"], "iniciar → TXT publicado → verificar_dominio: verificado");
+  igual((await V.iniciarParaApi(env, { dominio: "x.example", sector: "astrologia" }, PREV, "198.51.100.1", { sectoresValidos: ["banca"] })).cuerpo.error, "sector", "sector inválido: rechazo sin escribir");
+
+  // GRITO por dominio: 3 pasan, el 4º no (orígenes distintos, para que no sea el tope por origen)
+  memoria.clear();
+  const r = [];
+  for (let i = 0; i < 4; i++) r.push(await iniciar(V, env, "tope.example", `203.0.113.${20 + i}`, i));
+  igual(r.map((x) => x.http), [200, 200, 200, 429], "GRITO: el 4º pedido del mismo dominio en una hora → 429");
+  igual(r[3].cuerpo.tope, "dominio", "el rechazo dice que saltó el tope por dominio");
+  igual((await iniciar(V, env, "tope.example", "203.0.113.30", 61)).http, 200, "SILENCIO: pasada la hora, el dominio vuelve a aceptar");
+
+  // GRITO por origen: 10 por hora (dominios distintos, un minuto cada uno para no tocar el tope por minuto)
+  memoria.clear();
+  const o = [];
+  for (let i = 0; i < 11; i++) o.push(await iniciar(V, env, `d${i}.example`, "198.51.100.77", i));
+  igual(o.map((x) => x.http).join(","), "200,200,200,200,200,200,200,200,200,200,429", "GRITO: el 11º pedido de un origen en una hora → 429");
+  igual(o[10].cuerpo.tope, "origen", "el rechazo dice que saltó el tope por origen");
+  memoria.clear();
+  const m = [];
+  for (let i = 0; i < 6; i++) m.push((await iniciar(V, env, `m${i}.example`, "198.51.100.88", 0)).http);
+  igual(m.join(","), "200,200,200,200,200,429", "GRITO: el 6º pedido de un origen en un minuto → 429 (el tope que ya tenía la página)");
+
+  // CADUCA
+  const viejo = await V.alta(db, { dominio: "viejo.example", sector: "banca" }, "preview-prueba", null, new Date(Date.now() - 73 * 3600e3).toISOString());
+  const tibio = await V.alta(db, { dominio: "tibio.example", sector: "banca" }, "preview-prueba", null, new Date(Date.now() - 71 * 3600e3).toISOString());
+  memoria.clear();
+  igual((await V.verificacionParaApi(env, { token: viejo.token }, PREV, "198.51.100.2")).http, 410, "CADUCA: sin verificar y de hace 73 h → 410");
+  igual((await V.verificacionParaApi(env, { token: tibio.token }, PREV, "198.51.100.2")).cuerpo.estado, "ausente", "SILENCIO: de hace 71 h se comprueba normal");
+
+  // MISMO CAMINO: la ruta de la página (modo de prueba, sin Turnstile) choca con el mismo tope por dominio
+  memoria.clear();
+  const url = new URL(`${PREV.origin}/api/qready/verificado/alta`);
+  const pagina = async (ip) => (await V.manejarVerificado(new Request(url, { method: "POST", body: JSON.stringify({ dominio: "pagina.example", sector: "banca" }),
+    headers: { "cf-connecting-ip": ip } }), env, url, null, { sectoresValidos: ["banca"] })).status;
+  const vistas = [];
+  for (let i = 0; i < 4; i++) vistas.push(await pagina(`192.0.2.${i + 1}`));
+  igual(vistas, [200, 200, 200, 429], "MISMO CAMINO: la página cae en el mismo tope por dominio que el MCP");
+
+  // MUTACIÓN: sin el tope por dominio, el grito no grita
+  await conMutante(new URL("lib/qready-verificado.mjs", raiz), "if (!n || n.n >= TOPES_ALTA.dominio_hora)", "if (!n)", async (V2) => {
+    memoria.clear();
+    const db2 = d1EnMemoria(...ESQ), env2 = { DB: db2, QREADY_PRUEBA_DNS: "1" };
+    const x = [];
+    for (let i = 0; i < 4; i++) x.push((await iniciar(V2, env2, "tope.example", `203.0.113.${40 + i}`, i)).http);
+    igual(x[3] === 200, true, "MUTACIÓN: sin el tope por dominio el 4º pasa (el guardia lo ve)");
+  });
+}
+
 if (fallas.length) {
   console.error(`check-mcp-verificar: ${fallas.length} FALLA(S) de ${casos} casos`);
   for (const f of fallas) console.error("  ✗ " + f);
   process.exit(1);
 }
-console.log(`check-mcp-verificar: ok (${casos} casos · consulta sin token, privado = sin verificar, comprobar = botón de la página, sin alta por MCP)`);
+console.log(`check-mcp-verificar: ok (${casos} casos · iniciar → comprobar por MCP, topes por dominio/origen gritan, el token caduca, la página va por el mismo camino, privado = sin verificar · 1 mutación grita)`);
