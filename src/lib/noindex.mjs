@@ -29,3 +29,27 @@ export function urlNoindex(url, dist) {
   const f = archivoDe(url, dist);
   try { return htmlNoindex(fs.readFileSync(f, "utf8")); } catch { return false; }
 }
+
+/*
+ * ¿La página construida declara que la que cuenta es OTRA? (24-nov-2026)
+ * /informe-pqc/ sirve la edición vigente y su canonical apunta a /informe-pqc/AAAA-MM/
+ * (decisión de Nicholas: cada edición acumula su indexación). Anunciar en el sitemap una
+ * URL cuyo canonical es otra es la misma contradicción que el noindex: se le pide al
+ * buscador que indexe una dirección que la página misma descarta.
+ */
+export function htmlCanonical(html) {
+  for (const m of sinComentarios(html).matchAll(/<link\b[^>]*>/gi)) {
+    const t = m[0];
+    const h = t.match(/\bhref\s*=\s*["']([^"']+)["']/i);
+    if (/\brel\s*=\s*["']?canonical["']?/i.test(t) && h) return h[1];
+  }
+  return null;
+}
+const ruta = (u) => { const p = new URL(u, "https://x/").pathname; return p.endsWith("/") ? p : p + "/"; };
+/** true si la página construida de esa URL declara un canonical con OTRA ruta. Sin archivo o sin canonical: false. */
+export function urlCanonicalAjena(url, dist) {
+  let html;
+  try { html = fs.readFileSync(archivoDe(url, dist), "utf8"); } catch { return false; }
+  const c = htmlCanonical(html);
+  return c != null && ruta(c) !== ruta(url);
+}

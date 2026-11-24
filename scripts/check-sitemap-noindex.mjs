@@ -22,13 +22,13 @@
 export const CONSUMIDOR = { quien: "el postbuild (bloquea el deploy) y quien ponga noindex a una página", hace: "deja que astro.config.mjs la saque del sitemap leyendo el meta de la propia página; nunca la excluye a mano" };
 import fs from "node:fs";
 import path from "node:path";
-import { htmlNoindex, urlNoindex, archivoDe } from "../src/lib/noindex.mjs";
+import { htmlNoindex, urlNoindex, archivoDe, htmlCanonical, urlCanonicalAjena } from "../src/lib/noindex.mjs";
 
 const DIST = path.resolve(new URL("..", import.meta.url).pathname, "dist");
 /** URLs del sitemap que llevan noindex. */
 export function revisar(xml, dist = DIST) {
   const locs = [...xml.replace(/<!--[\s\S]*?-->/g, "").matchAll(/<loc>([^<]+)<\/loc>/g)].map((m) => m[1].trim());
-  return { locs, mal: locs.filter((u) => urlNoindex(u, dist)) };
+  return { locs, mal: locs.filter((u) => urlNoindex(u, dist)), ajenas: locs.filter((u) => urlCanonicalAjena(u, dist)) };
 }
 
 /** ¿La respuesta servida pide noindex? Cabecera X-Robots-Tag o meta en el cuerpo. */
@@ -92,6 +92,8 @@ prueba("servido · silencio: sin cabecera ni meta", !respuestaNoindex(null, '<me
 prueba("servido · MUTACIÓN corte de red: 332 de 336 sin respuesta y 0 noindex NO es verde", !veredicto(336, 0, 332).ok);
 prueba("servido · piso exacto: 16 de 336 sin respuesta (4,8 %) pasa; 17 (5,1 %) falla", veredicto(336, 0, 16).ok && !veredicto(336, 0, 17).ok);
 prueba("servido · sitemap vacío falla", !veredicto(0, 0, 0).ok);
+prueba("canonical · lee el href del link canonical", htmlCanonical('<link rel="canonical" href="https://r.com/informe-pqc/2026-11/">') === "https://r.com/informe-pqc/2026-11/");
+prueba("canonical · silencio paradójico: sólo dentro de un comentario no cuenta", htmlCanonical('<!-- <link rel="canonical" href="/x/"> -->') === null);
 prueba("enOrigen: el <loc> del dominio se pide al origen medido, con la misma ruta",
   enOrigen("https://rosettaquantum.com/es/q-ready/?a=1", "https://w.x.workers.dev") === "https://w.x.workers.dev/es/q-ready/?a=1");
 prueba("enOrigen: contra el propio dominio no cambia nada",
@@ -109,7 +111,8 @@ else {
   prueba(`MUTACIÓN sin la exclusión: ${conNoindex.length} páginas noindex de dist/ metidas al sitemap gritan`,
     conNoindex.length > 0 && revisar(`<urlset>${conNoindex.map((u) => `<url><loc>${u}</loc></url>`).join("")}</urlset>`).mal.length === conNoindex.length);
   for (const f of maps) {
-    const { locs, mal } = revisar(fs.readFileSync(path.join(DIST, f), "utf8"));
+    const { locs, mal, ajenas } = revisar(fs.readFileSync(path.join(DIST, f), "utf8"));
+    prueba(`dist/${f}: ${ajenas.length ? "con canonical ajeno: " + ajenas.join(" · ") : "ninguna URL con canonical ajeno"}`, ajenas.length === 0);
     prueba(`dist/${f}: ${locs.length} URLs, ${mal.length ? "con noindex: " + mal.join(" · ") : "ninguna con noindex"}`, locs.length > 0 && mal.length === 0);
   }
 }

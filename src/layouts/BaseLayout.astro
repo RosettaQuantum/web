@@ -37,12 +37,15 @@ const FUENTES = {
 // indexen. Decision de Nicholas del 8-sep para /q-ready: la pagina QUEDA VIVA —hay un
 // flujo de leads que no se toca— y sale del indice. Fuera del sitemap ya estaba; sin
 // esta etiqueta un enlace desde afuera la mete al indice igual.
-const { title, description, lang='en', altUrl='/es/', pageCss='', scripts=[], nav=true, pie=true, fuentes='vieja', noindex=false } = Astro.props;
+const { title, description, lang='en', altUrl='/es/', pageCss='', scripts=[], nav=true, pie=true, fuentes='vieja', noindex=false, canonicalUrl=null } = Astro.props;
 const hrefFuentes = FUENTES[fuentes] || FUENTES.vieja;
 const altLang = lang==='en' ? 'es' : 'en';
 // absolutas y con barra final: una hreflang relativa es válida pero frágil, y
 // sin canonical /ruta y /ruta/ son dos páginas distintas para Google.
-const canonical = abs(Astro.url.pathname);
+// `canonicalUrl`: una página que sirve el mismo contenido que otra dirección declara
+// cuál cuenta. Decisión de Nicholas del 24-nov: /informe-pqc/ apunta a la edición
+// vigente (/informe-pqc/AAAA-MM/), para que cada edición acumule su indexación.
+const canonical = abs(canonicalUrl || Astro.url.pathname);
 const altHref = abs(altUrl);
 const xDefault = lang === 'en' ? canonical : altHref;
 // Marca de version. Existe para que un chequeo pueda saber si el edge ya sirve

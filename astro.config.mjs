@@ -2,7 +2,7 @@ import { defineConfig } from 'astro/config';
 import sitemap from '@astrojs/sitemap';
 import fs from 'node:fs';
 import path from 'node:path';
-import { urlNoindex } from './src/lib/noindex.mjs';
+import { urlNoindex, urlCanonicalAjena } from './src/lib/noindex.mjs';
 
 const SITE = 'https://rosettaquantum.com';
 
@@ -100,7 +100,9 @@ export default defineConfig({
         && !(INFORME_BORRADOR && page.includes('/informe-pqc'))
         // 18-nov-2026: una página que pide noindex no se anuncia. La señal es el meta de la
         // propia página ya construida (src/lib/noindex.mjs), no una lista al lado.
-        && !urlNoindex(page, path.resolve('./dist')),
+        && !urlNoindex(page, path.resolve('./dist'))
+        // 24-nov-2026: ni una que declara que la que cuenta es otra (canonical ajeno).
+        && !urlCanonicalAjena(page, path.resolve('./dist')),
       i18n: { defaultLocale: 'en', locales: { en: 'en', es: 'es' } },
       serialize(item) {
         const links = BY_URL.get(item.url);

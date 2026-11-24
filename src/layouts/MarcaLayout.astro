@@ -20,9 +20,10 @@ import navCss from '../styles/componentes/nav.css?raw';
    traia la identidad retirada a TODAS las paginas y habia que taparla; ahora esa hoja
    la piden solo las paginas que la conservan, asi que no hay nada que tapar. */
 
-const { title, description, lang = 'en', altUrl = '/es/', ruta = '/', pageCss = '', scripts = [], noindex = false } = Astro.props;
+const { title, description, lang = 'en', altUrl = '/es/', ruta = '/', pageCss = '', scripts = [], noindex = false, canonicalUrl = null } = Astro.props;
 ---
 <BaseLayout
+  canonicalUrl={canonicalUrl}
   title={title}
   description={description}
   lang={lang}

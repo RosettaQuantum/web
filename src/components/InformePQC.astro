@@ -72,6 +72,10 @@ if (slugPedido) {
 }
 const { d } = actual;
 const prev = anterior?.d ?? null;
+// /informe-pqc/ sirve la edición vigente: su canonical es la URL de esa edición
+// (decisión de Nicholas, 24-nov: «la de cada edición»). Un borrador no la recibe:
+// lleva noindex y no tiene URL propia.
+const canonicalUrl = !slugPedido && d.borrador === false ? `/informe-pqc/${actual.slug}/` : null;
 
 // Las ediciones PUBLICADAS, para la lista de la serie. Un borrador no entra:
 // no tiene landing, asi que enlazarlo seria un 404.
@@ -308,7 +312,7 @@ const cssPieDeEdicion = `@media print{@page{@bottom-left{content:"${pieEstado.re
 <MarcaLayout
   title={`${d.titulo} — Informe ${mesLargo} · Rosetta Quantum`}
   description={`${d.subtitulo}. Edición ${d.numero}, ${mesLargo}. Medición técnica sobre endpoints reales, no encuesta.`}
-  lang="es" altUrl="/" ruta="/informe-pqc" pageCss={css + cssPieDeEdicion} scripts={["/js/frescura.js", "/js/informe-indice.js"]} noindex={esBorrador}>
+  lang="es" altUrl="/" ruta="/informe-pqc" canonicalUrl={canonicalUrl} pageCss={css + cssPieDeEdicion} scripts={["/js/frescura.js", "/js/informe-indice.js"]} noindex={esBorrador}>
 
 <div class="informe-doc" data-edicion={d.edicion}>
 <div class="informe">
