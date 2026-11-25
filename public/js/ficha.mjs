@@ -610,7 +610,7 @@ export function filasArbol(arbol, idioma = "es") {
     if (D.modelo) filas.push([id, D.modelo, D.valor == null ? F.sin_dato : String(D.valor), D.aporte == null ? "—" : dec(D.aporte, idioma), "base"]);
     // 25-nov: un informativo muestra lo observado (sí/no); un 0 de la higiene es «cumple · descuento 0», no un fallo
     for (const x of D.subindices) filas.push([x.id, x.regla, x.informativo ? (x.valor_info ?? "—") : x.dimension == null ? (x.tipo === "modelo" ? A.hndl_sin_dato : F.sin_dato)
-      : D.clave === "higiene" && x.dimension === 0 ? A.sin_descuento : ent(x.dimension),
+      : D.clave === "higiene" && x.dimension === 0 && x.tipo === "medido" ? A.sin_descuento : ent(x.dimension),
       x.qex == null ? "—" : dec(x.qex, idioma), "sub"]);
     filas.push([`= ${id}`, A.peso(dec(D.peso, idioma)), D.valor == null ? F.sin_dato : F.sobre(D.valor, D.maximo), D.aporte == null ? "—" : dec(D.aporte, idioma), "total"]);
   }

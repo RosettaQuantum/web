@@ -41,6 +41,7 @@ const CORREO = JSON.parse(leer(FX + "correo-tenpo.cl.json"));
 const fallas = [];
 let casos = 0;
 const igual = (a, b, q) => { casos++; if (JSON.stringify(a) !== JSON.stringify(b)) fallas.push(`${q}: esperaba ${JSON.stringify(b)}, dio ${JSON.stringify(a)}`); };
+const clonar = (o) => JSON.parse(JSON.stringify(o));
 const silenciar = () => { const o = [console.error, console.log]; console.error = () => {}; console.log = () => {}; return () => { [console.error, console.log] = o; }; };
 const json = (o, status = 200) => new Response(JSON.stringify(o), { status, headers: { "content-type": "application/json" } });
 const M = { ct: async () => json(CT), sondas: async () => json(SONDAS),
@@ -98,6 +99,13 @@ igual(Fi.internosPublicos([{ host: "internacional.x.cl", dns_status: "NOERROR", 
 // 11 · TLS 1.3 y el certificado
 igual([/cumple · descuento 0/.test(fila("RQ.S.03.1")), /^- Certificado: saludo TLS 1\.2.*\(en TLS 1\.3 el certificado viaja cifrado; con un saludo TLS 1\.2 se lee sin completar una sesión\)$/m.test(md)], [true, true],
   "11 · «TLS 1.3 | 0» → «cumple · descuento 0», y por qué el certificado se leyó con TLS 1.2");
+{ // SILENCIO (vista previa, 25-nov): «TLS 1.3 sin dato» NO puede decir «cumple»
+  const s2 = clonar(SONDAS); s2.borde.saludos.A_como_navegador = { grupo: null, hrr: null, alerta: null, error: "Stream was cancelled.", ms: 1 };
+  const foto = N.armarFoto({ dominio: "tenpo.cl", www: "www.tenpo.cl", vertical: "fintech", medido: "2026-11-25T10:22:42Z", ct: await N.ctDesdeServidor(CT, 0),
+    sondas: s2, referencia: JSON.parse(leer("public/data/qex-referencia-vigente.json")), origen: "guardia" }).foto;
+  const f = Fi.filasArbol(Fi.arbolQex(foto)).find((x) => x[0] === "RQ.S.03.1");
+  igual([foto.tls13, f[2]], [null, "0"], "11 · SILENCIO: TLS 1.3 sin dato no dice «cumple» (defecto visto en la vista previa)");
+}
 // 12 · informativos con valor
 igual([r.sitio_web.elige_hibrido_pq, /\| sí \|/.test(fila("RQ.S.05.2")), /\| (sí|no) \|/.test(fila("RQ.S.05.3"))], [true, true, true], "12 · RQ.S.05.2/05.3 ya no salen vacíos");
 // 13 · qué es cada saludo
