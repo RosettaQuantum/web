@@ -421,5 +421,72 @@ function contraDist() {
   console.log("\nok · las dos páginas sirven el texto aprobado y las cifras de los sellados");
 }
 
-if (process.argv.includes("--self-test")) selfTest();
-else contraDist();
+// SÓLO CORRE SI LO INVOCAN A ÉL. Sin esta condición, `import { juzgar } from ...` ejecutaba la
+// revisión entera de `dist/` como efecto del import — y peor, podía llamar a `process.exit(1)`
+// y matar al programa que sólo quería una función. Lo descubrí usando `juzgar` desde un script
+// que mide producción: imprimió la revisión de dist que nadie le pidió.
+//
+// Un archivo que hace cosas al importarlo no se puede reusar, así que el día que haga falta
+// comprobar la página desde otro lado, la tentación es copiar la lógica. Y una regla que vive
+// en dos lugares ya divergió.
+/**
+ * Contra el SITIO VIVO. Que `dist/` esté bien y que el sitio sirva eso son dos afirmaciones
+ * distintas, y entre las dos hay un despliegue y una caché.
+ *
+ * Se pide con `no-cache` y se imprime `cf-cache-status`, pero **lo que decide no es la
+ * cabecera: es el contenido**. Una copia vieja en el borde se ve igual que un despliegue que
+ * no ocurrió, y las dos las caza el mismo juicio.
+ *
+ * Va en `npm run check:prod`, nunca en prebuild: un guardia que mide producción, cableado en
+ * el build, hace fallar el build por el estado del sitio o por el trabajo de otra rama que sí
+ * está desplegada y ésta no conoce.
+ */
+async function contraProduccion(base) {
+  console.log(`check-lab-hardware · contra ${base}`);
+  let fallas = 0;
+  for (const { lang, ruta } of [{ lang: "en", ruta: "/lab/hardware/" },
+                                { lang: "es", ruta: "/es/lab/hardware/" }]) {
+    let r, html;
+    try {
+      r = await fetch(base + ruta, { headers: { "cache-control": "no-cache" }, redirect: "follow" });
+      html = await r.text();
+    } catch (e) {
+      console.log(`  ✗ [${lang}] ${ruta} no se pudo pedir: ${e.message}`);
+      fallas++;
+      continue;
+    }
+    console.log(`  · [${lang}] ${ruta} → HTTP ${r.status} · cf-cache-status ` +
+                `${r.headers.get("cf-cache-status") ?? "—"} · ${html.length} bytes`);
+    if (r.status !== 200) { console.log(`  ✗ [${lang}] no responde 200`); fallas++; continue; }
+    const encontradas = juzgar(html, lang);
+    if (!encontradas.length) {
+      console.log(`  ✓ [${lang}] el texto aprobado verbatim, las cifras de los sellados, y los ` +
+                  `dos histogramas rotulados con su vara del azar`);
+    } else {
+      for (const f of encontradas) console.log("  ✗ " + f);
+      fallas += encontradas.length;
+    }
+  }
+  if (fallas) {
+    console.log(`\nFALLA: ${fallas}. Lo que sirve el sitio no es lo sellado.`);
+    process.exit(1);
+  }
+  console.log("\nok · producción sirve lo sellado");
+}
+
+// SÓLO CORRE SI LO INVOCAN A ÉL. Sin esta condición, `import { juzgar } from ...` ejecutaba la
+// revisión entera de `dist/` como efecto del import — y peor, podía llamar a `process.exit(1)`
+// y matar al programa que sólo quería una función. Lo descubrí usando `juzgar` desde un script
+// que mide producción: imprimió la revisión de dist que nadie le pidió.
+//
+// Un archivo que hace cosas al importarlo no se puede reusar, así que el día que haga falta
+// comprobar la página desde otro lado, la tentación es copiar la lógica. Y una regla que vive
+// en dos lugares ya divergió.
+const invocadoDirecto = process.argv[1] &&
+  resolve(process.argv[1]) === fileURLToPath(import.meta.url);
+if (invocadoDirecto) {
+  const base = process.argv.find((a) => a.startsWith("--base="));
+  if (process.argv.includes("--self-test")) selfTest();
+  else if (base) await contraProduccion(base.slice("--base=".length).replace(/\/$/, ""));
+  else contraDist();
+}
