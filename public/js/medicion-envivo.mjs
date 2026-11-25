@@ -327,7 +327,7 @@ form.addEventListener("submit", async (e) => {
     `DNS and TLS handshakes from our server: ${pedidos.length} names (${sensibles.length} sensitive${nuevosCT.length ? `, ${nuevosCT.length} new since the previous snapshot` : ""}), your edge, your certificate and your email…`));
   let s;
   try {
-    const r = await fetch("/api/sondas", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ dominio, www, sensibles: pedidos }) });
+    const r = await fetch("/api/sondas", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ dominio, www, sensibles: pedidos, nombres: hostsCT.map((h) => h.host) }) });   // nombres: el CNAME de cada uno (25-nov, dns_pasivo)
     s = await r.json().catch(() => ({}));
     if (!r.ok || !s.ok) throw new Error(s.error || `el servicio respondió ${r.status}`);
     // /api/sondas enmascara los nombres a quien no es dueño verificado; la página pidió esos nombres

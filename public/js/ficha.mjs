@@ -280,6 +280,17 @@ export function ipPublica(ip) {
 export const internosPublicos = (eps = []) => eps.filter((e) => e && e.dns_status === "NOERROR" && INTERNO.test(String(e.host || "").split(".")[0] + ".")
   && Array.isArray(e.ip) && e.ip.some(ipPublica));
 
+// Las alertas del DNS pasivo (lib/dns-pasivo.mjs). null en una parte = no medido: no alerta.
+export function alertasDns(dp, F) {
+  if (!dp) return [];
+  const A = F.alerta_info, out = [];
+  if (dp.spf && dp.spf.valido === false) out.push({ codigo: "spf_invalido", hallazgo: A.spf_invalido(A.spf_motivo[dp.spf.problema] ? A.spf_motivo[dp.spf.problema](dp.spf.consultas) : dp.spf.problema) });
+  if (dp.dnssec && dp.dnssec.ds === false) out.push({ codigo: "sin_dnssec", hallazgo: A.sin_dnssec });
+  if (dp.caa && dp.caa.publicado === false) out.push({ codigo: "sin_caa", hallazgo: A.sin_caa });
+  for (const h of dp.cname_ct?.hallazgos || []) out.push({ codigo: "ambiente_tras_cname", hallazgo: A.ambiente_tras_cname(h.cname, h.marcador), donde: h.host });
+  return out;
+}
+
 export function correoMedido(correo) {
   if (!correo || correo.estado !== "hecho" || !Array.isArray(correo.resultado?.servidores)) return null;
   const medidos = correo.resultado.servidores.filter((s) => s.veredicto && ["medido", "sin_starttls"].includes(s.veredicto.estado));
@@ -523,6 +534,8 @@ export function armarFicha(foto, ctx = {}) {
   // resuelve a una IP pública. No entra a la nota (QREADY-NOTA-2.1 no emite INFO): sólo se avisa.
   for (const e of internosPublicos(eps)) alertas.push({ id: `A${alertas.length + 1}`, nivel: "INFO", codigo: "nombre_interno_ip_publica",
     hallazgo: F.alerta_info.nombre_interno_ip_publica(e.ip.find(ipPublica)), donde: ver(e.host) });
+  // INFO (25-nov-2026, decisión del dueño «(a) y (c)»): DNS pasivo. No entra al QEX ni a la nota.
+  for (const al of alertasDns(foto.dns_pasivo, F)) alertas.push({ id: `A${alertas.length + 1}`, nivel: "INFO", ...al, donde: ver(al.donde ?? dominio) });
 
   // 04 · qué hacer (efecto acumulado y calculado: ver analizar)
   const que = acciones.map((ac, i) => {
@@ -548,6 +561,8 @@ export function armarFicha(foto, ctx = {}) {
       : F.no_medido.correo_mx(publicados - cm.total, publicados));
   } else if (!(Array.isArray(mx) && mx.length === 0)) nm.push(pendiente ? F.no_medido.correo_pendiente : F.no_medido.correo_sin_dato);
   // la edición del MODELO HNDL (hndl_edicion); una foto anterior al 24-nov sólo trae `edicion`, que entonces era la misma
+  const cn = foto.dns_pasivo?.cname_ct;
+  if (cn && cn.sin_leer > 0) nm.push(F.no_medido.cname_sin_leer(cn.sin_leer, cn.candidatos));
   if (dims.hndl != null) nm.push(F.no_medido.hndl(sector.toLowerCase(), foto.referencia?.hndl_edicion || foto.referencia?.edicion || null));
   nm.push(F.no_medido.interno, F.no_medido.nunca);
 

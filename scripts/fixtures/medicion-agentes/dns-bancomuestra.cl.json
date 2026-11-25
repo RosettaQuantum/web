@@ -1,0 +1,896 @@
+{
+ "dominio": "bancomuestra.cl",
+ "grabado_utc": "2026-11-25T10:40:46.588Z",
+ "nombres": [
+  "ag-dt.bancomuestra.cl",
+  "analytics.extranetbancomuestra.cl",
+  "analytics.bancomuestra.cl",
+  "analyticsmvd.bancomuestra.cl",
+  "api-7b4df495.bancomuestra.cl",
+  "api-app.bancomuestra.cl",
+  "api-dsk.bancomuestra.cl",
+  "api.bancomuestra.cl",
+  "apideveloper.bancomuestra.cl",
+  "apifun.extranetbancomuestra.cl",
+  "apifun.bancomuestra.cl",
+  "apimc.bancomuestra.cl",
+  "apiper.bancomuestra.cl",
+  "apiter.bancomuestra.cl",
+  "apiter1.bancomuestra.cl",
+  "app-cl.bancomuestra.cl",
+  "app.bancomuestra.cl",
+  "assets.bancomuestra.cl",
+  "autocompara.bancomuestra.cl",
+  "autodiscover.corp.bancomuestra.cl",
+  "autodiscover.bancomuestra.cl",
+  "autodiscoverredirect.extranetbancomuestra.cl",
+  "ayuda.bancomuestra.cl",
+  "azuremfa.corp.bancomuestra.cl",
+  "banco.bancomuestra.cl",
+  "bandera2023ap.bancomuestra.cl",
+  "bandera2023dk.bancomuestra.cl",
+  "bcdn-7b4df495.bancomuestra.cl",
+  "biocatch.bancomuestra.cl",
+  "brp.bancomuestra.cl",
+  "bsm.extranetbancomuestra.cl",
+  "captiveportal.bancomuestra.cl",
+  "cargapropuestawebapp.extranetbancomuestra.cl",
+  "ccweb.bancomuestra.cl",
+  "cdn.comunicaciones.bancomuestra.cl",
+  "click.banca.bancomuestra.cl",
+  "click.risk.bancomuestra.cl",
+  "clienteonline.bancomuestra.cl",
+  "clientepyme.bancomuestra.cl",
+  "cloud.banca.bancomuestra.cl",
+  "cloud.risk.bancomuestra.cl",
+  "clsfbaccess.bancomuestra.cl",
+  "club.bancomuestra.cl",
+  "clwconaccess.bancomuestra.cl",
+  "cmg.bancomuestra.cl",
+  "cmgprochl.bancomuestra.cl",
+  "cmgprochlnew.bancomuestra.cl",
+  "comex.bancomuestra.cl",
+  "comitefiscalia.extranetbancomuestra.cl",
+  "comunidadesworkcafe.bancomuestra.cl",
+  "contacto.rvbancomuestra.cl",
+  "controljuicios-h.extranetbancomuestra.cl",
+  "controljuicios.extranetbancomuestra.cl",
+  "controllerworkcafe.bancomuestra.cl",
+  "convenios.bancomuestra.cl",
+  "ctx.extranetbancomuestra.cl",
+  "data.comunicaciones.bancomuestra.cl",
+  "dealers.bancomuestra.cl",
+  "developer.bancomuestra.cl",
+  "dialin.bancomuestra.cl",
+  "empleos.bancomuestra.cl",
+  "extranet.grupobancomuestra.cl",
+  "extranetbancomuestra.cl",
+  "fatca.bancomuestra.cl",
+  "fichaclientes.rvbancomuestra.cl",
+  "filemanagerapi.extranetbancomuestra.cl",
+  "firmas.bancomuestra.cl",
+  "fogape.bancomuestra.cl",
+  "fxenlinea.bancomuestra.cl",
+  "gestioninmobiliaria.bancomuestra.cl",
+  "getnet.bancomuestra.cl",
+  "gwsmtp1.bancomuestra.cl",
+  "gwsmtp2.bancomuestra.cl",
+  "habilitacliente.extranetbancomuestra.cl",
+  "hpbsm.extranetbancomuestra.cl",
+  "image.banca.bancomuestra.cl",
+  "image.risk.bancomuestra.cl",
+  "imagenenmail.bancomuestra.cl",
+  "imagenes.bancomuestra.cl",
+  "inversiones.bancomuestra.cl",
+  "invm.bancomuestra.cl",
+  "ir.bancomuestra.cl",
+  "ive.grupobancomuestra.cl",
+  "ldor95mbjcvhg054lfi8bnq23lao.bancomuestra.cl",
+  "log-7b4df495.bancomuestra.cl",
+  "loginintervencion.bancomuestra.cl",
+  "lyncdiscover.bancomuestra.cl",
+  "mail.corp.bancomuestra.cl",
+  "mail.extranetbancomuestra.cl",
+  "mail01.dte.bancomuestra.cl",
+  "mail02.dte.bancomuestra.cl",
+  "mail1.bancomuestra.cl",
+  "mail2.bancomuestra.cl",
+  "mail3.bancomuestra.cl",
+  "mail4.bancomuestra.cl",
+  "mail5.bancomuestra.cl",
+  "mail6.bancomuestra.cl",
+  "mdescl.bancomuestra.cl",
+  "mds.extranetbancomuestra.cl",
+  "meet.bancomuestra.cl",
+  "meritolife.bancomuestra.cl",
+  "mfamapp.corp.bancomuestra.cl",
+  "mg.extranetbancomuestra.cl",
+  "mibanco.hy.bancomuestra.cl",
+  "mibanco.bancomuestra.cl",
+  "mibanco.wp.bancomuestra.cl",
+  "micorreo.bancomuestra.cl",
+  "mibancomuestra.extranetbancomuestra.cl",
+  "mob.extranetbancomuestra.cl",
+  "mov.bancomuestra.cl",
+  "movil.bancomuestra.cl",
+  "neobei.bancomuestra.cl",
+  "neoconnect.extranetbancomuestra.cl",
+  "neoconnect.bancomuestra.cl",
+  "odsapi.bancomuestra.cl",
+  "openbanking.bancomuestra.cl",
+  "openfinance-desa.bancomuestra.cl",
+  "pagos.bancomuestra.cl",
+  "pcanaltf.bancomuestra.cl",
+  "personas.bancomuestra.cl",
+  "practicas.bancomuestra.cl",
+  "pre.fxenlinea.bancomuestra.cl",
+  "privatebanking.bancomuestra.cl",
+  "productos.rvbancomuestra.cl",
+  "pulsogestion.extranetbancomuestra.cl",
+  "ra.extranetbancomuestra.cl",
+  "ripple-fxt.bancomuestra.cl",
+  "ripple-ldg.bancomuestra.cl",
+  "ripple-msg.bancomuestra.cl",
+  "ripple-val.bancomuestra.cl",
+  "ripplenet.bancomuestra.cl",
+  "root-certificate-cws-prd.bancomuestra.cl",
+  "root-certificate-stm-prd.bancomuestra.cl",
+  "saladecomunicacion.bancomuestra.cl",
+  "bancomuestra.cl",
+  "sbcchldcpri.bancomuestra.cl",
+  "sbcchldcsec.bancomuestra.cl",
+  "seguros.bancomuestra.cl",
+  "sistemajudicial.extranetbancomuestra.cl",
+  "sitioprivado.rvbancomuestra.cl",
+  "smtp.corp.bancomuestra.cl",
+  "socypoderes.extranetbancomuestra.cl",
+  "solicitudtarjeta.bancomuestra.cl",
+  "sst.bancomuestra.cl",
+  "sst2.bancomuestra.cl",
+  "stmcl.bancomuestra.cl",
+  "superpuntos.bancomuestra.cl",
+  "tasaciones-h.extranetbancomuestra.cl",
+  "tasaciones.extranetbancomuestra.cl",
+  "tienda.bancomuestra.cl",
+  "trf.bancomuestra.cl",
+  "trt.bancomuestra.cl",
+  "tru.bancomuestra.cl",
+  "tst.bancomuestra.cl",
+  "uns.comunicaciones.bancomuestra.cl",
+  "vdi.extranetbancomuestra.cl",
+  "view.banca.bancomuestra.cl",
+  "view.risk.bancomuestra.cl",
+  "vun.extranetbancomuestra.cl",
+  "vunchart.extranetbancomuestra.cl",
+  "wallet.bancomuestra.cl",
+  "webappcomitev2.extranetbancomuestra.cl",
+  "websocket.bancomuestra.cl",
+  "whu.grupobancomuestra.cl",
+  "whu.bancomuestra.cl",
+  "workcafe-adx.bancomuestra.cl",
+  "workcafe.bancomuestra.cl",
+  "ws.bancomuestra.cl",
+  "ws2.bancomuestra.cl",
+  "wsadfs.corp.bancomuestra.cl",
+  "wscargapropuesta.extranetbancomuestra.cl",
+  "wshlgu.bancomuestra.cl",
+  "wsplgu.bancomuestra.cl",
+  "wssfb.bancomuestra.cl",
+  "wssfbwac.bancomuestra.cl",
+  "wup-7b4df495.bancomuestra.cl",
+  "www.academiabancomuestra.cl",
+  "www.api-app.bancomuestra.cl",
+  "www.api-dsk.bancomuestra.cl",
+  "www.api.bancomuestra.cl",
+  "www.apideveloper.bancomuestra.cl",
+  "www.apifun.bancomuestra.cl",
+  "www.apiper.bancomuestra.cl",
+  "www.apiter.bancomuestra.cl",
+  "www.app-cl.bancomuestra.cl",
+  "www.app.bancomuestra.cl",
+  "www.autocompara.bancomuestra.cl",
+  "www.ayuda.bancomuestra.cl",
+  "www.banco.bancomuestra.cl",
+  "www.bandera2023ap.bancomuestra.cl",
+  "www.bandera2023dk.bancomuestra.cl",
+  "www.biocatch.bancomuestra.cl",
+  "www.brp.bancomuestra.cl",
+  "www.captiveportal.bancomuestra.cl",
+  "www.clienteonline.bancomuestra.cl",
+  "www.clientepyme.bancomuestra.cl",
+  "www.clubbancomuestra.cl",
+  "www.cmgprochl.bancomuestra.cl",
+  "www.confirmingbancomuestra.cl",
+  "www.dealers.bancomuestra.cl",
+  "www.firmas.bancomuestra.cl",
+  "www.gestioninmobiliaria.bancomuestra.cl",
+  "www.getnet.bancomuestra.cl",
+  "www.imagenenmail.bancomuestra.cl",
+  "www.imagenes.bancomuestra.cl",
+  "www.ir.bancomuestra.cl",
+  "www.mail.corp.bancomuestra.cl",
+  "www.mibanco.bancomuestra.cl",
+  "www.movil.bancomuestra.cl",
+  "www.neobei.bancomuestra.cl",
+  "www.obbancomuestra.cl",
+  "www.openbanking.bancomuestra.cl",
+  "www.pagos.bancomuestra.cl",
+  "www.personas.bancomuestra.cl",
+  "www.practicasbancomuestra.cl",
+  "www.privatebanking.bancomuestra.cl",
+  "www.ripplenet.bancomuestra.cl",
+  "www.saladecomunicacion.bancomuestra.cl",
+  "www.bancomuestra.cl",
+  "www.sbcchldcpri.bancomuestra.cl",
+  "www.sbcchldcsec.bancomuestra.cl",
+  "www.solicitudtarjeta.bancomuestra.cl",
+  "www.sst.bancomuestra.cl",
+  "www.sst2.bancomuestra.cl",
+  "www.tienda.bancomuestra.cl",
+  "www.whu.bancomuestra.cl",
+  "www.wsadfs.corp.bancomuestra.cl",
+  "www.youbancomuestra.cl",
+  "youbancomuestra.cl"
+ ],
+ "respuestas": {
+  "bancomuestra.cl|TXT": [
+   {
+    "name": "bancomuestra.cl",
+    "type": 16,
+    "TTL": 3,
+    "data": "\"VISA=\" \"91D8E6043AAC94F76C7D7DB198E7061F\""
+   },
+   {
+    "name": "bancomuestra.cl",
+    "type": 16,
+    "TTL": 3,
+    "data": "\"VISA=\" \"C7EC600F393A3CB41545F5F2920C06F2\""
+   },
+   {
+    "name": "bancomuestra.cl",
+    "type": 16,
+    "TTL": 3,
+    "data": "\"MS=ms67027216\""
+   },
+   {
+    "name": "bancomuestra.cl",
+    "type": 16,
+    "TTL": 3,
+    "data": "\"15fds9f6gr811c5sx2l6phnz9t1gqyqq\""
+   },
+   {
+    "name": "bancomuestra.cl",
+    "type": 16,
+    "TTL": 3,
+    "data": "\"22jzry4p0mmn8xf97cq313ydg44m12mq\""
+   },
+   {
+    "name": "bancomuestra.cl",
+    "type": 16,
+    "TTL": 3,
+    "data": "\"2vsg0pck4lgkjg0ynyq31ccbs5vgvv7d\""
+   },
+   {
+    "name": "bancomuestra.cl",
+    "type": 16,
+    "TTL": 3,
+    "data": "\"731s2hz179jnz779zcw60snjr2xzv6rl\""
+   },
+   {
+    "name": "bancomuestra.cl",
+    "type": 16,
+    "TTL": 3,
+    "data": "\"837md1gb1qg7hgwsm41tbbl5c73wmq0n\""
+   },
+   {
+    "name": "bancomuestra.cl",
+    "type": 16,
+    "TTL": 3,
+    "data": "\"_55te0aa1bh1n0yj7xzip9luc180ujzi\""
+   },
+   {
+    "name": "bancomuestra.cl",
+    "type": 16,
+    "TTL": 3,
+    "data": "\"_9smwsg08ubn25vf0d105jamgdjzyom0\""
+   },
+   {
+    "name": "bancomuestra.cl",
+    "type": 16,
+    "TTL": 3,
+    "data": "\"_elyuip29ygidwcp163n1ew9qvsy9p0t\""
+   },
+   {
+    "name": "bancomuestra.cl",
+    "type": 16,
+    "TTL": 3,
+    "data": "\"_s202l39eg5enrcsl1u6xhxysngav1ja\""
+   },
+   {
+    "name": "bancomuestra.cl",
+    "type": 16,
+    "TTL": 3,
+    "data": "\"_ug4cq7735qjrkd6d09ypf52jzp41cb2\""
+   },
+   {
+    "name": "bancomuestra.cl",
+    "type": 16,
+    "TTL": 3,
+    "data": "\"_wdyqsdclorv3vzdbvri61rsdysy2lgz\""
+   },
+   {
+    "name": "bancomuestra.cl",
+    "type": 16,
+    "TTL": 3,
+    "data": "\"by01mglrpfn8012nv12vzp2n512p81kv\""
+   },
+   {
+    "name": "bancomuestra.cl",
+    "type": 16,
+    "TTL": 3,
+    "data": "\"d361yyrn7tg5kbzn4rrgg6f893b8t5w4\""
+   },
+   {
+    "name": "bancomuestra.cl",
+    "type": 16,
+    "TTL": 3,
+    "data": "\"fdnzvcgwzxgxgf9b4xwqhp66691r0bl5\""
+   },
+   {
+    "name": "bancomuestra.cl",
+    "type": 16,
+    "TTL": 3,
+    "data": "\"hhr20szlyy8t44k173h0cc18971p932x\""
+   },
+   {
+    "name": "bancomuestra.cl",
+    "type": 16,
+    "TTL": 3,
+    "data": "\"m7fhn7v5868nq5pdn2yscxgfxbn3w1vk\""
+   },
+   {
+    "name": "bancomuestra.cl",
+    "type": 16,
+    "TTL": 3,
+    "data": "\"mpr2z90y33jcclv8l3l6q64vl22bd2wk\""
+   },
+   {
+    "name": "bancomuestra.cl",
+    "type": 16,
+    "TTL": 3,
+    "data": "\"njdd0tdmnjfx1zsfgxfgd2m86d1p42mw\""
+   },
+   {
+    "name": "bancomuestra.cl",
+    "type": 16,
+    "TTL": 3,
+    "data": "\"x3tsvbhgh5jjmb383lx7djz7m446nmgy\""
+   },
+   {
+    "name": "bancomuestra.cl",
+    "type": 16,
+    "TTL": 3,
+    "data": "\"y7qzszxp2y3hd8brjmgkb78xk11syc6r\""
+   },
+   {
+    "name": "bancomuestra.cl",
+    "type": 16,
+    "TTL": 3,
+    "data": "\"z5ntt412j58yv6bh6f07cf2z383hw3cj\""
+   },
+   {
+    "name": "bancomuestra.cl",
+    "type": 16,
+    "TTL": 3,
+    "data": "\"bU3UfzJvMt6UoDo6Wod8v6G+KlS9gGXqXPpd0AblRG0=\""
+   },
+   {
+    "name": "bancomuestra.cl",
+    "type": 16,
+    "TTL": 3,
+    "data": "\"docusign=8b942b83-304d-4f32-bc59-fe1d32494ffb\""
+   },
+   {
+    "name": "bancomuestra.cl",
+    "type": 16,
+    "TTL": 3,
+    "data": "\"docusign=eab73abd-d6c2-48f8-93f4-1af08e0321db\""
+   },
+   {
+    "name": "bancomuestra.cl",
+    "type": 16,
+    "TTL": 3,
+    "data": "\"onetrust-domain-verification=83b5fb5b35ee4853a0a4843f5095ee64\""
+   },
+   {
+    "name": "bancomuestra.cl",
+    "type": 16,
+    "TTL": 3,
+    "data": "\"onetrust-domain-verification=a4771dd87b4f4fe2aca22e7ccd9344d9\""
+   },
+   {
+    "name": "bancomuestra.cl",
+    "type": 16,
+    "TTL": 3,
+    "data": "\"yahoo-verification-key=Etce/+dNevGUIIsSJTOswtCKU7V/lziCjWmafnh3pxg=\""
+   },
+   {
+    "name": "bancomuestra.cl",
+    "type": 16,
+    "TTL": 3,
+    "data": "\"google-site-verification=2WgSiiT7vMUKTVn5F0kee6inx3W8f_ZRmWEpdRgmSG8\""
+   },
+   {
+    "name": "bancomuestra.cl",
+    "type": 16,
+    "TTL": 3,
+    "data": "\"google-site-verification=WrEwPaY4EdIIyBnS_dsHbNfI-Lmx7pnSlVrlrmxRHHc\""
+   },
+   {
+    "name": "bancomuestra.cl",
+    "type": 16,
+    "TTL": 3,
+    "data": "\"qKNkyxTV6izeop7nyYHiK881MyjOz0dhlSq1FwbQNaw0XFEwR3Daws3b+Ul98G0AftFFa2LnkN3R7aforIelDg==\""
+   },
+   {
+    "name": "bancomuestra.cl",
+    "type": 16,
+    "TTL": 3,
+    "data": "\"wiz-domain-verification=222a9ac8c880a6170431bee5082c264772f1e941c63e6dedd51f596377cec7fc\""
+   },
+   {
+    "name": "bancomuestra.cl",
+    "type": 16,
+    "TTL": 3,
+    "data": "\"Dynatrace-site-verification=308d8e36-3939-4a60-917f-058cffdad2f0__2jbvf5seq08c0vid9qdanfui1\""
+   },
+   {
+    "name": "bancomuestra.cl",
+    "type": 16,
+    "TTL": 3,
+    "data": "\"Dynatrace-site-verification=ee4112dd-1e15-4467-992b-e5a16cd24bc3__ib5573iajhg33010b9occsgq9\""
+   },
+   {
+    "name": "bancomuestra.cl",
+    "type": 16,
+    "TTL": 3,
+    "data": "\"Dynatrace-site-verification=45be7304-f1b0-49fe-af6f-e74c4e1194da__mmt376r7okfb9ih041n2cvo4jb\""
+   },
+   {
+    "name": "bancomuestra.cl",
+    "type": 16,
+    "TTL": 3,
+    "data": "\"Dynatrace-site-verification=462d2325-f7a3-44f4-947e-09f545f0ef05__8jlv4vj588hvjsijqincoal8kg\""
+   },
+   {
+    "name": "bancomuestra.cl",
+    "type": 16,
+    "TTL": 3,
+    "data": "\"Dynatrace-site-verification=90f25127-773f-4fb7-a2cb-15f0a9f663e8__pbd0q1k8fshvv0bmip818olua6\""
+   },
+   {
+    "name": "bancomuestra.cl",
+    "type": 16,
+    "TTL": 3,
+    "data": "\"adobe-idp-site-verification=50935fffec5a7d86b33deb30987909479eb504502ef8be93f8ac75743b3e1f17\""
+   },
+   {
+    "name": "bancomuestra.cl",
+    "type": 16,
+    "TTL": 3,
+    "data": "\"atlassian-domain-verification=TFnmCsLwUj4y/ta3Let8OTUy/LAA0o444LEq1oIvcfzM1/BSJ5jdeeKEkTIkTy/x\""
+   },
+   {
+    "name": "bancomuestra.cl",
+    "type": 16,
+    "TTL": 3,
+    "data": "\"figma-domain-verification=7edc3ebe6cf8433261316f4e9230d9af81459f19b7f5deeec44edc5d1cbe4a9f-1774952452\""
+   },
+   {
+    "name": "bancomuestra.cl",
+    "type": 16,
+    "TTL": 3,
+    "data": "\"v=spf1 include:spf-006ef803.pphosted.com include:spf-006ef805.pphosted.com include:spf.protection.outlook.com exists:%{i}.spf.us.grupobancomuestra.com exists:%{i}.spf.as.grupobancomuestra.com ip4:170.18.32.80/28 ip4:54.240.34.12 -all\""
+   }
+  ],
+  "bancomuestra.cl|DS": [
+   {
+    "name": "bancomuestra.cl",
+    "type": 43,
+    "TTL": 3600,
+    "data": "54011 8 2 bd1ca048efd8b0d2f880a485ff7565c3f9ab318bf54508881f6e492e9f955f56"
+   }
+  ],
+  "bancomuestra.cl|CAA": [
+   {
+    "name": "bancomuestra.cl",
+    "type": 257,
+    "TTL": 900,
+    "data": "0 issue \"amazonaws.com\""
+   },
+   {
+    "name": "bancomuestra.cl",
+    "type": 257,
+    "TTL": 900,
+    "data": "0 issue \"digicert.com\""
+   },
+   {
+    "name": "bancomuestra.cl",
+    "type": 257,
+    "TTL": 900,
+    "data": "0 issue \"entrust.net\""
+   },
+   {
+    "name": "bancomuestra.cl",
+    "type": 257,
+    "TTL": 900,
+    "data": "0 issue \"globalsign.com\""
+   },
+   {
+    "name": "bancomuestra.cl",
+    "type": 257,
+    "TTL": 900,
+    "data": "0 issue \"letsencrypt.org\""
+   },
+   {
+    "name": "bancomuestra.cl",
+    "type": 257,
+    "TTL": 900,
+    "data": "0 issuewild \"amazonaws.com\""
+   },
+   {
+    "name": "bancomuestra.cl",
+    "type": 257,
+    "TTL": 900,
+    "data": "0 issuewild \"digicert.com\""
+   },
+   {
+    "name": "bancomuestra.cl",
+    "type": 257,
+    "TTL": 900,
+    "data": "0 issuewild \"globalsign.com\""
+   },
+   {
+    "name": "bancomuestra.cl",
+    "type": 257,
+    "TTL": 900,
+    "data": "128 iodef \"mailto: ucsinfor@bancomuestra.cl\""
+   },
+   {
+    "name": "bancomuestra.cl",
+    "type": 257,
+    "TTL": 900,
+    "data": "128 iodef \"mailto:ucsinfor@bancomuestra.cl\""
+   },
+   {
+    "name": "bancomuestra.cl",
+    "type": 257,
+    "TTL": 900,
+    "data": "128 issue \"amazonaws.com\""
+   },
+   {
+    "name": "bancomuestra.cl",
+    "type": 257,
+    "TTL": 900,
+    "data": "128 issue \"digicert.com\""
+   },
+   {
+    "name": "bancomuestra.cl",
+    "type": 257,
+    "TTL": 900,
+    "data": "128 issue \"letsencrypt.org\""
+   },
+   {
+    "name": "bancomuestra.cl",
+    "type": 257,
+    "TTL": 900,
+    "data": "128 issue \"sectigo.com\""
+   },
+   {
+    "name": "bancomuestra.cl",
+    "type": 257,
+    "TTL": 900,
+    "data": "128 issue \"visa.com\""
+   },
+   {
+    "name": "bancomuestra.cl",
+    "type": 257,
+    "TTL": 900,
+    "data": "128 issuewild \"amazonaws.com\""
+   }
+  ],
+  "ag-dt.bancomuestra.cl|CNAME": [],
+  "analytics.extranetbancomuestra.cl|CNAME": [],
+  "analytics.bancomuestra.cl|CNAME": [],
+  "api-7b4df495.bancomuestra.cl|CNAME": [
+   {
+    "name": "api-7b4df495.bancomuestra.cl",
+    "type": 5,
+    "TTL": 900,
+    "data": "api-7b4df495.us.v2.we-stats.com."
+   }
+  ],
+  "analyticsmvd.bancomuestra.cl|CNAME": [],
+  "api-dsk.bancomuestra.cl|CNAME": [
+   {
+    "name": "api-dsk.bancomuestra.cl",
+    "type": 5,
+    "TTL": 900,
+    "data": "wild.bancomuestra.edgekey.net."
+   }
+  ],
+  "api.bancomuestra.cl|CNAME": [
+   {
+    "name": "api.bancomuestra.cl",
+    "type": 5,
+    "TTL": 180,
+    "data": "wild.bancomuestra.edgekey.net."
+   }
+  ],
+  "api-app.bancomuestra.cl|CNAME": [
+   {
+    "name": "api-app.bancomuestra.cl",
+    "type": 5,
+    "TTL": 900,
+    "data": "wild.bancomuestra.edgekey.net."
+   }
+  ],
+  "apifun.bancomuestra.cl|CNAME": [
+   {
+    "name": "apifun.bancomuestra.cl",
+    "type": 5,
+    "TTL": 900,
+    "data": "wild.bancomuestra.edgekey.net."
+   }
+  ],
+  "apideveloper.bancomuestra.cl|CNAME": [
+   {
+    "name": "apideveloper.bancomuestra.cl",
+    "type": 5,
+    "TTL": 60,
+    "data": "wild.bancomuestra.edgekey.net."
+   }
+  ],
+  "apiper.bancomuestra.cl|CNAME": [
+   {
+    "name": "apiper.bancomuestra.cl",
+    "type": 5,
+    "TTL": 180,
+    "data": "wild.bancomuestra.edgekey.net."
+   }
+  ],
+  "apifun.extranetbancomuestra.cl|CNAME": [],
+  "apimc.bancomuestra.cl|CNAME": [],
+  "app-cl.bancomuestra.cl|CNAME": [],
+  "apiter1.bancomuestra.cl|CNAME": [],
+  "apiter.bancomuestra.cl|CNAME": [],
+  "spf-006ef803.pphosted.com|TXT": [
+   {
+    "name": "spf-006ef803.pphosted.com",
+    "type": 16,
+    "TTL": 16,
+    "data": "\"v=spf1 ip4:66.159.245.8 ip4:66.159.243.112 ip4:66.159.243.220 ip4:66.159.243.250 ip4:208.56.5.1 ip4:208.56.5.50 ip4:208.56.4.125 ip4:208.56.4.199 ip4:208.56.6.2 ip4:208.56.6.113\""
+   }
+  ],
+  "autocompara.bancomuestra.cl|CNAME": [
+   {
+    "name": "autocompara.bancomuestra.cl",
+    "type": 5,
+    "TTL": 900,
+    "data": "q8envmi.ng.impervadns.net."
+   }
+  ],
+  "app.bancomuestra.cl|CNAME": [
+   {
+    "name": "app.bancomuestra.cl",
+    "type": 5,
+    "TTL": 60,
+    "data": "wild.bancomuestra.edgekey.net."
+   }
+  ],
+  "assets.bancomuestra.cl|CNAME": [
+   {
+    "name": "assets.bancomuestra.cl",
+    "type": 5,
+    "TTL": 900,
+    "data": "d2bgcs06vbewbj.cloudfront.net."
+   }
+  ],
+  "autodiscoverredirect.extranetbancomuestra.cl|CNAME": [],
+  "banco.bancomuestra.cl|CNAME": [
+   {
+    "name": "banco.bancomuestra.cl",
+    "type": 5,
+    "TTL": 180,
+    "data": "wild.bancomuestra.edgekey.net."
+   }
+  ],
+  "brp.bancomuestra.cl|CNAME": [
+   {
+    "name": "brp.bancomuestra.cl",
+    "type": 5,
+    "TTL": 900,
+    "data": "wild.bancomuestra.edgekey.net."
+   }
+  ],
+  "bandera2023ap.bancomuestra.cl|CNAME": [],
+  "azuremfa.corp.bancomuestra.cl|CNAME": [],
+  "biocatch.bancomuestra.cl|CNAME": [],
+  "autodiscover.corp.bancomuestra.cl|CNAME": [],
+  "bandera2023dk.bancomuestra.cl|CNAME": [],
+  "bcdn-7b4df495.bancomuestra.cl|CNAME": [
+   {
+    "name": "bcdn-7b4df495.bancomuestra.cl",
+    "type": 5,
+    "TTL": 900,
+    "data": "bcdn-7b4df495.we-stats.com."
+   }
+  ],
+  "bsm.extranetbancomuestra.cl|CNAME": [],
+  "captiveportal.bancomuestra.cl|CNAME": [],
+  "ayuda.bancomuestra.cl|CNAME": [
+   {
+    "name": "ayuda.bancomuestra.cl",
+    "type": 5,
+    "TTL": 900,
+    "data": "wild.bancomuestra.edgekey.net."
+   }
+  ],
+  "spf-006ef805.pphosted.com|TXT": [
+   {
+    "name": "spf-006ef805.pphosted.com",
+    "type": 16,
+    "TTL": 300,
+    "data": "\"v=spf1 ip4:66.159.245.233 ip4:66.159.247.155 ip4:66.159.243.223 ip4:66.159.243.252 ip4:208.56.5.5 ip4:208.56.5.100 ip4:208.56.4.150 ip4:208.56.4.215 ip4:208.56.6.50 ip4:208.56.6.123\""
+   }
+  ],
+  "spf.protection.outlook.com|TXT": [
+   {
+    "name": "spf.protection.outlook.com",
+    "type": 16,
+    "TTL": 85,
+    "data": "\"v=spf1 ip4:40.92.0.0/15 ip4:40.107.0.0/16 ip4:52.100.0.0/15 ip4:52.102.0.0/16 ip4:52.103.0.0/17 ip4:104.47.0.0/17 ip6:2a01:111:f400::/48 ip6:2a01:111:f403::/49 ip6:2a01:111:f403:8000::/51 ip6:2a01:111:f403:c000::/51 ip6:2a01:111:f403:f000::/52 -all\""
+   }
+  ],
+  "autodiscover.bancomuestra.cl|CNAME": [],
+  "cargapropuestawebapp.extranetbancomuestra.cl|CNAME": [],
+  "cdn.comunicaciones.bancomuestra.cl|CNAME": [
+   {
+    "name": "cdn.comunicaciones.bancomuestra.cl",
+    "type": 5,
+    "TTL": 900,
+    "data": "cdn.comunicaciones.bancomuestra.cl.cname.cjm.adobe.com."
+   }
+  ],
+  "click.banca.bancomuestra.cl|CNAME": [],
+  "ccweb.bancomuestra.cl|CNAME": [],
+  "clienteonline.bancomuestra.cl|CNAME": [
+   {
+    "name": "clienteonline.bancomuestra.cl",
+    "type": 5,
+    "TTL": 900,
+    "data": "wild.bancomuestra.edgekey.net."
+   }
+  ],
+  "click.risk.bancomuestra.cl|CNAME": [],
+  "clwconaccess.bancomuestra.cl|CNAME": [],
+  "cloud.banca.bancomuestra.cl|CNAME": [],
+  "clientepyme.bancomuestra.cl|CNAME": [
+   {
+    "name": "clientepyme.bancomuestra.cl",
+    "type": 5,
+    "TTL": 900,
+    "data": "wild.bancomuestra.edgekey.net."
+   }
+  ],
+  "cloud.risk.bancomuestra.cl|CNAME": [],
+  "clsfbaccess.bancomuestra.cl|CNAME": [],
+  "cmgprochl.bancomuestra.cl|CNAME": [
+   {
+    "name": "cmgprochl.bancomuestra.cl",
+    "type": 5,
+    "TTL": 900,
+    "data": "cmgprochl.brazilsouth.cloudapp.azure.com."
+   }
+  ],
+  "club.bancomuestra.cl|CNAME": [],
+  "cmg.bancomuestra.cl|CNAME": [],
+  "cmgprochlnew.bancomuestra.cl|CNAME": [],
+  "comex.bancomuestra.cl|CNAME": [],
+  "comitefiscalia.extranetbancomuestra.cl|CNAME": [],
+  "controljuicios-h.extranetbancomuestra.cl|CNAME": [],
+  "controllerworkcafe.bancomuestra.cl|CNAME": [],
+  "data.comunicaciones.bancomuestra.cl|CNAME": [
+   {
+    "name": "data.comunicaciones.bancomuestra.cl",
+    "type": 5,
+    "TTL": 900,
+    "data": "data.comunicaciones.bancomuestra.cl.data.adobedc.net."
+   }
+  ],
+  "comunidadesworkcafe.bancomuestra.cl|CNAME": [],
+  "convenios.bancomuestra.cl|CNAME": [],
+  "controljuicios.extranetbancomuestra.cl|CNAME": [],
+  "ctx.extranetbancomuestra.cl|CNAME": [],
+  "dealers.bancomuestra.cl|CNAME": [],
+  "contacto.rvbancomuestra.cl|CNAME": [
+   {
+    "name": "contacto.rvbancomuestra.cl",
+    "type": 5,
+    "TTL": 900,
+    "data": "wild.bancomuestra.edgekey.net."
+   }
+  ],
+  "extranet.grupobancomuestra.cl|CNAME": [
+   {
+    "name": "extranet.grupobancomuestra.cl",
+    "type": 5,
+    "TTL": 900,
+    "data": "wild.bancomuestra.edgekey.net."
+   }
+  ],
+  "empleos.bancomuestra.cl|CNAME": [
+   {
+    "name": "empleos.bancomuestra.cl",
+    "type": 5,
+    "TTL": 60,
+    "data": "wild.bancomuestra.edgekey.net."
+   }
+  ],
+  "developer.bancomuestra.cl|CNAME": [],
+  "fatca.bancomuestra.cl|CNAME": [],
+  "dialin.bancomuestra.cl|CNAME": [],
+  "extranetbancomuestra.cl|CNAME": [],
+  "firmas.bancomuestra.cl|CNAME": [],
+  "filemanagerapi.extranetbancomuestra.cl|CNAME": [],
+  "gestioninmobiliaria.bancomuestra.cl|CNAME": [
+   {
+    "name": "gestioninmobiliaria.bancomuestra.cl",
+    "type": 5,
+    "TTL": 900,
+    "data": "wild.bancomuestra.edgekey.net."
+   }
+  ],
+  "getnet.bancomuestra.cl|CNAME": [
+   {
+    "name": "getnet.bancomuestra.cl",
+    "type": 5,
+    "TTL": 180,
+    "data": "wild.bancomuestra.edgekey.net."
+   }
+  ],
+  "fogape.bancomuestra.cl|CNAME": [],
+  "fxenlinea.bancomuestra.cl|CNAME": [],
+  "fichaclientes.rvbancomuestra.cl|CNAME": [
+   {
+    "name": "fichaclientes.rvbancomuestra.cl",
+    "type": 5,
+    "TTL": 900,
+    "data": "wild.bancomuestra.edgekey.net."
+   }
+  ],
+  "gwsmtp1.bancomuestra.cl|CNAME": [],
+  "gwsmtp2.bancomuestra.cl|CNAME": [],
+  "imagenenmail.bancomuestra.cl|CNAME": [
+   {
+    "name": "imagenenmail.bancomuestra.cl",
+    "type": 5,
+    "TTL": 900,
+    "data": "vum7ws3.ng.impervadns.net."
+   }
+  ],
+  "imagenes.bancomuestra.cl|CNAME": [
+   {
+    "name": "imagenes.bancomuestra.cl",
+    "type": 5,
+    "TTL": 900,
+    "data": "y98ap2w.ng.impervadns.net."
+   }
+  ],
+  "image.risk.bancomuestra.cl|CNAME": [],
+  "habilitacliente.extranetbancomuestra.cl|CNAME": [],
+  "image.banca.bancomuestra.cl|CNAME": [],
+  "hpbsm.extranetbancomuestra.cl|CNAME": [],
+  "inversiones.bancomuestra.cl|CNAME": []
+ }
+}

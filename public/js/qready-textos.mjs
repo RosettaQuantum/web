@@ -384,7 +384,15 @@ export const FICHA = {
     nombres_ct: (n) => `${n} ${n === 1 ? "nombre" : "nombres"}`,
     lectura: (t) => `Lectura: ${t}`,
     // NUEVO (25-nov, APROBADO): alerta INFO que no entra a la nota
-    alerta_info: { nombre_interno_ip_publica: (ip) => `Nombre interno que resuelve a una IP pública (${ip})` },
+    alerta_info: { nombre_interno_ip_publica: (ip) => `Nombre interno que resuelve a una IP pública (${ip})`,
+      // NUEVOS (25-nov, PROVISORIOS): DNS pasivo, alertas INFO que no mueven el QEX ni la letra
+      spf_invalido: (motivo) => `SPF inválido: ${motivo}. Con un error permanente (permerror), el SPF no da «pass» a ningún remitente.`,
+      spf_motivo: { incluye_a_si_mismo: () => "el registro se incluye a sí mismo", bucle: () => "un include vuelve a un dominio ya visitado",
+        varios_registros: () => "hay más de un registro SPF", mas_de_10_consultas: (n) => `pide ${n} consultas DNS (el máximo es 10)`,
+        include_sin_spf: () => "un include apunta a un dominio sin SPF", demasiadas_consultas: () => "la cadena de include no termina" },
+      sin_dnssec: "Zona sin DNSSEC: no hay registro DS en la zona padre; las respuestas DNS del dominio no van firmadas",
+      sin_caa: "Sin registro CAA: cualquier autoridad certificadora puede emitir certificados para el dominio",
+      ambiente_tras_cname: (cname, m) => `Ambiente no productivo detrás de un nombre de producción: CNAME a ${cname} (marcador «${m}»)` },
     // NUEVO (25-nov, APROBADO): cómo sale la letra respecto del QEX (public/js/ficha.mjs → comoLetra)
     como_letra: {
       base: "Cómo sale la letra: no del QEX. La deciden el candado nuevo, las alertas y que lo sensible esté medido (QREADY-NOTA-2.1); el QEX resume cuatro dimensiones con peso y no fija la letra.",
@@ -451,6 +459,8 @@ export const FICHA = {
       correo_mx: (f, t) => (f === 1 ? `Uno de los ${t} servidores de correo no se midió.` : `${f} de los ${t} servidores de correo no se midieron.`),
       // NUEVO (25-nov, APROBADO): cuáles y por qué
       correo_mx_cuales: (f, t, lista, tope) => `${f} de los ${t} servidores de correo no se midieron (${lista}): la sonda mide los ${tope} primeros de la lista publicada.`,
+      // NUEVO (25-nov, PROVISORIO)
+      cname_sin_leer: (n, t) => `${n} de ${t} nombres del registro quedaron sin leer su CNAME (tope de consultas y de tiempo de la medición).`,
       nunca: "No medido nunca significa no protegido.",
     },
     evidencia: {
@@ -567,7 +577,15 @@ export const FICHA = {
     nombres_ct: (n) => `${n} ${n === 1 ? "name" : "names"}`,
     lectura: (t) => `Reading: ${t}`,
     // NEW (25-nov, PROVISIONAL)
-    alerta_info: { nombre_interno_ip_publica: (ip) => `Internal name that resolves to a public IP (${ip})` },
+    alerta_info: { nombre_interno_ip_publica: (ip) => `Internal name that resolves to a public IP (${ip})`,
+      // NEW (25-nov, PROVISIONAL): passive DNS, INFO alerts that move neither the QEX nor the grade
+      spf_invalido: (motivo) => `Invalid SPF: ${motivo}. With a permanent error (permerror), SPF gives no sender a “pass”.`,
+      spf_motivo: { incluye_a_si_mismo: () => "the record includes itself", bucle: () => "an include returns to a domain already visited",
+        varios_registros: () => "there is more than one SPF record", mas_de_10_consultas: (n) => `it needs ${n} DNS lookups (the maximum is 10)`,
+        include_sin_spf: () => "an include points to a domain without SPF", demasiadas_consultas: () => "the include chain does not end" },
+      sin_dnssec: "Zone without DNSSEC: there is no DS record in the parent zone; the domain's DNS answers are not signed",
+      sin_caa: "No CAA record: any certificate authority may issue certificates for the domain",
+      ambiente_tras_cname: (cname, m) => `Non-production environment behind a production name: CNAME to ${cname} (marker “${m}”)` },
     como_letra: {
       base: "How the grade is set: not from the QEX. The new lock, the alerts and whether everything sensitive was measured decide it (QREADY-NOTA-2.1); the QEX sums four weighted dimensions and does not set the grade.",
       techo: (ids, n) => ` ${ids} ${n > 1 ? "cap" : "caps"} the grade at B: while open, the grade stays at B whatever the QEX.`,
@@ -629,6 +647,8 @@ export const FICHA = {
       correo_mx: (f, t) => (f === 1 ? `One of the ${t} mail servers was not measured.` : `${f} of the ${t} mail servers were not measured.`),
       // NEW (25-nov, PROVISIONAL)
       correo_mx_cuales: (f, t, lista, tope) => `${f} of the ${t} mail servers were not measured (${lista}): the probe measures the first ${tope} of the published list.`,
+      // NEW (25-nov, PROVISIONAL)
+      cname_sin_leer: (n, t) => `${n} of ${t} log names were left without their CNAME read (the measurement's query and time limit).`,
       nunca: "Not measured never means not protected.",
     },
     evidencia: {

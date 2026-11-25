@@ -1,0 +1,415 @@
+{
+ "dominio": "tenpo.cl",
+ "grabado_utc": "2026-11-25T10:40:45.541Z",
+ "nombres": [
+  "2rjf4vqj2kwa.tenpo.cl",
+  "abona.tenpo.cl",
+  "api-dev.tenpo.cl",
+  "api.dev.tenpo.cl",
+  "api.lab.tenpo.cl",
+  "api.prod.tenpo.cl",
+  "api.tenpo.cl",
+  "api.testdcruz.tenpo.cl",
+  "api.uat.tenpo.cl",
+  "ayuda.tenpo.cl",
+  "blog.tenpo.cl",
+  "boleta.tenpo.cl",
+  "credits.prod.tenpo.cl",
+  "crossborder.tenpo.cl",
+  "dashboard.prod-internal.tenpo.cl",
+  "descarga.tenpo.cl",
+  "em518.em3694.tenpo.cl",
+  "email.tenpo.cl",
+  "images.tenpo.cl",
+  "internal-vpn.tenpo.cl",
+  "invita-y-gana.tenpo.cl",
+  "launch.dev.tenpo.cl",
+  "open.tenpo.cl",
+  "paypal-prueba.tenpo.cl",
+  "paypal.tenpo.cl",
+  "prod-b-drp.tenpo.cl",
+  "prod-b.tenpo.cl",
+  "prod-c.tenpo.cl",
+  "prod-credito.tenpo.cl",
+  "prod-internal-drp.tenpo.cl",
+  "prod-internal-sre.tenpo.cl",
+  "prod-internal.tenpo.cl",
+  "prod-seguros.tenpo.cl",
+  "prod-ultron.tenpo.cl",
+  "serverside.tenpo.cl",
+  "soporte.tenpo.cl",
+  "storage-assets.tenpo.cl",
+  "temporal-ts-capab.tenpo.cl",
+  "tenpo.cl",
+  "test-paypal.tenpo.cl",
+  "test.tenpo.cl",
+  "webflow.tenpo.cl",
+  "webpay.tenpo.cl",
+  "webprod.tenpo.cl",
+  "webtest.tenpo.cl",
+  "www.api.dev.tenpo.cl",
+  "www.api.lab.tenpo.cl",
+  "www.api.prod.tenpo.cl",
+  "www.api.tenpo.cl",
+  "www.api.testdcruz.tenpo.cl",
+  "www.api.uat.tenpo.cl",
+  "www.blog.tenpo.cl",
+  "www.open.tenpo.cl",
+  "www.tenpo.cl"
+ ],
+ "respuestas": {
+  "tenpo.cl|TXT": [
+   {
+    "name": "tenpo.cl",
+    "type": 16,
+    "TTL": 30,
+    "data": "\"_5i22gxhvztpq7mugl92n8zmt3t6fxgv\""
+   },
+   {
+    "name": "tenpo.cl",
+    "type": 16,
+    "TTL": 30,
+    "data": "\"_y61i6ilcfcmg12v5bst0ab0p5mz6r6e\""
+   },
+   {
+    "name": "tenpo.cl",
+    "type": 16,
+    "TTL": 30,
+    "data": "\"apple-domain-verification=7OSOlJDrEUU7eoCl\""
+   },
+   {
+    "name": "tenpo.cl",
+    "type": 16,
+    "TTL": 30,
+    "data": "\"atlassian-domain-verification=9HkldRocI8HBo9xatgouDEJvFf3f6/TFAmwvnt82f7X86XWxiWIbRJoXbNiRf56S\""
+   },
+   {
+    "name": "tenpo.cl",
+    "type": 16,
+    "TTL": 30,
+    "data": "\"atlassian-domain-verification=sFiXJ8lezOQZdOvl2O501AAeSCCS7x9qs3khn7BNQhOXvdDJHbht8FNhmXqvXDQg\""
+   },
+   {
+    "name": "tenpo.cl",
+    "type": 16,
+    "TTL": 30,
+    "data": "\"atlassian-domain-verification=w5f/S31tiwajby0aAciSs/etOAp1M9ZokAaUicOaD/JnyMbl89DCvtF2qLYvmXiO\""
+   },
+   {
+    "name": "tenpo.cl",
+    "type": 16,
+    "TTL": 30,
+    "data": "\"cursor-domain-verification-4vm7x8=wPdjsXnPBFInvrXw24vhIM3t0\""
+   },
+   {
+    "name": "tenpo.cl",
+    "type": 16,
+    "TTL": 30,
+    "data": "\"d365mktkey=Ylih4xn7UhIvI9VExCsMm7gvPJtzYidn3VK6S8Rdb4kx\""
+   },
+   {
+    "name": "tenpo.cl",
+    "type": 16,
+    "TTL": 30,
+    "data": "\"dtm-domain-verification=gO4456XFTtQclTuHiUYqkwx6JYtsq8H5xEJTTeTuqk0\""
+   },
+   {
+    "name": "tenpo.cl",
+    "type": 16,
+    "TTL": 30,
+    "data": "\"google-site-verification=JoHGzWeLT8NKNzBQDpQOLEwQdRpUPQB_WNk2a8qBfu0\""
+   },
+   {
+    "name": "tenpo.cl",
+    "type": 16,
+    "TTL": 30,
+    "data": "\"google-site-verification=N8BOVmX0rNmz-79tXaQZLad8ixW5qV12x34KrKuDSNY\""
+   },
+   {
+    "name": "tenpo.cl",
+    "type": 16,
+    "TTL": 30,
+    "data": "\"google-site-verification=c8zTblAfFGKfMgvma44VsHW9svb4nfIV1cr5H3mBsjc\""
+   },
+   {
+    "name": "tenpo.cl",
+    "type": 16,
+    "TTL": 30,
+    "data": "\"google-site-verification=koNL8EBBfTT_tX2NliIYhdJ57dUkQeG1Xt8pvHmwrew\""
+   },
+   {
+    "name": "tenpo.cl",
+    "type": 16,
+    "TTL": 30,
+    "data": "\"google-site-verification=mqEr97XLExRzbLUIIP8d_HxMzryIVZZPUwWeAezRMUk\""
+   },
+   {
+    "name": "tenpo.cl",
+    "type": 16,
+    "TTL": 30,
+    "data": "\"google-site-verification=tsQNi2LqTAALKLoFCBtmRwmOcags9G4PWtlLHvYCO-Y\""
+   },
+   {
+    "name": "tenpo.cl",
+    "type": 16,
+    "TTL": 30,
+    "data": "\"google-site-verification=vicTbv0vyfOYF8aXlOTQi6a3WP_V2Pjwe2Tds6FBtbo\""
+   },
+   {
+    "name": "tenpo.cl",
+    "type": 16,
+    "TTL": 30,
+    "data": "\"hcp-domain-verification=7e89d95ea8e3ccd5b5f688dbb40be1a0ccde343277eea6f43cb36f19ce67120a\""
+   },
+   {
+    "name": "tenpo.cl",
+    "type": 16,
+    "TTL": 30,
+    "data": "\"miro-verification=3a9e303ca47e304e3c121ce675b99e67b145d03c\""
+   },
+   {
+    "name": "tenpo.cl",
+    "type": 16,
+    "TTL": 30,
+    "data": "\"mongodb-site-verification=CtYhdV1lNwtH9nZ2kXL4atw5DaJi27SG\""
+   },
+   {
+    "name": "tenpo.cl",
+    "type": 16,
+    "TTL": 30,
+    "data": "\"onetrust-domain-verification=637c20261ffdaa66e52544525d844103d8a2cd818044fd25d6901c7fe21fdd43\""
+   },
+   {
+    "name": "tenpo.cl",
+    "type": 16,
+    "TTL": 30,
+    "data": "\"proxy-ssl.webflow.com\""
+   },
+   {
+    "name": "tenpo.cl",
+    "type": 16,
+    "TTL": 30,
+    "data": "\"twilio-domain-verification=103b5747058d68c045c897ef3eff23bd\""
+   },
+   {
+    "name": "tenpo.cl",
+    "type": 16,
+    "TTL": 30,
+    "data": "\"v=spf1 a mx ip4:149.72.231.47 ip4:149.72.196.66 include:_spf.google.com include:sendgrid.net include:servers.mcsv.net include:mail.zendesk.com include:tenpo.cl ~all\""
+   }
+  ],
+  "tenpo.cl|DS": [],
+  "api.testdcruz.tenpo.cl|CNAME": [],
+  "api.prod.tenpo.cl|CNAME": [],
+  "tenpo.cl|CAA": [],
+  "api.tenpo.cl|CNAME": [],
+  "api.lab.tenpo.cl|CNAME": [],
+  "api.dev.tenpo.cl|CNAME": [],
+  "api.uat.tenpo.cl|CNAME": [],
+  "dashboard.prod-internal.tenpo.cl|CNAME": [],
+  "credits.prod.tenpo.cl|CNAME": [],
+  "blog.tenpo.cl|CNAME": [],
+  "ayuda.tenpo.cl|CNAME": [],
+  "boleta.tenpo.cl|CNAME": [
+   {
+    "name": "boleta.tenpo.cl",
+    "type": 5,
+    "TTL": 300,
+    "data": "tenpodevboleta.azureedge.net."
+   }
+  ],
+  "crossborder.tenpo.cl|CNAME": [],
+  "em518.em3694.tenpo.cl|CNAME": [
+   {
+    "name": "em518.em3694.tenpo.cl",
+    "type": 5,
+    "TTL": 300,
+    "data": "u10332379.wl130.sendgrid.net."
+   }
+  ],
+  "2rjf4vqj2kwa.tenpo.cl|CNAME": [
+   {
+    "name": "2rjf4vqj2kwa.tenpo.cl",
+    "type": 5,
+    "TTL": 300,
+    "data": "gv-3k2pjo3a4y7es3.dv.googlehosted.com."
+   }
+  ],
+  "descarga.tenpo.cl|CNAME": [],
+  "abona.tenpo.cl|CNAME": [
+   {
+    "name": "abona.tenpo.cl",
+    "type": 5,
+    "TTL": 300,
+    "data": "rechargetenpodev.azureedge.net."
+   }
+  ],
+  "email.tenpo.cl|CNAME": [
+   {
+    "name": "email.tenpo.cl",
+    "type": 5,
+    "TTL": 300,
+    "data": "tenpo.activehosted.com."
+   }
+  ],
+  "internal-vpn.tenpo.cl|CNAME": [],
+  "open.tenpo.cl|CNAME": [],
+  "images.tenpo.cl|CNAME": [],
+  "invita-y-gana.tenpo.cl|CNAME": [],
+  "paypal.tenpo.cl|CNAME": [],
+  "prod-credito.tenpo.cl|CNAME": [],
+  "paypal-prueba.tenpo.cl|CNAME": [],
+  "prod-b-drp.tenpo.cl|CNAME": [],
+  "launch.dev.tenpo.cl|CNAME": [
+   {
+    "name": "launch.dev.tenpo.cl",
+    "type": 5,
+    "TTL": 300,
+    "data": "launchdevtenpo.azureedge.net."
+   }
+  ],
+  "prod-b.tenpo.cl|CNAME": [],
+  "prod-c.tenpo.cl|CNAME": [],
+  "_spf.google.com|TXT": [
+   {
+    "name": "_spf.google.com",
+    "type": 16,
+    "TTL": 283,
+    "data": "\"v=spf1 ip4:74.125.0.0/16 ip4:192.178.47.0/24 ip4:192.179.92.0/22 ip4:209.85.128.0/17 ip6:2001:4860:4864::/56 ip6:2404:6800:4864::/56 ip6:2607:f8b0:4864::/56 ip6:2800:3f0:4864::/56 ip6:2a00:1450:4864::/56 ip6:2c0f:fb50:4864::/56 ~all\""
+   }
+  ],
+  "prod-internal-drp.tenpo.cl|CNAME": [],
+  "prod-internal.tenpo.cl|CNAME": [],
+  "prod-internal-sre.tenpo.cl|CNAME": [],
+  "prod-seguros.tenpo.cl|CNAME": [],
+  "sendgrid.net|TXT": [
+   {
+    "name": "sendgrid.net",
+    "type": 16,
+    "TTL": 1268,
+    "data": "\"5m3r13nvilmq8tgf5foh6ki1uv\""
+   },
+   {
+    "name": "sendgrid.net",
+    "type": 16,
+    "TTL": 1268,
+    "data": "\"6ifgg010qg6mquqt5lodun8qds\""
+   },
+   {
+    "name": "sendgrid.net",
+    "type": 16,
+    "TTL": 1268,
+    "data": "\"cemmvnbghpsb500d7c19e35fgm\""
+   },
+   {
+    "name": "sendgrid.net",
+    "type": 16,
+    "TTL": 1268,
+    "data": "\"google-site-verification=1UEf8ey-RibUjY6gnpqIZFjWNqMknmeyeHz1zTmj0DE\""
+   },
+   {
+    "name": "sendgrid.net",
+    "type": 16,
+    "TTL": 1268,
+    "data": "\"i52uk89q4nfe1mpgqv5qsmsj3j.\""
+   },
+   {
+    "name": "sendgrid.net",
+    "type": 16,
+    "TTL": 1268,
+    "data": "\"l8bqrl0r33q4joeb79q8uuj009\""
+   },
+   {
+    "name": "sendgrid.net",
+    "type": 16,
+    "TTL": 1268,
+    "data": "\"mailru-verification: 2e3995fa8a7d00e0\""
+   },
+   {
+    "name": "sendgrid.net",
+    "type": 16,
+    "TTL": 1268,
+    "data": "\"p8bnb2lp424dkl3c4io1aemiei\""
+   },
+   {
+    "name": "sendgrid.net",
+    "type": 16,
+    "TTL": 1268,
+    "data": "\"tdjhrpaflcikf52iqtn9rnggr9\""
+   },
+   {
+    "name": "sendgrid.net",
+    "type": 16,
+    "TTL": 1268,
+    "data": "\"utjqqjvmeadmlva41ectre9gd3\""
+   },
+   {
+    "name": "sendgrid.net",
+    "type": 16,
+    "TTL": 1268,
+    "data": "\"v=spf1 ip4:167.89.0.0/17 ip4:208.117.48.0/20 ip4:50.31.32.0/19 ip4:198.37.144.0/20 ip4:198.21.0.0/21 ip4:192.254.112.0/20 ip4:168.245.0.0/17 ip4:149.72.0.0/16 ip4:159.183.0.0/16 ip4:134.128.64.0/18 ip4:159.26.176.0/20 include:ab.sendgrid.net ~all\""
+   },
+   {
+    "name": "sendgrid.net",
+    "type": 16,
+    "TTL": 1268,
+    "data": "\"yahoo-verification-key=TrufSXS+dfythA5AIMbLUnkX38rjr1HR93gbqHUSY74=\""
+   }
+  ],
+  "webpay.tenpo.cl|CNAME": [],
+  "storage-assets.tenpo.cl|CNAME": [],
+  "soporte.tenpo.cl|CNAME": [
+   {
+    "name": "soporte.tenpo.cl",
+    "type": 5,
+    "TTL": 300,
+    "data": "tenpohelp.zendesk.com."
+   }
+  ],
+  "webtest.tenpo.cl|CNAME": [],
+  "serverside.tenpo.cl|CNAME": [
+   {
+    "name": "serverside.tenpo.cl",
+    "type": 5,
+    "TTL": 300,
+    "data": "ghs.googlehosted.com."
+   }
+  ],
+  "temporal-ts-capab.tenpo.cl|CNAME": [],
+  "prod-ultron.tenpo.cl|CNAME": [],
+  "webprod.tenpo.cl|CNAME": [],
+  "webflow.tenpo.cl|CNAME": [],
+  "www.api.testdcruz.tenpo.cl|CNAME": [],
+  "www.api.prod.tenpo.cl|CNAME": [],
+  "www.api.lab.tenpo.cl|CNAME": [],
+  "www.api.dev.tenpo.cl|CNAME": [],
+  "www.api.tenpo.cl|CNAME": [],
+  "www.api.uat.tenpo.cl|CNAME": [],
+  "ab.sendgrid.net|TXT": [
+   {
+    "name": "ab.sendgrid.net",
+    "type": 16,
+    "TTL": 1800,
+    "data": "\"v=spf1 ip4:223.165.113.0/24 ip4:223.165.115.0/24 ip4:223.165.118.0/23 ip4:223.165.120.0/23 ip4:137.22.245.0/24 ip4:137.22.246.0/24 ~all\""
+   }
+  ],
+  "www.blog.tenpo.cl|CNAME": [],
+  "www.open.tenpo.cl|CNAME": [],
+  "servers.mcsv.net|TXT": [
+   {
+    "name": "servers.mcsv.net",
+    "type": 16,
+    "TTL": 600,
+    "data": "\"v=spf1 ip4:205.201.128.0/20 ip4:198.2.128.0/18 ip4:148.105.0.0/16 -all\""
+   }
+  ],
+  "mail.zendesk.com|TXT": [
+   {
+    "name": "mail.zendesk.com",
+    "type": 16,
+    "TTL": 272,
+    "data": "\"v=spf1 ip4:103.151.192.0/23 ip4:185.12.80.0/22 ip4:188.172.128.0/20 ip4:192.161.144.0/20 ip4:216.198.0.0/18 ~all\""
+   }
+  ]
+ }
+}

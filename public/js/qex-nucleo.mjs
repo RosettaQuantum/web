@@ -440,6 +440,8 @@ export function armarFoto({ dominio, www, vertical, medido, ct, sondas: s, refer
       not_before: corta(c.not_before), not_after: corta(c.not_after), medido_desde: c.medido_desde || "worker", ...(c.metodo ? { metodo: c.metodo } : {}) }
       : { ok: false, error: c.error, medido_desde: c.medido_desde || "worker", ...(c.metodo ? { metodo: c.metodo } : {}) },
     proveedores: { correo: s.correo.proveedor, mx: s.correo.mx, security_txt: s.security_txt.publicado },
+    // 25-nov-2026: SPF, DNSSEC, CAA y CNAME del registro (lib/dns-pasivo.mjs). No entra al QEX ni a la nota.
+    ...(s.dns_pasivo ? { dns_pasivo: s.dns_pasivo } : {}),
     qex: { ...q, tipos },
     // hndl_edicion (24-nov-2026): la edición en que se fijó el MODELO HNDL, que no es la de las medianas. Una
     // referencia vieja sin el campo la deja fuera (las fotos guardadas no cambian).
