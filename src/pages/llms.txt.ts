@@ -1,4 +1,5 @@
-import { CATALOGO, HERRAMIENTAS } from '../../api.js';
+import { CATALOGO, HERRAMIENTAS_SERVIDAS as HERRAMIENTAS } from '../../api.js';
+// 25-nov-2026: el conteo es el de lo que tools/list sirve en producción (decía 14 con 15 servidas).
 import type { APIRoute } from 'astro';
 import { getCollection } from 'astro:content';
 
@@ -19,7 +20,7 @@ export const GET: APIRoute = async ({ site }) => {
   const informe = ult && ult.d.borrador === false ? ult : null;
   // PROVISORIO (12-nov-2026): la línea de la medición para agentes; la aprueba Nicholas antes de
   // producción. Desde hoy la respuesta trae el QEX: antes lo calculaba sólo la página.
-  const LINEA_MEDICION = `- \`POST ${base}/v1/medicion\` (or MCP tool \`medir_exposicion_pqc\`) — free, rate-limited live measurement of a domain's post-quantum exposure. Send \`{"dominio": "example.cl", "sector": "banca"}\` and the response includes the QEX index, computed exactly as the human page computes it, with the sector median and quartiles. Human page: ${base}/q-ready/medicion/ (Spanish: ${base}/es/q-ready/medicion/)`;
+  const LINEA_MEDICION = `- \`POST ${base}/v1/medicion\` (or MCP tool \`medir_exposicion_pqc\`) — free, rate-limited live measurement of a domain's post-quantum exposure. Send \`{"dominio": "example.cl", "sector": "banca"}\` and the response includes the QEX index, computed exactly as the human page computes it, with the sector median. Human page: ${base}/q-ready/medicion/ (Spanish: ${base}/es/q-ready/medicion/)`;
   // PROVISORIO (13-nov-2026): Q-Ready Verified. La aprueba Nicholas antes de producción.
   const LINEAS_QREADY = [
     `- [/.well-known/q-ready specification](${base}/q-ready/spec): an open, free standard (version 0) for a short signed JSON file in which an organization declares its post-quantum migration plan — responsible party, internal inventory status, target date, critical providers by role, expiry like security.txt. Ed25519 signature; public validator on the page. Spanish: ${base}/es/q-ready/spec`,
