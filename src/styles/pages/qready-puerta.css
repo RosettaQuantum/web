@@ -80,8 +80,8 @@
 .mo-cab{display:grid;grid-template-columns:1.1fr 1fr;gap:var(--s3) var(--s4);align-items:end;margin-bottom:var(--s3)}
 @media(max-width:760px){.mo-cab{grid-template-columns:1fr}}
 .mo-v-titulo{font-family:var(--serif);font-weight:400;font-size:var(--t-display);line-height:var(--lh-display);letter-spacing:-.02em}
-.mo-tarde{color:var(--alert)}
-.mo-a-tiempo{color:var(--verdict)}
+/* 25-nov-2026: el título es fijo y neutro en los dos estados; ni rojo ni verde (decisión de no alarmar). */
+.mo-tarde,.mo-a-tiempo{color:var(--ink)}
 .mo-v-linea{font-size:var(--t-small);color:var(--ink-60);margin-top:var(--s1);max-width:46ch}
 .mo-controles{display:grid;gap:var(--s2)}
 .mo-control{display:grid;grid-template-columns:1fr auto;align-items:baseline;column-gap:var(--s2)}

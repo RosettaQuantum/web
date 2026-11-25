@@ -42,9 +42,9 @@
   "usa": "api.js · descripciones de iniciar_verificacion, verificar_dominio y descubrir_proveedores en tools/list"
  },
  {
-  "archivo": "TEXTOS-mosca-2026-11-25.md",
-  "sha256": "f5fb6c47e78ff4f004990b3f1027b9d4ef05eee4d787c7a786a373df49d33b1d",
-  "aprobado_por": "Nicholas, 25-nov-2026: «Sí, apruebo y sube» (criterio: desde el primer horizonte)",
+  "archivo": "TEXTOS-mosca-2026-11-25b.md",
+  "sha256": "e15ff57cf0786ce772ed6cd5f68657a97b46ad7d012c0098be03065f816a6487",
+  "aprobado_por": "Nicholas, 25-nov-2026: «Sí, apruebo y sube» (criterio: desde el primer horizonte) y «Sí, título fijo y neutro»",
   "usa": "src/lib/mosca-textos.mjs · TEXTOS_MOSCA (gráfico «Sume los años»)"
  }
 ]

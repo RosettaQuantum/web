@@ -12,8 +12,8 @@ encuesta («≥51%»).
 | `etSecreto` | Años que sus datos deben seguir secretos | Years your data must stay secret |
 | `etMigracion` | Años que le toma migrar | Years it takes you to migrate |
 | `anioUno` | 1 año | 1 year |
-| `tarde` | Ya va tarde. | You are already late. |
-| `aTiempo` | Llega a tiempo. | You are on time. |
+| `tarde` | Línea de tiempo de protección | Protection timeline |
+| `aTiempo` | Línea de tiempo de protección | Protection timeline |
 | `lineaTarde` | Necesita protección hasta ‹año›. Hacia ‹h›, los expertos ya estiman ‹p›. | You need protection until ‹año›. By ‹h›, experts already estimate ‹p›. |
 | `lineaMasAlla` | Necesita protección hasta ‹año›, más allá del último horizonte que mide la encuesta (‹h›: ‹p›). | You need protection until ‹año›, beyond the last horizon the survey measures (‹h›: ‹p›). |
 | `lineaATiempo` | Necesita protección hasta ‹año›, antes del primer horizonte que estima la encuesta (‹h›: ‹p›). | You need protection until ‹año›, before the first horizon the survey estimates (‹h›: ‹p›). |

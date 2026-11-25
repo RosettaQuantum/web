@@ -38,7 +38,7 @@ const igual = (a, b, q) => { casos++; if (JSON.stringify(a) !== JSON.stringify(b
 const LECTURA = "TEXTO-lectura-notas-A-B-2026-11-18.md", HNDL = "TEXTO-rubrica-hndl-origen-2026-11-18.md", T234 = "TEXTOS-para-aprobar-2026-11-18.md";
 const CARRUSEL = "TEXTOS-carrusel-2026-11-24.md";
 const QR_EN = "TEXTOS-q-ready-en-2026-11-23.md";
-const MOSCA = "TEXTOS-mosca-2026-11-25.md"; // gráfico «Sume los años»
+const MOSCA = "TEXTOS-mosca-2026-11-25b.md"; // gráfico «Sume los años»
 const MCP_H = "TEXTOS-mcp-herramientas-2026-11-24.md"; // descripciones de tres herramientas, verbatim
 const MCP = "TEXTOS-mcp-2026-11-24.md"; // su contenido lo vigila scripts/textos-q-ready-en.mjs --verificar
 // Las lecturas que NO se tocan (A+, C, D, F), como estaban el 18-nov: cambiarlas no está aprobado.
@@ -56,7 +56,7 @@ const SIN_CAMBIO = {
 // ---------------------------------------------------------------- 1 · el sello
 const AP = TA.aprobados();
 igual(AP.map((a) => a.archivo).sort(), [LECTURA, HNDL, T234, QR_EN, CARRUSEL, MCP, MCP_H, MOSCA].sort(), "APROBADOS.json declara los ocho documentos, ni más ni menos");
-igual(AP.find((a) => a.archivo === MOSCA)?.sha256, "f5fb6c47e78ff4f004990b3f1027b9d4ef05eee4d787c7a786a373df49d33b1d", "TEXTOS-mosca: el sha256 con que se aprobó");
+igual(AP.find((a) => a.archivo === MOSCA)?.sha256, "e15ff57cf0786ce772ed6cd5f68657a97b46ad7d012c0098be03065f816a6487", "TEXTOS-mosca: el sha256 con que se aprobó");
 igual(AP.find((a) => a.archivo === MCP_H)?.sha256, "d0a76b239d3daad085421be059b60da075761b5294aa8fe45891d23b8cd1ab71", "TEXTOS-mcp-herramientas: el sha256 con que se aprobó");
 igual(AP.find((a) => a.archivo === MCP)?.sha256, "0bf245ba5cd0885060e1059eb6df78f940942a523a143385aa85f1b85175fe48", "TEXTOS-mcp: el sha256 con que se aprobó");
 igual(AP.find((a) => a.archivo === CARRUSEL)?.sha256, "76d5bcc1159c74ce69b4f8630e5974e50693475f3067fd5c4901b9c61d69a5a1", "TEXTOS-carrusel: el sha256 con que se aprobó");
@@ -64,7 +64,7 @@ igual(AP.find((a) => a.archivo === CARRUSEL)?.sha256, "76d5bcc1159c74ce69b4f8630
   for (const [l, t] of Object.entries(TEXTOS_CARRUSEL)) for (const [k, v] of Object.entries(t))
     igual(sell.includes(`| ${v} |`), true, `carrusel ${l}.${k} «${v}» es el texto aprobado`); }
 igual(AP.find((a) => a.archivo === QR_EN)?.sha256, "3d16e4f79b7297c553170691727fff3a11e05e74a2e38895cfcaaf6f33c23cd4", "TEXTOS-q-ready-en: el sha256 con que se aprobó");
-for (const a of AP) igual([TA.sha256(TA.leerBytes(a.archivo)), /^Nicholas, (18-nov-2026(: "Sí, | \(textos 2, 3 y 4\)$)|23-nov-2026: «Textos OK, súbelo»|24-nov-2026: «Sí, con esos textos»|24-nov-2026 \(vía coordinación\): textos 1 y 3 del MCP, ES y EN tal cual$|24-nov-2026: «Sí, tal cual» y «Sí, apruebo y sube»$|25-nov-2026: «Sí, apruebo y sube» \(criterio: desde el primer horizonte\)$)/.test(a.aprobado_por)], [a.sha256, true], `${a.archivo}: sha256 y aprobado_por iguales a APROBADOS.json`);
+for (const a of AP) igual([TA.sha256(TA.leerBytes(a.archivo)), /^Nicholas, (18-nov-2026(: "Sí, | \(textos 2, 3 y 4\)$)|23-nov-2026: «Textos OK, súbelo»|24-nov-2026: «Sí, con esos textos»|24-nov-2026 \(vía coordinación\): textos 1 y 3 del MCP, ES y EN tal cual$|24-nov-2026: «Sí, tal cual» y «Sí, apruebo y sube»$|25-nov-2026: «Sí, apruebo y sube» \(criterio: desde el primer horizonte\) y «Sí, título fijo y neutro»$)/.test(a.aprobado_por)], [a.sha256, true], `${a.archivo}: sha256 y aprobado_por iguales a APROBADOS.json`);
 igual(AP.find((a) => a.archivo === T234).sha256, "a31d2c1c3215d7f05b3568dc8e7468cf607615301177c2801c9de2dbb706aaa3", "TEXTOS-para-aprobar: el sha256 con que se aprobó");
 
 // ---------------------------------------------------------------- 2 · el código dice lo aprobado
@@ -172,7 +172,7 @@ igual(revisarMcp(TM, HERRAMIENTAS, "Solo lectura. Toda respuesta incluye sha256 
   const docM = TA.leerBytes(MOSCA).toString("utf8");
   const sueltos = (T) => { const out = []; const w = (o, p) => { for (const [k, v] of Object.entries(o)) { if (typeof v === "string") { if (!docM.includes(`| ${v} |`)) out.push(p + k); } else if (v && typeof v === "object") w(v, p + k + "."); } }; w(T, ""); return out; };
   igual(sueltos(TEXTOS_MOSCA), [], "mosca: cada texto servido es una celda exacta de la tabla aprobada");
-  igual(sueltos({ es: { tarde: "Ya es tarde." } }), ["es.tarde"], "MUTACIÓN mosca: otra redacción del veredicto → grita");
+  igual(sueltos({ es: { tarde: "Ya va tarde." } }), ["es.tarde"], "MUTACIÓN mosca: otra redacción del veredicto → grita");
 }
 
 for (const f of fallas) console.log("  FALLA " + f);

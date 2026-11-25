@@ -1,6 +1,8 @@
 // Textos NUEVOS del gráfico interactivo «Sume los años» (25-nov-2026): los rótulos de los controles, el
 // veredicto y la tabla para lector de pantalla.
 //
+// APROBADOS el 25-nov-2026; el título del veredicto pasó el mismo día a uno fijo y neutro («Línea de
+// tiempo de protección»), para que no suene a alarma: la frase de abajo es la que da el dato.
 // APROBADOS el 25-nov-2026 (sellados en src/data/q-ready/textos-aprobados/TEXTOS-mosca-2026-11-25.md,
 // vigilados por check-textos-aprobados). La tabla es ↔ en se genera de este
 // archivo (node scripts/textos-mosca.mjs → docs/textos-provisorios-mosca.md), para que lo que se apruebe
@@ -20,8 +22,8 @@ export const TEXTOS_MOSCA = {
     etSecreto: "Años que sus datos deben seguir secretos",
     etMigracion: "Años que le toma migrar",
     anioUno: "1 año",
-    tarde: "Ya va tarde.",
-    aTiempo: "Llega a tiempo.",
+    tarde: "Línea de tiempo de protección",
+    aTiempo: "Línea de tiempo de protección",
     lineaTarde: "Necesita protección hasta ‹año›. Hacia ‹h›, los expertos ya estiman ‹p›.",
     lineaMasAlla: "Necesita protección hasta ‹año›, más allá del último horizonte que mide la encuesta (‹h›: ‹p›).",
     lineaATiempo: "Necesita protección hasta ‹año›, antes del primer horizonte que estima la encuesta (‹h›: ‹p›).",
@@ -35,8 +37,8 @@ export const TEXTOS_MOSCA = {
     etSecreto: "Years your data must stay secret",
     etMigracion: "Years it takes you to migrate",
     anioUno: "1 year",
-    tarde: "You are already late.",
-    aTiempo: "You are on time.",
+    tarde: "Protection timeline",
+    aTiempo: "Protection timeline",
     lineaTarde: "You need protection until ‹año›. By ‹h›, experts already estimate ‹p›.",
     lineaMasAlla: "You need protection until ‹año›, beyond the last horizon the survey measures (‹h›: ‹p›).",
     lineaATiempo: "You need protection until ‹año›, before the first horizon the survey estimates (‹h›: ‹p›).",
