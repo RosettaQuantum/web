@@ -1,0 +1,27 @@
+---
+/**
+ * /lab/hardware — «The same circuit, two machines».
+ *
+ * Página delgada a propósito: el marcado vive una sola vez, en LabHardware.astro, y los textos
+ * y las cifras salen del generador leyendo los archivos sellados de la medición. Acá no hay
+ * ninguna cifra ni ninguna frase que alguien pueda editar sin pasar por el sello.
+ *
+ * `altUrl` NO es opcional: sin él NavV2 cae a poner o quitar el prefijo /es, y alimenta el
+ * hreflang del <head>. Los slugs de este par coinciden, pero dejarlo implícito ya rompió el
+ * conmutador de idioma en 19 de 27 páginas.
+ */
+import MarcaLayout from '../../../layouts/MarcaLayout.astro';
+import LabHardware from '../../../components/paginas/LabHardware.astro';
+import { pagina } from '../../../lib/lab-hardware.mjs';
+import paginas from '../../../styles/pages/paginas.css?raw';
+import propia from '../../../styles/pages/lab-hardware.css?raw';
+const { textos } = pagina('en');
+---
+<MarcaLayout
+  title={textos.titulo + ' — Rosetta Quantum'}
+  description={textos.bajada}
+  lang="en" altUrl="/es/lab/hardware" ruta="/lab/hardware"
+  pageCss={paginas + '\n' + propia} scripts={["/js/frescura.js"]}
+>
+  <LabHardware lang="en" />
+</MarcaLayout>

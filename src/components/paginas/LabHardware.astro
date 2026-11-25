@@ -1,0 +1,102 @@
+---
+/**
+ * /lab/hardware y /es/lab/hardware — «El mismo circuito, dos máquinas».
+ *
+ * UN COMPONENTE, DOS PÁGINAS. El par en/es es el patrón del repo (ver QReadyPuerta y
+ * Comparacion): si el marcado viviera dos veces, un arreglo tendría que acordarse dos veces, y
+ * en este proyecto un contrato en dos artefactos ya cambió en un solo paso más de una vez.
+ *
+ * NINGUNA CIFRA Y NINGUNA PALABRA SE ESCRIBEN AQUÍ. Los doce textos son los aprobados por
+ * Nicholas el 25-nov-2026 y viven sellados en `src/data/lab/hardware/`; las cifras las pone el
+ * generador leyendo los artefactos de la medición. Este archivo sólo decide dónde va cada cosa.
+ * Si falta un archivo, una huella no calza o un texto nombra una cifra que no se midió, el
+ * generador lanza y la página no se construye — eso es a propósito: sin medición no hay página.
+ *
+ * EL AZAR VA PEGADO A LA CIFRA, no al pie. Es la regla de la casa sobre esta clase de número:
+ * 900 de 1.000 no significa nada hasta que al lado está el 250 que saca una máquina respondiendo
+ * al azar. Separarlos en la pantalla es separarlos en la cabeza del que mira.
+ *
+ * PANELES EN <div role="region">, NO EN <section>. La base de marca pinta
+ * `section:not(.pilot){background:var(--paper)}` y en modo oscuro la repite con `!important`:
+ * un <section> con fondo propio sale color papel y ninguna especificidad le gana. Ya pasó en
+ * /es/q-ready/medicion.
+ */
+import { pagina } from '../../lib/lab-hardware.mjs';
+
+const { lang = 'en' } = Astro.props;
+const es = lang === 'es';
+const { textos: t, medicion: m, deHoy } = pagina(lang);
+
+// Las tres barras del gráfico de aciertos. El orden es el del texto aprobado —simulador,
+// hardware— y el azar va tercero porque es la vara, no un competidor.
+const BARRAS = [
+  { clave: 'a', rotulo: t.columna_a, aciertos: m.aciertos_simulador, tono: 'exacto' },
+  { clave: 'b', rotulo: t.columna_b, aciertos: m.aciertos_hardware, tono: 'medido' },
+];
+
+// El reparto de los disparos entre los 16 resultados. Son NÚMEROS, no texto nuevo: la figura
+// se nombra con el párrafo ya aprobado que explica qué se mide (aria-labelledby), para no
+// meter por la puerta de atrás una leyenda que Nicholas no vio.
+const maximo = Math.max(...Object.values(m.cuentas_hardware));
+const ESTADOS = Array.from({ length: m.estados }, (_, i) => ({
+  i,
+  cuenta: m.cuentas_hardware[String(i)] ?? 0,
+  pico: m.picos.includes(i),
+}));
+---
+<section class="pg lh" style="border-top:none"><div class="wrap">
+  <div class="eyebrow">{es ? 'Laboratorio' : 'Laboratory'}</div>
+  <h1>{t.titulo}</h1>
+  <p class="lede">{t.bajada}</p>
+
+  {/* «Lo que esto no es» va ACÁ, no al pie: es el orden que aprobó Nicholas. Una salvedad al
+      pie la lee quien ya se formó una idea equivocada. */}
+  <p class="lh-no-es">{t.no_es}</p>
+</div></section>
+
+<section><div class="wrap">
+  <p class="lede" id="lh-que-se-mide">{t.que_se_mide}</p>
+
+  <div class="lh-marcador" role="region" aria-labelledby="lh-que-se-mide">
+    <div class="lh-columnas">
+      {BARRAS.map((b) => (
+        <div class="lh-col" data-tono={b.tono}>
+          <div class="lh-col-rotulo">{b.rotulo}</div>
+          <div class="lh-cifra">{b.aciertos.toLocaleString(es ? 'es-CL' : 'en-US')}</div>
+          <div class="lh-cifra-pie">{t.rotulo_cifra}</div>
+          <div class="lh-barra"><span style={`inline-size:${(100 * b.aciertos / m.disparos).toFixed(1)}%`}></span></div>
+        </div>
+      ))}
+    </div>
+
+    {/* La vara. Misma escala que las barras de arriba, para que el 250 se vea como lo que es. */}
+    <div class="lh-vara">
+      <div class="lh-vara-barra"><span style={`inline-size:${(100 * m.aciertos_azar / m.disparos).toFixed(1)}%`}></span></div>
+      <p class="lh-vara-texto">{t.azar}</p>
+    </div>
+  </div>
+
+  {/* Dónde cayeron los 1.000 disparos. Los picos correctos se saben por matemática antes de
+      encender la máquina: acá están marcados, y el resto es el ruido del hardware. */}
+  <div class="lh-reparto" role="region" aria-labelledby="lh-que-se-mide">
+    {ESTADOS.map((e) => (
+      <div class="lh-estado" data-pico={e.pico ? 'si' : 'no'}>
+        <div class="lh-estado-barra"><span style={`block-size:${(100 * e.cuenta / maximo).toFixed(1)}%`}></span></div>
+        <div class="lh-estado-n">{e.i}</div>
+      </div>
+    ))}
+  </div>
+</div></section>
+
+<section><div class="wrap lh-prosa">
+  <p>{t.profundidad}</p>
+  <p>{t.rsa}</p>
+</div></section>
+
+<section class="puerta-cierre"><div class="wrap">
+  <div class="eyebrow">{es ? 'Procedencia' : 'Provenance'}</div>
+  <p class="lh-procedencia mono">{t.procedencia}</p>
+  {/* Sale sola cuando la medición no es del día. Una corrida vieja es una corrida válida; lo
+      que no se puede es dejar que se lea como si fuera de este momento. */}
+  {!deHoy && <p class="lh-vieja">{t.no_es_de_ahora}</p>}
+</div></section>

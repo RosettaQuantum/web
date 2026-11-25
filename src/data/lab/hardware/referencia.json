@@ -1,0 +1,187 @@
+{
+ "_que_es": {
+  "es": "la referencia exacta del circuito chico: QFT inversa sobre un peine de periodo 4 en 4 qubits. Los cuatro picos en [0, 4, 8, 12] con 1/4 cada uno son el resultado correcto.",
+  "en": "the exact reference for the small circuit: inverse QFT over a period-4 comb on 4 qubits. The four peaks at [0, 4, 8, 12] with 1/4 each are the correct result."
+ },
+ "qubits": 4,
+ "estados": 16,
+ "periodo": 4,
+ "disparos": 1000,
+ "semilla": 20261124,
+ "picos_correctos": [
+  0,
+  4,
+  8,
+  12
+ ],
+ "probabilidades_exactas": {
+  "0": 0.24999999999999978,
+  "1": 1.3217493523837115e-34,
+  "2": 9.682320048931733e-38,
+  "3": 1.3217493523837115e-34,
+  "4": 0.24999999999999978,
+  "5": 1.3217493523837115e-34,
+  "6": 9.682320048931733e-38,
+  "7": 1.3217493523837115e-34,
+  "8": 0.24999999999999978,
+  "9": 1.3217493523837115e-34,
+  "10": 9.682320048931733e-38,
+  "11": 1.3217493523837115e-34,
+  "12": 0.24999999999999978,
+  "13": 1.3217493523837115e-34,
+  "14": 9.682320048931733e-38,
+  "15": 1.3217493523837115e-34
+ },
+ "probabilidades_muestreadas": {
+  "0": 0.239,
+  "1": 0.0,
+  "2": 0.0,
+  "3": 0.0,
+  "4": 0.248,
+  "5": 0.0,
+  "6": 0.0,
+  "7": 0.0,
+  "8": 0.251,
+  "9": 0.0,
+  "10": 0.0,
+  "11": 0.0,
+  "12": 0.262,
+  "13": 0.0,
+  "14": 0.0,
+  "15": 0.0
+ },
+ "fidelidad_de_picos_exacta": 0.9999999999999991,
+ "fidelidad_de_picos_muestreada": 1.0,
+ "distancia_variacion_total_del_muestreo": 0.013000000000000012,
+ "peor_diferencia_contra_la_formula": 2.220446049250313e-16,
+ "versiones": {
+  "qiskit": "2.5.2",
+  "qiskit_aer": "0.17.2",
+  "python": "3.12.14"
+ },
+ "openqasm3_sha256": "aac216371b1e69283b6bee64a318af4cfe563fa8477f09ec5a6fc846ee8549d0",
+ "peor_diferencia_del_qasm_contra_lo_simulado": 6.41463530422127e-50,
+ "compuertas": [
+  {
+   "compuerta": "h",
+   "angulo": null,
+   "qubits": [
+    2
+   ]
+  },
+  {
+   "compuerta": "swap",
+   "angulo": null,
+   "qubits": [
+    1,
+    2
+   ]
+  },
+  {
+   "compuerta": "h",
+   "angulo": null,
+   "qubits": [
+    3
+   ]
+  },
+  {
+   "compuerta": "swap",
+   "angulo": null,
+   "qubits": [
+    0,
+    3
+   ]
+  },
+  {
+   "compuerta": "h",
+   "angulo": null,
+   "qubits": [
+    0
+   ]
+  },
+  {
+   "compuerta": "cp",
+   "angulo": -1.5707963267948966,
+   "qubits": [
+    1,
+    0
+   ]
+  },
+  {
+   "compuerta": "h",
+   "angulo": null,
+   "qubits": [
+    1
+   ]
+  },
+  {
+   "compuerta": "cp",
+   "angulo": -0.7853981633974483,
+   "qubits": [
+    2,
+    0
+   ]
+  },
+  {
+   "compuerta": "cp",
+   "angulo": -1.5707963267948966,
+   "qubits": [
+    2,
+    1
+   ]
+  },
+  {
+   "compuerta": "h",
+   "angulo": null,
+   "qubits": [
+    2
+   ]
+  },
+  {
+   "compuerta": "cp",
+   "angulo": -0.39269908169872414,
+   "qubits": [
+    3,
+    0
+   ]
+  },
+  {
+   "compuerta": "cp",
+   "angulo": -0.7853981633974483,
+   "qubits": [
+    3,
+    1
+   ]
+  },
+  {
+   "compuerta": "cp",
+   "angulo": -1.5707963267948966,
+   "qubits": [
+    3,
+    2
+   ]
+  },
+  {
+   "compuerta": "h",
+   "angulo": null,
+   "qubits": [
+    3
+   ]
+  }
+ ],
+ "profundidad": 3,
+ "lo_que_no_es": [
+  {
+   "es": "NO es Shor completo: falta la exponenciacion modular, que es la parte cara y la que pide miles de qubits logicos. Esto es el paso que EXTRAE el periodo.",
+   "en": "it is NOT full Shor: the modular exponentiation is missing, which is the expensive part and the one that needs thousands of logical qubits. This is the step that EXTRACTS the period."
+  },
+  {
+   "es": "NO factoriza nada y no abre ninguna llave: no hay modulo ni mensaje. La cadena completa es la clase RQ-PQC1-COSECHA del lab, y corre en CPU.",
+   "en": "it does NOT factor anything and opens no key: there is no modulus and no message. The full chain is the lab's RQ-PQC1-COSECHA class, and it runs on CPU."
+  },
+  {
+   "es": "el peine se prepara con dos Hadamards, a proposito: un circuito profundo en el hardware de hoy devuelve ruido, y entonces la comparacion mediria la decoherencia en vez del metodo.",
+   "en": "the comb is prepared with two Hadamards, on purpose: a deep circuit on today's hardware returns noise, and then the comparison would measure decoherence instead of the method."
+  }
+ ]
+}

@@ -1,0 +1,118 @@
+{
+ "_que_es": [
+  "EL PREREGISTRO DE LA MEDICION EN HARDWARE. Congela QUE se mide, CONTRA QUE, y con que regla",
+  "se lee, ANTES de mandarle nada a la maquina. Lo que no esta aqui no puede decidir un numero,",
+  "y lo que esta aqui no se cambia despues de ver un resultado: se cambia con una version nueva,",
+  "que es un archivo nuevo con otra huella.",
+  "POR QUE LLEVA PREREGISTRO SI NO ES UNA CLASE DEL LAB. No lo es: no arbitra la afirmacion de",
+  "nadie, no tiene dos brazos compitiendo y no hay juez. Es una MEDICION de cuanta señal",
+  "sobrevive a una QPU real. Lleva preregistro igual por una razon simple: va a salir en una",
+  "pagina publica con un numero, y en esta casa un numero publico se congela antes de medirlo o",
+  "no sale. Decision de Nicholas, 25-nov-2026.",
+  "LO QUE HACE QUE ESTO VALGA ALGO es que la respuesta correcta se conoce POR MATEMATICA y no",
+  "por comparacion con otra corrida: de los 16 resultados posibles, exactamente 4 son correctos,",
+  "y eso se calcula a mano antes de encender nada."
+ ],
+ "prereg_id": "RQ-PREREG-HW1-PERIODO-001",
+ "clase": "medicion de hardware · el nucleo de Shor que extrae el periodo",
+ "fecha_congelado": "2026-11-25",
+
+ "PREGUNTA": [
+  "¿Cuanta de la señal del circuito sobrevive a una QPU real de hoy?",
+  "Dicho con precision: ejecutado el MISMO archivo OpenQASM en un simulador exacto y en una QPU",
+  "real, ¿que fraccion de los disparos cae en los resultados correctos en cada uno?"
+ ],
+
+ "PROTOCOLO": {
+  "1_el_circuito_esta_sellado_antes": [
+   "Se mide `entregables/qpu-2026-11-24/circuito.qasm`, sha256",
+   "aac216371b1e69283b6bee64a318af4cfe563fa8477f09ec5a6fc846ee8549d0.",
+   "NO se arma un circuito en el momento. El mismo archivo, byte por byte, es el que corre el",
+   "simulador de Braket y el que se le manda a IBM. Si la huella no calza, no se corre: un",
+   "circuito que no es el sellado no sirve para comparar contra la referencia sellada.",
+   "QUE ES: la transformada de Fourier cuantica inversa sobre un peine de periodo 4, en 4 qubits.",
+   "Es el paso de Shor que EXTRAE el periodo. 14 compuertas, profundidad 3."
+  ],
+  "2_la_respuesta_correcta_se_calcula_antes": [
+   "Con un peine de periodo r = 4 sobre Q = 16 estados y r divisor de Q, la QFT da amplitud",
+   "1/sqrt(r) en cada k multiplo de Q/r = 4, y CERO EXACTO en el resto.",
+   "O sea: los resultados correctos son {0, 4, 8, 12}, con probabilidad 1/4 cada uno.",
+   "Esto NO sale de un simulador: sale de la formula. El vector de estado del simulador se",
+   "compara contra ella y tiene que calzar en menos de 1e-9 — medido, la peor diferencia fue",
+   "2,22e-16, que es el epsilon del punto flotante."
+  ],
+  "3_la_medida": [
+   "FIDELIDAD DE PICOS: la fraccion de los disparos que cae en los 4 estados correctos.",
+   "Se elige esta y no otra porque se lee sin saber de cuantica: «de cada 1.000 intentos, cuantos",
+   "dieron la respuesta correcta». Se informa ademas la distancia de variacion total contra la",
+   "distribucion exacta, que es la medida que no depende de donde se puso el umbral."
+  ],
+  "4_contra_que_se_compara": [
+   "TRES REFERENCIAS, y las tres van siempre juntas en la pantalla:",
+   "  (a) la matematica exacta: 1,0000 por construccion;",
+   "  (b) el simulador exacto corriendo el MISMO archivo, con los mismos disparos;",
+   "  (c) EL AZAR PURO: 4 de 16 estados son correctos, asi que una maquina que respondiera al",
+   "      azar acertaria 0,2500.",
+   "LA (c) ES OBLIGATORIA Y NO ES DECORACION. Sin ella, una fidelidad de 0,30 se lee como «casi",
+   "funciono» cuando en realidad no aporto nada. Ya salvo un diagnostico el 24-nov: una lectura",
+   "de bits equivocada dio 0,2400 contra ese 0,2500 y, sin la columna del azar al lado, se habria",
+   "reportado como «el hardware no dio señal» con un circuito impecable."
+  ],
+  "5_la_maquina_y_los_disparos": [
+   "BACKEND: una QPU real de IBM Quantum, plan abierto, instancia «Rosetta Quantum». Se elige la",
+   "operativa con MENOS COLA al momento de correr, entre las visibles con la cuenta; el nombre y",
+   "el numero de trabajo quedan en el artefacto. Simuladores excluidos: el punto es hardware.",
+   "DISPAROS: 1.000, los mismos que el simulador. Comparar dos distribuciones muestreadas con",
+   "distinta cantidad de disparos mezclaria el ruido del muestreo con el de la maquina.",
+   "TRANSPILACION: la hace qiskit contra el backend elegido, `optimization_level=1`, con la",
+   "semilla 20261124. La profundidad ANTES y DESPUES va en el artefacto: el circuito entra con",
+   "profundidad 3 y la maquina lo ejecuta con la que le imponen sus compuertas nativas y el ruteo",
+   "entre qubits que no estan todos conectados. Esa diferencia es parte del resultado, no una",
+   "nota al pie."
+  ],
+  "6_la_regla_de_lectura_de_los_bits": [
+   "LA CONVENCION SE ELIGE COMPROBANDO, NO SE SUPONE, y esta regla nace de un defecto real.",
+   "qiskit numera el qubit 0 como el bit MENOS significativo de la cadena de medicion y Braket",
+   "como el MAS significativo. Leido al reves, un resultado perfecto da una fidelidad pegada al",
+   "azar puro.",
+   "LA REGLA: se calculan las DOS lecturas y se informa la que concentra los disparos en los",
+   "picos, con los dos numeros en el artefacto para que se vea cual se eligio y por que.",
+   "EN HARDWARE NO SE EXIGE UN UMBRAL como en un simulador, porque la maquina tiene ruido: se",
+   "toma la mejor de las dos. Si LAS DOS quedan pegadas al azar puro, eso ya no es convencion —",
+   "es que no hubo señal— y se declara asi.",
+   "MEDIDO el 25-nov en ibm_fez: las dos lecturas dieron 0,9040 y 0,2410. La diferencia entre",
+   "elegir y suponer es la diferencia entre un resultado y un diagnostico falso."
+  ],
+  "7_que_cuenta_como_resultado": [
+   "HUBO SEÑAL si la fidelidad de picos supera al azar puro por mas de un 20% relativo",
+   "(fidelidad > 0,30). Es un umbral FLOJO a proposito: no se usa para afirmar nada, se usa para",
+   "que el artefacto diga en una palabra si la maquina aporto algo. El numero que se publica es",
+   "la fidelidad, no el umbral.",
+   "NO HAY UN VALOR ESPERADO NI UN APROBADO. Lo que la maquina de es el dato. Una fidelidad baja",
+   "no es un fallo de la corrida: es la medicion de cuan lejos esta el hardware, que es",
+   "exactamente lo que esto viene a medir."
+  ],
+  "8_las_dos_corridas_cuelgan_DE_ESTE_prerregistro": [
+   "La corrida sellada de la noche del 25-nov y la corrida en vivo del 26-nov se hacen las dos",
+   "bajo estas reglas, sin cambiar ninguna.",
+   "Si la cola de IBM no permite la corrida en vivo, se muestra la sellada DICIENDO QUE LO ES,",
+   "con su hora y su numero de trabajo. Mostrar un resultado viejo no es trampa; mostrarlo como",
+   "si fuera de recien, si."
+  ]
+ },
+
+ "LO_QUE_ESTA_MEDICION_NO_DICE": [
+  "NO es Shor completo. Falta la exponenciacion modular, que es la parte cara del circuito —la",
+  "que pide miles de qubits logicos— y no entra en ninguna QPU de hoy. Esto es el paso que",
+  "extrae el periodo.",
+  "NO factoriza nada y NO abre ninguna llave. No hay modulo, no hay mensaje y no hay secreto. La",
+  "cadena completa que si rompe un secreto es la clase RQ-PQC1-COSECHA del lab, y corre en CPU.",
+  "NO dice nada sobre RSA-2048. Para ese tamaño el circuito de Shor pide 2·2048 = 4.096",
+  "multiplicaciones modulares controladas y 4.096 qubits de conteo, contra los 156 que tiene la",
+  "maquina. Eso es aritmetica, no una extrapolacion desde esta medicion.",
+  "Y NO MIDE «cuanto falta para que caiga la criptografia». Mide una cosa chica y concreta: que",
+  "fraccion de los disparos sobrevive a 4 qubits y profundidad 3 en una maquina de hoy. Medido",
+  "contra la misma maquina, SOLO la QFT que pediria nuestra familia mas chica (16 qubits)",
+  "transpila a profundidad 861, y la exponenciacion modular va encima."
+ ]
+}

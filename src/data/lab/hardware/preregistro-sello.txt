@@ -1,0 +1,9 @@
+# SELLO DE LA MEDICION EN HARDWARE · no se reescribe despues de medir
+# La cadena es: este sello -> el preregistro -> el circuito.
+# `en_ibm.py` comprueba los tres antes de mandar nada a la QPU.
+prereg_id=RQ-PREREG-HW1-PERIODO-001
+preregistro=preregistro/A4-prereg-hardware.json
+preregistro_sha256=afced4764beea5244768e42274aa95abfddd1d3545a35d2978e7d09807fe59d2
+circuito=circuito.qasm
+circuito_sha256=aac216371b1e69283b6bee64a318af4cfe563fa8477f09ec5a6fc846ee8549d0
+congelado_utc=2026-11-25T12:19:10Z

@@ -1,0 +1,38 @@
+[
+ {
+  "archivo": "referencia.json",
+  "que_es": "la referencia exacta del circuito: probabilidades, picos y versiones",
+  "sha256": "7988e54dc414efd6ebebd75be2f91e0d1e1fb739a632e61a09b598a5a644b183",
+  "origen": "entregables/qpu-2026-11-24/referencia.json"
+ },
+ {
+  "archivo": "en-ibm.json",
+  "que_es": "la corrida en la QPU real de IBM",
+  "sha256": "f65de52066adb6a7785afebc7a259573b63220aa74d8ea21da1a9667ed4fe454",
+  "origen": "entregables/qpu-2026-11-24/en-ibm.json"
+ },
+ {
+  "archivo": "circuito.qasm",
+  "que_es": "el programa OpenQASM 3 que corrieron las dos maquinas",
+  "sha256": "aac216371b1e69283b6bee64a318af4cfe563fa8477f09ec5a6fc846ee8549d0",
+  "origen": "entregables/qpu-2026-11-24/circuito.qasm"
+ },
+ {
+  "archivo": "preregistro-A4-prereg-hardware.json",
+  "que_es": "el preregistro, congelado antes de medir",
+  "sha256": "afced4764beea5244768e42274aa95abfddd1d3545a35d2978e7d09807fe59d2",
+  "origen": "entregables/qpu-2026-11-24/preregistro/A4-prereg-hardware.json"
+ },
+ {
+  "archivo": "preregistro-sello.txt",
+  "que_es": "el sello que encadena preregistro y circuito",
+  "sha256": "ed616c2d86a8aed63dd23652e5f7872e5bee34d840e57800987ea004502c0bf4",
+  "origen": "entregables/qpu-2026-11-24/preregistro/sello.txt"
+ },
+ {
+  "archivo": "TEXTOS-lab-hardware-2026-11-25.md",
+  "que_es": "los doce textos de la pagina, en es y en",
+  "sha256": "20cfb4b998ccb15299a893bf3b04ede0a0868a5b24b36fb9900fc41c32869e4a",
+  "aprobado_por": "Nicholas, 25-nov-2026: \"Si, apruebo los 12\""
+ }
+]
