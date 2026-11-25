@@ -1096,6 +1096,18 @@ export function proveedoresHabilitado(env, url) {
   return !!(env && env.RQT_PROVEEDORES === "1");
 }
 export const herramientasPara = (env, url) => (proveedoresHabilitado(env, url) ? [...HERRAMIENTAS, HERRAMIENTA_PROVEEDORES] : HERRAMIENTAS);
+export const AVISO_PROVEEDORES = "Proveedores visibles desde la superficie pública del dominio, descubiertos sólo con DNS y registros públicos de certificados.";
+// (25-nov-2026) Lo que tools/list sirve en producción, para las páginas que lo cuentan (llms.txt, /api-docs,
+// la biblioteca). Las páginas se construyen sin `env`, así que no pueden llamar a herramientasPara; esta
+// lista es su equivalente con las variables de producción, y test/proveedores.test.mjs la compara contra
+// herramientasPara(vars de producción de wrangler.jsonc): si alguien apaga la variable, la prueba grita.
+export const HERRAMIENTAS_SERVIDAS = [...HERRAMIENTAS, HERRAMIENTA_PROVEEDORES];
+// (25-nov-2026) Versiones del protocolo MCP que este servidor habla. initialize responde la que pide el
+// cliente si está aquí; si no, la más nueva. Antes respondía siempre 2024-11-05, también a un cliente que
+// pedía 2025-06-18. Lo que cambia entre ellas no toca a este servidor: JSON-RPC por POST, sin estado, una
+// respuesta JSON por pedido, sin lotes y sin flujo SSE.
+export const VERSIONES_MCP = ["2025-06-18", "2025-03-26", "2024-11-05"];
+export const versionMcp = (pedida) => (VERSIONES_MCP.includes(pedida) ? pedida : VERSIONES_MCP[0]);
 // Cada llamada hace ~200 consultas DNS y dos al registro de certificados: 2 por minuto por IP (caché del
 // borde, no la base: no escribe en D1).
 async function proveedoresPermitido(ip) {
@@ -1125,7 +1137,9 @@ async function herramientaProveedores(args, quien) {
   const t = Date.now();
   const insumos = await recolectarProveedores(dominio);
   const r = descubrirProveedores(insumos, { declarados });
-  return { ok: true, aviso: "Salida PRIVADA: nombra proveedores del cliente. No se publica (RQ.T, regla 2 del diseño).",
+  // Texto APROBADO por Nicholas (25-nov-2026), tras la auditoría sobre un dominio real: el anterior hablaba de
+  // «salida privada» y de una regla interna del diseño, cosas que el que recibe la respuesta no tiene por qué leer.
+  return { ok: true, aviso: AVISO_PROVEEDORES,
     medido_desde: "worker", entorno: entornoDeHost(quien.url), segundos: Math.round((Date.now() - t) / 100) / 10, consultas: insumos.consultas, ...r };
 }
 
@@ -1205,12 +1219,14 @@ async function mcp(request, env, info = {}) {
   try {
     if (req.method === "initialize") {
       return responder({
-        protocolVersion: "2024-11-05",
+        protocolVersion: versionMcp(req.params?.protocolVersion),
         capabilities: { tools: {} },
         serverInfo: { name: "rosetta-evidence", version: "1.0.0" },
       }, req.id);
     }
-    if (req.method === "notifications/initialized") return new Response(null, { status: 204, headers: CORS });
+    // Una notificación (sin id) no lleva respuesta: 202 Accepted sin cuerpo, como pide el transporte HTTP de
+    // MCP desde 2025-03-26. Antes era 204 y sólo para notifications/initialized.
+    if (typeof req.method === "string" && req.method.startsWith("notifications/")) return new Response(null, { status: 202, headers: CORS });
     if (req.method === "tools/list") { info.tool = "tools/list"; return responder({ tools: herramientasPara(env, info.url) }, req.id); }
     if (req.method === "tools/call") {
       const { name, arguments: args = {} } = req.params || {};
@@ -1362,7 +1378,7 @@ export const CATALOGO = [
       501: { description: "Real execution does not exist yet" },
     } },
   { ruta: "/v1/medicion", metodo: "POST", grupo: "medicion",
-    resumen: "Live, outside-in post-quantum exposure of a domain: hybrid X25519MLKEM768 on the website, certificate, mail servers and security.txt. Same instrument as the Q-Ready live page. With a sector, it also returns the QEX index, computed exactly as the page does, and the sector median and quartiles (compared only for domains of the reference country, Chile). Names are masked unless the owner verified the domain through DNS. Includes presentacion (protocol rosetta-ficha/1): when showing the result to a person, print presentacion.markdown. Mail encryption arrives separately (id + URL to poll). null means not measured, never not protected.",
+    resumen: "Live, outside-in post-quantum exposure of a domain: hybrid X25519MLKEM768 on the website, certificate, mail servers and security.txt. Same instrument as the Q-Ready live page. With a sector, it also returns the QEX index, computed exactly as the page does, and the sector median (compared only for domains of the reference country, Chile). Names are masked unless the owner verified the domain through DNS. Includes presentacion (protocol rosetta-ficha/1): when showing the result to a person, print presentacion.markdown. Mail encryption arrives separately (id + URL to poll). null means not measured, never not protected.",
     cuerpo: { type: "object", required: ["dominio"], properties: {
       dominio: { type: "string", description: "Public domain, e.g. example.cl" },
       sector: { type: "string", description: "Sector key for the QEX: banca, educacion, energia, fintech, gobierno, mineria, prevision, retail, salud_clinica, salud_isapre, seguros, telecom" },

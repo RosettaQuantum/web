@@ -1,8 +1,8 @@
 ---
-import { CATALOGO, HERRAMIENTAS as LISTA, HERRAMIENTA_PROVEEDORES } from '../../../api.js';
+import { CATALOGO, HERRAMIENTAS_SERVIDAS } from '../../../api.js';
 // 24-nov-2026: descubrir_proveedores se sirve en producción (decisión de Nicholas) y vive fuera de
 // la lista base; la página nombra y cuenta lo que el servidor sirve.
-const HERRAMIENTAS = [...LISTA, HERRAMIENTA_PROVEEDORES];
+const HERRAMIENTAS = HERRAMIENTAS_SERVIDAS;   // 25-nov: una sola definición, la de api.js
 // El texto 3 aprobado (24-nov-2026), sellado: reemplaza la frase vieja de «sólo lectura».
 import { TEXTOS_MCP } from '../../lib/mcp-textos.mjs';
 import MarcaLayout from '../../layouts/MarcaLayout.astro';

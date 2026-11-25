@@ -750,6 +750,13 @@ console.log("\n  -- la promesa central: recomputar un sello --");
       docs.txt.includes(`"${otra}"`) || docs.txt.includes(`"${otra}/"`),
       `no encontre el enlace a ${otra} (ni con barra final)`);
   }
+  // (25-nov-2026) /llms.txt decía «14 tools» con 15 servidas: el mismo cotejo que /api-docs.
+  {
+    const llms = await traer("/llms.txt");
+    const n = (llms.txt.match(/MCP server, JSON-RPC 2\.0, (\d+) tools/) || [])[1];
+    comprobar(`/llms.txt dice cuantas herramientas MCP hay (${n}) y son las que sirve (${nombresMcp.length})`,
+      Number(n) === nombresMcp.length, "llms.txt y el servidor no coinciden");
+  }
 }
 
 // 4 sexies. El contador de uso: publico, sin datos personales, y sin contarnos.

@@ -63,7 +63,7 @@ console.log("\n3 · una señal que no devuelve nada dice «sin dato» y su conte
 console.log("\n4 · TXT de verificación");
 {
   const ruido = descubrir(base({ [`${D}|TXT`]: r("NOERROR", [TXT(D, "a1b2c3d4e5f6g7h8i9j0k1l2m3n4o5p6"), TXT(D, "v=spf1 -all"), TXT(D, "QUJDREVGR0hJSktMTU5PUFFSU1RVVldYWVo0MTIzNDU2Nzg=")]) }));
-  si(filasDe(ruido, "RQ.T.07").every((f) => f.proveedor === null) && ruido.por_senal["RQ.T.07"].proveedores === 0,
+  si(filasDe(ruido, "RQ.T.07").every((f) => f.tipo !== "proveedor") && ruido.por_senal["RQ.T.07"].proveedores === 0,
     "silencio: tokens sin patrón → ningún proveedor (con dato, 0)");
   si(ruido.por_senal["RQ.T.07"].denominador.sin_patron === 2 && ruido.por_senal["RQ.T.07"].denominador.spf === 1, "y entran al denominador: 2 sin patrón, 1 SPF");
   const conMs = descubrir(base({ [`${D}|TXT`]: r("NOERROR", [TXT(D, "a1b2c3d4e5f6g7h8i9j0k1l2m3n4o5p6"), TXT(D, "MS=ms123"), TXT(D, "docusign=8b94")]) }));
@@ -108,7 +108,7 @@ console.log("\n7 · emisores");
     { nombres: ["b.ejemplo.cl"], emisor_dn: "C=US, O=Symantec Corporation, CN=X", not_after: "2019-01-01T00:00:00" }] },
     { fuente: "Cert Spotter", ok: false, error: "Cert Spotter respondió 429" }] };
   const res = descubrir(base({ [`${D}|CAA`]: r("NOERROR", [{ name: D, type: 257, data: '0 issue "digicert.com"' }, { name: D, type: 257, data: '0 iodef "mailto:x@ejemplo.cl"' }]) }, ct));
-  const ps = filasDe(res, "RQ.T.05").filter((f) => f.proveedor).map((f) => f.proveedor).sort().join();
+  const ps = filasDe(res, "RQ.T.05").filter((f) => f.tipo === "proveedor").map((f) => f.proveedor).sort().join();
   si(ps === "DigiCert,Let's Encrypt", `grito: CAA digicert + CT vigente de Let's Encrypt (${ps}); iodef no es una CA`);
   si(!res.proveedores.some((p) => /Symantec/.test(p.proveedor)) && filasDe(res, "RQ.T.05").some((f) => /sólo con certificados vencidos.*Symantec/.test(f.evidencia)),
     "silencio: un emisor sólo con certificados vencidos no es proveedor actual, pero se declara");
@@ -182,7 +182,7 @@ console.log("\n10 · DMARC, TLS-RPT, BIMI, MTA-STS, subnombres y ASN");
     [`raro.${D}|A`]: r("NOERROR", [CN(`raro.${D}`, "raro.desconocido.io"), A("raro.desconocido.io", "20.1.1.1")]), ...AS("20.1.1.1", 8075, "MICROSOFT-CORP"),
     [`interno.${D}|A`]: r("NOERROR", [A(`interno.${D}`, "200.1.1.20")]),
   }, ct));
-  const p = (s) => filasDe(res, s).filter((f) => f.proveedor).map((f) => f.proveedor).sort().join();
+  const p = (s) => filasDe(res, s).filter((f) => f.tipo === "proveedor").map((f) => f.proveedor).sort().join();
   si(/Cisco/.test(p("RQ.T.03")) && filasDe(res, "RQ.T.03").some((f) => /DMARC rua → @rua\.dmp\.cisco\.com/.test(f.evidencia)), "grito: DMARC rua → Cisco (Domain Protection)");
   si(!JSON.stringify(res).includes("fulano") && !JSON.stringify(res).includes("dmarc@"), "silencio: la parte local de la dirección (dato personal) nunca sale");
   si(filasDe(res, "RQ.T.03").some((f) => f.proveedor === "desconocido.net" && !f.clasificado) && !res.proveedores.some((x) => x.proveedor === "desconocido.net"), "ruf a un dominio desconocido: sin clasificar, fuera del conteo");
@@ -213,6 +213,77 @@ console.log("\n11 · ejecutor: pasivo, con tope");
   const tope = await recolectar("ejemplo.cl", { f: falso, maxDns: 5 });
   si(tope.consultas.dns === 5 && tope.consultas.sobre_tope > 0 && Object.values(tope.dns).some((x) => /tope de 5/.test(x.error || "")), "grito: pasado el tope, la consulta queda con su error (no se hace)");
   si(descubrir(tope).filas.some((f) => f.estado === "sin dato"), "y las señales sin respuesta dicen «sin dato»");
+}
+
+// ════ 12 · auditoría del 25-nov sobre un dominio real (los defectos, tal como salieron) ═══════════
+console.log("\n12 · auditoría 25-nov: emisor con dos nombres, filas sin proveedor, Webflow/ActiveCampaign, textos");
+{
+  // el defecto real: crt.sh da «O=SSL Corporation» y Cert Spotter «SSL.com» para el MISMO emisor; y
+  // «CloudFlare, Inc.» / «Cloudflare, Inc.» salían como dos emisores vencidos distintos
+  const ct = { fuentes: [
+    { fuente: "crt.sh", ok: true, certificados: [
+      { nombres: ["a.ejemplo.cl", "www.ejemplo.cl", "email.ejemplo.cl"], emisor_dn: "C=US, ST=Texas, L=Houston, O=SSL Corporation, CN=SSL.com RSA SSL subCA", not_after: "2027-01-01" },
+      { nombres: ["b.ejemplo.cl"], emisor_dn: 'C=US, O="CloudFlare, Inc.", CN=CloudFlare Inc ECC CA-2', not_after: "2020-01-01" },
+      { nombres: ["c.ejemplo.cl"], emisor_dn: 'C=US, O="Cloudflare, Inc.", CN=Cloudflare Inc ECC CA-3', not_after: "2021-01-01" }] },
+    { fuente: "Cert Spotter", ok: true, certificados: [
+      { nombres: ["a.ejemplo.cl"], emisor_dn: "C=US, O=SSL Corporation, CN=SSL.com RSA SSL subCA", emisor_operador: "SSL.com", not_after: "2027-01-01" }] }] };
+  const res = descubrir(base({
+    [`www.${D}|A`]: r("NOERROR", [CN(`www.${D}`, "cdn.webflow.com"), A("cdn.webflow.com", "1.1.1.1")]),
+    [`email.${D}|A`]: r("NOERROR", [CN(`email.${D}`, "ejemplo.activehosted.com"), A("ejemplo.activehosted.com", "2.2.2.2")]),
+  }, ct));
+  const t05 = filasDe(res, "RQ.T.05").filter((f) => f.tipo === "proveedor").map((f) => f.proveedor);
+  si(t05.join() === "SSL.com", `grito: SSL Corporation (crt.sh) y SSL.com (Cert Spotter) son UNA fila: ${t05.join()}`);
+  si(!JSON.stringify(res).includes("SSL Corporation"), "silencio: «SSL Corporation» no aparece como otro proveedor");
+  const venc = filasDe(res, "RQ.T.05").find((f) => /vencidos/.test(f.evidencia));
+  si(venc && /: Cloudflare$/.test(venc.evidencia), `CloudFlare, Inc. y Cloudflare, Inc. son UN emisor vencido (${venc && venc.evidencia.split(": ").pop()})`);
+  const t06 = filasDe(res, "RQ.T.06");
+  si(t06.some((f) => f.proveedor === "Webflow" && f.clasificado) && t06.some((f) => f.proveedor === "ActiveCampaign" && f.clasificado),
+    "grito: cdn.webflow.com → Webflow y *.activehosted.com → ActiveCampaign, clasificados");
+  si(res.externos_sin_clasificar.length === 0, "y ya no quedan como «sin clasificar»");
+  // ninguna fila con proveedor null, ni en una corrida vacía ni en una llena
+  const TIPOS = ["proveedor", "propio", "sin_dato", "sin_proveedor", "nota"];
+  for (const [nombre, x] of [["vacía", descubrir(base())], ["con datos", res]])
+    si(x.filas.every((f) => typeof f.proveedor === "string" && f.proveedor && TIPOS.includes(f.tipo)), `corrida ${nombre}: toda fila trae proveedor (texto) y tipo`);
+  si(descubrir(base()).filas.every((f) => f.tipo === "sin_dato" && f.proveedor === "(sin dato)"), "silencio: una señal vacía sigue diciendo «sin dato» (ahora también en el campo proveedor)");
+  si(venc && venc.tipo === "nota" && !res.proveedores.some((p) => p.proveedor === "(nota)"), "una nota no cuenta como proveedor");
+  // textos de salida: los aprobados, y ninguna nota interna con nombre de persona o «aprobación»
+  const api = await import("../api.js");
+  si(api.AVISO_PROVEEDORES === "Proveedores visibles desde la superficie pública del dominio, descubiertos sólo con DNS y registros públicos de certificados.", "el aviso es el texto aprobado");
+  si(res.fuera_de_alcance.includes("RQ.T.08: terceros cargados por la portada — requiere pedir la portada; este instrumento no lo hace."), "RQ.T.08 con el texto aprobado");
+  const salida = JSON.stringify({ aviso: api.AVISO_PROVEEDORES, ...res, vacio: descubrir(base()) });
+  si(!/nicholas|apru[eé]b|aprobaci|PRIVADA|regla 2 del dise/i.test(salida), "silencio: la salida no nombra personas ni aprobaciones internas");
+}
+
+// ════ 13 · documentación contra el servidor ══════════════════════════════════════════
+console.log("\n13 · lo que las páginas dicen del MCP sale del código");
+{
+  const api = await import("../api.js");
+  const conf = JSON.parse(readFileSync(new URL("../wrangler.jsonc", import.meta.url), "utf8").replace(/^\s*\/\/.*$/gm, ""));
+  const servidas = api.herramientasPara(conf.vars || {}, new URL("https://rosettaquantum.com/mcp")).map((h) => h.name);
+  si(api.HERRAMIENTAS_SERVIDAS.map((h) => h.name).join() === servidas.join(), `HERRAMIENTAS_SERVIDAS (${api.HERRAMIENTAS_SERVIDAS.length}) = lo que tools/list sirve con las variables de producción (${servidas.length})`);
+  si(api.herramientasPara({}, new URL("https://rosettaquantum.com/mcp")).length !== api.HERRAMIENTAS_SERVIDAS.length, "grito: si se apagara la variable, la cuenta ya no calzaría (la comparación no es tautológica)");
+  // ningún número de herramientas escrito a mano. Se quitan los comentarios // (no los de «https://»)
+  // antes de buscar: el comentario que cuenta el defecto («decía 9 tools») no es el defecto.
+  const sinComentarios = (t) => t.replace(/(^|[^:\w])\/\/.*$/gm, "$1");
+  const aMano = (t) => (sinComentarios(t).match(/\b\d+\s+(?:read-only\s+)?(?:tools|herramientas)\b/g) || []);
+  for (const p of ["../src/pages/llms.txt.ts", "../src/pages/api-docs.astro", "../src/pages/es/api-docs.astro", "../src/pages/library/index.astro"]) {
+    const t = readFileSync(new URL(p, import.meta.url), "utf8");
+    si(aMano(t).length === 0, `${p.slice(13)}: sin conteo de herramientas escrito a mano${aMano(t).length ? " → " + aMano(t).join(", ") : ""}`);
+  }
+  si(aMano("— 9 tools, no key.").length === 1, "grito: «9 tools» escrito a mano se detecta");
+  si(aMano("x // decía «9 tools» escrito a mano").length === 0 && aMano('<a href="https://x/mcp">14 tools</a>').length === 1, "silencio paradójico: el comentario no cuenta; una URL no se confunde con un comentario");
+  si(!/median and quartiles/.test(readFileSync(new URL("../src/pages/llms.txt.ts", import.meta.url), "utf8") + readFileSync(new URL("../api.js", import.meta.url), "utf8")),
+    "«the sector median» (aprobado): ya no promete cuartiles");
+  // initialize negocia la versión del protocolo
+  const init = async (v) => { const q = new Request("https://rosettaquantum.com/mcp", { method: "POST", headers: { "x-rq-check": "1" },
+      body: JSON.stringify({ jsonrpc: "2.0", id: 1, method: "initialize", params: v ? { protocolVersion: v } : {} }) });
+    return (await (await api.manejarApi(q, {}, new URL(q.url), { waitUntil() {} })).json()).result.protocolVersion; };
+  si(await init("2025-06-18") === "2025-06-18", "grito: el cliente pide 2025-06-18 → responde 2025-06-18 (antes 2024-11-05)");
+  si(await init("2024-11-05") === "2024-11-05", "el cliente pide 2024-11-05 → responde 2024-11-05");
+  si(await init("1999-01-01") === api.VERSIONES_MCP[0] && await init(undefined) === api.VERSIONES_MCP[0], "una versión desconocida o ausente → la más nueva que soporta");
+  const nq = new Request("https://rosettaquantum.com/mcp", { method: "POST", body: JSON.stringify({ jsonrpc: "2.0", method: "notifications/initialized" }) });
+  const nr = await api.manejarApi(nq, {}, new URL(nq.url), { waitUntil() {} });
+  si(nr.status === 202 && (await nr.text()) === "", "una notificación → 202 sin cuerpo");
 }
 
 console.log(`\n  --- pasaron ${pasaron} · fallaron ${fallaron}`);
