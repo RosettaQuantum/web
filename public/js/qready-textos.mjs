@@ -385,7 +385,7 @@ export const FICHA = {
     lectura: (t) => `Lectura: ${t}`,
     // NUEVO (25-nov, APROBADO): alerta INFO que no entra a la nota
     alerta_info: { nombre_interno_ip_publica: (ip) => `Nombre interno que resuelve a una IP pública (${ip})`,
-      // NUEVOS (25-nov, PROVISORIOS): DNS pasivo, alertas INFO que no mueven el QEX ni la letra
+      // NUEVOS (25-nov, APROBADOS): DNS pasivo, alertas INFO que no mueven el QEX ni la letra
       spf_invalido: (motivo) => `SPF inválido: ${motivo}. Con un error permanente (permerror), el SPF no da «pass» a ningún remitente.`,
       spf_motivo: { incluye_a_si_mismo: () => "el registro se incluye a sí mismo", bucle: () => "un include vuelve a un dominio ya visitado",
         varios_registros: () => "hay más de un registro SPF", mas_de_10_consultas: (n) => `pide ${n} consultas DNS (el máximo es 10)`,
@@ -459,7 +459,7 @@ export const FICHA = {
       correo_mx: (f, t) => (f === 1 ? `Uno de los ${t} servidores de correo no se midió.` : `${f} de los ${t} servidores de correo no se midieron.`),
       // NUEVO (25-nov, APROBADO): cuáles y por qué
       correo_mx_cuales: (f, t, lista, tope) => `${f} de los ${t} servidores de correo no se midieron (${lista}): la sonda mide los ${tope} primeros de la lista publicada.`,
-      // NUEVO (25-nov, PROVISORIO)
+      // NUEVO (25-nov, APROBADO)
       cname_sin_leer: (n, t) => `${n} de ${t} nombres del registro quedaron sin leer su CNAME (tope de consultas y de tiempo de la medición).`,
       nunca: "No medido nunca significa no protegido.",
     },
