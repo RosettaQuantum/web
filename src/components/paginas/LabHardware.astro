@@ -27,20 +27,33 @@ const { lang = 'en' } = Astro.props;
 const es = lang === 'es';
 const { textos: t, medicion: m, deHoy } = pagina(lang);
 
-// Las tres barras del gráfico de aciertos. El orden es el del texto aprobado —simulador,
-// hardware— y el azar va tercero porque es la vara, no un competidor.
-const BARRAS = [
-  { clave: 'a', rotulo: t.columna_a, aciertos: m.aciertos_simulador, tono: 'exacto' },
-  { clave: 'b', rotulo: t.columna_b, aciertos: m.aciertos_hardware, tono: 'medido' },
+// LAS DOS COLUMNAS, cada una con su cifra, su histograma y SU PROPIA referencia del azar.
+//
+// El azar iba antes una sola vez, debajo del conjunto, y en pantalla quedaba colgando bajo la
+// columna del simulador: se leía como si los 250 fueran la vara de ESA columna, que es la
+// única donde no hacen falta. Donde tiene que estar es al lado del 900.
+//
+// Y cada histograma lleva el rótulo de SU máquina, que es el defecto que encontró Main: se
+// veía un gráfico con picos y ruido y nadie podía saber de cuál de las dos máquinas era. Los
+// rótulos son los textos aprobados 5 y 6, los mismos de la cifra; no hay leyenda nueva.
+const COLUMNAS = [
+  { clave: 'a', rotulo: t.columna_a, tono: 'exacto',
+    aciertos: m.aciertos_simulador, cuentas: m.cuentas_simulador },
+  { clave: 'b', rotulo: t.columna_b, tono: 'medido',
+    aciertos: m.aciertos_hardware, cuentas: m.cuentas_hardware },
 ];
 
-// El reparto de los disparos entre los 16 resultados. Son NÚMEROS, no texto nuevo: la figura
-// se nombra con el párrafo ya aprobado que explica qué se mide (aria-labelledby), para no
-// meter por la puerta de atrás una leyenda que Nicholas no vio.
-const maximo = Math.max(...Object.values(m.cuentas_hardware));
-const ESTADOS = Array.from({ length: m.estados }, (_, i) => ({
+// LA MISMA ESCALA PARA LOS DOS HISTOGRAMAS: un solo máximo sobre los dos conjuntos. Escalado
+// cada uno a su propio máximo, los dos se verían idénticos —picos altos, ruido bajo— y la
+// figura diría que el hardware acertó tanto como el simulador exacto.
+const maximo = Math.max(
+  ...Object.values(m.cuentas_simulador), ...Object.values(m.cuentas_hardware));
+
+// Son NÚMEROS, no texto nuevo: la figura se nombra con el párrafo ya aprobado que explica qué
+// se mide, para no meter por la puerta de atrás una leyenda que Nicholas no vio.
+const estadosDe = (cuentas) => Array.from({ length: m.estados }, (_, i) => ({
   i,
-  cuenta: m.cuentas_hardware[String(i)] ?? 0,
+  cuenta: cuentas[String(i)] ?? 0,
   pico: m.picos.includes(i),
 }));
 ---
@@ -59,32 +72,36 @@ const ESTADOS = Array.from({ length: m.estados }, (_, i) => ({
 
   <div class="lh-marcador" role="region" aria-labelledby="lh-que-se-mide">
     <div class="lh-columnas">
-      {BARRAS.map((b) => (
-        <div class="lh-col" data-tono={b.tono}>
-          <div class="lh-col-rotulo">{b.rotulo}</div>
-          <div class="lh-cifra">{b.aciertos.toLocaleString(es ? 'es-CL' : 'en-US')}</div>
+      {COLUMNAS.map((c) => (
+        <div class="lh-col" data-tono={c.tono} data-columna={c.clave}>
+          <div class="lh-col-rotulo" data-rotulo-de={c.clave}>{c.rotulo}</div>
+          <div class="lh-cifra">{c.aciertos.toLocaleString(es ? 'es-CL' : 'en-US')}</div>
           <div class="lh-cifra-pie">{t.rotulo_cifra}</div>
-          <div class="lh-barra"><span style={`inline-size:${(100 * b.aciertos / m.disparos).toFixed(1)}%`}></span></div>
+          <div class="lh-barra"><span style={`inline-size:${(100 * c.aciertos / m.disparos).toFixed(1)}%`}></span></div>
+
+          {/* La vara del azar, en ESTA columna y en la misma escala que la barra de arriba.
+              Va en las dos: el 900 sin el 250 al lado es el número que el texto aprobado
+              dice que no puede viajar solo. */}
+          <div class="lh-vara-barra" data-vara-de={c.clave}>
+            <span style={`inline-size:${(100 * m.aciertos_azar / m.disparos).toFixed(1)}%`}></span>
+          </div>
+
+          {/* Dónde cayeron los 1.000 disparos de ESTA máquina. Los dos histogramas comparten
+              el máximo, así que las alturas se pueden comparar de un vistazo. Los cuatro
+              picos correctos se saben por matemática antes de encender nada. */}
+          <div class="lh-reparto" data-reparto-de={c.clave}>
+            {estadosDe(c.cuentas).map((e) => (
+              <div class="lh-estado" data-pico={e.pico ? 'si' : 'no'}>
+                <div class="lh-estado-barra"><span style={`block-size:${(100 * e.cuenta / maximo).toFixed(1)}%`}></span></div>
+                <div class="lh-estado-n">{e.i}</div>
+              </div>
+            ))}
+          </div>
         </div>
       ))}
     </div>
 
-    {/* La vara. Misma escala que las barras de arriba, para que el 250 se vea como lo que es. */}
-    <div class="lh-vara">
-      <div class="lh-vara-barra"><span style={`inline-size:${(100 * m.aciertos_azar / m.disparos).toFixed(1)}%`}></span></div>
-      <p class="lh-vara-texto">{t.azar}</p>
-    </div>
-  </div>
-
-  {/* Dónde cayeron los 1.000 disparos. Los picos correctos se saben por matemática antes de
-      encender la máquina: acá están marcados, y el resto es el ruido del hardware. */}
-  <div class="lh-reparto" role="region" aria-labelledby="lh-que-se-mide">
-    {ESTADOS.map((e) => (
-      <div class="lh-estado" data-pico={e.pico ? 'si' : 'no'}>
-        <div class="lh-estado-barra"><span style={`block-size:${(100 * e.cuenta / maximo).toFixed(1)}%`}></span></div>
-        <div class="lh-estado-n">{e.i}</div>
-      </div>
-    ))}
+    <p class="lh-vara-texto">{t.azar}</p>
   </div>
 </div></section>
 

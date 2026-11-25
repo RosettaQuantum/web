@@ -72,6 +72,108 @@ export function textoDe(html) {
 }
 
 /**
+ * LA ESTRUCTURA: cada columna lleva SU rótulo, SU referencia del azar y SU histograma, y el
+ * histograma dibuja las cuentas que se midieron.
+ *
+ * Por qué estos tres y no otros. Los tres nacen de defectos reales de esta página, encontrados
+ * mirando la pantalla y no leyendo el código:
+ *
+ *  - **El histograma sin rótulo.** Se veía un gráfico con cuatro picos y ruido y el lector no
+ *    podía saber de qué máquina era. Un gráfico sin su rótulo no es un gráfico ambiguo: es un
+ *    gráfico que el lector atribuye a la máquina equivocada la mitad de las veces.
+ *  - **El azar en una sola columna.** Colgaba bajo el simulador, o sea bajo la única columna
+ *    donde no hace falta, y el 900 del hardware quedaba sin su vara al lado.
+ *  - **Las alturas.** Es el más importante y el que ningún humano revisa: el histograma del
+ *    simulador estuvo a punto de salir con cuatro barras planas de 250 que yo había fabricado
+ *    dividiendo 1.000 entre 4, cuando la corrida muestreada dio 239, 248, 251 y 262. Comparar
+ *    las alturas contra las cuentas de los artefactos es lo único que distingue un histograma
+ *    medido de uno plausible.
+ *
+ * Mira el HTML CRUDO, no el texto: lo que se vigila acá es la estructura, y `textoDe` la borra.
+ */
+export function juzgarEstructura(html, lang) {
+  const fallas = [];
+  const { textos, medicion: m } = pagina(lang);
+  const maximo = Math.max(
+    ...Object.values(m.cuentas_simulador), ...Object.values(m.cuentas_hardware));
+
+  const COLS = [
+    { clave: "a", rotulo: textos.columna_a, cuentas: m.cuentas_simulador, que: "el simulador" },
+    { clave: "b", rotulo: textos.columna_b, cuentas: m.cuentas_hardware, que: "la QPU" },
+  ];
+
+  for (const col of COLS) {
+    // El trozo de ESTA columna. Buscar los atributos en el documento entero diría que están
+    // los dos aunque los dos vivieran en la misma columna, que es el defecto que se vigila.
+    const i = html.indexOf(`data-columna="${col.clave}"`);
+    if (i < 0) {
+      fallas.push(`[${lang}] no está la columna «${col.clave}» (${col.que}).`);
+      continue;
+    }
+    const j = COLS.map((c) => html.indexOf(`data-columna="${c.clave}"`))
+      .filter((x) => x > i).sort((a, b) => a - b)[0] ?? html.length;
+    const trozo = html.slice(i, j);
+
+    // 1 · el rótulo de SU máquina, con el texto aprobado
+    const rot = new RegExp(`data-rotulo-de="${col.clave}"[^>]*>([^<]*)<`).exec(trozo);
+    if (!rot) {
+      fallas.push(`[${lang}] la columna de ${col.que} no lleva rótulo. Un histograma sin decir ` +
+                  `de qué máquina es se lee como el de la otra.`);
+    } else if (textoDe(rot[1]) !== col.rotulo.replace(/\s+/g, " ").trim()) {
+      fallas.push(`[${lang}] el rótulo de ${col.que} no es el texto aprobado.\n` +
+                  `    aprobado: ${col.rotulo}\n    en la página: ${textoDe(rot[1])}`);
+    }
+
+    // 2 · su referencia del azar
+    if (!trozo.includes(`data-vara-de="${col.clave}"`)) {
+      fallas.push(`[${lang}] a la columna de ${col.que} le falta la referencia del azar ` +
+                  `(${m.aciertos_azar}). El texto aprobado dice que este número no viaja solo.`);
+    }
+
+    // 3 · su histograma, y que dibuje LO MEDIDO
+    if (!trozo.includes(`data-reparto-de="${col.clave}"`)) {
+      fallas.push(`[${lang}] a la columna de ${col.que} le falta su histograma.`);
+      continue;
+    }
+    const r = trozo.indexOf(`data-reparto-de="${col.clave}"`);
+    const alturas = [...trozo.slice(r).matchAll(/block-size:([\d.]+)%/g)].map((x) => +x[1]);
+    if (alturas.length !== m.estados) {
+      fallas.push(`[${lang}] el histograma de ${col.que} tiene ${alturas.length} barras y los ` +
+                  `estados son ${m.estados}.`);
+      continue;
+    }
+    for (let k = 0; k < m.estados; k++) {
+      const esperada = +(100 * (col.cuentas[String(k)] ?? 0) / maximo).toFixed(1);
+      if (Math.abs(alturas[k] - esperada) > 0.15) {
+        fallas.push(
+          `[${lang}] el histograma de ${col.que} dibuja el estado ${k} a ${alturas[k]}% y lo ` +
+          `medido (${col.cuentas[String(k)] ?? 0} de ${maximo}) da ${esperada}%. El gráfico no ` +
+          `muestra los disparos que se midieron.`);
+        break; // una por columna: la lista entera sería la misma falla dieciséis veces
+      }
+    }
+  }
+
+  // Y la escala compartida: si cada histograma se escalara a su propio máximo, los dos se
+  // verían iguales y la figura diría que el hardware acertó tanto como el simulador exacto.
+  const topes = COLS.map((c) => Math.max(...Object.values(c.cuentas)));
+  if (!fallas.length && topes[0] !== topes[1]) {
+    const altas = COLS.map((c) => {
+      const r = html.indexOf(`data-reparto-de="${c.clave}"`);
+      const fin = html.indexOf("</div></div>", r);
+      return Math.max(...[...html.slice(r, fin > 0 ? fin + 12 : undefined)
+        .matchAll(/block-size:([\d.]+)%/g)].map((x) => +x[1]));
+    });
+    if (Math.abs(altas[0] - altas[1]) < 0.15) {
+      fallas.push(`[${lang}] los dos histogramas llegan al mismo alto (${altas[0]}%) y sus ` +
+                  `máximos medidos son distintos (${topes[0]} y ${topes[1]}): cada uno está ` +
+                  `escalado a sí mismo, así que no se pueden comparar.`);
+    }
+  }
+  return fallas;
+}
+
+/**
  * Juzga UNA página ya construida contra lo aprobado y lo medido.
  * Devuelve la lista de fallas; vacía es que pasó. No imprime: así el self-test la puede
  * ejercer sin leer la salida de la consola, que es lo que hace que un auditor imprima FALLA
@@ -125,6 +227,7 @@ export function juzgar(html, lang, hoy = new Date()) {
                   `en pantalla, la figura no muestra lo que dice mostrar.`);
     }
   }
+  fallas.push(...juzgarEstructura(html, lang));
   return fallas;
 }
 
@@ -136,12 +239,55 @@ function selfTest() {
   const armar = (lang, hoy) => {
     const { textos, medicion: m } = pagina(lang, hoy);
     const n = (v) => v.toLocaleString(lang === "es" ? "es-CL" : "en-US");
+    const esc = (v) => v.replace(/&/g, "&amp;").replace(/"/g, "&quot;");
+    const maximo = Math.max(
+      ...Object.values(m.cuentas_simulador), ...Object.values(m.cuentas_hardware));
+    const cols = [
+      ["a", textos.columna_a, m.aciertos_simulador, m.cuentas_simulador],
+      ["b", textos.columna_b, m.aciertos_hardware, m.cuentas_hardware],
+    ].map(([k, rot, aciertos, cuentas]) =>
+      `<div data-columna="${k}">` +
+      `<div data-rotulo-de="${k}">${esc(rot)}</div>` +
+      `<div>${n(aciertos)}</div><div>${esc(textos.rotulo_cifra)}</div>` +
+      `<div data-vara-de="${k}"><span style="inline-size:25.0%"></span></div>` +
+      `<div data-reparto-de="${k}">` +
+      Array.from({ length: m.estados }, (_, i) =>
+        `<div><div><span style="block-size:${(100 * (cuentas[String(i)] ?? 0) / maximo).toFixed(1)}%"></span></div>` +
+        `<div>${i}</div></div>`).join("") +
+      `</div></div>`).join("\n");
     const cuerpo = Object.entries(textos)
-      .filter(([k]) => k !== "no_es_de_ahora")
-      .map(([, v]) => `<p>${v.replace(/&/g, "&amp;").replace(/"/g, "&quot;")}</p>`).join("\n");
-    return `<main>\n${cuerpo}\n<div>${n(m.aciertos_simulador)}</div>` +
-           `<div>${n(m.aciertos_hardware)}</div>\n` +
-           m.picos.map((i) => `<span>${i}</span>`).join("\n") + `\n</main>`;
+      .filter(([k]) => k !== "no_es_de_ahora" && k !== "columna_a" && k !== "columna_b"
+                       && k !== "rotulo_cifra")
+      .map(([, v]) => `<p>${esc(v)}</p>`).join("\n");
+    return `<main>\n${cuerpo}\n${cols}\n</main>`;
+  };
+
+  const topeComun = (m) => Math.max(
+    ...Object.values(m.cuentas_simulador), ...Object.values(m.cuentas_hardware));
+
+  /** Redibuja el histograma de UNA columna con otras cuentas u otra escala. */
+  const reemplazarReparto = (html, clave, cuentas, maximo) => {
+    const i = html.indexOf(`<div data-reparto-de="${clave}">`);
+    if (i < 0) throw new Error(`la fija no trae el reparto «${clave}»`);
+    const fin = html.indexOf("</div></div>", i);
+    if (fin < 0) throw new Error(`no encuentro el cierre del reparto «${clave}»`);
+    const n = Object.keys(cuentas).length ? Math.max(16, 0) : 16;
+    const nuevo = `<div data-reparto-de="${clave}">` +
+      Array.from({ length: n }, (_, k) =>
+        `<div><div><span style="block-size:${
+          (100 * (cuentas[String(k)] ?? 0) / maximo).toFixed(1)}%"></span></div>` +
+        `<div>${k}</div></div>`).join("") + `</div>`;
+    return html.slice(0, i) + nuevo + html.slice(fin + "</div></div>".length);
+  };
+
+  /** Le quita UNA barra al histograma de una columna. */
+  const quitarUnaBarra = (html, clave) => {
+    const i = html.indexOf(`<div data-reparto-de="${clave}">`);
+    if (i < 0) throw new Error(`la fija no trae el reparto «${clave}»`);
+    const barra = html.indexOf("<div><div><span", i);
+    if (barra < 0) throw new Error(`el reparto «${clave}» no tiene barras`);
+    const cierre = html.indexOf("</div></div>", barra);
+    return html.slice(0, barra) + html.slice(cierre + "</div></div>".length);
   };
 
   const casos = [
@@ -165,11 +311,36 @@ function selfTest() {
       html: (l) => { const { medicion: m } = pagina(l);
         const v = m.aciertos_hardware.toLocaleString(l === "es" ? "es-CL" : "en-US");
         return armar(l).replace(`<div>${v}</div>`, "<div></div>"); } },
-    { grita: true, que: "el reparto se quedó sin uno de los picos",
-      html: (l) => { const { medicion: m } = pagina(l);
-        return armar(l).replace(`<span>${m.picos[0]}</span>`, "<span></span>"); } },
+    // Este caso lo reescribí el 25-nov: la versión anterior buscaba `<span>N</span>`, que la
+    // fija dejó de emitir al pasar a dos columnas. La mutación no entraba y la línea decía
+    // «✓ grita» igual, porque el guardia callaba con razón. Lo delató la comprobación de que
+    // todo mutante cambie el HTML — una fija que envejece se ve idéntica a un guardia que
+    // funciona.
+    { grita: true, que: "a un histograma le falta una barra",
+      html: (l) => quitarUnaBarra(armar(l), "b") },
     { grita: true, que: "sale el aviso «no es de ahora» con una medición que SÍ es de hoy",
       html: (l) => armar(l) + `<p>${pagina(l).textos.no_es_de_ahora}</p>` },
+
+    // --- los tres defectos que encontró Main mirando la pantalla, más el que destapó el
+    //     primero. Van como casos para que no puedan volver sin que el build se caiga.
+    { grita: true, que: "un histograma sin el rótulo de su máquina (el defecto de Main)",
+      html: (l) => armar(l).replace(/<div data-rotulo-de="b"[^>]*>[^<]*<\/div>/, "") },
+    { grita: true, que: "el rótulo de una columna cambiado por uno inventado",
+      html: (l) => armar(l).replace(/(<div data-rotulo-de="b"[^>]*>)[^<]*</, "$1Hardware<") },
+    { grita: true, que: "la referencia del azar sólo en la columna del simulador (el 2.º de Main)",
+      html: (l) => armar(l).replace(/<div data-vara-de="b">[\s\S]*?<\/div>/, "") },
+    { grita: true, que: "el histograma del simulador FABRICADO plano (1.000 ÷ 4 picos), que es " +
+                        "lo que estuvo a punto de publicarse",
+      html: (l) => { const { medicion: m } = pagina(l);
+        // Lo que yo había escrito: repartir los disparos en partes iguales entre los picos.
+        // Da 250, 250, 250, 250; lo medido fue 239, 248, 251, 262.
+        const plano = Object.fromEntries(
+          m.picos.map((i) => [String(i), m.disparos / m.picos.length]));
+        return reemplazarReparto(armar(l), "a", plano, topeComun(m)); } },
+    { grita: true, que: "los dos histogramas escalados cada uno a su propio máximo",
+      html: (l) => { const { medicion: m } = pagina(l);
+        return reemplazarReparto(armar(l), "b", m.cuentas_hardware,
+                                 Math.max(...Object.values(m.cuentas_hardware))); } },
 
     // --- los que tienen que CALLARSE. Sin éstos el guardia pasa todas las pruebas de gritar.
     { grita: false, que: "la página correcta",

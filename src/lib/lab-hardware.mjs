@@ -125,6 +125,17 @@ export function medicion() {
   const estados = ref.estados;
   const azar = picos / estados;
 
+  // LOS DOS HISTOGRAMAS SE DIBUJAN UNO AL LADO DEL OTRO Y EN LA MISMA ESCALA: eso sólo
+  // significa algo si los dos brazos tiraron la misma cantidad de disparos. Si un día no
+  // coinciden, las dos figuras seguirían viéndose bien y la comparación sería falsa, así que
+  // esto aborta en vez de normalizar en silencio — normalizar escondería el cambio.
+  if (ref.disparos !== ibm.disparos) {
+    throw new Error(
+      `/lab/hardware: el simulador tiró ${ref.disparos} disparos y la QPU ${ibm.disparos}. Los ` +
+      `dos histogramas van lado a lado en la misma escala y eso deja de ser comparable. La ` +
+      `página no se genera.`);
+  }
+
   const aciertos = (fid) => Math.round(fid * ibm.disparos);
   return {
     maquina: ibm.maquina,
@@ -143,14 +154,31 @@ export function medicion() {
     estados,
     azar,
     aciertos_azar: Math.round(azar * ibm.disparos),
-    // La columna A es el simulador EXACTO: por construccion acierta todos los disparos.
-    aciertos_simulador: ibm.disparos,
-    fidelidad_simulador: 1,
+    // LA COLUMNA A SALE DE LA CORRIDA MUESTREADA DEL SIMULADOR, no de una division.
+    //
+    // Antes esto decia `aciertos_simulador: ibm.disparos` y fabricaba el histograma repartiendo
+    // los 1.000 disparos en partes iguales entre los cuatro picos: 250, 250, 250, 250. El
+    // numero salia bien —la fidelidad muestreada ES 1— pero por una razon distinta de la
+    // verdadera, y el histograma era directamente FALSO: el simulador, muestreado con la
+    // semilla 20261124, dio 239, 248, 251 y 262. Cuatro barras planas inventadas por mi,
+    // puestas al lado de un histograma medido en una QPU, en la unica pagina de la casa cuyo
+    // tema entero es que las cifras se pueden comprobar.
+    //
+    // Lo cazo Main mirando la pantalla, pidiendo que el histograma dijera de que maquina es.
+    // Un numero plausible escrito de memoria es indistinguible de uno medido, y este ademas
+    // habria sobrevivido a cualquier cambio del circuito: la division siempre reparte parejo.
+    aciertos_simulador: aciertos(ref.fidelidad_de_picos_muestreada),
+    fidelidad_simulador: ref.fidelidad_de_picos_muestreada,
     aciertos_hardware: aciertos(ibm.fidelidad_de_picos),
     fidelidad_hardware: ibm.fidelidad_de_picos,
     cuentas_hardware: ibm.cuentas,
     cuentas_simulador: Object.fromEntries(
-      ref.picos_correctos.map((k) => [String(k), Math.round(ibm.disparos / picos)])),
+      Array.from({ length: estados }, (_, i) =>
+        [String(i), Math.round((ref.probabilidades_muestreadas[String(i)] ?? 0) * ref.disparos)])),
+    // Los dos brazos tiraron los mismos disparos, asi que los dos histogramas son
+    // directamente comparables. Se dice aqui porque es la condicion que los hace comparables,
+    // y si un dia deja de valer, los dos graficos de al lado mienten sin avisar.
+    disparos_simulador: ref.disparos,
   };
 }
 

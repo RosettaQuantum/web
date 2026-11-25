@@ -23,24 +23,24 @@
 .lh-col[data-tono="exacto"] .lh-barra span{background:var(--teal-20)}
 .lh-col[data-tono="medido"] .lh-barra span{background:var(--measured)}
 
-/* La vara va en la MISMA escala que las barras de arriba: 250 de 1.000 tiene que verse como
-   un cuarto, no como una nota al pie. */
-.lh-vara{margin-top:var(--s3);padding-top:var(--s3);border-top:1px dashed color-mix(in srgb,var(--ink) 30%,transparent)}
-/* EL ANCHO ES EL DE UNA COLUMNA, no el del panel. Dibujada a lo ancho de los dos, el 25%
-   del azar se mide contra 766 px y el 90% del hardware contra 355: dos barras pegadas una
-   debajo de otra, en escalas distintas. La comparación que esta barra existe para permitir
-   sería falsa, y falsa en la dirección de hacer ver mejor al hardware. */
-.lh-vara-barra{inline-size:calc((100% - var(--s3)) / 2);block-size:10px;background:color-mix(in srgb,var(--ink) 10%,transparent);border-radius:2px;overflow:hidden}
+/* LA VARA DEL AZAR, UNA POR COLUMNA. Antes era un bloque suelto debajo del conjunto y en
+   pantalla quedaba colgando bajo la columna del simulador, como si los 250 fueran la vara de
+   ésa — justo la columna donde no hacen falta. Ahora va dentro de cada .lh-col, hereda su
+   ancho, y por eso está en la misma escala que la barra de arriba sin ninguna cuenta. */
+.lh-vara-barra{inline-size:100%;block-size:10px;margin-top:10px;background:color-mix(in srgb,var(--ink) 10%,transparent);border-radius:2px;overflow:hidden}
 .lh-vara-barra span{display:block;block-size:100%;background:color-mix(in srgb,var(--ink) 35%,transparent)}
-.lh-vara-texto{font-size:var(--t-small);line-height:var(--lh-body);color:var(--ink-60);max-width:72ch;margin:12px 0 0}
+.lh-vara-texto{font-size:var(--t-small);line-height:var(--lh-body);color:var(--ink-60);max-width:72ch;margin:var(--s3) 0 0;padding-top:var(--s3);border-top:1px dashed color-mix(in srgb,var(--ink) 30%,transparent)}
 
 /* ---- dónde cayeron los 1.000 disparos */
-.lh-reparto{display:grid;grid-template-columns:repeat(16,minmax(0,1fr));gap:4px;align-items:end;block-size:160px;margin:0 0 var(--s3);padding:var(--s3) var(--s3) 0;background:var(--panel);border:1px solid var(--line)}
+/* Un histograma POR COLUMNA, dentro de ella, y los dos comparten el máximo (lo calcula el
+   componente sobre los dos conjuntos). Escalado cada uno a su propio máximo se verían
+   idénticos y la figura diría que el hardware acertó tanto como el simulador exacto. */
+.lh-reparto{display:grid;grid-template-columns:repeat(16,minmax(0,1fr));gap:2px;align-items:end;block-size:120px;margin-top:var(--s3);padding-top:var(--s2);border-top:1px solid var(--line)}
 .lh-estado{display:flex;flex-direction:column;justify-content:flex-end;block-size:100%;min-width:0}
 .lh-estado-barra{display:flex;align-items:flex-end;block-size:100%}
 .lh-estado-barra span{display:block;inline-size:100%;min-block-size:2px;background:color-mix(in srgb,var(--ink) 22%,transparent)}
 .lh-estado[data-pico="si"] .lh-estado-barra span{background:var(--verdict)}
-.lh-estado-n{font-family:var(--mono);font-size:var(--t-label);color:var(--ink-60);text-align:center;margin-top:8px;font-variant-numeric:tabular-nums}
+.lh-estado-n{font-family:var(--mono);font-size:var(--t-label);color:var(--ink-60);text-align:center;margin-top:6px;font-variant-numeric:tabular-nums}
 .lh-estado[data-pico="si"] .lh-estado-n{color:var(--ink);font-weight:600}
 
 /* ---- prosa y procedencia */
@@ -54,8 +54,16 @@
   /* En una columna las barras de arriba ya ocupan todo el ancho: la vara también, o vuelve
      a quedar en otra escala — el mismo defecto al revés. */
   .lh-vara-barra{inline-size:100%}
-  /* A 375 px las 16 barras quedan a 1,2 px cada una: ilegibles y sin nada que leer. Se
-     reparten en dos filas de ocho, que es lo mínimo donde el número de abajo todavía cabe. */
-  .lh-reparto{grid-template-columns:repeat(8,minmax(0,1fr));block-size:auto;row-gap:var(--s2)}
-  .lh-estado{block-size:92px}
+  /* A 375 px las 16 barras de una columna quedan a ~17 px: el número de abajo no cabe. Se
+     reparten en dos filas de ocho. En una sola columna hay ancho de sobra para eso. */
+  .lh-reparto{grid-template-columns:repeat(8,minmax(0,1fr));block-size:auto;row-gap:var(--s2);gap:4px}
+  .lh-estado{block-size:76px}
+}
+
+/* Entre 761 y 1020 px cada histograma vive en media pantalla: 16 barras y 16 números no
+   caben, y el número de abajo se solapa con el de al lado. Dos filas de ocho, igual que en
+   el teléfono. Medido en pantalla, no deducido del ancho nominal. */
+@media (min-width:761px) and (max-width:1020px){
+  .lh-reparto{grid-template-columns:repeat(8,minmax(0,1fr));block-size:auto;row-gap:var(--s2);gap:3px}
+  .lh-estado{block-size:68px}
 }
