@@ -54,7 +54,17 @@
   // ── 2 · el evento ──────────────────────────────────────────────────────────────
   var CAMPANA = ["utm_source", "utm_medium", "utm_campaign", "utm_term", "utm_content", "gclid", "msclkid"];
 
+  // SOLO SE MIDE EN EL DOMINIO DE VERDAD. El 25-nov-2026, a los tres minutos de desplegar,
+  // `q_events` ya tenia una fila que no era de nadie: la escribio la propia CI, que mide por
+  // `rosetta-quantum.nicholasiakl.workers.dev` (PROD_BASE) y ejecuta el JavaScript de la
+  // pagina. Un visitante falso por despliegue, para siempre, en la unica tabla por la que se
+  // decide si una campana sirve. El trafico pagado aterriza en rosettaquantum.com y en ningun
+  // otro sitio, asi que la condicion no pierde ni una visita real.
+  // `?medir=1` deja medir a proposito desde el preview, que es como se verifica esto.
+  var MIDE = location.hostname === "rosettaquantum.com" || qs.get("medir") === "1";
+
   function evento(ev, cta) {
+    if (!MIDE) return;
     var d = { ev: ev, side: lado, path: location.pathname, landing: leer("q.landing") };
     if (cta) d.cta = cta;
     for (var i = 0; i < CAMPANA.length; i++) {
