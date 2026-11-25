@@ -8,6 +8,7 @@
 | RQ.S.01 | Índice QEX | 69/100 (tope externo 84) |
 
 Lectura: Su sitio ya usa el candado post-cuántico, pero un nombre que responde no muestra el candado nuevo.
+Cómo sale la letra: no del QEX. La deciden el candado nuevo, las alertas y que lo sensible esté medido (QREADY-NOTA-2.1); el QEX resume cuatro dimensiones con peso y no fija la letra. A1-A2, por sí solas, no impiden la A. Las acciones de «Qué hacer» cambian la letra; el QEX sólo cambia con lo que lista «Puntos por acción».
 Referencia: el dominio .com no indica país; no se compara.
 Publicación: privada. El dueño no ha activado su página pública.
 
@@ -21,7 +22,7 @@ Publicación: privada. El dueño no ha activado su página pública.
 | RQ.S.06 | Correo post-cuántico | sin MX publicado | medido |
 | RQ.S.07 | Vigencia del certificado | 94 días · 2027-02-14 | medido |
 | RQ.S.08 | security.txt | no publicado | medido |
-| RQ.S.09 | Superficie expuesta | 1/5 sensibles responden | medido |
+| RQ.S.09 | Superficie expuesta | 1/5 sensibles responden hoy (no descuenta del QEX; ver alertas) | medido |
 
 medido: observado hoy por la sonda · modelo: valor del sector, no medido en el dominio · no medido nunca significa no protegido
 
@@ -32,9 +33,9 @@ medido: observado hoy por la sonda · modelo: valor del sector, no medido en el 
 | RQ.S.02.3 | sin plan con fecha para certificado post-cuántico (informativo) | — | — |
 | = RQ.S.02 | peso 0,40 | 75/100 | 30,00 |
 | RQ.S.03 | base de la higiene (máximo 70) | 70 | 17,50 |
-| RQ.S.03.1 | TLS 1.3 en el sitio principal | 0 | 0,00 |
-| RQ.S.03.2 | 3 nombres no productivos en el registro | −10 | −2,50 |
-| RQ.S.03.3 | 1 nombre de infraestructura en el registro (resta desde 3) | 0 | 0,00 |
+| RQ.S.03.1 | TLS 1.3 en el sitio principal | cumple · descuento 0 | 0,00 |
+| RQ.S.03.2 | 3 nombres no productivos en el historial del registro CT (descuenta desde 1, aunque ya no respondan) | −10 | −2,50 |
+| RQ.S.03.3 | 1 nombre de infraestructura en el registro (resta desde 3) | cumple · descuento 0 | 0,00 |
 | RQ.S.03.4 | 1 nombre de legado en el registro | −10 | −2,50 |
 | RQ.S.03.5 | security.txt no publicado (informativo) | — | — |
 | = RQ.S.03 | peso 0,25 | 50/70 | 12,50 |
@@ -44,23 +45,24 @@ medido: observado hoy por la sonda · modelo: valor del sector, no medido en el 
 | RQ.S.04.3 | margen de Mosca | sin dato | — |
 | = RQ.S.04 | peso 0,25 | 65/100 | 16,25 |
 | RQ.S.05.1 | soporta X25519MLKEM768 | 100 | 10,00 |
-| RQ.S.05.2 | lo elige por defecto (informativo) | — | — |
-| RQ.S.05.3 | no lo tiene en todos los nombres que responden (informativo) | — | — |
+| RQ.S.05.2 | lo elige por defecto (informativo) | sí | — |
+| RQ.S.05.3 | no lo tiene en todos los nombres que responden (informativo) | no | — |
 | = RQ.S.05 | peso 0,10 | 100/100 | 10,00 |
 | = RQ.S.01 | suma de los aportes |  | 68,75 → 69 |
 
 Máximo alcanzable desde afuera: 83,75 → 84.
+QEX sin el modelo HNDL del sector (sólo lo medido): 70. El índice publicado sigue siendo 69.
 
 ## 03 Alertas
 | # | Nivel | Hallazgo | Dónde |
 |---|---|---|---|
 | A1 | MEDIA | Certificado clásico sin plan con fecha | www.example.com |
-| A2 | MEDIA | Nombre de legado que responde | l•••.example.com |
+| A2 | MEDIA | Nombre de legado que responde | legacy.example.com |
 
 ## 04 Qué hacer
 | # | Acción | Resuelve | Efecto en la nota |
 |---|---|---|---|
-| H1 | Dar de baja o asignar dueño a l•••.example.com | A2 | -> A |
+| H1 | Dar de baja o asignar dueño a legacy.example.com | A2 | -> A |
 | H2 | Plan con fecha para certificado post-cuántico | A1 | no cambia |
 | H3 | Publicar security.txt | — | no cambia |
 

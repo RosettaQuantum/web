@@ -337,9 +337,15 @@ export const FICHA = {
       plan_sin: "sin plan con fecha para certificado post-cuántico",
       base: "base de la higiene (máximo 70)",
       tls13_si: "TLS 1.3 en el sitio principal",
+      // PROVISORIOS (25-nov-2026, auditoría tenpo.cl): pendientes de aprobación del dueño
+      sin_descuento: "cumple · descuento 0",
+      info_si: "sí",
+      info_no: "no",
+      sin_modelo: (n, pub) => `QEX sin el modelo HNDL del sector (sólo lo medido): ${n}. El índice publicado sigue siendo ${pub}.`,
       tls13_no: "sin TLS 1.3 en el sitio principal",
       tls13_nm: "TLS 1.3 sin dato (no descuenta)",
-      no_productivos: (n) => (n ? `${n} ${n === 1 ? "nombre no productivo" : "nombres no productivos"} en el registro` : "sin nombres no productivos en el registro"),
+      // CAMBIADO (25-nov, PROVISORIO): dice que es el historial del registro CT y cuándo descuenta
+      no_productivos: (n) => (n ? `${n} ${n === 1 ? "nombre no productivo" : "nombres no productivos"} en el historial del registro CT (descuenta desde 1, aunque ya no respondan)` : "sin nombres no productivos en el registro"),
       infraestructura: (n) => `${n} ${n === 1 ? "nombre" : "nombres"} de infraestructura en el registro (resta desde 3)`,
       legado: (n) => (n ? `${n} ${n === 1 ? "nombre" : "nombres"} de legado en el registro` : "sin nombres de legado en el registro"),
       sin_registro: "sin registro de certificados (no descuenta)",
@@ -372,10 +378,20 @@ export const FICHA = {
     vigencia_vencido: (f) => `vencido · ${f}`,
     security_si: "publicado",
     security_no: "no publicado",
-    superficie: (r, s) => `${r}/${s} sensibles responden`,
+    // CAMBIADO (25-nov, PROVISORIO): no descuenta del QEX; lo que responde va a las alertas
+    superficie: (r, s) => `${r}/${s} sensibles responden hoy (no descuenta del QEX; ver alertas)`,
     superficie_sin: "sin nombres sondeados",
     nombres_ct: (n) => `${n} ${n === 1 ? "nombre" : "nombres"}`,
     lectura: (t) => `Lectura: ${t}`,
+    // NUEVO (25-nov, PROVISORIO): alerta INFO que no entra a la nota
+    alerta_info: { nombre_interno_ip_publica: (ip) => `Nombre interno que resuelve a una IP pública (${ip})` },
+    // NUEVO (25-nov, PROVISORIO): cómo sale la letra respecto del QEX (public/js/ficha.mjs → comoLetra)
+    como_letra: {
+      base: "Cómo sale la letra: no del QEX. La deciden el candado nuevo, las alertas y que lo sensible esté medido (QREADY-NOTA-2.1); el QEX resume cuatro dimensiones con peso y no fija la letra.",
+      techo: (ids, n) => ` ${ids} ${n > 1 ? "ponen" : "pone"} techo B: mientras ${n > 1 ? "sigan abiertas" : "siga abierta"}, la nota no pasa de B, sea cual sea el QEX.`,
+      libres: (ids, n) => ` ${ids}, por sí ${n > 1 ? "solas" : "sola"}, no ${n > 1 ? "impiden" : "impide"} la A.`,
+      acciones: " Las acciones de «Qué hacer» cambian la letra; el QEX sólo cambia con lo que lista «Puntos por acción».",
+    },
     // NUEVO (16-nov): la lectura dice la causa real de la letra (public/js/ficha.mjs → lecturaDe)
     lectura_motivo: {
       con_candado: (causas) => `Su sitio ya usa el candado post-cuántico, pero ${causas}.`,
@@ -433,6 +449,8 @@ export const FICHA = {
       hndl: (sector, ed) => `La postura HNDL es el modelo del sector ${sector}, no una medición del dominio${ed ? `: tabla por sector fijada en la edición ${ed}; la derivación no está publicada` : ""}.`,
       dimension: (nombre) => `${nombre} no se pudo medir: sin esa dimensión la nota no puede ser A.`,
       correo_mx: (f, t) => (f === 1 ? `Uno de los ${t} servidores de correo no se midió.` : `${f} de los ${t} servidores de correo no se midieron.`),
+      // NUEVO (25-nov, PROVISORIO): cuáles y por qué
+      correo_mx_cuales: (f, t, lista, tope) => `${f} de los ${t} servidores de correo no se midieron (${lista}): la sonda mide los ${tope} primeros de la lista publicada.`,
       nunca: "No medido nunca significa no protegido.",
     },
     evidencia: {
@@ -441,6 +459,10 @@ export const FICHA = {
       medido: (s) => `Medido: ${s}`,
       huella_ct: (s, n) => `Huella CT: ${s} · ${n} cert.`,
       huella_ct_sin: "Huella CT: sin registro",
+      // NUEVO (25-nov, PROVISORIO): de qué fuente y de qué fecha salió el registro de esta foto
+      registro_ct: (lista) => `Registro CT: ${lista}`,
+      fuente_ct: (f, fecha, n, copia) => `${f}, ${copia ? "copia del " : ""}${fecha} UTC (${n} cert.)`,
+      certificado: (metodo, tls12) => `Certificado: ${metodo}${tls12 ? " (en TLS 1.3 el certificado viaja cifrado; con un saludo TLS 1.2 se lee sin completar una sesión)" : ""}`,
       huella_foto: (s) => `Huella de la foto: ${s}`,
       metodo: "Método: CT · DNS · saludos TLS sin sesión",
       rubrica: (url) => `Rúbrica: ${url}`,   // NUEVO (18-nov): provisorio
@@ -498,9 +520,15 @@ export const FICHA = {
       plan_sin: "no dated plan for a post-quantum certificate",
       base: "hygiene base (maximum 70)",
       tls13_si: "TLS 1.3 on the main site",
+      // PROVISIONAL (25-nov-2026, tenpo.cl audit): pending the owner's approval
+      sin_descuento: "passes · deduction 0",
+      info_si: "yes",
+      info_no: "no",
+      sin_modelo: (n, pub) => `QEX without the sector HNDL model (measured dimensions only): ${n}. The published index is still ${pub}.`,
       tls13_no: "no TLS 1.3 on the main site",
       tls13_nm: "TLS 1.3 no data (no deduction)",
-      no_productivos: (n) => (n ? `${n} non-production ${n === 1 ? "name" : "names"} in the log` : "no non-production names in the log"),
+      // CHANGED (25-nov, PROVISIONAL)
+      no_productivos: (n) => (n ? `${n} non-production ${n === 1 ? "name" : "names"} in the CT log history (deducts from 1, even if they no longer answer)` : "no non-production names in the log"),
       infraestructura: (n) => `${n} infrastructure ${n === 1 ? "name" : "names"} in the log (deducts from 3)`,
       legado: (n) => (n ? `${n} legacy ${n === 1 ? "name" : "names"} in the log` : "no legacy names in the log"),
       sin_registro: "no certificate log (no deduction)",
@@ -533,10 +561,19 @@ export const FICHA = {
     vigencia_vencido: (f) => `expired · ${f}`,
     security_si: "published",
     security_no: "not published",
-    superficie: (r, s) => `${r}/${s} sensitive respond`,
+    // CHANGED (25-nov, PROVISIONAL)
+    superficie: (r, s) => `${r}/${s} sensitive respond today (no QEX deduction; see alerts)`,
     superficie_sin: "no names probed",
     nombres_ct: (n) => `${n} ${n === 1 ? "name" : "names"}`,
     lectura: (t) => `Reading: ${t}`,
+    // NEW (25-nov, PROVISIONAL)
+    alerta_info: { nombre_interno_ip_publica: (ip) => `Internal name that resolves to a public IP (${ip})` },
+    como_letra: {
+      base: "How the grade is set: not from the QEX. The new lock, the alerts and whether everything sensitive was measured decide it (QREADY-NOTA-2.1); the QEX sums four weighted dimensions and does not set the grade.",
+      techo: (ids, n) => ` ${ids} ${n > 1 ? "cap" : "caps"} the grade at B: while open, the grade stays at B whatever the QEX.`,
+      libres: (ids, n) => ` ${ids} ${n > 1 ? "do" : "does"} not, by ${n > 1 ? "themselves" : "itself"}, prevent an A.`,
+      acciones: " The “What to do” actions change the grade; the QEX only changes with what “Points per action” lists.",
+    },
     lectura_motivo: {
       con_candado: (causas) => `Your site already uses the post-quantum lock, but ${causas}.`,
       sin_candado_y: (causas) => `Your site does not use the post-quantum lock yet, and ${causas}.`,
@@ -590,6 +627,8 @@ export const FICHA = {
       hndl: (sector, ed) => `HNDL posture is the ${sector} sector model, not a measurement of the domain${ed ? `: a per-sector table fixed in the ${ed} edition; the derivation is not published` : ""}.`,
       dimension: (nombre) => `${nombre} could not be measured: without that dimension the grade cannot be A.`,
       correo_mx: (f, t) => (f === 1 ? `One of the ${t} mail servers was not measured.` : `${f} of the ${t} mail servers were not measured.`),
+      // NEW (25-nov, PROVISIONAL)
+      correo_mx_cuales: (f, t, lista, tope) => `${f} of the ${t} mail servers were not measured (${lista}): the probe measures the first ${tope} of the published list.`,
       nunca: "Not measured never means not protected.",
     },
     evidencia: {
@@ -598,6 +637,10 @@ export const FICHA = {
       medido: (s) => `Measured: ${s}`,
       huella_ct: (s, n) => `CT fingerprint: ${s} · ${n} cert.`,
       huella_ct_sin: "CT fingerprint: no log",
+      // NEW (25-nov, PROVISIONAL)
+      registro_ct: (lista) => `CT log: ${lista}`,
+      fuente_ct: (f, fecha, n, copia) => `${f}, ${copia ? "copy from " : ""}${fecha} UTC (${n} certs)`,
+      certificado: (metodo, tls12) => `Certificate: ${metodo}${tls12 ? " (in TLS 1.3 the certificate travels encrypted; a TLS 1.2 hello reads it without completing a session)" : ""}`,
       huella_foto: (s) => `Snapshot fingerprint: ${s}`,
       metodo: "Method: CT · DNS · TLS handshakes without a session",
       rubrica: (url) => `Rubric: ${url}`,   // NUEVO (18-nov): provisorio

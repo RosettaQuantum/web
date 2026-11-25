@@ -8,6 +8,7 @@
 | RQ.S.01 | QEX index | 69/100 (external cap 84) |
 
 Reading: Your site already uses the post-quantum lock, but one name that answers does not show the new lock.
+How the grade is set: not from the QEX. The new lock, the alerts and whether everything sensitive was measured decide it (QREADY-NOTA-2.1); the QEX sums four weighted dimensions and does not set the grade. A1-A2 do not, by themselves, prevent an A. The “What to do” actions change the grade; the QEX only changes with what “Points per action” lists.
 Reference: a .com domain does not indicate a country; no comparison.
 Publication: private. The owner has not activated its public page.
 
@@ -21,7 +22,7 @@ Publication: private. The owner has not activated its public page.
 | RQ.S.06 | Post-quantum email | no MX published | measured |
 | RQ.S.07 | Certificate validity | 94 days · 2027-02-14 | measured |
 | RQ.S.08 | security.txt | not published | measured |
-| RQ.S.09 | Exposed surface | 1/5 sensitive respond | measured |
+| RQ.S.09 | Exposed surface | 1/5 sensitive respond today (no QEX deduction; see alerts) | measured |
 
 measured: observed today by the probe · model: sector value, not measured on the domain · not measured never means not protected
 
@@ -32,9 +33,9 @@ measured: observed today by the probe · model: sector value, not measured on th
 | RQ.S.02.3 | no dated plan for a post-quantum certificate (for information) | — | — |
 | = RQ.S.02 | weight 0.40 | 75/100 | 30.00 |
 | RQ.S.03 | hygiene base (maximum 70) | 70 | 17.50 |
-| RQ.S.03.1 | TLS 1.3 on the main site | 0 | 0.00 |
-| RQ.S.03.2 | 3 non-production names in the log | −10 | −2.50 |
-| RQ.S.03.3 | 1 infrastructure name in the log (deducts from 3) | 0 | 0.00 |
+| RQ.S.03.1 | TLS 1.3 on the main site | passes · deduction 0 | 0.00 |
+| RQ.S.03.2 | 3 non-production names in the CT log history (deducts from 1, even if they no longer answer) | −10 | −2.50 |
+| RQ.S.03.3 | 1 infrastructure name in the log (deducts from 3) | passes · deduction 0 | 0.00 |
 | RQ.S.03.4 | 1 legacy name in the log | −10 | −2.50 |
 | RQ.S.03.5 | security.txt not published (for information) | — | — |
 | = RQ.S.03 | weight 0.25 | 50/70 | 12.50 |
@@ -44,23 +45,24 @@ measured: observed today by the probe · model: sector value, not measured on th
 | RQ.S.04.3 | Mosca margin | no data | — |
 | = RQ.S.04 | weight 0.25 | 65/100 | 16.25 |
 | RQ.S.05.1 | supports X25519MLKEM768 | 100 | 10.00 |
-| RQ.S.05.2 | chooses it by default (for information) | — | — |
-| RQ.S.05.3 | does not have it on every name that answers (for information) | — | — |
+| RQ.S.05.2 | chooses it by default (for information) | yes | — |
+| RQ.S.05.3 | does not have it on every name that answers (for information) | no | — |
 | = RQ.S.05 | weight 0.10 | 100/100 | 10.00 |
 | = RQ.S.01 | sum of contributions |  | 68.75 → 69 |
 
 Highest reachable from outside: 83.75 → 84.
+QEX without the sector HNDL model (measured dimensions only): 70. The published index is still 69.
 
 ## 03 Alerts
 | # | Level | Finding | Where |
 |---|---|---|---|
 | A1 | MEDIUM | Classical certificate without a dated plan | www.example.com |
-| A2 | MEDIUM | Legacy name answering | l•••.example.com |
+| A2 | MEDIUM | Legacy name answering | legacy.example.com |
 
 ## 04 What to do
 | # | Action | Resolves | Effect on the grade |
 |---|---|---|---|
-| H1 | Retire l•••.example.com or assign it an owner | A2 | -> A |
+| H1 | Retire legacy.example.com or assign it an owner | A2 | -> A |
 | H2 | Dated plan for a post-quantum certificate | A1 | no change |
 | H3 | Publish security.txt | — | no change |
 

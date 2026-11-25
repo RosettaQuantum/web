@@ -43,7 +43,8 @@ prueba("silencio: con ficha_html, el PDF se arma con ESE HTML, tal cual", lambda
 prueba("la ficha trae las 7 secciones 01..07 en orden", lambda: igual(
     [m for m in re.findall(r'<span class="rf-num">(\d\d)</span>', H)], ["01", "02", "03", "04", "05", "06", "07"]))
 prueba("la ficha trae los IDs RQ.S.00 a RQ.S.09", lambda: igual(all(f"RQ.S.0{i}" in H for i in range(10)), True))
-prueba("dominio no verificado: el PDF no trae el nombre de pruebas completo", lambda: igual(("staging." in H, "s•••" in H), (False, True)))
+# 25-nov-2026 (Nicholas, «Dejar de enmascarar»): el PDF lleva los nombres completos, verificado o no.
+prueba("dominio no verificado: el PDF trae el nombre de pruebas completo, sin máscara", lambda: igual(("staging." in H, "•••" in H), (True, False)))
 prueba("grito: sin ficha_html no se arma un PDF a mano", lambda: igual(_lanza(lambda: I.html_de_trabajo({"foto": FOTO})), "RuntimeError"))
 prueba("grito: un HTML que no es la ficha tampoco", lambda: igual(_lanza(lambda: I.html_de_trabajo({"ficha_html": "<html>otro informe</html>"})), "RuntimeError"))
 prueba("ya no existe el informe propio (canales, lectura, html_informe)", lambda: igual(

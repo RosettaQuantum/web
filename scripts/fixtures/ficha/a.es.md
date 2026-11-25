@@ -8,6 +8,7 @@
 | RQ.S.01 | Índice QEX | 56/100 (tope externo 84) |
 
 Lectura: Candado nuevo en el sitio y en todos los nombres públicos que respondieron, sin alertas graves ni altas, sin ambientes de prueba publicados y con todo lo sensible medido. Es la nota máxima que se puede dar desde afuera.
+Cómo sale la letra: no del QEX. La deciden el candado nuevo, las alertas y que lo sensible esté medido (QREADY-NOTA-2.1); el QEX resume cuatro dimensiones con peso y no fija la letra. A1-A3, por sí solas, no impiden la A. Las acciones de «Qué hacer» cambian la letra; el QEX sólo cambia con lo que lista «Puntos por acción».
 Referencia: mediana banca 57 (12 orgs, edición 2026-08). ejemplo.cl está 1 punto abajo.
 Publicación: pública en https://rosettaquantum.com/es/verificado/ejemplo.cl
 
@@ -21,7 +22,7 @@ Publicación: pública en https://rosettaquantum.com/es/verificado/ejemplo.cl
 | RQ.S.06 | Correo post-cuántico | 1/1 MX | medido |
 | RQ.S.07 | Vigencia del certificado | 94 días · 2027-02-14 | medido |
 | RQ.S.08 | security.txt | publicado | medido |
-| RQ.S.09 | Superficie expuesta | 2/5 sensibles responden | medido |
+| RQ.S.09 | Superficie expuesta | 2/5 sensibles responden hoy (no descuenta del QEX; ver alertas) | medido |
 
 medido: observado hoy por la sonda · modelo: valor del sector, no medido en el dominio · no medido nunca significa no protegido
 
@@ -32,9 +33,9 @@ medido: observado hoy por la sonda · modelo: valor del sector, no medido en el 
 | RQ.S.02.3 | sin plan con fecha para certificado post-cuántico (informativo) | — | — |
 | = RQ.S.02 | peso 0,40 | 75/100 | 30,00 |
 | RQ.S.03 | base de la higiene (máximo 70) | 70 | 17,50 |
-| RQ.S.03.1 | TLS 1.3 en el sitio principal | 0 | 0,00 |
-| RQ.S.03.2 | 3 nombres no productivos en el registro | −10 | −2,50 |
-| RQ.S.03.3 | 1 nombre de infraestructura en el registro (resta desde 3) | 0 | 0,00 |
+| RQ.S.03.1 | TLS 1.3 en el sitio principal | cumple · descuento 0 | 0,00 |
+| RQ.S.03.2 | 3 nombres no productivos en el historial del registro CT (descuenta desde 1, aunque ya no respondan) | −10 | −2,50 |
+| RQ.S.03.3 | 1 nombre de infraestructura en el registro (resta desde 3) | cumple · descuento 0 | 0,00 |
 | RQ.S.03.4 | 1 nombre de legado en el registro | −10 | −2,50 |
 | RQ.S.03.5 | security.txt publicado (informativo) | — | — |
 | = RQ.S.03 | peso 0,25 | 50/70 | 12,50 |
@@ -44,12 +45,13 @@ medido: observado hoy por la sonda · modelo: valor del sector, no medido en el 
 | RQ.S.04.3 | margen de Mosca | sin dato | — |
 | = RQ.S.04 | peso 0,25 | 12/100 | 3,00 |
 | RQ.S.05.1 | soporta X25519MLKEM768 | 100 | 10,00 |
-| RQ.S.05.2 | lo elige por defecto (informativo) | — | — |
-| RQ.S.05.3 | lo tiene en todos los nombres que responden (informativo) | — | — |
+| RQ.S.05.2 | lo elige por defecto (informativo) | sí | — |
+| RQ.S.05.3 | lo tiene en todos los nombres que responden (informativo) | sí | — |
 | = RQ.S.05 | peso 0,10 | 100/100 | 10,00 |
 | = RQ.S.01 | suma de los aportes |  | 55,50 → 56 |
 
 Máximo alcanzable desde afuera: 70,50 → 70.
+QEX sin el modelo HNDL del sector (sólo lo medido): 70. El índice publicado sigue siendo 56.
 
 ## 03 Alertas
 | # | Nivel | Hallazgo | Dónde |

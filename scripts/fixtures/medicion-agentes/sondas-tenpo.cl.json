@@ -1,0 +1,284 @@
+{
+ "ok": true,
+ "instrumento": "rosetta-sondas-envivo/1",
+ "dominio": "tenpo.cl",
+ "www": "www.tenpo.cl",
+ "medido_utc": "2026-11-25T10:22:42.399Z",
+ "nombres_completos": false,
+ "pagina_publica": false,
+ "extras_nota": null,
+ "nombres_enmascarados": false,
+ "borde": {
+  "instrumento": "rosetta-borde-envivo/1 · saludos desde la sonda del VPS (vps/sonda-correo/sonda_tls.py)",
+  "host": "www.tenpo.cl",
+  "medido_utc": "2026-11-25T10:22:51Z",
+  "dns": {
+   "cadena": [
+    "cdn.webflow.com"
+   ],
+   "cdn": "otro"
+  },
+  "saludos": {
+   "A_como_navegador": {
+    "grupo": "X25519MLKEM768",
+    "hrr": true,
+    "alerta": null,
+    "error": null,
+    "ms": 26
+   },
+   "B_solo_hibrido": {
+    "grupo": "X25519MLKEM768",
+    "hrr": true,
+    "alerta": null,
+    "error": null,
+    "ms": 20
+   },
+   "C_eleccion_libre": {
+    "grupo": "X25519MLKEM768",
+    "hrr": true,
+    "alerta": null,
+    "error": null,
+    "ms": 25
+   }
+  },
+  "veredicto": {
+   "conectado": true,
+   "soporta": true,
+   "pide_mejora": true,
+   "elige": true
+  },
+  "medido_desde": "vps",
+  "desde_ip": "45.88.191.121",
+  "alcance": "Mide el tramo cliente → borde. El tramo borde → origen no es observable desde fuera.",
+  "sha256": "b435dbbfe469acdf3804eb8b1e55b01a50db7ed0b6003d6afdbcab189e69a970"
+ },
+ "certificado": {
+  "host": "www.tenpo.cl",
+  "ok": true,
+  "metodo": "saludo TLS 1.2 desde la sonda del VPS; se lee la hoja que entrega el servidor",
+  "error": null,
+  "ms": 24,
+  "firma": "ecdsa-with-SHA256",
+  "emisor": "Google Trust Services",
+  "sujeto": "www.tenpo.cl",
+  "not_before": "2026-11-21T05:05:00Z",
+  "not_after": "2027-02-19T06:04:53Z",
+  "algoritmo": "EC",
+  "curva": "P-256",
+  "bits": 256,
+  "medido_desde": "vps"
+ },
+ "endpoints": [
+  {
+   "host": "api-dev.tenpo.cl",
+   "medido_utc": "2026-11-25T10:22:42.399Z",
+   "dns_status": "NXDOMAIN",
+   "ip": [],
+   "cname": [],
+   "responde_443": null,
+   "detalle": "el nombre ya no existe en DNS: no se envió saludo",
+   "hibrido": null,
+   "http_status": null,
+   "medido_desde": "worker",
+   "http_consultado": false
+  },
+  {
+   "host": "api.dev.tenpo.cl",
+   "medido_utc": "2026-11-25T10:22:42.399Z",
+   "dns_status": "NXDOMAIN",
+   "ip": [],
+   "cname": [],
+   "responde_443": null,
+   "detalle": "el nombre ya no existe en DNS: no se envió saludo",
+   "hibrido": null,
+   "http_status": null,
+   "medido_desde": "worker",
+   "http_consultado": false
+  },
+  {
+   "host": "api.lab.tenpo.cl",
+   "medido_utc": "2026-11-25T10:22:42.399Z",
+   "dns_status": "NXDOMAIN",
+   "ip": [],
+   "cname": [],
+   "responde_443": null,
+   "detalle": "el nombre ya no existe en DNS: no se envió saludo",
+   "hibrido": null,
+   "http_status": null,
+   "medido_desde": "worker",
+   "http_consultado": false
+  },
+  {
+   "host": "api.uat.tenpo.cl",
+   "medido_utc": "2026-11-25T10:22:42.399Z",
+   "dns_status": "NXDOMAIN",
+   "ip": [],
+   "cname": [],
+   "responde_443": null,
+   "detalle": "el nombre ya no existe en DNS: no se envió saludo",
+   "hibrido": null,
+   "http_status": null,
+   "medido_desde": "worker",
+   "http_consultado": false
+  },
+  {
+   "host": "launch.dev.tenpo.cl",
+   "medido_utc": "2026-11-25T10:22:42.399Z",
+   "dns_status": "NOERROR",
+   "ip": [
+    "150.171.110.34"
+   ],
+   "cname": [
+    "launchdevtenpo.azureedge.net",
+    "launchdevtenpo.afd.azureedge.net",
+    "mr-afd-azuredge.tm-azurefd.net"
+   ],
+   "responde_443": true,
+   "detalle": "responde; grupo SecP256r1MLKEM768",
+   "hibrido": true,
+   "http_status": null,
+   "medido_desde": "worker",
+   "http_consultado": false
+  },
+  {
+   "host": "paypal-prueba.tenpo.cl",
+   "medido_utc": "2026-11-25T10:22:42.399Z",
+   "dns_status": "NOERROR",
+   "ip": [
+    "104.18.21.28",
+    "104.18.20.28"
+   ],
+   "cname": [],
+   "responde_443": true,
+   "detalle": "responde; grupo X25519MLKEM768",
+   "hibrido": true,
+   "http_status": null,
+   "medido_desde": "vps",
+   "http_consultado": false
+  },
+  {
+   "host": "test-paypal.tenpo.cl",
+   "medido_utc": "2026-11-25T10:22:42.399Z",
+   "dns_status": "NOERROR",
+   "ip": [
+    "104.18.21.28",
+    "104.18.20.28"
+   ],
+   "cname": [],
+   "responde_443": true,
+   "detalle": "responde; grupo X25519MLKEM768",
+   "hibrido": true,
+   "http_status": null,
+   "medido_desde": "vps",
+   "http_consultado": false
+  },
+  {
+   "host": "test.tenpo.cl",
+   "medido_utc": "2026-11-25T10:22:42.399Z",
+   "dns_status": "NOERROR",
+   "ip": [
+    "104.18.20.28",
+    "104.18.21.28"
+   ],
+   "cname": [],
+   "responde_443": true,
+   "detalle": "responde; grupo X25519MLKEM768",
+   "hibrido": true,
+   "http_status": null,
+   "medido_desde": "vps",
+   "http_consultado": false
+  },
+  {
+   "host": "www.api.dev.tenpo.cl",
+   "medido_utc": "2026-11-25T10:22:42.399Z",
+   "dns_status": "NXDOMAIN",
+   "ip": [],
+   "cname": [],
+   "responde_443": null,
+   "detalle": "el nombre ya no existe en DNS: no se envió saludo",
+   "hibrido": null,
+   "http_status": null,
+   "medido_desde": "worker",
+   "http_consultado": false
+  },
+  {
+   "host": "www.api.lab.tenpo.cl",
+   "medido_utc": "2026-11-25T10:22:42.399Z",
+   "dns_status": "NXDOMAIN",
+   "ip": [],
+   "cname": [],
+   "responde_443": null,
+   "detalle": "el nombre ya no existe en DNS: no se envió saludo",
+   "hibrido": null,
+   "http_status": null,
+   "medido_desde": "worker",
+   "http_consultado": false
+  },
+  {
+   "host": "www.api.uat.tenpo.cl",
+   "medido_utc": "2026-11-25T10:22:42.399Z",
+   "dns_status": "NXDOMAIN",
+   "ip": [],
+   "cname": [],
+   "responde_443": null,
+   "detalle": "el nombre ya no existe en DNS: no se envió saludo",
+   "hibrido": null,
+   "http_status": null,
+   "medido_desde": "worker",
+   "http_consultado": false
+  },
+  {
+   "host": "internal-vpn.tenpo.cl",
+   "medido_utc": "2026-11-25T10:22:42.399Z",
+   "dns_status": "NOERROR",
+   "ip": [
+    "20.7.190.100"
+   ],
+   "cname": [],
+   "responde_443": false,
+   "detalle": "sin respuesta TLS en 443 (sin respuesta en 8 s)",
+   "hibrido": null,
+   "http_status": null,
+   "medido_desde": "worker",
+   "http_consultado": false
+  }
+ ],
+ "correo": {
+  "mx": [
+   "alt1.aspmx.l.google.com",
+   "alt2.aspmx.l.google.com",
+   "alt3.aspmx.l.google.com",
+   "alt4.aspmx.l.google.com",
+   "aspmx.l.google.com",
+   "mxa-0077f501.gslb.pphosted.com",
+   "mxb-0077f501.gslb.pphosted.com"
+  ],
+  "proveedor": "Google Workspace + Proofpoint",
+  "error": null
+ },
+ "security_txt": {
+  "publicado": false,
+  "url": null,
+  "intentos": [
+   {
+    "url": "https://tenpo.cl/.well-known/security.txt",
+    "status": 404,
+    "contact": false
+   },
+   {
+    "url": "https://www.tenpo.cl/.well-known/security.txt",
+    "status": 404,
+    "contact": false
+   }
+  ]
+ },
+ "vps": {
+  "estado": "hecho",
+  "id": "b7ebd53a-8dae-4b1e-bd80-8e963905415d",
+  "instrumento": "rosetta-sonda-tls/1 · ClientHello de probe_soporte.py (TLS 1.3) y de clientHello12 (TLS 1.2)",
+  "desde_ip": "45.88.191.121"
+ },
+ "get_raiz": "no consultada",
+ "ssh": null,
+ "descartados": 0
+}

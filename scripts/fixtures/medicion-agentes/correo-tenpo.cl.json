@@ -1,0 +1,193 @@
+{
+ "ok": true,
+ "estado": "hecho",
+ "dominio": "tenpo.cl",
+ "resultado": {
+  "instrumento": "rosetta-sonda-correo/1 · STARTTLS + ClientHello de probe_soporte.py",
+  "dominio": "tenpo.cl",
+  "medido_utc": "2026-11-25T10:21:30Z",
+  "desde_ip": "45.88.191.121",
+  "mx_publicados": [
+   "mxa-0077f501.gslb.pphosted.com",
+   "mxb-0077f501.gslb.pphosted.com",
+   "alt1.aspmx.l.google.com",
+   "alt2.aspmx.l.google.com",
+   "alt3.aspmx.l.google.com",
+   "alt4.aspmx.l.google.com",
+   "aspmx.l.google.com"
+  ],
+  "mx_medidos": 4,
+  "mx_omitidos": 3,
+  "servidores": [
+   {
+    "mx": "mxa-0077f501.gslb.pphosted.com",
+    "saludos": {
+     "A_como_navegador": {
+      "saludo_220": "220 mx0a-0077f501.pphosted.com ESMTP mfa-m0547535",
+      "starttls": true,
+      "grupo": "X25519MLKEM768",
+      "hrr": true,
+      "alerta": null,
+      "rechazo": null,
+      "error": null,
+      "ms": 924
+     },
+     "B_solo_hibrido": {
+      "saludo_220": "220 mx0a-0077f501.pphosted.com ESMTP mfa-m0547535",
+      "starttls": true,
+      "grupo": "X25519MLKEM768",
+      "hrr": true,
+      "alerta": null,
+      "rechazo": null,
+      "error": null,
+      "ms": 870
+     },
+     "C_eleccion_libre": {
+      "saludo_220": "220 mx0a-0077f501.pphosted.com ESMTP mfa-m0547535",
+      "starttls": true,
+      "grupo": "X25519MLKEM768",
+      "hrr": true,
+      "alerta": null,
+      "rechazo": null,
+      "error": null,
+      "ms": 870
+     }
+    },
+    "veredicto": {
+     "estado": "medido",
+     "starttls": true,
+     "soporta": true,
+     "pide_mejora": true,
+     "elige": true
+    }
+   },
+   {
+    "mx": "mxb-0077f501.gslb.pphosted.com",
+    "saludos": {
+     "A_como_navegador": {
+      "saludo_220": "220 mx0a-0077f501.pphosted.com ESMTP mfa-m0547535",
+      "starttls": true,
+      "grupo": "X25519MLKEM768",
+      "hrr": true,
+      "alerta": null,
+      "rechazo": null,
+      "error": null,
+      "ms": 913
+     },
+     "B_solo_hibrido": {
+      "saludo_220": "220 mx0a-0077f501.pphosted.com ESMTP mfa-m0547535",
+      "starttls": true,
+      "grupo": "X25519MLKEM768",
+      "hrr": true,
+      "alerta": null,
+      "rechazo": null,
+      "error": null,
+      "ms": 916
+     },
+     "C_eleccion_libre": {
+      "saludo_220": "220 mx0a-0077f501.pphosted.com ESMTP mfa-m0547535",
+      "starttls": true,
+      "grupo": "X25519MLKEM768",
+      "hrr": true,
+      "alerta": null,
+      "rechazo": null,
+      "error": null,
+      "ms": 815
+     }
+    },
+    "veredicto": {
+     "estado": "medido",
+     "starttls": true,
+     "soporta": true,
+     "pide_mejora": true,
+     "elige": true
+    }
+   },
+   {
+    "mx": "alt1.aspmx.l.google.com",
+    "saludos": {
+     "A_como_navegador": {
+      "saludo_220": "220 mx.google.com ESMTP a640c23a62f3a-c513ad0376bsi1092840466b.35 - gsmtp",
+      "starttls": true,
+      "grupo": "X25519MLKEM768",
+      "hrr": true,
+      "alerta": null,
+      "rechazo": null,
+      "error": null,
+      "ms": 180
+     },
+     "B_solo_hibrido": {
+      "saludo_220": "220 mx.google.com ESMTP 4fb4d7f45d1cf-6bab1cc70bbsi7837535a12.220 - gsmtp",
+      "starttls": true,
+      "grupo": "X25519MLKEM768",
+      "hrr": true,
+      "alerta": null,
+      "rechazo": null,
+      "error": null,
+      "ms": 155
+     },
+     "C_eleccion_libre": {
+      "saludo_220": "220 mx.google.com ESMTP a640c23a62f3a-c513afe9946si1117725066b.101 - gsmtp",
+      "starttls": true,
+      "grupo": "X25519MLKEM768",
+      "hrr": true,
+      "alerta": null,
+      "rechazo": null,
+      "error": null,
+      "ms": 138
+     }
+    },
+    "veredicto": {
+     "estado": "medido",
+     "starttls": true,
+     "soporta": true,
+     "pide_mejora": true,
+     "elige": true
+    }
+   },
+   {
+    "mx": "alt2.aspmx.l.google.com",
+    "saludos": {
+     "A_como_navegador": {
+      "saludo_220": "220 mx.google.com ESMTP 38308e7fff4ca-3ae8059fa2esi20763231fa.331 - gsmtp",
+      "starttls": true,
+      "grupo": "X25519MLKEM768",
+      "hrr": true,
+      "alerta": null,
+      "rechazo": null,
+      "error": null,
+      "ms": 326
+     },
+     "B_solo_hibrido": {
+      "saludo_220": "220 mx.google.com ESMTP 2adb3069b0e04-5c1bd045e00si7246770e87.76 - gsmtp",
+      "starttls": true,
+      "grupo": "X25519MLKEM768",
+      "hrr": true,
+      "alerta": null,
+      "rechazo": null,
+      "error": null,
+      "ms": 235
+     },
+     "C_eleccion_libre": {
+      "saludo_220": "220 mx.google.com ESMTP 2adb3069b0e04-5c1bd06dfbcsi7207873e87.110 - gsmtp",
+      "starttls": true,
+      "grupo": "X25519MLKEM768",
+      "hrr": true,
+      "alerta": null,
+      "rechazo": null,
+      "error": null,
+      "ms": 208
+     }
+    },
+    "veredicto": {
+     "estado": "medido",
+     "starttls": true,
+     "soporta": true,
+     "pide_mejora": true,
+     "elige": true
+    }
+   }
+  ],
+  "alcance": "Mide el tramo remitente → servidor de correo del dominio (STARTTLS). No ve lo que pasa dentro de la organización."
+ }
+}

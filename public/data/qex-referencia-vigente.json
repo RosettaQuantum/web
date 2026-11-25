@@ -6,7 +6,7 @@
   "mediana_pais_dimension": {
     "certificados": 75,
     "higiene": 60,
-    "hndl": 12,
+    "hndl": null,
     "edge": 100
   },
   "cuartiles": "La edición no publica cuartiles por sector: p25 y p75 van null (no publicado).",

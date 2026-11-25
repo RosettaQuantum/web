@@ -8,6 +8,7 @@
 | RQ.S.01 | QEX index | 61/100 (external cap 84) |
 
 Reading: Your site does not use the post-quantum lock yet, and it has a test environment exposed to the internet.
+How the grade is set: not from the QEX. The new lock, the alerts and whether everything sensitive was measured decide it (QREADY-NOTA-2.1); the QEX sums four weighted dimensions and does not set the grade. A3 caps the grade at B: while open, the grade stays at B whatever the QEX. A4-A5 do not, by themselves, prevent an A. The “What to do” actions change the grade; the QEX only changes with what “Points per action” lists.
 Reference: a .example domain does not indicate a country; no comparison.
 Publication: private. The owner has not activated its public page.
 
@@ -21,7 +22,7 @@ Publication: private. The owner has not activated its public page.
 | RQ.S.06 | Post-quantum email | no data | not measured |
 | RQ.S.07 | Certificate validity | 82 days · 2027-02-06 | measured |
 | RQ.S.08 | security.txt | not published | measured |
-| RQ.S.09 | Exposed surface | 4/4 sensitive respond | measured |
+| RQ.S.09 | Exposed surface | 4/4 sensitive respond today (no QEX deduction; see alerts) | measured |
 
 measured: observed today by the probe · model: sector value, not measured on the domain · not measured never means not protected
 
@@ -32,10 +33,10 @@ measured: observed today by the probe · model: sector value, not measured on th
 | RQ.S.02.3 | no dated plan for a post-quantum certificate (for information) | — | — |
 | = RQ.S.02 | weight 0.40 | 75/100 | 30.00 |
 | RQ.S.03 | hygiene base (maximum 70) | 70 | 17.50 |
-| RQ.S.03.1 | TLS 1.3 on the main site | 0 | 0.00 |
-| RQ.S.03.2 | 2 non-production names in the log | −10 | −2.50 |
-| RQ.S.03.3 | 2 infrastructure names in the log (deducts from 3) | 0 | 0.00 |
-| RQ.S.03.4 | no legacy names in the log | 0 | 0.00 |
+| RQ.S.03.1 | TLS 1.3 on the main site | passes · deduction 0 | 0.00 |
+| RQ.S.03.2 | 2 non-production names in the CT log history (deducts from 1, even if they no longer answer) | −10 | −2.50 |
+| RQ.S.03.3 | 2 infrastructure names in the log (deducts from 3) | passes · deduction 0 | 0.00 |
+| RQ.S.03.4 | no legacy names in the log | passes · deduction 0 | 0.00 |
 | RQ.S.03.5 | security.txt not published (for information) | — | — |
 | = RQ.S.03 | weight 0.25 | 60/70 | 15.00 |
 | RQ.S.04 | fintech sector model | 65 | 16.25 |
@@ -49,24 +50,25 @@ measured: observed today by the probe · model: sector value, not measured on th
 
 Highest reachable from outside: 83.75 → 84.
 Points per action: enable the hybrid +10.00.
+QEX without the sector HNDL model (measured dimensions only): 60. The published index is still 61.
 
 ## 03 Alerts
 | # | Level | Finding | Where |
 |---|---|---|---|
-| A1 | SERIOUS | Exposed test environment | s•••.rastreo.example |
-| A2 | HIGH | Sensitive infrastructure answering | c•••.rastreo.example |
-| A3 | MEDIUM | Test environment published with access blocked | serverless-s•••.rastreo.example |
+| A1 | SERIOUS | Exposed test environment | staging.rastreo.example |
+| A2 | HIGH | Sensitive infrastructure answering | cpanel.rastreo.example |
+| A3 | MEDIUM | Test environment published with access blocked | serverless-staging.rastreo.example |
 | A4 | MEDIUM | Classical certificate without a dated plan | www.rastreo.example |
-| A5 | MEDIUM | Mail service answering on port 443 | w•••.rastreo.example |
+| A5 | MEDIUM | Mail service answering on port 443 | webmail.rastreo.example |
 
 ## 04 What to do
 | # | Action | Resolves | Effect on the grade |
 |---|---|---|---|
-| H1 | Take s•••.rastreo.example off the internet | A1 | -> D |
+| H1 | Take staging.rastreo.example off the internet | A1 | -> D |
 | H2 | Enable X25519MLKEM768 on www.rastreo.example | RQ.S.05 | -> C |
-| H3 | Close or IP-restrict c•••.rastreo.example | A2 | -> B |
-| H4 | Take serverless-s•••.rastreo.example off the internet | A3 | no change |
-| H5 | Close port 443 on w•••.rastreo.example | A5 | -> A |
+| H3 | Close or IP-restrict cpanel.rastreo.example | A2 | -> B |
+| H4 | Take serverless-staging.rastreo.example off the internet | A3 | no change |
+| H5 | Close port 443 on webmail.rastreo.example | A5 | -> A |
 | H6 | Dated plan for a post-quantum certificate | A4 | no change |
 | H7 | Publish security.txt | — | no change |
 

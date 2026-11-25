@@ -8,6 +8,7 @@
 | RQ.S.01 | Índice QEX | 61/100 (tope externo 84) |
 
 Lectura: Su sitio todavía no usa el candado post-cuántico y tiene un ambiente de pruebas expuesto a internet.
+Cómo sale la letra: no del QEX. La deciden el candado nuevo, las alertas y que lo sensible esté medido (QREADY-NOTA-2.1); el QEX resume cuatro dimensiones con peso y no fija la letra. A3 pone techo B: mientras siga abierta, la nota no pasa de B, sea cual sea el QEX. A4-A5, por sí solas, no impiden la A. Las acciones de «Qué hacer» cambian la letra; el QEX sólo cambia con lo que lista «Puntos por acción».
 Referencia: el dominio .example no indica país; no se compara.
 Publicación: privada. El dueño no ha activado su página pública.
 
@@ -21,7 +22,7 @@ Publicación: privada. El dueño no ha activado su página pública.
 | RQ.S.06 | Correo post-cuántico | sin dato | no medido |
 | RQ.S.07 | Vigencia del certificado | 82 días · 2027-02-06 | medido |
 | RQ.S.08 | security.txt | no publicado | medido |
-| RQ.S.09 | Superficie expuesta | 4/4 sensibles responden | medido |
+| RQ.S.09 | Superficie expuesta | 4/4 sensibles responden hoy (no descuenta del QEX; ver alertas) | medido |
 
 medido: observado hoy por la sonda · modelo: valor del sector, no medido en el dominio · no medido nunca significa no protegido
 
@@ -32,10 +33,10 @@ medido: observado hoy por la sonda · modelo: valor del sector, no medido en el 
 | RQ.S.02.3 | sin plan con fecha para certificado post-cuántico (informativo) | — | — |
 | = RQ.S.02 | peso 0,40 | 75/100 | 30,00 |
 | RQ.S.03 | base de la higiene (máximo 70) | 70 | 17,50 |
-| RQ.S.03.1 | TLS 1.3 en el sitio principal | 0 | 0,00 |
-| RQ.S.03.2 | 2 nombres no productivos en el registro | −10 | −2,50 |
-| RQ.S.03.3 | 2 nombres de infraestructura en el registro (resta desde 3) | 0 | 0,00 |
-| RQ.S.03.4 | sin nombres de legado en el registro | 0 | 0,00 |
+| RQ.S.03.1 | TLS 1.3 en el sitio principal | cumple · descuento 0 | 0,00 |
+| RQ.S.03.2 | 2 nombres no productivos en el historial del registro CT (descuenta desde 1, aunque ya no respondan) | −10 | −2,50 |
+| RQ.S.03.3 | 2 nombres de infraestructura en el registro (resta desde 3) | cumple · descuento 0 | 0,00 |
+| RQ.S.03.4 | sin nombres de legado en el registro | cumple · descuento 0 | 0,00 |
 | RQ.S.03.5 | security.txt no publicado (informativo) | — | — |
 | = RQ.S.03 | peso 0,25 | 60/70 | 15,00 |
 | RQ.S.04 | modelo del sector fintech | 65 | 16,25 |
@@ -49,24 +50,25 @@ medido: observado hoy por la sonda · modelo: valor del sector, no medido en el 
 
 Máximo alcanzable desde afuera: 83,75 → 84.
 Puntos por acción: activar el híbrido +10,00.
+QEX sin el modelo HNDL del sector (sólo lo medido): 60. El índice publicado sigue siendo 61.
 
 ## 03 Alertas
 | # | Nivel | Hallazgo | Dónde |
 |---|---|---|---|
-| A1 | GRAVE | Ambiente de pruebas expuesto | s•••.rastreo.example |
-| A2 | ALTA | Infraestructura sensible que responde | c•••.rastreo.example |
-| A3 | MEDIA | Ambiente de pruebas publicado con el acceso bloqueado | serverless-s•••.rastreo.example |
+| A1 | GRAVE | Ambiente de pruebas expuesto | staging.rastreo.example |
+| A2 | ALTA | Infraestructura sensible que responde | cpanel.rastreo.example |
+| A3 | MEDIA | Ambiente de pruebas publicado con el acceso bloqueado | serverless-staging.rastreo.example |
 | A4 | MEDIA | Certificado clásico sin plan con fecha | www.rastreo.example |
-| A5 | MEDIA | Servicio de correo que responde en el puerto 443 | w•••.rastreo.example |
+| A5 | MEDIA | Servicio de correo que responde en el puerto 443 | webmail.rastreo.example |
 
 ## 04 Qué hacer
 | # | Acción | Resuelve | Efecto en la nota |
 |---|---|---|---|
-| H1 | Sacar de internet s•••.rastreo.example | A1 | -> D |
+| H1 | Sacar de internet staging.rastreo.example | A1 | -> D |
 | H2 | Activar X25519MLKEM768 en www.rastreo.example | RQ.S.05 | -> C |
-| H3 | Cerrar o restringir por IP c•••.rastreo.example | A2 | -> B |
-| H4 | Retirar de internet serverless-s•••.rastreo.example | A3 | no cambia |
-| H5 | Cerrar el puerto 443 en w•••.rastreo.example | A5 | -> A |
+| H3 | Cerrar o restringir por IP cpanel.rastreo.example | A2 | -> B |
+| H4 | Retirar de internet serverless-staging.rastreo.example | A3 | no cambia |
+| H5 | Cerrar el puerto 443 en webmail.rastreo.example | A5 | -> A |
 | H6 | Plan con fecha para certificado post-cuántico | A4 | no cambia |
 | H7 | Publicar security.txt | — | no cambia |
 
