@@ -337,14 +337,14 @@ export const FICHA = {
       plan_sin: "sin plan con fecha para certificado post-cuántico",
       base: "base de la higiene (máximo 70)",
       tls13_si: "TLS 1.3 en el sitio principal",
-      // PROVISORIOS (25-nov-2026, auditoría tenpo.cl): pendientes de aprobación del dueño
+      // APROBADOS el 25-nov-2026 (auditoría tenpo.cl)
       sin_descuento: "cumple · descuento 0",
       info_si: "sí",
       info_no: "no",
       sin_modelo: (n, pub) => `QEX sin el modelo HNDL del sector (sólo lo medido): ${n}. El índice publicado sigue siendo ${pub}.`,
       tls13_no: "sin TLS 1.3 en el sitio principal",
       tls13_nm: "TLS 1.3 sin dato (no descuenta)",
-      // CAMBIADO (25-nov, PROVISORIO): dice que es el historial del registro CT y cuándo descuenta
+      // CAMBIADO (25-nov, APROBADO): dice que es el historial del registro CT y cuándo descuenta
       no_productivos: (n) => (n ? `${n} ${n === 1 ? "nombre no productivo" : "nombres no productivos"} en el historial del registro CT (descuenta desde 1, aunque ya no respondan)` : "sin nombres no productivos en el registro"),
       infraestructura: (n) => `${n} ${n === 1 ? "nombre" : "nombres"} de infraestructura en el registro (resta desde 3)`,
       legado: (n) => (n ? `${n} ${n === 1 ? "nombre" : "nombres"} de legado en el registro` : "sin nombres de legado en el registro"),
@@ -378,14 +378,14 @@ export const FICHA = {
     vigencia_vencido: (f) => `vencido · ${f}`,
     security_si: "publicado",
     security_no: "no publicado",
-    // CAMBIADO (25-nov, PROVISORIO): no descuenta del QEX; lo que responde va a las alertas
+    // CAMBIADO (25-nov, APROBADO): no descuenta del QEX; lo que responde va a las alertas
     superficie: (r, s) => `${r}/${s} sensibles responden hoy (no descuenta del QEX; ver alertas)`,
     superficie_sin: "sin nombres sondeados",
     nombres_ct: (n) => `${n} ${n === 1 ? "nombre" : "nombres"}`,
     lectura: (t) => `Lectura: ${t}`,
-    // NUEVO (25-nov, PROVISORIO): alerta INFO que no entra a la nota
+    // NUEVO (25-nov, APROBADO): alerta INFO que no entra a la nota
     alerta_info: { nombre_interno_ip_publica: (ip) => `Nombre interno que resuelve a una IP pública (${ip})` },
-    // NUEVO (25-nov, PROVISORIO): cómo sale la letra respecto del QEX (public/js/ficha.mjs → comoLetra)
+    // NUEVO (25-nov, APROBADO): cómo sale la letra respecto del QEX (public/js/ficha.mjs → comoLetra)
     como_letra: {
       base: "Cómo sale la letra: no del QEX. La deciden el candado nuevo, las alertas y que lo sensible esté medido (QREADY-NOTA-2.1); el QEX resume cuatro dimensiones con peso y no fija la letra.",
       techo: (ids, n) => ` ${ids} ${n > 1 ? "ponen" : "pone"} techo B: mientras ${n > 1 ? "sigan abiertas" : "siga abierta"}, la nota no pasa de B, sea cual sea el QEX.`,
@@ -449,7 +449,7 @@ export const FICHA = {
       hndl: (sector, ed) => `La postura HNDL es el modelo del sector ${sector}, no una medición del dominio${ed ? `: tabla por sector fijada en la edición ${ed}; la derivación no está publicada` : ""}.`,
       dimension: (nombre) => `${nombre} no se pudo medir: sin esa dimensión la nota no puede ser A.`,
       correo_mx: (f, t) => (f === 1 ? `Uno de los ${t} servidores de correo no se midió.` : `${f} de los ${t} servidores de correo no se midieron.`),
-      // NUEVO (25-nov, PROVISORIO): cuáles y por qué
+      // NUEVO (25-nov, APROBADO): cuáles y por qué
       correo_mx_cuales: (f, t, lista, tope) => `${f} de los ${t} servidores de correo no se midieron (${lista}): la sonda mide los ${tope} primeros de la lista publicada.`,
       nunca: "No medido nunca significa no protegido.",
     },
@@ -459,7 +459,7 @@ export const FICHA = {
       medido: (s) => `Medido: ${s}`,
       huella_ct: (s, n) => `Huella CT: ${s} · ${n} cert.`,
       huella_ct_sin: "Huella CT: sin registro",
-      // NUEVO (25-nov, PROVISORIO): de qué fuente y de qué fecha salió el registro de esta foto
+      // NUEVO (25-nov, APROBADO): de qué fuente y de qué fecha salió el registro de esta foto
       registro_ct: (lista) => `Registro CT: ${lista}`,
       fuente_ct: (f, fecha, n, copia) => `${f}, ${copia ? "copia del " : ""}${fecha} UTC (${n} cert.)`,
       certificado: (metodo, tls12) => `Certificado: ${metodo}${tls12 ? " (en TLS 1.3 el certificado viaja cifrado; con un saludo TLS 1.2 se lee sin completar una sesión)" : ""}`,
@@ -710,7 +710,7 @@ export const FICHA_SPEC = {
       "Pie fijo: rosetta-ficha/1 · Rosetta Quantum · medición independiente · la dirección de la página del dominio.",
       // CAMBIADO (18-nov, provisorio): el país ya no sale primero del dominio
       "Comparación con el sector sólo dentro del país del índice de referencia (hoy Chile). El país sale, en este orden, de la ficha de la organización que lleva Rosetta, del que declara quien consulta (parámetro pais; la ficha dice «país declarado») o del dominio. Si no es el de la referencia, o no se puede saber, no se compara y se dice.",
-      "Nombres de terceros enmascarados si el dueño no verificó el dominio por DNS: se muestra sólo el primer nombre del subdominio, hasta el segundo carácter del segmento que delata el ambiente o, si no hay ese segmento en el primer nombre, hasta su mitad (biometrics-d•••.ejemplo.com.py). Si dos nombres distintos quedan iguales, se distinguen con «#» y los primeros caracteres de una huella del nombre (all-d•••#3f.ejemplo.com.py), sin revelarlo. El dominio se muestra completo y los conteos no cambian.",
+      "Los nombres se muestran completos: salen del registro público de certificados.",
       "La lectura del veredicto dice la causa de la letra.",
       "El ID nombra el concepto; la versión dice cómo se midió. En el bloque estructurado cada valor declara su versión de método (metodo: por ejemplo QEX-1.0 en RQ.S.01 a RQ.S.05), para que un mismo ID nunca tenga dos definiciones sin decirlo.",
       "Subíndices QEX (RQ.S.0x.n): la sección 02 abre la aritmética del índice. Cada subíndice dice cuántos puntos pone o quita en su dimensión y cuántos puntos QEX son (puntos × peso). La base más los subíndices dan la dimensión, y la suma de los aportes da el QEX. La higiene se escribe sobre 70, su máximo. El correo (RQ.S.06) se muestra pero no suma al QEX.",

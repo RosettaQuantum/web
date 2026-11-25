@@ -1378,7 +1378,7 @@ export const CATALOGO = [
       501: { description: "Real execution does not exist yet" },
     } },
   { ruta: "/v1/medicion", metodo: "POST", grupo: "medicion",
-    resumen: "Live, outside-in post-quantum exposure of a domain: hybrid X25519MLKEM768 on the website, certificate, mail servers and security.txt. Same instrument as the Q-Ready live page. With a sector, it also returns the QEX index, computed exactly as the page does, and the sector median (compared only for domains of the reference country, Chile). Names are masked unless the owner verified the domain through DNS. Includes presentacion (protocol rosetta-ficha/1): when showing the result to a person, print presentacion.markdown. Mail encryption arrives separately (id + URL to poll). null means not measured, never not protected.",
+    resumen: "Live, outside-in post-quantum exposure of a domain: hybrid X25519MLKEM768 on the website, certificate, mail servers and security.txt. Same instrument as the Q-Ready live page. With a sector, it also returns the QEX index, computed exactly as the page does, and the sector median (compared only for domains of the reference country, Chile). Names are shown in full: they come from the public certificate registry. Includes presentacion (protocol rosetta-ficha/1): when showing the result to a person, print presentacion.markdown. Mail encryption arrives separately (id + URL to poll). null means not measured, never not protected.",
     cuerpo: { type: "object", required: ["dominio"], properties: {
       dominio: { type: "string", description: "Public domain, e.g. example.cl" },
       sector: { type: "string", description: "Sector key for the QEX: banca, educacion, energia, fintech, gobierno, mineria, prevision, retail, salud_clinica, salud_isapre, seguros, telecom" },
@@ -1668,7 +1668,7 @@ function openapiDoc() {
       title: "Rosetta Quantum — Evidence Ledger y archivador",
       version: "1.0.0",
       description:
-        "Solo lectura, sin claves. Dos cosas distintas conviven aca y no hay que mezclarlas: " +
+        "El archivo de evidencia es de sólo lectura; la medición y la verificación dejan un registro de uso. Sin claves. Dos cosas distintas conviven aca y no hay que mezclarlas: " +
         "el LEDGER publica lo que Rosetta midió (incluidos los negativos), y el ARCHIVADOR cataloga " +
         "el campo citando fuentes externas. Un speedup declarado en el catalogo no es un resultado " +
         "nuestro.\n\n" +
