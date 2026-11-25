@@ -76,7 +76,7 @@ const mdF = render(Fi, "f", "es");
 igual(["| A1 | GRAVE |", "| MEDIA |", "| -> ", "| no cambia |", "| RQ.S.06 | no cambia |", "| Publicar security.txt | — | no cambia |", "crt.sh no respondió; se usó Cert Spotter", "sin índice para Paraguay",
   "## 01 Veredicto", "· desde afuera, sin instalar nada", "4022 cert.", "Versiones: QEX-1.0 · QREADY-NOTA-2.1", "Con H1 a H3 hechos"].filter((t) => !mdF.includes(t)), [],
   "el caso F ejerce GRAVE, MEDIA, efecto, «no cambia», el correo medido, la fuente caída, el país sin índice y el formato de la ficha aprobada");
-igual(/staging\.|staging \|/.test(mdF), false, "el caso F (no verificado) no imprime el nombre de pruebas completo");
+igual(/staging\.|staging \|/.test(mdF), true, "el caso F (no verificado) imprime el nombre de pruebas completo (25-nov, «Dejar de enmascarar»)");
 igual(render(Fi, "a", "es").includes("| legacy.ejemplo.cl |"), true, "el caso A (verificado) imprime los nombres completos");
 igual(render(Fi, "rastreo", "es").includes("| A2 | ALTA | Infraestructura sensible que responde |"), true, "el caso real de la ficha aprobada trae su ALTA");
 igual(render(Fi, "sin-correo", "es").includes("| RQ.S.06 | Correo post-cuántico | sin MX publicado | medido |"), true, "sin MX publicado es una medición, no un «sin dato»");
@@ -155,7 +155,7 @@ await conMutante(new URL("public/js/ficha.mjs", raiz), '...x.graves.map((a) => (
   igual(j.falta_para_A.map((h) => [h.id, h.codigo, h.resuelve, h.sube_a]),
     [["H1", "sacar_ambientes_pruebas", ["A1"], "B"], ["H2", "baja_legado", ["A3"], null], ["H3", "correo_fuera_de_443", ["A4"], "A"], ["H4", "plan_certificado_pq", ["A2"], null]],
     "falta_para_A del caso F: acciones medidas, en orden, con la nota a la que sube (calculada, no escrita)");
-  igual(j.falta_para_A.map((h) => h.hosts.join()).join("|").includes("staging."), false, "falta_para_A enmascara los nombres");
+  igual(j.falta_para_A.map((h) => h.hosts.join()).join("|").includes("staging."), true, "falta_para_A lleva los nombres completos (25-nov-2026, «Dejar de enmascarar»)");
   // grito: 20 nombres de pruebas en el registro → 5 fuera del tope de 15; ninguno entra a falta_para_A
   const f2 = clon(foto);
   for (let i = 0; i < 20; i++) f2.ct.hosts.push({ host: `api-dev${i}.${foto.dominio}`, clases: ["no_productivo"], profundo: false, etiqueta_estricta: true, ultimo_not_before: "", ultimo_not_after: "" });
@@ -163,8 +163,8 @@ await conMutante(new URL("public/js/ficha.mjs", raiz), '...x.graves.map((a) => (
   igual(x2.falta_para_A.some((f) => f.codigo === "nombre_sin_sondear"), true, "el caso ejerce la regla vieja: la nota los lista como «nombre_sin_sondear»");
   const j2 = Fi.notaParaJson(x2, Fi.analizar(f2, x2), { dominio: foto.dominio, fuentes_que_fallaron: [{ fuente: "crt.sh" }] });
   igual(j2.falta_para_A.some((h) => /sondear|medir/.test(h.codigo)), false, "grito: lo no sondeado NO entra a falta_para_A");
-  igual([j2.no_medido.nombres_fuera_del_tope >= 20, j2.no_medido.ejemplos.length, j2.no_medido.ejemplos.every((e) => e.includes(Fi.MASCARA))], [true, 5, true],
-    "no_medido: el conteo completo, 5 ejemplos, enmascarados");
+  igual([j2.no_medido.nombres_fuera_del_tope >= 20, j2.no_medido.ejemplos.length, j2.no_medido.ejemplos.every((e) => !e.includes(Fi.MASCARA))], [true, 5, true],
+    "no_medido: el conteo completo, 5 ejemplos, con el nombre completo (25-nov)");
   igual(j2.no_medido.fuentes_que_fallaron, [{ fuente: "crt.sh" }], "no_medido trae las fuentes que fallaron");
   // un dominio en A no tiene falta_para_A
   const a = fixture("a").foto, xa = N.explicarNota(a);
@@ -207,7 +207,7 @@ await conMutante(new URL("public/js/ficha.mjs", raiz), '...x.graves.map((a) => (
   const x = N.explicarNota(fP), fi = Fi.armarFicha(fP, fx.ctx);
   igual([x.nota, fi.alertas.filter((a) => a.codigo === "ambiente_pruebas_publicado").map((a) => a.nivel)], ["B", ["MEDIA"]], "sin GET: el ambiente de pruebas que saluda es MEDIA (techo B), no F");
   const h = fi.acciones.find((a) => a.codigo === "retirar_ambientes_publicados");
-  igual([!!h, h && /^Retirar de internet s•••#?[0-9a-f]*\.ejemplo\.com\.py$/.test(h.accion)], [true, true], "tiene su acción, con el nombre enmascarado");
+  igual([!!h, h && /^Retirar de internet staging[^•]*\.ejemplo\.com\.py$/.test(h.accion)], [true, true], "tiene su acción, con el nombre completo (25-nov)");
   igual(fi.veredicto.lectura.includes("tiene un ambiente de pruebas publicado"), true, "la lectura dice la causa del techo");
   igual([vacios(Fi.markdownDe(fi)), Fi.validarMarkdown(Fi.markdownDe(fi))], [[], []], "la ficha es válida y sin vacíos");
 }
@@ -271,11 +271,12 @@ igual(Object.entries(ENC).filter(([h, m]) => m !== h && m.split(Fi.MASCARA)[0].i
   const hs = ["all-dev.x.com.py", "all-dev2.x.com.py", "all-desa.x.com.py", "biometrics-dev.x.com.py"];
   const v = Fi.nombrador("x.com.py", false, hs), w = Fi.nombrador("x.com.py", false, [...hs].reverse());
   const m = hs.map(v);
-  igual([new Set(m.slice(0, 3)).size, m.slice(0, 3).every((x) => /^all-d•••#[0-9a-f]{2,8}\.x\.com\.py$/.test(x)), m[3]], [3, true, "biometrics-d•••.x.com.py"],
-    "tres nombres que chocan llevan sufijos distintos (all-d•••#xx); el que no choca, ninguno");
-  igual(hs.map(w), m, "el sufijo es estable: no depende del orden");
+  // 25-nov-2026 (Nicholas, «Dejar de enmascarar»): el nombrador devuelve el nombre completo, verificado o no.
+  // EL DEFECTO REAL que se va con esto: tenpo.cl, 25-nov, «t•••#18.tenpo.cl» y «t•••#34.tenpo.cl» en la ficha.
+  igual([m, hs.map(w)], [hs, hs], "sin verificar: los nombres completos, sin sufijos (#xx)");
   igual(Fi.nombrador("x.com.py", true, hs)("all-dev.x.com.py"), "all-dev.x.com.py", "verificado: el nombre completo");
-  igual(m.some((x) => hs.some((h) => x.includes(h.split(".")[0]) && h.split(".")[0].length > 6)), false, "el sufijo no revela el nombre");
+  await conMutante(new URL("public/js/ficha.mjs", raiz), "export const ENMASCARA = false;", "export const ENMASCARA = true;",
+    async (M) => igual(M.nombrador("x.com.py", false, hs)("all-dev.x.com.py") !== "all-dev.x.com.py", true, "MUTACIÓN: volver a enmascarar → el nombre deja de ser el completo (el guardia lo ve)"));
 }
 
 // El camino real de /v1/medicion con respuestas grabadas (python.org, 12-nov) y una F inyectada.
@@ -307,17 +308,17 @@ async function medirCon(Mod, filas, idioma = "es") {
   return r.cuerpo;
 }
 const sinVerif = await medirCon(A, []);
-igual([sinVerif.ok, sinVerif.nota?.letra, sinVerif.nombres_enmascarados], [true, "F", true], "no verificado: mide, F, y declara que enmascara");
-igual(filtrado(sinVerif), [], "grito de la fuga: ningún nombre sensible completo en TODO el JSON (endpoints, alertas, falta_para_A, no_medido, CNAME, ficha)");
-// staging y stage chocan en «s•••»: cada uno lleva su sufijo (el mismo en endpoints, alertas y ficha)
+igual([sinVerif.ok, sinVerif.nota?.letra, sinVerif.nombres_enmascarados], [true, "F", false], "no verificado: mide, F, y declara que NO enmascara (25-nov)");
+igual(filtrado(sinVerif).length, SENSIBLES.length, "25-nov: todos los nombres sensibles completos en el JSON (endpoints, alertas, falta_para_A, no_medido, CNAME, ficha)");
+igual(JSON.stringify(sinVerif).includes(Fi.MASCARA), false, "ni una máscara (•••) en toda la respuesta");
 const sStaging = Fi.nombradorDeFoto(fixtureFotoPy(), false)("staging.python.org");
-igual(/^s•••#[0-9a-f]{2,8}\.python\.org$/.test(sStaging), true, `staging.python.org → ${sStaging}`);
-igual(sinVerif.endpoints.find((e) => e.host === sStaging)?.cname, [`${sStaging}.cdn.example`], "el CNAME que repite el nombre también se enmascara, con el mismo sufijo");
+igual(sStaging, "staging.python.org", "staging.python.org sale completo");
+igual(sinVerif.endpoints.find((e) => e.host === sStaging)?.cname, [`${sStaging}.cdn.example`], "el CNAME sale tal cual");
 const verif = await medirCon(A, [["python.org", "produccion", 0]]);
 igual([verif.nombres_enmascarados, filtrado(verif).length], [false, SENSIBLES.length], "verificado en producción: todos los nombres completos");
 igual(verif.presentacion.markdown.includes("Publicación: privada"), true, "verificado pero no público: la ficha dice privada");
 const prueba = await medirCon(A, [["python.org", "preview-prueba", 1]]);
-igual(filtrado(prueba), [], "silencio del desenmascarado: verificado sólo en el modo de prueba del preview → enmascarado");
+igual(filtrado(prueba).length, SENSIBLES.length, "verificado sólo en el modo de prueba del preview: también completos (25-nov)");
 const publico = await medirCon(A, [["python.org", "produccion", 1]]);
 igual(publico.presentacion.markdown.includes("Publicación: pública en https://rosettaquantum.com/es/verificado/python.org"), true, "verificado y público: la ficha enlaza /verificado");
 // los conteos no cambian con el enmascarado
@@ -325,15 +326,14 @@ const cuenta = (c) => [c.registro_ct.nombres, c.registro_ct.sensibles, c.registr
 igual(cuenta(sinVerif), cuenta(verif), "los conteos son los mismos enmascarado o no");
 // la falla de la base enmascara (falla cerrado)
 const rota = await A.medirParaAgente({ DB: { prepare: () => { throw new Error("D1 caída"); } } }, { dominio: "python.org", sector: "banca" }, { canal: "api", ip: "203.0.113.6" }, null, M);
-igual(filtrado(rota.cuerpo), [], "una base que falla deja los nombres enmascarados");
+igual(filtrado(rota.cuerpo).length, SENSIBLES.length, "una base que falla: también completos (ya no hay nada que cerrar)");
 // MUTACIONES
 await conMutante(new URL("lib/qready-verificado.mjs", raiz), "WHERE dominio = ?1 AND entorno = 'produccion' AND verificado_en IS NOT NULL\")",
   "WHERE dominio = ?1 AND verificado_en IS NOT NULL\")", async (V2) => {
     const db = await baseCon([["python.org", "preview-prueba", 1]]);
     igual((await V2.dominioVerificado(db, "python.org")).verificado, true, "MUTACIÓN: sin «entorno = produccion», una verificación de prueba desenmascara (el guardia lo ve)");
   });
-await conMutante(new URL("lib/medicion-agentes.mjs", raiz), "if (verificado || !Array.isArray(endpoints)) return endpoints;", "return endpoints;",
-  async (A2) => igual(filtrado(await medirCon(A2, [])).length > 0, true, "MUTACIÓN: sin enmascarar los endpoints → la fuga se ve"));
+igual(/if \(verificado \|\| !Fi\.ENMASCARA \|\| !Array\.isArray\(endpoints\)\) return endpoints;/.test(leer("lib/medicion-agentes.mjs")), true, "endpointsParaAgente sigue la decisión única (Fi.ENMASCARA)");
 
 // ---------------------------------------------------------------- 4b · /api/sondas cerrado (17-nov-2026)
 // A quien no es dueño verificado, /api/sondas le devuelve los nombres enmascarados y su posición; la página
@@ -343,7 +343,9 @@ await conMutante(new URL("lib/medicion-agentes.mjs", raiz), "if (verificado || !
   const pedidosPy = sF.endpoints.map((e) => e.host);
   const pedidosConRuido = ["OTRO.AJENO.CL", ...pedidosPy];             // un nombre ajeno que el servidor descarta
   const tercero = I.sondasParaTercero(sF.endpoints, pedidosConRuido, "python.org", "www.python.org");
-  igual(SENSIBLES.filter((h) => JSON.stringify(tercero).includes(h)), [], "grito de la fuga: /api/sondas a un tercero no trae ningún nombre sensible completo");
+  // 25-nov-2026: /api/sondas ya no llama a sondasParaTercero (ENMASCARA false); la función sigue y, con el nombrador
+  // de la decisión, devuelve los nombres completos con su posición.
+  igual(SENSIBLES.filter((h) => JSON.stringify(tercero).includes(h)).length, SENSIBLES.length, "sondasParaTercero con la decisión del 25-nov: nombres completos");
   igual(tercero.map((e) => e.i), pedidosPy.map((_, k) => k + 1), "cada nombre trae su posición en la lista TAL COMO SE PIDIÓ (con el ajeno descartado)");
   const devueltos = Fi.reasociar(tercero, pedidosConRuido, true);
   igual(devueltos.map((e) => e.host), pedidosPy, "la página reasocia cada nombre por su posición");
@@ -360,13 +362,11 @@ await conMutante(new URL("lib/medicion-agentes.mjs", raiz), "if (verificado || !
   let lanzo = false; try { Fi.reasociar(tercero.map(({ i, ...e }) => e), pedidosPy, true); } catch { lanzo = true; }
   igual(lanzo, true, "falla cerrado: una respuesta enmascarada sin posiciones no arma una foto con nombres enmascarados");
   const src = sinComentarios(leer("lib/informe-envivo.mjs"));
-  igual([/const enmascarados = !interno && !nombres_completos;/.test(src), /endpoints: enmascarados \? sondasParaTercero\(endpoints, pedidos, dominio, www\) : endpoints/.test(src)], [true, true],
-    "/api/sondas enmascara salvo dueño verificado o llamada interna");
+  igual([/const enmascarados = ENMASCARA && !interno && !nombres_completos;/.test(src), /endpoints: enmascarados \? sondasParaTercero\(endpoints, pedidos, dominio, www\) : endpoints/.test(src)], [true, true],
+    "/api/sondas sigue la decisión única (ENMASCARA de ficha.mjs; 25-nov: false → nombres completos)");
   igual(/env, \{ interno: true \}\)\);/.test(sinComentarios(leer("lib/medicion-agentes.mjs"))), true, "la medición del servidor (agentes y cron) pide los nombres completos (interno)");
   igual(/s\.endpoints = reasociar\(s\.endpoints, pedidos, s\.nombres_enmascarados === true\);/.test(sinComentarios(leer("public/js/medicion-envivo.mjs"))), true, "la página reasocia antes de armar su foto");
-  await conMutante(new URL("lib/informe-envivo.mjs", raiz), "return enmascararEndpoints(endpoints, ver).map(", "return endpoints.map(",
-    async (M) => igual(SENSIBLES.some((h) => JSON.stringify(M.sondasParaTercero(sF.endpoints, pedidosConRuido, "python.org", "www.python.org")).includes(h)), true,
-      "MUTACIÓN: /api/sondas sin enmascarar → la fuga se ve"));
+  // (25-nov) la mutación «/api/sondas sin enmascarar» ya no aplica: no enmascarar es la decisión.
 }
 
 // ---------------------------------------------------------------- 5 · una sola definición y el MCP
@@ -376,7 +376,7 @@ igual([p.protocolo, p.spec, p.idioma, p.instruccion_agente, Object.keys(p.ficha 
     ["protocolo", "idioma", "dominio", "encabezado", "veredicto", "indicadores", "puntos_qex", "alertas", "acciones", "no_medido", "evidencia", "limites", "pie", "url_dominio"]],
   "presentacion trae protocolo, spec, instrucción, idioma, markdown y el bloque ficha");
 igual(Fi.validarMarkdown(p.markdown), [], "la ficha de /v1/medicion cumple la sintaxis");
-igual(p.markdown.includes(`| A1 | GRAVE | Ambiente de pruebas expuesto | ${sStaging} |`), true, "la alerta A1 de la ficha es la misma que nota.alertas[0], enmascarada");
+igual(p.markdown.includes(`| A1 | GRAVE | Ambiente de pruebas expuesto | ${sStaging} |`), true, "la alerta A1 de la ficha es la misma que nota.alertas[0], con el nombre completo");
 igual(sinVerif.nota.alertas[0], { id: "A1", nivel: "grave", codigo: "ambiente_pruebas_expuesto", texto: "Ambiente de pruebas expuesto", host: sStaging }, "nota.alertas lleva el mismo ID");
 const en = await medirCon(A, [], "en");
 igual([en.presentacion.idioma, Fi.validarMarkdown(en.presentacion.markdown, "en")], ["en", []], "idioma en: la ficha en inglés cumple la sintaxis");
@@ -404,7 +404,7 @@ igual(/Fi\.presentacion\(r\.foto/.test(leer("lib/medicion-agentes.mjs")) && /pre
   const h = Fi.htmlDe(ficha);
   igual([...h.matchAll(/<span class="rf-num">(\d\d)<\/span>/g)].map((m) => m[1]), ["01", "02", "03", "04", "05", "06", "07"], "htmlDe: las 7 secciones 01..07, en orden");
   igual(Fi.CATALOGO.every((id) => h.includes(`>${id}<`) || h.includes(`${id} · `)), true, "htmlDe: los IDs RQ.S.00 a 09");
-  igual([h.includes("staging."), h.includes("s•••.rastreo.example")], [false, true], "htmlDe: no verificado → enmascarado");
+  igual([h.includes("staging."), h.includes(Fi.MASCARA)], [true, false], "htmlDe: no verificado → nombres completos (25-nov)");
   const sello = Fi.htmlDe(ficha, { secciones: ["veredicto", "indicadores"] });
   igual([...sello.matchAll(/<span class="rf-num">(\d\d)<\/span>/g)].map((m) => m[1]), ["01", "02"], "htmlDe para el sello: sólo 01 y 02");
   const mala = { ...ficha, veredicto: { ...ficha.veredicto, lectura: "<script>alert(1)</script>" } };
@@ -432,7 +432,7 @@ igual(/Fi\.presentacion\(r\.foto/.test(leer("lib/medicion-agentes.mjs")) && /pre
   const ff = fixture("f").foto;
   const t1 = await E.fichaDelTrabajo({ DB: dbE(false) }, { dominio: ff.dominio, foto: ff, correo_id: "c" }, "<svg></svg>");
   igual([t1.ficha_html.includes('data-protocolo="rosetta-ficha/1"'), t1.ficha_html.includes("0/4 MX"), t1.ficha_html.includes("staging."), t1.lectura === Fi.lecturaDe(N.explicarNota(ff), ff)],
-    [true, true, false, true], "PDF: la ficha del trabajo lleva el correo medido, enmascara sin verificar y la lectura es la de la ficha");
+    [true, true, true, true], "PDF: la ficha del trabajo lleva el correo medido, los nombres completos (25-nov) y la lectura de la ficha");
   const t2 = await E.fichaDelTrabajo({ DB: dbE(true) }, { dominio: ff.dominio, foto: ff, correo_id: null });
   igual(t2.ficha_html.includes("staging.ejemplo.com.py"), true, "PDF: dueño verificado → nombres completos");
   igual(/const \{ ficha_html, lectura \} = await fichaDelTrabajo\(env, /.test(sinComentarios(leer("lib/envio-informe.mjs"))), true, "la cola del informe entrega ficha_html al VPS");

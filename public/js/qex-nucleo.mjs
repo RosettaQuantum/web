@@ -387,7 +387,8 @@ export function nombresASondear(hosts, comparar = null) {
 
 // La respuesta de /api/ct (lib/ct-registro.mjs) → el `ct` que recibe armarFoto. La huella es del
 // texto crudo recibido, no de lo que se reinterpretó.
-// `fuentes` (16-nov-2026): qué fuentes del registro se unieron, cada una con su fecha; no entra a la foto.
+// `fuentes` (16-nov-2026): qué fuentes del registro se unieron, cada una con su fecha. Desde el 25-nov entra a la
+// foto (ct.fuentes) para que la ficha declare de qué fuente y de qué fecha salió el registro.
 export async function ctDesdeServidor(j, ms) {
   return { filas: JSON.parse(j.texto), sha256: await sha256Hex(j.texto), ms,
     fuente: j.desde_copia ? `${j.fuente}, copia del servidor` : j.fuente,
@@ -425,7 +426,10 @@ export function armarFoto({ dominio, www, vertical, medido, ct, sondas: s, refer
   const corta = (iso) => (iso ? iso.slice(0, 10) : null);
   const foto = {
     esquema: ESQUEMA_FOTO, edicion: medido.slice(0, 7), dominio, www, vertical, medido_utc: medido, origen,
-    ct: ct ? { fuente: ct.fuente, intentos: ct.intentos ?? null, consultado_utc: ct.consultado_utc || medido, filas: ct.filas.length, sha256_crudo: ct.sha256, conteos: cuentas, hosts } : null,
+    // fuentes (25-nov-2026): cada fuente del registro con su fecha y si vino de una copia: la ficha lo declara
+    ct: ct ? { fuente: ct.fuente, intentos: ct.intentos ?? null, consultado_utc: ct.consultado_utc || medido, filas: ct.filas.length, sha256_crudo: ct.sha256, conteos: cuentas, hosts,
+      ...(Array.isArray(ct.fuentes) ? { fuentes: ct.fuentes.map((f) => ({ fuente: f.fuente, consultado_utc: f.consultado_utc ?? null, certificados: f.certificados ?? null,
+        desde_copia: !!f.desde_copia, vieja: !!f.vieja })) } : {}) } : null,
     endpoints,
     borde: { cdn: b.dns.cdn, cadena: b.dns.cadena, soporta: v.soporta, elige: v.elige, pide_mejora: v.pide_mejora, sha256_medicion: b.sha256,
       medido_desde: b.medido_desde || "worker" },
@@ -433,7 +437,8 @@ export function armarFoto({ dominio, www, vertical, medido, ct, sondas: s, refer
     vps: s.vps ? { estado: s.vps.estado, causa: s.vps.causa ?? null, desde_ip: s.vps.desde_ip ?? null } : null,
     tls13,
     certificado: c.ok ? { ok: true, algoritmo: c.algoritmo, curva: c.curva, bits: c.bits, firma: c.firma, emisor: c.emisor, sujeto: c.sujeto,
-      not_before: corta(c.not_before), not_after: corta(c.not_after), medido_desde: c.medido_desde || "worker" } : { ok: false, error: c.error, medido_desde: c.medido_desde || "worker" },
+      not_before: corta(c.not_before), not_after: corta(c.not_after), medido_desde: c.medido_desde || "worker", ...(c.metodo ? { metodo: c.metodo } : {}) }
+      : { ok: false, error: c.error, medido_desde: c.medido_desde || "worker", ...(c.metodo ? { metodo: c.metodo } : {}) },
     proveedores: { correo: s.correo.proveedor, mx: s.correo.mx, security_txt: s.security_txt.publicado },
     qex: { ...q, tipos },
     // hndl_edicion (24-nov-2026): la edición en que se fijó el MODELO HNDL, que no es la de las medianas. Una

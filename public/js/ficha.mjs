@@ -131,8 +131,14 @@ export function huellaCorta(h) {
 }
 // verificado = el dueño verificó el dominio por DNS (qready_dominios, entorno producción): nombres completos.
 // `hosts` = todos los nombres que pueden aparecer juntos (para saber cuáles chocan).
+// DECISIÓN DEL DUEÑO (25-nov-2026): «Dejar de enmascarar». Revierte el AJUSTE 3 del 13-nov: los nombres van
+// completos en TODAS las salidas (MCP, /v1/medicion, /api/sondas, página, PDF), verificado o no. Los nombres
+// salen del registro público de certificados: enmascararlos no protegía nada y la ficha quedaba ilegible
+// (t•••#18.tenpo.cl). `verificado` se conserva en la firma para no romper a quien llama; ya no cambia nada.
+// enmascarar() y huellaCorta() quedan exportadas sólo para la historia y sus guardias.
+export const ENMASCARA = false;
 export function nombrador(dominio, verificado, hosts = []) {
-  if (verificado) return (h) => (h == null ? h : String(h));
+  if (verificado || !ENMASCARA) return (h) => (h == null ? h : String(h));
   const grupos = new Map();
   for (const h of new Set(hosts.filter(Boolean).map((y) => String(y).toLowerCase()))) {
     const m = enmascarar(h, dominio);
@@ -244,6 +250,36 @@ function accionesInformativas(foto, correo) {
 
 // El resultado del correo (lib/correo-envivo.mjs, estado «hecho») → cuántos MX aceptan el híbrido.
 // Sólo cuentan los MX medidos (veredicto «medido» o «sin_starttls»); «rechazado» no es una medición.
+// El tope de servidores de correo que mide la sonda (vps/sonda-correo/sonda_correo.py → MAX_MX; un guardia
+// compara los dos). mxOmitidos: CUÁLES quedaron fuera (25-nov-2026: antes sólo se decía cuántos).
+export const MAX_MX_CORREO = 4;
+export function mxOmitidos(resultado) {
+  const pub = Array.isArray(resultado?.mx_publicados) ? resultado.mx_publicados : [];
+  const med = new Set((resultado?.servidores || []).map((s) => s.mx));
+  return pub.filter((m) => !med.has(m));
+}
+
+// Cómo sale la letra respecto del QEX (25-nov-2026): dice lo que hace explicarNota, no otra cosa. Las alertas
+// de techo B (MEDIAS_CON_TECHO_B) dejan la nota en B; las medias sin techo no impiden la A; el QEX no entra.
+export function comoLetra(x, alertas, idioma = "es") {
+  const C = textosFicha(idioma).como_letra;
+  if (!x || !x.nota) return null;
+  const techo = alertas.filter((a) => N.MEDIAS_CON_TECHO_B.includes(a.codigo)).map((a) => a.id);
+  const libres = alertas.filter((a) => a.nivel === "MEDIA" && !N.MEDIAS_CON_TECHO_B.includes(a.codigo)).map((a) => a.id);
+  return C.base + (techo.length ? C.techo(rangos(techo), techo.length) : "") + (libres.length ? C.libres(rangos(libres), libres.length) : "") + C.acciones;
+}
+
+// Un nombre que se declara interno por su primera etiqueta, y que resuelve a alguna IPv4 pública.
+const INTERNO = /^(internal|interno|intranet|int)([.\-]|$)|[.\-](internal|interno|intranet)([.\-]|$)/;
+export function ipPublica(ip) {
+  const m = /^(\d+)\.(\d+)\.(\d+)\.(\d+)$/.exec(String(ip || ""));
+  if (!m) return false;
+  const [a, b] = [+m[1], +m[2]];
+  return !(a === 10 || a === 127 || a === 0 || (a === 172 && b >= 16 && b <= 31) || (a === 192 && b === 168) || (a === 169 && b === 254) || (a === 100 && b >= 64 && b <= 127) || a >= 224);
+}
+export const internosPublicos = (eps = []) => eps.filter((e) => e && e.dns_status === "NOERROR" && INTERNO.test(String(e.host || "").split(".")[0] + ".")
+  && Array.isArray(e.ip) && e.ip.some(ipPublica));
+
 export function correoMedido(correo) {
   if (!correo || correo.estado !== "hecho" || !Array.isArray(correo.resultado?.servidores)) return null;
   const medidos = correo.resultado.servidores.filter((s) => s.veredicto && ["medido", "sin_starttls"].includes(s.veredicto.estado));
@@ -280,8 +316,10 @@ export function arbolQex(foto, { idioma = "es", x = null } = {}) {
   const F = textosFicha(idioma), A = F.arbol, P = N.PESOS;
   const q = foto.qex || {}, d = q.dimensiones || {}, metodo = q.version || N.VERSION_QEX;
   const xx = x || N.explicarNota(foto);
-  const fila = (id, regla, dimension, peso, { informativo = false, tipo = "medido" } = {}) => ({ id, regla: informativo ? A.informativo(regla) : regla,
-    dimension: informativo ? null : dimension, qex: informativo || dimension == null ? null : r2(dimension * peso), informativo, tipo, metodo });
+  // valor_info (25-nov-2026): lo que un subíndice informativo observó (sí/no), para que no salga vacío
+  const fila = (id, regla, dimension, peso, { informativo = false, tipo = "medido", valor_info = null } = {}) => ({ id, regla: informativo ? A.informativo(regla) : regla,
+    dimension: informativo ? null : dimension, qex: informativo || dimension == null ? null : r2(dimension * peso), informativo, tipo, metodo,
+    ...(valor_info != null ? { valor_info } : {}) });
   const dims = {};
   // RQ.S.02 · certificados y PKI (certificadosValor), con la regla de la versión de la foto (18-nov-2026: una
   // foto QEX-1.0 guardada se lee con la regla de agosto y su desglose sigue cuadrando)
@@ -322,8 +360,8 @@ export function arbolQex(foto, { idioma = "es", x = null } = {}) {
   const todos = xx.hechos?.principal_hibrido === true && (xx.hechos.sin_evidencia_hibrido || []).length === 0;
   dims["RQ.S.05"] = { clave: "edge", peso: P.edge, base: null, maximo: 100, valor: d.edge ?? null, recompuesto: vE, subindices: [
     fila("RQ.S.05.1", so === true ? A.borde_si : so === false ? A.borde_no : A.borde_nm, vE, P.edge, { tipo: vE == null ? "no medido" : "medido" }),
-    ...(so === true ? [fila("RQ.S.05.2", foto.borde.elige ? A.elige_si : A.elige_no, null, P.edge, { informativo: true }),
-      fila("RQ.S.05.3", todos ? A.todos_si : A.todos_no, null, P.edge, { informativo: true })] : []),
+    ...(so === true ? [fila("RQ.S.05.2", foto.borde.elige ? A.elige_si : A.elige_no, null, P.edge, { informativo: true, valor_info: foto.borde.elige ? A.info_si : A.info_no }),
+      fila("RQ.S.05.3", todos ? A.todos_si : A.todos_no, null, P.edge, { informativo: true, valor_info: todos ? A.info_si : A.info_no })] : []),
   ] };
   // aportes y QEX: la suma de los aportes de las dimensiones medidas, sobre el peso usado (irec)
   let suma = 0, peso = 0;
@@ -345,8 +383,11 @@ export function arbolQex(foto, { idioma = "es", x = null } = {}) {
     && (q.suma == null || r2(suma) === q.suma) && (q.score == null ? score == null : score === q.score)
     && dims["RQ.S.03"].recompuesto === N.higiene(t13 === false ? true : t13 === true ? false : null, ct)
     && dims["RQ.S.03"].base + dims["RQ.S.03"].subindices.reduce((t, s) => t + (s.dimension || 0), 0) === dims["RQ.S.03"].recompuesto;
+  // sin_modelo (25-nov-2026, decisión del dueño «Mostrar QEX sin el modelo»): el QEX recalculado sólo con lo
+  // medido (irec renormaliza sobre los pesos que quedan). El índice publicado (score) NO cambia.
+  const sin_modelo = d.hndl != null && score != null ? { score: N.irec({ ...d, hndl: null }) } : null;
   return { metodo, dimensiones: dims, suma: r2(suma), peso_usado: r2(peso), score, tope: q.tope ?? N.TOPE,
-    maximo: { suma: r2(maxSuma), score: N.irec(max) }, ganancias, cuadra };
+    maximo: { suma: r2(maxSuma), score: N.irec(max) }, ganancias, cuadra, sin_modelo };
 }
 
 // ---------------------------------------------------------------- la lectura, por motivo (16-nov-2026)
@@ -478,6 +519,10 @@ export function armarFicha(foto, ctx = {}) {
   // enmascarado si el dueño no verificó el dominio; sin nombre, el sitio medido.
   const alertas = a.alertas.map((al) => ({ id: al.id, nivel: al.nivel, codigo: al.codigo, hallazgo: T.alerta[al.codigo] || al.codigo,
     donde: ver(al.host ?? foto.www ?? dominio) }));
+  // INFO (25-nov-2026, auditoría tenpo.cl): un nombre sondeado que se declara interno (internal-, intranet…) y
+  // resuelve a una IP pública. No entra a la nota (QREADY-NOTA-2.1 no emite INFO): sólo se avisa.
+  for (const e of internosPublicos(eps)) alertas.push({ id: `A${alertas.length + 1}`, nivel: "INFO", codigo: "nombre_interno_ip_publica",
+    hallazgo: F.alerta_info.nombre_interno_ip_publica(e.ip.find(ipPublica)), donde: ver(e.host) });
 
   // 04 · qué hacer (efecto acumulado y calculado: ver analizar)
   const que = acciones.map((ac, i) => {
@@ -498,7 +543,9 @@ export function armarFicha(foto, ctx = {}) {
   if (sinEvid) nm.push(F.no_medido.sin_evidencia(sinEvid));
   if (cm) {
     const publicados = Array.isArray(ctx.correo?.resultado?.mx_publicados) ? ctx.correo.resultado.mx_publicados.length : ctx.correo.resultado.servidores.length;
-    if (publicados > cm.total) nm.push(F.no_medido.correo_mx(publicados - cm.total, publicados));
+    const fuera = mxOmitidos(ctx.correo?.resultado);
+    if (publicados > cm.total) nm.push(fuera.length === publicados - cm.total ? F.no_medido.correo_mx_cuales(fuera.length, publicados, fuera.join(", "), MAX_MX_CORREO)
+      : F.no_medido.correo_mx(publicados - cm.total, publicados));
   } else if (!(Array.isArray(mx) && mx.length === 0)) nm.push(pendiente ? F.no_medido.correo_pendiente : F.no_medido.correo_sin_dato);
   // la edición del MODELO HNDL (hndl_edicion); una foto anterior al 24-nov sólo trae `edicion`, que entonces era la misma
   if (dims.hndl != null) nm.push(F.no_medido.hndl(sector.toLowerCase(), foto.referencia?.hndl_edicion || foto.referencia?.edicion || null));
@@ -510,6 +557,10 @@ export function armarFicha(foto, ctx = {}) {
     versiones: [q.version, x.version].filter(Boolean).join(" · "),
     medido,
     huella_ct: foto.ct?.sha256_crudo ? huella(foto.ct.sha256_crudo) : null,
+    // 25-nov-2026: UNA verdad por corrida sobre el registro CT: cada fuente, si es copia y de qué fecha
+    registro_ct: Array.isArray(foto.ct?.fuentes) && foto.ct.fuentes.length
+      ? foto.ct.fuentes.map((f) => F.evidencia.fuente_ct(f.fuente, String(f.consultado_utc || "").slice(0, 16).replace("T", " "), f.certificados ?? "?", !!f.desde_copia)).join(" · ") : null,
+    certificado: foto.certificado?.metodo ? F.evidencia.certificado(foto.certificado.metodo, /TLS 1\.2/.test(foto.certificado.metodo)) : null,
     certificados: foto.ct ? foto.ct.filas : null,
     huella_foto: foto.sha256 ? huella(foto.sha256) : null,
     metodo: F.evidencia.metodo.replace(/^[^:]+: /, ""),
@@ -525,7 +576,7 @@ export function armarFicha(foto, ctx = {}) {
     encabezado: { titulo: F.titulo, kicker: F.kicker, dominio, sector, pais: pais || null, pais_fuente: rp.fuente || null,
       pais_nombre: !pais ? F.pais_sin : rp.fuente === "declarado" ? F.pais_declarado(nombrePais(pais, idioma)) : nombrePais(pais, idioma),
       medido_utc: medido, desde_afuera: F.desde_afuera },
-    veredicto: { lectura: lecturaDe(x, foto, idioma), referencia, publicacion: ctx.publico ? F.publicacion_publica(urlDominio) : F.publicacion_privada },
+    veredicto: { lectura: lecturaDe(x, foto, idioma), como_letra: comoLetra(x, alertas, idioma), referencia, publicacion: ctx.publico ? F.publicacion_publica(urlDominio) : F.publicacion_privada },
     indicadores: ind, puntos_qex: arbol, alertas, acciones: que, no_medido: nm, evidencia, limites: lim,
     pie: F.pie, url_dominio: urlDominio,
   };
@@ -538,6 +589,8 @@ function lineasEvidencia(F, e) {
     F.evidencia.versiones(e.versiones),
     F.evidencia.medido(e.medido),
     e.huella_ct ? F.evidencia.huella_ct(e.huella_ct, e.certificados) : F.evidencia.huella_ct_sin,
+    ...(e.registro_ct ? [F.evidencia.registro_ct(e.registro_ct)] : []),
+    ...(e.certificado ? [e.certificado] : []),
     ...(e.huella_foto ? [F.evidencia.huella_foto(e.huella_foto)] : []),
     F.evidencia.metodo,
     ...(e.rubrica ? [F.evidencia.rubrica(e.rubrica)] : []),
@@ -555,7 +608,9 @@ export function filasArbol(arbol, idioma = "es") {
   for (const [id, D] of Object.entries(arbol.dimensiones)) {
     if (D.base != null) filas.push([id, A.base, String(D.base), dec(D.base * D.peso, idioma), "base"]);
     if (D.modelo) filas.push([id, D.modelo, D.valor == null ? F.sin_dato : String(D.valor), D.aporte == null ? "—" : dec(D.aporte, idioma), "base"]);
-    for (const x of D.subindices) filas.push([x.id, x.regla, x.informativo ? "—" : x.dimension == null ? (x.tipo === "modelo" ? A.hndl_sin_dato : F.sin_dato) : ent(x.dimension),
+    // 25-nov: un informativo muestra lo observado (sí/no); un 0 de la higiene es «cumple · descuento 0», no un fallo
+    for (const x of D.subindices) filas.push([x.id, x.regla, x.informativo ? (x.valor_info ?? "—") : x.dimension == null ? (x.tipo === "modelo" ? A.hndl_sin_dato : F.sin_dato)
+      : D.clave === "higiene" && x.dimension === 0 ? A.sin_descuento : ent(x.dimension),
       x.qex == null ? "—" : dec(x.qex, idioma), "sub"]);
     filas.push([`= ${id}`, A.peso(dec(D.peso, idioma)), D.valor == null ? F.sin_dato : F.sobre(D.valor, D.maximo), D.aporte == null ? "—" : dec(D.aporte, idioma), "total"]);
   }
@@ -566,7 +621,8 @@ export function filasArbol(arbol, idioma = "es") {
 }
 const lineasArbol = (arbol, idioma) => {
   const A = textosFicha(idioma).arbol;
-  return [A.maximo(dec(arbol.maximo.suma, idioma), arbol.maximo.score), ...(arbol.ganancias.length ? [A.acciones(arbol.ganancias.map(([k, p]) => A[k](dec(p, idioma))).join("; "))] : [])];
+  return [A.maximo(dec(arbol.maximo.suma, idioma), arbol.maximo.score), ...(arbol.ganancias.length ? [A.acciones(arbol.ganancias.map(([k, p]) => A[k](dec(p, idioma))).join("; "))] : []),
+    ...(arbol.sin_modelo && arbol.sin_modelo.score != null ? [A.sin_modelo(arbol.sin_modelo.score, arbol.score)] : [])];
 };
 
 // ---------------------------------------------------------------- markdownDe: la ficha → markdown canónico
@@ -577,7 +633,7 @@ export function markdownDe(ficha) {
   const I = ficha.indicadores;
   const out = [`# ${e.titulo}`, `**${e.dominio}** · ${e.sector} · ${e.pais_nombre} · ${F.medido(e.medido_utc.slice(0, 16).replace("T", " "))} · ${e.desde_afuera}`];
   out.push("", titulo(0), ...tabla([C.id, C.indicador, C.valor], ["RQ.S.00", "RQ.S.01"].map((id) => [id, I[id].nombre, id === "RQ.S.00" && I[id].valor ? `**${I[id].texto}**` : I[id].texto])), "",
-    F.lectura(ficha.veredicto.lectura), ficha.veredicto.referencia, ficha.veredicto.publicacion);
+    F.lectura(ficha.veredicto.lectura), ...(ficha.veredicto.como_letra ? [ficha.veredicto.como_letra] : []), ficha.veredicto.referencia, ficha.veredicto.publicacion);
   out.push("", titulo(1), ...tabla([C.id, C.indicador, C.valor, C.tipo], CATALOGO.slice(2).map((id) => [id, I[id].nombre, I[id].texto, F.tipo[I[id].tipo]])), "", F.leyenda);
   if (ficha.puntos_qex?.cuadra) {
     const A = F.arbol.col;
@@ -692,7 +748,7 @@ export function htmlDe(ficha, { documento = false, secciones = SECCIONES, marca 
     + `<div class="rf-scale"><div class="rf-f" style="width:${qx.valor ?? 0}%"></div><div class="rf-t"></div></div>`
     + `<div class="rf-sl"><span>0</span><span style="margin-left:auto;margin-right:14%">${esc(F.tope_externo)}</span><span>100</span></div>`
     + `<p class="rf-read">${esc(ficha.veredicto.lectura)}</p></div></div>`,
-    `<div class="rf-notes"><div class="rf-note">${conEtiqueta(ficha.veredicto.referencia)}</div><div class="rf-note">${conEtiqueta(ficha.veredicto.publicacion)}</div></div>`);
+    `<div class="rf-notes">${ficha.veredicto.como_letra ? `<div class="rf-note">${conEtiqueta(ficha.veredicto.como_letra)}</div>` : ""}<div class="rf-note">${conEtiqueta(ficha.veredicto.referencia)}</div><div class="rf-note">${conEtiqueta(ficha.veredicto.publicacion)}</div></div>`);
   if (ver.has("indicadores")) partes.push(h2(1), tabla([C.id, C.indicador, C.valor, "", C.tipo], CATALOGO.slice(2).map((id) => {
     const r = I[id]; return `<tr><td class="rf-id">${id}</td><td>${esc(r.nombre)}</td><td class="rf-val">${esc(r.texto)}</td><td class="rf-b">${barra(r.barra, r.tipo)}</td><td>${pill(r.tipo)}</td></tr>`;
   })), `<p class="rf-legend">${esc(F.leyenda)}</p>`,

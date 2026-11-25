@@ -53,6 +53,9 @@ export function referenciaDe(ed, modelo, { slug, archivo }) {
   if (sobran.length || faltan.length) throw new Error(`sectores distintos entre ${archivo} y el modelo HNDL: sobran ${sobran}, faltan ${faltan}`);
   const dims = {};
   for (const d of ix.dimensiones || []) if (DIM[d.id]) dims[DIM[d.id]] = d.mediana ?? null;
+  // 25-nov-2026: la HNDL es un valor asignado por sector (modelo), no una medición: su «mediana nacional» no
+  // compara nada con un dominio (fintech 65 contra «país 12»). Va null en la página y en el MCP.
+  if ("hndl" in dims) dims.hndl = null;
   const verticales = {};
   for (const k of claves) {
     const v = porId[k], m = modelo.verticales[k];
@@ -95,7 +98,7 @@ if (import.meta.url === `file://${process.argv[1]}`) {
       if (ago.verticales[k].n !== v.n || Math.abs(ago.verticales[k].mediana - v.mediana) > 0.5)
         fallas.push(`la regla no reproduce agosto en ${k}: ${ago.verticales[k].n}/${ago.verticales[k].mediana} contra ${v.n}/${v.mediana}`);
     for (const [k, v] of Object.entries(modelo.mediana_pais_dimension))
-      if (ago.mediana_pais_dimension[k] !== v) fallas.push(`la regla no reproduce la mediana nacional de ${k} en agosto`);
+      if (k !== "hndl" && ago.mediana_pais_dimension[k] !== v) fallas.push(`la regla no reproduce la mediana nacional de ${k} en agosto`);
     // El archivo vigente dice la edición de la que salió y su HNDL es el modelo, sin tocar.
     if (actual != null) {
       const a = JSON.parse(actual);
