@@ -26,7 +26,7 @@
  * ── EL VEREDICTO ─────────────────────────────────────────────────────────────────────────────────
  * «Tarde» si la fecha hasta la que sus datos deben seguir secretos llega al primer horizonte que la
  * encuesta estima; «a tiempo» si vence antes. Es un criterio, no una cifra: no agrega ningún número
- * que la fuente no traiga. PROVISORIO hasta su aprobación (ver docs/textos-provisorios-mosca.md).
+ * que la fuente no traiga. Aprobado el 25-nov-2026 (src/data/q-ready/textos-aprobados/TEXTOS-mosca-2026-11-25.md).
  */
 
 /** Rango de los controles. Son límites de la interfaz, no datos: cubren el perfil de ejemplo con aire. */

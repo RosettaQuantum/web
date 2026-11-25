@@ -1,7 +1,8 @@
 // Textos NUEVOS del gráfico interactivo «Sume los años» (25-nov-2026): los rótulos de los controles, el
 // veredicto y la tabla para lector de pantalla.
 //
-// PROVISORIOS: ninguno está aprobado por Nicholas. La tabla es ↔ en para aprobar se genera de este
+// APROBADOS el 25-nov-2026 (sellados en src/data/q-ready/textos-aprobados/TEXTOS-mosca-2026-11-25.md,
+// vigilados por check-textos-aprobados). La tabla es ↔ en se genera de este
 // archivo (node scripts/textos-mosca.mjs → docs/textos-provisorios-mosca.md), para que lo que se apruebe
 // sea literalmente lo que se sirve. Van aparte de src/lib/puerta-textos.mjs a propósito: ése está
 // sellado (TEXTOS-q-ready-en-2026-11-23.md, `--verificar` en prebuild) y un texto nuevo es una
@@ -12,7 +13,7 @@
 // Los marcadores ‹…› se llenan en orden de aparición (public/js/mosca-nucleo.mjs → llenar). En las
 // líneas del veredicto: ‹año› es hasta cuándo necesita protección, ‹h› el año del horizonte y ‹p› el
 // rótulo publicado de la encuesta («≥51%»), tal cual viene del informe.
-export const PROVISORIO = true;
+export const PROVISORIO = false;
 
 export const TEXTOS_MOSCA = {
   es: {
