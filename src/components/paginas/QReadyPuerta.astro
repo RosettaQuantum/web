@@ -35,6 +35,9 @@
 import CarruselPublicaciones from '../publicaciones/CarruselPublicaciones.astro';
 import { TEXTOS_PUERTA } from '../../lib/puerta-textos.mjs';
 import { llenar } from '../../lib/textos-galeria.mjs';
+import { TEXTOS_MOSCA } from '../../lib/mosca-textos.mjs';
+import perfilMosca from '../../data/q-ready/mosca-perfil-ejemplo.json';
+import { tramosDe, cuenta, finEje, veredicto, svgMosca, anios, LIMITES } from '../../../public/js/mosca-nucleo.mjs';
 
 const { lang = 'es' } = Astro.props;
 const es = lang === 'es';
@@ -57,21 +60,24 @@ const corta = (iso: string) => { const [, m, dd] = iso.split('-'); return `${+dd
 const ventana = `${corta(d.ventana.desde)} → ${corta(d.ventana.hasta)}`;
 const GRI = 'https://globalriskinstitute.org/publication/quantum-threat-timeline-report-2025b/';
 
-// La línea de tiempo: perfil de banca del informe (secreto 8, migración 9) contra `qday`.
-const AHORA = 2026, FIN = 2046, MIGRA = 9, SECRETO = 8;
-const finMigra = AHORA + MIGRA, hasta = finMigra + SECRETO;
-const X0 = 150, X1 = 730;
-const x = (a: number) => X0 + (a - AHORA) * (X1 - X0) / (FIN - AHORA);
-const ejes = Array.from({ length: (FIN - AHORA) / 5 + 1 }, (_, i) => AHORA + i * 5);
-let prev = x(AHORA);
-const barras = d.qday.map((q: any) => {
-  const año = +q.h.split('·')[1]; const alto = 44 * q.p / 100;
-  const r = { x: prev, w: x(año) - prev, y: 182 - alto, h: alto, lx: x(año) - 4, ly: 176 - alto, lab: q.lab };
-  prev = x(año); return r;
-});
+// «Sume los años» — la cuenta de Mosca, interactiva (25-nov-2026, pedido de Nicholas: «más pro y
+// animado, interactivo»). El dibujo lo hace public/js/mosca-nucleo.mjs, el MISMO módulo que corre en
+// el navegador: aquí pinta el perfil de ejemplo (lo que ve quien no tiene JS) y public/js/mosca.mjs lo
+// vuelve a pintar al moverse los controles. Ninguna cifra a mano: los tramos salen de `qday` de la
+// edición, el año de partida de la edición misma, y el perfil de ejemplo de
+// src/data/q-ready/mosca-perfil-ejemplo.json (vigilado contra el texto del informe por check-mosca).
+const AHORA = +String(d.edicion).slice(0, 4);
+const MIGRA = perfilMosca.migracion, SECRETO = perfilMosca.secreto;
+const tramos = tramosDe(d.qday);
 const R = t.reloj;
-const desc = llenar(R.descA, [MIGRA, AHORA, finMigra, SECRETO, hasta])
-  + d.qday.map((q: any) => llenar(R.descItem, [q.h.split('·')[1].trim(), q.lab])).join('; ') + '.';
+const TM = TEXTOS_MOSCA[es ? 'es' : 'en'];
+const TMO = { titulo: R.titulo, descA: R.descA, descItem: R.descItem, migrar: R.migrar, secreto: R.secreto,
+  amenaza: R.amenaza, prob: R.prob, anios: R.anios, corte: R.corte, ...TM };
+const cm = cuenta({ ahora: AHORA, secreto: SECRETO, migracion: MIGRA, tramos });
+const FIN = finEje(cm.hasta, tramos);
+const vm = veredicto(cm, TMO);
+const svgInicial = svgMosca({ ancho: 760, ahora: AHORA, secreto: SECRETO, migracion: MIGRA, fin: FIN, tramos, textos: TMO });
+const datosMosca = JSON.stringify({ ahora: AHORA, perfil: { secreto: SECRETO, migracion: MIGRA }, limites: LIMITES, qday: d.qday, textos: TMO });
 
 // ── EL PANEL DEL INFORME DE LA INDUSTRIA ─────────────────────────────────────────────────
 // A la derecha del hero desde el 12-nov-2026. El 23-nov pasó a ser la primera diapositiva del
@@ -115,34 +121,37 @@ const CIFRAS = [
   <div class="eyebrow">{R.eyebrow}</div>
   <h2>{R.h2}</h2>
   <p class="lede qr-medida">{R.lede}</p>
-  <figure class="qr-reloj">
-    <p class="qr-deslice" aria-hidden="true">{llenar(R.deslice, [FIN])}</p>
-    <div class="qr-reloj-scroll">
-      <svg class="reloj-svg" viewBox="0 0 760 250" role="img" aria-labelledby="reloj-t reloj-d">
-        <title id="reloj-t">{R.titulo}</title>
-        <desc id="reloj-d">{desc}</desc>
-        {ejes.map((a) => (<>
-          <line class="rj-grid" x1={x(a)} y1="30" x2={x(a)} y2="206" />
-          <text class="rj-eje" x={x(a)} y="226" text-anchor="middle">{a}</text>
-        </>))}
-        <text class="rj-fila" x="0" y="62">{R.migrar}</text>
-        <rect class="rj-migra" x={x(AHORA)} y="48" width={x(finMigra) - x(AHORA)} height="20" rx="2" />
-        <text class="rj-dentro" x={x(AHORA) + 10} y="62">{llenar(R.anios, [MIGRA])}</text>
-        <text class="rj-fila" x="0" y="104">{R.secreto}</text>
-        <rect class="rj-secreto" x={x(finMigra)} y="90" width={x(hasta) - x(finMigra)} height="20" rx="2" />
-        <text class="rj-dentro" x={x(finMigra) + 10} y="104">{llenar(R.anios, [SECRETO])}</text>
-        <text class="rj-fila" x="0" y="150">{R.amenaza}</text>
-        <text class="rj-fila rj-sub" x="0" y="166">{R.prob}</text>
-        {barras.map((b: any) => (<>
-          <rect class="rj-prob" x={b.x} y={b.y} width={b.w} height={b.h} />
-          <text class="rj-lab" x={b.lx} y={b.ly} text-anchor="end">{b.lab}</text>
-        </>))}
-        <line class="rj-corte" x1={x(hasta)} y1="30" x2={x(hasta)} y2="206" />
-        <text class="rj-corte-t" x={x(hasta) - 8} y="40" text-anchor="end">{llenar(R.corte, [hasta])}</text>
-      </svg>
+  <figure class="qr-reloj mo" id="mo" data-mosca={datosMosca}>
+    <div class="mo-cab">
+      <div class="mo-veredicto">
+        <p class={`mo-v-titulo ${cm.tarde ? 'mo-tarde' : 'mo-a-tiempo'}`}>{vm.titulo}</p>
+        <p class="mo-v-linea">{vm.linea}</p>
+      </div>
+      <div class="mo-controles" hidden>
+        <div class="mo-control mo-c-migra">
+          <label for="mo-migracion">{TM.etMigracion}</label>
+          <output for="mo-migracion" id="mo-migracion-v">{MIGRA}</output>
+          <input type="range" id="mo-migracion" min={LIMITES.migracion[0]} max={LIMITES.migracion[1]} step="1" value={MIGRA} aria-valuetext={anios(MIGRA, TMO)} />
+        </div>
+        <div class="mo-control mo-c-secreto">
+          <label for="mo-secreto">{TM.etSecreto}</label>
+          <output for="mo-secreto" id="mo-secreto-v">{SECRETO}</output>
+          <input type="range" id="mo-secreto" min={LIMITES.secreto[0]} max={LIMITES.secreto[1]} step="1" value={SECRETO} aria-valuetext={anios(SECRETO, TMO)} />
+        </div>
+        <button type="button" class="qr-link mo-reset" hidden>{TM.reset}</button>
+      </div>
     </div>
+    <p class="mo-sr" aria-live="polite" aria-atomic="true" id="mo-anuncio"></p>
+    <p class="qr-deslice" aria-hidden="true">{llenar(R.deslice, [FIN])}</p>
+    <div class="qr-reloj-scroll mo-lienzo" set:html={svgInicial}></div>
+    <div class="mo-sr"><table>
+      <caption>{TM.tablaCaption}</caption>
+      <thead><tr><th scope="col">{TM.tablaHorizonte}</th><th scope="col">{TM.tablaProb}</th></tr></thead>
+      <tbody>{tramos.map((q) => <tr><td>{q.anio}</td><td>{q.lab}</td></tr>)}</tbody>
+    </table></div>
     <figcaption>{llenar(R.pie, [SECRETO, MIGRA])} <b>{R.pieNegrita}</b> {R.pieCola} <a class="qr-base" href={GRI} rel="noopener">{R.fuente}</a></figcaption>
   </figure>
+  <script is:inline type="module" src="/js/mosca.mjs"></script>
 </div></section>
 
 {INFORME_PUBLICO && es && (

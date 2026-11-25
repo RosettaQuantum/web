@@ -1,0 +1,5 @@
+{
+  "_que": "Perfil de ejemplo del gráfico «Sume los años» (/es/q-ready, /q-ready): el que se ve sin JavaScript y al que vuelve el botón de reinicio. No es un dato medido: es el ejemplo que ya usa el informe en relojes[id=vida] («Si sus datos deben permanecer secretos 8 años y migrar le tomará 9…»). scripts/check-mosca.mjs falla si este archivo y ese texto dejan de decir lo mismo.",
+  "secreto": 8,
+  "migracion": 9
+}
