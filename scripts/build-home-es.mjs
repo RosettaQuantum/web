@@ -355,7 +355,13 @@ if (malas.length) {
 let enlaces = 0;
 const ESCUDO = "\u0000EXC";
 EN_INGLES_A_PROPOSITO.forEach((h, k) => { html = html.split(`href="${h}"`).join(`href="${ESCUDO}${k}"`); });
-for (const [en, es] of POSTS) { const n = html.split(en).length - 1; html = html.split(en).join(es); enlaces += n; }
+// 25-nov-2026 · LOS POSTS TAMBIEN VAN DETRAS DEL ESCUDO. Hasta hoy se cambiaban a su
+// version -es y despues el mapa de RUTAS («/blog/» → «/es/blog/») les ponia el prefijo:
+// la home española enlazaba /es/blog/<slug>-es/, que da 404 en produccion (los posts de
+// los dos idiomas viven bajo /blog/; /es/blog es solo el indice). La comprobacion de
+// abajo dejaba pasar cualquier /blog/ y no miraba /es/blog/<slug>, asi que no lo vio.
+const ESCUDO_POST = "\u0000POST";
+POSTS.forEach(([en, es], k) => { const n = html.split(`href="${en}"`).length - 1; html = html.split(`href="${en}"`).join(`href="${ESCUDO_POST}${k}"`); enlaces += n; });
 for (const [en, es] of RUTAS) {
   for (const [de, a] of [[`href="${en}"`, `href="${es}"`], [`href="${en}#`, `href="${es}#`], [`href="${en}/`, `href="${es}/`]]) {
     const n = html.split(de).length - 1;
@@ -367,6 +373,14 @@ const quedan = [...html.matchAll(/href="(\/[^"#]*)/g)].map((m) => m[1])
   .filter((h) => !h.startsWith("/es/") && h !== "/" && !/^\/(v1|mcp|api|_astro|js|piezas|consola|cleveland|favicon|rosetta|sitemap|llms)/.test(h) && !/\.[a-z]{2,4}$/.test(h))
   .filter((h) => !EN_INGLES_A_PROPOSITO.includes(h) && !h.startsWith("/blog/"));
 EN_INGLES_A_PROPOSITO.forEach((h, k) => { html = html.split(`href="${ESCUDO}${k}"`).join(`href="${h}"`); });
+POSTS.forEach(([, es], k) => { html = html.split(`href="${ESCUDO_POST}${k}"`).join(`href="${es}"`); });
+// Y la que falla cerrado: /es/blog/<algo> no existe nunca (el worker solo sirve el indice).
+const postsRotos = [...html.matchAll(/href="(\/es\/blog\/[^"]+)"/g)].map((m) => m[1]);
+if (postsRotos.length) {
+  console.error("ABORTA: la home española enlaza posts bajo /es/blog/, que da 404 (viven bajo /blog/):");
+  [...new Set(postsRotos)].forEach((h) => console.error("  " + h));
+  process.exit(1);
+}
 if (quedan.length) {
   console.error("ABORTA: quedan enlaces a rutas en ingles en la home española:");
   [...new Set(quedan)].forEach((h) => console.error("  " + h));

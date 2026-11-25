@@ -51,4 +51,11 @@
 .qv-spec p,.qv-spec li{font-size:var(--t-body);line-height:var(--lh-body);max-width:72ch}
 .qv-spec table{border-collapse:collapse;font-family:var(--mono);font-size:var(--t-data);margin:0 0 var(--s2)}
 .qv-spec td,.qv-spec th{border:1px solid var(--line);padding:6px 10px;text-align:left;vertical-align:top}
+/* 25-nov-2026 · a 390 px /q-ready/spec se desbordaba 33 px y /protocolo/ficha 85 px, medido
+   en producción: una celda en mono con un token largo («"providers"», «RQ.S.02.1») fija el
+   ancho mínimo de la tabla y empuja la página. `anywhere` deja partir el token sólo cuando
+   no cabe (en escritorio no cambia nada), y la ficha de ejemplo —que es un documento con su
+   propio ancho— se desplaza dentro de su caja en vez de arrastrar la página. */
+.qv-spec td,.qv-spec th{overflow-wrap:anywhere}
+.qv-ficha-ej{overflow-x:auto}
 @media (max-width:640px){.qv-nota{flex-direction:column;align-items:flex-start}.qv-dom{font-size:var(--t-title)}}

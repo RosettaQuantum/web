@@ -24,6 +24,19 @@ h2{font-family:var(--serif);font-weight:500;font-size:var(--t-title);line-height
 /* h3 no tenia regla: heredaba el 1.17em del navegador sobre un body de 18px y salia
    en 21,06px — un octavo tamano que no estaba en la escala y que nadie eligio. */
 h3{font-family:var(--serif);font-weight:500;font-size:var(--t-sub);line-height:var(--lh-sub);letter-spacing:-.01em}
+/* 25-nov-2026 · un h3 suelto en el texto de una sección no tenía aire. El `*{margin:0}`
+   de arriba se lo quita a todo y sólo `.pg h3` lo devolvía, así que fuera del primer
+   bloque el subtítulo quedaba pegado al párrafo de arriba y al de abajo (0 px medidos):
+   «Por qué contratarnos» en /servicios y «Lo que recibes» en las tres /para/. Nicholas
+   lo vio a ojo. La regla va aquí, en la hoja de marca que entra a todas las páginas, y
+   acotada al h3 que es hijo directo de `.wrap` (texto corrido): los h3 dentro de tarjetas
+   (home, ledger, /es/q) traen su propio espaciado y no se tocan. Mismos valores que
+   `.pg h3`, ahora con tokens. Lo vigila scripts/check-aire.mjs en el postbuild. */
+.wrap>h3{margin:var(--s3) 0 var(--s1)}
+/* Mismo origen, mismo día: el párrafo que sigue a un `.lede` quedaba a 0 px (el bloque
+   de precio de las tres /para/ y el «Abre el registro →» de /biblioteca). Los que ya
+   traían `style="margin-top:…"` en línea no cambian: el estilo en línea gana. */
+.wrap>.lede+p{margin-top:var(--s2)}
 .note-banner{background:var(--ink);color:var(--paper);font-family:var(--mono);font-size:var(--t-data);letter-spacing:.08em;text-align:center;padding:7px 12px}
 .note-banner b{color:#7FD9CE;font-weight:500}
 
@@ -160,6 +173,10 @@ h1{font-family:var(--serif);font-weight:500;font-size:var(--t-display);line-heig
 .bar.refuted{background:var(--alert)}
 .bar-days{font-family:var(--mono);font-size:var(--t-data);white-space:nowrap;min-width:86px;text-align:right;color:var(--ink-60)}
 .bar-days b{color:var(--ink);font-weight:500}
+/* 25-nov-2026 · cuando /v1/claims no responde, home-islas.js cuelga «as of build …» dentro
+   de `.bar-days`, que es nowrap: la fila se alargaba y a 390 px la home se desbordaba 12 px
+   (EN) y 36 px (ES). La etiqueta va en su propia línea y puede partir. */
+.bar-days .rq-stale{display:block;white-space:normal;margin-left:0!important}
 .tag-ours{display:inline-block;font-family:var(--mono);font-size:var(--t-data);letter-spacing:.12em;text-transform:uppercase;border:1px solid var(--ink);padding:1px 6px;border-radius:2px;margin-left:6px;vertical-align:middle}
 .clock-foot{padding:10px 16px;font-family:var(--mono);font-size:var(--t-data);color:var(--ink-60);display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap}
 .clock-foot a{border-bottom:1px solid var(--line)}

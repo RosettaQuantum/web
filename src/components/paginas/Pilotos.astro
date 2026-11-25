@@ -2,6 +2,13 @@
 /**
  * /pilots — sublanding del producto ancla corporativo. Commit 9.
  * La pieza three.js repintada entra aqui en el commit 13, con carga diferida.
+ *
+ * 25-nov-2026, pedido de Nicholas: «saquemos de la web esta sección de precio que está
+ * dentro de Pilotos, siento que es estar mezclando temas; en Pilotos es mejor sólo hablar
+ * y detallar de qué se tratan». Salió el bloque entero —«Precio», el rango por piloto,
+ * «Quién NO nos paga» (Two-Layer Rule) y sus dos enlaces—, en ES y EN. El precio sigue
+ * en /servicios (fila Pilot Referee) y la Two-Layer Rule en /servicios (Condiciones),
+ * /metodologia y /nosotros. No devolver un bloque de precio aquí sin preguntarle.
  */
 const { lang = 'en' } = Astro.props;
 const es = lang === 'es';
@@ -15,9 +22,6 @@ const t = es ? {
     ['Sello','El resultado queda anclado por hash a Bitcoin vía OpenTimestamps y espejado en tres lugares. El registro no se puede reescribir.'],
     ['Entrega','Una decision page de una cara, más el informe de cinco capas: veredicto, magnitud, robustez, qué lo daría vuelta, y qué significa en tus unidades.'],
   ],
-  precioH:'Precio', precio:'US$15.000–35.000 por piloto, y nunca más del 15% de lo que cuesta el piloto. Si nuestra factura pesa en la decisión, el árbitro dejó de ser árbitro.',
-  quienH:'Quién NO nos paga',
-  quien:'El vendor evaluado no paga el veredicto, ni directa ni indirectamente. Puede presentar, puede co-vender, puede estar en la sala — pero contrata y paga el corporativo. Es la Two-Layer Rule, y es la única razón por la que el número sirve.',
   casosH:'Cinco industrias, cinco experimentos sellados',
   casos:'Farma, finanzas, energía, banca y aeroespacial. En los cinco corrió el campeón clásico en la misma cancha. En los cinco publicamos el resultado, y en ninguno ganó el lado cuántico — todavía.',
   cta:'Escríbenos →', ver:'Mira una decision page de muestra →', led:'Mira los cinco en el ledger →',
@@ -31,9 +35,6 @@ const t = es ? {
     ['Seal','The result is hash-anchored to Bitcoin via OpenTimestamps and mirrored in three places. The record cannot be rewritten.'],
     ['Deliver','A one-page decision page plus the five-layer report: verdict, margin, robustness, what would flip it, and what it means in your units.'],
   ],
-  precioH:'Price', precio:'$15,000–35,000 per pilot, and never more than 15% of what the pilot costs. If our invoice weighs on the decision, the referee stopped being a referee.',
-  quienH:'Who does NOT pay us',
-  quien:'The vendor under evaluation does not pay for the verdict, directly or indirectly. They can present, they can co-sell, they can be in the room — but the corporate contracts and pays. That is the Two-Layer Rule, and it is the only reason the number is worth anything.',
   casosH:'Five industries, five sealed experiments',
   casos:'Pharma, finance, energy, banking and aerospace. In all five the classical champion ran on the same field. In all five we published the result, and in none of them did the quantum side win — yet.',
   cta:'Get in touch →', ver:'See a sample decision page →', led:'See all five in the ledger →',
@@ -53,15 +54,6 @@ const t = es ? {
   <div class="eyebrow">{t.comoH}</div>
   <h2>{t.comoH}</h2>
   {t.pasos.map(([b, p]) => (<div class="paso"><b>{b}</b><p>{p}</p></div>))}
-</div></section>
-
-<section><div class="wrap">
-  <div class="eyebrow">{t.precioH}</div>
-  <h2>{t.precioH}</h2>
-  <p class="lede">{t.precio}</p>
-  <h3>{t.quienH}</h3>
-  <p>{t.quien}</p>
-  <p class="sealline mono" style="margin-top:12px"><a href={es ? '/es/servicios' : '/services'}>{es ? 'Todos los precios →' : 'All pricing →'}</a> · <a href={es ? '/es/metodologia' : '/methodology'}>{es ? 'La Two-Layer Rule →' : 'The Two-Layer Rule →'}</a></p>
 </div></section>
 
 <section id="pieza"><div class="wrap">

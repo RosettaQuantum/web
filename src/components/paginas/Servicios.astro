@@ -28,49 +28,67 @@ const PEDIDO = es ? 'a pedido' : 'on request';
  * —«esta por debajo de un Screening doble»— es falsa: un doble son 9.000 y el pack son
  * 9.500, o sea esta POR ENCIMA. El precio queda; el argumento no se publica. */
 const PROD = [
-  { n:'Pilot Referee', capa:'B', precio: es ? 'US$15.000–35.000' : 'US$15,000–35,000',
-    compra: es ? 'Corporativo con un piloto cuántico' : 'Corporate running a quantum pilot',
-    inc: es ? 'Pre-registro sellado del criterio de éxito · campeón clásico en paralelo bajo juez-v1 · decision page + informe de 5 capas · entrada opcional al ledger'
-            : 'Sealed pre-registration of the success criterion · champion classical baseline in parallel under juez-v1 · decision page + 5-layer report · optional ledger entry',
-    plazo: es ? 'el calendario de tu piloto · nunca >15% de su costo' : "your pilot's calendar · never >15% of pilot cost" },
-  { n:'Claim Screening', capa:'B', precio: es ? 'US$4.500' : 'US$4,500',
-    compra: es ? 'Fondo con un deal · corporativo con un pitch recibido' : 'Fund with a deal · corporate with a pitch on the table',
-    inc: es ? 'Capas 0–1 + posición en el Registry + priors de clase; sin corridas nuevas' : 'Layers 0–1 + Registry position + class priors; no new runs',
-    plazo: es ? '5 días hábiles' : '5 business days' },
-  { n:'Diligence Report', capa:'B', precio: es ? 'Desde US$28.000' : 'From US$28,000',
-    compra: es ? 'Fondo o CVC · pharma evaluando un partnership' : 'Fund or CVC · pharma evaluating a partnership',
-    inc: es ? 'Capas 0–5, reproducción en simulador contra el campeón, pre-registro, informe + JSON' : 'Layers 0–5, simulator reproduction against the champion, pre-registration, report + JSON',
-    plazo: es ? '3–4 semanas' : '3–4 weeks' },
   { n: es ? 'Evidence Library — Analyst' : 'Evidence Library — Analyst', capa:'B',
     precio: es ? 'Gratis para explorar · US$149 por asiento / mes' : 'Free to browse · US$149 per seat / month',
     compra: es ? 'Analista, consultora, medio' : 'Analyst, consultancy, newsroom',
     inc: es ? 'Fichas completas, filtros, export y alertas. Los niveles de evidencia son idénticos en todos los planes: lo pagado es profundidad, no una verdad distinta.'
             : 'Full records, filters, export and alerts. Evidence levels are identical in every tier: what you pay for is depth, not a different truth.',
     plazo: es ? 'inmediato' : 'immediate' },
-  { n:'Diligence + QPU', capa:'B', precio: es ? 'Desde US$45.000' : 'From US$45,000',
-    compra: es ? 'Claims donde el hardware ES la disputa' : 'Claims where the hardware IS the dispute',
-    inc: es ? 'Lo anterior + hardware real con paridad; el costo de máquina se pasa a costo, con tope' : 'The above + real hardware at parity; machine cost passed through at cost, capped',
-    plazo: es ? '5–8 semanas (la excepción, no el default)' : '5–8 weeks (the exception, not the default)',
-    nota: es ? 'Más tiempo de máquina a costo, con tope de US$10.000 salvo que autorices más por escrito.'
-             : 'Plus QPU time at cost, capped at US$10,000 unless you approve more in writing.' },
-  { n:'Portfolio Scan', capa:'B', precio: es ? 'US$42.500' : 'US$42,500',
-    compra: es ? 'Fondo o CVC con 3 o más posiciones' : 'Fund or CVC with 3+ positions',
-    inc: es ? '5 screenings + 1 diligence + ranking de evidencia del portafolio' : '5 screenings + 1 diligence + portfolio evidence ranking',
-    plazo: es ? '6 semanas' : '6 weeks',
-    nota: es ? 'Por separado: 5 × US$4.500 + US$28.000 = US$50.500. Juntos, US$42.500.'
-             : 'Separately: 5 × US$4,500 + US$28,000 = US$50,500. Together, US$42,500.' },
-  { n:'Sealed Prediction Pack', capa:'A+B', precio: es ? 'US$9.500' : 'US$9,500',
-    compra: es ? 'Equipos de biología y química' : 'Biology and chemistry teams',
-    inc: es ? 'Predicciones selladas antes del experimento, abiertas en público después' : 'Predictions sealed before the experiment, opened publicly afterwards',
-    plazo: es ? 'el calendario de tu experimento' : "your experiment's calendar",
-    nota: es ? 'Cuatro dentro de doce meses, US$30.000.' : 'Four within twelve months, US$30,000.' },
   { n: es ? 'Library — Firm' : 'Library — Firm', capa:'B', precio: es ? 'US$1.900 / mes' : 'US$1,900 / month',
     compra: es ? 'Fondos, consultoras, medios' : 'Funds, consultancies, media',
     inc: es ? 'Hasta 15 asientos + briefing trimestral + watchlists compartidas' : 'Up to 15 seats + quarterly briefing + shared watchlists',
     plazo: es ? 'inmediato' : 'immediate',
     nota: es ? 'Quince asientos Analyst costarían US$2.235. Nunca conviene comprarlos sueltos.'
              : 'Fifteen Analyst seats would cost US$2,235. Buying them separately is never the better deal.' },
+  { n:'Claim Screening', capa:'B', precio: es ? 'US$4.500' : 'US$4,500',
+    compra: es ? 'Fondo con un deal · corporativo con un pitch recibido' : 'Fund with a deal · corporate with a pitch on the table',
+    inc: es ? 'Capas 0–1 + posición en el Registry + priors de clase; sin corridas nuevas' : 'Layers 0–1 + Registry position + class priors; no new runs',
+    plazo: es ? '5 días hábiles' : '5 business days' },
+  { n:'Sealed Prediction Pack', capa:'A+B', precio: es ? 'US$9.500' : 'US$9,500',
+    compra: es ? 'Equipos de biología y química' : 'Biology and chemistry teams',
+    inc: es ? 'Predicciones selladas antes del experimento, abiertas en público después' : 'Predictions sealed before the experiment, opened publicly afterwards',
+    plazo: es ? 'el calendario de tu experimento' : "your experiment's calendar",
+    nota: es ? 'Cuatro dentro de doce meses, US$30.000.' : 'Four within twelve months, US$30,000.' },
+  { n:'Pilot Referee', capa:'B', precio: es ? 'US$15.000–35.000' : 'US$15,000–35,000',
+    compra: es ? 'Corporativo con un piloto cuántico' : 'Corporate running a quantum pilot',
+    inc: es ? 'Pre-registro sellado del criterio de éxito · campeón clásico en paralelo bajo juez-v1 · decision page + informe de 5 capas · entrada opcional al ledger'
+            : 'Sealed pre-registration of the success criterion · champion classical baseline in parallel under juez-v1 · decision page + 5-layer report · optional ledger entry',
+    plazo: es ? 'el calendario de tu piloto · nunca >15% de su costo' : "your pilot's calendar · never >15% of pilot cost" },
+  { n:'Diligence Report', capa:'B', precio: es ? 'Desde US$28.000' : 'From US$28,000',
+    compra: es ? 'Fondo o CVC · pharma evaluando un partnership' : 'Fund or CVC · pharma evaluating a partnership',
+    inc: es ? 'Capas 0–5, reproducción en simulador contra el campeón, pre-registro, informe + JSON' : 'Layers 0–5, simulator reproduction against the champion, pre-registration, report + JSON',
+    plazo: es ? '3–4 semanas' : '3–4 weeks' },
+  { n:'Portfolio Scan', capa:'B', precio: es ? 'US$42.500' : 'US$42,500',
+    compra: es ? 'Fondo o CVC con 3 o más posiciones' : 'Fund or CVC with 3+ positions',
+    inc: es ? '5 screenings + 1 diligence + ranking de evidencia del portafolio' : '5 screenings + 1 diligence + portfolio evidence ranking',
+    plazo: es ? '6 semanas' : '6 weeks',
+    nota: es ? 'Por separado: 5 × US$4.500 + US$28.000 = US$50.500. Juntos, US$42.500.'
+             : 'Separately: 5 × US$4,500 + US$28,000 = US$50,500. Together, US$42,500.' },
+  { n:'Diligence + QPU', capa:'B', precio: es ? 'Desde US$45.000' : 'From US$45,000',
+    compra: es ? 'Claims donde el hardware ES la disputa' : 'Claims where the hardware IS the dispute',
+    inc: es ? 'Lo anterior + hardware real con paridad; el costo de máquina se pasa a costo, con tope' : 'The above + real hardware at parity; machine cost passed through at cost, capped',
+    plazo: es ? '5–8 semanas (la excepción, no el default)' : '5–8 weeks (the exception, not the default)',
+    nota: es ? 'Más tiempo de máquina a costo, con tope de US$10.000 salvo que autorices más por escrito.'
+             : 'Plus QPU time at cost, capped at US$10,000 unless you approve more in writing.' },
 ];
+/* ORDEN DE LA TABLA · 25-nov-2026, pedido de Nicholas: «reordénalos del más económico al
+ * más costoso». La tabla mezcla cobros únicos con suscripciones mensuales, así que el
+ * criterio es el PRECIO DE ENTRADA: lo primero que paga alguien. «Gratis para explorar»
+ * vale 0 y va primero; un rango o un «Desde» vale su piso; una mensualidad vale su primer
+ * mes; «a pedido» (no hay hoy) va al final. Empates conservan el orden de la lista.
+ *
+ * El número sale del MISMO texto que se publica, no de un campo aparte: un segundo campo
+ * con la cifra sería una segunda copia del precio, y dos copias de lo mismo ya divergieron
+ * en este repo. Si una fila nueva trae un precio que esto no sabe leer, el build se cae
+ * aquí — falla cerrado en vez de dejar la fila en cualquier lugar. */
+const entrada = (p) => {
+  if (/^(Gratis|Free)\b/.test(p.precio)) return 0;
+  if (p.precio === PEDIDO) return Infinity;   // sin cifra pública: al final, no en cualquier lugar
+  const m = p.precio.match(/US\$\s?(\d[\d.,]*)/);
+  if (!m) throw new Error(`Servicios: no sé leer el precio de entrada de «${p.n}»: ${p.precio}`);
+  return Number(m[1].replace(/[.,]/g, ''));
+};
+PROD.sort((a, b) => entrada(a) - entrada(b));
 const t = es ? {
   eyebrow:'Juicio, con precio a la vista', h1:'Juicio, con precio por delante.',
   lede:'Sin "contact us" para saber cuánto cuesta. Lo que tiene precio, lo tiene aquí; lo que depende del alcance, se cotiza — y se dice cuál es cuál.',

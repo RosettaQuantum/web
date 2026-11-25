@@ -36,7 +36,10 @@
     nodo.dataset.rqStale = "1";
     var s = document.createElement("span");
     s.className = "rq-stale";
-    s.style.cssText = "font-family:var(--mono);font-size:10px;color:var(--ink-60);margin-left:6px";
+    // 25-nov-2026: era font-size:10px (bajo el piso de 13 px del sistema). Ahora el tamaño de
+    // dato, como en ledger.js. Dentro del reloj, además, va en su propia línea: ver
+    // `.bar-days .rq-stale` en home.css.
+    s.style.cssText = "font-family:var(--mono);font-size:var(--t-data);color:var(--ink-60);margin-left:6px";
     s.textContent = "as of " + BUILD;
     nodo.appendChild(s);
   }
