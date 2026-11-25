@@ -1,0 +1,156 @@
+---
+/**
+ * /es/q — la landing de trafico pagado. Dos lados: `seguridad` y `lab`.
+ *
+ * TEXTO REDACTADO EL 25-NOV-2026, PENDIENTE DE APROBACION. La casa manda que ningun texto
+ * que lea un usuario salga sin que el dueno lo vea (CLAUDE.md §5), y por eso la pagina se
+ * publica con `noindex` y sin un solo enlace que apunte a ella: hoy nadie puede llegar sin
+ * escribir la URL. La propuesta para aprobar vive en
+ * `Projects/Rosetta Quantum/PROPUESTA-TEXTO-es-q-landing.md`. Cuando este aprobado, el texto
+ * se mueve de ahi a aqui por archivo y la pagina deja de ser provisoria.
+ *
+ * DE DONDE SALE CADA AFIRMACION, porque una landing es el peor lugar para una cifra sin
+ * respaldo:
+ *  · «sin tocar su red» — el instrumento sondea DNS, el registro publico de certificados y
+ *    tres saludos TLS. Ningun GET, ninguna credencial. Verificado contra produccion el
+ *    25-nov-2026.
+ *  · «techo 84» — lo devuelve el propio indice, con su nota: lo interno no se ve desde afuera.
+ *  · «ninguna fecha es un plazo exigible» — las fechas que circulan son fases de politica
+ *    estadounidense; la de 2030 esta escrita «must … as feasible» y las de 2031 y 2035 con
+ *    «should». No hay plazo legal en Chile. Verificado contra fuente primaria el 24-ago-2026.
+ *  · EL1, las cinco evaluaciones, las erratas y la Two-Layer Rule — son del texto YA APROBADO
+ *    de /es/nosotros (handoff/web/rosetta-about-texto-final.md). Se reusan, no se reescriben.
+ *
+ * Lo que NO dice, a proposito: ningun nombre de cliente, ningun proveedor de un tercero, y
+ * ninguna cifra medida sobre un dominio que no sea nuestro. Eso es salida privada.
+ */
+---
+<section class="pg" style="border-top:none"><div class="wrap">
+
+  {/* ── lado seguridad ───────────────────────────────────────────────────────── */}
+  <div data-lado="seguridad">
+    <div class="eyebrow">Migración post-cuántica</div>
+    <h1>Usted ya sabe que está expuesto. Lo que falta es el primer movimiento.</h1>
+    <p class="lede">No le vendemos un diagnóstico. Medimos su superficie pública desde afuera
+      —sin tocar su red, sin credenciales, sin instalar nada— y le entregamos el mínimo que
+      tiene que hacer, en qué orden, y contra qué proveedores.</p>
+
+    <p style="margin-top:14px">El argumento no es una fecha. Hoy ninguna fecha de migración
+      post-cuántica es un plazo exigible en Chile: las que circulan son fases de política de
+      otro país, y varias están escritas en condicional. El argumento es más simple y no
+      espera a ninguna norma: el tráfico cifrado que alguien capture hoy se puede guardar y
+      descifrar después, cuando exista la máquina. Lo que usted decide no es si migra, sino
+      qué migra primero.</p>
+
+    <div class="q-huecos">
+      <div class="q-hueco">
+        <span class="n">01 · su superficie</span>
+        <h3>Cuántos nombres suyos hay en el registro público</h3>
+        <p>Casi nunca es el número que figura en su inventario, y entre ellos suelen aparecer
+          ambientes de prueba que nadie recordaba haber publicado.</p>
+      </div>
+      <div class="q-hueco">
+        <span class="n">02 · sus proveedores</span>
+        <h3>Su ruta crítica no la decide usted</h3>
+        <p>La deciden el proveedor del core, el del switch de pagos y el del HSM. Medimos
+          quién publicó una fecha comprometida y quién documenta soporte hoy, con la URL.</p>
+      </div>
+      <div class="q-hueco">
+        <span class="n">03 · el mínimo camino</span>
+        <h3>Probablemente no es la montaña que supone</h3>
+        <p>Casi nadie tiene por delante los años que imagina. Lo habitual es un puñado de
+          sistemas en un orden determinado, y ese orden es el entregable.</p>
+      </div>
+      <div class="q-hueco">
+        <span class="n">04 · sus pares</span>
+        <h3>Dónde queda frente a su sector</h3>
+        <p>La mediana de su industria, anónima, en las mismas cuatro dimensiones con las que
+          lo medimos a usted.</p>
+      </div>
+    </div>
+
+    <p class="q-metodo">cuatro dimensiones: certificados y pki · higiene de superficie ·
+      postura del sector · pqc en el borde — techo del índice: 84</p>
+    <p style="margin-top:10px">Ese techo es deliberado y lo decimos en la portada del informe:
+      lo que pasa dentro de su red no se ve desde afuera, y no nos lo inventamos. Un índice que
+      le diera 100 estaría midiendo cosas que no puede saber.</p>
+
+    <div class="q-gratis">
+      <b>Lo que entra sin costo</b>
+      <ol>
+        <li>El hallazgo de su superficie: los nombres que encontramos, y cuáles parecen no
+          deberían estar ahí.</li>
+        <li>La comparación anónima con su sector.</li>
+        <li>Una vista real del entregable pagado — y nada borroso que no hayamos calculado.</li>
+      </ol>
+    </div>
+
+    <form class="q-forma" data-cta="pedir-medicion">
+      <div class="forma"><input name="org" type="text" placeholder="su dominio — ejemplo.cl" aria-label="Su dominio" autocomplete="url" /></div>
+      <div class="forma"><input type="email" placeholder="su correo corporativo" aria-label="Su correo corporativo" autocomplete="email" required /></div>
+      <button class="btn btn-solid" type="submit" data-boton="Pedir la medición" data-espera="Enviando…">Pedir la medición</button>
+      <p class="q-aviso" role="status" aria-live="polite"></p>
+      <p class="q-letra">Un correo con su medición, no una lista de difusión. Medimos sólo lo
+        que su dominio responde en público.</p>
+    </form>
+
+    <p class="sealline mono" style="margin-top:18px"><a href="/es/metodologia" data-cta="ver-metodologia">Cómo medimos →</a> · <a href="/es/q-ready" data-cta="ver-qready">Qué incluye el kit →</a></p>
+  </div>
+
+  {/* ── lado lab ─────────────────────────────────────────────────────────────── */}
+  <div data-lado="lab">
+    <div class="eyebrow">Arbitraje de afirmaciones cuánticas</div>
+    <h1>¿Le prometieron ventaja cuántica? Nosotros la medimos.</h1>
+    <p class="lede">Criterios registrados antes de correr, datos sellados y anclados por hash,
+      y el resultado publicado se gane o se pierda. Si la ventaja existe, va a sobrevivir a
+      eso. Si no existe, usted lo sabe antes de firmar.</p>
+
+    <p style="margin-top:14px">La regla que nos ata: el juicio lo paga quien depende de él
+      —una empresa, un fondo, un equipo de investigación— y jamás el proveedor evaluado. Un
+      veredicto que paga el evaluado no vale nada, y nosotros vendemos veredictos. Nuestro
+      propio brazo cuántico puntúa EL1 hoy, y su resultado negativo está en el ledger, junto a
+      las erratas donde nos equivocamos.</p>
+
+    <div class="q-huecos">
+      <div class="q-hueco">
+        <span class="n">01 · se congela</span>
+        <h3>Qué contaría como ganar, escrito antes</h3>
+        <p>Antes de la primera corrida queda registrado qué resultado sería una victoria y
+          cuál una derrota. Después no se mueve, y esa es toda la gracia.</p>
+      </div>
+      <div class="q-hueco">
+        <span class="n">02 · el rival</span>
+        <h3>El mejor clásico, en la misma cancha</h3>
+        <p>Mismo problema, mismo presupuesto, mismo criterio. Una comparación contra un
+          clásico mal configurado no es una comparación: es una demostración.</p>
+      </div>
+      <div class="q-hueco">
+        <span class="n">03 · el dato</span>
+        <h3>Sellado y recomputable por usted</h3>
+        <p>Cada artefacto queda anclado por hash. No tiene que confiar en nosotros: la
+          autoridad vive en el protocolo, no en el árbitro.</p>
+      </div>
+      <div class="q-hueco">
+        <span class="n">04 · se publica</span>
+        <h3>Gane o pierda</h3>
+        <p>Cinco evaluaciones selladas en cinco industrias, siempre contra el mejor baseline
+          clásico. El lado cuántico aún no gana. Cuando gane, valdrá la pena creerlo.</p>
+      </div>
+    </div>
+
+    <p class="q-metodo">escala de evidencia el0–el5, adaptada de grade · pre-registro ·
+      anclaje por hash · publicación se gane o se pierda</p>
+
+    <form class="q-forma" data-cta="traer-afirmacion">
+      <div class="forma"><input name="nota" type="text" placeholder="la afirmación que quiere arbitrar" aria-label="La afirmación que quiere arbitrar" /></div>
+      <div class="forma"><input type="email" placeholder="su correo" aria-label="Su correo" autocomplete="email" required /></div>
+      <button class="btn btn-solid" type="submit" data-boton="Traer la afirmación" data-espera="Enviando…">Traer la afirmación</button>
+      <p class="q-aviso" role="status" aria-live="polite"></p>
+      <p class="q-letra">Le respondemos si es arbitrable y qué costaría. Si no lo es, también
+        se lo decimos.</p>
+    </form>
+
+    <p class="sealline mono" style="margin-top:18px"><a href="/es/ledger" data-cta="ver-ledger">El ledger y las erratas →</a> · <a href="/es/metodologia" data-cta="ver-metodologia">El protocolo →</a></p>
+  </div>
+
+</div></section>

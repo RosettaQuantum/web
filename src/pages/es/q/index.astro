@@ -1,0 +1,36 @@
+---
+/**
+ * /es/q — la landing de trafico pagado (avisos). El embudo que la mide ya existia desde el
+ * 18-nov-2026 y estaba desplegado contando una pagina que daba 404: el 25-nov `q_events`
+ * tenia CERO filas. Esta es la pantalla que faltaba.
+ *
+ * `noindex`, y es la decision correcta por dos razones distintas:
+ *  1. Es una landing con DOS variantes en el mismo HTML. Pedirle a un buscador que la indexe
+ *     seria pedirle que indexe un A/B, y el trafico de esta pagina llega por aviso pagado con
+ *     su `utm`, no por busqueda. La puerta que SI debe encontrarse buscando es /es/q-ready, y
+ *     esa es indexable a proposito.
+ *  2. El texto todavia no lo aprobo el dueno (CLAUDE.md §5). Con `noindex` y sin un solo
+ *     enlace que apunte aqui, nadie llega sin escribir la URL a mano.
+ * El `noindex` ademas la saca del sitemap sola: src/lib/noindex.mjs lo lee del HTML
+ * construido, asi que no hay una lista que se pueda desincronizar.
+ *
+ * `altUrl`: no existe gemela en ingles. NavV2 exige un destino real para el conmutador de
+ * idioma, y /q-ready es la pagina inglesa de este mismo producto. No es una traduccion de
+ * esta, y por eso se declara en una pagina que ningun buscador va a indexar. El dia que haya
+ * gemela en ingles, esta linea es la que cambia.
+ */
+import MarcaLayout from '../../../layouts/MarcaLayout.astro';
+import QLanding from '../../../components/paginas/QLanding.astro';
+import paginas from '../../../styles/pages/paginas.css?raw';
+import propia from '../../../styles/pages/q-landing.css?raw';
+---
+<MarcaLayout
+  title="Migración post-cuántica: el primer movimiento, medido desde afuera — Rosetta Quantum"
+  description="Medimos su superficie pública sin tocar su red y le entregamos el mínimo que tiene que hacer, en qué orden y contra qué proveedores. La medición de su dominio es gratis."
+  lang="es" altUrl="/q-ready" ruta="/es/q"
+  pageCss={paginas + '\n' + propia}
+  scripts={["/js/q-landing.js"]}
+  noindex={true}
+>
+  <QLanding />
+</MarcaLayout>

@@ -1,0 +1,34 @@
+/* /es/q — la landing pagada. Dos lados en el MISMO HTML, porque la pagina la sirve el CDN
+   y el reparto se decide en el navegador (public/js/q-landing.js).
+
+   El orden de estas tres reglas es la decision: por defecto se ve `seguridad`. Si JS no
+   corre, la persona lee una pagina completa en vez de una hoja en blanco. */
+[data-lado="lab"] { display: none; }
+html[data-q-lado="lab"] [data-lado="lab"] { display: block; }
+html[data-q-lado="lab"] [data-lado="seguridad"] { display: none; }
+
+/* Los cuatro huecos de informacion. A ancho de telefono la rejilla cae a una columna: dos
+   columnas ahi dejan cada celda en una tira ilegible, y un aviso se abre donde sea. */
+.q-huecos { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1px; background: var(--line); border: 1px solid var(--line); border-radius: 2px; margin: 20px 0; }
+.q-hueco { background: var(--panel); padding: 16px 18px; }
+.q-hueco h3 { font-family: var(--sans); font-size: var(--t-small); margin: 0 0 6px; }
+.q-hueco p { margin: 0; font-size: var(--t-small); color: var(--ink-60); }
+.q-hueco .n { font-family: var(--mono); font-size: var(--t-data); letter-spacing: .12em; color: var(--ink-60); display: block; margin-bottom: 8px; }
+@media (max-width: 680px) { .q-huecos { grid-template-columns: 1fr; } }
+
+/* El formulario: apilado, no la fila de `.forma`, porque aqui van dos campos y un boton y
+   una fila de tres en telefono deja cada campo en 90 px. */
+.q-forma { max-width: 460px; margin: 18px 0 0; }
+.q-forma .forma { margin: 0 0 10px; max-width: 100%; }
+.q-forma button { width: 100%; }
+.q-aviso { font-family: var(--mono); font-size: var(--t-data); color: var(--alert); margin: 10px 0 0; min-height: 1em; }
+.q-letra { font-size: var(--t-data); color: var(--ink-60); margin: 12px 0 0; }
+
+/* Lo que entra gratis. Caja de panel, no de alerta: es una oferta, no una advertencia. */
+.q-gratis { border: 1px solid var(--line); background: var(--panel); border-radius: 2px; padding: 16px 18px; margin: 18px 0; }
+.q-gratis ol { margin: 10px 0 0; padding-left: 20px; }
+.q-gratis li { font-size: var(--t-small); margin: 0 0 6px; }
+.q-gratis li:last-child { margin-bottom: 0; }
+
+/* La linea del metodo, en mono: es un dato, no una promesa. */
+.q-metodo { font-family: var(--mono); font-size: var(--t-data); color: var(--ink-60); letter-spacing: .04em; margin: 14px 0 0; }
