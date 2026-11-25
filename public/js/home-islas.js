@@ -40,7 +40,7 @@
     // dato, como en ledger.js. Dentro del reloj, además, va en su propia línea: ver
     // `.bar-days .rq-stale` en home.css.
     s.style.cssText = "font-family:var(--mono);font-size:var(--t-data);color:var(--ink-60);margin-left:6px";
-    s.textContent = "as of " + BUILD;
+    s.textContent = (document.documentElement.lang === "es" ? "según el " : "as of ") + BUILD;
     nodo.appendChild(s);
   }
 

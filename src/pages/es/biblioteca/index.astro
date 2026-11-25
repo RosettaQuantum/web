@@ -10,6 +10,7 @@
  * esta junto en handoff/web/ES-BORRADOR-paginas-nuevas.md para leerlo sin abrir paginas.
  */
 import MarcaLayout from '../../../layouts/MarcaLayout.astro';
+import { HERRAMIENTAS_SERVIDAS } from '../../../../api.js';   // 25-nov: decía «9 herramientas» escrito a mano; /library ya lo calculaba
 import css from '../../../styles/pages/library.css?raw';
 import cifras from '../../../data/library-cifras.json';
 ---
@@ -65,7 +66,7 @@ import cifras from '../../../data/library-cifras.json';
           </a>
         ))}
       </div>
-      <p class="sealline mono" style="margin-top:16px">Construida para agentes de IA: nuestro servidor MCP expone el archivo — 9 herramientas, sin llave. <a href="/mcp">/mcp</a> · <a href="/llms.txt">llms.txt</a></p>
+      <p class="sealline mono" style="margin-top:16px">Construida para agentes de IA: nuestro servidor MCP expone el archivo — {HERRAMIENTAS_SERVIDAS.length} herramientas, sin llave. <a href="/mcp">/mcp</a> · <a href="/llms.txt">llms.txt</a></p>
     </div>
   </section>
 

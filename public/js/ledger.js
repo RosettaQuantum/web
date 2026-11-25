@@ -50,7 +50,7 @@
       if (n.dataset.rqStale) return; n.dataset.rqStale = "1";
       var s = document.createElement("span");
       s.style.cssText = "font-family:var(--mono);font-size:var(--t-data);color:var(--ink-60);margin-left:6px";
-      s.textContent = "as of build " + (m ? m.content.slice(0,7) : "?");
+      s.textContent = (document.documentElement.lang === "es" ? "según el build " : "as of build ") + (m ? m.content.slice(0,7) : "?");
       n.appendChild(s);
     });
   });

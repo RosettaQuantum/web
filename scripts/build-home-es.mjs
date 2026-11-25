@@ -162,6 +162,13 @@ const T = [
 
   // ── Notes ──────────────────────────────────────────────────────────────────
   ["Latest from the desk.", "Lo último del escritorio.", 1],
+  // 25-nov-2026, aprobado: ceja y título de las dos notas, tomados del post en español
+  // (/blog/<slug>-es/). El resumen y la línea «Pillar · min read» siguen en inglés: el post
+  // en español no trae una versión corta del resumen ni el tiempo de lectura, y no se traducen aquí.
+  ["Maps &amp; data · 2026-08-31", "Mapas y datos · 2026-08-31", 1],
+  ["Canonical dictionary · 2026-08-30", "Diccionario canónico · 2026-08-30", 1],
+  ["Neutral atoms: is the third architecture for real?", "Átomos neutros: ¿la tercera arquitectura va en serio?", 1],
+  ["What is QRAM, and why is it the silent bottleneck?", "¿Qué es QRAM y por qué es el cuello de botella silencioso?", 1],
 
   // El pie ya no vive en el cuerpo: es el componente PieV2, que trae su propio texto
   // aprobado por idioma. Salio de aqui porque venia con los once enlaces en href="#".
