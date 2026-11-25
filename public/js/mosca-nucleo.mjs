@@ -196,7 +196,7 @@ export function svgMosca(e) {
     // Rótulo del tramo: arriba del dibujo del tramo, pegado a su borde izquierdo.
     const techo = t.tipo === "rango" ? t.hi : t.lo;
     const ly = Math.max(g.t0 - 2, sube(techo) - 6);
-    if (rev.t > 0.6 && xb - xa > t.lab.length * ch + 8) o.push(`<text class="mo-lab${cl}" x="${r1(xa + 5)}" y="${r1(ly)}">${esc(t.lab)}</text>`);
+    if (rev.t > 0.6 && xb - xa > t.lab.length * ch + 8) encima.push(`<text class="mo-lab mo-halo${cl}" x="${r1(xa + 5)}" y="${r1(ly)}">${esc(t.lab)}</text>`);
   });
   o.push(`<path class="mo-borde" d="${linea}"/>`);
 
