@@ -463,8 +463,8 @@ function pintarResultado({ d, s, ct, mapa, hostsCT, dominio, www, nuevosCT = [] 
   $("mv-qex-meta").textContent = `${dominio} · ${fechaUtc(new Date().toISOString())}`;
   $("mv-score").textContent = q.score == null ? "—" : num(q.score);
   const refNombre = sectorNombre($("mv-sector").value, ref.nombre);
-  $("mv-ref").textContent = t(`Mediana de ${ref.nombre.toLowerCase()}: ${num(ref.mediana)} (${ref.n} organizaciones). Mediana del país: ${num(referencia.mediana_pais)}. Referencia: edición de agosto de 2026.`,
-    `${refNombre} median: ${num(ref.mediana)} (${ref.n} organizations). Chile median: ${num(referencia.mediana_pais)}. Reference: August 2026 edition.`);
+  $("mv-ref").textContent = t(`Mediana de ${ref.nombre.toLowerCase()}: ${num(ref.mediana)} (${ref.n} organizaciones). Mediana del país: ${num(referencia.mediana_pais)}. Referencia: edición de ${edicionLarga({ edicion: referencia.edicion })}.`,
+    `${refNombre} median: ${num(ref.mediana)} (${ref.n} organizations). Chile median: ${num(referencia.mediana_pais)}. Reference: ${edicionLarga({ edicion: referencia.edicion })} edition.`);
   // Cada tramo mide su aporte en puntos del índice. Si faltó una dimensión, el índice se
   // renormaliza: los tramos se escalan por el mismo factor, para que la barra siga siendo la suma.
   const factor = q.peso_usado > 0 ? 1 / q.peso_usado : 1;
