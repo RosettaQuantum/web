@@ -8,7 +8,7 @@
 | RQ.S.01 | QEX index | 73/100 (external cap 84) |
 
 Reading: Your site already uses the post-quantum lock, but its certificate could not be read.
-How the grade is set: not from the QEX. The new lock, the alerts and whether everything sensitive was measured decide it (QREADY-NOTA-2.1); the QEX sums four weighted dimensions and does not set the grade. The “What to do” actions change the grade; the QEX only changes with what “Points per action” lists.
+How the grade is set: not from the QEX. The new lock, the alerts and whether everything sensitive was measured decide it (QREADY-NOTA-2.2); the QEX sums four weighted dimensions and does not set the grade. The “What to do” actions change the grade; the QEX only changes with what “Points per action” lists.
 Reference: a .example domain does not indicate a country; no comparison.
 Publication: private. The owner has not activated its public page.
 

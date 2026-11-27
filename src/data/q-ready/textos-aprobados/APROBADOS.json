@@ -30,9 +30,9 @@
   "usa": "src/lib/carrusel-textos.mjs · TEXTOS_CARRUSEL.es/en.pausar y .reanudar (botón de pausa del carrusel)"
  },
  {
-  "archivo": "TEXTOS-mcp-2026-11-24.md",
-  "sha256": "0bf245ba5cd0885060e1059eb6df78f940942a523a143385aa85f1b85175fe48",
-  "aprobado_por": "Nicholas, 24-nov-2026 (vía coordinación): textos 1 y 3 del MCP, ES y EN tal cual",
+  "archivo": "TEXTOS-mcp-2026-11-27.md",
+  "sha256": "9b467d434ebea87390a6dffa66cb135abfa1dffeda38167f72502aaee1aad09c",
+  "aprobado_por": "Nicholas, 27-nov-2026: QREADY-NOTA-2.2 en el texto 1 del MCP, ES y EN (sólo cambia el número)",
   "usa": "src/lib/mcp-textos.mjs · TEXTOS_MCP.es.medir (descripción de medir_exposicion_pqc en api.js), TEXTOS_MCP.es.registro (GET /mcp, NOTA_MCP) y TEXTOS_MCP.en.registro (/api-docs). TEXTOS_MCP.en.medir está sellado y hoy no lo sirve ninguna superficie."
  },
  {

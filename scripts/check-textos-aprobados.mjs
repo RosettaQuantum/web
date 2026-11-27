@@ -40,7 +40,7 @@ const CARRUSEL = "TEXTOS-carrusel-2026-11-24.md";
 const QR_EN = "TEXTOS-q-ready-en-2026-11-23.md";
 const MOSCA = "TEXTOS-mosca-2026-11-25b.md"; // gráfico «Sume los años»
 const MCP_H = "TEXTOS-mcp-herramientas-2026-11-24.md"; // descripciones de tres herramientas, verbatim
-const MCP = "TEXTOS-mcp-2026-11-24.md"; // su contenido lo vigila scripts/textos-q-ready-en.mjs --verificar
+const MCP = "TEXTOS-mcp-2026-11-27.md"; // reemplaza al del 24-nov: QREADY-NOTA-2.2 en el texto 1 (27-nov-2026); // su contenido lo vigila scripts/textos-q-ready-en.mjs --verificar
 // Las lecturas que NO se tocan (A+, C, D, F), como estaban el 18-nov: cambiarlas no está aprobado.
 const SIN_CAMBIO = {
   es: { "A+": "Candado nuevo en todo lo visible y un plan interno firmado y verificado.",
@@ -58,13 +58,13 @@ const AP = TA.aprobados();
 igual(AP.map((a) => a.archivo).sort(), [LECTURA, HNDL, T234, QR_EN, CARRUSEL, MCP, MCP_H, MOSCA].sort(), "APROBADOS.json declara los ocho documentos, ni más ni menos");
 igual(AP.find((a) => a.archivo === MOSCA)?.sha256, "e15ff57cf0786ce772ed6cd5f68657a97b46ad7d012c0098be03065f816a6487", "TEXTOS-mosca: el sha256 con que se aprobó");
 igual(AP.find((a) => a.archivo === MCP_H)?.sha256, "d0a76b239d3daad085421be059b60da075761b5294aa8fe45891d23b8cd1ab71", "TEXTOS-mcp-herramientas: el sha256 con que se aprobó");
-igual(AP.find((a) => a.archivo === MCP)?.sha256, "0bf245ba5cd0885060e1059eb6df78f940942a523a143385aa85f1b85175fe48", "TEXTOS-mcp: el sha256 con que se aprobó");
+igual(AP.find((a) => a.archivo === MCP)?.sha256, "9b467d434ebea87390a6dffa66cb135abfa1dffeda38167f72502aaee1aad09c", "TEXTOS-mcp: el sha256 con que se aprobó");
 igual(AP.find((a) => a.archivo === CARRUSEL)?.sha256, "76d5bcc1159c74ce69b4f8630e5974e50693475f3067fd5c4901b9c61d69a5a1", "TEXTOS-carrusel: el sha256 con que se aprobó");
 { const sell = TA.leerBytes(CARRUSEL).toString("utf8");
   for (const [l, t] of Object.entries(TEXTOS_CARRUSEL)) for (const [k, v] of Object.entries(t))
     igual(sell.includes(`| ${v} |`), true, `carrusel ${l}.${k} «${v}» es el texto aprobado`); }
 igual(AP.find((a) => a.archivo === QR_EN)?.sha256, "3d16e4f79b7297c553170691727fff3a11e05e74a2e38895cfcaaf6f33c23cd4", "TEXTOS-q-ready-en: el sha256 con que se aprobó");
-for (const a of AP) igual([TA.sha256(TA.leerBytes(a.archivo)), /^Nicholas, (18-nov-2026(: "Sí, | \(textos 2, 3 y 4\)$)|23-nov-2026: «Textos OK, súbelo»|24-nov-2026: «Sí, con esos textos»|24-nov-2026 \(vía coordinación\): textos 1 y 3 del MCP, ES y EN tal cual$|24-nov-2026: «Sí, tal cual» y «Sí, apruebo y sube»$|25-nov-2026: «Sí, apruebo y sube» \(criterio: desde el primer horizonte\) y «Sí, título fijo y neutro»$)/.test(a.aprobado_por)], [a.sha256, true], `${a.archivo}: sha256 y aprobado_por iguales a APROBADOS.json`);
+for (const a of AP) igual([TA.sha256(TA.leerBytes(a.archivo)), /^Nicholas, (18-nov-2026(: "Sí, | \(textos 2, 3 y 4\)$)|23-nov-2026: «Textos OK, súbelo»|24-nov-2026: «Sí, con esos textos»|24-nov-2026 \(vía coordinación\): textos 1 y 3 del MCP, ES y EN tal cual$|24-nov-2026: «Sí, tal cual» y «Sí, apruebo y sube»$|25-nov-2026: «Sí, apruebo y sube» \(criterio: desde el primer horizonte\) y «Sí, título fijo y neutro»$|27-nov-2026: QREADY-NOTA-2\.2 en el texto 1 del MCP, ES y EN \(sólo cambia el número\)$)/.test(a.aprobado_por)], [a.sha256, true], `${a.archivo}: sha256 y aprobado_por iguales a APROBADOS.json`);
 igual(AP.find((a) => a.archivo === T234).sha256, "a31d2c1c3215d7f05b3568dc8e7468cf607615301177c2801c9de2dbb706aaa3", "TEXTOS-para-aprobar: el sha256 con que se aprobó");
 
 // ---------------------------------------------------------------- 2 · el código dice lo aprobado
@@ -127,7 +127,7 @@ await conMutante(RTX, "sólo si es post-cuántica;", "sólo si es postcuántica;
   async (M) => igual(revisar234(M).some((x) => x.startsWith("texto 4 (es): la regla")), true, "MUTACIÓN texto 4: la regla de la llave con un guion menos → grita"));
 
 // ---------------------------------------------------------------- 4 · los textos del MCP (24-nov-2026)
-// TEXTOS-mcp-2026-11-24.md: textos 1 y 3, ES y EN. El código los sirve desde src/lib/mcp-textos.mjs:
+// TEXTOS-mcp-2026-11-27.md (el del 24-nov con QREADY-NOTA-2.2): textos 1 y 3, ES y EN. El código los sirve desde src/lib/mcp-textos.mjs:
 //  1 es → la descripción de medir_exposicion_pqc (tools/list); 3 es → GET /mcp con mayúscula inicial;
 //  3 en → /api-docs, dos veces, y ya no dice «read-only tools». 1 en está sellado y hoy no se sirve.
 const MCP_DOC = TA.leerBytes(MCP).toString("utf8");

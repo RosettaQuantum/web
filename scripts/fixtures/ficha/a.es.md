@@ -8,7 +8,7 @@
 | RQ.S.01 | Índice QEX | 56/100 (tope externo 84) |
 
 Lectura: Candado nuevo en el sitio y en todos los nombres públicos que respondieron, sin alertas graves ni altas, sin ambientes de prueba publicados y con todo lo sensible medido. Es la nota máxima que se puede dar desde afuera.
-Cómo sale la letra: no del QEX. La deciden el candado nuevo, las alertas y que lo sensible esté medido (QREADY-NOTA-2.1); el QEX resume cuatro dimensiones con peso y no fija la letra. A1-A3, por sí solas, no impiden la A. Las acciones de «Qué hacer» cambian la letra; el QEX sólo cambia con lo que lista «Puntos por acción».
+Cómo sale la letra: no del QEX. La deciden el candado nuevo, las alertas y que lo sensible esté medido (QREADY-NOTA-2.2); el QEX resume cuatro dimensiones con peso y no fija la letra. A1-A3, por sí solas, no impiden la A. Las acciones de «Qué hacer» cambian la letra; el QEX sólo cambia con lo que lista «Puntos por acción».
 Referencia: mediana banca 57 (12 orgs, edición 2026-08). ejemplo.cl está 1 punto abajo.
 Publicación: pública en https://rosettaquantum.com/es/verificado/ejemplo.cl
 

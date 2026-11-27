@@ -8,7 +8,7 @@
 | RQ.S.01 | QEX index | 56/100 (external cap 84) |
 
 Reading: Your site already uses the post-quantum lock, but it has a test environment exposed to the internet.
-How the grade is set: not from the QEX. The new lock, the alerts and whether everything sensitive was measured decide it (QREADY-NOTA-2.1); the QEX sums four weighted dimensions and does not set the grade. A2-A4 do not, by themselves, prevent an A. The “What to do” actions change the grade; the QEX only changes with what “Points per action” lists.
+How the grade is set: not from the QEX. The new lock, the alerts and whether everything sensitive was measured decide it (QREADY-NOTA-2.2); the QEX sums four weighted dimensions and does not set the grade. A2-A4 do not, by themselves, prevent an A. The “What to do” actions change the grade; the QEX only changes with what “Points per action” lists.
 Reference: no index for Paraguay; no comparison.
 Publication: private. The owner has not activated its public page.
 

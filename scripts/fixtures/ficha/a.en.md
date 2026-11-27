@@ -8,7 +8,7 @@
 | RQ.S.01 | QEX index | 56/100 (external cap 84) |
 
 Reading: New lock on the site and on every public name that responded, no serious or high alerts, no published test environments, and everything sensitive measured. The highest grade that can be given from outside.
-How the grade is set: not from the QEX. The new lock, the alerts and whether everything sensitive was measured decide it (QREADY-NOTA-2.1); the QEX sums four weighted dimensions and does not set the grade. A1-A3 do not, by themselves, prevent an A. The “What to do” actions change the grade; the QEX only changes with what “Points per action” lists.
+How the grade is set: not from the QEX. The new lock, the alerts and whether everything sensitive was measured decide it (QREADY-NOTA-2.2); the QEX sums four weighted dimensions and does not set the grade. A1-A3 do not, by themselves, prevent an A. The “What to do” actions change the grade; the QEX only changes with what “Points per action” lists.
 Reference: banking median 57 (12 orgs, edition 2026-08). ejemplo.cl is 1 point below.
 Publication: public at https://rosettaquantum.com/verificado/ejemplo.cl
 

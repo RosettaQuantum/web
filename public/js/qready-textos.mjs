@@ -395,7 +395,7 @@ export const FICHA = {
       ambiente_tras_cname: (cname, m) => `Ambiente no productivo detrás de un nombre de producción: CNAME a ${cname} (marcador «${m}»)` },
     // NUEVO (25-nov, APROBADO): cómo sale la letra respecto del QEX (public/js/ficha.mjs → comoLetra)
     como_letra: {
-      base: "Cómo sale la letra: no del QEX. La deciden el candado nuevo, las alertas y que lo sensible esté medido (QREADY-NOTA-2.1); el QEX resume cuatro dimensiones con peso y no fija la letra.",
+      base: "Cómo sale la letra: no del QEX. La deciden el candado nuevo, las alertas y que lo sensible esté medido (QREADY-NOTA-2.2); el QEX resume cuatro dimensiones con peso y no fija la letra.",
       techo: (ids, n) => ` ${ids} ${n > 1 ? "ponen" : "pone"} techo B: mientras ${n > 1 ? "sigan abiertas" : "siga abierta"}, la nota no pasa de B, sea cual sea el QEX.`,
       libres: (ids, n) => ` ${ids}, por sí ${n > 1 ? "solas" : "sola"}, no ${n > 1 ? "impiden" : "impide"} la A.`,
       acciones: " Las acciones de «Qué hacer» cambian la letra; el QEX sólo cambia con lo que lista «Puntos por acción».",
@@ -587,7 +587,7 @@ export const FICHA = {
       sin_caa: "No CAA record: any certificate authority may issue certificates for the domain",
       ambiente_tras_cname: (cname, m) => `Non-production environment behind a production name: CNAME to ${cname} (marker “${m}”)` },
     como_letra: {
-      base: "How the grade is set: not from the QEX. The new lock, the alerts and whether everything sensitive was measured decide it (QREADY-NOTA-2.1); the QEX sums four weighted dimensions and does not set the grade.",
+      base: "How the grade is set: not from the QEX. The new lock, the alerts and whether everything sensitive was measured decide it (QREADY-NOTA-2.2); the QEX sums four weighted dimensions and does not set the grade.",
       techo: (ids, n) => ` ${ids} ${n > 1 ? "cap" : "caps"} the grade at B: while open, the grade stays at B whatever the QEX.`,
       libres: (ids, n) => ` ${ids} ${n > 1 ? "do" : "does"} not, by ${n > 1 ? "themselves" : "itself"}, prevent an A.`,
       acciones: " The “What to do” actions change the grade; the QEX only changes with what “Points per action” lists.",

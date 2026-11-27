@@ -8,7 +8,7 @@
 | RQ.S.01 | Índice QEX | 56/100 (tope externo 84) |
 
 Lectura: Su sitio ya usa el candado post-cuántico, pero tiene un ambiente de pruebas expuesto a internet.
-Cómo sale la letra: no del QEX. La deciden el candado nuevo, las alertas y que lo sensible esté medido (QREADY-NOTA-2.1); el QEX resume cuatro dimensiones con peso y no fija la letra. A2-A4, por sí solas, no impiden la A. Las acciones de «Qué hacer» cambian la letra; el QEX sólo cambia con lo que lista «Puntos por acción».
+Cómo sale la letra: no del QEX. La deciden el candado nuevo, las alertas y que lo sensible esté medido (QREADY-NOTA-2.2); el QEX resume cuatro dimensiones con peso y no fija la letra. A2-A4, por sí solas, no impiden la A. Las acciones de «Qué hacer» cambian la letra; el QEX sólo cambia con lo que lista «Puntos por acción».
 Referencia: sin índice para Paraguay; no se compara.
 Publicación: privada. El dueño no ha activado su página pública.
 
