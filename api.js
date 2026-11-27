@@ -51,6 +51,7 @@ const sinVerificado = { http: 503, cuerpo: { ok: false, error: "Q-Ready Verified
 import { evaluarPeticion, RECHAZOS as RECHAZOS_PUERTA, huellaDelCuerpo } from "./lib/puerta.mjs";
 // RQ.T (24-nov-2026): descubrir proveedores desde DNS y CT. Módulos puros (sin sockets): Astro los puede importar.
 import { recolectar as recolectarProveedores } from "./lib/proveedores-ejecutor.mjs";
+import { excluido as dominioExcluido } from "./lib/capas.mjs";
 import { descubrir as descubrirProveedores } from "./lib/proveedores-descubrir.mjs";
 import { dominioValido as dominioValidoCt } from "./lib/ct-registro.mjs";
 
@@ -1129,10 +1130,12 @@ export function entornoDeHost(url) {
   if (h.endsWith(".workers.dev")) return "preview";
   return null;
 }
-async function herramientaProveedores(args, quien) {
+async function herramientaProveedores(args, quien, env = {}) {
   const dominio = String(args.dominio || "").trim().toLowerCase().replace(/^https?:\/\//, "").replace(/[\/?#].*$/, "").replace(/\.$/, "");
   if (!dominioValidoCt(dominio)) return { ok: false, error: "dominio inválido" };
   if (!(await proveedoresPermitido(quien.ip))) return { ok: false, error: "demasiadas consultas; espere un minuto" };
+  // Dos capas (27-nov-2026, lib/capas.mjs): un dominio que pidió no ser medido tampoco se describe.
+  if (await dominioExcluido(env.DB, dominio)) return { ok: false, excluido: true, error: "El dueño de este dominio pidió que no se mida. Ver /es/q-ready/quien-mide/." };
   const declarados = Array.isArray(args.declarados) ? args.declarados.map(String).slice(0, 200) : null;
   const t = Date.now();
   const insumos = await recolectarProveedores(dominio);
@@ -1193,7 +1196,7 @@ async function ejecutarHerramienta(env, nombre, args, quien = {}) {
     const r = await fuentes(env, u);
     return await r.json();
   }
-  if (nombre === HERRAMIENTA_PROVEEDORES.name && proveedoresHabilitado(env, quien.url)) return await herramientaProveedores(args, quien);
+  if (nombre === HERRAMIENTA_PROVEEDORES.name && proveedoresHabilitado(env, quien.url)) return await herramientaProveedores(args, quien, env);
   throw new Error(`herramienta desconocida: ${nombre}`);
 }
 

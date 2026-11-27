@@ -91,6 +91,7 @@ const SERVIDOR_EN = [
   [/^el sitio tiene que ser del mismo dominio$/i, "The website must belong to the same domain"],
   [/^como máximo (\d+) endpoints por medición$/i, "At most $1 endpoints per measurement"],
   [/^demasiadas mediciones seguidas\. espera un minuto$/i, "Too many measurements in a row. Please wait a minute"],
+  [/^el dueño de este dominio pidió que no se mida\. (puede revisar cómo medimos en|ver) \/es\/q-ready\/quien-mide\/?$/i, "The owner of this domain asked not to be measured. See how we measure at /q-ready/quien-mide/"],
   [/^demasiados pedidos seguidos\. espere un minuto$/i, "Too many requests in a row. Please wait a minute"],
   [/^demasiadas consultas; espere un minuto$/i, "too many requests; please wait a minute"],
   [/^la medición de correo no está habilitada en este servidor$/i, "Email measurement is not enabled on this server"],

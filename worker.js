@@ -137,7 +137,7 @@ async function atender(request, env, ctx) {
 
     // Re-medición en vivo del borde (demo de la reunión con un banco, 3-nov-2026).
     // Herramienta general: no guarda nada del dominio medido ni escribe en D1.
-    if (url.pathname === "/api/borde") return manejarBorde(request);
+    if (url.pathname === "/api/borde") return manejarBorde(request, env);
     // Registro público de certificados con caché y segunda fuente (lib/ct-registro.mjs).
     if (url.pathname === "/api/ct") return manejarCT(request, ctx, env);
     // Los formularios con correo y Turnstile (lib/captacion.mjs): sin token válido no escriben en D1.

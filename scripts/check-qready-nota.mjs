@@ -241,7 +241,7 @@ await conMutante(NUCLEO, "export const pruebasBloqueado = (e) => !!e && e.http_s
 await conMutante(NUCLEO, "export const pruebasBloqueado = (e) => !!e && e.http_status === 403;", "export const pruebasBloqueado = (e) => false;",
   async (M) => igual((await bloqueo(M, 403)).nota, "F", "MUTACIÓN: sin la excepción, el 403 vuelve a dar F (el guardia lo ve)"));
 
-// ---------------------------------------------------------------- 7 · el GET sólo con dueño verificado
+// ---------------------------------------------------------------- 7 · el GET es capa 1 (27-nov-2026)
 const INF = new URL("lib/informe-envivo.mjs", raiz);
 async function sondeoRaiz(Inf, { verificado, publico = true, entorno = "produccion", dbRota = false }) {
   const db = d1EnMemoria(ESQUEMA_V);
@@ -261,11 +261,13 @@ const verif = await sondeoRaiz(I, { verificado: true });
 const casos7 = { nadie: await sondeoRaiz(I, { verificado: null }), privado: await sondeoRaiz(I, { verificado: true, publico: false }),
   prueba: await sondeoRaiz(I, { verificado: true, entorno: "preview-prueba" }), rota: await sondeoRaiz(I, { verificado: true, dbRota: true }) };
 console.log = logOriginal;
-igual([sinVerif.gets, sinVerif.getPermitido, sinVerif.endpoints[0].http_consultado, sinVerif.endpoints[0].http_status], [[], false, false, null],
-  "grito: sin dueño verificado NO se pide la página (el espía no ve ningún GET)");
-for (const [k, v] of Object.entries(casos7)) igual(v.gets, [], `grito: ${k} (sin fila / verificado no público / entorno de prueba / base caída) → sin GET`);
-igual([verif.gets, verif.getPermitido, verif.endpoints[0].http_status], [["https://openfinance-desa.banco.example/"], true, 403],
-  "silencio: con dueño verificado sí se pide, sólo al nombre que respondió");
+// 27-nov-2026 (dos capas, lib/capas.mjs): el GET a «/» es capa 1. Se pide a cualquier dominio no excluido,
+// sólo al nombre que respondió el saludo, sin seguir redirecciones. La regla vieja («sólo con dueño
+// verificado», 17-nov) la reemplazó la decisión de Nicholas del 27-nov; la exclusión se prueba en check-capas.
+const UNO = ["https://openfinance-desa.banco.example/"];
+igual([sinVerif.gets, sinVerif.getPermitido, sinVerif.endpoints[0].http_status, sinVerif.endpoints[1].http_consultado], [UNO, true, 403, false],
+  "capa 1: sin dueño verificado se pide la página, sólo al nombre que respondió");
+for (const [k, v] of Object.entries(casos7)) igual(v.gets, UNO, `capa 1: ${k} (sin fila / no público / entorno de prueba / base caída) → un GET, al que respondió`);
 igual(/endpointsConRaiz\(env, dominio, endpoints1\)/.test(sinComentarios(leer("lib/informe-envivo.mjs"))), true, "manejarSondas pasa por endpointsConRaiz");
 // la nota sin consultar: media «publicado» con techo de B (aun con candado nuevo en todo); y sin el campo, como antes
 const sSinConsultar = (() => { const x = clon(sTecho); for (const e of x.endpoints) if (e.responde_443 === true) e.http_consultado = false; for (const e of x.endpoints) delete e.http_status; return x; })();
