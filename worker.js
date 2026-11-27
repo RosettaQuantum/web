@@ -3,6 +3,8 @@ import { manejarEvento, manejarStats } from "./lib/q-eventos.mjs";
 import { manejarApi, registrarMedicion, registrarVerificado } from "./api.js";
 import * as medicionAgentes from "./lib/medicion-agentes.mjs";
 import { manejarEnvio, manejarBaja } from "./lib/envio-informe.mjs";
+// El pedido de exclusión (27-nov-2026, «Quién mide y cómo»): POST /api/exclusion, confirmar y revocar.
+import { manejarExclusion } from "./lib/exclusion.mjs";
 // El logo del PDF de la ficha (wrangler.jsonc: **/rosetta-mark.svg como texto, igual que og-ruta).
 import marcaSvg from "./public/rosetta-mark.svg";
 registrarMedicion(medicionAgentes);
@@ -145,6 +147,11 @@ async function atender(request, env, ctx) {
     if (url.pathname === "/api/qready/informe-industria") return manejarInformeIndustria(request, env);
     if (url.pathname.startsWith("/api/medicion/envio")) return manejarEnvio(request, env, url, { marca: marcaSvg });
     if (url.pathname === "/baja") return manejarBaja(request, env, url);
+    // La exclusión (lib/exclusion.mjs). `enviar` es el medio del correo de confirmación y HOY NO EXISTE: el
+    // sitio sólo entrega correos a direcciones arbitrarias desde el VPS (lib/envio-informe.mjs → Contabo →
+    // Resend), y ese trabajador sólo sabe armar el PDF del informe; MAILER (send_email) sólo llega a hello@.
+    // Sin medio, POST /api/exclusion responde 503 antes de escribir. Confirmar y revocar ya funcionan.
+    if (url.pathname.startsWith("/api/exclusion")) return manejarExclusion(request, env, url, { enviar: null });
     if (url.pathname.startsWith("/api/sondas/correo")) return manejarCorreo(request, env, url);
     // Saludos TLS desde el VPS para lo que el Worker no puede saludar (lib/sonda-tls-vps.mjs): sólo el VPS, firmado.
     if (url.pathname.startsWith("/api/sondas/tls")) return manejarTls(request, env, url);
