@@ -61,3 +61,8 @@
 @media (max-width:640px){.qv-nota{flex-direction:column;align-items:flex-start}.qv-dom{font-size:var(--t-title)}}
 /* 27-nov-2026 · «Quién mide y cómo»: el User-Agent es un token largo en mono; se parte sólo si no cabe. */
 .qv-spec code{overflow-wrap:anywhere}
+/* «Quién mide y cómo» y la autorización (27-nov-2026): cada bloque respira, y el enlace dentro de un
+   párrafo o de un casillero se ve como enlace (en la verificación, «los términos de la autorización»). */
+.qv-spec > p:not(.qv-eyebrow):not(.qv-lede){margin:0 0 var(--s2)}
+.qv-spec > ul{margin:calc(var(--s2) * -.5) 0 var(--s2)}
+.qv-spec > p a,.qv-check a{text-decoration:underline;text-underline-offset:2px}
