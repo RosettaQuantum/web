@@ -146,7 +146,7 @@ igual([N.hibridoEnEndpoint({ responde_443: true, detalle: "responde; grupo x2551
   [null, true, null], "un endpoint sin el híbrido elegido es «sin evidencia», nunca «no»");
 
 // ---------------------------------------------------------------- 5 · qué se sondea (QREADY-NOTA-2)
-igual(N.VERSION_NOTA, "QREADY-NOTA-2.2", "la nota cambió resultados: 2 y 2.1 el 16-nov, 2.2 el 27-nov (cualquier 4xx es bloqueado)");
+igual(N.VERSION_NOTA, "QREADY-NOTA-2.2", "la nota cambió resultados: 2 y 2.1 el 16-nov, 2.2 el 27-nov (4xx salvo 401 es bloqueado)");
 // grito: los nombres reales (dominio enmascarado) y la lista aprobada, como segmento o con guion
 const PRUEBAS = ["openfinance-desa.banco.cl", "staging.rastreo.example", "test.rastreo.example", "serverless-staging.rastreo.example",
   "api-desarrollo.x.cl", "app-development.x.cl", "dev2.x.cl", "homologacion.x.cl", "homolog.x.cl", "hml.x.cl", "certificacion.x.cl",
@@ -195,10 +195,10 @@ async function bloqueo(Nm, http_status) {
   return { nota: x.nota, graves: x.graves.map((g) => g.codigo), medias: x.medias.filter((m) => m.host === "openfinance-desa.python.org").map((m) => m.codigo) };
 }
 // caso real del banco: openfinance-desa responde 403 → media, el banco queda B (no tiene híbrido en ese nombre)
-// QREADY-NOTA-2.2 (27-nov-2026): cualquier 4xx es «publicado con el acceso bloqueado»; 2xx, 3xx, 5xx o sin código, abierto.
-for (const c of [400, 401, 403, 404, 499])
+// QREADY-NOTA-2.2 (27-nov-2026): un 4xx salvo el 401 es «publicado con el acceso bloqueado»; 2xx, 3xx, 401, 5xx o sin código, abierto.
+for (const c of [400, 403, 404, 499])
   igual(await bloqueo(N, c), { nota: "B", graves: [], medias: ["ambiente_pruebas_publicado_bloqueado"] }, `silencio de la F: ${c} → alerta media «publicado con el acceso bloqueado», nota B`);
-for (const c of [200, 301, 302, 500, 503])
+for (const c of [200, 301, 302, 401, 500, 503])
   igual(await bloqueo(N, c), { nota: "F", graves: ["ambiente_pruebas_expuesto"], medias: [] }, `grito: ${c} es un ambiente de pruebas abierto → F`);
 igual((await bloqueo(N, undefined)).nota, "F", "sin código HTTP (foto anterior o sonda sin código): F como hasta hoy");
 // caso real del dominio de rastreo: staging 301 → F aunque serverless-staging dé 403
@@ -237,9 +237,9 @@ igual([xSB.nota, xSB.medias.map((m) => m.codigo).sort()], ["A", ["certificado_si
 await conMutante(NUCLEO, "&& sinEvidencia.length === 0 && !techoB) out.nota = \"A\";", "&& sinEvidencia.length === 0) out.nota = \"A\";",
   async (M) => igual((await conTecho(M, sTecho)).nota, "A", "MUTACIÓN: sin el techo de B, un ambiente de pruebas bloqueado deja A (el guardia lo ve)"));
 // MUTACIONES: la excepción ancha (3xx pasa a media) o ausente (403 da F)
-await conMutante(NUCLEO, "export const pruebasBloqueado = (e) => !!e && Number.isInteger(e.http_status) && e.http_status >= 400 && e.http_status < 500;", "export const pruebasBloqueado = (e) => !!e && e.http_status >= 300;",
+await conMutante(NUCLEO, "export const pruebasBloqueado = (e) => !!e && Number.isInteger(e.http_status) && e.http_status >= 400 && e.http_status < 500 && e.http_status !== 401;", "export const pruebasBloqueado = (e) => !!e && e.http_status >= 300;",
   async (M) => igual((await bloqueo(M, 301)).nota !== "F", true, "MUTACIÓN: con la excepción ancha, un 301 deja de dar F (el guardia lo ve)"));
-await conMutante(NUCLEO, "export const pruebasBloqueado = (e) => !!e && Number.isInteger(e.http_status) && e.http_status >= 400 && e.http_status < 500;", "export const pruebasBloqueado = (e) => false;",
+await conMutante(NUCLEO, "export const pruebasBloqueado = (e) => !!e && Number.isInteger(e.http_status) && e.http_status >= 400 && e.http_status < 500 && e.http_status !== 401;", "export const pruebasBloqueado = (e) => false;",
   async (M) => igual((await bloqueo(M, 403)).nota, "F", "MUTACIÓN: sin la excepción, el 403 vuelve a dar F (el guardia lo ve)"));
 
 // ---------------------------------------------------------------- 7 · el GET es capa 1 (27-nov-2026)

@@ -18,11 +18,11 @@
  "csv": {
   "es": {
    "archivo": "/data/rubrica-qex.es.csv",
-   "sha256": "b959be74bd3849548a3d3c1748074efef82285e74b36681a063203b68c3f38d5"
+   "sha256": "39f742a7c4c5911ab04f073c7413648eecd37e26aa7aec2a9183209529be22d4"
   },
   "en": {
    "archivo": "/data/rubrica-qex.en.csv",
-   "sha256": "944a4c2af986a4b33135cc6558d6c2bc6d815d9d6f510b94600f89cb42c3e796"
+   "sha256": "0d55d0eeaab0b7edc7de838ac76589fa2a3dde0080b53cf1b9f3bdf194d53d5a"
   }
  },
  "columnas": [
@@ -467,7 +467,7 @@
     "variable": "Ambiente de pruebas que responde abierto",
     "observa": "Un nombre de ambiente de pruebas (bloque 4) que responde en 443 y no está bloqueado.",
     "fuente": "saludo TLS a cada nombre sondeado; HTTP: GET a la raíz (sólo con el dueño verificado)",
-    "metodo": "Se sondea primero y se pide la raíz sin seguir redirecciones: 2xx, 3xx, 5xx o ningún código = abierto. Límite: hasta el tope de nombres sondeados.",
+    "metodo": "Se sondea primero y se pide la raíz sin seguir redirecciones: 2xx, 3xx, 401 (pide clave), 5xx o ningún código = abierto. Límite: hasta el tope de nombres sondeados.",
     "tipo": "medido",
     "regla": "No suma al QEX.",
     "efecto_nota": "Alerta grave: F.",
@@ -484,7 +484,7 @@
     "id": "RQ.S.09.2",
     "dimension": "Superficie expuesta",
     "variable": "Ambiente de pruebas con el acceso bloqueado",
-    "observa": "Un ambiente de pruebas que responde en 443 y devuelve un código 4xx en la raíz (400, 401, 403, 404…): no entrega contenido.",
+    "observa": "Un ambiente de pruebas que responde en 443 y devuelve un código 4xx en la raíz que no sea 401 (400, 403, 404…): no entrega contenido.",
     "fuente": "saludo TLS a cada nombre sondeado; HTTP: GET a la raíz (sólo con el dueño verificado)",
     "metodo": "Se pide la raíz sin seguir redirecciones y se guarda sólo el código.",
     "tipo": "medido",
@@ -1782,7 +1782,7 @@
     "variable": "Test environment that answers open",
     "observa": "A test-environment name (block 4) that answers on 443 and is not blocked.",
     "fuente": "TLS handshake to each probed name; HTTP: GET to the root (only with a verified owner)",
-    "metodo": "Probed first, then the root is requested without following redirects: 2xx, 3xx, 5xx or no code = open. Limit: up to the cap of probed names.",
+    "metodo": "Probed first, then the root is requested without following redirects: 2xx, 3xx, 401 (asks for a password), 5xx or no code = open. Limit: up to the cap of probed names.",
     "tipo": "measured",
     "regla": "Does not add to the QEX.",
     "efecto_nota": "Serious alert: F.",
@@ -1799,7 +1799,7 @@
     "id": "RQ.S.09.2",
     "dimension": "Exposed surface",
     "variable": "Test environment with access blocked",
-    "observa": "A test environment that answers on 443 and returns a 4xx code at the root (400, 401, 403, 404…): it serves no content.",
+    "observa": "A test environment that answers on 443 and returns a 4xx code other than 401 at the root (400, 403, 404…): it serves no content.",
     "fuente": "TLS handshake to each probed name; HTTP: GET to the root (only with a verified owner)",
     "metodo": "The root is requested without following redirects, and only the code is kept.",
     "tipo": "measured",
@@ -2674,5 +2674,5 @@
    }
   ]
  },
- "sha256": "8b95b0fdb72422e9f7e2944cef21f3bbcb83886f80b1242084e5d64ce3583070"
+ "sha256": "efbef333103bd39d02defab61922be2b702c1015a562463ee2b1739e5109a5ad"
 }

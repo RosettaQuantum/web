@@ -203,13 +203,13 @@ export const RUBRICA = {
       "RQ.S.09.1": {
         variable: "Ambiente de pruebas que responde abierto",
         observa: "Un nombre de ambiente de pruebas (bloque 4) que responde en 443 y no está bloqueado.",
-        metodo: "Se sondea primero y se pide la raíz sin seguir redirecciones: 2xx, 3xx, 5xx o ningún código = abierto. Límite: hasta el tope de nombres sondeados.",
+        metodo: "Se sondea primero y se pide la raíz sin seguir redirecciones: 2xx, 3xx, 401 (pide clave), 5xx o ningún código = abierto. Límite: hasta el tope de nombres sondeados.",
         regla: () => "No suma al QEX.",
         efecto: () => "Alerta grave: F.",
       },
       "RQ.S.09.2": {
         variable: "Ambiente de pruebas con el acceso bloqueado",
-        observa: "Un ambiente de pruebas que responde en 443 y devuelve un código 4xx en la raíz (400, 401, 403, 404…): no entrega contenido.",
+        observa: "Un ambiente de pruebas que responde en 443 y devuelve un código 4xx en la raíz que no sea 401 (400, 403, 404…): no entrega contenido.",
         metodo: "Se pide la raíz sin seguir redirecciones y se guarda sólo el código.",
         regla: () => "No suma al QEX.",
         efecto: () => "Alerta media que no deja dar A (techo B).",
@@ -520,13 +520,13 @@ export const RUBRICA = {
       "RQ.S.09.1": {
         variable: "Test environment that answers open",
         observa: "A test-environment name (block 4) that answers on 443 and is not blocked.",
-        metodo: "Probed first, then the root is requested without following redirects: 2xx, 3xx, 5xx or no code = open. Limit: up to the cap of probed names.",
+        metodo: "Probed first, then the root is requested without following redirects: 2xx, 3xx, 401 (asks for a password), 5xx or no code = open. Limit: up to the cap of probed names.",
         regla: () => "Does not add to the QEX.",
         efecto: () => "Serious alert: F.",
       },
       "RQ.S.09.2": {
         variable: "Test environment with access blocked",
-        observa: "A test environment that answers on 443 and returns a 4xx code at the root (400, 401, 403, 404…): it serves no content.",
+        observa: "A test environment that answers on 443 and returns a 4xx code other than 401 at the root (400, 403, 404…): it serves no content.",
         metodo: "The root is requested without following redirects, and only the code is kept.",
         regla: () => "Does not add to the QEX.",
         efecto: () => "Medium alert that rules out A (B ceiling).",

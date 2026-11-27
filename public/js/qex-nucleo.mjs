@@ -589,11 +589,12 @@ export const NOTAS = ["A+", "A", "B", "C", "D", "F"];
 // y 401 (pide clave: está expuesto) son abiertos → F. Precisión antes que cobertura: SIN código HTTP
 // (foto anterior, o la sonda no lo obtuvo) se lee como hasta hoy, abierto → F; y cualquier otro código
 // (404, 5xx…) también, porque el servidor está ahí sirviendo. La excepción es estrecha a propósito.
-// QREADY-NOTA-2.2 (27-nov-2026, decisión de Nicholas al pasar el GET a la capa 1): CUALQUIER 4xx en la
-// raíz —400, 401, 403, 404…— es «publicado con el acceso bloqueado»: el servidor no entregó contenido. Sólo
-// 2xx, 3xx, 5xx o sin código siguen como abiertos → F. El caso que lo decidió: un ambiente de desarrollo
+// QREADY-NOTA-2.2 (27-nov-2026, decisión de Nicholas al pasar el GET a la capa 1): un 4xx en la raíz
+// —400, 403, 404…— es «publicado con el acceso bloqueado»: el servidor no entregó contenido. El 401 NO:
+// una pantalla de clave a la vista es una puerta para intentar entrar (se mantiene la decisión del 16-nov).
+// 2xx, 3xx, 401, 5xx o sin código siguen como abiertos → F. El caso que lo decidió: un ambiente de desarrollo
 // de banca que responde 400 en su borde habría bajado de B a F sin entregar nada.
-export const pruebasBloqueado = (e) => !!e && Number.isInteger(e.http_status) && e.http_status >= 400 && e.http_status < 500;
+export const pruebasBloqueado = (e) => !!e && Number.isInteger(e.http_status) && e.http_status >= 400 && e.http_status < 500 && e.http_status !== 401;
 // Techo de B (decisión del dueño, 16-nov: «alerta media, nota B»). SÓLO esta alerta media lo pone: un
 // ambiente de pruebas publicado, aunque bloqueado, no es una A. Las demás medias (certificado sin plan,
 // legado, correo en 443) siguen sin bajar la letra; si no, rosettaquantum.com perdería su A.
