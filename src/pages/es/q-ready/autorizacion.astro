@@ -1,0 +1,27 @@
+---
+/**
+ * Términos de la autorización de la capa 2 (27-nov-2026), versión RQ-AUTORIZACION-1 (lib/capas.mjs):
+ * lo que acepta el casillero de /q-ready/verificar. El texto sale de public/js/qready-textos.mjs
+ * (TXT.<lang>.autorizacion, APROBADO y sellado). Una versión nueva de los términos es otra versión en
+ * lib/capas.mjs y otra aprobación. noindex, como /q-ready/verificar.
+ */
+import MarcaLayout from '../../../layouts/MarcaLayout.astro';
+import propia from '../../../styles/pages/qready-verificado.css?raw';
+import { textos } from '../../../../public/js/qready-textos.mjs';
+const L = 'es';
+const A = textos(L).autorizacion;
+---
+<MarcaLayout title={`${A.titulo} · Q-Ready`} description={`${A.titulo} · ${A.version}`} lang={L} altUrl="/q-ready/autorizacion" ruta="/es/q-ready/autorizacion" pageCss={propia} noindex={true}>
+  <section class="qv"><div class="qv-wrap qv-spec">
+    <p class="qv-eyebrow">Q-Ready</p>
+    <h1 class="qv-h1">{A.titulo}</h1>
+    <p class="qv-meta">{A.version}</p>
+    <ol>
+      {A.puntos.map((p) => (
+        <li><strong>{p.titulo}</strong>{p.texto ? ` ${p.texto}` : ''}
+          {p.lista && <ul>{p.lista.map((i) => <li>{i}</li>)}</ul>}
+        </li>
+      ))}
+    </ol>
+  </div></section>
+</MarcaLayout>

@@ -1,0 +1,53 @@
+---
+/**
+ * «Quién mide y cómo» (27-nov-2026, regla de las dos capas): qué medimos sin autorización, qué nunca
+ * hacemos, cómo reconocernos (el User-Agent de lib/capas.mjs apunta aquí) y el pedido de exclusión.
+ * El texto sale de public/js/qready-textos.mjs (TXT.<lang>.quien, APROBADO y sellado); el formulario lo
+ * maneja public/js/qready-exclusion.mjs contra POST /api/exclusion (lib/exclusion.mjs). noindex, como
+ * /q-ready/verificar.
+ */
+import MarcaLayout from '../../layouts/MarcaLayout.astro';
+import propia from '../../styles/pages/qready-verificado.css?raw';
+import { textos } from '../../../public/js/qready-textos.mjs';
+const L = 'en';
+const T = textos(L);
+const Q = T.quien;
+const PRE = L === 'en' ? '' : '/es';
+// `código` → <code>; el tramo `enlace` de un bloque → enlace a la verificación. Sin reescribir el texto.
+const trozos = (b) => {
+  const out = [];
+  b.texto.split('`').forEach((t, i) => {
+    if (i % 2) { out.push({ code: t }); return; }
+    if (b.enlace && t.includes(b.enlace)) {
+      const [a, z] = t.split(b.enlace);
+      out.push({ t: a }, { a: b.enlace, href: `${PRE}/q-ready/verificar/` }, { t: z });
+    } else if (b.id === 'contacto') out.push({ a: t, href: `mailto:${t}` });
+    else out.push({ t });
+  });
+  return out;
+};
+---
+<MarcaLayout title={`${Q.titulo} · Rosetta Quantum`} description={Q.lede} lang={L} altUrl="/es/q-ready/quien-mide" ruta="/q-ready/quien-mide" pageCss={propia} noindex={true}>
+  <section class="qv"><div class="qv-wrap qv-spec">
+    <p class="qv-eyebrow">Q-Ready</p>
+    <h1 class="qv-h1">{Q.titulo}</h1>
+    <p class="qv-lede">{Q.lede}</p>
+    {Q.bloques.map((b) => (
+      <Fragment>
+        <p id={`qm-${b.id}`}><strong>{b.titulo}</strong> {trozos(b).map((x) => x.code ? <code>{x.code}</code> : x.a ? <a href={x.href}>{x.a}</a> : x.t)}</p>
+        {b.lista && <ul>{b.lista.map((i) => <li>{i}</li>)}</ul>}
+        {b.id === 'excluir' && (
+          <form class="qv-form" id="qx-form" novalidate>
+            <div class="qv-campo"><label for="qx-dominio">{Q.form.dominio}</label><input id="qx-dominio" type="text" inputmode="url" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="ejemplo.cl" required></div>
+            <div class="qv-campo"><label for="qx-correo">{Q.form.correo}</label><input id="qx-correo" type="email" autocomplete="email" required></div>
+            <div id="qx-ts"></div>
+            <div><button type="submit" class="qv-ir" id="qx-ir">{Q.form.ir}</button></div>
+            <p class="qv-estado" id="qx-estado" role="status" aria-live="polite"></p>
+          </form>
+        )}
+      </Fragment>
+    ))}
+  </div></section>
+  <script is:inline src="/js/turnstile.js"></script>
+  <script is:inline type="module" src="/js/qready-exclusion.mjs"></script>
+</MarcaLayout>

@@ -59,3 +59,5 @@
 .qv-spec td,.qv-spec th{overflow-wrap:anywhere}
 .qv-ficha-ej{overflow-x:auto}
 @media (max-width:640px){.qv-nota{flex-direction:column;align-items:flex-start}.qv-dom{font-size:var(--t-title)}}
+/* 27-nov-2026 · «Quién mide y cómo»: el User-Agent es un token largo en mono; se parte sólo si no cabe. */
+.qv-spec code{overflow-wrap:anywhere}

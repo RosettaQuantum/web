@@ -46,5 +46,17 @@
   "sha256": "e15ff57cf0786ce772ed6cd5f68657a97b46ad7d012c0098be03065f816a6487",
   "aprobado_por": "Nicholas, 25-nov-2026: «Sí, apruebo y sube» (criterio: desde el primer horizonte) y «Sí, título fijo y neutro»",
   "usa": "src/lib/mosca-textos.mjs · TEXTOS_MOSCA (gráfico «Sume los años»)"
+ },
+ {
+  "archivo": "TEXTOS-dos-capas-2026-11-27.md",
+  "sha256": "c7b09ebb6d5d9e44d5383613f8b638237b3c43bdbe7635e034ac0ba7c20d5795",
+  "aprobado_por": "Nicholas, 27-nov-2026: textos de las dos capas (secciones 3 y 4), tal cual",
+  "usa": "public/js/qready-textos.mjs · TXT.es.quien (página «Quién mide y cómo») y el casillero en inglés TXT.en.alta_autoriza. Las secciones 1 y 2 (rúbrica y versión de la nota) viven en otros archivos."
+ },
+ {
+  "archivo": "TEXTO-autorizacion-2026-11-27.md",
+  "sha256": "c11891800f0b2b0f24abf2738df5b2e2f77c3e386b1e1db42dc9971f1441de94",
+  "aprobado_por": "Nicholas, 27-nov-2026: regla de dos capas v2, sección 5 (casillero y términos), tal cual",
+  "usa": "public/js/qready-textos.mjs · TXT.es.alta_autoriza (casillero de la verificación) y TXT.es.autorizacion (términos, versión RQ-AUTORIZACION-1). Es la sección 5 de la regla v2, byte a byte; el resto de la regla no es texto de lector."
  }
 ]

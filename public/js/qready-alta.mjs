@@ -39,7 +39,7 @@ if (form) {
     const tk = ts ? await ts.esperarToken() : null;
     try {
       const r = await fetch("/api/qready/verificado/alta", { method: "POST", headers: { "content-type": "application/json" },
-        body: JSON.stringify({ dominio, sector: $("qv-sector").value, contacto: $("qv-contacto").value.trim() || null, publico: $("qv-publico").checked, turnstile: tk }) });
+        body: JSON.stringify({ dominio, sector: $("qv-sector").value, contacto: $("qv-contacto").value.trim() || null, publico: $("qv-publico").checked, autoriza: !!($("qv-autoriza") && $("qv-autoriza").checked), turnstile: tk }) });
       const j = await r.json().catch(() => ({}));
       if (!r.ok || !j.ok) { decir("qv-estado", ERR[j.error] || (EN ? `We could not register the request (${r.status}).` : (j.error || `No pudimos registrar el pedido (${r.status}).`)), true); if (ts) ts.reiniciar(); $("qv-ir").disabled = false; return; }
       token = j.token;

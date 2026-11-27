@@ -25,6 +25,8 @@ const sectores = Object.entries(REF.verticales).map(([k, v]: any) => [k, L === '
       <div class="qv-campo"><label for="qv-sector">{T.alta_sector}</label><select id="qv-sector">{sectores.map(([k, n]) => <option value={k}>{n}</option>)}</select></div>
       <div class="qv-campo"><label for="qv-contacto">{T.alta_contacto}</label><input id="qv-contacto" type="email" autocomplete="email"></div>
       <label class="qv-check"><input type="checkbox" id="qv-publico"> <span>{T.alta_publico}</span></label>
+      {/* La capa 2 (27-nov-2026): el casillero de la autorización, con enlace a sus términos (texto aprobado, sin reescribir). */}
+      <label class="qv-check"><input type="checkbox" id="qv-autoriza"> <span>{T.alta_autoriza.split(T.alta_autoriza_enlace)[0]}<a href="/es/q-ready/autorizacion/">{T.alta_autoriza_enlace}</a>{T.alta_autoriza.split(T.alta_autoriza_enlace)[1]}</span></label>
       <div id="qv-ts"></div>
       <div><button type="submit" class="qv-ir" id="qv-ir">{T.alta_ir}</button></div>
       <p class="qv-estado" id="qv-estado" role="status" aria-live="polite"></p>

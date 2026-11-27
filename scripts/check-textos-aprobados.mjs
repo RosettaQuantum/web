@@ -40,6 +40,7 @@ const CARRUSEL = "TEXTOS-carrusel-2026-11-24.md";
 const QR_EN = "TEXTOS-q-ready-en-2026-11-23.md";
 const MOSCA = "TEXTOS-mosca-2026-11-25b.md"; // gráfico «Sume los años»
 const MCP_H = "TEXTOS-mcp-herramientas-2026-11-24.md"; // descripciones de tres herramientas, verbatim
+const DOS_CAPAS = "TEXTOS-dos-capas-2026-11-27.md", AUTORIZACION = "TEXTO-autorizacion-2026-11-27.md"; // su contenido lo vigila scripts/check-exclusion.mjs
 const MCP = "TEXTOS-mcp-2026-11-27.md"; // reemplaza al del 24-nov: QREADY-NOTA-2.2 en el texto 1 (27-nov-2026); // su contenido lo vigila scripts/textos-q-ready-en.mjs --verificar
 // Las lecturas que NO se tocan (A+, C, D, F), como estaban el 18-nov: cambiarlas no está aprobado.
 const SIN_CAMBIO = {
@@ -55,7 +56,9 @@ const SIN_CAMBIO = {
 
 // ---------------------------------------------------------------- 1 · el sello
 const AP = TA.aprobados();
-igual(AP.map((a) => a.archivo).sort(), [LECTURA, HNDL, T234, QR_EN, CARRUSEL, MCP, MCP_H, MOSCA].sort(), "APROBADOS.json declara los ocho documentos, ni más ni menos");
+igual(AP.map((a) => a.archivo).sort(), [LECTURA, HNDL, T234, QR_EN, CARRUSEL, MCP, MCP_H, MOSCA, DOS_CAPAS, AUTORIZACION].sort(), "APROBADOS.json declara los diez documentos, ni más ni menos");
+igual(AP.find((a) => a.archivo === DOS_CAPAS)?.sha256, "c7b09ebb6d5d9e44d5383613f8b638237b3c43bdbe7635e034ac0ba7c20d5795", "TEXTOS-dos-capas: el sha256 con que se aprobó");
+igual(AP.find((a) => a.archivo === AUTORIZACION)?.sha256, "c11891800f0b2b0f24abf2738df5b2e2f77c3e386b1e1db42dc9971f1441de94", "TEXTO-autorizacion: el sha256 con que se aprobó");
 igual(AP.find((a) => a.archivo === MOSCA)?.sha256, "e15ff57cf0786ce772ed6cd5f68657a97b46ad7d012c0098be03065f816a6487", "TEXTOS-mosca: el sha256 con que se aprobó");
 igual(AP.find((a) => a.archivo === MCP_H)?.sha256, "d0a76b239d3daad085421be059b60da075761b5294aa8fe45891d23b8cd1ab71", "TEXTOS-mcp-herramientas: el sha256 con que se aprobó");
 igual(AP.find((a) => a.archivo === MCP)?.sha256, "9b467d434ebea87390a6dffa66cb135abfa1dffeda38167f72502aaee1aad09c", "TEXTOS-mcp: el sha256 con que se aprobó");
@@ -64,7 +67,7 @@ igual(AP.find((a) => a.archivo === CARRUSEL)?.sha256, "76d5bcc1159c74ce69b4f8630
   for (const [l, t] of Object.entries(TEXTOS_CARRUSEL)) for (const [k, v] of Object.entries(t))
     igual(sell.includes(`| ${v} |`), true, `carrusel ${l}.${k} «${v}» es el texto aprobado`); }
 igual(AP.find((a) => a.archivo === QR_EN)?.sha256, "3d16e4f79b7297c553170691727fff3a11e05e74a2e38895cfcaaf6f33c23cd4", "TEXTOS-q-ready-en: el sha256 con que se aprobó");
-for (const a of AP) igual([TA.sha256(TA.leerBytes(a.archivo)), /^Nicholas, (18-nov-2026(: "Sí, | \(textos 2, 3 y 4\)$)|23-nov-2026: «Textos OK, súbelo»|24-nov-2026: «Sí, con esos textos»|24-nov-2026 \(vía coordinación\): textos 1 y 3 del MCP, ES y EN tal cual$|24-nov-2026: «Sí, tal cual» y «Sí, apruebo y sube»$|25-nov-2026: «Sí, apruebo y sube» \(criterio: desde el primer horizonte\) y «Sí, título fijo y neutro»$|27-nov-2026: QREADY-NOTA-2\.2 en el texto 1 del MCP, ES y EN \(sólo cambia el número\)$)/.test(a.aprobado_por)], [a.sha256, true], `${a.archivo}: sha256 y aprobado_por iguales a APROBADOS.json`);
+for (const a of AP) igual([TA.sha256(TA.leerBytes(a.archivo)), /^Nicholas, (18-nov-2026(: "Sí, | \(textos 2, 3 y 4\)$)|23-nov-2026: «Textos OK, súbelo»|24-nov-2026: «Sí, con esos textos»|24-nov-2026 \(vía coordinación\): textos 1 y 3 del MCP, ES y EN tal cual$|24-nov-2026: «Sí, tal cual» y «Sí, apruebo y sube»$|25-nov-2026: «Sí, apruebo y sube» \(criterio: desde el primer horizonte\) y «Sí, título fijo y neutro»$|27-nov-2026: (QREADY-NOTA-2\.2 en el texto 1 del MCP, ES y EN \(sólo cambia el número\)|textos de las dos capas \(secciones 3 y 4\), tal cual|regla de dos capas v2, sección 5 \(casillero y términos\), tal cual)$)/.test(a.aprobado_por)], [a.sha256, true], `${a.archivo}: sha256 y aprobado_por iguales a APROBADOS.json`);
 igual(AP.find((a) => a.archivo === T234).sha256, "a31d2c1c3215d7f05b3568dc8e7468cf607615301177c2801c9de2dbb706aaa3", "TEXTOS-para-aprobar: el sha256 con que se aprobó");
 
 // ---------------------------------------------------------------- 2 · el código dice lo aprobado
@@ -177,5 +180,5 @@ igual(revisarMcp(TM, HERRAMIENTAS, "Solo lectura. Toda respuesta incluye sha256 
 
 for (const f of fallas) console.log("  FALLA " + f);
 console.log(fallas.length ? `check-textos-aprobados: ${fallas.length} falla(s) de ${casos} casos`
-  : `check-textos-aprobados: ok (${casos} casos · 8 documentos sellados · lectura A/B, frase HNDL es/en, tope y llave, textos del MCP = lo aprobado · 14 mutaciones gritan)`);
+  : `check-textos-aprobados: ok (${casos} casos · 10 documentos sellados · lectura A/B, frase HNDL es/en, tope y llave, textos del MCP = lo aprobado · 14 mutaciones gritan)`);
 process.exit(fallas.length ? 1 : 0);

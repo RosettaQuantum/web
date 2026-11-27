@@ -99,6 +99,123 @@ export const TXT = {
     alta_copiar: "Copiar",
     alta_copiado: "Copiado.",
     alta_privado: "Verificado sin página pública: el sello muestra «no verificado» hasta que elija publicar.",
+    // Las dos capas (27-nov-2026). alta_autoriza*, quien.* y autorizacion.* son texto
+    // APROBADO, copiado por archivo del documento sellado (src/data/q-ready/textos-aprobados/): no se edita aquí.
+    // scripts/check-exclusion.mjs lo compara byte a byte.
+    "alta_autoriza": "Autorizo a Rosetta Quantum a medir este dominio en profundidad, según los términos de la autorización.",
+    "alta_autoriza_enlace": "los términos de la autorización",
+    "quien": {
+      "titulo": "Quién mide y cómo",
+      "lede": "Rosetta Quantum mide la preparación post-cuántica de sitios y servicios públicos. Si vio una conexión nuestra en sus registros, aquí está qué hicimos y cómo pedir que no lo volvamos a hacer.",
+      "bloques": [
+        {
+          "id": "que",
+          "titulo": "Qué miramos, sin pedir autorización.",
+          "texto": "Sólo lo que su servidor le entrega a cualquier visitante antes de pedir una clave:",
+          "lista": [
+            "sus nombres en el registro público de certificados y en el DNS;",
+            "el saludo TLS de su sitio y de esos nombres: qué cifrado ofrecen y qué certificado entregan;",
+            "el código de respuesta de su página principal, sin seguir redirecciones y sin guardar el contenido;",
+            "el cifrado de su correo entrante, sin enviar ningún mensaje;",
+            "el saludo de SSH y de sus servicios públicos con TLS."
+          ]
+        },
+        {
+          "id": "nunca",
+          "titulo": "Qué nunca hacemos.",
+          "texto": "No usamos claves ni intentamos entrar. No buscamos ni explotamos fallas. No seguimos una pantalla de inicio de sesión. No guardamos contenido. No generamos más carga que unas pocas visitas."
+        },
+        {
+          "id": "reconocer",
+          "titulo": "Cómo reconocernos.",
+          "texto": "Nuestras conexiones web dicen `RosettaQ-Ready/1.0 (+https://rosettaquantum.com/es/q-ready/quien-mide/)`. Nuestro servidor de medición es 45.88.191.121."
+        },
+        {
+          "id": "frecuencia",
+          "titulo": "Cada cuánto.",
+          "texto": "El estudio mensual mide cada organización una vez al mes. La página pública mide a pedido de quien la usa, con un límite por visitante."
+        },
+        {
+          "id": "publica",
+          "titulo": "Qué publicamos.",
+          "texto": "Las cifras por país y por sector, siempre anónimas. El informe completo de una organización sólo se entrega a esa organización. Su nota sólo se publica si ella decide publicarla."
+        },
+        {
+          "id": "excluir",
+          "titulo": "Pedir que no lo midamos.",
+          "texto": "Escriba su dominio y un correo de ese dominio. Le enviamos un enlace; al confirmarlo, dejamos de medirlo a usted y a sus subdominios, a más tardar en 24 horas. Puede deshacerlo cuando quiera."
+        },
+        {
+          "id": "profunda",
+          "titulo": "Medición más profunda.",
+          "texto": "Si quiere que midamos más —todos sus nombres, más puertos y una medición diaria—, verifique su dominio y autorícelo.",
+          "enlace": "verifique su dominio y autorícelo"
+        },
+        {
+          "id": "contacto",
+          "titulo": "Contacto:",
+          "texto": "hello@rosettaquantum.com"
+        }
+      ],
+      "form": {
+        "dominio": "Dominio",
+        "correo": "Correo del dominio",
+        "ir": "Pedir la exclusión"
+      }
+    },
+    "autorizacion": {
+      "titulo": "Términos",
+      "version": "versión 1 · 27 de noviembre de 2026",
+      "puntos": [
+        {
+          "titulo": "Quién autoriza.",
+          "texto": "Usted declara que administra este dominio o que puede autorizar su medición. Lo comprobamos con el registro TXT de la verificación."
+        },
+        {
+          "titulo": "Qué agregamos a la medición pública.",
+          "texto": "",
+          "lista": [
+            "Todos los nombres de su dominio, sin tope.",
+            "Los puertos que usted declare, además de los públicos.",
+            "Los encabezados de los servidores internos publicados.",
+            "Una medición diaria con alerta cuando algo cambia."
+          ]
+        },
+        {
+          "titulo": "Qué nunca hacemos.",
+          "texto": "",
+          "lista": [
+            "No usamos credenciales ni intentamos entrar.",
+            "No buscamos ni explotamos fallas.",
+            "No guardamos contenido.",
+            "No generamos más carga que unas pocas visitas."
+          ]
+        },
+        {
+          "titulo": "Sus resultados son suyos.",
+          "texto": "Se publican sólo si usted lo elige."
+        },
+        {
+          "titulo": "Cómo se retira.",
+          "texto": "Borrando el registro TXT o escribiéndonos. La medición profunda se detiene desde ese momento."
+        },
+        {
+          "titulo": "Qué registramos.",
+          "texto": "El dominio, la fecha y la versión de estos términos."
+        }
+      ]
+    },
+    // PROVISORIO, pendiente de aprobación: los mensajes del formulario de exclusión.
+    quien_estado: {
+      "enviando": "Enviando…",
+      "ok": "Le enviamos un enlace a ese correo. La exclusión empieza cuando lo confirme.",
+      "dominio": "Escriba un dominio público, por ejemplo ejemplo.cl.",
+      "correo": "El correo tiene que ser de ese dominio o de uno de sus subdominios.",
+      "red": "No pudimos conectar. Intente de nuevo.",
+      "no_habilitado": "El pedido de exclusión aún no está habilitado. Mientras tanto, escríbanos a hello@rosettaquantum.com.",
+      "demasiados": "Demasiados pedidos seguidos. Espere un minuto.",
+      "persona": "No pudimos verificar que es una persona. Recargue la página e intente de nuevo."
+    },
     // /es/q-ready/spec y el validador
     spec_titulo: "/.well-known/q-ready: el plan post-cuántico, declarado y firmado",
     spec_lede: "Un archivo JSON corto y firmado que cualquier organización publica en su propio dominio, como security.txt. Dice quién responde, en qué va el inventario criptográfico interno, la fecha objetivo de migración y el estado de los proveedores críticos. Es un estándar abierto y gratuito: no hace falta ser cliente de nadie.",
@@ -204,6 +321,123 @@ export const TXT = {
     alta_copiar: "Copy",
     alta_copiado: "Copied.",
     alta_privado: "Verified without a public page: the badge shows “not verified” until you choose to publish.",
+    // Las dos capas (27-nov-2026). alta_autoriza*, quien.* y autorizacion.* son texto
+    // APROBADO, copiado por archivo del documento sellado (src/data/q-ready/textos-aprobados/): no se edita aquí.
+    // scripts/check-exclusion.mjs lo compara byte a byte. El inglés es traducción fiel, PROVISORIA.
+    "alta_autoriza": "I authorize Rosetta Quantum to measure this domain in depth, under the terms of the authorization.",
+    "alta_autoriza_enlace": "the terms of the authorization",
+    "quien": {
+      "titulo": "Who measures and how",
+      "lede": "Rosetta Quantum measures the post-quantum readiness of public sites and services. If you saw a connection from us in your logs, here is what we did and how to ask us not to do it again.",
+      "bloques": [
+        {
+          "id": "que",
+          "titulo": "What we look at, without asking for authorization.",
+          "texto": "Only what your server hands to any visitor before asking for a password:",
+          "lista": [
+            "your names in the public certificate log and in DNS;",
+            "the TLS handshake of your site and of those names: which encryption they offer and which certificate they present;",
+            "the response code of your main page, without following redirects and without keeping the content;",
+            "the encryption of your incoming mail, without sending any message;",
+            "the SSH handshake and that of your public services with TLS."
+          ]
+        },
+        {
+          "id": "nunca",
+          "titulo": "What we never do.",
+          "texto": "We do not use passwords or try to get in. We do not look for or exploit flaws. We do not go past a login screen. We do not keep content. We do not generate more load than a few visits."
+        },
+        {
+          "id": "reconocer",
+          "titulo": "How to recognize us.",
+          "texto": "Our web connections say `RosettaQ-Ready/1.0 (+https://rosettaquantum.com/es/q-ready/quien-mide/)`. Our measurement server is 45.88.191.121."
+        },
+        {
+          "id": "frecuencia",
+          "titulo": "How often.",
+          "texto": "The monthly study measures each organization once a month. The public page measures at the request of whoever uses it, with a limit per visitor."
+        },
+        {
+          "id": "publica",
+          "titulo": "What we publish.",
+          "texto": "Figures by country and by sector, always anonymous. An organization's full report is delivered only to that organization. Its grade is published only if it decides to publish it."
+        },
+        {
+          "id": "excluir",
+          "titulo": "Ask us not to measure you.",
+          "texto": "Enter your domain and an email address at that domain. We send you a link; once you confirm it, we stop measuring you and your subdomains within 24 hours at the latest. You can undo it whenever you want."
+        },
+        {
+          "id": "profunda",
+          "titulo": "Deeper measurement.",
+          "texto": "If you want us to measure more —all your names, more ports and a daily measurement—, verify your domain and authorize it.",
+          "enlace": "verify your domain and authorize it"
+        },
+        {
+          "id": "contacto",
+          "titulo": "Contact:",
+          "texto": "hello@rosettaquantum.com"
+        }
+      ],
+      "form": {
+        "dominio": "Domain",
+        "correo": "Email at the domain",
+        "ir": "Request the exclusion"
+      }
+    },
+    "autorizacion": {
+      "titulo": "Terms",
+      "version": "version 1 · 27 November 2026",
+      "puntos": [
+        {
+          "titulo": "Who authorizes.",
+          "texto": "You declare that you administer this domain or that you can authorize its measurement. We check it with the TXT record of the verification."
+        },
+        {
+          "titulo": "What we add to the public measurement.",
+          "texto": "",
+          "lista": [
+            "All the names of your domain, with no cap.",
+            "The ports you declare, in addition to the public ones.",
+            "The headers of the published internal servers.",
+            "A daily measurement with an alert when something changes."
+          ]
+        },
+        {
+          "titulo": "What we never do.",
+          "texto": "",
+          "lista": [
+            "We do not use credentials or try to get in.",
+            "We do not look for or exploit flaws.",
+            "We do not keep content.",
+            "We do not generate more load than a few visits."
+          ]
+        },
+        {
+          "titulo": "Your results are yours.",
+          "texto": "They are published only if you choose so."
+        },
+        {
+          "titulo": "How to withdraw it.",
+          "texto": "By deleting the TXT record or by writing to us. The in-depth measurement stops from that moment."
+        },
+        {
+          "titulo": "What we record.",
+          "texto": "The domain, the date and the version of these terms."
+        }
+      ]
+    },
+    // PROVISORIO, pendiente de aprobación: los mensajes del formulario de exclusión.
+    quien_estado: {
+      "enviando": "Sending…",
+      "ok": "We sent a link to that address. The exclusion starts when you confirm it.",
+      "dominio": "Enter a public domain, for example example.com.",
+      "correo": "The email address must be at that domain or one of its subdomains.",
+      "red": "We could not connect. Try again.",
+      "no_habilitado": "Exclusion requests are not enabled yet. Meanwhile, write to us at hello@rosettaquantum.com.",
+      "demasiados": "Too many requests in a row. Wait a minute.",
+      "persona": "We could not verify that you are a person. Reload the page and try again."
+    },
     spec_titulo: "/.well-known/q-ready: the post-quantum plan, declared and signed",
     spec_lede: "A short, signed JSON file that any organization publishes on its own domain, like security.txt. It states who is responsible, where the internal cryptographic inventory stands, the target migration date and the status of critical providers. It is an open, free standard: you do not need to be anyone's client.",
     spec_resumen: [],
