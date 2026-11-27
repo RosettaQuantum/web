@@ -581,7 +581,7 @@ export const estadoEndpointEn = (e) => { const t = estadoEndpoint(e); return t =
 // que se leía el certificado; el QEX se renormalizó a peso 0,6 y no_evaluado vino vacío. Regla nueva:
 // si falta una dimensión de peso ≥ 0,25 (NOTA_DIMENSION_MINIMA), la nota no puede ser A (máximo B), y
 // la dimensión va en no_evaluado y en falta_para_A. null sigue siendo «no medido», nunca «no protegido».
-export const VERSION_NOTA = "QREADY-NOTA-2.1";
+export const VERSION_NOTA = "QREADY-NOTA-2.2";
 export const NOTA_DIMENSION_MINIMA = 0.25;
 export const NOTAS = ["A+", "A", "B", "C", "D", "F"];
 // Ambiente de pruebas que responde: ¿abierto o bloqueado? (16-nov-2026, decisión del dueño, dentro de la
@@ -589,7 +589,11 @@ export const NOTAS = ["A+", "A", "B", "C", "D", "F"];
 // y 401 (pide clave: está expuesto) son abiertos → F. Precisión antes que cobertura: SIN código HTTP
 // (foto anterior, o la sonda no lo obtuvo) se lee como hasta hoy, abierto → F; y cualquier otro código
 // (404, 5xx…) también, porque el servidor está ahí sirviendo. La excepción es estrecha a propósito.
-export const pruebasBloqueado = (e) => !!e && e.http_status === 403;
+// QREADY-NOTA-2.2 (27-nov-2026, decisión de Nicholas al pasar el GET a la capa 1): CUALQUIER 4xx en la
+// raíz —400, 401, 403, 404…— es «publicado con el acceso bloqueado»: el servidor no entregó contenido. Sólo
+// 2xx, 3xx, 5xx o sin código siguen como abiertos → F. El caso que lo decidió: un ambiente de desarrollo
+// de banca que responde 400 en su borde habría bajado de B a F sin entregar nada.
+export const pruebasBloqueado = (e) => !!e && Number.isInteger(e.http_status) && e.http_status >= 400 && e.http_status < 500;
 // Techo de B (decisión del dueño, 16-nov: «alerta media, nota B»). SÓLO esta alerta media lo pone: un
 // ambiente de pruebas publicado, aunque bloqueado, no es una A. Las demás medias (certificado sin plan,
 // legado, correo en 443) siguen sin bajar la letra; si no, rosettaquantum.com perdería su A.
@@ -685,7 +689,7 @@ export const notaQEX = (foto, extras = {}) => explicarNota(foto, extras).nota;
 // `desde`: la versión de la nota en que entró la regla (git: QREADY-NOTA-0 y -1 del 13-nov, -2 y -2.1 del
 // 16-nov). El texto que lee una persona vive en public/js/rubrica-textos.mjs (PROVISORIO).
 export const VERSIONES_NOTA = Object.freeze({
-  "QREADY-NOTA-0": "2026-11-13", "QREADY-NOTA-1": "2026-11-13", "QREADY-NOTA-2": "2026-11-16", "QREADY-NOTA-2.1": "2026-11-16",
+  "QREADY-NOTA-0": "2026-11-13", "QREADY-NOTA-1": "2026-11-13", "QREADY-NOTA-2": "2026-11-16", "QREADY-NOTA-2.1": "2026-11-16", "QREADY-NOTA-2.2": "2026-11-27",
 });
 // Las alertas que emite explicarNota, con su nivel. `techo_b`: la media que no deja dar A (MEDIAS_CON_TECHO_B).
 export const ALERTAS_NOTA = Object.freeze([

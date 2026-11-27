@@ -74,7 +74,7 @@ igual(letras, { a: "A", f: "F", "sin-correo": "B", rastreo: "F", rastreob: "B" }
 // el caso F ejerce lo que tiene que ejercer: alertas GRAVE y MEDIA, acciones con y sin efecto, no medido
 const mdF = render(Fi, "f", "es");
 igual(["| A1 | GRAVE |", "| MEDIA |", "| -> ", "| no cambia |", "| RQ.S.06 | no cambia |", "| Publicar security.txt | — | no cambia |", "crt.sh no respondió; se usó Cert Spotter", "sin índice para Paraguay",
-  "## 01 Veredicto", "· desde afuera, sin instalar nada", "4022 cert.", "Versiones: QEX-1.0 · QREADY-NOTA-2.1", "Con H1 a H3 hechos"].filter((t) => !mdF.includes(t)), [],
+  "## 01 Veredicto", "· desde afuera, sin instalar nada", "4022 cert.", "Versiones: QEX-1.0 · QREADY-NOTA-2.2", "Con H1 a H3 hechos"].filter((t) => !mdF.includes(t)), [],
   "el caso F ejerce GRAVE, MEDIA, efecto, «no cambia», el correo medido, la fuente caída, el país sin índice y el formato de la ficha aprobada");
 igual(/staging\.|staging \|/.test(mdF), true, "el caso F (no verificado) imprime el nombre de pruebas completo (25-nov, «Dejar de enmascarar»)");
 igual(render(Fi, "a", "es").includes("| legacy.ejemplo.cl |"), true, "el caso A (verificado) imprime los nombres completos");

@@ -80,7 +80,7 @@ QEX sin el modelo HNDL del sector (sólo lo medido): 60. El índice publicado si
 
 ## 06 Evidencia
 - Instrumento: rosetta-sondas-envivo/1
-- Versiones: QEX-1.0 · QREADY-NOTA-2.1
+- Versiones: QEX-1.0 · QREADY-NOTA-2.2
 - Medido: 2026-11-16T18:55:47Z
 - Huella CT: e5b89749…3a86 · 1 cert.
 - Huella de la foto: 6886b050…9447

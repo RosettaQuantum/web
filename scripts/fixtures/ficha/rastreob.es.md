@@ -68,7 +68,7 @@ Sin hallazgos.
 
 ## 06 Evidencia
 - Instrumento: rosetta-sondas-envivo/1
-- Versiones: QEX-1.0 · QREADY-NOTA-2.1
+- Versiones: QEX-1.0 · QREADY-NOTA-2.2
 - Medido: 2026-11-16T18:56:39Z
 - Huella CT: a4f6c0d7…713e · 1 cert.
 - Huella de la foto: d716bd48…d06b

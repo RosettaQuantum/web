@@ -1,10 +1,10 @@
 {
  "protocolo": "rosetta-rubrica-qex/1",
- "version": "rosetta-rubrica-qex/1 · QEX-1.2 · QREADY-NOTA-2.1",
+ "version": "rosetta-rubrica-qex/1 · QEX-1.2 · QREADY-NOTA-2.2",
  "rige": {
   "qex": "QEX-1.2",
   "qex_interno": "QEX-1.2-hv",
-  "nota": "QREADY-NOTA-2.1"
+  "nota": "QREADY-NOTA-2.2"
  },
  "referencia": "2026-08",
  "generado_desde": [
@@ -18,11 +18,11 @@
  "csv": {
   "es": {
    "archivo": "/data/rubrica-qex.es.csv",
-   "sha256": "65ffa818694e6c907c1ce9d180ce48bf6f32c1373beca3a60a9fc4e9b14c8869"
+   "sha256": "b959be74bd3849548a3d3c1748074efef82285e74b36681a063203b68c3f38d5"
   },
   "en": {
    "archivo": "/data/rubrica-qex.en.csv",
-   "sha256": "499a1abe8991769579f03a031ad5b0aaa0e9f97f2d862568fe7dc7be477f6e38"
+   "sha256": "944a4c2af986a4b33135cc6558d6c2bc6d815d9d6f510b94600f89cb42c3e796"
   }
  },
  "columnas": [
@@ -46,17 +46,17 @@
  ],
  "es": {
   "protocolo": "rosetta-rubrica-qex/1",
-  "version": "rosetta-rubrica-qex/1 · QEX-1.2 · QREADY-NOTA-2.1",
+  "version": "rosetta-rubrica-qex/1 · QEX-1.2 · QREADY-NOTA-2.2",
   "idioma": "es",
   "rige": {
    "qex": "QEX-1.2",
    "qex_interno": "QEX-1.2-hv",
-   "nota": "QREADY-NOTA-2.1"
+   "nota": "QREADY-NOTA-2.2"
   },
   "referencia": "2026-08",
   "filas": [
    {
-    "version": "rosetta-rubrica-qex/1 · QEX-1.2 · QREADY-NOTA-2.1",
+    "version": "rosetta-rubrica-qex/1 · QEX-1.2 · QREADY-NOTA-2.2",
     "seccion": "variable",
     "norma": "—",
     "frecuencia": "en cada medición (página, /v1/medicion, MCP); a diario para dominios verificados (cron 09:17 UTC)",
@@ -72,10 +72,10 @@
     "tipo": "medido",
     "regla": "Ver la escala de letras (bloque 3).",
     "efecto_nota": "Es la nota.",
-    "desde": "QREADY-NOTA-2.1"
+    "desde": "QREADY-NOTA-2.2"
    },
    {
-    "version": "rosetta-rubrica-qex/1 · QEX-1.2 · QREADY-NOTA-2.1",
+    "version": "rosetta-rubrica-qex/1 · QEX-1.2 · QREADY-NOTA-2.2",
     "seccion": "variable",
     "norma": "—",
     "frecuencia": "en cada medición (página, /v1/medicion, MCP); a diario para dominios verificados (cron 09:17 UTC)",
@@ -94,7 +94,7 @@
     "desde": "QEX-1.0"
    },
    {
-    "version": "rosetta-rubrica-qex/1 · QEX-1.2 · QREADY-NOTA-2.1",
+    "version": "rosetta-rubrica-qex/1 · QEX-1.2 · QREADY-NOTA-2.2",
     "seccion": "variable",
     "norma": "—",
     "frecuencia": "en cada medición (página, /v1/medicion, MCP); a diario para dominios verificados (cron 09:17 UTC)",
@@ -113,7 +113,7 @@
     "desde": "QEX-1.0 · QREADY-NOTA-2.1"
    },
    {
-    "version": "rosetta-rubrica-qex/1 · QEX-1.2 · QREADY-NOTA-2.1",
+    "version": "rosetta-rubrica-qex/1 · QEX-1.2 · QREADY-NOTA-2.2",
     "seccion": "variable",
     "norma": "NIST IR 8547 (versión final, oct-2026); NIST SP 800-57 pt. 1 rev. 5, tabla 2; FIPS 204 (ML-DSA)",
     "frecuencia": "en cada medición (página, /v1/medicion, MCP); a diario para dominios verificados (cron 09:17 UTC)",
@@ -132,7 +132,7 @@
     "desde": "QEX-1.2"
    },
    {
-    "version": "rosetta-rubrica-qex/1 · QEX-1.2 · QREADY-NOTA-2.1",
+    "version": "rosetta-rubrica-qex/1 · QEX-1.2 · QREADY-NOTA-2.2",
     "seccion": "variable",
     "norma": "—",
     "frecuencia": "en cada medición (página, /v1/medicion, MCP); a diario para dominios verificados (cron 09:17 UTC)",
@@ -151,7 +151,7 @@
     "desde": "QEX-1.0 · QREADY-NOTA-0"
    },
    {
-    "version": "rosetta-rubrica-qex/1 · QEX-1.2 · QREADY-NOTA-2.1",
+    "version": "rosetta-rubrica-qex/1 · QEX-1.2 · QREADY-NOTA-2.2",
     "seccion": "variable",
     "norma": "NIST IR 8547 (versión final, oct-2026)",
     "frecuencia": "a diario, sólo dominios verificados (cron 09:17 UTC)",
@@ -170,7 +170,7 @@
     "desde": "QREADY-NOTA-0"
    },
    {
-    "version": "rosetta-rubrica-qex/1 · QEX-1.2 · QREADY-NOTA-2.1",
+    "version": "rosetta-rubrica-qex/1 · QEX-1.2 · QREADY-NOTA-2.2",
     "seccion": "variable",
     "norma": "—",
     "frecuencia": "en cada medición (página, /v1/medicion, MCP); a diario para dominios verificados (cron 09:17 UTC)",
@@ -189,7 +189,7 @@
     "desde": "QEX-1.0 · QREADY-NOTA-2.1"
    },
    {
-    "version": "rosetta-rubrica-qex/1 · QEX-1.2 · QREADY-NOTA-2.1",
+    "version": "rosetta-rubrica-qex/1 · QEX-1.2 · QREADY-NOTA-2.2",
     "seccion": "variable",
     "norma": "RFC 8446 (TLS 1.3)",
     "frecuencia": "en cada medición (página, /v1/medicion, MCP); a diario para dominios verificados (cron 09:17 UTC)",
@@ -208,7 +208,7 @@
     "desde": "QEX-1.0 · QREADY-NOTA-0"
    },
    {
-    "version": "rosetta-rubrica-qex/1 · QEX-1.2 · QREADY-NOTA-2.1",
+    "version": "rosetta-rubrica-qex/1 · QEX-1.2 · QREADY-NOTA-2.2",
     "seccion": "variable",
     "norma": "—",
     "frecuencia": "en cada medición (página, /v1/medicion, MCP); a diario para dominios verificados (cron 09:17 UTC)",
@@ -227,7 +227,7 @@
     "desde": "QEX-1.0"
    },
    {
-    "version": "rosetta-rubrica-qex/1 · QEX-1.2 · QREADY-NOTA-2.1",
+    "version": "rosetta-rubrica-qex/1 · QEX-1.2 · QREADY-NOTA-2.2",
     "seccion": "variable",
     "norma": "—",
     "frecuencia": "en cada medición (página, /v1/medicion, MCP); a diario para dominios verificados (cron 09:17 UTC)",
@@ -246,7 +246,7 @@
     "desde": "QEX-1.0"
    },
    {
-    "version": "rosetta-rubrica-qex/1 · QEX-1.2 · QREADY-NOTA-2.1",
+    "version": "rosetta-rubrica-qex/1 · QEX-1.2 · QREADY-NOTA-2.2",
     "seccion": "variable",
     "norma": "—",
     "frecuencia": "en cada medición (página, /v1/medicion, MCP); a diario para dominios verificados (cron 09:17 UTC)",
@@ -265,7 +265,7 @@
     "desde": "QEX-1.0"
    },
    {
-    "version": "rosetta-rubrica-qex/1 · QEX-1.2 · QREADY-NOTA-2.1",
+    "version": "rosetta-rubrica-qex/1 · QEX-1.2 · QREADY-NOTA-2.2",
     "seccion": "variable",
     "norma": "RFC 9116 (security.txt)",
     "frecuencia": "en cada medición (página, /v1/medicion, MCP); a diario para dominios verificados (cron 09:17 UTC)",
@@ -284,7 +284,7 @@
     "desde": "QEX-1.0"
    },
    {
-    "version": "rosetta-rubrica-qex/1 · QEX-1.2 · QREADY-NOTA-2.1",
+    "version": "rosetta-rubrica-qex/1 · QEX-1.2 · QREADY-NOTA-2.2",
     "seccion": "variable",
     "norma": "—",
     "frecuencia": "fija por edición: 2026-08",
@@ -303,7 +303,7 @@
     "desde": "QEX-1.0 · QREADY-NOTA-2.1"
    },
    {
-    "version": "rosetta-rubrica-qex/1 · QEX-1.2 · QREADY-NOTA-2.1",
+    "version": "rosetta-rubrica-qex/1 · QEX-1.2 · QREADY-NOTA-2.2",
     "seccion": "variable",
     "norma": "—",
     "frecuencia": "fija por edición: 2026-08",
@@ -322,7 +322,7 @@
     "desde": "QEX-1.0"
    },
    {
-    "version": "rosetta-rubrica-qex/1 · QEX-1.2 · QREADY-NOTA-2.1",
+    "version": "rosetta-rubrica-qex/1 · QEX-1.2 · QREADY-NOTA-2.2",
     "seccion": "variable",
     "norma": "—",
     "frecuencia": "fija por edición: 2026-08",
@@ -341,7 +341,7 @@
     "desde": "QEX-1.0"
    },
    {
-    "version": "rosetta-rubrica-qex/1 · QEX-1.2 · QREADY-NOTA-2.1",
+    "version": "rosetta-rubrica-qex/1 · QEX-1.2 · QREADY-NOTA-2.2",
     "seccion": "variable",
     "norma": "—",
     "frecuencia": "fija por edición: 2026-08",
@@ -360,7 +360,7 @@
     "desde": "QEX-1.0"
    },
    {
-    "version": "rosetta-rubrica-qex/1 · QEX-1.2 · QREADY-NOTA-2.1",
+    "version": "rosetta-rubrica-qex/1 · QEX-1.2 · QREADY-NOTA-2.2",
     "seccion": "variable",
     "norma": "—",
     "frecuencia": "en cada medición (página, /v1/medicion, MCP); a diario para dominios verificados (cron 09:17 UTC)",
@@ -379,7 +379,7 @@
     "desde": "QEX-1.0"
    },
    {
-    "version": "rosetta-rubrica-qex/1 · QEX-1.2 · QREADY-NOTA-2.1",
+    "version": "rosetta-rubrica-qex/1 · QEX-1.2 · QREADY-NOTA-2.2",
     "seccion": "variable",
     "norma": "FIPS 203 (ML-KEM)",
     "frecuencia": "en cada medición (página, /v1/medicion, MCP); a diario para dominios verificados (cron 09:17 UTC)",
@@ -398,7 +398,7 @@
     "desde": "QEX-1.0 · QREADY-NOTA-0"
    },
    {
-    "version": "rosetta-rubrica-qex/1 · QEX-1.2 · QREADY-NOTA-2.1",
+    "version": "rosetta-rubrica-qex/1 · QEX-1.2 · QREADY-NOTA-2.2",
     "seccion": "variable",
     "norma": "FIPS 203 (ML-KEM)",
     "frecuencia": "en cada medición (página, /v1/medicion, MCP); a diario para dominios verificados (cron 09:17 UTC)",
@@ -417,7 +417,7 @@
     "desde": "QEX-1.0"
    },
    {
-    "version": "rosetta-rubrica-qex/1 · QEX-1.2 · QREADY-NOTA-2.1",
+    "version": "rosetta-rubrica-qex/1 · QEX-1.2 · QREADY-NOTA-2.2",
     "seccion": "variable",
     "norma": "FIPS 203 (ML-KEM)",
     "frecuencia": "en cada medición (página, /v1/medicion, MCP); a diario para dominios verificados (cron 09:17 UTC)",
@@ -436,7 +436,7 @@
     "desde": "QREADY-NOTA-1"
    },
    {
-    "version": "rosetta-rubrica-qex/1 · QEX-1.2 · QREADY-NOTA-2.1",
+    "version": "rosetta-rubrica-qex/1 · QEX-1.2 · QREADY-NOTA-2.2",
     "seccion": "variable",
     "norma": "FIPS 203 (ML-KEM)",
     "frecuencia": "en cada medición (página, /v1/medicion, MCP); a diario para dominios verificados (cron 09:17 UTC)",
@@ -455,7 +455,7 @@
     "desde": "—"
    },
    {
-    "version": "rosetta-rubrica-qex/1 · QEX-1.2 · QREADY-NOTA-2.1",
+    "version": "rosetta-rubrica-qex/1 · QEX-1.2 · QREADY-NOTA-2.2",
     "seccion": "variable",
     "norma": "—",
     "frecuencia": "en cada medición (página, /v1/medicion, MCP); a diario para dominios verificados (cron 09:17 UTC)",
@@ -467,14 +467,14 @@
     "variable": "Ambiente de pruebas que responde abierto",
     "observa": "Un nombre de ambiente de pruebas (bloque 4) que responde en 443 y no está bloqueado.",
     "fuente": "saludo TLS a cada nombre sondeado; HTTP: GET a la raíz (sólo con el dueño verificado)",
-    "metodo": "Se sondea primero. Con el dueño verificado se pide la raíz: 2xx, 3xx, 401, cualquier otro código o ninguno = abierto. Límite: hasta el tope de nombres sondeados.",
+    "metodo": "Se sondea primero y se pide la raíz sin seguir redirecciones: 2xx, 3xx, 5xx o ningún código = abierto. Límite: hasta el tope de nombres sondeados.",
     "tipo": "medido",
     "regla": "No suma al QEX.",
     "efecto_nota": "Alerta grave: F.",
     "desde": "QREADY-NOTA-0 · QREADY-NOTA-2"
    },
    {
-    "version": "rosetta-rubrica-qex/1 · QEX-1.2 · QREADY-NOTA-2.1",
+    "version": "rosetta-rubrica-qex/1 · QEX-1.2 · QREADY-NOTA-2.2",
     "seccion": "variable",
     "norma": "—",
     "frecuencia": "en cada medición (página, /v1/medicion, MCP); a diario para dominios verificados (cron 09:17 UTC)",
@@ -484,16 +484,16 @@
     "id": "RQ.S.09.2",
     "dimension": "Superficie expuesta",
     "variable": "Ambiente de pruebas con el acceso bloqueado",
-    "observa": "Un ambiente de pruebas que responde en 443 y devuelve 403 en la raíz.",
+    "observa": "Un ambiente de pruebas que responde en 443 y devuelve un código 4xx en la raíz (400, 401, 403, 404…): no entrega contenido.",
     "fuente": "saludo TLS a cada nombre sondeado; HTTP: GET a la raíz (sólo con el dueño verificado)",
-    "metodo": "Sólo con el dueño verificado se pide la raíz.",
+    "metodo": "Se pide la raíz sin seguir redirecciones y se guarda sólo el código.",
     "tipo": "medido",
     "regla": "No suma al QEX.",
     "efecto_nota": "Alerta media que no deja dar A (techo B).",
     "desde": "QREADY-NOTA-2"
    },
    {
-    "version": "rosetta-rubrica-qex/1 · QEX-1.2 · QREADY-NOTA-2.1",
+    "version": "rosetta-rubrica-qex/1 · QEX-1.2 · QREADY-NOTA-2.2",
     "seccion": "variable",
     "norma": "—",
     "frecuencia": "en cada medición (página, /v1/medicion, MCP); a diario para dominios verificados (cron 09:17 UTC)",
@@ -503,16 +503,16 @@
     "id": "RQ.S.09.3",
     "dimension": "Superficie expuesta",
     "variable": "Ambiente de pruebas publicado, sin consultar la raíz",
-    "observa": "Un ambiente de pruebas que completa el saludo TLS, de un dominio cuyo dueño no está verificado.",
+    "observa": "Un ambiente de pruebas que completa el saludo TLS, en una foto anterior al 27-nov-2026, cuando la raíz sólo se pedía con dueño verificado.",
     "fuente": "saludo TLS a cada nombre sondeado",
-    "metodo": "Sin dueño verificado no se pide la raíz: no se sabe si está abierto o bloqueado, y no se pregunta.",
+    "metodo": "La foto no registró el código: no se sabe si está abierto o bloqueado.",
     "tipo": "medido",
     "regla": "No suma al QEX.",
     "efecto_nota": "Alerta media que no deja dar A (techo B).",
     "desde": "QREADY-NOTA-2 (17-nov, sin cambio de versión)"
    },
    {
-    "version": "rosetta-rubrica-qex/1 · QEX-1.2 · QREADY-NOTA-2.1",
+    "version": "rosetta-rubrica-qex/1 · QEX-1.2 · QREADY-NOTA-2.2",
     "seccion": "variable",
     "norma": "—",
     "frecuencia": "en cada medición (página, /v1/medicion, MCP); a diario para dominios verificados (cron 09:17 UTC)",
@@ -531,7 +531,7 @@
     "desde": "QREADY-NOTA-0"
    },
    {
-    "version": "rosetta-rubrica-qex/1 · QEX-1.2 · QREADY-NOTA-2.1",
+    "version": "rosetta-rubrica-qex/1 · QEX-1.2 · QREADY-NOTA-2.2",
     "seccion": "variable",
     "norma": "—",
     "frecuencia": "en cada medición (página, /v1/medicion, MCP); a diario para dominios verificados (cron 09:17 UTC)",
@@ -550,7 +550,7 @@
     "desde": "QREADY-NOTA-0"
    },
    {
-    "version": "rosetta-rubrica-qex/1 · QEX-1.2 · QREADY-NOTA-2.1",
+    "version": "rosetta-rubrica-qex/1 · QEX-1.2 · QREADY-NOTA-2.2",
     "seccion": "variable",
     "norma": "—",
     "frecuencia": "en cada medición (página, /v1/medicion, MCP); a diario para dominios verificados (cron 09:17 UTC)",
@@ -569,7 +569,7 @@
     "desde": "QREADY-NOTA-0"
    },
    {
-    "version": "rosetta-rubrica-qex/1 · QEX-1.2 · QREADY-NOTA-2.1",
+    "version": "rosetta-rubrica-qex/1 · QEX-1.2 · QREADY-NOTA-2.2",
     "seccion": "variable",
     "norma": "—",
     "frecuencia": "en cada medición (página, /v1/medicion, MCP); a diario para dominios verificados (cron 09:17 UTC)",
@@ -588,7 +588,7 @@
     "desde": "QREADY-NOTA-0"
    },
    {
-    "version": "rosetta-rubrica-qex/1 · QEX-1.2 · QREADY-NOTA-2.1",
+    "version": "rosetta-rubrica-qex/1 · QEX-1.2 · QREADY-NOTA-2.2",
     "seccion": "variable",
     "norma": "—",
     "frecuencia": "en cada medición (página, /v1/medicion, MCP); a diario para dominios verificados (cron 09:17 UTC)",
@@ -607,7 +607,7 @@
     "desde": "QREADY-NOTA-0"
    },
    {
-    "version": "rosetta-rubrica-qex/1 · QEX-1.2 · QREADY-NOTA-2.1",
+    "version": "rosetta-rubrica-qex/1 · QEX-1.2 · QREADY-NOTA-2.2",
     "seccion": "variable",
     "norma": "RFC 8032 (Ed25519)",
     "frecuencia": "a diario, sólo dominios verificados (cron 09:17 UTC)",
@@ -626,7 +626,7 @@
     "desde": "QREADY-NOTA-0"
    },
    {
-    "version": "rosetta-rubrica-qex/1 · QEX-1.2 · QREADY-NOTA-2.1",
+    "version": "rosetta-rubrica-qex/1 · QEX-1.2 · QREADY-NOTA-2.2",
     "seccion": "variable",
     "norma": "—",
     "frecuencia": "cuando Rosetta revisa el inventario",
@@ -647,7 +647,7 @@
   ],
   "formula": [
    {
-    "version": "rosetta-rubrica-qex/1 · QEX-1.2 · QREADY-NOTA-2.1",
+    "version": "rosetta-rubrica-qex/1 · QEX-1.2 · QREADY-NOTA-2.2",
     "seccion": "fórmula",
     "id": "F.1",
     "dimension": "—",
@@ -666,7 +666,7 @@
     "frecuencia": "—"
    },
    {
-    "version": "rosetta-rubrica-qex/1 · QEX-1.2 · QREADY-NOTA-2.1",
+    "version": "rosetta-rubrica-qex/1 · QEX-1.2 · QREADY-NOTA-2.2",
     "seccion": "fórmula",
     "id": "F.2",
     "dimension": "—",
@@ -685,7 +685,7 @@
     "frecuencia": "—"
    },
    {
-    "version": "rosetta-rubrica-qex/1 · QEX-1.2 · QREADY-NOTA-2.1",
+    "version": "rosetta-rubrica-qex/1 · QEX-1.2 · QREADY-NOTA-2.2",
     "seccion": "fórmula",
     "id": "F.3",
     "dimension": "—",
@@ -704,7 +704,7 @@
     "frecuencia": "—"
    },
    {
-    "version": "rosetta-rubrica-qex/1 · QEX-1.2 · QREADY-NOTA-2.1",
+    "version": "rosetta-rubrica-qex/1 · QEX-1.2 · QREADY-NOTA-2.2",
     "seccion": "fórmula",
     "id": "F.4",
     "dimension": "—",
@@ -723,7 +723,7 @@
     "frecuencia": "—"
    },
    {
-    "version": "rosetta-rubrica-qex/1 · QEX-1.2 · QREADY-NOTA-2.1",
+    "version": "rosetta-rubrica-qex/1 · QEX-1.2 · QREADY-NOTA-2.2",
     "seccion": "fórmula",
     "id": "F.5",
     "dimension": "—",
@@ -742,7 +742,7 @@
     "frecuencia": "—"
    },
    {
-    "version": "rosetta-rubrica-qex/1 · QEX-1.2 · QREADY-NOTA-2.1",
+    "version": "rosetta-rubrica-qex/1 · QEX-1.2 · QREADY-NOTA-2.2",
     "seccion": "fórmula",
     "id": "F.6",
     "dimension": "—",
@@ -763,7 +763,7 @@
   ],
   "escala": [
    {
-    "version": "rosetta-rubrica-qex/1 · QEX-1.2 · QREADY-NOTA-2.1",
+    "version": "rosetta-rubrica-qex/1 · QEX-1.2 · QREADY-NOTA-2.2",
     "seccion": "escala",
     "id": "E.1",
     "dimension": "—",
@@ -782,7 +782,7 @@
     "frecuencia": "—"
    },
    {
-    "version": "rosetta-rubrica-qex/1 · QEX-1.2 · QREADY-NOTA-2.1",
+    "version": "rosetta-rubrica-qex/1 · QEX-1.2 · QREADY-NOTA-2.2",
     "seccion": "escala",
     "id": "E.2",
     "dimension": "—",
@@ -801,7 +801,7 @@
     "frecuencia": "—"
    },
    {
-    "version": "rosetta-rubrica-qex/1 · QEX-1.2 · QREADY-NOTA-2.1",
+    "version": "rosetta-rubrica-qex/1 · QEX-1.2 · QREADY-NOTA-2.2",
     "seccion": "escala",
     "id": "E.3",
     "dimension": "—",
@@ -820,7 +820,7 @@
     "frecuencia": "—"
    },
    {
-    "version": "rosetta-rubrica-qex/1 · QEX-1.2 · QREADY-NOTA-2.1",
+    "version": "rosetta-rubrica-qex/1 · QEX-1.2 · QREADY-NOTA-2.2",
     "seccion": "escala",
     "id": "E.4",
     "dimension": "—",
@@ -839,7 +839,7 @@
     "frecuencia": "—"
    },
    {
-    "version": "rosetta-rubrica-qex/1 · QEX-1.2 · QREADY-NOTA-2.1",
+    "version": "rosetta-rubrica-qex/1 · QEX-1.2 · QREADY-NOTA-2.2",
     "seccion": "escala",
     "id": "E.5",
     "dimension": "—",
@@ -858,7 +858,7 @@
     "frecuencia": "—"
    },
    {
-    "version": "rosetta-rubrica-qex/1 · QEX-1.2 · QREADY-NOTA-2.1",
+    "version": "rosetta-rubrica-qex/1 · QEX-1.2 · QREADY-NOTA-2.2",
     "seccion": "escala",
     "id": "E.6",
     "dimension": "—",
@@ -877,7 +877,7 @@
     "frecuencia": "—"
    },
    {
-    "version": "rosetta-rubrica-qex/1 · QEX-1.2 · QREADY-NOTA-2.1",
+    "version": "rosetta-rubrica-qex/1 · QEX-1.2 · QREADY-NOTA-2.2",
     "seccion": "escala",
     "id": "E.7",
     "dimension": "—",
@@ -896,7 +896,7 @@
     "frecuencia": "—"
    },
    {
-    "version": "rosetta-rubrica-qex/1 · QEX-1.2 · QREADY-NOTA-2.1",
+    "version": "rosetta-rubrica-qex/1 · QEX-1.2 · QREADY-NOTA-2.2",
     "seccion": "escala",
     "id": "E.8",
     "dimension": "—",
@@ -915,7 +915,7 @@
     "frecuencia": "—"
    },
    {
-    "version": "rosetta-rubrica-qex/1 · QEX-1.2 · QREADY-NOTA-2.1",
+    "version": "rosetta-rubrica-qex/1 · QEX-1.2 · QREADY-NOTA-2.2",
     "seccion": "escala",
     "id": "E.9",
     "dimension": "—",
@@ -936,7 +936,7 @@
   ],
   "alertas": [
    {
-    "version": "rosetta-rubrica-qex/1 · QEX-1.2 · QREADY-NOTA-2.1",
+    "version": "rosetta-rubrica-qex/1 · QEX-1.2 · QREADY-NOTA-2.2",
     "seccion": "alerta",
     "id": "AL.certificado_vencido",
     "dimension": "—",
@@ -955,7 +955,7 @@
     "frecuencia": "—"
    },
    {
-    "version": "rosetta-rubrica-qex/1 · QEX-1.2 · QREADY-NOTA-2.1",
+    "version": "rosetta-rubrica-qex/1 · QEX-1.2 · QREADY-NOTA-2.2",
     "seccion": "alerta",
     "id": "AL.ambiente_pruebas_expuesto",
     "dimension": "—",
@@ -974,7 +974,7 @@
     "frecuencia": "—"
    },
    {
-    "version": "rosetta-rubrica-qex/1 · QEX-1.2 · QREADY-NOTA-2.1",
+    "version": "rosetta-rubrica-qex/1 · QEX-1.2 · QREADY-NOTA-2.2",
     "seccion": "alerta",
     "id": "AL.infraestructura_expuesta",
     "dimension": "—",
@@ -993,7 +993,7 @@
     "frecuencia": "—"
    },
    {
-    "version": "rosetta-rubrica-qex/1 · QEX-1.2 · QREADY-NOTA-2.1",
+    "version": "rosetta-rubrica-qex/1 · QEX-1.2 · QREADY-NOTA-2.2",
     "seccion": "alerta",
     "id": "AL.ambiente_pruebas_publicado_bloqueado",
     "dimension": "—",
@@ -1012,7 +1012,7 @@
     "frecuencia": "—"
    },
    {
-    "version": "rosetta-rubrica-qex/1 · QEX-1.2 · QREADY-NOTA-2.1",
+    "version": "rosetta-rubrica-qex/1 · QEX-1.2 · QREADY-NOTA-2.2",
     "seccion": "alerta",
     "id": "AL.ambiente_pruebas_publicado",
     "dimension": "—",
@@ -1031,7 +1031,7 @@
     "frecuencia": "—"
    },
    {
-    "version": "rosetta-rubrica-qex/1 · QEX-1.2 · QREADY-NOTA-2.1",
+    "version": "rosetta-rubrica-qex/1 · QEX-1.2 · QREADY-NOTA-2.2",
     "seccion": "alerta",
     "id": "AL.certificado_sin_plan",
     "dimension": "—",
@@ -1050,7 +1050,7 @@
     "frecuencia": "—"
    },
    {
-    "version": "rosetta-rubrica-qex/1 · QEX-1.2 · QREADY-NOTA-2.1",
+    "version": "rosetta-rubrica-qex/1 · QEX-1.2 · QREADY-NOTA-2.2",
     "seccion": "alerta",
     "id": "AL.nombre_sin_dueno",
     "dimension": "—",
@@ -1069,7 +1069,7 @@
     "frecuencia": "—"
    },
    {
-    "version": "rosetta-rubrica-qex/1 · QEX-1.2 · QREADY-NOTA-2.1",
+    "version": "rosetta-rubrica-qex/1 · QEX-1.2 · QREADY-NOTA-2.2",
     "seccion": "alerta",
     "id": "AL.correo_responde_443",
     "dimension": "—",
@@ -1090,7 +1090,7 @@
   ],
   "condiciones_a": [
    {
-    "version": "rosetta-rubrica-qex/1 · QEX-1.2 · QREADY-NOTA-2.1",
+    "version": "rosetta-rubrica-qex/1 · QEX-1.2 · QREADY-NOTA-2.2",
     "seccion": "condición de A",
     "id": "A.1",
     "dimension": "—",
@@ -1109,7 +1109,7 @@
     "frecuencia": "—"
    },
    {
-    "version": "rosetta-rubrica-qex/1 · QEX-1.2 · QREADY-NOTA-2.1",
+    "version": "rosetta-rubrica-qex/1 · QEX-1.2 · QREADY-NOTA-2.2",
     "seccion": "condición de A",
     "id": "A.2",
     "dimension": "—",
@@ -1128,7 +1128,7 @@
     "frecuencia": "—"
    },
    {
-    "version": "rosetta-rubrica-qex/1 · QEX-1.2 · QREADY-NOTA-2.1",
+    "version": "rosetta-rubrica-qex/1 · QEX-1.2 · QREADY-NOTA-2.2",
     "seccion": "condición de A",
     "id": "A.3",
     "dimension": "—",
@@ -1147,7 +1147,7 @@
     "frecuencia": "—"
    },
    {
-    "version": "rosetta-rubrica-qex/1 · QEX-1.2 · QREADY-NOTA-2.1",
+    "version": "rosetta-rubrica-qex/1 · QEX-1.2 · QREADY-NOTA-2.2",
     "seccion": "condición de A",
     "id": "A.4",
     "dimension": "—",
@@ -1166,7 +1166,7 @@
     "frecuencia": "—"
    },
    {
-    "version": "rosetta-rubrica-qex/1 · QEX-1.2 · QREADY-NOTA-2.1",
+    "version": "rosetta-rubrica-qex/1 · QEX-1.2 · QREADY-NOTA-2.2",
     "seccion": "condición de A",
     "id": "A.5",
     "dimension": "—",
@@ -1185,7 +1185,7 @@
     "frecuencia": "—"
    },
    {
-    "version": "rosetta-rubrica-qex/1 · QEX-1.2 · QREADY-NOTA-2.1",
+    "version": "rosetta-rubrica-qex/1 · QEX-1.2 · QREADY-NOTA-2.2",
     "seccion": "condición de A",
     "id": "A.6",
     "dimension": "—",
@@ -1204,7 +1204,7 @@
     "frecuencia": "—"
    },
    {
-    "version": "rosetta-rubrica-qex/1 · QEX-1.2 · QREADY-NOTA-2.1",
+    "version": "rosetta-rubrica-qex/1 · QEX-1.2 · QREADY-NOTA-2.2",
     "seccion": "condición de A",
     "id": "A.7",
     "dimension": "—",
@@ -1225,7 +1225,7 @@
   ],
   "pat": [
    {
-    "version": "rosetta-rubrica-qex/1 · QEX-1.2 · QREADY-NOTA-2.1",
+    "version": "rosetta-rubrica-qex/1 · QEX-1.2 · QREADY-NOTA-2.2",
     "seccion": "clase de nombres",
     "id": "PAT.no_productivo",
     "dimension": "—",
@@ -1244,7 +1244,7 @@
     "frecuencia": "—"
    },
    {
-    "version": "rosetta-rubrica-qex/1 · QEX-1.2 · QREADY-NOTA-2.1",
+    "version": "rosetta-rubrica-qex/1 · QEX-1.2 · QREADY-NOTA-2.2",
     "seccion": "clase de nombres",
     "id": "PAT.legado",
     "dimension": "—",
@@ -1263,7 +1263,7 @@
     "frecuencia": "—"
    },
    {
-    "version": "rosetta-rubrica-qex/1 · QEX-1.2 · QREADY-NOTA-2.1",
+    "version": "rosetta-rubrica-qex/1 · QEX-1.2 · QREADY-NOTA-2.2",
     "seccion": "clase de nombres",
     "id": "PAT.infra_expuesta",
     "dimension": "—",
@@ -1282,7 +1282,7 @@
     "frecuencia": "—"
    },
    {
-    "version": "rosetta-rubrica-qex/1 · QEX-1.2 · QREADY-NOTA-2.1",
+    "version": "rosetta-rubrica-qex/1 · QEX-1.2 · QREADY-NOTA-2.2",
     "seccion": "clase de nombres",
     "id": "PAT.critico",
     "dimension": "—",
@@ -1301,7 +1301,7 @@
     "frecuencia": "—"
    },
    {
-    "version": "rosetta-rubrica-qex/1 · QEX-1.2 · QREADY-NOTA-2.1",
+    "version": "rosetta-rubrica-qex/1 · QEX-1.2 · QREADY-NOTA-2.2",
     "seccion": "clase de nombres",
     "id": "PAT.senal_prueba",
     "dimension": "—",
@@ -1320,7 +1320,7 @@
     "frecuencia": "—"
    },
    {
-    "version": "rosetta-rubrica-qex/1 · QEX-1.2 · QREADY-NOTA-2.1",
+    "version": "rosetta-rubrica-qex/1 · QEX-1.2 · QREADY-NOTA-2.2",
     "seccion": "clase de nombres",
     "id": "PAT.correo",
     "dimension": "—",
@@ -1339,7 +1339,7 @@
     "frecuencia": "—"
    },
    {
-    "version": "rosetta-rubrica-qex/1 · QEX-1.2 · QREADY-NOTA-2.1",
+    "version": "rosetta-rubrica-qex/1 · QEX-1.2 · QREADY-NOTA-2.2",
     "seccion": "clase de nombres",
     "id": "PAT.sondeo",
     "dimension": "—",
@@ -1361,17 +1361,17 @@
  },
  "en": {
   "protocolo": "rosetta-rubrica-qex/1",
-  "version": "rosetta-rubrica-qex/1 · QEX-1.2 · QREADY-NOTA-2.1",
+  "version": "rosetta-rubrica-qex/1 · QEX-1.2 · QREADY-NOTA-2.2",
   "idioma": "en",
   "rige": {
    "qex": "QEX-1.2",
    "qex_interno": "QEX-1.2-hv",
-   "nota": "QREADY-NOTA-2.1"
+   "nota": "QREADY-NOTA-2.2"
   },
   "referencia": "2026-08",
   "filas": [
    {
-    "version": "rosetta-rubrica-qex/1 · QEX-1.2 · QREADY-NOTA-2.1",
+    "version": "rosetta-rubrica-qex/1 · QEX-1.2 · QREADY-NOTA-2.2",
     "seccion": "variable",
     "norma": "—",
     "frecuencia": "every measurement (page, /v1/medicion, MCP); daily for verified domains (cron 09:17 UTC)",
@@ -1387,10 +1387,10 @@
     "tipo": "measured",
     "regla": "See the letter scale (block 3).",
     "efecto_nota": "It is the grade.",
-    "desde": "QREADY-NOTA-2.1"
+    "desde": "QREADY-NOTA-2.2"
    },
    {
-    "version": "rosetta-rubrica-qex/1 · QEX-1.2 · QREADY-NOTA-2.1",
+    "version": "rosetta-rubrica-qex/1 · QEX-1.2 · QREADY-NOTA-2.2",
     "seccion": "variable",
     "norma": "—",
     "frecuencia": "every measurement (page, /v1/medicion, MCP); daily for verified domains (cron 09:17 UTC)",
@@ -1409,7 +1409,7 @@
     "desde": "QEX-1.0"
    },
    {
-    "version": "rosetta-rubrica-qex/1 · QEX-1.2 · QREADY-NOTA-2.1",
+    "version": "rosetta-rubrica-qex/1 · QEX-1.2 · QREADY-NOTA-2.2",
     "seccion": "variable",
     "norma": "—",
     "frecuencia": "every measurement (page, /v1/medicion, MCP); daily for verified domains (cron 09:17 UTC)",
@@ -1428,7 +1428,7 @@
     "desde": "QEX-1.0 · QREADY-NOTA-2.1"
    },
    {
-    "version": "rosetta-rubrica-qex/1 · QEX-1.2 · QREADY-NOTA-2.1",
+    "version": "rosetta-rubrica-qex/1 · QEX-1.2 · QREADY-NOTA-2.2",
     "seccion": "variable",
     "norma": "NIST IR 8547 (final version, Oct 2026); NIST SP 800-57 pt. 1 rev. 5, table 2; FIPS 204 (ML-DSA)",
     "frecuencia": "every measurement (page, /v1/medicion, MCP); daily for verified domains (cron 09:17 UTC)",
@@ -1447,7 +1447,7 @@
     "desde": "QEX-1.2"
    },
    {
-    "version": "rosetta-rubrica-qex/1 · QEX-1.2 · QREADY-NOTA-2.1",
+    "version": "rosetta-rubrica-qex/1 · QEX-1.2 · QREADY-NOTA-2.2",
     "seccion": "variable",
     "norma": "—",
     "frecuencia": "every measurement (page, /v1/medicion, MCP); daily for verified domains (cron 09:17 UTC)",
@@ -1466,7 +1466,7 @@
     "desde": "QEX-1.0 · QREADY-NOTA-0"
    },
    {
-    "version": "rosetta-rubrica-qex/1 · QEX-1.2 · QREADY-NOTA-2.1",
+    "version": "rosetta-rubrica-qex/1 · QEX-1.2 · QREADY-NOTA-2.2",
     "seccion": "variable",
     "norma": "NIST IR 8547 (final version, Oct 2026)",
     "frecuencia": "daily, verified domains only (cron 09:17 UTC)",
@@ -1485,7 +1485,7 @@
     "desde": "QREADY-NOTA-0"
    },
    {
-    "version": "rosetta-rubrica-qex/1 · QEX-1.2 · QREADY-NOTA-2.1",
+    "version": "rosetta-rubrica-qex/1 · QEX-1.2 · QREADY-NOTA-2.2",
     "seccion": "variable",
     "norma": "—",
     "frecuencia": "every measurement (page, /v1/medicion, MCP); daily for verified domains (cron 09:17 UTC)",
@@ -1504,7 +1504,7 @@
     "desde": "QEX-1.0 · QREADY-NOTA-2.1"
    },
    {
-    "version": "rosetta-rubrica-qex/1 · QEX-1.2 · QREADY-NOTA-2.1",
+    "version": "rosetta-rubrica-qex/1 · QEX-1.2 · QREADY-NOTA-2.2",
     "seccion": "variable",
     "norma": "RFC 8446 (TLS 1.3)",
     "frecuencia": "every measurement (page, /v1/medicion, MCP); daily for verified domains (cron 09:17 UTC)",
@@ -1523,7 +1523,7 @@
     "desde": "QEX-1.0 · QREADY-NOTA-0"
    },
    {
-    "version": "rosetta-rubrica-qex/1 · QEX-1.2 · QREADY-NOTA-2.1",
+    "version": "rosetta-rubrica-qex/1 · QEX-1.2 · QREADY-NOTA-2.2",
     "seccion": "variable",
     "norma": "—",
     "frecuencia": "every measurement (page, /v1/medicion, MCP); daily for verified domains (cron 09:17 UTC)",
@@ -1542,7 +1542,7 @@
     "desde": "QEX-1.0"
    },
    {
-    "version": "rosetta-rubrica-qex/1 · QEX-1.2 · QREADY-NOTA-2.1",
+    "version": "rosetta-rubrica-qex/1 · QEX-1.2 · QREADY-NOTA-2.2",
     "seccion": "variable",
     "norma": "—",
     "frecuencia": "every measurement (page, /v1/medicion, MCP); daily for verified domains (cron 09:17 UTC)",
@@ -1561,7 +1561,7 @@
     "desde": "QEX-1.0"
    },
    {
-    "version": "rosetta-rubrica-qex/1 · QEX-1.2 · QREADY-NOTA-2.1",
+    "version": "rosetta-rubrica-qex/1 · QEX-1.2 · QREADY-NOTA-2.2",
     "seccion": "variable",
     "norma": "—",
     "frecuencia": "every measurement (page, /v1/medicion, MCP); daily for verified domains (cron 09:17 UTC)",
@@ -1580,7 +1580,7 @@
     "desde": "QEX-1.0"
    },
    {
-    "version": "rosetta-rubrica-qex/1 · QEX-1.2 · QREADY-NOTA-2.1",
+    "version": "rosetta-rubrica-qex/1 · QEX-1.2 · QREADY-NOTA-2.2",
     "seccion": "variable",
     "norma": "RFC 9116 (security.txt)",
     "frecuencia": "every measurement (page, /v1/medicion, MCP); daily for verified domains (cron 09:17 UTC)",
@@ -1599,7 +1599,7 @@
     "desde": "QEX-1.0"
    },
    {
-    "version": "rosetta-rubrica-qex/1 · QEX-1.2 · QREADY-NOTA-2.1",
+    "version": "rosetta-rubrica-qex/1 · QEX-1.2 · QREADY-NOTA-2.2",
     "seccion": "variable",
     "norma": "—",
     "frecuencia": "fixed per edition: 2026-08",
@@ -1618,7 +1618,7 @@
     "desde": "QEX-1.0 · QREADY-NOTA-2.1"
    },
    {
-    "version": "rosetta-rubrica-qex/1 · QEX-1.2 · QREADY-NOTA-2.1",
+    "version": "rosetta-rubrica-qex/1 · QEX-1.2 · QREADY-NOTA-2.2",
     "seccion": "variable",
     "norma": "—",
     "frecuencia": "fixed per edition: 2026-08",
@@ -1637,7 +1637,7 @@
     "desde": "QEX-1.0"
    },
    {
-    "version": "rosetta-rubrica-qex/1 · QEX-1.2 · QREADY-NOTA-2.1",
+    "version": "rosetta-rubrica-qex/1 · QEX-1.2 · QREADY-NOTA-2.2",
     "seccion": "variable",
     "norma": "—",
     "frecuencia": "fixed per edition: 2026-08",
@@ -1656,7 +1656,7 @@
     "desde": "QEX-1.0"
    },
    {
-    "version": "rosetta-rubrica-qex/1 · QEX-1.2 · QREADY-NOTA-2.1",
+    "version": "rosetta-rubrica-qex/1 · QEX-1.2 · QREADY-NOTA-2.2",
     "seccion": "variable",
     "norma": "—",
     "frecuencia": "fixed per edition: 2026-08",
@@ -1675,7 +1675,7 @@
     "desde": "QEX-1.0"
    },
    {
-    "version": "rosetta-rubrica-qex/1 · QEX-1.2 · QREADY-NOTA-2.1",
+    "version": "rosetta-rubrica-qex/1 · QEX-1.2 · QREADY-NOTA-2.2",
     "seccion": "variable",
     "norma": "—",
     "frecuencia": "every measurement (page, /v1/medicion, MCP); daily for verified domains (cron 09:17 UTC)",
@@ -1694,7 +1694,7 @@
     "desde": "QEX-1.0"
    },
    {
-    "version": "rosetta-rubrica-qex/1 · QEX-1.2 · QREADY-NOTA-2.1",
+    "version": "rosetta-rubrica-qex/1 · QEX-1.2 · QREADY-NOTA-2.2",
     "seccion": "variable",
     "norma": "FIPS 203 (ML-KEM)",
     "frecuencia": "every measurement (page, /v1/medicion, MCP); daily for verified domains (cron 09:17 UTC)",
@@ -1713,7 +1713,7 @@
     "desde": "QEX-1.0 · QREADY-NOTA-0"
    },
    {
-    "version": "rosetta-rubrica-qex/1 · QEX-1.2 · QREADY-NOTA-2.1",
+    "version": "rosetta-rubrica-qex/1 · QEX-1.2 · QREADY-NOTA-2.2",
     "seccion": "variable",
     "norma": "FIPS 203 (ML-KEM)",
     "frecuencia": "every measurement (page, /v1/medicion, MCP); daily for verified domains (cron 09:17 UTC)",
@@ -1732,7 +1732,7 @@
     "desde": "QEX-1.0"
    },
    {
-    "version": "rosetta-rubrica-qex/1 · QEX-1.2 · QREADY-NOTA-2.1",
+    "version": "rosetta-rubrica-qex/1 · QEX-1.2 · QREADY-NOTA-2.2",
     "seccion": "variable",
     "norma": "FIPS 203 (ML-KEM)",
     "frecuencia": "every measurement (page, /v1/medicion, MCP); daily for verified domains (cron 09:17 UTC)",
@@ -1751,7 +1751,7 @@
     "desde": "QREADY-NOTA-1"
    },
    {
-    "version": "rosetta-rubrica-qex/1 · QEX-1.2 · QREADY-NOTA-2.1",
+    "version": "rosetta-rubrica-qex/1 · QEX-1.2 · QREADY-NOTA-2.2",
     "seccion": "variable",
     "norma": "FIPS 203 (ML-KEM)",
     "frecuencia": "every measurement (page, /v1/medicion, MCP); daily for verified domains (cron 09:17 UTC)",
@@ -1770,7 +1770,7 @@
     "desde": "—"
    },
    {
-    "version": "rosetta-rubrica-qex/1 · QEX-1.2 · QREADY-NOTA-2.1",
+    "version": "rosetta-rubrica-qex/1 · QEX-1.2 · QREADY-NOTA-2.2",
     "seccion": "variable",
     "norma": "—",
     "frecuencia": "every measurement (page, /v1/medicion, MCP); daily for verified domains (cron 09:17 UTC)",
@@ -1782,14 +1782,14 @@
     "variable": "Test environment that answers open",
     "observa": "A test-environment name (block 4) that answers on 443 and is not blocked.",
     "fuente": "TLS handshake to each probed name; HTTP: GET to the root (only with a verified owner)",
-    "metodo": "Probed first. With a verified owner the root is requested: 2xx, 3xx, 401, any other code or none = open. Limit: up to the cap of probed names.",
+    "metodo": "Probed first, then the root is requested without following redirects: 2xx, 3xx, 5xx or no code = open. Limit: up to the cap of probed names.",
     "tipo": "measured",
     "regla": "Does not add to the QEX.",
     "efecto_nota": "Serious alert: F.",
     "desde": "QREADY-NOTA-0 · QREADY-NOTA-2"
    },
    {
-    "version": "rosetta-rubrica-qex/1 · QEX-1.2 · QREADY-NOTA-2.1",
+    "version": "rosetta-rubrica-qex/1 · QEX-1.2 · QREADY-NOTA-2.2",
     "seccion": "variable",
     "norma": "—",
     "frecuencia": "every measurement (page, /v1/medicion, MCP); daily for verified domains (cron 09:17 UTC)",
@@ -1799,16 +1799,16 @@
     "id": "RQ.S.09.2",
     "dimension": "Exposed surface",
     "variable": "Test environment with access blocked",
-    "observa": "A test environment that answers on 443 and returns 403 at the root.",
+    "observa": "A test environment that answers on 443 and returns a 4xx code at the root (400, 401, 403, 404…): it serves no content.",
     "fuente": "TLS handshake to each probed name; HTTP: GET to the root (only with a verified owner)",
-    "metodo": "The root is requested only with a verified owner.",
+    "metodo": "The root is requested without following redirects, and only the code is kept.",
     "tipo": "measured",
     "regla": "Does not add to the QEX.",
     "efecto_nota": "Medium alert that rules out A (B ceiling).",
     "desde": "QREADY-NOTA-2"
    },
    {
-    "version": "rosetta-rubrica-qex/1 · QEX-1.2 · QREADY-NOTA-2.1",
+    "version": "rosetta-rubrica-qex/1 · QEX-1.2 · QREADY-NOTA-2.2",
     "seccion": "variable",
     "norma": "—",
     "frecuencia": "every measurement (page, /v1/medicion, MCP); daily for verified domains (cron 09:17 UTC)",
@@ -1818,16 +1818,16 @@
     "id": "RQ.S.09.3",
     "dimension": "Exposed surface",
     "variable": "Test environment published, root not requested",
-    "observa": "A test environment that completes the TLS handshake, on a domain whose owner is not verified.",
+    "observa": "A test environment that completes the TLS handshake, in a snapshot taken before 27 Nov 2026, when the root was only requested with a verified owner.",
     "fuente": "TLS handshake to each probed name",
-    "metodo": "Without a verified owner the root is not requested: it is unknown whether it is open or blocked, and it is not asked.",
+    "metodo": "The snapshot did not record the code: it is unknown whether it is open or blocked.",
     "tipo": "measured",
     "regla": "Does not add to the QEX.",
     "efecto_nota": "Medium alert that rules out A (B ceiling).",
     "desde": "QREADY-NOTA-2 (17-nov, sin cambio de versión)"
    },
    {
-    "version": "rosetta-rubrica-qex/1 · QEX-1.2 · QREADY-NOTA-2.1",
+    "version": "rosetta-rubrica-qex/1 · QEX-1.2 · QREADY-NOTA-2.2",
     "seccion": "variable",
     "norma": "—",
     "frecuencia": "every measurement (page, /v1/medicion, MCP); daily for verified domains (cron 09:17 UTC)",
@@ -1846,7 +1846,7 @@
     "desde": "QREADY-NOTA-0"
    },
    {
-    "version": "rosetta-rubrica-qex/1 · QEX-1.2 · QREADY-NOTA-2.1",
+    "version": "rosetta-rubrica-qex/1 · QEX-1.2 · QREADY-NOTA-2.2",
     "seccion": "variable",
     "norma": "—",
     "frecuencia": "every measurement (page, /v1/medicion, MCP); daily for verified domains (cron 09:17 UTC)",
@@ -1865,7 +1865,7 @@
     "desde": "QREADY-NOTA-0"
    },
    {
-    "version": "rosetta-rubrica-qex/1 · QEX-1.2 · QREADY-NOTA-2.1",
+    "version": "rosetta-rubrica-qex/1 · QEX-1.2 · QREADY-NOTA-2.2",
     "seccion": "variable",
     "norma": "—",
     "frecuencia": "every measurement (page, /v1/medicion, MCP); daily for verified domains (cron 09:17 UTC)",
@@ -1884,7 +1884,7 @@
     "desde": "QREADY-NOTA-0"
    },
    {
-    "version": "rosetta-rubrica-qex/1 · QEX-1.2 · QREADY-NOTA-2.1",
+    "version": "rosetta-rubrica-qex/1 · QEX-1.2 · QREADY-NOTA-2.2",
     "seccion": "variable",
     "norma": "—",
     "frecuencia": "every measurement (page, /v1/medicion, MCP); daily for verified domains (cron 09:17 UTC)",
@@ -1903,7 +1903,7 @@
     "desde": "QREADY-NOTA-0"
    },
    {
-    "version": "rosetta-rubrica-qex/1 · QEX-1.2 · QREADY-NOTA-2.1",
+    "version": "rosetta-rubrica-qex/1 · QEX-1.2 · QREADY-NOTA-2.2",
     "seccion": "variable",
     "norma": "—",
     "frecuencia": "every measurement (page, /v1/medicion, MCP); daily for verified domains (cron 09:17 UTC)",
@@ -1922,7 +1922,7 @@
     "desde": "QREADY-NOTA-0"
    },
    {
-    "version": "rosetta-rubrica-qex/1 · QEX-1.2 · QREADY-NOTA-2.1",
+    "version": "rosetta-rubrica-qex/1 · QEX-1.2 · QREADY-NOTA-2.2",
     "seccion": "variable",
     "norma": "RFC 8032 (Ed25519)",
     "frecuencia": "daily, verified domains only (cron 09:17 UTC)",
@@ -1941,7 +1941,7 @@
     "desde": "QREADY-NOTA-0"
    },
    {
-    "version": "rosetta-rubrica-qex/1 · QEX-1.2 · QREADY-NOTA-2.1",
+    "version": "rosetta-rubrica-qex/1 · QEX-1.2 · QREADY-NOTA-2.2",
     "seccion": "variable",
     "norma": "—",
     "frecuencia": "when Rosetta reviews the inventory",
@@ -1962,7 +1962,7 @@
   ],
   "formula": [
    {
-    "version": "rosetta-rubrica-qex/1 · QEX-1.2 · QREADY-NOTA-2.1",
+    "version": "rosetta-rubrica-qex/1 · QEX-1.2 · QREADY-NOTA-2.2",
     "seccion": "formula",
     "id": "F.1",
     "dimension": "—",
@@ -1981,7 +1981,7 @@
     "frecuencia": "—"
    },
    {
-    "version": "rosetta-rubrica-qex/1 · QEX-1.2 · QREADY-NOTA-2.1",
+    "version": "rosetta-rubrica-qex/1 · QEX-1.2 · QREADY-NOTA-2.2",
     "seccion": "formula",
     "id": "F.2",
     "dimension": "—",
@@ -2000,7 +2000,7 @@
     "frecuencia": "—"
    },
    {
-    "version": "rosetta-rubrica-qex/1 · QEX-1.2 · QREADY-NOTA-2.1",
+    "version": "rosetta-rubrica-qex/1 · QEX-1.2 · QREADY-NOTA-2.2",
     "seccion": "formula",
     "id": "F.3",
     "dimension": "—",
@@ -2019,7 +2019,7 @@
     "frecuencia": "—"
    },
    {
-    "version": "rosetta-rubrica-qex/1 · QEX-1.2 · QREADY-NOTA-2.1",
+    "version": "rosetta-rubrica-qex/1 · QEX-1.2 · QREADY-NOTA-2.2",
     "seccion": "formula",
     "id": "F.4",
     "dimension": "—",
@@ -2038,7 +2038,7 @@
     "frecuencia": "—"
    },
    {
-    "version": "rosetta-rubrica-qex/1 · QEX-1.2 · QREADY-NOTA-2.1",
+    "version": "rosetta-rubrica-qex/1 · QEX-1.2 · QREADY-NOTA-2.2",
     "seccion": "formula",
     "id": "F.5",
     "dimension": "—",
@@ -2057,7 +2057,7 @@
     "frecuencia": "—"
    },
    {
-    "version": "rosetta-rubrica-qex/1 · QEX-1.2 · QREADY-NOTA-2.1",
+    "version": "rosetta-rubrica-qex/1 · QEX-1.2 · QREADY-NOTA-2.2",
     "seccion": "formula",
     "id": "F.6",
     "dimension": "—",
@@ -2078,7 +2078,7 @@
   ],
   "escala": [
    {
-    "version": "rosetta-rubrica-qex/1 · QEX-1.2 · QREADY-NOTA-2.1",
+    "version": "rosetta-rubrica-qex/1 · QEX-1.2 · QREADY-NOTA-2.2",
     "seccion": "scale",
     "id": "E.1",
     "dimension": "—",
@@ -2097,7 +2097,7 @@
     "frecuencia": "—"
    },
    {
-    "version": "rosetta-rubrica-qex/1 · QEX-1.2 · QREADY-NOTA-2.1",
+    "version": "rosetta-rubrica-qex/1 · QEX-1.2 · QREADY-NOTA-2.2",
     "seccion": "scale",
     "id": "E.2",
     "dimension": "—",
@@ -2116,7 +2116,7 @@
     "frecuencia": "—"
    },
    {
-    "version": "rosetta-rubrica-qex/1 · QEX-1.2 · QREADY-NOTA-2.1",
+    "version": "rosetta-rubrica-qex/1 · QEX-1.2 · QREADY-NOTA-2.2",
     "seccion": "scale",
     "id": "E.3",
     "dimension": "—",
@@ -2135,7 +2135,7 @@
     "frecuencia": "—"
    },
    {
-    "version": "rosetta-rubrica-qex/1 · QEX-1.2 · QREADY-NOTA-2.1",
+    "version": "rosetta-rubrica-qex/1 · QEX-1.2 · QREADY-NOTA-2.2",
     "seccion": "scale",
     "id": "E.4",
     "dimension": "—",
@@ -2154,7 +2154,7 @@
     "frecuencia": "—"
    },
    {
-    "version": "rosetta-rubrica-qex/1 · QEX-1.2 · QREADY-NOTA-2.1",
+    "version": "rosetta-rubrica-qex/1 · QEX-1.2 · QREADY-NOTA-2.2",
     "seccion": "scale",
     "id": "E.5",
     "dimension": "—",
@@ -2173,7 +2173,7 @@
     "frecuencia": "—"
    },
    {
-    "version": "rosetta-rubrica-qex/1 · QEX-1.2 · QREADY-NOTA-2.1",
+    "version": "rosetta-rubrica-qex/1 · QEX-1.2 · QREADY-NOTA-2.2",
     "seccion": "scale",
     "id": "E.6",
     "dimension": "—",
@@ -2192,7 +2192,7 @@
     "frecuencia": "—"
    },
    {
-    "version": "rosetta-rubrica-qex/1 · QEX-1.2 · QREADY-NOTA-2.1",
+    "version": "rosetta-rubrica-qex/1 · QEX-1.2 · QREADY-NOTA-2.2",
     "seccion": "scale",
     "id": "E.7",
     "dimension": "—",
@@ -2211,7 +2211,7 @@
     "frecuencia": "—"
    },
    {
-    "version": "rosetta-rubrica-qex/1 · QEX-1.2 · QREADY-NOTA-2.1",
+    "version": "rosetta-rubrica-qex/1 · QEX-1.2 · QREADY-NOTA-2.2",
     "seccion": "scale",
     "id": "E.8",
     "dimension": "—",
@@ -2230,7 +2230,7 @@
     "frecuencia": "—"
    },
    {
-    "version": "rosetta-rubrica-qex/1 · QEX-1.2 · QREADY-NOTA-2.1",
+    "version": "rosetta-rubrica-qex/1 · QEX-1.2 · QREADY-NOTA-2.2",
     "seccion": "scale",
     "id": "E.9",
     "dimension": "—",
@@ -2251,7 +2251,7 @@
   ],
   "alertas": [
    {
-    "version": "rosetta-rubrica-qex/1 · QEX-1.2 · QREADY-NOTA-2.1",
+    "version": "rosetta-rubrica-qex/1 · QEX-1.2 · QREADY-NOTA-2.2",
     "seccion": "alert",
     "id": "AL.certificado_vencido",
     "dimension": "—",
@@ -2270,7 +2270,7 @@
     "frecuencia": "—"
    },
    {
-    "version": "rosetta-rubrica-qex/1 · QEX-1.2 · QREADY-NOTA-2.1",
+    "version": "rosetta-rubrica-qex/1 · QEX-1.2 · QREADY-NOTA-2.2",
     "seccion": "alert",
     "id": "AL.ambiente_pruebas_expuesto",
     "dimension": "—",
@@ -2289,7 +2289,7 @@
     "frecuencia": "—"
    },
    {
-    "version": "rosetta-rubrica-qex/1 · QEX-1.2 · QREADY-NOTA-2.1",
+    "version": "rosetta-rubrica-qex/1 · QEX-1.2 · QREADY-NOTA-2.2",
     "seccion": "alert",
     "id": "AL.infraestructura_expuesta",
     "dimension": "—",
@@ -2308,7 +2308,7 @@
     "frecuencia": "—"
    },
    {
-    "version": "rosetta-rubrica-qex/1 · QEX-1.2 · QREADY-NOTA-2.1",
+    "version": "rosetta-rubrica-qex/1 · QEX-1.2 · QREADY-NOTA-2.2",
     "seccion": "alert",
     "id": "AL.ambiente_pruebas_publicado_bloqueado",
     "dimension": "—",
@@ -2327,7 +2327,7 @@
     "frecuencia": "—"
    },
    {
-    "version": "rosetta-rubrica-qex/1 · QEX-1.2 · QREADY-NOTA-2.1",
+    "version": "rosetta-rubrica-qex/1 · QEX-1.2 · QREADY-NOTA-2.2",
     "seccion": "alert",
     "id": "AL.ambiente_pruebas_publicado",
     "dimension": "—",
@@ -2346,7 +2346,7 @@
     "frecuencia": "—"
    },
    {
-    "version": "rosetta-rubrica-qex/1 · QEX-1.2 · QREADY-NOTA-2.1",
+    "version": "rosetta-rubrica-qex/1 · QEX-1.2 · QREADY-NOTA-2.2",
     "seccion": "alert",
     "id": "AL.certificado_sin_plan",
     "dimension": "—",
@@ -2365,7 +2365,7 @@
     "frecuencia": "—"
    },
    {
-    "version": "rosetta-rubrica-qex/1 · QEX-1.2 · QREADY-NOTA-2.1",
+    "version": "rosetta-rubrica-qex/1 · QEX-1.2 · QREADY-NOTA-2.2",
     "seccion": "alert",
     "id": "AL.nombre_sin_dueno",
     "dimension": "—",
@@ -2384,7 +2384,7 @@
     "frecuencia": "—"
    },
    {
-    "version": "rosetta-rubrica-qex/1 · QEX-1.2 · QREADY-NOTA-2.1",
+    "version": "rosetta-rubrica-qex/1 · QEX-1.2 · QREADY-NOTA-2.2",
     "seccion": "alert",
     "id": "AL.correo_responde_443",
     "dimension": "—",
@@ -2405,7 +2405,7 @@
   ],
   "condiciones_a": [
    {
-    "version": "rosetta-rubrica-qex/1 · QEX-1.2 · QREADY-NOTA-2.1",
+    "version": "rosetta-rubrica-qex/1 · QEX-1.2 · QREADY-NOTA-2.2",
     "seccion": "condition for A",
     "id": "A.1",
     "dimension": "—",
@@ -2424,7 +2424,7 @@
     "frecuencia": "—"
    },
    {
-    "version": "rosetta-rubrica-qex/1 · QEX-1.2 · QREADY-NOTA-2.1",
+    "version": "rosetta-rubrica-qex/1 · QEX-1.2 · QREADY-NOTA-2.2",
     "seccion": "condition for A",
     "id": "A.2",
     "dimension": "—",
@@ -2443,7 +2443,7 @@
     "frecuencia": "—"
    },
    {
-    "version": "rosetta-rubrica-qex/1 · QEX-1.2 · QREADY-NOTA-2.1",
+    "version": "rosetta-rubrica-qex/1 · QEX-1.2 · QREADY-NOTA-2.2",
     "seccion": "condition for A",
     "id": "A.3",
     "dimension": "—",
@@ -2462,7 +2462,7 @@
     "frecuencia": "—"
    },
    {
-    "version": "rosetta-rubrica-qex/1 · QEX-1.2 · QREADY-NOTA-2.1",
+    "version": "rosetta-rubrica-qex/1 · QEX-1.2 · QREADY-NOTA-2.2",
     "seccion": "condition for A",
     "id": "A.4",
     "dimension": "—",
@@ -2481,7 +2481,7 @@
     "frecuencia": "—"
    },
    {
-    "version": "rosetta-rubrica-qex/1 · QEX-1.2 · QREADY-NOTA-2.1",
+    "version": "rosetta-rubrica-qex/1 · QEX-1.2 · QREADY-NOTA-2.2",
     "seccion": "condition for A",
     "id": "A.5",
     "dimension": "—",
@@ -2500,7 +2500,7 @@
     "frecuencia": "—"
    },
    {
-    "version": "rosetta-rubrica-qex/1 · QEX-1.2 · QREADY-NOTA-2.1",
+    "version": "rosetta-rubrica-qex/1 · QEX-1.2 · QREADY-NOTA-2.2",
     "seccion": "condition for A",
     "id": "A.6",
     "dimension": "—",
@@ -2519,7 +2519,7 @@
     "frecuencia": "—"
    },
    {
-    "version": "rosetta-rubrica-qex/1 · QEX-1.2 · QREADY-NOTA-2.1",
+    "version": "rosetta-rubrica-qex/1 · QEX-1.2 · QREADY-NOTA-2.2",
     "seccion": "condition for A",
     "id": "A.7",
     "dimension": "—",
@@ -2540,7 +2540,7 @@
   ],
   "pat": [
    {
-    "version": "rosetta-rubrica-qex/1 · QEX-1.2 · QREADY-NOTA-2.1",
+    "version": "rosetta-rubrica-qex/1 · QEX-1.2 · QREADY-NOTA-2.2",
     "seccion": "name class",
     "id": "PAT.no_productivo",
     "dimension": "—",
@@ -2559,7 +2559,7 @@
     "frecuencia": "—"
    },
    {
-    "version": "rosetta-rubrica-qex/1 · QEX-1.2 · QREADY-NOTA-2.1",
+    "version": "rosetta-rubrica-qex/1 · QEX-1.2 · QREADY-NOTA-2.2",
     "seccion": "name class",
     "id": "PAT.legado",
     "dimension": "—",
@@ -2578,7 +2578,7 @@
     "frecuencia": "—"
    },
    {
-    "version": "rosetta-rubrica-qex/1 · QEX-1.2 · QREADY-NOTA-2.1",
+    "version": "rosetta-rubrica-qex/1 · QEX-1.2 · QREADY-NOTA-2.2",
     "seccion": "name class",
     "id": "PAT.infra_expuesta",
     "dimension": "—",
@@ -2597,7 +2597,7 @@
     "frecuencia": "—"
    },
    {
-    "version": "rosetta-rubrica-qex/1 · QEX-1.2 · QREADY-NOTA-2.1",
+    "version": "rosetta-rubrica-qex/1 · QEX-1.2 · QREADY-NOTA-2.2",
     "seccion": "name class",
     "id": "PAT.critico",
     "dimension": "—",
@@ -2616,7 +2616,7 @@
     "frecuencia": "—"
    },
    {
-    "version": "rosetta-rubrica-qex/1 · QEX-1.2 · QREADY-NOTA-2.1",
+    "version": "rosetta-rubrica-qex/1 · QEX-1.2 · QREADY-NOTA-2.2",
     "seccion": "name class",
     "id": "PAT.senal_prueba",
     "dimension": "—",
@@ -2635,7 +2635,7 @@
     "frecuencia": "—"
    },
    {
-    "version": "rosetta-rubrica-qex/1 · QEX-1.2 · QREADY-NOTA-2.1",
+    "version": "rosetta-rubrica-qex/1 · QEX-1.2 · QREADY-NOTA-2.2",
     "seccion": "name class",
     "id": "PAT.correo",
     "dimension": "—",
@@ -2654,7 +2654,7 @@
     "frecuencia": "—"
    },
    {
-    "version": "rosetta-rubrica-qex/1 · QEX-1.2 · QREADY-NOTA-2.1",
+    "version": "rosetta-rubrica-qex/1 · QEX-1.2 · QREADY-NOTA-2.2",
     "seccion": "name class",
     "id": "PAT.sondeo",
     "dimension": "—",
@@ -2674,5 +2674,5 @@
    }
   ]
  },
- "sha256": "7548c0e1e9ebd10d071905b7c45cad446bc8bd7b496270faeb795abce508b58a"
+ "sha256": "8b95b0fdb72422e9f7e2944cef21f3bbcb83886f80b1242084e5d64ce3583070"
 }

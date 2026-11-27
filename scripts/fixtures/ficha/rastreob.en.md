@@ -68,7 +68,7 @@ No findings.
 
 ## 06 Evidence
 - Instrument: rosetta-sondas-envivo/1
-- Versions: QEX-1.0 · QREADY-NOTA-2.1
+- Versions: QEX-1.0 · QREADY-NOTA-2.2
 - Measured: 2026-11-16T18:56:39Z
 - CT fingerprint: a4f6c0d7…713e · 1 cert.
 - Snapshot fingerprint: d716bd48…d06b

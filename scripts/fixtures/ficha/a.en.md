@@ -74,7 +74,7 @@ QEX without the sector HNDL model (measured dimensions only): 70. The published 
 
 ## 06 Evidence
 - Instrument: rosetta-sondas-envivo/1
-- Versions: QEX-1.0 · QREADY-NOTA-2.1
+- Versions: QEX-1.0 · QREADY-NOTA-2.2
 - Measured: 2026-11-12T17:34:15Z
 - CT fingerprint: 9d938f1f…d28f · 4022 cert.
 - Snapshot fingerprint: f0c71112…acdd
